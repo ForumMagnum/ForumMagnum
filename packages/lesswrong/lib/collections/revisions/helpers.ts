@@ -1,7 +1,8 @@
 import { userCanReadField, userOwns, userIsPodcaster } from "@/lib/vulcan-users/permissions";
-import type { RevisionOriginalContentsData } from "./revisionSchemaTypes";
+import type { NormalizedRevisionOriginalContentsData, RevisionOriginalContentsData } from "./revisionSchemaTypes";
 import { SharableDocument, userIsSharedOn } from "../users/helpers";
 import { userIsPostGroupOrganizer } from "../posts/helpers";
+import isEqual from "lodash/isEqual";
 
 const isSharable = (document: any): document is SharableDocument => {
   return "coauthorUserIds" in document || "shareWithUsers" in document || "sharingSettings" in document;
@@ -34,10 +35,40 @@ export const getOriginalContents = async <N extends CollectionNameString>(
   };
 };
 
+/**
+ * Fill in `yjsState` (which most editor submissions leave out) with null. New
+ * revisions store their contents in this form, and so do the denormalized
+ * copies of them in editable fields, so that the two can be compared directly.
+ * Contents written before this was done may be missing the key, so normalize
+ * both sides when comparing stored contents (see `originalContentsAreEqual`).
+ */
+export function normalizeOriginalContents(originalContents: RevisionOriginalContentsData): NormalizedRevisionOriginalContentsData {
+  return {
+    ...originalContents,
+    yjsState: originalContents.yjsState ?? null,
+  };
+}
+
+export function originalContentsAreEqual(
+  a: RevisionOriginalContentsData|null,
+  b: RevisionOriginalContentsData|null,
+): boolean {
+  if (!a || !b) {
+    return a === b;
+  }
+  return isEqual(normalizeOriginalContents(a), normalizeOriginalContents(b));
+}
+
 interface RevisionWithOriginalContents {
   _id?: string | null,
   originalContentsId?: string | null,
   originalContents?: RevisionOriginalContentsData | null,
+  /**
+   * Set on the stand-in revisions returned for denormalized editable fields
+   * (see `getDenormalizedEditableResolver`), whose `_id` isn't a real revision
+   * id. The id of the stored revision they're a copy of, if there is one.
+   */
+  denormalizedFromRevisionId?: string | null,
 }
 
 /**
@@ -62,10 +93,13 @@ export async function getStoredOriginalContentsForRevision(
   if ("originalContents" in revision) {
     return await getOriginalContentsFromRevisionRow(revision, context);
   }
-  if (revision._id) {
+  const storedRevisionId = "denormalizedFromRevisionId" in revision
+    ? revision.denormalizedFromRevisionId
+    : revision._id;
+  if (storedRevisionId) {
     // The revision we were given is a partial projection (or a denormalized
     // editable field) without the inline column, so check the stored row
-    const storedRevision = await context.loaders.Revisions.load(revision._id);
+    const storedRevision = await context.loaders.Revisions.load(storedRevisionId);
     return storedRevision ? await getOriginalContentsFromRevisionRow(storedRevision, context) : null;
   }
   return await getOriginalContentsFromRevisionRow(revision, context);

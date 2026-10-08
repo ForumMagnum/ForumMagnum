@@ -1,4 +1,4 @@
-import { getCollectionByTypeName } from "@/server/collections/allCollections";
+import { getCollectionByTypeName, getCollectionByTypeNameOrNull } from "@/server/collections/allCollections";
 import ProjectionContext, { CodeResolverMap, CustomResolver, PrefixGenerator } from "./ProjectionContext";
 import merge from "lodash/merge";
 
@@ -41,11 +41,13 @@ type SqlFragmentEntry = SqlFragmentField | SqlFragmentPick;
 
 type SqlFragmentEntryMap = Record<string, SqlFragmentEntry>;
 
-export const getResolverCollection = (
-  resolver: CustomResolver,
-): CollectionBase<CollectionNameString> => {
+/**
+ * The name of the (non-scalar) type a resolver returns, with any list and
+ * non-null wrappers removed, or null if it returns a scalar type.
+ */
+function getResolverTypeName(resolver: CustomResolver): string | null {
   if (typeof resolver.type !== "string") {
-    throw new Error(`Resolver "${resolver.fieldName}" has a scalar type`);
+    return null;
   }
   let type = resolver.type;
   
@@ -60,7 +62,17 @@ export const getResolverCollection = (
   // Remove non-null indicator from the base type
   type = type.replace(/!$/, '');
 
-  return getCollectionByTypeName(type);
+  return type;
+}
+
+export const getResolverCollection = (
+  resolver: CustomResolver,
+): CollectionBase<CollectionNameString> => {
+  const typeName = getResolverTypeName(resolver);
+  if (!typeName) {
+    throw new Error(`Resolver "${resolver.fieldName}" has a scalar type`);
+  }
+  return getCollectionByTypeName(typeName);
 }
 
 function isField(node: SelectionNode): node is FieldNode {
@@ -262,27 +274,49 @@ function addCodeResolverForPick(
   const { name, entries } = pick;
   const fieldName = resolver.fieldName ?? name;
 
-  let nested: CodeResolverMap | null = null;
-  try {
-    const subCollection = getResolverCollection(resolver);
-    const subcontext = new ProjectionContext(subCollection);
-    compileEntries(subcontext, entries, subCollection.typeName);
-    const subResolvers = subcontext.getCodeResolvers();
-    if (Object.keys(subResolvers).length) {
-      nested = subResolvers;
-    }
-  } catch {
-    // The resolver returns a non-collection type (e.g. a plain JSON object), so
-    // there are no nested code resolvers to run. Fall through to a plain code
-    // resolver.
-    nested = null;
-  }
+  // If the resolver returns a non-collection type (e.g. a plain JSON object),
+  // there are no nested code resolvers to run
+  const typeName = getResolverTypeName(resolver);
+  const subCollection = typeName ? getCollectionByTypeNameOrNull(typeName) : null;
+  const nested = subCollection ? compileNestedCodeResolvers(subCollection, entries) : {};
 
-  if (nested) {
+  if (Object.keys(nested).length) {
     context.addCodeResolverWithNested(fieldName, resolver.resolver, nested);
   } else {
     context.addCodeResolver(fieldName, resolver.resolver);
   }
+}
+
+/**
+ * Build the code resolvers for the requested sub-fields (`entries`) of an object
+ * of type `collection` which was returned by a code resolver (see
+ * `addCodeResolverForPick`). That object isn't fetched by this query, so SQL
+ * resolvers don't apply: sub-fields which are database columns are already
+ * populated, and every requested sub-field with a resolver is resolved by its
+ * code resolver.
+ */
+function compileNestedCodeResolvers(
+  collection: CollectionBase<CollectionNameString>,
+  entries: SqlFragmentEntryMap,
+): CodeResolverMap {
+  const context = new ProjectionContext(collection);
+  for (const entryName in entries) {
+    const entry = entries[entryName];
+    const { name } = entry;
+    if (name === "__typename") {
+      // Skip - this is a fake field for Apollo's use
+      continue;
+    }
+    const resolver = context.getResolver(name);
+    if (resolver && entry.type === "pick") {
+      addCodeResolverForPick(context, entry, resolver);
+    } else if (resolver) {
+      context.addCodeResolver(resolver.fieldName ?? name, resolver.resolver);
+    } else if (!context.getSchema()[name]) {
+      throw new Error(`Field "${name}" doesn't exist on "${collection.typeName}"`);
+    }
+  }
+  return context.getCodeResolvers();
 }
 
 function compileEntries(

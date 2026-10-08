@@ -148,9 +148,13 @@ export function getDenormalizedEditableResolver<N extends CollectionNameString>(
       // The reason we need to return documentId and collectionName is because
       // this entire result gets recursively resolved by revision field
       // resolvers, and those resolvers depend on these fields existing.
-      // Revision._id is non-nullable, and some legacy documents have a
-      // denormalized field but no `_latest` revision
-      _id: latestRevId ?? `${doc._id}_${fieldName}`,
+      // This isn't the real revision's _id, because then Apollo would cache
+      // this partial (and possibly out-of-sync) copy under the same key as the
+      // real revision, overwriting its fields
+      _id: `${doc._id}_${fieldName}`, //HACK
+      // Lets revision field resolvers load the stored revision this is a copy
+      // of (see `getStoredOriginalContentsForRevision`)
+      denormalizedFromRevisionId: latestRevId ?? null,
       documentId: doc._id,
       collectionName,
       editedAt: new Date(docField?.editedAt ?? Date.now()),

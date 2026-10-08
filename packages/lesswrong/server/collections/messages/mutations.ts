@@ -4,13 +4,12 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { addParticipantIfNew, checkIfNewMessageIsEmpty, sendMessageNotifications, unArchiveConversations, updateConversationActivity, updateUserNotesOnModMessage } from "@/server/callbacks/messageCallbacks";
-import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
+import { getIdForNewDocument, createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, runInitialRevisionCallbacks } from "@/server/editor/make_editable_callbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import { loadByIds } from "@/lib/loaders";
 import gql from "graphql-tag";
-import { randomId } from "@/lib/random";
 
 async function newCheck(user: DbUser | null, document: DbMessage | null, context: ResolverContext) {
   const { Conversations } = context;
@@ -40,8 +39,8 @@ async function editCheck(user: DbUser | null, document: DbMessage | null, contex
 
 export async function createMessage({ data }: CreateMessageInput, context: ResolverContext) {
   const { currentUser } = context;
-  const documentId = randomId();
-  
+  const documentId = getIdForNewDocument(data);
+
   const callbackProps = await getLegacyCreateCallbackProps('Messages', {
     context,
     data,
@@ -62,10 +61,11 @@ export async function createMessage({ data }: CreateMessageInput, context: Resol
     props: callbackProps,
   });
 
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Messages', callbackProps);
+  const dataWithId = { ...data, _id: documentId };
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(dataWithId, 'Messages', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  documentWithId = await updateRevisionsDocumentIds({
+  documentWithId = await runInitialRevisionCallbacks({
     newDoc: documentWithId,
     props: afterCreateProperties,
   });

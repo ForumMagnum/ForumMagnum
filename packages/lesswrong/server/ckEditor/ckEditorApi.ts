@@ -1,7 +1,6 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import difference from 'lodash/difference';
-import isEqual from 'lodash/isEqual';
 import moment from 'moment';
 import Posts from '../../server/collections/posts/collection';
 import Revisions from '../../server/collections/revisions/collection';
@@ -18,7 +17,7 @@ import { createAdminContext } from "../vulcan-lib/createContexts";
 import { buildAndCreateRevision, updateOriginalContentsForRevision } from '../collections/revisions/mutations';
 import { updateCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
 import { captureException } from '@/lib/sentryWrapper';
-import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
+import { getStoredOriginalContentsForRevision, originalContentsAreEqual } from '@/lib/collections/revisions/helpers';
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -145,7 +144,7 @@ export async function saveDocumentRevision(userId: string, documentId: string, h
   const previousOriginalContents = previousRev
     ? await getStoredOriginalContentsForRevision(previousRev, context)
     : null;
-  if (!previousRev || !isEqual(newOriginalContents, previousOriginalContents)) {
+  if (!previousRev || !originalContentsAreEqual(newOriginalContents, previousOriginalContents)) {
     await buildAndCreateRevision({
       originalContents: newOriginalContents,
       user,

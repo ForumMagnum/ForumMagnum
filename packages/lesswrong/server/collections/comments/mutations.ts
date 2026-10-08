@@ -3,7 +3,6 @@ import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPa
 import schema from "@/lib/collections/comments/newSchema";
 import { getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
-import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -11,7 +10,7 @@ import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { addReferrerToComment, assignPostVersion, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleReplyToAnswer, lwCommentsNewUpvoteOwnComment, maybeCreateAutomatedContentEvaluationForComment, moveToAnswers, newCommentsEmptyCheck, newCommentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
-import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
+import { getIdForNewDocument, createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, runInitialRevisionCallbacks, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { backgroundTask } from "@/server/utils/backgroundTask";
@@ -97,7 +96,7 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
 
 export async function createComment({ data }: CreateCommentInput, context: ResolverContext) {
   const { currentUser } = context;
-  const documentId = randomId();
+  const documentId = getIdForNewDocument(data);
 
   await applyParentCommentContext(data, context, currentUser);
 
@@ -134,12 +133,13 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   data = await commentsNewOperations(data, currentUser, context);
   data = await commentsNewUserApprovedStatus(data, context);
 
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Comments', callbackProps);
+  const dataWithId = { ...data, _id: documentId };
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(dataWithId, 'Comments', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
   backgroundTask(updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties));
 
-  documentWithId = await updateRevisionsDocumentIds({
+  documentWithId = await runInitialRevisionCallbacks({
     newDoc: documentWithId,
     props: afterCreateProperties,
   });

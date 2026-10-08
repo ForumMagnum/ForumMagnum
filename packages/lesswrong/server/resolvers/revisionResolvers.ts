@@ -1,6 +1,5 @@
 import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import isEqual from 'lodash/isEqual';
 import { userOwns, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getLatestRev, getNextVersion } from '../editor/utils';
 import gql from 'graphql-tag';
@@ -8,7 +7,7 @@ import { buildAndCreateRevision } from '../collections/revisions/mutations';
 import { updateTag } from '../collections/tags/mutations';
 import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
-import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
+import { getStoredOriginalContentsForRevision, originalContentsAreEqual } from '@/lib/collections/revisions/helpers';
 
 export const revisionResolversGraphQLTypeDefs = gql`
   enum ConvertibleCollectionName {
@@ -57,7 +56,7 @@ export const revisionResolversGraphQLMutations = {
       getStoredOriginalContentsForRevision(revertToRevision, context),
       getStoredOriginalContentsForRevision(latestRevision, context),
     ]);
-    const anyDiff = !isEqual(latestOriginalContents, revertToOriginalContents);
+    const anyDiff = !originalContentsAreEqual(latestOriginalContents, revertToOriginalContents);
     if (!revertToOriginalContents)
       throw new Error('Revision missing originalContents');
     if (!anyDiff)           throw new Error(`Can't find difference between revisions`);

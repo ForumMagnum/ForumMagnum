@@ -8,10 +8,10 @@ export async function upvoteOwnTagRevision({revision, context}: {revision: DbRev
   const { Revisions, Tags, Users } = context;
   if (revision.collectionName !== 'Tags') return;
   // This might be the first revision for a tag, which is created before the tag
-  // itself (with a placeholder documentId). In that case we call this function
-  // again from `updateRevisionDocumentId` after the tag is inserted, and voting
-  // now as well would make that second call toggle the vote off. Deliberately
-  // not using the Tags loader, which would cache the not-found result.
+  // itself is inserted. In that case we call this function again from
+  // `runInitialRevisionCallbacks` after the tag is inserted, and voting now as
+  // well would make that second call toggle the vote off. Deliberately not
+  // using the Tags loader, which would cache the not-found result.
   if (!revision.documentId) return;
   if (!(await Tags.findOne({_id: revision.documentId}, {}, {_id: 1}))) return;
 

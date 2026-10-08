@@ -15,6 +15,7 @@ import { randomId } from "@/lib/random";
 import type { RevisionOriginalContentsData } from "@/lib/collections/revisions/revisionSchemaTypes";
 import { htmlToChangeMetrics } from "@/server/editor/utils";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import { normalizeOriginalContents } from "@/lib/collections/revisions/helpers";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -71,10 +72,7 @@ export async function createRevision({ data }: { data: CreateRevisionOptions }, 
   if (!user) throw new Error("Must have a specified user or be logged in to create a revision");
   const isAdmin = isAdminOption ?? user.isAdmin;
 
-  const normalizedOriginalContents = {
-    ...revisionFields.originalContents,
-    yjsState: revisionFields.originalContents.yjsState ?? null,
-  };
+  const normalizedOriginalContents = normalizeOriginalContents(revisionFields.originalContents);
   const readerVisibleData = dataWithDiscardedSuggestions ?? normalizedOriginalContents.data
   const html = await dataToHTML(readerVisibleData, normalizedOriginalContents.type, context, { sanitize: !isAdmin || normalizedOriginalContents.type !== "html" })
   const wordCount = await dataToWordCount(readerVisibleData, normalizedOriginalContents.type, context)

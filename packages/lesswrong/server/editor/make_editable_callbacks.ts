@@ -3,19 +3,20 @@ import {htmlToPingbacks} from '../pingbacks'
 import { isEditableField } from './isEditableField'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {getLatestRev, getNextVersion, isBeingUndrafted, MaybeDrafteable} from './utils'
-import isEqual from 'lodash/isEqual'
 import { fetchFragmentSingle } from '../fetchFragment'
 import { convertImagesInObject } from '../scripts/convertImagesToCloudinary'
 import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks'
 import type { MakeEditableOptions } from '@/lib/editor/makeEditableOptions'
 import type { RevisionOriginalContentsData } from '@/lib/collections/revisions/revisionSchemaTypes'
-import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers'
+import { getStoredOriginalContentsForRevision, normalizeOriginalContents, originalContentsAreEqual } from '@/lib/collections/revisions/helpers'
 import { buildAndCreateRevision } from '../collections/revisions/mutations'
 import { updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from '../callbacks/revisionCallbacks'
 import { RevisionMetadata } from '@/lib/collections/revisions/fragments'
 import { backgroundTask } from '../utils/backgroundTask'
+import { randomId } from '@/lib/random'
 
 interface CreateBeforeEditableCallbackProperties<N extends CollectionNameString> {
+  /** The _id the document will be inserted with (see `getIdForNewDocument`) */
   documentId: string;
   doc: CreateInputsByCollectionName[N]['data'];
   props: CreateCallbackProperties<N>;
@@ -85,7 +86,7 @@ export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string, c
     return true;
 
   const previousOriginalContents = await getStoredOriginalContentsForRevision(previousVersion, context);
-  if (!isEqual(doc[fieldName].originalContents, previousOriginalContents)) {
+  if (!originalContentsAreEqual(doc[fieldName].originalContents, previousOriginalContents)) {
     return true;
   }
 
@@ -164,7 +165,8 @@ function revisionToDenormalizedField(
     updateType: revision.updateType,
     commitMessage: revision.commitMessage,
     googleDocMetadata,
-    originalContents,
+    // Normalized the same way as the revision's own copy, so that the two match
+    originalContents: normalizeOriginalContents(originalContents),
   }
 }
 
@@ -180,8 +182,6 @@ async function createUpdateRevision<N extends CollectionNameString>(
     normalized,
     collectionName,
   } = options;
-
-  const { Revisions } = context;
 
   const editableField = (docData as AnyBecauseHard)[fieldName] as EditableFieldUpdate | undefined;
   if (editableField?.originalContents) {
@@ -252,29 +252,24 @@ async function createUpdateRevision<N extends CollectionNameString>(
 
 
 // createAfter
-async function updateRevisionDocumentId<N extends CollectionNameString>(newDoc: ObjectsByCollectionName[N], { context }: AfterCreateCallbackProperties<N>, options: EditableCallbackProperties<N>) {
+async function runInitialRevisionCallbacksForField<N extends CollectionNameString>(newDoc: ObjectsByCollectionName[N], { context }: AfterCreateCallbackProperties<N>, options: EditableCallbackProperties<N>) {
   const { fieldName = "contents" } = options;
 
   const { Revisions } = context;
 
-  // Update revision to point to the document that owns it.
   const revisionID = (newDoc as AnyBecauseHard)[`${fieldName}_latest`];
   if (revisionID) {
-    await Revisions.rawUpdateOne(
-      { _id: revisionID },
-      { $set: { documentId: newDoc._id } }
-    );
-    const updatedRevision = await Revisions.findOne({_id: revisionID});
+    const revision = await Revisions.findOne({_id: revisionID});
 
-    if (updatedRevision) {
+    if (revision) {
       await Promise.all([
         upvoteOwnTagRevision({
-          revision: updatedRevision,
+          revision,
           context
         }),
         updateDenormalizedHtmlAttributionsDueToRev({
-          revision: updatedRevision,
-          skipDenormalizedAttributions: updatedRevision.skipAttributions,
+          revision,
+          skipDenormalizedAttributions: revision.skipAttributions,
           context
         })
       ]);
@@ -341,6 +336,17 @@ async function reuploadImagesInEdit(doc: DbObject, oldDoc: DbObject, options: Ed
   await convertImagesInObject(collectionName, doc._id, context, fieldName);
 }
 
+/**
+ * The _id that a create mutation should give its new document: the one the
+ * caller provided, if any, or else a new random one. Create mutations for
+ * collections with editable fields need it before the document is inserted, to
+ * give to its initial revisions (see `createInitialRevisionsForEditableFields`),
+ * and must then insert the document with it.
+ */
+export function getIdForNewDocument(data: {}): string {
+  return ("_id" in data && typeof data._id === "string") ? data._id : randomId();
+}
+
 export async function createInitialRevisionsForEditableFields<P extends CreateBeforeEditableCallbackProperties<N>, N extends CollectionNameString>(runCallbackStageProperties: P): Promise<P['doc']> {
   let { documentId, props, doc: mutableDoc } = runCallbackStageProperties;
 
@@ -353,13 +359,19 @@ export async function createInitialRevisionsForEditableFields<P extends CreateBe
   return mutableDoc;
 }
 
-export async function updateRevisionsDocumentIds<N extends CollectionNameString>(runCallbackStageProperties: CreateAfterEditableCallbackProperties<N>) {
+/**
+ * Run the revision callbacks that need the revision's document to exist, for a
+ * new document's initial revisions. `createRevision` runs them too, but they do
+ * nothing there, since the initial revisions are created before the document is
+ * inserted. Call this after inserting the document.
+ */
+export async function runInitialRevisionCallbacks<N extends CollectionNameString>(runCallbackStageProperties: CreateAfterEditableCallbackProperties<N>) {
   let { props, newDoc: mutableDoc } = runCallbackStageProperties;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
   
   for (const editableFieldCallbackProps of editableFieldsCallbackProps) {
-    mutableDoc = await updateRevisionDocumentId<N>(mutableDoc, props, editableFieldCallbackProps);
+    mutableDoc = await runInitialRevisionCallbacksForField<N>(mutableDoc, props, editableFieldCallbackProps);
   }
 
   return mutableDoc;

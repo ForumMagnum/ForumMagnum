@@ -402,8 +402,10 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
         AND p."${fieldName}"->>'html' <> r."html"
         AND JSONB_TYPEOF(p."${fieldName}"->'originalContents') = 'object'
     `, [collectionName]);
-    // The legacy inline originalContents column is kept in sync with the
-    // RevisionOriginalContents row, if there is one (see the Revisions schema)
+    // The legacy inline originalContents column gets the same contents as the
+    // RevisionOriginalContents row above (see the Revisions schema). If the
+    // denormalized value has no contents, the inline column is left as it is,
+    // since reads prefer it over the row (see `getStoredOriginalContentsForRevision`).
     await tx.none(`
       UPDATE "Revisions" AS r
       SET
@@ -415,15 +417,11 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
         "wordCount" = COALESCE((p."${fieldName}"->>'wordCount')::INTEGER, r."wordCount"),
         "updateType" = COALESCE(p."${fieldName}"->>'updateType', r."updateType"),
         "commitMessage" = COALESCE(p."${fieldName}"->>'commitMessage', r."commitMessage"),
-        "originalContents" = COALESCE(
-          (
-            SELECT roc."originalContents"
-            FROM "RevisionOriginalContents" roc
-            WHERE roc."_id" = r."originalContentsId"
-          ),
-          p."${fieldName}"->'originalContents',
-          r."originalContents"
-        ),
+        "originalContents" = CASE
+          WHEN JSONB_TYPEOF(p."${fieldName}"->'originalContents') = 'object'
+            THEN p."${fieldName}"->'originalContents'
+          ELSE r."originalContents"
+        END,
         "draft" = COALESCE(p."draft", FALSE),
         "collectionName" = $1
       FROM "${collectionName}" AS p
@@ -465,7 +463,9 @@ export const denormalizeEditableField = async <N extends CollectionNameString>(
       'wordCount', r."wordCount",
       'updateType', r."updateType",
       'commitMessage', r."commitMessage",
-      'originalContents', COALESCE(roc."originalContents", r."originalContents")
+      -- Prefer the legacy inline column while it exists, as
+      -- getStoredOriginalContentsForRevision does
+      'originalContents', COALESCE(r."originalContents", roc."originalContents")
     )
     FROM "Revisions" AS r
     LEFT JOIN "RevisionOriginalContents" roc ON roc."_id" = r."originalContentsId"

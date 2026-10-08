@@ -4,7 +4,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { reindexParentTagIfNeeded } from "@/server/callbacks/multiDocumentCallbacks";
-import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
+import { getIdForNewDocument, createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, runInitialRevisionCallbacks } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
@@ -14,7 +14,6 @@ import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 import { editCheck as editTagCheck, newCheck as newTagCheck } from "@/server/collections/tags/helpers";
 import { backgroundTask } from "@/server/utils/backgroundTask";
-import { randomId } from "@/lib/random";
 
 /**
  * The logic for validating whether a user can either create or update a multi-document is basically the same.
@@ -63,8 +62,8 @@ export async function editCheck(user: DbUser | null, multiDocument: DbMultiDocum
 
 export async function createMultiDocument({ data }: CreateMultiDocumentInput, context: ResolverContext) {
   const { currentUser } = context;
-  const documentId = randomId();
-  
+  const documentId = getIdForNewDocument(data);
+
   const callbackProps = await getLegacyCreateCallbackProps('MultiDocuments', {
     context,
     data,
@@ -85,10 +84,11 @@ export async function createMultiDocument({ data }: CreateMultiDocumentInput, co
     props: callbackProps,
   });
 
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'MultiDocuments', callbackProps);
+  const dataWithId = { ...data, _id: documentId };
+  const afterCreateProperties = await insertAndReturnCreateAfterProps(dataWithId, 'MultiDocuments', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  documentWithId = await updateRevisionsDocumentIds({
+  documentWithId = await runInitialRevisionCallbacks({
     newDoc: documentWithId,
     props: afterCreateProperties,
   });

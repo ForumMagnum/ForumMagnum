@@ -242,9 +242,13 @@ export function getAllCollectionsByName() {
   return collectionsWithTestCollections;
 }
 
-export function getCollectionByTypeName(typeName: string): CollectionBase<AnyBecauseHard> {
+export function getCollectionByTypeNameOrNull(typeName: string): CollectionBase<AnyBecauseHard> | null {
   const collectionsWithTestCollectionsByTypeName = { ...collectionsByTypeName, ...getTestCollectionsByTypeName() };
-  const collection = collectionsWithTestCollectionsByTypeName[typeName] as CollectionBase<AnyBecauseHard>;
+  return (collectionsWithTestCollectionsByTypeName[typeName] as CollectionBase<AnyBecauseHard> | undefined) ?? null;
+}
+
+export function getCollectionByTypeName(typeName: string): CollectionBase<AnyBecauseHard> {
+  const collection = getCollectionByTypeNameOrNull(typeName);
   if (!collection) {
     throw new Error(`Invalid typeName: ${typeName}`);
   }
