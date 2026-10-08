@@ -21,7 +21,6 @@ import {
 // The "No LLM (autoreject)" moderation template's text, which `rejectContentForLLM` copies into rejectedReason.
 const AUTOMATED_REJECTION_MARKER = "This is an automated rejection";
 
-// Far more than the prompt shows; new users rarely get close.
 const MAX_ITEMS_PER_COLLECTION = 200;
 
 function isAutoRejected(doc: { rejected: boolean, rejectedReason: string | null }): boolean {
@@ -66,7 +65,6 @@ function getRevisionContent(doc: DbPost | DbComment, revisionContentsById: Map<s
   return revisionContent ?? { html: "", pangramScore: null };
 }
 
-/** Unpublished drafts are left out; everything else the user posted is included, labeled with its status. */
 export async function getLlmRejectionTriageInput(user: DbUser, context: ResolverContext): Promise<LlmRejectionTriageInput> {
   const [posts, comments] = await Promise.all([
     context.Posts.find(
@@ -120,7 +118,6 @@ async function getLastRemovedFromReviewQueueAt(userId: string, context: Resolver
   return lastRemoval?.createdAt ?? null;
 }
 
-/** True if the user is in the review queue only because of posts or comments, not e.g. a bio edit or a flag. */
 async function isInReviewQueueOnlyForContent(userId: string, context: ResolverContext): Promise<boolean> {
   const [moderatorActions, lastRemovedFromReviewQueueAt] = await Promise.all([
     context.ModeratorActions.find({ userId }).fetch(),
@@ -135,10 +132,6 @@ async function isInReviewQueueOnlyForContent(userId: string, context: ResolverCo
   return freshActions.length > 0 && freshActions.every(action => getModeratorActionGroup(action.type) === "newContent");
 }
 
-/**
- * Users in the review queue only for content, with nothing still awaiting approval,
- * and at least one auto-rejected item.
- */
 export async function isEligibleForLlmRejectionTriage(user: DbUser, context: ResolverContext): Promise<boolean> {
   if (!user.needsReview || user.deleted || userIsAdminOrMod(user)) return false;
   if (user.banned && new Date(user.banned) > new Date()) return false;
@@ -156,7 +149,6 @@ export async function isEligibleForLlmRejectionTriage(user: DbUser, context: Res
 
 export type LlmRejectionTriageAction = "removeFromQueue" | "keepInQueue" | "keepSpamWithApprovedContentInQueue" | "purge";
 
-/** Live posts or comments a moderator already approved, i.e. no longer marked authorIsUnreviewed. */
 async function hasApprovedLiveContent(userId: string, context: ResolverContext): Promise<boolean> {
   const [approvedPost, approvedComment] = await Promise.all([
     context.Posts.findOne(
@@ -234,11 +226,6 @@ interface LlmRejectionTriageResult {
   action: LlmRejectionTriageAction;
 }
 
-/**
- * Classifies a user and acts on the verdict, unless `dryRun` is set. Doesn't
- * check the setting, so the backfill script can run it before the setting is
- * turned on.
- */
 export async function runLlmRejectionTriage(
   userId: string,
   context: ResolverContext,

@@ -77,7 +77,6 @@ function profileTextChanged(before: DbUser, after: DbUser): boolean {
   return before.biography?.html !== after.biography?.html || before.mapMarkerText !== after.mapMarkerText;
 }
 
-// Purges the same way the supermod Purge button does, acting as the admin team account.
 export async function purgeSpamUser(
   user: DbUser,
   sunshineNote: string,

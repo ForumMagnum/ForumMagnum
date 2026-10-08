@@ -36,9 +36,7 @@ export interface LlmRejectionTriageItem {
   kind: "Post" | "Comment";
   postedAt: Date;
   status: LlmRejectionTriageItemStatus;
-  /** Posts only */
   title: string | null;
-  /** Comments only: the title of the post replied to */
   replyingTo: string | null;
   pangramScore: number | null;
   html: string;
@@ -56,7 +54,6 @@ const MAX_AUTO_REJECTED_ITEM_WORDS = 4000;
 const MAX_OTHER_ITEMS = 20;
 const MAX_OTHER_ITEM_WORDS = 1000;
 
-// Keeps link URLs, which carry much of the spam signal.
 const htmlToText = compile({ wordwrap: false });
 
 function truncateToWords(text: string, maxWords: number): string {

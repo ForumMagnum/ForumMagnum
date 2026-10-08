@@ -530,13 +530,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     });
   }
 
-  /**
-   * Review-queue users who are there only because of posts or comments (per
-   * `getModeratorActionGroup`), with nothing still awaiting approval (as in
-   * `getPendingContentStats`) and nothing rejected, e.g. because they moved
-   * their post back to draft or deleted their comment. Users with rejected
-   * content are left to moderators and the LLM-rejection triage.
-   */
   async getContentQueueUserIdsWithNothingPending(): Promise<string[]> {
     const reviewTriggerTypes = [...reviewTriggerModeratorActions];
     const contentTriggerTypes = reviewTriggerTypes.filter((type) => getModeratorActionGroup(type) === "newContent");
