@@ -32,6 +32,12 @@ const definedStyles = defineStyles('EditorFormComponent', styles);
 type EditorSubmitCallback = () => Promise<void>;
 type EditorSuccessCallback<R> = (result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void;
 
+interface EditorCurrentContents {
+  type: EditorTypeString;
+  data: string | null;
+}
+type EditorGetContentsCallback = () => Promise<EditorCurrentContents | null>;
+
 export type AddOnSuccessCallback<R> = (fn: EditorSuccessCallback<R>) => () => void;
 export type AddOnSubmitCallback<Fragment> = (cb: EditorSubmitCallback) => () => void;
 
@@ -67,12 +73,19 @@ interface EditorFormComponentProps<S, R> {
   onBlankStateChange?: (isBlank: boolean) => void;
   addOnSubmitCallback: (fn: EditorSubmitCallback) => () => void;
   addOnSuccessCallback: (fn: EditorSuccessCallback<R>) => () => void;
+  /**
+   * Registers a function that reads the editor's current contents without
+   * submitting them, so without saving a local backup or setting the field
+   * value. It returns null if the editor isn't ready.
+   */
+  addGetContentsCallback?: (fn: EditorGetContentsCallback) => () => void;
   getLocalStorageId?: (doc: any, name: string) => { id: string, verify: boolean }
 }
 
 export function useEditorFormCallbacks<R>() {
   const onSubmitCallback = useRef<EditorSubmitCallback | null>(null);
   const onSuccessCallback = useRef<EditorSuccessCallback<R> | null>(null);
+  const getContentsCallback = useRef<EditorGetContentsCallback | null>(null);
 
   const addOnSubmitCallback = (cb: EditorSubmitCallback) => {
     onSubmitCallback.current = cb;
@@ -88,11 +101,20 @@ export function useEditorFormCallbacks<R>() {
     };
   };
 
+  const addGetContentsCallback = (cb: EditorGetContentsCallback) => {
+    getContentsCallback.current = cb;
+    return () => {
+      getContentsCallback.current = null;
+    };
+  };
+
   return {
     onSubmitCallback,
     onSuccessCallback,
+    getContentsCallback,
     addOnSubmitCallback,
     addOnSuccessCallback,
+    addGetContentsCallback,
   };
 };
 
@@ -132,6 +154,7 @@ function InnerEditorFormComponent<S, R>({
   onBlankStateChange,
   addOnSubmitCallback,
   addOnSuccessCallback,
+  addGetContentsCallback,
   getLocalStorageId,
 }: EditorFormComponentProps<S, R>) {
   const classes = useStyles(definedStyles);
@@ -401,13 +424,19 @@ function InnerEditorFormComponent<S, R>({
         }
         return result;
       });
+      const cleanupGetContents = addGetContentsCallback?.(async () => {
+        if (!editorRef.current || !shouldSubmitContents(editorRef.current)) return null;
+        const { originalContents } = await editorRef.current.submitData();
+        return { type: originalContents.type, data: originalContents.data };
+      });
       return () => {
         cleanupSubmitForm();
         cleanupSuccessForm();
+        cleanupGetContents?.();
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!editorRef.current, fieldName, initialEditorType, addOnSuccessCallback, addOnSubmitCallback]);
+  }, [!!editorRef.current, fieldName, initialEditorType, addOnSuccessCallback, addOnSubmitCallback, addGetContentsCallback]);
   
   const fieldHasCommitMessages = revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages

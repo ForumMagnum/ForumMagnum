@@ -951,7 +951,11 @@ export default function Editor({
             />
             {onChangeHtml && (
               <OnChangePlugin
-                ignoreSelectionChange
+                // Don't report cursor moves, which don't change the contents.
+                // When collaborating, keep reporting them: the first sync isn't
+                // reported (the editor was empty before it), and a click is
+                // what then updated the contents the form submits.
+                ignoreSelectionChange={!isCollab}
                 onChange={isCollab ? debouncedOnChange : onChange}
               />
             )}
