@@ -56,11 +56,10 @@ const AdminHome = () => {
       <h3>Moderation</h3>
       <ul>
         <li><Link className={classes.link} to="/admin/supermod">Supermod</Link></li>
-        <li><Link className={classes.link} to="/admin/moderation">Moderation Dashboard (legacy)</Link></li>
         <li><Link className={classes.link} to="/moderation/altAccounts">Alt-Accounts Investigator</Link></li>
-        <li><Link className={classes.link} to="/admin/recentlyActiveUsers">Recently Active Users</Link></li>
         <li><Link className={classes.link} to="/admin/moderationTemplates">Moderation Templates</Link></li>
         <li><Link className={classes.link} to="/admin/random-user">Random User</Link></li>
+        <li><Link className={classes.link} to="/admin/pangram">Pangram (paste text → AI-detection check)</Link></li>
         <li><Link className={classes.link} to="/moderatorComments">Moderator Comments</Link></li>
         <li><Link className={classes.link} to="/moderation">Moderation Log</Link></li>
         <li><Link className={classes.link} to={`/w/dashboard`}>Wikitags Dashboard</Link></li>

@@ -6,7 +6,7 @@ import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import { getUserEmail } from '@/lib/collections/users/helpers';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
-import { getDisplayedReasonForGroupAssignment, ReviewGroup } from './groupings';
+import { getDisplayedReasonForGroupAssignment } from './groupings';
 import ForumIcon from '@/components/common/ForumIcon';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
@@ -263,7 +263,7 @@ const ModerationInboxItem = ({
       )}
 
       <div className={classes.contextualInfo}>
-        {reviewGroup === 'newContent'
+        {reviewGroup === 'newContent' || reviewGroup === 'offboard'
           ? <ContentPreview user={user} />
           : <PreloadUserContents user={user} />
         }

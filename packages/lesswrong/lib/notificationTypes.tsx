@@ -259,7 +259,7 @@ export const NewDialogueMessagesNotification = createNotificationType({
     let post = await getDocument(documentType, documentId, context) as DbPost;
     let author = await getDocument("user", newMessageAuthorId, context) as DbUser ?? '[Missing Author Name]';
 
-    return userGetDisplayName(author) + ' left a new reply in your dialogue "' + post.title + '"';
+    return userGetDisplayName(author, context.forumType) + ' left a new reply in your dialogue "' + post.title + '"';
   },
   getLink: ({documentId}: {
     documentId: string|null,
@@ -450,6 +450,31 @@ export const NewMessageNotification = createNotificationType({
   causesRedBadge: () => true,
 });
 
+// Someone reacted to a private message you sent. Shares the private-message
+// notification setting, but is only ever delivered on-site (created with
+// noEmail).
+export const NewMessageReactionNotification = createNotificationType({
+  name: "newMessageReaction",
+  userSettingField: "notificationPrivateMessage",
+  async getMessage({documentType, documentId, extraData, context}: GetMessageProps) {
+    const { Users, Conversations } = context;
+
+    const message = await getDocument(documentType, documentId, context) as DbMessage;
+    const conversation = await Conversations.findOne(message.conversationId);
+    const reactor = extraData?.reactorId ? await Users.findOne(extraData.reactorId) : null;
+    const reactorName = reactor ? userGetDisplayName(reactor, context.forumType) : 'Someone';
+    const reactLabel = extraData?.reactLabel ? ` "${extraData.reactLabel}"` : '';
+    return `${reactorName} reacted${reactLabel} to your message` + (conversation?.title ? (' in the conversation ' + conversation.title) : '');
+  },
+  Display: ({notification, LazyUser}) => {
+    const reactorId = notification.extraData?.reactorId;
+    const reactLabel = notification.extraData?.reactLabel;
+    return <>
+      {reactorId ? <LazyUser userId={reactorId} /> : 'Someone'} reacted{reactLabel ? ` "${reactLabel}"` : ''} to your <Link to={notification.link ?? '/inbox'}>message</Link>
+    </>;
+  },
+});
+
 export const WrappedNotification = createNotificationType({
   name: "wrapped",
   userSettingField: null,
@@ -491,7 +516,7 @@ export const PostSharedWithUserNotification = createNotificationType({
     if (!documentId) {
       throw new Error("PostSharedWithUserNotification documentId is missing")
     }
-    return postGetEditUrl(documentId, false)
+    return postGetEditUrl(documentId)
   },
   Display: ({User, Post, notification: {post}}) => <>
     <User /> shared their {post?.draft ? "draft" : "post"} <Post /> with you
@@ -515,7 +540,7 @@ export const PostAddedAsCoauthorNotification = createNotificationType({
     if (!documentId) {
       throw new Error("PostAddedAsCoauthorNotification documentId is missing")
     }
-    return postGetEditUrl(documentId, false)
+    return postGetEditUrl(documentId)
   },
   Display: ({User, Post, notification: {post}}) => {
     const postOrDialogue = post?.collabEditorDialogue ? "dialogue" : "post";
@@ -632,10 +657,41 @@ export const NewCommentOnDraftNotification = createNotificationType({
       throw new Error("NewCommentOnDraftNotification documentId is missing");
     }
     const { linkSharingKey } = extraData;
-    const url = postGetEditUrl(documentId, false, linkSharingKey);
+    const url = postGetEditUrl(documentId, linkSharingKey);
     return url;
   },
   Display: ({Post}) => <>New comments on your draft <Post /></>,
+});
+
+export const NewCommentOnResearchDocNotification = createNotificationType({
+  name: "newCommentOnResearchDoc",
+  // No user setting: notification types sharing a setting field must share
+  // allowedChannels, and no existing onsite-only field fits.
+  // TODO: add a dedicated notificationCommentsOnResearchDoc user field
+  // (schema change + migration) when research ships beyond admins.
+  userSettingField: null,
+  // Onsite-only: agent/collaborator comments on research documents don't
+  // warrant emails at the product's current stage.
+  allowedChannels: ["onsite"],
+  async getMessage({documentId, context}: GetMessageProps) {
+    const doc = documentId ? await context.ResearchDocuments.findOne(documentId) : null;
+    return doc?.title
+      ? `New comments on your research document ${doc.title}`
+      : "New comments on your research document";
+  },
+  getLink: ({documentId, extraData}: {
+    documentType: string|null,
+    documentId: string|null,
+    extraData: any
+  }): string => {
+    // getLink runs unguarded during notification-list rendering, so a
+    // malformed row must degrade to a fallback link rather than throw.
+    if (!documentId || !extraData?.projectId) {
+      return "/notifications";
+    }
+    return `/research/projects/${extraData.projectId}?documentId=${documentId}`;
+  },
+  Display: () => <>New comments on your research document</>,
 });
 
 export const CoauthorRequestNotification = createNotificationType({
@@ -715,6 +771,7 @@ const notificationTypesArray = [
   NewReplyToYouNotification,
   NewUserNotification,
   NewMessageNotification,
+  NewMessageReactionNotification,
   WrappedNotification,
   EmailVerificationRequiredNotification,
   PostSharedWithUserNotification,
@@ -727,6 +784,7 @@ const notificationTypesArray = [
   CancelledRSVPNotification,
   NewGroupOrganizerNotification,
   NewCommentOnDraftNotification,
+  NewCommentOnResearchDocNotification,
   CoauthorRequestNotification,
   CoauthorAcceptNotification,
   NewMentionNotification,

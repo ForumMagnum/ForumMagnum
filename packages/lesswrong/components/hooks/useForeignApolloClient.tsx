@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import type { ApolloClient } from '@apollo/client';
 
 const ForeignApolloClientContext = createContext<ApolloClient | undefined>(undefined);
 

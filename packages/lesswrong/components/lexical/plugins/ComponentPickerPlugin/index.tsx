@@ -35,8 +35,11 @@ import * as ReactDOM from 'react-dom';
 import { useDialog, type OpenDialogContextType } from '@/components/common/withDialog';
 import { applyBlockTypeChange } from '../ToolbarPlugin/utils';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
+import { INSERT_SPOILER_COMMAND } from '@/components/editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
+import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
 import {InsertImageDialog} from '../ImagesPlugin';
+import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin/commands';
 
 import { TableIcon } from '../../icons/TableIcon';
 import { TextParagraphIcon } from '../../icons/TextParagraphIcon';
@@ -51,12 +54,16 @@ import { HorizontalRuleIcon } from '../../icons/HorizontalRuleIcon';
 import { CardChecklistIcon } from '../../icons/CardChecklistIcon';
 import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { FileImageIcon } from '../../icons/FileImageIcon';
+import { Diagram2Icon } from '../../icons/Diagram2Icon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
+import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
 import ForumIcon from '@/components/common/ForumIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { useResearchEditorEnvironmentOptional } from '@/components/research/lexical/ResearchEditorContext';
+import { INSERT_QUERY_INPUT_COMMAND } from '@/components/research/lexical/QueryInputPlugin';
 import { InsertReviewResultsDialog } from '../../embeds/ReviewResultsEmbed/InsertReviewResultsDialog';
 import { INSERT_IFRAME_WIDGET_COMMAND } from '../../embeds/IframeWidgetEmbed/IframeWidgetPlugin';
 import { INSERT_LLM_CONTENT_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
@@ -83,7 +90,10 @@ const styles = defineStyles('LexicalComponentPicker', (theme: ThemeType) => ({
   listItem: typeaheadListItem(theme),
   item: typeaheadItem(theme),
   text: typeaheadItemText(),
-  icon: typeaheadItemIcon(),
+  icon: {
+    ...typeaheadItemIcon(),
+    opacity: 0.6,
+  },
 }));
 
 const iconStyle = { display: 'flex', width: 18, height: 18, marginRight: 8, marginTop: 2, opacity: 0.6 };
@@ -182,7 +192,13 @@ const headingIcons = {
 } as const;
 
 
-function useBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType['openDialog'], currentUser: UsersCurrent | null) {
+function useBaseOptions(
+  editor: LexicalEditor,
+  openDialog: OpenDialogContextType['openDialog'],
+  currentUser: UsersCurrent | null,
+  inResearchContext: boolean,
+) {
+  const classes = useStyles(styles);
   const isAdminUser = userIsAdmin(currentUser);
   return [
     new ComponentPickerOption('Table', {
@@ -222,6 +238,12 @@ function useBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType
         editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
       }
     }),
+    new ComponentPickerOption('Footnote', {
+      icon: <CkFootnoteIcon className={classes.icon} />,
+      keywords: ['footnote', 'note', 'reference'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_FOOTNOTE_COMMAND, {}),
+    }),
     new ComponentPickerOption('Inline Equation', {
       icon: <PlusSlashMinusIcon style={iconStyle} />,
       keywords: ['equation', 'latex', 'math', 'inline'],
@@ -245,11 +267,23 @@ function useBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType
           ),
         }),
     }),
+    new ComponentPickerOption('Diagram', {
+      icon: <Diagram2Icon style={iconStyle} />,
+      keywords: ['diagram', 'drawing', 'excalidraw', 'sketch', 'flowchart', 'whiteboard', 'arrows'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined),
+    }),
     new ComponentPickerOption('Collapsible Section', {
       icon: <CaretRightFillIcon style={iconStyle} />,
       keywords: ['collapse', 'collapsible', 'toggle', 'section'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined),
+    }),
+    new ComponentPickerOption('Spoiler Block', {
+      icon: <ForumIcon icon="EyeSlash" style={omit(iconStyle, 'marginTop')} />,
+      keywords: ['spoiler', 'hidden', 'hide', 'reveal', 'blur'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_SPOILER_COMMAND, undefined),
     }),
     new ComponentPickerOption('Custom Widget', {
       icon: <CodeIcon style={iconStyle} />,
@@ -270,7 +304,7 @@ function useBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType
       onSelect: () =>
         applyBlockTypeChange(editor, 'code'),
     }),
-    ...(isAdminUser ? [
+    ...(isAdminUser && !inResearchContext ? [
       new ComponentPickerOption('Review Results Table', {
         icon: <CardChecklistIcon style={iconStyle} />,
         keywords: ['review', 'results', 'annual', 'voting', 'table'],
@@ -303,11 +337,31 @@ function useBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType
   ];
 }
 
+interface ResearchSlashCustomizations {
+  extras: ComponentPickerOption[];
+}
+
+function useResearchSlashCustomizations(editor: LexicalEditor): ResearchSlashCustomizations | null {
+  const env = useResearchEditorEnvironmentOptional();
+  return useMemo(() => {
+    if (!env) return null;
+    const queryOption = new ComponentPickerOption('Query (research agent)', {
+      icon: <ForumIcon icon="Robot" style={omit(iconStyle, 'marginTop')} />,
+      keywords: ['query', 'agent', 'ask', 'research', 'claude'],
+      onSelect: () => {
+        editor.dispatchCommand(INSERT_QUERY_INPUT_COMMAND, undefined);
+      },
+    });
+    return { extras: [queryOption] };
+  }, [env, editor]);
+}
+
 export default function ComponentPickerMenuPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [queryString, setQueryString] = useState<string | null>(null);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
+  const researchCustomizations = useResearchSlashCustomizations(editor);
 
   const baseCheckForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     allowWhitespace: true,
@@ -332,24 +386,29 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     [baseCheckForTriggerMatch],
   );
 
-  const baseOptions = useBaseOptions(editor, openDialog, currentUser);
+  const baseOptions = useBaseOptions(editor, openDialog, currentUser, !!researchCustomizations);
 
   const options = useMemo(() => {
+    const allOptions: ComponentPickerOption[] = [
+      ...(researchCustomizations?.extras ?? []),
+      ...baseOptions,
+    ];
+
     if (!queryString) {
-      return baseOptions;
+      return allOptions;
     }
 
     const regex = new RegExp(queryString, 'i');
 
     return [
       ...getDynamicOptions(editor, queryString),
-      ...baseOptions.filter(
+      ...allOptions.filter(
         (option) =>
           regex.test(option.title) ||
           option.keywords.some((keyword) => regex.test(keyword)),
       ),
     ];
-  }, [editor, queryString, baseOptions]);
+  }, [editor, queryString, baseOptions, researchCustomizations]);
 
   const onSelectOption = useCallback(
     (

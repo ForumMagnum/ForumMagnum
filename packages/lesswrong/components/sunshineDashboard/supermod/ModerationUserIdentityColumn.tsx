@@ -9,6 +9,7 @@ import FormatDate from '@/components/common/FormatDate';
 import AltAccountInfo from '../ModeratorUserInfo/AltAccountInfo';
 import { Link } from '@/lib/reactRouterWrapper';
 import ReviewTriggerBadge from './ReviewTriggerBadge';
+import { useUserClientIdsInfo } from '@/components/hooks/useUserClientIdsInfo';
 
 const styles = defineStyles('ModerationUserIdentityColumn', (theme: ThemeType) => ({
   column: {
@@ -89,7 +90,8 @@ const ModerationUserIdentityColumn = ({
   likelyReviewTrigger: React.ReactNode;
 }) => {
   const classes = useStyles(styles);
-  const firstClientId = user.associatedClientIds?.[0];
+  const clientIdsInfo = useUserClientIdsInfo(user._id);
+  const firstClientId = clientIdsInfo?.associatedClientIds?.[0];
 
   return (
     <div className={classes.column}>
@@ -133,9 +135,9 @@ const ModerationUserIdentityColumn = ({
           </LWTooltip>
         </div>
       )}
-      {user.altAccountsDetected && (
+      {clientIdsInfo?.altAccountsDetected && (
         <div className={classes.altAccountRow}>
-          <AltAccountInfo user={user} />
+          <AltAccountInfo user={clientIdsInfo} />
         </div>
       )}
     </div>

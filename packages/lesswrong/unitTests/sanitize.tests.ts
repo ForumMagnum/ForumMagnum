@@ -189,3 +189,18 @@ describe('sanitize ordered list numbering', () => {
     expect(result).toContain('<li value="4">Item 4</li>');
   });
 });
+
+describe('sanitize text span whitespace', () => {
+  it('preserves white-space: pre-wrap on spans', () => {
+    const input = '<p><span style="white-space: pre-wrap;">Quiz show:  Can it?</span></p>';
+    const result = sanitize(input);
+    expect(result).toContain('white-space:pre-wrap');
+    expect(result).toContain('Quiz show:  Can it?');
+  });
+
+  it('strips other white-space values from spans', () => {
+    const input = '<p><span style="white-space: pre;">a  b</span></p>';
+    const result = sanitize(input);
+    expect(result).not.toContain('white-space');
+  });
+});

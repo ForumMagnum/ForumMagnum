@@ -7,7 +7,7 @@ import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sh
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('Notifications'));
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('Notifications'));
 }
 
 assertRouteAttributes("/notifications", {

@@ -25,7 +25,6 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import PopperCard from "@/components/common/PopperCard";
-import type { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import type { Placement as PopperPlacementType } from "popper.js";
 import { prettyScrollbars } from "@/themes/styleUtils";
 
@@ -428,15 +427,17 @@ function SortablePostRow({
 
 export const TopPostsManager = ({
   userId,
-  field,
-  hideField,
+  pinnedPostIds,
+  hideTopPosts,
+  updatePinnedPosts,
 }: {
   userId: string;
-  field: TypedFieldApi<string[] | null | undefined>;
-  hideField: TypedFieldApi<boolean | null | undefined>;
+  pinnedPostIds: string[] | null | undefined;
+  hideTopPosts: boolean | null | undefined;
+  updatePinnedPosts: (fields: { pinnedPostIds?: string[]; hideProfileTopPosts?: boolean }) => void;
 }) => {
   const classes = useStyles(styles);
-  const orderedPostIds = useMemo(() => field.state.value ?? [], [field.state.value]);
+  const orderedPostIds = useMemo(() => pinnedPostIds ?? [], [pinnedPostIds]);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [swapSlotIndex, setSwapSlotIndex] = useState<number | null>(null);
   const [swapAnchorEl, setSwapAnchorEl] = useState<HTMLElement | null>(null);
@@ -470,7 +471,7 @@ export const TopPostsManager = ({
   const defaultPosts = postCount <= 4 ? allPosts.slice(0, postCount) : allPosts.slice(0, 4);
   const defaultPostIds = defaultPosts.map((post) => post._id);
   const showSwapButtons = postCount >= 5;
-  const topPostsHidden = hideField.state.value ?? false;
+  const topPostsHidden = hideTopPosts ?? false;
   const hasCustomization = orderedPostIds.length > 0 && orderedPostIds.join(",") !== defaultPostIds.join(",");
 
   // Use custom order if set, otherwise default
@@ -498,30 +499,29 @@ export const TopPostsManager = ({
       const oldIndex = currentIds.indexOf(active.id as string);
       const newIndex = currentIds.indexOf(over.id as string);
       if (oldIndex !== -1 && newIndex !== -1) {
-        field.handleChange(arrayMove(currentIds, oldIndex, newIndex));
+        updatePinnedPosts({ pinnedPostIds: arrayMove(currentIds, oldIndex, newIndex) });
       }
     }
-  }, [orderedPostIds, postIds, field, topPostsHidden]);
+  }, [orderedPostIds, postIds, updatePinnedPosts, topPostsHidden]);
 
   const handleDragCancel = useCallback(() => {
     setActiveDragId(null);
   }, []);
 
   const handleRestoreDefaults = useCallback(() => {
-    hideField.handleChange(false);
-    field.handleChange(defaultPostIds);
-  }, [field, hideField, defaultPostIds]);
+    updatePinnedPosts({ hideProfileTopPosts: false, pinnedPostIds: defaultPostIds });
+  }, [updatePinnedPosts, defaultPostIds]);
 
   const handleHideTopPosts = useCallback(() => {
-    hideField.handleChange(true);
+    updatePinnedPosts({ hideProfileTopPosts: true });
     setSwapSlotIndex(null);
     setSwapAnchorEl(null);
     setSearch("");
-  }, [hideField]);
+  }, [updatePinnedPosts]);
 
   const handleShowTopPosts = useCallback(() => {
-    hideField.handleChange(false);
-  }, [hideField]);
+    updatePinnedPosts({ hideProfileTopPosts: false });
+  }, [updatePinnedPosts]);
 
   const handleSwapClick = useCallback((index: number, anchorEl: HTMLElement) => {
     if (topPostsHidden) return;
@@ -556,12 +556,11 @@ export const TopPostsManager = ({
     const currentIds = orderedPostIds.length > 0 ? orderedPostIds : postIds;
     const newIds = [...currentIds];
     newIds[swapSlotIndex] = postId;
-    hideField.handleChange(false);
-    field.handleChange(newIds);
+    updatePinnedPosts({ hideProfileTopPosts: false, pinnedPostIds: newIds });
     setSwapSlotIndex(null);
     setSwapAnchorEl(null);
     setSearch("");
-  }, [swapSlotIndex, orderedPostIds, postIds, field, hideField, topPostsHidden]);
+  }, [swapSlotIndex, orderedPostIds, postIds, updatePinnedPosts, topPostsHidden]);
 
   const filteredPosts = useMemo(() => {
     if (!search.trim()) return allPosts;

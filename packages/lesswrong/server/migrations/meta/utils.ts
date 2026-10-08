@@ -12,13 +12,12 @@ import { getLatestRev } from "@/server/editor/utils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
 import { getCollection, isValidCollectionName } from "@/server/collections/allCollections";
-import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { createAdminContext } from "@/server/vulcan-lib/createContexts";
 import { buildAndCreateRevision } from "@/server/collections/revisions/mutations";
 import PgCollectionClass from "@/server/sql/PgCollection";
 import CreateIndexQuery from "@/server/sql/CreateIndexQuery";
 import CreateTableQuery from "@/server/sql/CreateTableQuery";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import Users from "@/server/collections/users/collection";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 

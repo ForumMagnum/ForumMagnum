@@ -1,19 +1,18 @@
-import type { ReactFormExtendedApi } from '@tanstack/react-form';
 import type { EditableUser } from '@/lib/collections/users/helpers';
+import type { BindUserSetting, UpdateUserSettings } from './useAutoSavedUserSettings';
 
-/**
- * The form type from useForm has a complex inferred type that includes
- * withDateFields transformations and default value overrides, making it
- * incompatible with TypedReactFormApi<EditableUser> due to deep
- * contravariance in TanStack Form's FormListeners type. We use EditableUser
- * for TFormData to preserve field name typing, and `any` for all other type
- * parameters to avoid the contravariance issues. A cast is needed at the
- * call site in UsersEditForm.tsx.
- */
-export type SettingsFormApi = ReactFormExtendedApi<EditableUser, any, any, any, any, any, any, any, any, any>;
+export const SETTINGS_TAB_IDS = [
+  'account', 'profile', 'preferences', 'notifications', 'moderation', 'admin',
+] as const;
+
+export type SettingsTabId = (typeof SETTINGS_TAB_IDS)[number];
 
 export interface SettingsTabProps {
-  form: SettingsFormApi;
+  settings: EditableUser;
+  updateSettings: UpdateUserSettings;
+  bind: BindUserSetting;
   currentUser: UsersCurrent;
+  /** Whether the settings being edited belong to the logged-in user (false when an admin edits someone else) */
+  isCurrentUser: boolean;
   fieldWrapperClass: string;
 }

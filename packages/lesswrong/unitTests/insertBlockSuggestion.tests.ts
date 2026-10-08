@@ -1,7 +1,8 @@
 import { $getRoot, $isElementNode, type LexicalEditor } from "lexical";
 import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
-import { $insertMarkdownBlockInEditor } from "../../../app/api/agent/insertBlock/route";
-import { getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
+import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
+import { $insertMarkdownBlockInEditor, $postMarkdownToNodes } from "../../../app/api/agent/insertBlock/route";
+import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
 import type { InsertLocation } from "../../../app/api/agent/toolSchemas";
 
 async function insertBlock(
@@ -11,7 +12,7 @@ async function insertBlock(
   mode: "edit" | "suggest" = "suggest",
 ): Promise<void> {
   await runEditorUpdate(editor, () => {
-    $insertMarkdownBlockInEditor({ editor, mode, location, markdown });
+    $insertMarkdownBlockInEditor({ editor, mode, location, markdown, markdownToNodes: $postMarkdownToNodes });
   });
 }
 
@@ -153,5 +154,87 @@ describe("insertBlock suggest mode", () => {
     expect(suggestionTexts.length).toBe(2);
     expect(suggestionTexts[0]).toBe("First inserted.");
     expect(suggestionTexts[1]).toBe("Second inserted.");
+  });
+});
+
+describe("insertBlock with LaTeX", () => {
+  it("imports inline `$...$` math as a real MathNode", async () => {
+    const editor = await setupEditorWithContent("Existing paragraph.");
+
+    await insertBlock(
+      editor,
+      "A paragraph with inline math $x^2$ in it.",
+      "end",
+      "edit",
+    );
+
+    // The agent write path renders `$...$` through the `math-tex`-emitting
+    // markdown-it instance, so it imports as a real MathNode rather than
+    // landing as literal `\(...\)` text.
+    expect(findMathEquations(editor)).toEqual(["x^2"]);
+  });
+
+  it("imports display `$$...$$` math as a real MathNode", async () => {
+    const editor = await setupEditorWithContent("Existing paragraph.");
+
+    await insertBlock(
+      editor,
+      "$$a^2 + b^2 = c^2$$",
+      "end",
+      "edit",
+    );
+
+    expect(findMathEquations(editor)).toEqual(["a^2 + b^2 = c^2"]);
+  });
+});
+
+describe("insertBlock with LaTeX — alternate delimiter forms", () => {
+  it("imports single-backslash \\(...\\) inline math as a real MathNode", async () => {
+    // The matcher canonicalizes `\(...\)` to `$...$`, but the write renderer
+    // (getMarkdownItForAgentPosts) only treats `$...$` / `$$...$$` as math;
+    // single-backslash `\(...\)` renders as literal `(x^2)` text.
+    const editor = await setupEditorWithContent("Existing paragraph.");
+
+    await insertBlock(editor, "A paragraph with \\(x^2\\) math.", "end", "edit");
+
+    expect(findMathEquations(editor)).toEqual(["x^2"]);
+  });
+
+  it("imports single-backslash \\[...\\] display math as a real MathNode", async () => {
+    const editor = await setupEditorWithContent("Existing paragraph.");
+
+    await insertBlock(editor, "\\[a^2 + b^2 = c^2\\]", "end", "edit");
+
+    expect(findMathEquations(editor)).toEqual(["a^2 + b^2 = c^2"]);
+  });
+
+  it("inserts a standalone $$...$$ block as a top-level display MathNode", async () => {
+    // A display equation is a block-level node; the editor's own MathPlugin
+    // inserts it as a direct child of root. A standalone `$$...$$` block must
+    // not end up nested inside a ParagraphNode (which exports as invalid
+    // <div>-inside-<p>).
+    const editor = await setupEditorWithContent("Existing paragraph.");
+
+    await insertBlock(editor, "$$a^2 + b^2 = c^2$$", "end", "edit");
+
+    let lastChildIsDisplayMath = false;
+    editor.getEditorState().read(() => {
+      const children = $getRoot().getChildren();
+      const last = children[children.length - 1];
+      lastChildIsDisplayMath = $isMathNode(last) && !last.isInline();
+    });
+    expect(lastChildIsDisplayMath).toBe(true);
+  });
+});
+
+describe("LaTeX correctness regressions", () => {
+  it("hoists a display equation embedded mid-paragraph to the top level", async () => {
+    // markdown-it wraps `$$x^2$$` in a paragraph with surrounding text; a
+    // display MathNode is block-level and must not stay nested in that
+    // inline-content paragraph.
+    const editor = await setupEditorWithContent("Existing paragraph.");
+    await insertBlock(editor, "text before $$x^2$$ text after", "end", "edit");
+
+    expect(firstDisplayMathParentType(editor)).toBe("root");
   });
 });

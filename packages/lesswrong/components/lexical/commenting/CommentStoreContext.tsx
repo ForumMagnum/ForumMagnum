@@ -5,6 +5,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
 
 import { Comments, CommentStore } from './index';
+import { COMMENTS_SUBDOC_ID } from '../collaboration';
 import type { HocuspocusProvider } from '@hocuspocus/provider';
 
 type CommentStoreContextValue = {
@@ -37,7 +38,7 @@ export function CommentStoreProvider({
     if (!providerFactory) {
       return undefined;
     }
-    const provider = providerFactory('comments', collabContext.yjsDocMap);
+    const provider = providerFactory(COMMENTS_SUBDOC_ID, collabContext.yjsDocMap);
     return commentStore.registerCollaboration(provider);
   }, [commentStore, collabContext.yjsDocMap, providerFactory]);
 
@@ -66,6 +67,6 @@ export function useCommentStore(commentStore: CommentStore): Comments {
 export function useCollabAuthorName(): string {
   const collabContext = useCollaborationContext();
   const {yjsDocMap, name} = collabContext;
-  return yjsDocMap.has('comments') ? name : 'Unknown User';
+  return yjsDocMap.has(COMMENTS_SUBDOC_ID) ? name : 'Unknown User';
 }
 

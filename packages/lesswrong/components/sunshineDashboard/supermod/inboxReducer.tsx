@@ -1,10 +1,13 @@
 'use client';
 
 import groupBy from 'lodash/groupBy';
+import sortBy from 'lodash/sortBy';
 import sumBy from 'lodash/sumBy';
-import { getUserReviewGroup, getTabsInPriorityOrder, type ReviewGroup, type TabId, REVIEW_GROUP_TO_PRIORITY } from './groupings';
+import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
+import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
+import type { SelectedSidebarTab } from './sidebarTabs';
 
 export interface HistoryItem {
   user: SunshineUsersList;
@@ -19,8 +22,12 @@ export interface UndoHistoryItem {
   expiresAt: number;
   timeoutId: NodeJS.Timeout;
   executeAction: () => Promise<void>;
+  // View context of the action, so undo can return there
+  sourceTab: TabId;
+  wasDetailView: boolean;
 };
 
+export type UnloadedCounts = Partial<Record<TabId, number>>;
 
 export type InboxState = {
   // The local copy of users (mutated when actions complete)
@@ -30,7 +37,7 @@ export type InboxState = {
   // The local copy of auto-classified posts (mutated when actions complete)
   classifiedPosts: SunshinePostsList[];
   // The local copy of curation candidate posts
-  curationPosts: SunshineCurationPostsList[];
+  curationPosts: SunshineCurationPostsListItem[];
   // Current active tab
   activeTab: TabId;
   // Focused user in inbox view
@@ -41,12 +48,16 @@ export type InboxState = {
   focusedPostId: string | null;
   // Index of focused content item in detail view
   focusedContentIndex: number;
+  // Which composer is open in the moderation sidebar, or null for neither
+  sidebarTab: SelectedSidebarTab;
   // Undo queue - actions that can be undone (within 30 seconds) - only for users
   undoQueue: UndoHistoryItem[];
   // History - expired actions that can't be undone - only for users
   history: HistoryItem[];
   // Document ID for which an LLM detection check is currently running
   runningLlmCheckId: string | null;
+  // Queued items beyond the loaded page, per tab. Tab counts include these.
+  unloadedCounts: UnloadedCounts;
 };
 
 export type InboxAction =
@@ -64,7 +75,8 @@ export type InboxAction =
   | { type: 'REMOVE_POST'; postId: string; }
   | { type: 'NEXT_CONTENT'; contentLength: number; }
   | { type: 'PREV_CONTENT'; contentLength: number; }
-  | { type: 'OPEN_CONTENT'; contentIndex: number; }
+  | { type: 'OPEN_CONTENT'; contentIndex: number; sidebarTab?: SelectedSidebarTab; }
+  | { type: 'SET_SIDEBAR_TAB'; tab: SelectedSidebarTab; }
   | { type: 'UPDATE_USER'; userId: string; fields: Partial<SunshineUsersList>; }
   | { type: 'UPDATE_POST'; postId: string; fields: Partial<SunshinePostsList>; }
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
@@ -74,12 +86,25 @@ export type InboxAction =
 
 
 
+// Held comments can't go live until reviewed
+function orderUsersWithinGroup(group: ReviewGroup, users: SunshineUsersList[]): SunshineUsersList[] {
+  if (group !== 'newContent') {
+    return users;
+  }
+  return sortBy(users, user => user.hasPendingComments ? 0 : 1);
+}
+
+export function getOrderedGroups(groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>): GroupEntry[] {
+  return (Object.entries(groupedUsers) as GroupEntry[])
+    .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a])
+    .map(([group, users]): GroupEntry => [group, orderUsersWithinGroup(group, users)]);
+}
+
 export function getFilteredGroups(
   groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
   activeTab: TabId
 ): GroupEntry[] {
-  const orderedGroups = (Object.entries(groupedUsers) as GroupEntry[])
-    .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a]);
+  const orderedGroups = getOrderedGroups(groupedUsers);
   
   if (activeTab === 'all') {
     return orderedGroups;
@@ -93,6 +118,7 @@ export function getVisibleTabsInOrder(
   totalPosts: number,
   totalClassifiedPosts: number,
   totalCurationNotices: number,
+  unloadedCounts: UnloadedCounts,
 ): TabInfo[] {
   const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [{ group: 'curation', count: totalCurationNotices }];
@@ -106,10 +132,30 @@ export function getVisibleTabsInOrder(
   tabs.push({ group: 'posts', count: totalPosts });
   tabs.push({ group: 'classifiedPosts', count: totalClassifiedPosts });
   
-  return tabs;
+  return tabs.map(tab => ({ ...tab, count: tab.count + (unloadedCounts[tab.group] ?? 0) }));
 }
 
+/**
+ * Actions that close the open composer, so an editor never silently holds
+ * focus and swallows the moderation shortcuts. Mid-draft actions (permission
+ * toggles, LLM checks, undo bookkeeping) are deliberately absent, as is
+ * OPEN_CONTENT, which sets `sidebarTab` itself.
+ */
+const SIDEBAR_TAB_CLEARING_ACTIONS: ReadonlySet<InboxAction['type']> = new Set([
+  'OPEN_USER', 'CLOSE_DETAIL', 'NEXT_CONTENT', 'PREV_CONTENT',
+  'NEXT_USER', 'PREV_USER', 'CHANGE_TAB', 'NEXT_TAB', 'PREV_TAB',
+  'REMOVE_USER', 'UNDO_ACTION',
+]);
+
 export function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
+  const newState = reduceInboxAction(state, action);
+  if (newState.sidebarTab === null || !SIDEBAR_TAB_CLEARING_ACTIONS.has(action.type)) {
+    return newState;
+  }
+  return { ...newState, sidebarTab: null };
+}
+
+function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
   switch (action.type) {
     case 'ADD_TO_UNDO_QUEUE': {
       return {
@@ -130,6 +176,11 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         ...state,
         users: [...state.users, item.user],
         undoQueue: state.undoQueue.filter(item => item.user._id !== action.userId),
+        activeTab: item.sourceTab,
+        focusedUserId: item.user._id,
+        openedUserId: item.wasDetailView ? item.user._id : null,
+        focusedPostId: null,
+        focusedContentIndex: 0,
       };
     }
 
@@ -187,6 +238,16 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       return {
         ...state,
         focusedContentIndex: action.contentIndex,
+        // Closes the composer, unless the caller is opening one — the row's
+        // Reject button selects the row and opens the reject tab in one action
+        sidebarTab: action.sidebarTab ?? null,
+      };
+    }
+
+    case 'SET_SIDEBAR_TAB': {
+      return {
+        ...state,
+        sidebarTab: action.tab,
       };
     }
 
@@ -301,7 +362,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.unloadedCounts);
 
       if (visibleTabs.length === 0) return state;
 
@@ -371,7 +432,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.unloadedCounts);
 
       if (visibleTabs.length === 0) return state;
 

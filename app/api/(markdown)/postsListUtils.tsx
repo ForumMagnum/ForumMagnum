@@ -46,6 +46,7 @@ export async function renderPostsListResponse(req: NextRequest, options: {
     <div>
       <div className={markdownClasses.title}>{options.title}</div>
       <MarkdownPostsList posts={posts} />
-    </div>
+    </div>,
+    resolverContext.forumType
   );
 }

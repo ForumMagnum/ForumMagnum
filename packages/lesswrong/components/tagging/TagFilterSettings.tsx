@@ -24,6 +24,10 @@ const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
   },
   addButton: {
     backgroundColor: theme.palette.panelBackground.default,
+    ...(theme.dark && {
+      backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
+      backdropFilter: theme.palette.filters.bannerAdBlurMedium,
+    }),
     paddingLeft: 10,
     paddingTop: 8,
     paddingBottom: 8,
@@ -32,7 +36,7 @@ const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
     fontWeight: 700,
     marginBottom: 4,
     cursor: "pointer",
-    border: theme.palette.tag.border
+    border: theme.dark ? theme.palette.greyBorder("1px", 0.07) : theme.palette.tag.border
   },
   flexWrapEndGrow: {
     flexGrow: 9999999,

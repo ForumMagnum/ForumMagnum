@@ -10,14 +10,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, runFieldOnC
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 import { dataToHTML, dataToWordCount, extractAndReplaceIframeWidgets } from "@/server/editor/conversionUtils";
-import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
-import { z } from "zod"; // Add this import for Zod
-import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
-import { captureException } from "@/lib/sentryWrapper";
 import { backgroundTask } from "@/server/utils/backgroundTask";
-import Posts from "../posts/collection";
-import ModerationTemplates from "../moderationTemplates/collection";
-import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 import { randomId } from "@/lib/random";
 import type { RevisionOriginalContentsData } from "@/lib/collections/revisions/revisionSchemaTypes";
 import { htmlToChangeMetrics } from "@/server/editor/utils";

@@ -8,7 +8,7 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('New Wikitag'));
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('New Wikitag'));
 }
 
 assertRouteAttributes("/w/create", {

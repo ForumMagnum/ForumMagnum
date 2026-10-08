@@ -1,8 +1,8 @@
 'use client';
 
+
 import React, { ComponentType, MouseEventHandler, CSSProperties } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";
 import { SpeakerWaveIcon } from "../icons/speakerWaveIcon";
 import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
@@ -19,6 +19,8 @@ import HeartOutlineIcon from "@heroicons/react/24/outline/HeartIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
 import ChevronLeftIcon from "@heroicons/react/24/solid/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/24/solid/ChevronRightIcon";
+import ChevronDoubleLeftIcon from "@heroicons/react/24/outline/ChevronDoubleLeftIcon";
+import ChevronDoubleRightIcon from "@heroicons/react/24/outline/ChevronDoubleRightIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import ClockIcon from "@heroicons/react/24/outline/ClockIcon";
 import NoSymbolIcon from "@heroicons/react/24/solid/NoSymbolIcon";
@@ -219,6 +221,8 @@ export type ForumIconName =
   "Analytics" |
   "ChevronLeft" |
   "ChevronRight" |
+  "ChevronDoubleLeft" |
+  "ChevronDoubleRight" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
@@ -367,6 +371,8 @@ const icons: Record<ForumIconName, IconComponent> = {
   Analytics: MuiShowChartIcon,
   ChevronLeft: ChevronLeftIcon,
   ChevronRight: ChevronRightIcon,
+  ChevronDoubleLeft: ChevronDoubleLeftIcon,
+  ChevronDoubleRight: ChevronDoubleRightIcon,
   ThickChevronLeft: ThickChevronLeftIcon,
   ThickChevronRight: ThickChevronRightIcon,
   ThickChevronDown: ThickChevronDownIcon,
@@ -489,13 +495,9 @@ const styles = defineStyles("ForumIcon", (_: ThemeType) => ({
 
 type IconClassName = "root"|"linkRotation"
 
-// This is a map from forum types to icon names to keys in the `styles` object.
-const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>> = {
-  default: {
-    Link: "linkRotation",
-  },
-  EAForum: {
-  },
+// Map icon names to keys in the `styles` object.
+const CUSTOM_CLASSES: Partial<Record<ForumIconName, IconClassName>> = {
+  Link: "linkRotation",
 };
 
 type ForumIconProps = IconProps & {
@@ -535,7 +537,7 @@ const ForumIcon = ({
     return null;
   }
 
-  const customClassKey = forumSelect(CUSTOM_CLASSES)[icon];
+  const customClassKey = CUSTOM_CLASSES[icon];
   const customClass = customClassKey ? classes[customClassKey] : undefined;
   const fullClassName = classNames(
     className,

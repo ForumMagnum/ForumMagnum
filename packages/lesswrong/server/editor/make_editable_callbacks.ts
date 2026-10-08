@@ -2,7 +2,7 @@ import {extractVersionsFromSemver} from '../../lib/editor/utils'
 import {htmlToPingbacks} from '../pingbacks'
 import { isEditableField } from './isEditableField'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
-import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
+import {getLatestRev, getNextVersion, isBeingUndrafted, MaybeDrafteable} from './utils'
 import isEqual from 'lodash/isEqual'
 import { fetchFragmentSingle } from '../fetchFragment'
 import { convertImagesInObject } from '../scripts/convertImagesToCloudinary'
@@ -143,7 +143,7 @@ async function createInitialRevision<N extends CollectionNameString>(
       }),
       [`${fieldName}_latest`]: firstRevision._id,
       ...(pingbacks ? {
-        pingbacks: await htmlToPingbacks(html ?? "", null),
+        pingbacks: await htmlToPingbacks(html ?? "", null, context.forumType),
       } : null),
     }
   }
@@ -188,6 +188,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const oldRevisionId = (document as AnyBecauseHard)?.[`${fieldName}_latest`];
     const oldRevision = oldRevisionId
       ? await fetchFragmentSingle({
+        context,
         collectionName: "Revisions",
         fragmentDoc: RevisionMetadata,
         selector: {_id: oldRevisionId},
@@ -235,7 +236,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
         pingbacks: await htmlToPingbacks(updatedHtml, [{
             collectionName: collectionName,
             documentId: document._id,
-          }]
+          }], context.forumType
         ),
       } : null),
     }
@@ -279,13 +280,13 @@ async function updateRevisionDocumentId<N extends CollectionNameString>(newDoc: 
 // createAfter
 async function notifyUsersAboutPingbackMentionsInCreate<N extends CollectionNameString>(
   newDocument: ObjectsByCollectionName[N],
-  { currentUser }: AfterCreateCallbackProperties<N>,
+  { currentUser, context }: AfterCreateCallbackProperties<N>,
   options: EditableCallbackProperties<N>,
 ) {
   const { pingbacks = false, collectionName } = options;
 
   if (currentUser && pingbacks && 'pingbacks' in newDocument) {
-    await notifyUsersAboutMentions(currentUser, collectionName, newDocument)
+    await notifyUsersAboutMentions(currentUser, collectionName, newDocument, context)
   }
 
   return newDocument
@@ -300,7 +301,7 @@ async function notifyUsersAboutPingbackMentionsInUpdate<N extends CollectionName
   const { pingbacks = false, collectionName } = options;
 
   if (currentUser && pingbacks && 'pingbacks' in newDocument) {
-    await notifyUsersAboutMentions(currentUser, collectionName, newDocument, oldDocument as PingbackDocumentPartial)
+    await notifyUsersAboutMentions(currentUser, collectionName, newDocument, context, oldDocument as PingbackDocumentPartial)
   }
 
   return newDocument

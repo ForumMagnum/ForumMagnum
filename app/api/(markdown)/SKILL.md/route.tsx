@@ -174,6 +174,13 @@ A few things to watch out for:
  * If the text you want to anchor to contains a link, quote the visible link text,
    not the URL. URLs inside link targets are not part of the anchorable body text
    and will never match.
+ * If the text you want to anchor to contains a mathematical equation, quote the
+   equation's LaTeX token verbatim, exactly as the markdown API returned it —
+   inline math as \`$...$\`, display math as \`$$...$$\` (occasionally \`\\(...\\)\`
+   or \`\\[...\\]\`). An equation has no separate "visible rendered" form to quote:
+   include the whole token, delimiters and all, and don't retypeset it or change
+   its delimiter style. A longer quote may span an equation, but can't match a
+   fragment of one.
  * Only the post body is anchorable. The post title and other metadata fields are
    not part of the anchorable region — a quote matching those will always fail.
  * Quote verbatim from what the markdown API returned to you. The server handles
@@ -181,7 +188,10 @@ A few things to watch out for:
    and markdown emphasis markers (**, _, \`, ~) automatically, so you do not need
    to strip or normalize them yourself. But rephrasing, "cleaning up" the text,
    or quoting from memory rather than from the markdown you just read will miss.
- * If the call returns a "no match" error, the one possible cause is that the user
+ * Quotes must be unambiguous. A quote that matches more than one place in the
+   draft fails with a count of the occurrences — lengthen it with more
+   surrounding context rather than guessing.
+ * If the call returns a "no match" error, the likely cause is that the user
    has edited the draft since you read it. Fetch the current state of the post
    via /api/editPost and re-derive your quote from the fresh read before retrying.
    Drafts are a live collaboration surface; text you read a few minutes ago may
@@ -202,7 +212,10 @@ pipeline), while the quote should be the visible rendered text as a reader would
 see it, not the markdown source. The same quote-matching rules as commentOnDraft
 apply — see that section above for details (visible link text rather than URLs,
 no need to include emphasis markers, quote verbatim from the markdown API,
-re-read the draft before retrying on "no match" errors).
+re-read the draft before retrying on "no match" errors). Quotes may span
+formatting boundaries and even paragraph boundaries. In suggest mode, a quote
+spanning paragraphs produces per-paragraph deletion suggestions plus one
+insertion; accepting it does not merge the paragraphs.
 
 If the mode is "edit", the change will be applied immediately; if the mode is
 "suggest", the change will be displayed as a suggestion in the post editor. If
@@ -219,7 +232,8 @@ that already exists in the draft. The location can be one of the following:
     "after": insert after the paragraph with the given markdown prefix
 This API is only for inserting new blocks of text that can be expressed in
 traditional markdown.  It supports paragraphs, lists, blockquotes,
-bold/italic/strikethrough (no underline), code blocks, and spoiler blocks.
+bold/italic/strikethrough (no underline), inline and display LaTeX math
+(\`$...$\` and \`$$...$$\`), code blocks, and spoiler blocks.
 Custom block-level elements like LLM content blocks and widgets have dedicated APIs (see below).
 
 Spoiler blocks (text hidden until the reader hovers) are written as one or
@@ -229,18 +243,33 @@ spoiler block; a bare \`>!\` line is a paragraph break inside the block:
     >!
     >! the butler
 
+Collapsible sections (block content hidden behind a clickable title, collapsed
+by default) are written as a \`+++\` fence: the opening line is \`+++\` followed
+by the section title (required, non-empty), and the closing line is a bare
+\`+++\`. The body may contain any block-level markdown:
+    +++ Caveats and edge cases
+    Hidden body content with **emphasis**, lists, and
+    other block-level elements.
+    +++
+
 To delete an existing block from the draft, make a POST request to:
     POST /api/agent/deleteBlock
     with JSON body: { postId, key, prefix, mode?: "edit"|"suggest" }
 The prefix should be a markdown string that matches the start of a top-level
 block in the draft (paragraph, heading, blockquote, table, spoiler block,
-LLM content block, …) or any individual list item. Match a list item by its
-own leading text — the matcher descends into lists, so deleting "second item"
-removes just that item and leaves the surrounding list intact. Match a table
-by the leading text of its first cell; tables are always deleted as a whole
-(there is no per-cell deletion).
+LLM content block, display equation, …) or any individual list item. The
+prefix must match exactly one block — if several blocks start with it, the
+call fails and asks for a longer prefix — and must end within that block (a
+prefix spanning two blocks never matches). Match a list item by its own
+leading text — the matcher descends into lists at any nesting depth, so
+deleting "second item" removes just that item and leaves the surrounding
+list intact. Match a table by the leading text of its first cell; tables are
+always deleted as a whole (there is no per-cell deletion). Match a display
+equation by its whole \`$$...$$\` token.
 In edit mode, the matched block is removed immediately. In suggest mode, the
-matched block is wrapped as a deletion suggestion.
+matched block is wrapped as a deletion suggestion; a few block types (e.g.
+display equations) cannot be represented as deletion suggestions, and the
+call will fail with a note telling you to use edit mode instead.
 
 To insert an LLM content block (a visually distinct block attributed to a
 specific AI model) into the draft, make a POST request to:

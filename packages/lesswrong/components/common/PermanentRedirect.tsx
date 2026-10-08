@@ -1,4 +1,6 @@
 'use client';
+import { useForumType } from '@/components/hooks/useForumType';
+import { makeAbsolute, urlIsAbsolute } from '@/lib/vulcan-lib/utils';
 import React, { useEffect } from 'react';
 import { isServer } from '@/lib/executionEnvironment';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
@@ -15,6 +17,7 @@ const PermanentRedirect = ({url, status}: {
   status?: number
 }) => {
   const navigate = useNavigate();
+  const { forumType } = useForumType();
   
   if (!url) throw Error("Permanent Redirect requires a URL")
 
@@ -23,7 +26,7 @@ const PermanentRedirect = ({url, status}: {
   }, [url, navigate]);
   
   if (isServer) {
-    return <StatusCodeSetter status={status ?? 308} redirectTarget={url}/>
+    return <StatusCodeSetter status={status ?? 308} redirectTarget={urlIsAbsolute(url) ? url : makeAbsolute(url, forumType)}/>
   }
 
   return null;

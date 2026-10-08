@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { SerializedEditorContents, deserializeEditorContents, EditorContents, getEditorsForUser } from './Editor';
+import React, { useState } from 'react';
+import { EditorContents, getEditorsForUser } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import ForumIcon from "../common/ForumIcon";
@@ -54,7 +54,7 @@ const styles = defineStyles("LocalStorageCheck", (theme: ThemeType) => ({
 }));
 
 type RestorableState = {
-  savedDocument: SerializedEditorContents,
+  savedDocument: EditorContents,
 }
 const restorableStateHasMetadata = (savedState: any) => {
   return typeof savedState === "object"
@@ -63,14 +63,18 @@ type GetLocalStorageHandlers = (editorType?: string) => any;
 
 const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: GetLocalStorageHandlers): RestorableState|null => {
   const editors = getEditorsForUser(currentUser)
-  
+
   for (const editorType of editors) {
     const savedState = getLocalStorageHandlers(editorType).get();
     if (savedState) {
       if (restorableStateHasMetadata(savedState)) {
-        return {
-          savedDocument: savedState,
+        // Skip corrupt saved states that are missing an editor type
+        if (savedState.type) {
+          return {
+            savedDocument: savedState,
+          }
         }
+        continue;
       }
       return {
         savedDocument: {type: editorType, value: savedState}
@@ -116,26 +120,24 @@ const LocalStorageCheck = (props: LocalStorageCheckProps) => {
 }
 
 const LocalStorageCheckVisible = (props: LocalStorageCheckProps & {
-  restorableDocument: SerializedEditorContents|null
-  newPostRestorableDocument: SerializedEditorContents|null
+  restorableDocument: EditorContents|null
+  newPostRestorableDocument: EditorContents|null
   clearRestorableState: () => void
 }) => {
   const {onRestore, onRestoreNewPostLegacy, restorableDocument, newPostRestorableDocument, clearRestorableState} = props;
   const classes = useStyles(styles);
 
-  const displayedRestore = restorableDocument ? htmlToTextDefault(deserializeEditorContents(restorableDocument)?.value ?? '') : null;
-  const legacyRestored = newPostRestorableDocument ? htmlToTextDefault(deserializeEditorContents(newPostRestorableDocument)?.value ?? '') : null;
+  const displayedRestore = restorableDocument ? htmlToTextDefault(restorableDocument.value ?? '') : null;
+  const legacyRestored = newPostRestorableDocument ? htmlToTextDefault(newPostRestorableDocument.value ?? '') : null;
 
   return <div className={classes.root}>
     <div>
       <a className={classes.restoreLink} onClick={() => {
         clearRestorableState();
-        const restored = restorableDocument ? deserializeEditorContents(restorableDocument) : null;
-        const legacyRestored = newPostRestorableDocument ? deserializeEditorContents(newPostRestorableDocument) : null;
-        if (restored) {
-          onRestore(restored);
-        } else if (legacyRestored) {
-          onRestoreNewPostLegacy(legacyRestored);
+        if (restorableDocument) {
+          onRestore(restorableDocument);
+        } else if (newPostRestorableDocument) {
+          onRestoreNewPostLegacy(newPostRestorableDocument);
         } else {
           // eslint-disable-next-line no-console
           console.error("Error restoring from localStorage");

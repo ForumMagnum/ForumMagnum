@@ -8,35 +8,65 @@ import { captureException } from "@/lib/sentryWrapper";
  */
 export const backgroundTask = <T>(promise: Promise<T>) => {
   ensureRequestHasBackgroundTaskHandler();
-  pendingBackgroundTasks.push(promise.catch((err) => {
-    // eslint-disable-next-line no-console
-    console.error('Uncaught error in background task', err);
-    captureException(err);
-  }));
+  const tracked: Promise<unknown> = promise
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error('Uncaught error in background task', err);
+      captureException(err);
+    })
+    .finally(() => {
+      pendingBackgroundTasks = pendingBackgroundTasks.filter((task) => task !== tracked);
+    });
+  pendingBackgroundTasks.push(tracked);
 }
 
-let pendingBackgroundTasks: Promise<any>[] = [];
+let pendingBackgroundTasks: Promise<unknown>[] = [];
+
+// The NextJS request context, if this is running inside a request. Obtained as
+// per https://nextjs.org/docs/app/api-reference/functions/after#platform-support
+function getRequestContext() {
+  const RequestContext = (globalThis as any)[Symbol.for('@next/request-context')];
+  return RequestContext?.get?.();
+}
+
+export function isInRequestContext(): boolean {
+  return !!getRequestContext();
+}
 
 function ensureRequestHasBackgroundTaskHandler() {
-  // Checks whether we're running in the context of a NextJS "request".
-  // If so, calls `after` (from @next/server) to ensure that the Vercel function
-  // doesn't exit until all background tasks are complete.
-  // 
-  // Getting the request context is as per https://nextjs.org/docs/app/api-reference/functions/after#platform-support
-  // 
-  // When run locally, this does nothing, as there is no request context, but background
-  // tasks will still complete as long as you don't kill the running server instance.
-  const RequestContext = (globalThis as any)[Symbol.for('@next/request-context')];
-  if (RequestContext) {
-    const contextValue = RequestContext?.get()
-    if (contextValue && !contextValue.hasAddedWaitForBackgroundTasks) {
-      contextValue.hasAddedWaitForBackgroundTasks = true;
-      const { after }: typeof import("next/server") = require("next/server");
-      after(async () => {
-        await waitForBackgroundTasks();
-      });
-    }
+  // If running inside a NextJS request, calls `after` (from @next/server) to
+  // ensure that the Vercel function doesn't exit until all background tasks
+  // are complete.
+  //
+  // When run locally, there is no request context, but background tasks will
+  // still complete as long as you don't kill the running server instance.
+  const contextValue = getRequestContext();
+  if (!contextValue) {
+    warnOnExitIfTasksPending();
+    return;
   }
+  if (!contextValue.hasAddedWaitForBackgroundTasks) {
+    contextValue.hasAddedWaitForBackgroundTasks = true;
+    const { after }: typeof import("next/server") = require("next/server");
+    after(async () => {
+      await waitForBackgroundTasks();
+    });
+  }
+}
+
+let exitWarningRegistered = false;
+
+// Scripts (yarn repl, migrations) exit as soon as their entrypoint resolves,
+// dropping any background task still running.
+function warnOnExitIfTasksPending() {
+  if (exitWarningRegistered) return;
+  exitWarningRegistered = true;
+  process.on('exit', () => {
+    if (pendingBackgroundTasks.length > 0) {
+      // eslint-disable-next-line no-console
+      console.error(`Exiting with ${pendingBackgroundTasks.length} background task(s) still pending; their work was not completed`);
+    }
+  });
 }
 
 export async function waitForBackgroundTasks() {

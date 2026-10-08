@@ -128,6 +128,7 @@ export async function renderPostMarkdownByIdOrSlug(
       htmlPathOverride={options?.htmlPathOverride}
       markdownPathOverride={options?.markdownPathOverride}
       commentsMarkdownPathOverride={options?.commentsMarkdownPathOverride}
-    />
+    />,
+    resolverContext.forumType
   );
 }

@@ -1,13 +1,14 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Geosuggest from 'react-geosuggest'
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
-import { mapsAPIKeySetting } from '@/lib/instanceSettings';
+import { mapsAPIKey } from '@/lib/instanceSettings';
 import { rootStyles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
-import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import type { FieldValueBinding } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
@@ -110,6 +111,7 @@ let mapsLoadingState: "unloaded"|"loading"|"loaded" = "unloaded";
 let onMapsLoaded: Array<() => void> = [];
 
 export const useGoogleMaps = (): [boolean, any] => {
+  const { forumType } = useForumType();
   const [isMapsLoaded, setIsMapsLoaded] = useState(false);
   
   useEffect(() => {
@@ -127,7 +129,7 @@ export const useGoogleMaps = (): [boolean, any] => {
         
         var tag = document.createElement('script');
         tag.async = true;
-        tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKeySetting.get()}&libraries=places&loading=async&callback=googleMapsFinishedLoading`;
+        tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places&loading=async&callback=googleMapsFinishedLoading`;
         window.googleMapsFinishedLoading = () => {
           mapsLoadingState = "loaded";
           let callbacks = onMapsLoaded;
@@ -139,7 +141,7 @@ export const useGoogleMaps = (): [boolean, any] => {
         document.body.appendChild(tag);
       }
     }
-  }, []);
+  }, [forumType]);
   
   if (!isMapsLoaded) return [false, null];
   return [true, window?.google?.maps];
@@ -152,7 +154,9 @@ export const LocationFormComponent = ({
   variant = 'default',
   locationTypes,
 }: {
-  field: TypedFieldApi<AnyBecauseHard>;
+  field: FieldValueBinding<AnyBecauseHard> & {
+    form?: { setFieldValue: (name: AnyBecauseHard, value: AnyBecauseHard) => void };
+  };
   label: string;
   /** Optional sibling field that stores the plain‑string version of the location */
   stringVersionFieldName?: keyof localGroupsEdit | null;

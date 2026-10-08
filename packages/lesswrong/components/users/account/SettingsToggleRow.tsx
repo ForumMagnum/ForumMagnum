@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles('SettingsToggleRow', (theme: ThemeType) => ({
   root: {
@@ -74,24 +73,26 @@ const styles = defineStyles('SettingsToggleRow', (theme: ThemeType) => ({
 }));
 
 interface SettingsToggleRowProps {
-  field: TypedFieldApi<boolean> | TypedFieldApi<boolean | null | undefined>;
+  value: boolean | null | undefined;
+  onChange: (value: boolean) => void;
   label: string;
   description?: string;
   disabled?: boolean;
 }
 
 const SettingsToggleRow = ({
-  field,
+  value,
+  onChange,
   label,
   description,
   disabled = false,
 }: SettingsToggleRowProps) => {
   const classes = useStyles(styles);
-  const isOn = !!field.state.value;
+  const isOn = !!value;
 
   const onToggle = useCallback(() => {
-    field.handleChange(!field.state.value);
-  }, [field]);
+    onChange(!isOn);
+  }, [onChange, isOn]);
 
   return (
     <div className={classNames(classes.root, disabled && classes.disabled)}>

@@ -1,10 +1,12 @@
 'use client';
 
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import React, { use, useMemo } from 'react';
 import { isServer } from '@/lib/executionEnvironment';
 import { yjsBinaryToHtml } from './yjsToHtml';
 
 interface WebhookProcessorProps {
+  forumType: ForumTypeString;
   documentName: string;
   /** Base64-encoded Yjs binary state, read from the DB by the server component. */
   yjsStateBase64: string;
@@ -17,7 +19,7 @@ interface WebhookProcessorProps {
  * dynamic import to bypass the static stub mechanism — the same pattern used
  * by ApolloWrapper to access ResolverContext during SSR.
  */
-async function processDocumentUpdate({ documentName, yjsStateBase64 }: WebhookProcessorProps): Promise<string> {
+async function processDocumentUpdate({ documentName, yjsStateBase64, forumType }: WebhookProcessorProps): Promise<string> {
   if (!isServer) {
     return 'skipped (client)';
   }
@@ -27,14 +29,14 @@ async function processDocumentUpdate({ documentName, yjsStateBase64 }: WebhookPr
   // client bundles.
   const {
     saveOrUpdateLexicalRevision,
-    documentNameToPostId,
+    parseHocuspocusDocumentName,
   } = await import('@/server/hocuspocus/hocuspocusCallbacks');
 
   const yjsBinary = new Uint8Array(Buffer.from(yjsStateBase64, 'base64'));
   const html = yjsBinaryToHtml(yjsBinary);
-  const postId = documentNameToPostId(documentName);
+  const { collectionName, documentId } = parseHocuspocusDocumentName(documentName);
 
-  await saveOrUpdateLexicalRevision(postId, html, yjsStateBase64);
+  await saveOrUpdateLexicalRevision(collectionName, documentId, html, yjsStateBase64, forumType);
 
   return 'ok';
 }
@@ -59,6 +61,7 @@ function WebhookProcessorAsync({ resultPromise }: { resultPromise: Promise<strin
 export default function WebhookProcessor(props: WebhookProcessorProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const resultPromise = useMemo(() => processDocumentUpdate(props), [
+    props.forumType,
     props.documentName,
     props.yjsStateBase64,
   ]);

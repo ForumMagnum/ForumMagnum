@@ -87,11 +87,12 @@ const ScoreBreakdownTooltip = ({
   );
 };
 
-const UltraFeedScoreBreakdown = ({ metadata, sources, commentMetaInfo, postMetaInfo }: { 
+const UltraFeedScoreBreakdown = ({ metadata, sources, commentMetaInfo, postMetaInfo, children }: { 
   metadata: RankedItemMetadata;
   sources?: FeedItemSourceType[];
   commentMetaInfo?: FeedCommentMetaInfo;
   postMetaInfo?: FeedPostMetaInfo;
+  children?: ReactNode;
 }) => {
   const classes = useStyles(styles);
   const breakdownClasses = useStyles(scoreBreakdownStyles);
@@ -137,14 +138,16 @@ const UltraFeedScoreBreakdown = ({ metadata, sources, commentMetaInfo, postMetaI
         popperClassName={classes.tooltip}
         clickable={true}
       >
-        <span>
-          {showScoreBreakdown && (
-            <span className={classes.score}>
-              {metadata.scoreBreakdown.total.toFixed(2)}
-            </span>
-          )}
-          <ForumIcon icon="Insights" className={classes.icon} onClick={handleClick} />
-        </span>
+        {children ?? (
+          <span>
+            {showScoreBreakdown && (
+              <span className={classes.score}>
+                {metadata.scoreBreakdown.total.toFixed(2)}
+              </span>
+            )}
+            <ForumIcon icon="Insights" className={classes.icon} onClick={handleClick} />
+          </span>
+        )}
       </LWTooltip>
       <AlterBonusesDialog
         open={dialogOpen}

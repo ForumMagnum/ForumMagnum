@@ -24,6 +24,7 @@ import {
   createBindingV2__EXPERIMENTAL,
   createUndoManager,
   DIFF_VERSIONS_COMMAND__EXPERIMENTAL,
+  getUndoManagerForBinding,
   initLocalState,
   renderSnapshot__EXPERIMENTAL,
   setLocalStateFocus,
@@ -45,6 +46,7 @@ import {
   COMMAND_PRIORITY_EDITOR,
   FOCUS_COMMAND,
   HISTORY_MERGE_TAG,
+  HISTORY_PUSH_TAG,
   REDO_COMMAND,
   SKIP_COLLAB_TAG,
   UNDO_COMMAND,
@@ -118,6 +120,14 @@ export function useYjsCollaboration(
         tags,
       }) => {
         if (!tags.has(SKIP_COLLAB_TAG)) {
+          // An update tagged HISTORY_PUSH_TAG (e.g. a markdown auto-format)
+          // should be its own undo step: stop the UndoManager from merging it
+          // into the preceding typing, and stop subsequent typing from
+          // merging into it.
+          const undoManager = tags.has(HISTORY_PUSH_TAG)
+            ? getUndoManagerForBinding(binding)
+            : undefined;
+          undoManager?.stopCapturing();
           syncLexicalUpdateToYjs(
             binding,
             provider,
@@ -128,6 +138,7 @@ export function useYjsCollaboration(
             normalizedNodes,
             tags,
           );
+          undoManager?.stopCapturing();
         }
       },
     );
@@ -288,6 +299,11 @@ export function useYjsCollaborationV2__EXPERIMENTAL(
         tags,
       }) => {
         if (!tags.has(SKIP_COLLAB_TAG)) {
+          // See the matching HISTORY_PUSH_TAG handling in useYjsCollaboration.
+          const undoManager = tags.has(HISTORY_PUSH_TAG)
+            ? getUndoManagerForBinding(binding)
+            : undefined;
+          undoManager?.stopCapturing();
           syncLexicalUpdateToYjsV2__EXPERIMENTAL(
             binding,
             provider,
@@ -297,6 +313,7 @@ export function useYjsCollaborationV2__EXPERIMENTAL(
             normalizedNodes,
             tags,
           );
+          undoManager?.stopCapturing();
         }
       },
     );

@@ -1,7 +1,9 @@
+import { createAnonymousContext } from "./vulcan-lib/createContexts";
+import { getForumTypeForRequest } from "./utils/requestUtil";
 import RSS from 'rss';
 import { Comments } from '../server/collections/comments/collection';
-import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers';
-import { postGetPageUrl } from '../lib/collections/posts/helpers';
+import { commentGetAbsolutePageUrlFromDB } from '../lib/collections/comments/helpers';
+import { postGetAbsolutePageUrl } from '../lib/collections/posts/helpers';
 import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instanceSettings';
 import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
@@ -10,19 +12,18 @@ import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { viewTermsToQuery } from '../lib/utils/viewUtils';
 import { fetchFragment } from './fetchFragment';
-import { createAnonymousContext } from "./vulcan-lib/createContexts";
 import { PostsViews } from '@/lib/collections/posts/views';
 import { CommentsViews } from '@/lib/collections/comments/views';
 import { PostsRSSFeed } from '@/lib/collections/posts/fragments';
 import { camelCaseify } from '@/lib/vulcan-lib/utils';
 import type { NextRequest } from 'next/server';
 
-export const getMeta = (url: string) => {
-  const siteUrl = siteUrlSetting.get();
+export const getMeta = (url: string, context: ResolverContext) => {
+  const siteUrl = siteUrlSetting.get(context);
 
   return {
-    title: forumTitleSetting.get(),
-    description: taglineSetting.get(),
+    title: forumTitleSetting.get(context),
+    description: taglineSetting.get(context),
     feed_url: url,
     site_url: siteUrl,
     image_url: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico"
@@ -40,19 +41,19 @@ const roundKarmaThreshold = (threshold: number): KarmaThreshold =>
   : (threshold < 162) ? 125
   : 200;
 
-export const servePostRSS = async (terms: RSSTerms,) => {
+export const servePostRSS = async (terms: RSSTerms, req: NextRequest) => {
   // LESSWRONG - this was added to handle karmaThresholds
   let karmaThreshold = terms.karmaThreshold = roundKarmaThreshold(parseInt(terms.karmaThreshold, 10));
-  const url = rssTermsToUrl(terms);
-  const feed = new RSS(getMeta(url));
+  const context = createAnonymousContext({forumType: getForumTypeForRequest(req)});
+  const url = rssTermsToUrl(terms, context.forumType);
+  const feed = new RSS(getMeta(url, context));
 
   // We renamed the rss views to no longer have dashes in them
   if (terms.view?.includes('-')) {
     terms.view = camelCaseify(terms.view);
   }
 
-  const context = createAnonymousContext();
-  const parameters = viewTermsToQuery(PostsViews, terms, undefined, context);
+  const parameters = await viewTermsToQuery(PostsViews, terms, undefined, context);
   delete parameters['options']['sort']['sticky'];
 
   parameters.options.limit = 10;
@@ -61,6 +62,7 @@ export const servePostRSS = async (terms: RSSTerms,) => {
     collectionName: "Posts",
     fragmentDoc: PostsRSSFeed,
     currentUser: null,
+    context,
     selector: parameters.selector,
     options: parameters.options,
   });
@@ -83,7 +85,7 @@ export const servePostRSS = async (terms: RSSTerms,) => {
 
     let date = (viewDate > thresholdDate) ? viewDate : thresholdDate;
 
-    const postLink = `<a href="${postGetPageUrl(post, true)}#comments">Discuss</a>`;
+    const postLink = `<a href="${postGetAbsolutePageUrl(post, context.forumType)}#comments">Discuss</a>`;
     const feedItem: any = {
       title: post.title,
       description: `${(post.contents && post.contents.html) || ""}<br/><br/>${postLink}`,
@@ -95,7 +97,7 @@ export const servePostRSS = async (terms: RSSTerms,) => {
       // date: post.postedAt
       date: date,
       guid: post._id,
-      url: postGetPageUrl(post, true)
+      url: postGetAbsolutePageUrl(post, context.forumType)
     };
 
     feed.item(feedItem);
@@ -105,17 +107,17 @@ export const servePostRSS = async (terms: RSSTerms,) => {
 };
 
 export const serveCommentRSS = async (terms: RSSTerms, req: NextRequest) => {
-  const url = rssTermsToUrl(terms);
-  const feed = new RSS(getMeta(url));
   const context = await getContextFromReqAndRes({req, isSSR: false});
+  const url = rssTermsToUrl(terms, context.forumType);
+  const feed = new RSS(getMeta(url, context));
 
-  let parameters = viewTermsToQuery(CommentsViews, terms, undefined, context);
+  let parameters = await viewTermsToQuery(CommentsViews, terms, undefined, context);
   parameters.options.limit = 50;
   const commentsCursor = await Comments.find(parameters.selector, parameters.options).fetch();
   const restrictedComments = await accessFilterMultiple(null, 'Comments', commentsCursor, context) as DbComment[];
 
   await asyncForeachSequential(restrictedComments, async (comment) => {
-    const url = await commentGetPageUrlFromDB(comment, context, true);
+    const url = await commentGetAbsolutePageUrlFromDB(comment, context);
     const parentTitle = await getCommentParentTitle(comment, context)
     feed.item({
      title: 'Comment on ' + parentTitle,

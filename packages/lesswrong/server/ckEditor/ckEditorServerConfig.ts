@@ -1,8 +1,4 @@
-import { ckEditorEnvironmentIdSetting, ckEditorSecretKeySetting, ckEditorApiPrefixSetting, ckEditorApiSecretKeySetting } from '../databaseSettings';
-import { ckEditorApiPrefixOverrideSetting, ckEditorApiSecretKeyOverrideSetting, ckEditorEnvironmentIdOverrideSetting, ckEditorSecretKeyOverrideSetting } from '../../lib/instanceSettings';
-
-
-export const getCkEditorEnvironmentId = () => ckEditorEnvironmentIdOverrideSetting.get() || ckEditorEnvironmentIdSetting.get();
-export const getCkEditorSecretKey = () => ckEditorSecretKeyOverrideSetting.get() || ckEditorSecretKeySetting.get();
-export const getCkEditorApiPrefix = () => ckEditorApiPrefixOverrideSetting.get() || ckEditorApiPrefixSetting.get();
-export const getCkEditorApiSecretKey = () => ckEditorApiSecretKeyOverrideSetting.get() || ckEditorApiSecretKeySetting.get();
+export const getCkEditorEnvironmentId = () => process.env.private_ckEditorOverride_environmentId || (process.env.private_ckEditor_environmentId ?? null);
+export const getCkEditorSecretKey = () => process.env.private_ckEditorOverride_secretKey || (process.env.private_ckEditor_secretKey ?? null);
+export const getCkEditorApiPrefix = () => process.env.private_ckEditorOverride_apiPrefix || (process.env.private_ckEditor_apiPrefix ?? null);
+export const getCkEditorApiSecretKey = () => process.env.private_ckEditorOverride_apiSecretKey || (process.env.private_ckEditor_apiSecretKey ?? null);

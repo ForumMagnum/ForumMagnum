@@ -466,6 +466,10 @@ export const redirects = [
     source: "/auth/login",
     destination: "/login",
     permanent: true,
+  }, {
+    source: "/manageSubscriptions",
+    destination: "/account?tab=subscriptions",
+    permanent: true,
   },
 ] satisfies Redirect[];
 

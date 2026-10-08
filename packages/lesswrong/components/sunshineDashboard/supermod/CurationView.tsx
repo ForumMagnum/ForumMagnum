@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
 import { CurationNoticesForm } from '@/components/admin/CurationNoticesForm';
@@ -54,7 +54,7 @@ const styles = defineStyles('CurationPostView', (theme: ThemeType) => ({
 
 
 const CurationPostView = ({post, currentUser}: {
-  post: SunshineCurationPostsList | null;
+  post: SunshineCurationPostsListItem | null;
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);

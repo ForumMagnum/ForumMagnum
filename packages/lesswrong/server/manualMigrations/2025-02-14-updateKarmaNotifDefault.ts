@@ -1,3 +1,4 @@
+import { forumTypeSetting } from '@/lib/forumTypeUtils';
 import { registerMigration } from "./migrationUtils";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { karmaChangeNotifierDefaultSettings } from "@/lib/collections/users/helpers";
@@ -31,7 +32,7 @@ export default registerMigration({
 
     await Users.rawUpdateMany(
       { _id: { $nin: usersToExclude } },
-      { $set: { karmaChangeNotifierSettings: karmaChangeNotifierDefaultSettings.get() } }
+      { $set: { karmaChangeNotifierSettings: karmaChangeNotifierDefaultSettings.get(forumTypeSetting.get()) } }
     );
   },
 });

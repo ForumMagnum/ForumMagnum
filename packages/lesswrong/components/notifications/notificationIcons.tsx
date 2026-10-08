@@ -52,6 +52,7 @@ export function getNotificationIconByNotificationName(notificationName: string) 
     case 'newReplyToYou': return <CommentsIcon style={iconStyles}/>;
     case 'newUser': return <ForumIcon icon="Bell" style={iconStyles} />;
     case 'newMessage': return <MailIcon style={iconStyles}/>;
+    case 'newMessageReaction': return <MailIcon style={iconStyles}/>;
     case 'wrapped': return <GiftIcon style={flatIconStyles}/>;
     case 'emailVerificationRequired': return <ForumIcon icon="Bell" style={iconStyles} />;
     case 'postSharedWithUser': return <ForumIcon icon="Bell" style={iconStyles} />;
@@ -64,6 +65,7 @@ export function getNotificationIconByNotificationName(notificationName: string) 
     case 'cancelledRSVP': return <EventIcon style={iconStyles} />;
     case 'newGroupOrganizer': return <SupervisedUserCircleIcon style={iconStyles} />;
     case 'newCommentOnDraft': return <CommentsIcon style={iconStyles}/>;
+    case 'newCommentOnResearchDoc': return <CommentsIcon style={iconStyles}/>;
     case 'coauthorRequestNotification': return <GroupAddIcon style={iconStyles} />;
     case 'coauthorAcceptNotification': return <DoneIcon style={iconStyles} />;
     case 'newMention': return <CommentsIcon style={iconStyles}/>;

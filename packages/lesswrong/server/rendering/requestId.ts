@@ -1,5 +1,4 @@
 import React from 'react';
-import { cookies } from 'next/headers';
 
 declare global {
   var cachedAssignRequestId: (() => Promise<string>)|undefined;

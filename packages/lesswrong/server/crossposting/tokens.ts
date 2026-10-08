@@ -1,7 +1,6 @@
 import { ZodType, z } from "zod";
 import jwt, { VerifyErrors } from "jsonwebtoken";
 import { InvalidPayloadError, MissingSecretError } from "../fmCrosspost/errors";
-import { crosspostSigningKeySetting } from "../databaseSettings";
 
 class CrosspostingToken<
   Schema extends ZodType,
@@ -48,7 +47,7 @@ class CrosspostingToken<
   }
 
   private getSecret(): string {
-    const secret = crosspostSigningKeySetting.get();
+    const secret = (process.env.private_fmCrosspostSigningKey ?? null);
     if (!secret) {
       throw new MissingSecretError();
     }

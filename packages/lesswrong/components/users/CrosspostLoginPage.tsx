@@ -1,4 +1,6 @@
 "use client";
+import { useForumType } from '@/components/hooks/useForumType';
+
 
 import React, { useState } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -39,6 +41,7 @@ const styles = defineStyles("CrosspostLoginPage", (theme: ThemeType) => ({
 }));
 
 const CrosspostLoginPage = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [connectCrossposter, loading] = useMutation(gql(`
     mutation connectCrossposter($token: String) {
@@ -69,7 +72,7 @@ const CrosspostLoginPage = () => {
     <div className={classes.root}>
       <div className={classes.heading}>
         <Typography variant="title" className={classes.headingText}>
-          {forumHeaderTitleSetting.get()}
+          {forumHeaderTitleSetting.get(forumType)}
         </Typography>
       </div>
       {error && <div className={classes.error}>Error: {error}</div>}

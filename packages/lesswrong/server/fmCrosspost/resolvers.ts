@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { isLeft } from "@/lib/utils/typeGuardUtils";
 import { crosspostUserAgent } from "@/lib/apollo/constants";
 import {
@@ -21,7 +22,7 @@ import {
   unlinkCrossposterRoute,
 } from "@/lib/fmCrosspost/routes";
 import gql from "graphql-tag";
-import { fmCrosspostTimeoutMsSetting } from "../databaseSettings";
+import { fmCrosspostTimeoutMs } from "../databaseSettings";
 
 const foreignPostCache = new LRU<string, Promise<AnyBecauseHard>>({
   maxAge: 1000 * 60 * 30, // 30 minute TTL
@@ -39,14 +40,15 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
   routeName: RouteName,
   body: PostRequestTypes<RouteName>,
   onErrorMessage: string,
+  forumType: ForumTypeString,
 ): Promise<PostResponseTypes<RouteName>> => {
   const route: ValidatedPostRoutes[RouteName] = validatedPostRoutes[routeName];
-  const apiUrl = makeApiUrl(route.path);
+  const apiUrl = makeApiUrl(route.path, forumType);
   let result: Response;
 
   const controller = new AbortController();
   // Timeout early to avoid this causing frontpage loads to time out
-  const timeoutId = setTimeout(() => controller.abort(), fmCrosspostTimeoutMsSetting.get());
+  const timeoutId = setTimeout(() => controller.abort(), fmCrosspostTimeoutMs);
 
   try {
     result = await fetch(apiUrl, {
@@ -106,24 +108,25 @@ export const fmCrosspostGraphQLMutations = {
   connectCrossposter: async (
     _root: void,
     {token}: ConnectCrossposterArgs,
-    {req, currentUser, Users}: ResolverContext,
+    {req, currentUser, Users, forumType}: ResolverContext,
   ) => {
     if (!currentUser) {
       throw new UnauthorizedError();
     }
     const localUserId = currentUser._id;
-    assertCrosspostingKarmaThreshold(currentUser);
+    assertCrosspostingKarmaThreshold(currentUser, forumType);
     const {foreignUserId} = await makeV2CrossSiteRequest(
       connectCrossposterRoute,
       {token, localUserId},
       "Failed to connect accounts for crossposting",
+      forumType,
     );
     await Users.rawUpdateOne({_id: localUserId}, {
       $set: {fmCrosspostUserId: foreignUserId},
     });
     return "success";
   },
-  unlinkCrossposter: async (_root: void, _args: {}, {req, currentUser, Users}: ResolverContext) => {
+  unlinkCrossposter: async (_root: void, _args: {}, {req, currentUser, Users, forumType}: ResolverContext) => {
     if (!currentUser) {
       throw new UnauthorizedError();
     }
@@ -137,6 +140,7 @@ export const fmCrosspostGraphQLMutations = {
         unlinkCrossposterRoute,
         {token},
         "Failed to unlink crossposting accounts",
+        forumType,
       );
       await Users.rawUpdateOne({_id: localUserId}, {
         $unset: {fmCrosspostUserId: ""},
@@ -147,14 +151,15 @@ export const fmCrosspostGraphQLMutations = {
 }
 
 export const fmCrosspostGraphQLQueries = {
-  getCrosspost: async (_root: void, {args}: {args: GetCrosspostRequest}) => {
-    const key = stringify(args);
+  getCrosspost: async (_root: void, {args}: {args: GetCrosspostRequest}, context: ResolverContext) => {
+    const key = stringify({args, forumType: context.forumType});
     let promise = isE2E ? null : foreignPostCache.get(key);
     if (!promise) {
       promise = makeCrossSiteRequest(
         'getCrosspost',
         args,
-        'Failed to get crosspost'
+        'Failed to get crosspost',
+        context.forumType
       );
       foreignPostCache.set(key, promise);
     }

@@ -1,5 +1,4 @@
 import React from 'react';
-import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import SvgIcon from '../icons/SvgIcon';
 import {isFriendlyUI} from '../../themes/forumTheme'
@@ -169,7 +168,7 @@ const GroupLinks = ({ document, noMargin }: {
           )
         })}
       </div>}
-      <div className={(noMargin && (isEAForum() || !document.types?.length)) ? classNames(classes.groupLinks, classes.noMargin) : classes.groupLinks}>
+      <div className={(noMargin && !document.types?.length) ? classNames(classes.groupLinks, classes.noMargin) : classes.groupLinks}>
         {document.facebookLink
           && <TooltipSpan
             title={`Link to Facebook ${isEvent ? 'Event' : 'Group'}`}

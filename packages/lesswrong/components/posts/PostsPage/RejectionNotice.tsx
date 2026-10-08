@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ContentItemBody } from "../../contents/ContentItemBody";
 import ContentStyles from "../../common/ContentStyles";
-import { parseDocumentFromString } from '@/lib/domParser';
+import { extractRejectionReasonSummary } from '@/lib/rejectionReasonSummary';
 
 const styles = defineStyles('RejectionNotice', (theme: ThemeType) => ({
   root: {
@@ -42,39 +42,10 @@ const styles = defineStyles('RejectionNotice', (theme: ThemeType) => ({
   },
 }));
 
-// Extracts a summary from HTML rejection reasons:
-// - For lists (<ul>/<ol>): extracts text from each <li> item
-// - For paragraphs: extracts the first <p> content
-// - Text extraction includes multiple sentences if they are all bold, or just the first sentence if they are not. (Since we often use bold to convey multi-sentence-summaries)
-
-function extractLeadingText(element: Element): string {
-  const firstChild = element.firstElementChild;
-  if (firstChild && (firstChild.tagName === 'STRONG' || firstChild.tagName === 'B')) {
-    return (firstChild.textContent ?? '').trim();
-  }
-  const plainText = (element.textContent ?? '').replace(/\s+/g, ' ').trim();
-  return plainText.match(/^[^.!?]*[.!?]/)?.[0]?.trim() ?? plainText;
-}
-
-function extractSummary(html: string): string[] {
-  const { document } = parseDocumentFromString(html);
-  const body = document.body;
-  const firstSignificantElement = Array.from(body.children).find(
-    child => child.tagName !== 'P' || (child.textContent ?? '').trim()
-  );
-  if (!firstSignificantElement) return [];
-  if (firstSignificantElement.tagName === 'UL' || firstSignificantElement.tagName === 'OL') {
-    return Array.from(firstSignificantElement.querySelectorAll('li')).map(li => extractLeadingText(li)).filter(Boolean);
-  }
-  const target = firstSignificantElement.tagName === 'P' ? firstSignificantElement : body;
-  const leading = extractLeadingText(target);
-  return leading ? [leading] : [];
-}
-
 const RejectionNotice = ({rejectedReason}: {rejectedReason?: string | null}) => {
   const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false);
-  const summarySentences = useMemo(() => rejectedReason ? extractSummary(rejectedReason) : [], [rejectedReason]);
+  const summarySentences = useMemo(() => rejectedReason ? extractRejectionReasonSummary(rejectedReason) : [], [rejectedReason]);
 
   if (!rejectedReason) return <div className={classes.root}>This post was rejected.</div>;
     

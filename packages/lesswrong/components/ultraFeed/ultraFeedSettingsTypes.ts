@@ -27,6 +27,8 @@ export interface UnifiedScoringSettings {
 
 export interface UltraFeedResolverSettings {
   incognitoMode: boolean;
+  enableDebug: boolean;
+  debugMode?: boolean;
   algorithm: UltraFeedAlgorithm | undefined;
   sourceWeights: Record<FeedItemSourceType, number>;
   threadInterestModel: ThreadInterestModelSettings;
@@ -39,6 +41,7 @@ interface UltraFeedSubscriptionFeedSettings {
 }
 
 export interface UltraFeedSettingsType {
+  lastEditedAt?: string | null;
   displaySettings: UltraFeedDisplaySettings;
   resolverSettings: UltraFeedResolverSettings;
 }
@@ -158,13 +161,14 @@ const DEFAULT_UNIFIED_SCORING_SETTINGS: UnifiedScoringSettings = {
   quicktakeBonus: 5,
   timeDecayHalfLifeHours: 12,
   postsMultiplier: 1.0,
-  threadsMultiplier: 1.0,
+  threadsMultiplier: 1.5,
 };
 
 export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
   displaySettings: DEFAULT_DISPLAY_SETTINGS_DESKTOP,
   resolverSettings: {
     incognitoMode: false,
+    enableDebug: false,
     algorithm: undefined,
     sourceWeights: DEFAULT_SOURCE_WEIGHTS,
     commentScoring: DEFAULT_COMMENT_SCORING_SETTINGS,
@@ -181,6 +185,7 @@ export const getDefaultSettingsForDevice = (device: DeviceKind): UltraFeedSettin
     displaySettings: device === 'mobile' ? DEFAULT_DISPLAY_SETTINGS_MOBILE : DEFAULT_DISPLAY_SETTINGS_DESKTOP,
     resolverSettings: {
       incognitoMode: false,
+      enableDebug: false,
       algorithm: undefined,
       sourceWeights: DEFAULT_SOURCE_WEIGHTS,
       commentScoring: { ...DEFAULT_COMMENT_SCORING_SETTINGS },
@@ -271,6 +276,7 @@ export const getWordCountLevel = (
 
 export interface SettingsFormState {
   incognitoMode: boolean;
+  enableDebug: boolean;
   algorithm: UltraFeedAlgorithm | undefined;
   sourceWeights: SourceWeightFormState;
   displaySetting: DisplaySettingsFormState;

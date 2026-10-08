@@ -141,7 +141,9 @@ export const graphqlCommentQueryTypeDefs = gql`
     commentIds: [String!]
     minimumKarma: Int
     authorIsUnreviewed: Boolean
+    includeRejected: Boolean
     sortBy: String
+    shortform: Boolean
     drafts: String
     limit: String
   }
@@ -273,6 +275,7 @@ export const graphqlCommentQueryTypeDefs = gql`
   }
   
   input CommentsTopShortformInput {
+    sortBy: CommentSortingMode
     userId: String
     commentIds: [String!]
     minimumKarma: Int

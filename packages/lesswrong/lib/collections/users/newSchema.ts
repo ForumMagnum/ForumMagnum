@@ -5,10 +5,10 @@ import {
   getUserEmail,
   userOwnsAndInGroup,
   karmaChangeUpdateFrequencies,
+  userGetAbsoluteProfileUrl,
 } from "./helpers";
-import { userGetEditUrl } from "../../vulcan-users/helpers";
+import { userGetAbsoluteEditUrl } from "../../vulcan-users/helpers";
 import { userOwns, userIsAdmin, userIsMemberOf } from "../../vulcan-users/permissions";
-import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
   generateIdResolverSingle,
@@ -29,15 +29,18 @@ import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { sanitize } from "@/lib/utils/sanitize";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
-import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
+import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from "@/server/rateLimitUtils";
+import { calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import GraphQLJSON from "@/lib/vendor/graphql-type-json";
-import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
-import { getWithLoader, loadByIds } from "@/lib/loaders";
+import { bothChannelsEnabledNotificationTypeSettings, defaultNotificationTypeSettings, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
+import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
+import { getReviewGroupFromActions } from "./reviewGroups";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 import { getRevisionOriginalContentsByRevisionId } from "../revisions/helpers";
+import { hideUnreviewedAuthorCommentsSettings } from "@/lib/instanceSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
   const db = getSqlClientOrThrow();
@@ -54,6 +57,43 @@ const getCoauthoredPostCount = async (user: DbUser) => {
   });
 
   return Number(result.count);
+};
+
+const getModeratorActionsForUser = (context: ResolverContext, userId: string) => {
+  return getWithLoader(
+    context,
+    context.ModeratorActions,
+    "moderatorActionsByUserId",
+    {},
+    "userId",
+    userId,
+  );
+};
+
+// Karma is checked first, to skip the batched content query when it can.
+const getIsOffboardCandidate = async (context: ResolverContext, user: DbUser): Promise<boolean> => {
+  if (user.karma < 0) {
+    return true;
+  }
+  return getWithCustomLoader(context, "offboardCandidates", user._id, async (userIds) => {
+    const candidateIds = new Set(await context.repos.users.getOffboardCandidateUserIds(userIds));
+    return userIds.map((id) => candidateIds.has(id));
+  });
+};
+
+// Get last time user's `needsReview` flag was set to false (or null if never).
+const getLastRemovedFromReviewQueueAt = async (context: ResolverContext, userId: string): Promise<Date | null> => {
+  const fieldChanges = await getWithLoader(
+    context,
+    context.FieldChanges,
+    "needsReviewFieldChanges",
+    { documentId: userId, fieldName: "needsReview", newValue: 'false' },
+    "documentId",
+    userId,
+    { sort: { createdAt: -1 }, limit: 1 },
+  );
+
+  return fieldChanges[0]?.createdAt ?? null;
 };
 
 ///////////////////////////////////////
@@ -471,6 +511,17 @@ const schema = {
       },
     },
   },
+  /** Names of the OAuth providers (e.g. "google", "github", "facebook") this account is linked to. */
+  associatedOAuthServices: {
+    graphql: {
+      outputType: "[String!]",
+      canRead: ownsOrIsAdmin,
+      resolver: (user) => {
+        const oauthProviders = ["google", "github", "facebook", "linkedin"] as const;
+        return oauthProviders.filter((provider) => !!getNestedProperty(user, `services.${provider}`));
+      },
+    },
+  },
   /** @deprecated hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
   hasAuth0Id: {
     graphql: {
@@ -591,7 +642,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
-        return userGetProfileUrl(user, true);
+        return userGetAbsoluteProfileUrl(user, context.forumType);
       },
     },
   },
@@ -600,7 +651,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
-        return userGetProfileUrl(user, false);
+        return userGetProfileUrl(user);
       },
     },
   },
@@ -609,7 +660,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
-        return userGetEditUrl(user, true);
+        return userGetAbsoluteEditUrl(user, context.forumType);
       },
     },
   },
@@ -1118,6 +1169,22 @@ const schema = {
       // FIXME this isn't filling default values as intended
       // ...schemaDefaultValue(getDefaultFilterSettings),
       // It'd need to be converted to an `onCreate`, or something, but it doesn't seem to be causing any problems by its lack.
+      validation: {
+        optional: true,
+        blackbox: true,
+      },
+    },
+  },
+  ultraFeedSettings: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "JSON",
+      canRead: userOwns,
+      canUpdate: [userOwns, "admins"],
+      canCreate: "guests",
       validation: {
         optional: true,
         blackbox: true,
@@ -1735,7 +1802,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationShortformContent: {
@@ -1747,7 +1813,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationRepliesToMyComments: {
@@ -1759,7 +1824,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationRepliesToSubscribedComments: {
@@ -1771,7 +1835,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationSubscribedUserPost: {
@@ -1783,7 +1846,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationSubscribedUserComment: {
@@ -1795,7 +1857,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationPostsInGroups: {
@@ -1870,7 +1931,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationRSVPs: {
@@ -1930,7 +1990,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationDialogueMessages: {
@@ -3872,17 +3931,9 @@ const schema = {
       outputType: "[ClientId!]",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        return await context.ClientIds.find(
-          {
-            userIds: user._id,
-          },
-          {
-            sort: {
-              createdAt: -1,
-            },
-            limit: 100,
-          }
-        ).fetch();
+        return await getWithCustomLoader(context, "associatedClientIds", user._id, (userIds) =>
+          context.repos.clientIds.getClientIdsForUsers(userIds)
+        );
       },
     },
   },
@@ -3891,17 +3942,11 @@ const schema = {
       outputType: "Boolean",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        const clientIds = await context.ClientIds.find(
-          {
-            userIds: user._id,
-          },
-          {
-            sort: {
-              createdAt: -1,
-            },
-            limit: 100,
-          }
-        ).fetch();
+        // Shares the "associatedClientIds" loader (same name + batch fn) so the
+        // ClientIds for the whole moderation queue are fetched in one query.
+        const clientIds = await getWithCustomLoader(context, "associatedClientIds", user._id, (userIds) =>
+          context.repos.clientIds.getClientIdsForUsers(userIds)
+        );
         const userIds = new Set();
         for (let clientId of clientIds) {
           for (let userId of clientId.userIds ?? []) userIds.add(userId);
@@ -3930,10 +3975,33 @@ const schema = {
       outputType: "[ModeratorAction!]",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (doc, args, context) => {
-        const { ModeratorActions, loaders } = context;
-        return ModeratorActions.find({
-          userId: doc._id,
-        }).fetch();
+        return await getModeratorActionsForUser(context, doc._id);
+      },
+    },
+  },
+  // Which supermod review queue tab this user belongs to, computed server-side.
+  reviewGroup: {
+    graphql: {
+      outputType: "ReviewGroup",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (doc, args, context) => {
+        const [moderatorActions, lastRemovedFromReviewQueueAt] = await Promise.all([
+          getModeratorActionsForUser(context, doc._id),
+          getLastRemovedFromReviewQueueAt(context, doc._id),
+        ]);
+
+        const actionsWithActiveStatus = moderatorActions.map(action => ({
+          type: action.type,
+          active: isActionActive(action),
+          createdAt: action.createdAt,
+        }));
+        const baseGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
+
+        if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc)) {
+          return 'offboard';
+        }
+
+        return baseGroup;
       },
     },
   },
@@ -3974,24 +4042,6 @@ const schema = {
     },
   },
   hideFromPeopleDirectory: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Boolean!",
-      inputType: "Boolean",
-      canRead: ["guests"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  allowDatadogSessionReplay: {
     database: {
       type: "BOOL",
       defaultValue: false,
@@ -4210,7 +4260,10 @@ const schema = {
       outputType: "JSON",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        return getRecentKarmaInfo(user._id, context);
+        const allVotes = await getWithCustomLoader(context, "recentKarmaVotes", user._id, (userIds) =>
+          context.repos.votes.getVotesOnRecentContentForUsers(userIds)
+        );
+        return calculateRecentKarmaInfo(user._id, allVotes);
       },
     },
   },
@@ -4225,30 +4278,18 @@ const schema = {
         const email = user.email?.trim().toLowerCase();
         if (!email) return null;
 
-        const db = getSqlClientOrThrow();
-        return db.oneOrNone(
-          `
-            -- Users.mailgunValidation
-            SELECT
-              mv.email,
-              mv.status,
-              mv."validatedAt",
-              mv."httpStatus",
-              mv.error,
-              mv."isValid",
-              mv.risk,
-              mv.reason,
-              mv."didYouMean",
-              mv."isDisposableAddress",
-              mv."isRoleAddress",
-              mv."sourceUserId"
-            FROM "MailgunValidations" mv
-            WHERE lower(mv.email) = $1
-            ORDER BY mv."validatedAt" DESC
-            LIMIT 1
-          `,
-          [email],
+        // Stored emails are always lowercase (every write path normalizes with
+        // .trim().toLowerCase(), see mailgunValidations.ts) and `email` is
+        // unique, so a batched `email IN (...)` lookup returns one row per email.
+        const validations = await getWithLoader(
+          context,
+          context.MailgunValidations,
+          "mailgunValidationsByEmail",
+          {},
+          "email",
+          email,
         );
+        return validations[0] ?? null;
       },
     },
   },
@@ -4311,7 +4352,7 @@ const schema = {
           startDate,
           endDate,
           nextBatchDate,
-          af: isAF(),
+          af: context.forumType === 'AlignmentForum',
           context,
         });
       },
@@ -4335,20 +4376,23 @@ const schema = {
       outputType: "Date",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        const { FieldChanges } = context;
-
-        // TODO: use a custom data loader here?
-        const fieldChanges = await getWithLoader(
-          context,
-          FieldChanges,
-          'needsReviewFieldChanges',
-          { documentId: user._id, fieldName: "needsReview", newValue: 'false' },
-          'documentId',
-          user._id,
-          { sort: { createdAt: -1 }, limit: 1 },
-        );
-
-        return fieldChanges[0]?.createdAt;
+        return await getLastRemovedFromReviewQueueAt(context, user._id);
+      },
+    },
+  },
+  hasPendingComments: {
+    graphql: {
+      outputType: "Boolean",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        const hideSince = hideUnreviewedAuthorCommentsSettings.get(context);
+        if (!hideSince) {
+          return false;
+        }
+        return await getWithCustomLoader(context, "hasPendingComments", user._id, async (userIds) => {
+          const userIdsWithPendingComments = new Set(await context.repos.users.getUserIdsWithPendingComments(userIds, new Date(hideSince)));
+          return userIds.map((id) => userIdsWithPendingComments.has(id));
+        });
       },
     },
   },
@@ -4357,10 +4401,9 @@ const schema = {
       outputType: "Int",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        const { Posts, Comments } = context;
-        const postCount = await Posts.find({ userId: user._id, rejected: true }).count();
-        const commentCount = await Comments.find({ userId: user._id, rejected: true }).count();
-        return postCount + commentCount;
+        return await getWithCustomLoader(context, "rejectedContentCount", user._id, (userIds) =>
+          context.repos.users.getRejectedContentCounts(userIds)
+        );
       },
     }
   },
@@ -4392,6 +4435,22 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: [userOwns, "admins"],
+    },
+  },
+  // Database-only by design (no `graphql` section): this keeps the token off the
+  // user API — it can never be exposed or writable through the generated
+  // update-user input. Stored AES-encrypted via `userSecretsCrypto.ts`.
+  claudeCodeOAuthTokenEncrypted: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+  },
+  hasClaudeCodeOAuthToken: {
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns],
+      resolver: (user) => !!user.claudeCodeOAuthTokenEncrypted,
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;

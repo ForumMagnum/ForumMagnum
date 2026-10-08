@@ -5,7 +5,7 @@ import {
   $getRoot,
 } from "lexical";
 import { $isMarkNode } from "@lexical/mark";
-import { $attachMarkToQuote, type QuoteMarkResult } from "../../../app/api/agent/commentOnDraft/route";
+import { $attachMarkToQuote, type QuoteMarkResult } from "../../../app/api/agent/collabCommentThreads";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
@@ -41,13 +41,16 @@ function getAllMarkIds(editor: LexicalEditor): string[] {
   return markIds;
 }
 
-/** Get the text content wrapped by a specific mark ID. */
+/**
+ * Get the text content wrapped by a specific mark ID. A cross-block mark is
+ * several MarkNodes sharing the id; their texts are joined with " | ".
+ */
 function getMarkedTextContent(editor: LexicalEditor, markId: string): string | null {
-  let result: string | null = null;
+  const parts: string[] = [];
   editor.getEditorState().read(() => {
     function walk(node: LexicalNode) {
       if ($isMarkNode(node) && node.getIDs().includes(markId)) {
-        result = node.getTextContent();
+        parts.push(node.getTextContent());
         return;
       }
       if ($isElementNode(node)) {
@@ -58,10 +61,29 @@ function getMarkedTextContent(editor: LexicalEditor, markId: string): string | n
     }
     walk($getRoot());
   });
-  return result;
+  return parts.length > 0 ? parts.join(" | ") : null;
 }
 
 describe("commentOnDraft quote matching", () => {
+  it("attaches a mark to a quote spanning a paragraph boundary", async () => {
+    const editor = await setupEditorWithContent(
+      "First paragraph ends here.\n\nSecond paragraph starts now.",
+    );
+    const markId = randomId();
+    const { quoteFoundInDocument, markCreated } = await attachCommentMark(
+      editor,
+      "ends here.\n\nSecond paragraph starts",
+      markId,
+    );
+
+    expect(quoteFoundInDocument).toBe(true);
+    expect(markCreated).toBe(true);
+    expect(getAllMarkIds(editor)).toContain(markId);
+    // $wrapSelectionInMarkNode wraps the text portions in each block.
+    expect(getMarkedTextContent(editor, markId)).toContain("ends here.");
+    expect(getMarkedTextContent(editor, markId)).toContain("Second paragraph starts");
+  });
+
   it("attaches a mark when quote is within a single text node", async () => {
     const editor = await setupEditorWithContent(
       "Hello world. This is a test post."
@@ -77,6 +99,39 @@ describe("commentOnDraft quote matching", () => {
     expect(markCreated).toBe(true);
     expect(getAllMarkIds(editor)).toContain(markId);
     expect(getMarkedTextContent(editor, markId)).toBe("This is a test post.");
+  });
+
+  it("attaches a mark when quote is within a non-first ordered list item", async () => {
+    const editor = await setupEditorWithContent(
+      "1. First item.\n2. Second item has the exact quoted phrase inside it."
+    );
+    const markId = randomId();
+    const { quoteFoundInDocument, markCreated } = await attachCommentMark(
+      editor,
+      "exact quoted phrase",
+      markId,
+    );
+
+    expect(quoteFoundInDocument).toBe(true);
+    expect(markCreated).toBe(true);
+    expect(getAllMarkIds(editor)).toContain(markId);
+    expect(getMarkedTextContent(editor, markId)).toBe("exact quoted phrase");
+  });
+
+  it("attaches a mark when structured quote includes an ordered list continuation paragraph", async () => {
+    const editor = await setupEditorWithContent(
+      "1. First item.\n\n   Continuation paragraph has the exact quoted phrase inside it.\n2. Second item."
+    );
+    const markId = randomId();
+    const { quoteFoundInDocument, markCreated } = await attachCommentMark(
+      editor,
+      "1. First item.\n\n   Continuation paragraph has the exact quoted phrase",
+      markId,
+    );
+
+    expect(quoteFoundInDocument).toBe(true);
+    expect(markCreated).toBe(true);
+    expect(getAllMarkIds(editor)).toContain(markId);
   });
 
   it("attaches a mark when quote spans a link boundary", async () => {

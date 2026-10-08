@@ -38,7 +38,7 @@ export const deleteUserContent = async (
     throw new Error(`About to delete ${userComments.length} comments, please double-check that you want to do this and comment this line out if so!`);
   }
 
-  const adminContext = createAdminContext();
+  const adminContext = createAdminContext({ forumType: "LessWrong" });
   const adminTeamAccount = await getAdminTeamAccount(adminContext);
   if (!adminTeamAccount) throw new Error("Couldn't find admin team account");
 

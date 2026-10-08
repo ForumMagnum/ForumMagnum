@@ -44,7 +44,7 @@ export function makeGqlCreateMutation<
   };
 }
 
-function getDocumentId(selector: SelectorInput | string) {
+export function getDocumentId(selector: SelectorInput | string) {
   if (typeof selector === 'string') {
     return selector;
   }

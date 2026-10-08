@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
@@ -16,11 +17,12 @@ export const TagAudioPlayerWrapper = ({tag, showEmbeddedPlayer}: {
   tag: TagPageFragment,
   showEmbeddedPlayer: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   return (
     <>
-      {isTagAllowedType3Audio(tag) && 
+      {isTagAllowedType3Audio(tag, forumType) &&
         <T3AudioPlayer 
           showEmbeddedPlayer={!!showEmbeddedPlayer} 
           documentId={tag._id}

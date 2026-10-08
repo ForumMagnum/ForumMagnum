@@ -3,7 +3,6 @@ import TextField, { TextFieldProps } from '@/lib/vendor/@material-ui/core/src/Te
 import classnames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import type { Updater } from '@tanstack/react-form';
 
 const styles = defineStyles('MuiTextField', (theme: ThemeType) => ({
   textField: {

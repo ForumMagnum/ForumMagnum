@@ -581,7 +581,8 @@ export async function getUltraFeedCommentThreads(
   );
   const engagementStatsPromise = commentsRepo.getThreadEngagementStatsForRecentlyActiveThreads(
     userIdOrClientId,
-    threadEngagementLookbackDays
+    threadEngagementLookbackDays,
+    sessionId
   );
   const subscribedToUserIdsPromise = context.Subscriptions.find({
     collectionName: 'Users',

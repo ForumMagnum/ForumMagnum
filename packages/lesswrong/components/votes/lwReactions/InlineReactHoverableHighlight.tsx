@@ -4,9 +4,7 @@ import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDi
 import classNames from 'classnames';
 import { HoveredReactionListContext, InlineReactVoteContext, SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import sumBy from 'lodash/sumBy';
-import { useHover, UseHoverEventHandlers } from '@/components/common/withHover';
-import type { VotingProps } from '../votingProps';
-import { useCurrentUser } from '@/components/common/withUser';
+import { useHover } from '@/components/common/withHover';
 import { defaultInlineReactsMode, type InlineReactsMode, SideItemVisibilityContext } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ReactionIcon from "../ReactionIcon";

@@ -61,6 +61,10 @@ export interface PostScoreBreakdown {
     karmaBonus: number;
     topicAffinityBonus: number;
   };
+  timeDecayKarmaDetails?: {
+    karma: number;
+    timeDecayMultiplier: number;
+  };
   typeMultiplier: number;
 }
 
@@ -75,6 +79,10 @@ export interface ThreadScoreBreakdown {
     topicAffinityBonus: number;
     quicktakeBonus: number;
     readPostContextBonus: number;
+  };
+  timeDecayKarmaDetails?: {
+    karma: number;
+    timeDecayMultiplier: number;
   };
   repetitionPenaltyMultiplier: number;
   typeMultiplier: number;

@@ -7,7 +7,6 @@ import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
 import type { NotificationDocument } from './collections/notifications/constants';
 import { defaultNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings, legacyToNewNotificationTypeSettings } from "@/lib/collections/users/notificationFieldHelpers";
-import { createAnonymousContext } from './vulcan-lib/createContexts';
 import keyBy from 'lodash/keyBy';
 import union from 'lodash/union';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
@@ -136,7 +135,7 @@ const getLink = async (context: ResolverContext, notificationTypeName: string, d
     case "post":
       return postGetPageUrl(document as DbPost);
     case "comment":
-      return await commentGetPageUrlFromDB(document as DbComment, context, false);
+      return await commentGetPageUrlFromDB(document as DbComment, context);
     case "user":
       return userGetProfileUrl(document as DbUser);
     case "message":
@@ -227,7 +226,8 @@ export const createNotification = async ({
         key: {notificationType, userId},
         data: createdNotification._id,
         timing: getNotificationTiming(onsite),
-        af: false, //TODO: Handle AF vs non-AF notifications
+        // Notification emails are always LW-branded; see dispatchEvent in debouncer.ts
+        af: false,
       });
     }
   }
@@ -244,7 +244,7 @@ export const createNotification = async ({
       key: {notificationType, userId},
       data: createdNotification._id,
       timing: getNotificationTiming(email),
-      af: false, //TODO: Handle AF vs non-AF notifications
+      af: false,
     });
   }
 }
@@ -279,9 +279,8 @@ export const createNotifications = ({
    * user setting
    */
   fallbackNotificationTypeSettings?: NotificationTypeSettings,
-  context?: ResolverContext,
+  context: ResolverContext,
 }) => {
-  const nonnullContext = context || createAnonymousContext();
   return Promise.all(
     userIds.map(async userId => {
       await createNotification({
@@ -292,7 +291,7 @@ export const createNotifications = ({
         extraData,
         noEmail,
         fallbackNotificationTypeSettings,
-        context: nonnullContext,
+        context,
       });
     })
   );

@@ -1,8 +1,6 @@
 import React, { MutableRefObject } from 'react';
 import type { RefinementListExposed, RefinementListProvided } from 'react-instantsearch/connectors';
 import { ToggleRefinement, NumericMenu, ClearRefinements, connectRefinementList } from 'react-instantsearch-dom';
-import { isEAForum } from '../../lib/instanceSettings';
-import { Link } from '../../lib/reactRouterWrapper';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import {
   SearchIndexCollectionName,
@@ -11,7 +9,6 @@ import {
   formatElasticSorting,
   getElasticSortingsForCollection,
 } from '../../lib/search/searchUtil';
-import { getCommunityPath } from '@/lib/pathConstants';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import TagMultiselect from "../form-components/TagMultiselect";
 import { Typography } from "../common/Typography";
@@ -75,11 +72,6 @@ const styles = defineStyles("SearchFilters", (theme: ThemeType) => ({
     fontSize: 14,
     color: theme.palette.grey[600],
     marginBottom: 6
-  },
-  mapLink: {
-    color: theme.palette.primary.main,
-    padding: 1,
-    marginTop: 30
   },
   sort: {
     borderRadius: theme.borderRadius.small,
@@ -165,10 +157,6 @@ const SearchFilters = ({tab, tagsFilter, handleUpdateTagsFilter, onSortingChange
       value={true}
     />}
     <ClearRefinements />
-
-    {tab === 'Users' && isEAForum() && <div className={classes.mapLink}>
-      <Link to={`${getCommunityPath()}#individuals`}>View community map</Link>
-    </div>}
 
     {elasticCollectionIsCustomSortable(tab) &&
       <>

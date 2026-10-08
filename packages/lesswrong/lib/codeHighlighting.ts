@@ -13,7 +13,6 @@
 import { defineStyles } from '@/components/hooks/useStyles';
 
 // ---------------------------------------------------------------------------
-// Prism types (no @types/prismjs in this project)
 // ---------------------------------------------------------------------------
 
 export interface PrismToken {

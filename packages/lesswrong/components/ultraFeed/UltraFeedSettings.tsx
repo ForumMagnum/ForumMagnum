@@ -322,6 +322,7 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
       customNullishCoalesceProperties
     ),
     incognitoMode: resolverSettings.incognitoMode ?? defaultResolverSettings.incognitoMode,
+    enableDebug: resolverSettings.enableDebug ?? defaultResolverSettings.enableDebug,
     algorithm: resolverSettings.algorithm ?? defaultResolverSettings.algorithm,
     displaySetting: {
       lineClampNumberOfLines: displaySettings.lineClampNumberOfLines ?? defaultDisplaySettings.lineClampNumberOfLines,
@@ -476,14 +477,14 @@ const UltraFeedSettings = ({
   }, []);
 
   const handleBooleanChange = useCallback((
-    field: 'incognitoMode',
+    field: 'incognitoMode' | 'enableDebug',
     checked: boolean
   ) => {
     setZodErrors(null);
     updateForm(field, checked);
   }, [updateForm, setZodErrors]);
 
-  const handleAlgorithmChange = useCallback((algorithm: UltraFeedAlgorithm) => {
+  const handleAlgorithmChange = useCallback((algorithm: UltraFeedAlgorithm | undefined) => {
     setZodErrors(null);
     updateForm('algorithm', algorithm);
     captureEvent('ultraFeedAlgorithmChanged', { algorithm });
@@ -562,6 +563,7 @@ const UltraFeedSettings = ({
           (defaultWeightVal, formWeightVal) => parseNumericInputAsZeroOrNumber(formWeightVal, 0)
         ),
         incognitoMode: formValues.incognitoMode,
+        enableDebug: formValues.enableDebug,
         algorithm: formValues.algorithm,
         commentScoring: mergeWith(
           cloneDeep(defaultCommentScoring),
@@ -694,6 +696,7 @@ const UltraFeedSettings = ({
   const miscSettingsProps = {
     formValues: {
       incognitoMode: formValues.incognitoMode,
+      enableDebug: formValues.enableDebug,
       algorithm: formValues.algorithm,
     },
     onBooleanChange: handleBooleanChange,

@@ -1,3 +1,4 @@
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import Users from "@/server/collections/users/collection";
 import { performVoteServer } from "../voteServer"
 import { Posts } from "@/server/collections/posts/collection.ts";
@@ -16,12 +17,14 @@ const createKarmaAwardForUser = async (userId: string, karmaAmount: 100|1000, re
     return
   }
 
+  const userContext = computeContextFromUser({ user, isSSR: false });
+
   let karmaAwardGivingUser: DbUser|null = null;
   if (karmaAmount === 100) {
-    karmaAwardGivingUser = await Users.findOne({_id: karmaRewarderId100.get()})
+    karmaAwardGivingUser = await Users.findOne({_id: karmaRewarderId100})
   }
   if (karmaAmount === 1000) {
-    karmaAwardGivingUser = await Users.findOne({_id: karmaRewarderId1000.get()})
+    karmaAwardGivingUser = await Users.findOne({_id: karmaRewarderId1000})
   }
 
   if (!karmaAwardGivingUser) {
@@ -32,13 +35,12 @@ const createKarmaAwardForUser = async (userId: string, karmaAmount: 100|1000, re
   const postInfo = `${karmaAmount} karma award for ${reason}`
   const contents = {originalContents: { data: postInfo, type: "ckEditorMarkup" }}
 
-  const userContext = await computeContextFromUser({ user: user, isSSR: false });
-
   const post = await createPost({
     data: { userId: user._id, draft: true, deletedDraft: true, title: postInfo, contents } as CreatePostDataInput // deletedDraft isn't allowed through the create API, so we need validation disabled and a type cast
   }, userContext);
 
-  backgroundTask(performVoteServer({documentId: post._id, voteType: "bigUpvote", user: karmaAwardGivingUser, collection: Posts, skipRateLimits: true}));
+  backgroundTask(performVoteServer({
+    context: createAnonymousContext({ forumType: "LessWrong" }),documentId: post._id, voteType: "bigUpvote", user: karmaAwardGivingUser, collection: Posts, skipRateLimits: true}));
 }
 
 // Exported to allow running manually with "yarn repl"

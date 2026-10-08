@@ -192,8 +192,8 @@ export const petrovDaySections: Array<PetrovDaySection> = [
           Which yet survive, stamped on these lifeless things,<br />
           The hand that mocked them and the heart that fed:<br />
           And on the pedestal these words appear:<br />
-          ``My name is Ozymandias, king of kings:<br />
-          Look on my works, ye Mighty, and despair!''<br />
+          “My name is Ozymandias, king of kings:<br />
+          Look on my works, ye Mighty, and despair!”<br />
           Nothing beside remains. Round the decay<br />
           Of that colossal wreck, boundless and bare<br />
           The lone and level sands stretch far away
@@ -253,9 +253,9 @@ export const petrovDaySections: Array<PetrovDaySection> = [
       <PetrovStoryDivider  withinSection/>
       <blockquote>
         <p>
-          ``Pray, friend Martin, how many impressions can be made by this press in a day?''
-          ``About three hundred, if we work it constantly.''
-          ``Is it possible!'' exclaimed Peter. ``Now indeed will books multiply. What will the plodding copyists say to this?''
+          “Pray, friend Martin, how many impressions can be made by this press in a day?”
+          “About three hundred, if we work it constantly.”
+          “Is it possible!” exclaimed Peter. “Now indeed will books multiply. What will the plodding copyists say to this?”
         </p>
         <footer>— Emily Clemens Pearson, Gutenberg and the Art of Printing (1870)</footer>
       </blockquote>
@@ -295,7 +295,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
       </blockquote>
       <PetrovStoryDivider withinSection/>
       <blockquote>
-        <p>I then shouted into the mouthpiece the following sentence: Mr. Watson, Come here, I want to see you. To my delight he came and declared that he had heard and understood what I said. I asked him to repeat the words. He answered, ``You said, Mr. Watson come here I want to see you.''</p>
+        <p>I then shouted into the mouthpiece the following sentence: Mr. Watson, Come here, I want to see you. To my delight he came and declared that he had heard and understood what I said. I asked him to repeat the words. He answered, “You said, Mr. Watson come here I want to see you.”</p>
         <footer>— Alexander Graham Bell (1876)</footer>
       </blockquote>
       <PetrovStoryDivider withinSection/>
@@ -400,7 +400,7 @@ human society was built have given way to science and industry. Prior to this po
     getContents: () => <div id="bad-candle">
       <p>Meanwhile, technology marched on. And for the first time, it seemed that technological progress might not go on forever, but build towards an ultimate conclusion.</p>
       <PetrovStoryDivider withinSection/>
-      <blockquote><p>Let an ultraintelligent machine be defined as a machine that can far surpass all the intellectual activities of any man however clever. Since the design of machines is one of these intellectual activities, an ultra-intelligent machine could design even better machines; there would then unquestionably be an ``intelligence explosion,'' and the intelligence of man would be left far behind. Thus the first ultraintelligent machine is the last invention that man need ever make, provided that the machine is docile enough to tell us how to keep it under control.</p><footer>— I.J. Good, Speculations Concerning the First Ultraintelligent Machine (1963)</footer></blockquote>
+      <blockquote><p>Let an ultraintelligent machine be defined as a machine that can far surpass all the intellectual activities of any man however clever. Since the design of machines is one of these intellectual activities, an ultra-intelligent machine could design even better machines; there would then unquestionably be an “intelligence explosion,” and the intelligence of man would be left far behind. Thus the first ultraintelligent machine is the last invention that man need ever make, provided that the machine is docile enough to tell us how to keep it under control.</p><footer>— I.J. Good, Speculations Concerning the First Ultraintelligent Machine (1963)</footer></blockquote>
       <p><em>Place an unlit candle in the last spot, to represent future technology.</em></p>
     </div>
   },
@@ -465,7 +465,7 @@ human society was built have given way to science and industry. Prior to this po
       <p>Instead of telling his superiors what the system was saying, Petrov told his superiors that it was a false alarm</p>
       <p><em>Return the candle to the candelabra</em></p>
       <PetrovStoryDivider withinSection/>
-      <p>At the time, he received no award. The incident embarrassed his superiors and the scientists responsible for the system, so if he had been rewarded, they would have to be punished. (He received the International Peace Prize thirty years later, in 2013).</p>
+      <p>At the time, he received no award. The incident embarrassed his superiors and the scientists responsible for the system, so if he had been rewarded, they would have to be punished. (He received the Dresden Peace Prize thirty years later, in 2013).</p>
       <p>Things eventually calmed down. The Soviet Union dissolved. Safeguards were put on most of the bombs, to prevent the risk of accidental (or deliberate but unauthorized) detonation.</p>
     </div>
   },
@@ -499,7 +499,7 @@ human society was built have given way to science and industry. Prior to this po
   },
   {
     getContents: () => <div>
-      <blockquote><p>An unFriendly AI with molecular nanotechnology (or other rapid infrastructure) need not bother with marching robot armies or blackmail or subtle economic coercion. The unFriendly AI has the ability to repattern all matter in the solar system according to its optimization target. This is fatal for us if the AI does not choose specifically according to the criterion of how this transformation affects existing patterns such as biology and people. The AI does not hate you, nor does it love you, but you are made out of atoms which it can use for something else. The AI runs on a different timescale than you do; by the time your neurons finish thinking the words ``I should do something'' you have already lost</p><footer>— Eliezer Yudkowsky, Artificial Intelligence as a Positive and Negative Factor in Global Risk (2006)</footer></blockquote>
+      <blockquote><p>An unFriendly AI with molecular nanotechnology (or other rapid infrastructure) need not bother with marching robot armies or blackmail or subtle economic coercion. The unFriendly AI has the ability to repattern all matter in the solar system according to its optimization target. This is fatal for us if the AI does not choose specifically according to the criterion of how this transformation affects existing patterns such as biology and people. The AI does not hate you, nor does it love you, but you are made out of atoms which it can use for something else. The AI runs on a different timescale than you do; by the time your neurons finish thinking the words “I should do something” you have already lost</p><footer>— Eliezer Yudkowsky, Artificial Intelligence as a Positive and Negative Factor in Global Risk (2006)</footer></blockquote>
     </div>
   },
   {

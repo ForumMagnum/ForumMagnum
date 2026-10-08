@@ -19,6 +19,7 @@ import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
 import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
 import Error404 from "../common/Error404";
+import ComposerSubmitButton from "../sunshineDashboard/supermod/ComposerSubmitButton";
 
 const messageListFragmentMutation = gql(`
   mutation createMessageMessagesNewForm($data: CreateMessageDataInput!) {
@@ -111,6 +112,7 @@ const InnerMessagesNewForm = ({
   isMinimalist,
   submitLabel = "Submit",
   sendEmail = true,
+  keystrokeSubmitButton = false,
   prefilledProps,
   templateQueries,
   conversationId,
@@ -119,6 +121,7 @@ const InnerMessagesNewForm = ({
   isMinimalist: boolean;
   submitLabel?: React.ReactNode;
   sendEmail?: boolean;
+  keystrokeSubmitButton?: boolean;
   prefilledProps: {
     conversationId: string;
     contents: {
@@ -138,6 +141,10 @@ const InnerMessagesNewForm = ({
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
   const hintText = isMinimalist ? "Type a new message..." : getDefaultEditorPlaceholder();
   const commentMinimalistStyle = isMinimalist ? true : false;
+
+  // Tracks emptiness for the keystroke submit button's disabled state; the
+  // form field value only updates on a throttle, so it can't be used for this
+  const [editorIsBlank, setEditorIsBlank] = useState(!prefilledProps.contents.originalContents.data.trim());
 
   const {
     onSubmitCallback,
@@ -181,7 +188,10 @@ const InnerMessagesNewForm = ({
   });
 
 
-  const handleSubmit = useCallback(() => form.handleSubmit(), [form]);
+  const handleSubmit = useCallback(async () => {
+    if (keystrokeSubmitButton && editorIsBlank) return;
+    await form.handleSubmit();
+  }, [form, keystrokeSubmitButton, editorIsBlank]);
   const formRef = useFormSubmitOnCmdEnter(handleSubmit);
 
   return (
@@ -204,6 +214,7 @@ const InnerMessagesNewForm = ({
                 addOnSuccessCallback={addOnSuccessCallback}
                 hintText={hintText}
                 commentMinimalistStyle={commentMinimalistStyle}
+                onBlankStateChange={keystrokeSubmitButton ? setEditorIsBlank : undefined}
                 fieldName="contents"
                 collectionName="Messages"
                 commentEditor={true}
@@ -218,13 +229,19 @@ const InnerMessagesNewForm = ({
         <form.Subscribe selector={(s) => [s.isSubmitting]}>
           {([isSubmitting]) => (
             <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
-              <Button
-                type="submit"
-                id="new-message-submit"
-                className={classNames("primary-form-submit-button", formButtonClass)}
-              >
-                {isSubmitting ? <Loading /> : isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel}
-              </Button>
+              {keystrokeSubmitButton
+                ? <ComposerSubmitButton
+                    type="submit"
+                    label={isSubmitting ? <Loading /> : submitLabel}
+                    disabled={editorIsBlank}
+                  />
+                : <Button
+                    type="submit"
+                    id="new-message-submit"
+                    className={classNames("primary-form-submit-button", formButtonClass)}
+                  >
+                    {isSubmitting ? <Loading /> : isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel}
+                  </Button>}
             </div>
           )}
         </form.Subscribe>
@@ -239,6 +256,7 @@ export const MessagesNewForm = ({
   successEvent,
   submitLabel,
   sendEmail = true,
+  keystrokeSubmitButton,
   formStyle="default",
 }: {
   conversationId: string;
@@ -246,6 +264,8 @@ export const MessagesNewForm = ({
   successEvent: (newMessage: messageListFragment) => void;
   submitLabel?: string,
   sendEmail?: boolean;
+  /** Supermod sidebar style: Ctrl+Enter badge on the submit button, disabled while empty */
+  keystrokeSubmitButton?: boolean;
   formStyle?: FormDisplayMode;
 }) => {
   const classes = useStyles(styles);
@@ -275,6 +295,7 @@ export const MessagesNewForm = ({
         isMinimalist={isMinimalist}
         submitLabel={submitLabel}
         sendEmail={sendEmail}
+        keystrokeSubmitButton={keystrokeSubmitButton}
         prefilledProps={{
           conversationId,
           contents: {

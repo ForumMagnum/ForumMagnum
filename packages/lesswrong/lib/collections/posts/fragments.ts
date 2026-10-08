@@ -355,6 +355,27 @@ export const SunshineCurationPostsList = gql(`
   }
 `)
 
+export const SunshineCurationPostsListItem = gql(`
+  fragment SunshineCurationPostsListItem on Post {
+    _id
+    title
+    postedAt
+    baseScore
+    suggestForCuratedUsernames
+    user {
+      _id
+      displayName
+    }
+    curationNotices {
+      _id
+      user {
+        _id
+        displayName
+      }
+    }
+  }
+`)
+
 export const PostsListTag = gql(`
   fragment PostsListTag on Post {
     ...PostsList
@@ -773,13 +794,6 @@ export const PostWithDialogueMessage = gql(`
   fragment PostWithDialogueMessage on Post {
     _id
     dialogueMessageContents(dialogueMessageId: $dialogueMessageId)
-  }
-`)
-
-export const PostWithGeneratedSummary = gql(`
-  fragment PostWithGeneratedSummary on Post {
-    _id
-    languageModelSummary
   }
 `)
 

@@ -1,9 +1,8 @@
 import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
-import { EditorContents } from '../../components/editor/Editor';
 import { userOwns, userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import { getLatestRev, getNextVersion } from '../editor/utils';
 import gql from 'graphql-tag';
 import { buildAndCreateRevision } from '../collections/revisions/mutations';
 import { updateTag } from '../collections/tags/mutations';
@@ -12,24 +11,18 @@ import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
 import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 
 export const revisionResolversGraphQLTypeDefs = gql`
-  input AutosaveContentType {
-    type: String
-    value: ContentTypeData
-  }
-
   enum ConvertibleCollectionName {
     Posts
     Comments
     Tags
   }
-  
+
   extend type Query {
     convertDocument(document: JSON, targetFormat: String): JSON
     latestGoogleDocMetadata(postId: String!, version: String): JSON
   }
   extend type Mutation {
     revertTagToRevision(tagId: String!, revertToRevisionId: String!): Tag
-    autosaveRevision(postId: String!, contents: AutosaveContentType!): Revision
     convertDocumentEditorType(documentId: String!, collectionName: ConvertibleCollectionName!, fieldName: String!, document: JSON!, targetFormat: String!): JSON
   }
 `;
@@ -37,8 +30,8 @@ export const revisionResolversGraphQLTypeDefs = gql`
 export const revisionResolversGraphQLMutations = {
   revertTagToRevision: async (root: void, { tagId, revertToRevisionId }: { tagId: string, revertToRevisionId: string }, context: ResolverContext) => {
     const { currentUser, loaders, Tags } = context;
-    if (!tagUserHasSufficientKarma(currentUser, 'edit')) {
-      throw new Error(`Must be logged in and have ${getTagMinimumKarmaPermissions().edit} karma to revert tags to older revisions`);
+    if (!tagUserHasSufficientKarma(currentUser, 'edit', context.forumType)) {
+      throw new Error(`Must be logged in and have ${getTagMinimumKarmaPermissions(context.forumType).edit} karma to revert tags to older revisions`);
     }
 
     const [tag, revertToRevision, latestRevision] = await Promise.all([
@@ -64,52 +57,6 @@ export const revisionResolversGraphQLMutations = {
         },
       }, selector: { _id: tag._id }
     }, context);
-  },
-  autosaveRevision: async (root: void, { postId, contents }: { postId: string, contents: EditorContents }, context: ResolverContext) => {
-    const { currentUser, loaders, Revisions } = context;
-    if (!currentUser) {
-      throw new Error('Cannot autosave revision while logged out');
-    }
-
-    const post = await loaders.Posts.load(postId);
-    if (!userOwns(currentUser, post)) {
-      throw new Error('Must be post author to autosave');
-    }
-
-    const postContentsFieldName = 'contents';
-    const updateSemverType = 'patch';
-
-    const [previousRev, html] = await Promise.all([
-      getLatestRev(postId, postContentsFieldName, context),
-      dataToHTML(contents.value, contents.type, context, { sanitize: !currentUser.isAdmin })
-    ]);
-
-    // This behavior differs from make_editable's `updateBefore` callback, but in the case of manual user saves it seems fine to create new revisions; they don't happen that often
-    // In principle we shouldn't be getting autosave requests from the client when there's no diff, but seems better to avoid creating spurious revisions for autosaves
-    // (especially if there's a bug on the client which causes the client-side diff-checking to fail)
-    const previousOriginalContents = previousRev
-      ? await getStoredOriginalContentsForRevision(previousRev, context)
-      : null;
-    if (previousRev && isEqual(previousOriginalContents, contents)) {
-      return previousRev;
-    }
-
-    const nextVersion = getNextVersion(previousRev, updateSemverType, post.draft);
-
-    const createdRevision = await buildAndCreateRevision({
-      originalContents: { type: contents.type, data: contents.value, yjsState: null },
-      user: currentUser,
-      documentId: postId,
-      fieldName: postContentsFieldName,
-      collectionName: 'Posts',
-      version: nextVersion,
-      draft: true,
-      updateType: updateSemverType,
-      previousHtmlForChangeMetrics: previousRev?.html || "",
-      commitMessage: 'Native editor autosave',
-    }, context);
-
-    return createdRevision;
   },
   convertDocumentEditorType: async (root: void, { documentId, collectionName, fieldName, document: sourceDocument, targetFormat }: { documentId: string, collectionName: ConvertibleCollectionName, fieldName: string, document: { type: string, value: string }, targetFormat: string }, context: ResolverContext) => {
     const { currentUser } = context;

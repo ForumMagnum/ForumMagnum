@@ -1,38 +1,54 @@
-function math (state: AnyBecauseTodo, silent: AnyBecauseTodo) {
-  var startMathPos = state.pos
-  if (state.src.charCodeAt(startMathPos) !== 0x5C /* \ */) {
-    return false
+// Builds the inline rule that recognizes `\(...\)` / `\[...\]` / `\begin{}...`
+// math. `singleBackslash` selects the delimiter dialect:
+//  - false (default, reader surfaces): legacy doubled delimiters, i.e.
+//    markdown source `\\(...\\)` / `\\[...\\]`.
+//  - true (agent surfaces): bare `\(...\)` / `\[...\]` — the form the agent
+//    read API emits and that agents send back.
+// `\begin{env}...\end{env}` is single-backslash in both dialects.
+function makeMathRule (singleBackslash: boolean) {
+  var openInline = singleBackslash ? '\\(' : '\\\\('
+  var openDisplay = singleBackslash ? '\\[' : '\\\\['
+  var closeInline = singleBackslash ? '\\)' : '\\\\)'
+  var closeDisplay = singleBackslash ? '\\]' : '\\\\]'
+  return function math (state: AnyBecauseTodo, silent: AnyBecauseTodo) {
+    var src: string = state.src
+    var pos: number = state.pos
+    if (src.charCodeAt(pos) !== 0x5C /* \ */) {
+      return false
+    }
+    var rest = src.slice(pos)
+    var type: AnyBecauseTodo, contentStart: number, endMarker: string, includeMarkers = false
+    var beginMatch = rest.match(/^\\begin\{([^}]*)\}/)
+    if (beginMatch) {
+      type = 'math'
+      contentStart = pos
+      endMarker = '\\end{' + beginMatch[1] + '}'
+      includeMarkers = true
+    } else if (rest.startsWith(openInline)) {
+      type = 'inline_math'
+      contentStart = pos + openInline.length
+      endMarker = closeInline
+    } else if (rest.startsWith(openDisplay)) {
+      type = 'display_math'
+      contentStart = pos + openDisplay.length
+      endMarker = closeDisplay
+    } else {
+      return false
+    }
+    var endMarkerPos = src.indexOf(endMarker, contentStart)
+    if (endMarkerPos === -1) {
+      return false
+    }
+    var nextPos = endMarkerPos + endMarker.length
+    if (!silent) {
+      var token = state.push(type, '', 0)
+      token.content = includeMarkers
+        ? src.slice(pos, nextPos)
+        : src.slice(contentStart, endMarkerPos)
+    }
+    state.pos = nextPos
+    return true
   }
-  var match = state.src.slice(++startMathPos).match(/^(?:\\\[|\\\(|begin\{([^}]*)\})/)
-  if (!match) {
-    return false
-  }
-  startMathPos += match[0].length
-  var type: AnyBecauseTodo, endMarker: AnyBecauseTodo, includeMarkers: AnyBecauseTodo
-  if (match[0] === '\\[') {
-    type = 'display_math'
-    endMarker = '\\\\]'
-  } else if (match[0] === '\\(') {
-    type = 'inline_math'
-    endMarker = '\\\\)'
-  } else if (match[1]) {
-    type = 'math'
-    endMarker = '\\end{' + match[1] + '}'
-    includeMarkers = true
-  }
-  var endMarkerPos = state.src.indexOf(endMarker, startMathPos)
-  if (endMarkerPos === -1) {
-    return false
-  }
-  var nextPos = endMarkerPos + endMarker.length
-  if (!silent) {
-    var token = state.push(type, '', 0)
-    token.content = includeMarkers
-      ? state.src.slice(state.pos, nextPos)
-      : state.src.slice(startMathPos, endMarkerPos)
-  }
-  state.pos = nextPos
-  return true
 }
 
 function texMath (state: AnyBecauseTodo, silent: boolean) {
@@ -113,17 +129,31 @@ export default function (options?: any) {
     beforeDisplayMath: '\\[',
     afterDisplayMath: '\\]'
   }
+  // When set, render math as the editable-dialect `<span class="math-tex">`
+  // representation that `MathNode.importDOM` consumes (the inverse of the
+  // `latex-spans` Turndown rule), rather than bare `\(...\)` / `\[...\]`
+  // text. The agent write path uses this so agent-supplied `$...$`
+  // round-trips into real MathNodes; the publishing path leaves the bare
+  // delimiters for `renderMathInHtml` to pre-render for readers.
+  var wrapInMathTex = !!(options && options.wrapInMathTex)
+  // When set, `\(...\)` / `\[...\]` open math with a single backslash (the
+  // form the agent read API emits). Reader surfaces leave this off and keep
+  // the legacy doubled-backslash delimiters. See `makeMathRule`.
+  var singleBackslashDelimiters = !!(options && options.singleBackslashDelimiters)
   options = extend(options || {}, defaults)
 
   return function (md: AnyBecauseTodo) {
-    md.inline.ruler.before('escape', 'math', math)
+    md.inline.ruler.before('escape', 'math', makeMathRule(singleBackslashDelimiters))
     md.inline.ruler.push('texMath', texMath)
 
     Object.keys(mapping).forEach(function (key) {
       var before = options['before' + mapping[key]]
       var after = options['after' + mapping[key]]
       md.renderer.rules[key] = function (tokens: AnyBecauseTodo, idx: AnyBecauseTodo) {
-        return before + escapeHtml(tokens[idx].content) + after
+        var rendered = before + escapeHtml(tokens[idx].content) + after
+        // The `\(...\)` / `\[...\]` delimiters inside the span carry the
+        // inline-vs-display distinction, so a span tag works for both.
+        return wrapInMathTex ? '<span class="math-tex">' + rendered + '</span>' : rendered
       }
     })
   }

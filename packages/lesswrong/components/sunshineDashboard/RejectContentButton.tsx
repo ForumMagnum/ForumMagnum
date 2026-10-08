@@ -32,8 +32,10 @@ const styles = defineStyles('RejectContentButton', (theme: ThemeType) => ({
   }
 }));
 
-export const RejectContentButton = ({contentWrapper}: {
+export const RejectContentButton = ({contentWrapper, onReject}: {
   contentWrapper: RejectContentParams,
+  /** Overrides the rejection dialog, for callers with their own rejection UI. */
+  onReject?: () => void,
 }) => {
   const classes = useStyles(styles);
   const { eventHandlers, anchorEl } = useHover();
@@ -67,7 +69,7 @@ export const RejectContentButton = ({contentWrapper}: {
         <ReplayIcon className={classes.icon} onClick={() => unrejectContent({ ...contentWrapper })}/>
       </LWTooltip>
     </span>}
-    {!document.rejected && document.authorIsUnreviewed && <span className={classes.button} onClick={openRejectionDialog}>
+    {!document.rejected && document.authorIsUnreviewed && <span className={classes.button} onClick={onReject ?? openRejectionDialog}>
       <RejectedIcon className={classes.icon}/> <MetaInfo>Reject</MetaInfo>
     </span>}
     <LWPopper

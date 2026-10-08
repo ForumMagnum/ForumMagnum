@@ -1,6 +1,7 @@
 import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
 import { JSDOM } from "jsdom";
 import { getMarkdownIt } from "@/lib/utils/markdownItPlugins";
+import { findMathSpansInMarkdown } from "@/lib/utils/mathTokens";
 
 /**
  * Tests that markdownToHtml does not produce HTML that could execute arbitrary
@@ -226,5 +227,20 @@ describe("spoiler block (>!) round-trip", () => {
     const html = renderMarkdown(original);
     const back = htmlToMarkdown(html);
     expect(back.trim()).toBe(original);
+  });
+});
+
+describe("LaTeX correctness regressions", () => {
+  it("keeps math round-trippable when a digit follows math nested in an inline wrapper", () => {
+    // The `latex-spans` Turndown rule reads the character after the equation
+    // from `node.nextSibling`, which is null when the math-tex span is the
+    // last child of an inline wrapper (a styled `<span>`, an `<a>`, …). It
+    // then misses the following digit, emits the bare `$x$` form, and produces
+    // `$x$5` — which texMath rejects (currency disambiguation), so the
+    // equation no longer round-trips as a recoverable math token.
+    const md = htmlToMarkdown(
+      '<p><span><span class="math-tex">\\(x\\)</span></span>5 apples</p>'
+    );
+    expect(findMathSpansInMarkdown(md).length).toBe(1);
   });
 });

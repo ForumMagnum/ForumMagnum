@@ -3,7 +3,6 @@ import { REVIEW_YEAR, ReviewYear } from '@/lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import range from 'lodash/range';
 import LWTooltip from "../common/LWTooltip";
-import ForumIcon from "../common/ForumIcon";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';

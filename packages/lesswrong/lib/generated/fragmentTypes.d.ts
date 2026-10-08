@@ -75,7 +75,6 @@ interface FragmentTypes {
   PostPodcastEpisode: PostPodcastEpisode
   PostSequenceNavigation: PostSequenceNavigation
   PostWithDialogueMessage: PostWithDialogueMessage
-  PostWithGeneratedSummary: PostWithGeneratedSummary
   PostsAuthors: PostsAuthors
   PostsBase: PostsBase
   PostsBestOfList: PostsBestOfList
@@ -142,6 +141,7 @@ interface FragmentTypes {
   SuggestAlignmentUser: SuggestAlignmentUser
   SunshineCommentsList: SunshineCommentsList
   SunshineCurationPostsList: SunshineCurationPostsList
+  SunshineCurationPostsListItem: SunshineCurationPostsListItem
   SunshinePostsList: SunshinePostsList
   SunshineTagFragment: SunshineTagFragment
   SunshineUsersList: SunshineUsersList
@@ -178,6 +178,7 @@ interface FragmentTypes {
   UltraFeedPostFragment: UltraFeedPostFragment
   UnclaimedReportsList: UnclaimedReportsList
   UserAltAccountsFragment: UserAltAccountsFragment
+  UserClientIdsInfo: UserClientIdsInfo
   UserKarmaChanges: UserKarmaChanges
   UserMostValuablePostInfo: UserMostValuablePostInfo
   UserProfilePost: UserProfilePost
@@ -192,6 +193,7 @@ interface FragmentTypes {
   UsersCurrentPostRateLimit: UsersCurrentPostRateLimit
   UsersEdit: UsersEdit
   UsersMapEntry: UsersMapEntry
+  UsersMergeSearchResult: UsersMergeSearchResult
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersProfileEdit: UsersProfileEdit
@@ -249,7 +251,7 @@ interface FragmentTypesByCollection {
   PetrovDayActions: "PetrovDayActionInfo"
   PodcastEpisodes: "PodcastEpisodeCreateFragment"|"PodcastEpisodeFull"
   Podcasts: "PodcastSelect"
-  Posts: "ChapterPostSlim"|"HighlightWithHash"|"MarkdownPostsList"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ProfileTopPost"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UserProfilePost"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "ChapterPostSlim"|"HighlightWithHash"|"MarkdownPostsList"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostWithDialogueMessage"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ProfileTopPost"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshineCurationPostsListItem"|"SunshinePostsList"|"UltraFeedPostFragment"|"UserProfilePost"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"newRSSFeedFragment"
   Reports: "UnclaimedReportsList"
   ReviewVotes: "reviewAdminDashboard"|"reviewVoteFragment"
@@ -266,7 +268,7 @@ interface FragmentTypesByCollection {
   TypoSuggestions: "TypoSuggestionsDefaultFragment"
   UserMostValuablePosts: "UserMostValuablePostInfo"
   UserRateLimits: "UserRateLimitDisplay"|"UserRateLimitMutationFragment"
-  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserKarmaChanges"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersWithReviewInfo"
+  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserClientIdsInfo"|"UserKarmaChanges"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersEdit"|"UsersMapEntry"|"UsersMergeSearchResult"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersWithReviewInfo"
   Votes: "TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
 }
 
@@ -338,7 +340,6 @@ interface CollectionNamesByFragmentName {
   PostPodcastEpisode: "Posts"
   PostSequenceNavigation: "Posts"
   PostWithDialogueMessage: "Posts"
-  PostWithGeneratedSummary: "Posts"
   PostsAuthors: "Posts"
   PostsBase: "Posts"
   PostsBestOfList: "Posts"
@@ -405,6 +406,7 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentUser: "Users"
   SunshineCommentsList: "Comments"
   SunshineCurationPostsList: "Posts"
+  SunshineCurationPostsListItem: "Posts"
   SunshinePostsList: "Posts"
   SunshineTagFragment: "Tags"
   SunshineUsersList: "Users"
@@ -441,6 +443,7 @@ interface CollectionNamesByFragmentName {
   UltraFeedPostFragment: "Posts"
   UnclaimedReportsList: "Reports"
   UserAltAccountsFragment: "Users"
+  UserClientIdsInfo: "Users"
   UserKarmaChanges: "Users"
   UserMostValuablePostInfo: "UserMostValuablePosts"
   UserProfilePost: "Posts"
@@ -455,6 +458,7 @@ interface CollectionNamesByFragmentName {
   UsersCurrentPostRateLimit: "Users"
   UsersEdit: "Users"
   UsersMapEntry: "Users"
+  UsersMergeSearchResult: "Users"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersProfileEdit: "Users"
@@ -479,9 +483,9 @@ interface CollectionNamesByFragmentName {
   reviewVoteFragment: "ReviewVotes"
 }
 
-type CollectionNameString = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FieldChanges"|"GoogleServiceAccountSessions"|"HomePageDesigns"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LinkPreviewCaches"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"OAuthAccessTokens"|"OAuthAuthorizationCodes"|"OAuthClients"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"RevisionOriginalContents"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"TypoSuggestions"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
+type CollectionNameString = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FieldChanges"|"GoogleServiceAccountSessions"|"HomePageDesigns"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LinkPreviewCaches"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"OAuthAccessTokens"|"OAuthAuthorizationCodes"|"OAuthClients"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ResearchConversationEvents"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ResearchProjects"|"ResearchSandboxSessions"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"RevisionOriginalContents"|"Revisions"|"SandboxBaselineSnapshots"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"TypoSuggestions"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
 
-type CollectionNameWithCreatedAt = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FieldChanges"|"GoogleServiceAccountSessions"|"HomePageDesigns"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"LinkPreviewCaches"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"OAuthAccessTokens"|"OAuthAuthorizationCodes"|"OAuthClients"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"RevisionOriginalContents"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"TypoSuggestions"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
+type CollectionNameWithCreatedAt = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FieldChanges"|"GoogleServiceAccountSessions"|"HomePageDesigns"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LinkPreviewCaches"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"OAuthAccessTokens"|"OAuthAuthorizationCodes"|"OAuthClients"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ResearchConversationEvents"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ResearchProjects"|"ResearchSandboxSessions"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"RevisionOriginalContents"|"Revisions"|"SandboxBaselineSnapshots"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"TypoSuggestions"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
 
 type CollectionNameWithSlug = "Collections"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
 

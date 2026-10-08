@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
@@ -13,7 +13,6 @@ import PostsItem from "../posts/PostsItem";
 import CommentsNode from "../comments/CommentsNode";
 import ForumIcon from "../common/ForumIcon";
 import SingleColumnSection from "../common/SingleColumnSection";
-import Loading from "../vulcan-core/Loading";
 import LoadMore from "../common/LoadMore";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";

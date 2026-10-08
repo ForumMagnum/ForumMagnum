@@ -1,20 +1,58 @@
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Doc } from "yjs";
-import { createHeadlessEditor, getLexicalCompatibleProvider, waitForProviderFlush, waitForProviderSync } from "./editorAgentUtil";
+import {
+  buildHocuspocusCommentsDocName,
+  createHeadlessEditor,
+  getLexicalCompatibleProvider,
+  waitForProviderFlush,
+  waitForProviderSync,
+} from "./editorAgentUtil";
 
 import { CommentStore } from "@/components/lexical/commenting";
 import { createSuggestionThreadController } from "@/components/editor/lexicalPlugins/suggestions/createSuggestionThreadController";
 import type { SuggestionSummaryItem } from "@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils";
+import { captureException } from "@/lib/sentryWrapper";
+
+export interface CreateSuggestionThreadArgs {
+  collectionName: string
+  documentId: string
+  token: string
+  suggestionId: string
+  summaryItems: SuggestionSummaryItem[]
+  authorName: string
+  authorId: string
+}
+
+/**
+ * Best-effort variant of `createSuggestionThreadInCommentsDoc` for callers
+ * that have already applied the suggestion to the live document: by that
+ * point a thread failure shouldn't fail the whole request (the agent would
+ * retry and stack a duplicate suggestion). Returns whether the thread was
+ * created so callers can surface a warning instead.
+ */
+export async function tryCreateSuggestionThreadInCommentsDoc(args: CreateSuggestionThreadArgs): Promise<boolean> {
+  try {
+    await createSuggestionThreadInCommentsDoc(args);
+    return true;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`Failed to create suggestion thread for ${args.collectionName} ${args.documentId}:`, error);
+    captureException(error);
+    return false;
+  }
+}
 
 export async function createSuggestionThreadInCommentsDoc({
-  postId,
+  collectionName,
+  documentId,
   token,
   suggestionId,
   summaryItems,
   authorName,
   authorId,
 }: {
-  postId: string
+  collectionName: string
+  documentId: string
   token: string
   suggestionId: string
   summaryItems: SuggestionSummaryItem[]
@@ -29,7 +67,7 @@ export async function createSuggestionThreadInCommentsDoc({
   const commentsDoc = new Doc();
   const provider = new HocuspocusProvider({
     url: wsUrl,
-    name: `post-${postId}/comments`,
+    name: buildHocuspocusCommentsDocName(collectionName, documentId),
     document: commentsDoc,
     token,
     connect: false,

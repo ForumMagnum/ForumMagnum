@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import StyledMapPopup, { StyledMapPopupContent } from "../../localGroups/StyledMapPopup";
+import StyledMapPopup from "../../localGroups/StyledMapPopup";
 import GroupLinks from "../../localGroups/GroupLinks";
 import HomepageMapFilter from "./HomepageMapFilter";
 import { MapboxViewport, WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';

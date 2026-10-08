@@ -1,10 +1,11 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import sanitizeHtml from 'sanitize-html';
 import { Posts } from '../../server/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { ckEditorDocumentIdToPostId, endCkEditorUserSession, fetchCkEditorCloudStorageDocumentHtml, fetchCkEditorCommentThread, saveDocumentRevision, saveOrUpdateDocumentRevision } from './ckEditorApi';
 import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
-import { createAdminContext } from "../vulcan-lib/createContexts";
+import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
 import { createCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
 
 const ckEditorCommentAllowedTags = [
@@ -49,7 +50,7 @@ interface CkEditorUserConnectionChange {
 //   https://ckeditor.com/docs/cs/latest/guides/webhooks/events.html
 // Webhook payloads don't seem to have Typescript types exported anywhere, but
 // they're pretty simple so we define them inline.
-export async function handleCkEditorWebhook(message: any) {
+export async function handleCkEditorWebhook(message: any, forumType: ForumTypeString) {
   // eslint-disable-next-line no-console
   console.log(`Got CkEditor webhook: ${JSON.stringify(message)}`);
   
@@ -76,6 +77,7 @@ export async function handleCkEditorWebhook(message: any) {
       const commentersInThread: string[] = [...new Set(thread.map(comment => comment?.user?.id))];
       
       await notifyCkEditorCommentAdded({
+        forumType,
         commenterUserId: payload?.comment?.user?.id,
         commentHtml: payload?.comment?.content,
         postId: ckEditorDocumentIdToPostId(payload?.document?.id),
@@ -98,7 +100,7 @@ export async function handleCkEditorWebhook(message: any) {
       const ckEditorDocumentId = documentSavedPayload?.document?.id;
       const postId = ckEditorDocumentIdToPostId(ckEditorDocumentId);
       const documentContents = await fetchCkEditorCloudStorageDocumentHtml(ckEditorDocumentId);
-      await saveOrUpdateDocumentRevision(postId, documentContents);
+      await saveOrUpdateDocumentRevision(postId, documentContents, forumType);
       break;
     }
     case "collaboration.document.updated": {
@@ -117,7 +119,7 @@ export async function handleCkEditorWebhook(message: any) {
       const ckEditorDocumentId = documentUpdatedPayload?.document?.id;
       const postId = ckEditorDocumentIdToPostId(ckEditorDocumentId);
       const documentContents = await fetchCkEditorCloudStorageDocumentHtml(ckEditorDocumentId);
-      await saveOrUpdateDocumentRevision(postId, documentContents);
+      await saveOrUpdateDocumentRevision(postId, documentContents, forumType);
       break;
     }
     
@@ -133,7 +135,7 @@ export async function handleCkEditorWebhook(message: any) {
         const ckEditorDocumentId = userConnectedPayload?.document?.id;
         const documentId = ckEditorDocumentIdToPostId(ckEditorDocumentId)
         if (!!userId && !!documentId) {
-          const adminContext = createAdminContext();
+          const adminContext = createAdminContext({ forumType });
           await createCkEditorUserSession({
             data: {
               userId,
@@ -155,7 +157,7 @@ export async function handleCkEditorWebhook(message: any) {
           const documentId = ckEditorDocumentIdToPostId(ckEditorDocumentId)
           const userSession = await CkEditorUserSessions.findOne({userId, documentId, endedAt: {$exists: false}}, {sort:{createdAt: -1}});
           if (!!userSession) {
-            await endCkEditorUserSession(userSession._id, "ckEditorWebhook", new Date(sent_at))
+            await endCkEditorUserSession(userSession._id, "ckEditorWebhook", forumType, new Date(sent_at))
           }
         }
       }
@@ -167,7 +169,7 @@ export async function handleCkEditorWebhook(message: any) {
       const ckEditorDocumentId = userDisconnectedPayload?.document?.id;
       const documentContents = await fetchCkEditorCloudStorageDocumentHtml(ckEditorDocumentId);
       const postId = ckEditorDocumentIdToPostId(ckEditorDocumentId);
-      await saveDocumentRevision(userId, postId, documentContents);
+      await saveDocumentRevision(userId, postId, documentContents, forumType);
 
       break;
     }
@@ -183,7 +185,8 @@ export async function handleCkEditorWebhook(message: any) {
   }
 }
 
-async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId, commentersInThread}: {
+async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId, commentersInThread, forumType}: {
+  forumType: ForumTypeString,
   commenterUserId: string,
   commentHtml: string,
   postId: string,
@@ -204,6 +207,7 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId,
   console.log(`New CkEditor comment. Notifying users: ${JSON.stringify(usersToNotify)}`);
   
   await createNotifications({
+    context: createAnonymousContext({ forumType }),
     userIds: usersToNotify,
     notificationType: "newCommentOnDraft",
     documentType: "post",

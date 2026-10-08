@@ -1,3 +1,5 @@
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import { userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import schema from "@/lib/collections/jargonTerms/newSchema";
 import { userIsPostCoauthor } from "@/lib/collections/posts/helpers";
@@ -9,7 +11,7 @@ import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFields
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
@@ -27,7 +29,7 @@ function postCanHaveJargonTerms(post: DbPost) {
 async function userCanCreateJargonTermForPost(user: DbUser | null, jargonTerm: DbJargonTerm | CreateJargonTermDataInput | null, context: ResolverContext) {
   const { Posts } = context;
 
-  if (!jargonTerm || !userCanCreateAndEditJargonTerms(user)) {
+  if (!jargonTerm || !userCanCreateAndEditJargonTerms(user, context.forumType)) {
     return false;
   }
 
@@ -90,6 +92,8 @@ export async function createJargonTerm({ data }: CreateJargonTermInput, context:
     props: asyncProperties,
   });
 
+  await invalidatePostPageCache(documentWithId.postId);
+
   return documentWithId;
 }
 
@@ -131,6 +135,8 @@ export async function updateJargonTerm({ selector, data }: UpdateJargonTermInput
   });
 
   backgroundTask(logFieldChanges({ currentUser, collection: JargonTerms, oldDocument, data: origData }));
+
+  await invalidatePostPageCache(filterNonnull([updatedDocument.postId, oldDocument.postId]));
 
   return updatedDocument;
 }

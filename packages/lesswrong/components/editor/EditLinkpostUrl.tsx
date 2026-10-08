@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
 import { placeholderSetting } from '@/lib/instanceSettings';
@@ -34,11 +35,8 @@ interface EditLinkpostUrlProps {
   post: EditablePost;
 }
 
-// TODO: these two fields were on the form definition in the schema, but didn't seem to actually do anything.
-// hintText={isEAForum() ? "UrlHintText" : "Please write what you liked about the post and sample liberally! If the author allows it, copy in the entire post text. (Link-posts without text get far fewer views and most people don't click offsite links.)"}
-// labels={{ inactive: 'Link-post?', active: 'Add a linkpost URL' }}
-
 export const EditLinkpostUrl = ({ field, post }: EditLinkpostUrlProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   const { postCategory } = post;
@@ -57,7 +55,7 @@ export const EditLinkpostUrl = ({ field, post }: EditLinkpostUrlProps) => {
         className={classes.input}
         value={value || ""}
         onChange={onChange}
-        placeholder={placeholderSetting.get()}
+        placeholder={placeholderSetting.get(forumType)}
         disableUnderline
         fullWidth
       />

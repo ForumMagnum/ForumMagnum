@@ -1,4 +1,3 @@
-import { anthropicApiKey } from "@/lib/instanceSettings";
 import Anthropic from "@anthropic-ai/sdk";
 import { createHash } from 'crypto';
 
@@ -6,7 +5,7 @@ export const getAnthropicClientOrThrow = (() => {
   let keyClientMap = new Map<string, Anthropic>();
 
   return (customApiKey?: string) => {
-    const apiKey = customApiKey ?? anthropicApiKey.get();
+    const apiKey = customApiKey ?? process.env.private_anthropic_claudeTestKey;
     if (!apiKey) {
       throw new Error('Missing api key when initializing Anthropic client!');
     }

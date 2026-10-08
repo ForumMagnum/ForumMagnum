@@ -40,8 +40,13 @@ const isE2E = (process.env.E2E === "true");
 
 /** @type {NextConfig} */
 const nextConfig: NextConfig = {
+  // Keep our repository-maintained agent instructions unchanged by next dev.
+  agentRules: false,
   cacheComponents: !isE2E,
   reactStrictMode: false,
+  // Lets a second dev instance run from the same checkout (next dev holds a
+  // lock under distDir): NEXT_DIST_DIR=.next-profile yarn start dev -p 3005
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
 
   compiler: {
     define: {
@@ -53,7 +58,17 @@ const nextConfig: NextConfig = {
   },
   productionBrowserSourceMaps: true,
   typedRoutes: true,
+  outputFileTracingIncludes: {
+    '/**': [
+      './packages/lesswrong/server/research/sandbox/dist/supervisor.js',
+      './packages/lesswrong/server/research/sandbox/dist/research-tool.cjs',
+      './packages/lesswrong/server/research/sandbox/supervisor/agentInstructions.md',
+    ],
+  },
   experimental: {
+    // LW/AF metadata intentionally reads request headers and cookies. Only
+    // validate instant navigations for routes that explicitly opt in.
+    instantInsights: { validationLevel: 'manual-warning' },
     serverSourceMaps: true,
     turbopackFileSystemCacheForDev: true,
   },

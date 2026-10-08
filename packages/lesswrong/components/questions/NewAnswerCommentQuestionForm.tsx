@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, {Ref, useState} from 'react';
 import classNames from 'classnames';
 import FullscreenIcon from '@/lib/vendor/@material-ui/icons/src/Fullscreen';
@@ -74,6 +75,7 @@ const styles = defineStyles('NewAnswerCommentQuestionForm', (theme: ThemeType) =
 const NewAnswerCommentQuestionForm = ({post}: {
   post: PostsListWithVotes,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [selection, setSelection] = useState("answer");
   const [formFocus, setFormFocus] = useState(false);
@@ -85,7 +87,7 @@ const NewAnswerCommentQuestionForm = ({post}: {
 
   const isAnswer = selection === "answer";
 
-  return <div className={classes.root} onFocus={() => afNonMemberDisplayInitialPopup(currentUser, openDialog)}>
+  return <div className={classes.root} onFocus={() => afNonMemberDisplayInitialPopup(currentUser, openDialog, forumType)}>
     <div className={classNames(classes.whitescreen, {[classes.displayWhitescreen]: formFocus})}/>
     <div className={classes.form}>
       <div className={classes.chooseResponseType}>
