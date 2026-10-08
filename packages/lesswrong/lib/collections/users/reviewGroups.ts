@@ -83,11 +83,6 @@ interface SimpleReviewContentStats {
   totalContentCount: number;
 }
 
-/**
- * "Simple" users are the New Content users who are quickest to decide on: one or
- * two items in total (rejected, drafted and deleted ones included), at least one
- * of them awaiting approval, and no approved history to weigh them against.
- */
 export function isSimpleReviewCandidate({ pendingPostCount, pendingCommentCount, approvedContentCount, totalContentCount }: SimpleReviewContentStats): boolean {
   const pendingCount = pendingPostCount + pendingCommentCount;
   return pendingCount > 0 && totalContentCount <= MAX_SIMPLE_TOTAL_ITEMS && approvedContentCount === 0;

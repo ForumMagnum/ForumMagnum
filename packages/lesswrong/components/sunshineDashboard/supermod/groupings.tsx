@@ -36,7 +36,6 @@ export function getUserReviewGroup(user: SunshineUsersList): ReviewGroup {
 export function getDisplayedReasonForGroupAssignment(user: SunshineUsersList): React.ReactNode {
   const reviewGroup = getUserReviewGroup(user);
   const { fresh } = partitionModeratorActions(user);
-  // Simple is a subset of New Content, so its users were put in the queue by New Content actions
   const actionGroup = reviewGroup === 'simple' ? 'newContent' : reviewGroup;
   const actionForGroup = fresh.find(action => getModeratorActionGroup(action.type) === actionGroup);
   if (!actionForGroup) {
