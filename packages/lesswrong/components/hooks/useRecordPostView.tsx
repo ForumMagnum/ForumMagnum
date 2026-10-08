@@ -100,7 +100,7 @@ export const useRecordPostView = (post: ViewablePost) => {
         && isRecombeeRecommendablePost(post, forumType)
         && (!currentUser || !excludeUserFromRecombee(currentUser))
       ) {
-        void recombeeApi.createDetailView(post._id, attributedUserId, forumType, recommendationOptions?.recombeeOptions?.recommId);
+        void recombeeApi.createDetailView(post._id, attributedUserId, !!currentUser, forumType, recommendationOptions?.recombeeOptions?.recommId);
       }
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line

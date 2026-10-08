@@ -48,10 +48,6 @@ const formStyles = defineStyles('SpotlightForm', (theme: ThemeType) => ({
     marginTop: 16,
     marginBottom: 16,
   },
-  // Fields in defaultFormSection's flex row are only as wide as their
-  // contents, and an empty editor has none (its placeholder is absolutely
-  // positioned), so without this the inline (descriptionOnly) editor
-  // collapses to 0px wide when empty
   descriptionField: {
     width: '100%',
   },

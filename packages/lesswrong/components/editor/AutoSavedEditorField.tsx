@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { EditorFormComponent, useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
 
 interface EditorContentsValue {
@@ -20,19 +20,21 @@ function contentsKey(contents: EditorContentsValue | null | undefined): Contents
   };
 }
 
+function isSameContents(a: ContentsKey, b: ContentsKey) {
+  return a.type === b.type && a.data === b.data;
+}
+
 /**
  * An editor field that saves itself when focus leaves it, rather than on an
  * explicit form submit. `onCommit` saves the contents and resolves to whether
  * the save succeeded.
  *
- * Only real edits are committed: the editor reports changes to its contents
- * (`handleChange`, and `beforeinput` events for typing, since Lexical cancels
- * them and applies the edit itself), but not moving the cursor, so focusing
- * and leaving the field doesn't save the editor's re-rendering of contents
- * stored in an older format. A commit captures the contents through the
- * binding's `setValue`, and contents equal to the last committed contents
- * aren't saved. Those are advanced before the save is awaited, so a second
- * blur during an in-flight save doesn't queue a duplicate revision.
+ * Nothing is committed unless the contents differ from the last committed
+ * contents. Before the first commit, those are the contents as the editor
+ * showed them when the user first clicked or focused the field, rather than as
+ * stored: an editor that loads contents stored in another format renders them
+ * differently, so comparing with the stored contents would save a converted
+ * copy when nothing was edited.
  */
 const AutoSavedEditorField = <D extends { _id: string }, F extends keyof D & string>({
   document,
@@ -60,55 +62,66 @@ const AutoSavedEditorField = <D extends { _id: string }, F extends keyof D & str
   const {
     onSubmitCallback,
     onSuccessCallback,
+    getContentsCallback,
     addOnSubmitCallback,
     addOnSuccessCallback,
+    addGetContentsCallback,
   } = useEditorFormCallbacks<D>();
 
   const capturedValueRef = useRef<SubmittedEditorContents | null>(null);
   const lastCommittedRef = useRef<ContentsKey>(contentsKey(document[fieldName]));
-  const editedRef = useRef(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const markEdited = () => {
-      editedRef.current = true;
-    };
-    root.addEventListener("beforeinput", markEdited);
-    return () => root.removeEventListener("beforeinput", markEdited);
-  }, []);
+  const hasCapturedBaselineRef = useRef(false);
 
   const binding = {
     state: { value: document[fieldName] },
     setValue: (value: SubmittedEditorContents) => {
       capturedValueRef.current = value;
     },
-    handleChange: () => {
-      editedRef.current = true;
-    },
+    // The editor echoes its contents into the field, throttled, for form
+    // state tracking; we only persist on commit (blur), via setValue.
+    handleChange: () => {},
   };
 
+  // The first click or focus inside the field comes before any edit, so the
+  // editor still holds the contents it loaded. If the editor isn't ready yet,
+  // the stored contents stay the baseline.
+  const captureBaseline = useCallback(async () => {
+    if (hasCapturedBaselineRef.current) return;
+    hasCapturedBaselineRef.current = true;
+    const contents = await getContentsCallback.current?.();
+    if (contents) {
+      lastCommittedRef.current = contents;
+    }
+  }, [getContentsCallback]);
+
+  const handleInteraction = useCallback(() => {
+    void captureBaseline();
+  }, [captureBaseline]);
+
   const commit = useCallback(async () => {
-    if (!editedRef.current || !onSubmitCallback.current) return;
+    // Check for a change before submitting, since submitting saves a local
+    // backup that only a successful save clears
+    const current = await getContentsCallback.current?.();
+    if (current && isSameContents(current, lastCommittedRef.current)) return;
+    if (!onSubmitCallback.current) return;
     capturedValueRef.current = null;
     await onSubmitCallback.current();
     const payload = capturedValueRef.current;
     if (!payload) return;
-    editedRef.current = false;
 
     const newContents = contentsKey(payload);
     const previous = lastCommittedRef.current;
-    if (newContents.type === previous.type && newContents.data === previous.data) return;
+    if (isSameContents(newContents, previous)) return;
 
+    // Advance before awaiting so a repeated blur during the in-flight save
+    // doesn't queue a duplicate revision
     lastCommittedRef.current = newContents;
     if (await onCommit(payload)) {
       onSuccessCallback.current?.(document, { noReload: true });
     } else {
       lastCommittedRef.current = previous;
-      editedRef.current = true;
     }
-  }, [document, onCommit, onSubmitCallback, onSuccessCallback]);
+  }, [document, onCommit, onSubmitCallback, onSuccessCallback, getContentsCallback]);
 
   const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
     const focusMovedTo = e.relatedTarget instanceof Node ? e.relatedTarget : null;
@@ -117,7 +130,7 @@ const AutoSavedEditorField = <D extends { _id: string }, F extends keyof D & str
   }, [commit]);
 
   return (
-    <div onBlur={handleBlur} ref={rootRef}>
+    <div onBlur={handleBlur} onFocus={handleInteraction} onPointerDown={handleInteraction}>
       <EditorFormComponent
         field={binding}
         name={fieldName}
@@ -125,6 +138,7 @@ const AutoSavedEditorField = <D extends { _id: string }, F extends keyof D & str
         document={document}
         addOnSubmitCallback={addOnSubmitCallback}
         addOnSuccessCallback={addOnSuccessCallback}
+        addGetContentsCallback={addGetContentsCallback}
         hintText={hintText}
         fieldName={fieldName}
         collectionName={collectionName}

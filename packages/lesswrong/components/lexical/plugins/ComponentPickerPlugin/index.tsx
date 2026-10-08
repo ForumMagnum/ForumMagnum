@@ -39,6 +39,7 @@ import { INSERT_SPOILER_COMMAND } from '@/components/editor/lexicalPlugins/spoil
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
 import {InsertImageDialog} from '../ImagesPlugin';
+import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin/commands';
 
 import { TableIcon } from '../../icons/TableIcon';
 import { TextParagraphIcon } from '../../icons/TextParagraphIcon';
@@ -53,6 +54,7 @@ import { HorizontalRuleIcon } from '../../icons/HorizontalRuleIcon';
 import { CardChecklistIcon } from '../../icons/CardChecklistIcon';
 import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { FileImageIcon } from '../../icons/FileImageIcon';
+import { Diagram2Icon } from '../../icons/Diagram2Icon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
 import ForumIcon from '@/components/common/ForumIcon';
@@ -264,6 +266,12 @@ function useBaseOptions(
             <InsertImageDialog activeEditor={editor} onClose={onClose} />
           ),
         }),
+    }),
+    new ComponentPickerOption('Diagram', {
+      icon: <Diagram2Icon style={iconStyle} />,
+      keywords: ['diagram', 'drawing', 'excalidraw', 'sketch', 'flowchart', 'whiteboard', 'arrows'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined),
     }),
     new ComponentPickerOption('Collapsible Section', {
       icon: <CaretRightFillIcon style={iconStyle} />,

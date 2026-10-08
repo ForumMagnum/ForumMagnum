@@ -21,7 +21,8 @@ import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
 import { standardRejectionIntroHtml } from '@/lib/collections/moderationTemplates/rejectionIntro';
 import dynamic from 'next/dynamic';
 
-const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
+// `loading` adds a Suspense boundary; without one, loading the editor blanks the page
+const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'), { loading: () => null });
 
 const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
   dialogContent: {
