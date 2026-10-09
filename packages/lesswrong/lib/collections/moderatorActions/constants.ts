@@ -37,6 +37,8 @@ export const STRICTER_POST_AUTOMOD_RATE_LIMIT = "stricterPostAutomodRateLimit";
 export const MANUAL_RATE_LIMIT_EXPIRED = "manualRateLimitExpired";
 export const VOTING_DISABLED = "votingDisabled";
 export const AUTO_PURGED_PROFILE_SPAM = "autoPurgedProfileSpam";
+export const AUTO_REMOVED_LLM_REJECTED_USER = "autoRemovedLlmRejectedUser";
+export const AUTO_PURGED_LLM_REJECTED_SPAM = "autoPurgedLlmRejectedSpam";
 
 
 export const postRateLimits = [] as const;
@@ -125,6 +127,8 @@ export const MODERATOR_ACTION_TYPES = {
   [MANUAL_RATE_LIMIT_EXPIRED]: "Manual rate limit expired",
   [VOTING_DISABLED]: "Voting disabled",
   [AUTO_PURGED_PROFILE_SPAM]: "Auto-purged by the profile spam classifier",
+  [AUTO_REMOVED_LLM_REJECTED_USER]: "Removed from review queue by the LLM-rejection triage classifier",
+  [AUTO_PURGED_LLM_REJECTED_SPAM]: "Auto-purged as spam by the LLM-rejection triage classifier",
 } satisfies Record<ModeratorActionType, string>;
 
 /** The max # of users an unapproved account is allowed to DM before being flagged */

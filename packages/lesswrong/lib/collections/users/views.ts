@@ -3,6 +3,7 @@ import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "@/lib/utils/viewConstants";
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
+import type { ApolloClient } from '@apollo/client';
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -90,12 +91,14 @@ function usersWithBannedUsers() {
   }
 }
 
-function sunshineNewUsers() {
+async function sunshineNewUsers(terms: UsersViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
+  const nothingPendingUserIds = await context.repos.users.getContentQueueUserIdsWithNothingPending();
   return {
     selector: {
       needsReview: true,
       banned: viewFieldNullOrMissing,
       reviewedByUserId: null,
+      ...(nothingPendingUserIds.length ? { _id: { $nin: nothingPendingUserIds } } : {}),
     },
     options: {
       sort: {

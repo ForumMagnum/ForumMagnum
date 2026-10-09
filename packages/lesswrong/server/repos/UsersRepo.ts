@@ -4,6 +4,10 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
+import { isReviewTriggeredOnlyByContent } from "@/lib/collections/users/reviewGroups";
+import { isActionActive } from "@/lib/collections/moderatorActions/helpers";
+import ModeratorActions from "@/server/collections/moderatorActions/collection";
+import groupBy from "lodash/groupBy";
 
 export interface PendingContentStats {
   pendingPostCount: number;
@@ -526,6 +530,47 @@ class UsersRepo extends AbstractRepo<"Users"> {
       approvedContentCount: 0,
       totalContentCount: 0,
     });
+  }
+
+  async getLastRemovedFromReviewQueueAt(userIds: string[]): Promise<(Date | null)[]> {
+    const rows = await this.getRawDb().any<{ userId: string, createdAt: Date }>(`
+      -- UsersRepo.getLastRemovedFromReviewQueueAt
+      SELECT "documentId" AS "userId", MAX("createdAt") AS "createdAt"
+      FROM "FieldChanges"
+      WHERE "documentId" = ANY($(userIds)::text[])
+        AND "fieldName" = 'needsReview'
+        AND "newValue" = 'false'::jsonb
+      GROUP BY "documentId"
+    `, { userIds });
+    const datesByUserId = new Map(rows.map(row => [row.userId, row.createdAt]));
+    return userIds.map(userId => datesByUserId.get(userId) ?? null);
+  }
+
+  async getContentQueueUserIdsWithNothingPending(): Promise<string[]> {
+    const users = await Users.find({ needsReview: true }, {}, { _id: 1 }).fetch();
+    const userIds = users.map(user => user._id);
+    if (!userIds.length) return [];
+    const [stats, rejectedCounts] = await Promise.all([
+      this.getPendingContentStats(userIds),
+      this.getRejectedContentCounts(userIds),
+    ]);
+    const candidates = userIds.filter((userId, index) =>
+      !rejectedCounts[index] && !stats[index].pendingPostCount && !stats[index].pendingCommentCount
+    );
+    if (!candidates.length) return [];
+    const [lastRemovedAt, actions] = await Promise.all([
+      this.getLastRemovedFromReviewQueueAt(candidates),
+      ModeratorActions.find({ userId: { $in: candidates } }, {}, { userId: 1, type: 1, endedAt: 1, createdAt: 1 }).fetch(),
+    ]);
+    const actionsByUserId = groupBy(actions.map(action => ({
+      userId: action.userId,
+      type: action.type,
+      active: isActionActive(action),
+      createdAt: action.createdAt,
+    })), action => action.userId);
+    return candidates.filter((userId, index) =>
+      isReviewTriggeredOnlyByContent(actionsByUserId[userId] ?? [], lastRemovedAt[index])
+    );
   }
 
   /**

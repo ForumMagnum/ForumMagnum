@@ -11,6 +11,7 @@ import { updateComment } from "@/server/collections/comments/mutations";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { stripExcludedContentForAIDetection } from "./preprocessing";
+import { maybeRunLlmRejectionTriage } from "@/server/llmRejectionTriage/triage";
 import {
   DEFAULT_PANGRAM_MODEL,
   PANGRAM_AUTOREJECT_THRESHOLD,
@@ -395,6 +396,12 @@ export async function createAutomatedContentEvaluation(
     const collectionName = revision.collectionName;
     if (collectionName === "Posts" || collectionName === "Comments") {
       await rejectContentForLLM(documentId, collectionName, context);
+      const document = collectionName === "Posts"
+        ? await Posts.findOne({ _id: documentId }, {}, { userId: 1 })
+        : await Comments.findOne({ _id: documentId }, {}, { userId: 1 });
+      if (document?.userId) {
+        await maybeRunLlmRejectionTriage(document.userId, context);
+      }
     }
   }
 
