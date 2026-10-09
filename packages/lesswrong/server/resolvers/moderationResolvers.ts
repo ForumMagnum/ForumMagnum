@@ -20,28 +20,8 @@ import { createAutomatedContentEvaluation, getPangramEvaluationForText, rerunLlm
 import type { PangramModel } from '../../lib/collections/automatedContentEvaluations/constants';
 import { MODERATION_TEMPLATE_USED_EVENT } from '../../lib/collections/moderationTemplates/constants';
 import { createLWEvent } from '../collections/lwevents/mutations';
-import { isDevelopment } from '../../lib/executionEnvironment';
-import fs from 'fs';
 
 const MODERATION_TEMPLATE_USAGE_WINDOW_DAYS = 90;
-
-function loadModerationTemplateUsageOverride(): Record<string, number> {
-  const overridePath = process.env.MODERATION_TEMPLATE_USAGE_OVERRIDE_PATH;
-  if (!isDevelopment || !overridePath) return {};
-  const parsed: unknown = JSON.parse(fs.readFileSync(overridePath, 'utf8'));
-  if (!parsed || typeof parsed !== 'object') return {};
-  return Object.fromEntries(
-    Object.entries(parsed).filter((entry): entry is [string, number] => typeof entry[1] === 'number')
-  );
-}
-
-function addUsageCounts(liveCounts: { templateId: string, count: number }[], extraCounts: Record<string, number>) {
-  const totals = new Map(liveCounts.map(({ templateId, count }) => [templateId, count]));
-  for (const [templateId, count] of Object.entries(extraCounts)) {
-    totals.set(templateId, (totals.get(templateId) ?? 0) + count);
-  }
-  return [...totals.entries()].map(([templateId, count]) => ({ templateId, count }));
-}
 
 export const moderationGqlTypeDefs = gql`
   type ModeratorIPAddressInfo {
@@ -472,7 +452,6 @@ export const moderationGqlQueries = {
     }
 
     const since = moment().subtract(MODERATION_TEMPLATE_USAGE_WINDOW_DAYS, 'days').toDate();
-    const liveCounts = await context.repos.lwEvents.getModerationTemplateUsageCounts(since);
-    return addUsageCounts(liveCounts, loadModerationTemplateUsageOverride());
+    return context.repos.lwEvents.getModerationTemplateUsageCounts(since);
   },
 }

@@ -15628,6 +15628,18 @@ type rejectCommentMutationMutationVariables = Exact<{
 
 type rejectCommentMutationMutation = rejectCommentMutationMutation_Mutation;
 
+type recordModerationTemplatesUsedRejectContentMutation_Mutation = { __typename?: 'Mutation', recordModerationTemplatesUsed: boolean };
+
+
+type recordModerationTemplatesUsedRejectContentMutationVariables = Exact<{
+  templateIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+}>;
+
+
+type recordModerationTemplatesUsedRejectContentMutation = recordModerationTemplatesUsedRejectContentMutation_Mutation;
+
 type multiMultiDocumentuseTagOrLensQueryQuery_multiDocuments_MultiMultiDocumentOutput_results_MultiDocument = (
   { __typename?: 'MultiDocument' }
   & MultiDocumentParentDocument
@@ -20383,16 +20395,6 @@ type updateModerationTemplateGroupedTemplateListMutationVariables = Exact<{
 
 type updateModerationTemplateGroupedTemplateListMutation = updateModerationTemplateGroupedTemplateListMutation_Mutation;
 
-type moderationTemplateUsageCountsGroupedTemplateListQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount = { __typename?: 'ModerationTemplateUsageCount', templateId: string, count: number };
-
-type moderationTemplateUsageCountsGroupedTemplateListQueryQuery_Query = { __typename?: 'Query', moderationTemplateUsageCounts: Array<moderationTemplateUsageCountsGroupedTemplateListQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount> };
-
-
-type moderationTemplateUsageCountsGroupedTemplateListQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-type moderationTemplateUsageCountsGroupedTemplateListQueryQuery = moderationTemplateUsageCountsGroupedTemplateListQueryQuery_Query;
-
 type RunLlmCheckForDocumentMutation_runLlmCheckForDocument_AutomatedContentEvaluation = (
   { __typename?: 'AutomatedContentEvaluation' }
   & AutomatedContentEvaluationsFragment
@@ -21245,17 +21247,15 @@ type updateUserModeratorNotesMutationVariables = Exact<{
 
 type updateUserModeratorNotesMutation = updateUserModeratorNotesMutation_Mutation;
 
-type recordModerationTemplatesUsedRejectContentPanelMutation_Mutation = { __typename?: 'Mutation', recordModerationTemplatesUsed: boolean };
+type moderationTemplateUsageCountsRejectContentPanelQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount = { __typename?: 'ModerationTemplateUsageCount', templateId: string, count: number };
+
+type moderationTemplateUsageCountsRejectContentPanelQueryQuery_Query = { __typename?: 'Query', moderationTemplateUsageCounts: Array<moderationTemplateUsageCountsRejectContentPanelQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount> };
 
 
-type recordModerationTemplatesUsedRejectContentPanelMutationVariables = Exact<{
-  templateIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
-  documentId: Scalars['String']['input'];
-  collectionName: ContentCollectionName;
-}>;
+type moderationTemplateUsageCountsRejectContentPanelQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-type recordModerationTemplatesUsedRejectContentPanelMutation = recordModerationTemplatesUsedRejectContentPanelMutation_Mutation;
+type moderationTemplateUsageCountsRejectContentPanelQueryQuery = moderationTemplateUsageCountsRejectContentPanelQueryQuery_Query;
 
 type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }

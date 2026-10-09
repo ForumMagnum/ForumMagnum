@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   DndContext,
@@ -41,15 +41,6 @@ const UpdateModerationTemplateGroupMutation = gql(`
       data {
         ...ModerationTemplateFragment
       }
-    }
-  }
-`);
-
-const ModerationTemplateUsageCountsQuery = gql(`
-  query moderationTemplateUsageCountsGroupedTemplateListQuery {
-    moderationTemplateUsageCounts {
-      templateId
-      count
     }
   }
 `);
@@ -111,14 +102,6 @@ function groupTemplatesByLabel(templates: ModerationTemplateFragment[]): [string
   }
 
   return Object.entries(grouped);
-}
-
-function getTemplateUsage(template: ModerationTemplateFragment, usageCounts: Map<string, number>) {
-  return usageCounts.get(template._id) ?? 0;
-}
-
-function sortTemplatesByUsage(templates: ModerationTemplateFragment[], usageCounts: Map<string, number>) {
-  return [...templates].sort((a, b) => getTemplateUsage(b, usageCounts) - getTemplateUsage(a, usageCounts));
 }
 
 // Same matching as the rejection dialog's template search: case-insensitive substring of the name
@@ -580,7 +563,7 @@ const HiddenTemplatesSection = ({hiddenTemplates, expanded, onToggleExpanded, on
  * presses ArrowDown on its last line; it opens and focuses the search with nothing
  * selected, so the next ArrowDown steps into the template list.
  */
-const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer, focusSearchToken, active = true, onEscape, flatByUsage = false, templateFilter, numberShortcuts = false }: {
+const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer, focusSearchToken, active = true, onEscape, layout = "grouped", compareTemplates, templateFilter, numberShortcuts = false }: {
   collectionName: TemplateType,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlightedTemplateNames?: Set<string>,
@@ -591,7 +574,8 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   active?: boolean,
   // Called when Escape is pressed in the search; closes the sidebar section containing the list
   onEscape?: () => void,
-  flatByUsage?: boolean,
+  layout?: "grouped" | "flat",
+  compareTemplates?: (a: ModerationTemplateFragment, b: ModerationTemplateFragment) => number,
   templateFilter?: (template: ModerationTemplateFragment) => boolean,
   numberShortcuts?: boolean,
 }) => {
@@ -636,18 +620,11 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
 
   const queryVariables = getModerationTemplatesQueryVariables(collectionName);
   const { data } = useQuery(ModerationTemplatesListQuery, { variables: queryVariables });
-  // Fetched once per mount, so the list doesn't reshuffle under the moderator as they work
-  const { data: usageData } = useQuery(ModerationTemplateUsageCountsQuery, { skip: !flatByUsage, ssr: false });
   const [updateTemplateGroup] = useMutation(UpdateModerationTemplateGroupMutation);
 
   const dndSensors = useSensors(useSensor(PointerSensor, {activationConstraint: {distance: 5}}));
 
   const templates = data?.moderationTemplates?.results ?? [];
-  const usageCounts = useMemo(
-    () => new Map((usageData?.moderationTemplateUsageCounts ?? []).map(({ templateId, count }) => [templateId, count])),
-    [usageData]
-  );
-
   const handleToggleGroupExpanded = (group: string, expanded: boolean) => {
     setGroupExpandedOverrides(prev => ({...prev, [group]: expanded}));
   };
@@ -714,17 +691,18 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   };
 
   const lowercaseQuery = searchQuery.trim().toLowerCase();
-  const applicableTemplates = templateFilter ? templates.filter(templateFilter) : templates;
+  const orderedTemplates = compareTemplates ? [...templates].sort(compareTemplates) : templates;
+  const applicableTemplates = templateFilter ? orderedTemplates.filter(templateFilter) : orderedTemplates;
   const matchingTemplates = lowercaseQuery
     ? applicableTemplates.filter(template => templateMatchesQuery(template, lowercaseQuery))
     : applicableTemplates;
   const visibleTemplates = matchingTemplates.filter(template => !hiddenTemplateIds.has(template._id));
   const hiddenTemplates = matchingTemplates.filter(template => hiddenTemplateIds.has(template._id));
   // Groups are only created when non-empty, so all-hidden ones vanish
-  const visibleGroups = flatByUsage ? [] : groupTemplatesByLabel(visibleTemplates);
+  const visibleGroups = layout === "flat" ? [] : groupTemplatesByLabel(visibleTemplates);
   // Outside of a search, always show "Other" (even when empty) so its "+" button
   // is the standing affordance for creating an ungrouped template
-  if (!flatByUsage && !lowercaseQuery && !visibleGroups.some(([group]) => group === UNGROUPED_TEMPLATES_LABEL)) {
+  if (layout === "grouped" && !lowercaseQuery && !visibleGroups.some(([group]) => group === UNGROUPED_TEMPLATES_LABEL)) {
     visibleGroups.push([UNGROUPED_TEMPLATES_LABEL, []]);
   }
 
@@ -732,8 +710,8 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
 
   // What the arrow keys walk: everything on screen, in display order. Templates in
   // collapsed groups and hidden templates aren't visible, so they aren't navigable.
-  const navigableTemplates = flatByUsage
-    ? sortTemplatesByUsage(visibleTemplates, usageCounts)
+  const navigableTemplates = layout === "flat"
+    ? visibleTemplates
     : visibleGroups
       .filter(([group]) => isGroupExpanded(group))
       .flatMap(([, templatesInGroup]) => templatesInGroup);
@@ -832,7 +810,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
           onFocusChange={setSearchFocused}
         />
       )}
-      {flatByUsage && (
+      {layout === "flat" && (
         <FlatTemplateList
           templates={navigableTemplates}
           onTemplateClick={onTemplateClick}
