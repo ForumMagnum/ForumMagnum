@@ -2896,7 +2896,7 @@ interface RejectionAppeal {
   conversationId: string | null;
   conversation: Conversation | null;
   explanation: string | null;
-  reasonIds: Array<string>;
+  reasonIds: Array<string> | null;
   acknowledgedMisunderstandings: boolean | null;
   status: RejectionAppealStatus | null;
   resolvedByUserId: string | null;

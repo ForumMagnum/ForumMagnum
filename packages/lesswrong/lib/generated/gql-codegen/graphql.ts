@@ -10923,7 +10923,7 @@ export type RejectionAppeal = {
   explanation: Maybe<Scalars['String']['output']>;
   post: Maybe<Post>;
   postId: Maybe<Scalars['String']['output']>;
-  reasonIds: Array<Scalars['String']['output']>;
+  reasonIds: Maybe<Array<Scalars['String']['output']>>;
   resolvedAt: Maybe<Scalars['Date']['output']>;
   resolvedByUserId: Maybe<Scalars['String']['output']>;
   status: Maybe<RejectionAppealStatus>;
@@ -22028,7 +22028,7 @@ export type ChapterPostSlim = { __typename?: 'Post', _id: string, title: string,
 export type RejectionAppealsUserInfo = { __typename?: 'RejectionAppeal', _id: string, createdAt: string, postId: string | null, commentId: string | null, conversationId: string | null, status: RejectionAppealStatus | null };
 
 export type RejectionAppealsModerationInfo = (
-  { __typename?: 'RejectionAppeal', explanation: string | null, reasonIds: Array<string>, post: (
+  { __typename?: 'RejectionAppeal', explanation: string | null, reasonIds: Array<string> | null, post: (
     { __typename?: 'Post' }
     & SunshinePostsList
   ) | null, comment: (

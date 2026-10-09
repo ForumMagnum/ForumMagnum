@@ -8971,7 +8971,7 @@ type RejectionAppeal = {
   explanation?: Maybe<Scalars['String']['output']>;
   post?: Maybe<Post>;
   postId?: Maybe<Scalars['String']['output']>;
-  reasonIds: Array<Scalars['String']['output']>;
+  reasonIds?: Maybe<Array<Scalars['String']['output']>>;
   resolvedAt?: Maybe<Scalars['Date']['output']>;
   resolvedByUserId?: Maybe<Scalars['String']['output']>;
   status?: Maybe<RejectionAppealStatus>;
@@ -24971,7 +24971,7 @@ type RejectionAppealsModerationInfo_RejectionAppeal_conversation_Conversation = 
 );
 
 type RejectionAppealsModerationInfo = (
-  { __typename?: 'RejectionAppeal', explanation: string | null, reasonIds: Array<string>, post: RejectionAppealsModerationInfo_RejectionAppeal_post_Post | null, comment: RejectionAppealsModerationInfo_RejectionAppeal_comment_Comment | null, conversation: RejectionAppealsModerationInfo_RejectionAppeal_conversation_Conversation | null }
+  { __typename?: 'RejectionAppeal', explanation: string | null, reasonIds: Array<string> | null, post: RejectionAppealsModerationInfo_RejectionAppeal_post_Post | null, comment: RejectionAppealsModerationInfo_RejectionAppeal_comment_Comment | null, conversation: RejectionAppealsModerationInfo_RejectionAppeal_conversation_Conversation | null }
   & RejectionAppealsUserInfo
 );
 

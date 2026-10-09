@@ -106,7 +106,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String!]!",
+      outputType: "[String!]",
       inputType: "[String!]!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],

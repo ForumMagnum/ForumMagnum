@@ -3204,7 +3204,7 @@ type RejectionAppeal {
   conversationId: String
   conversation: Conversation
   explanation: String
-  reasonIds: [String!]!
+  reasonIds: [String!]
   acknowledgedMisunderstandings: Boolean
   status: RejectionAppealStatus
   resolvedByUserId: String
