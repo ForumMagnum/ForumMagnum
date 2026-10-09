@@ -7410,7 +7410,6 @@ interface User {
   reviewedByUser: User | null;
   isReviewed: boolean | null;
   reviewedAt: Date | null;
-  spamRiskScore: number;
   afKarma: number;
   voteCount: number | null;
   smallUpvoteCount: number | null;

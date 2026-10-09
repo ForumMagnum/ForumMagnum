@@ -84,7 +84,27 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
   return null;
 };
 
+const isSameContents = (a: EditorContents, b: EditorContents) => a.type === b.type && a.value === b.value;
+
+/**
+ * Markup made only of empty paragraphs, line breaks and whitespace. An emptied
+ * Lexical editor reports `<p><br></p>` rather than an empty string, so typing
+ * into an empty editor and deleting it again leaves a backup like this.
+ */
+const emptyEditorMarkup = /^(?:\s|&nbsp;|<\/?p\b[^>]*>|<br\s*\/?>)*$/i;
+
+/**
+ * Whether a backup has nothing in it to restore. Only the markup of an emptied
+ * editor counts as nothing, so that content without text, such as an embedded
+ * video or a poll, is still offered.
+ */
+const hasNothingToRestore = (contents: EditorContents) => {
+  return typeof contents.value !== 'string' || emptyEditorMarkup.test(contents.value);
+};
+
 type LocalStorageCheckProps = {
+  /** What the editor opened with, e.g. the saved contents. */
+  currentContents: EditorContents,
   getLocalStorageHandlers: GetLocalStorageHandlers,
   onRestore: (newState: EditorContents) => void,
   getNewPostLocalStorageHandlers: GetLocalStorageHandlers,
@@ -92,12 +112,15 @@ type LocalStorageCheckProps = {
 }
 
 const LocalStorageCheck = (props: LocalStorageCheckProps) => {
-  const {getLocalStorageHandlers, getNewPostLocalStorageHandlers} = props;
+  const {currentContents, getLocalStorageHandlers, getNewPostLocalStorageHandlers} = props;
   const [restorableState, setRestorableState] = useState<{restorableState: RestorableState|null, newPostRestorableState: RestorableState|null} | null>(null);
   const currentUser = useCurrentUser();
   
   useEffectOnce(() => {
-    const restorableState = getRestorableState(currentUser, getLocalStorageHandlers);
+    const backup = getRestorableState(currentUser, getLocalStorageHandlers);
+    // A backup identical to what the editor already has (e.g. of text that
+    // was then saved), or of an emptied editor, has nothing to restore.
+    const restorableState = backup && !isSameContents(backup.savedDocument, currentContents) && !hasNothingToRestore(backup.savedDocument) ? backup : null;
     const newPostRestorableState = getRestorableState(currentUser, getNewPostLocalStorageHandlers);
     if (restorableState || newPostRestorableState) {
       setRestorableState({

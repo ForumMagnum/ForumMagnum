@@ -4,7 +4,7 @@ import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
-import AutoSavedEditorField from './AutoSavedEditorField';
+import AutoSavedEditorField from '@/components/editor/AutoSavedEditorField';
 import SettingsSection from './SettingsSection';
 import SettingsToggleRow from './SettingsToggleRow';
 import SettingsSelectRow from './SettingsSelectRow';
