@@ -82,7 +82,7 @@ const TeamInboxThreadItem = ({ thread, isFocused, onFocus }: {
       <div className={classes.title}>
         {conversation.title}
       </div>
-      {appeal && <span className={classNames(classes.tag, classes.appealTag)}>Appeal {appeal.resolvedAt ? appeal.status : "open"}</span>}
+      {appeal && <span className={classNames(classes.tag, classes.appealTag)}>Appeal {appeal.status}</span>}
       {conversation.awaitingModeratorReply && <span className={classes.tag}>Awaiting reply</span>}
       <div className={classes.date}>
         {conversation.latestActivity && <FormatDate date={conversation.latestActivity} />}

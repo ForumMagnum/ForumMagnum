@@ -529,8 +529,8 @@ const AlreadyAppealedState = ({ appeal }: { appeal: RejectionAppealsUserInfo }) 
   return <div className={classes.endState}>
     <h2 className={classes.endStateHeading}>You've already requested a review of this rejection</h2>
     <p className={classes.endStateMessage}>
-      {appeal.status && <>Status: {APPEAL_STATUS_LABELS[appeal.resolvedAt ? appeal.status : "open"]}</>}
-      {!appeal.resolvedAt && <>
+      {appeal.status && <>Status: {APPEAL_STATUS_LABELS[appeal.status]}</>}
+      {appeal.status === "open" && <>
         <br />
         We aim to complete reviews within 72 hours. We'll message you in your conversation with us once we've made
         a decision.

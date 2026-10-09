@@ -12,7 +12,7 @@ export const RejectionAppeals: RejectionAppealsCollection = createCollection({
     indexSet.addIndex('RejectionAppeals', { postId: 1 }, { unique: true, partialFilterExpression: { postId: { $ne: null } } });
     indexSet.addIndex('RejectionAppeals', { commentId: 1 }, { unique: true, partialFilterExpression: { commentId: { $ne: null } } });
     indexSet.addIndex('RejectionAppeals', { userId: 1, createdAt: -1 });
-    indexSet.addIndex('RejectionAppeals', { resolvedAt: 1, createdAt: 1 });
+    indexSet.addIndex('RejectionAppeals', { status: 1, createdAt: 1 });
     return indexSet;
   },
 });

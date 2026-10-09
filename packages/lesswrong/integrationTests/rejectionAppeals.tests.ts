@@ -106,15 +106,14 @@ describe("rejection appeals", () => {
     return await createRejectionAppealGqlMutation(undefined, { data: { postId, acknowledgedMisunderstandings: true, explanation: "It was a mistake" } }, contextFor(user));
   }
 
-  it("only lets the author appeal rejected content, reusing the request on retry", async () => {
+  it("only lets the author appeal rejected content once", async () => {
     const unrejectedPost = await createDummyPost(author);
     await expect(appeal(author, unrejectedPost._id)).rejects.toThrow();
 
     const post = await rejectPost(await createDummyPost(author), moderator);
     await expect(appeal(await createDummyUser(), post._id)).rejects.toThrow();
     const first = await appeal(author, post._id);
-    const retry = await appeal(author, post._id);
-    expect(retry.data?._id).toBe(first.data?._id);
+    await expect(appeal(author, post._id)).rejects.toThrow("already been requested");
     expect(await Messages.find({ conversationId: post.rejectionConversationId }).count()).toBe(2);
     expect((await RejectionAppeals.findOne(first.data!._id))?.reasonIds).toEqual([]);
   });
@@ -190,45 +189,6 @@ describe("rejection appeals", () => {
     const historical = await createDummyPost(author);
     await Posts.rawUpdateOne({ _id: historical._id }, { $set: { rejected: true } });
     expect((await getRejectionReview({ postId: historical._id }, contextFor(author))).unavailableReason).toContain("does not have a review thread");
-  });
-
-  it("creates one request and one summary for concurrent submissions", async () => {
-    const post = await rejectPost(await createDummyPost(author), moderator);
-    await Promise.all([appeal(author, post._id), appeal(author, post._id)]);
-    await appeal(author, post._id);
-    expect(await RejectionAppeals.find({ postId: post._id }).count()).toBe(1);
-    expect(await Messages.find({ conversationId: post.rejectionConversationId }).count()).toBe(2);
-  });
-
-  it("allows only one of two conflicting moderator decisions", async () => {
-    const post = await rejectPost(await createDummyPost(author), moderator);
-    const { data } = await appeal(author, post._id);
-    const results = await Promise.allSettled([
-      updateRejectionAppeal({ selector: { _id: data!._id }, data: { status: "approved" } }, contextFor(moderator)),
-      updateRejectionAppeal({ selector: { _id: data!._id }, data: { status: "denied" } }, contextFor(moderator)),
-    ]);
-    expect(results.filter(result => result.status === "fulfilled")).toHaveLength(1);
-    const resolved = await RejectionAppeals.findOne(data!._id);
-    expect(resolved?.resolvedAt).not.toBeNull();
-    expect((await Posts.findOne(post._id))?.rejected).toBe(resolved?.status === "denied");
-  });
-
-  it("retries an incomplete resolution without duplicating its outcome message", async () => {
-    const post = await rejectPost(await createDummyPost(author), moderator);
-    const { data } = await appeal(author, post._id);
-    const update = RejectionAppeals.rawUpdateOne.bind(RejectionAppeals);
-    const failure = jest.spyOn(RejectionAppeals, "rawUpdateOne")
-      .mockImplementationOnce(update)
-      .mockRejectedValueOnce(new Error("Interrupted after saving the message"));
-    try {
-      await expect(updateRejectionAppeal({ selector: { _id: data!._id }, data: { status: "approved" } }, contextFor(moderator))).rejects.toThrow("Interrupted");
-    } finally {
-      failure.mockRestore();
-    }
-    expect((await RejectionAppeals.findOne(data!._id))?.resolvedAt).toBeNull();
-    await updateRejectionAppeal({ selector: { _id: data!._id }, data: { status: "approved" } }, contextFor(moderator));
-    expect((await RejectionAppeals.findOne(data!._id))?.resolvedAt).not.toBeNull();
-    expect(await Messages.find({ conversationId: post.rejectionConversationId }).count()).toBe(3);
   });
 
 });

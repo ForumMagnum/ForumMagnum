@@ -8,7 +8,6 @@ export const RejectionAppealsUserInfo = gql(`
     commentId
     conversationId
     status
-    resolvedAt
   }
 `);
 

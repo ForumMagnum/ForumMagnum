@@ -17,28 +17,27 @@ export async function isTeamInboxConversation(conversation: DbConversation, cont
   return !!teamAccountId && conversation.participantIds.includes(teamAccountId);
 }
 
-export async function sendMessageAs({ author, conversationId, html, noEmail, context, messageId }: {
+export async function sendMessageAs({ author, conversationId, html, noEmail, context }: {
   author: DbUser,
-  messageId?: string,
   conversationId: string,
   html: string,
   noEmail: boolean,
   context: ResolverContext,
 }) {
   const authorContext = computeContextFromUser({ user: author, isSSR: context.isSSR, forumType: context.forumType });
-  const data: CreateMessageDataInput & { _id?: string } = {
-    _id: messageId,
-    userId: author._id,
-    conversationId,
-    contents: {
-      originalContents: {
-        type: "html",
-        data: html,
+  return await createMessage({
+    data: {
+      userId: author._id,
+      conversationId,
+      contents: {
+        originalContents: {
+          type: "html",
+          data: html,
+        },
       },
+      noEmail,
     },
-    noEmail,
-  };
-  return await createMessage({ data }, authorContext);
+  }, authorContext);
 }
 
 export async function startTeamInboxConversation({ recipientId, author, title, html, noEmail, context }: {

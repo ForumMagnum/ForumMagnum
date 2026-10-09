@@ -2344,8 +2344,8 @@ WHERE
 -- Index "idx_RejectionAppeals_userId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_userId_createdAt" ON "RejectionAppeals" USING btree ("userId", "createdAt");
 
--- Index "idx_RejectionAppeals_resolvedAt_createdAt"
-CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_resolvedAt_createdAt" ON "RejectionAppeals" USING btree ("resolvedAt", "createdAt");
+-- Index "idx_RejectionAppeals_status_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_status_createdAt" ON "RejectionAppeals" USING btree ("status", "createdAt");
 
 -- Table "Reports"
 CREATE TABLE "Reports" (

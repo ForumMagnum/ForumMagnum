@@ -24918,7 +24918,7 @@ type SuggestAlignmentPost = (
 
 type ChapterPostSlim = { __typename?: 'Post', _id: string, title: string, slug: string, isRead: boolean | null };
 
-type RejectionAppealsUserInfo = { __typename?: 'RejectionAppeal', _id: string, createdAt: string, postId: string | null, commentId: string | null, conversationId: string | null, status: RejectionAppealStatus | null, resolvedAt: string | null };
+type RejectionAppealsUserInfo = { __typename?: 'RejectionAppeal', _id: string, createdAt: string, postId: string | null, commentId: string | null, conversationId: string | null, status: RejectionAppealStatus | null };
 
 type RejectionAppealsModerationInfo_RejectionAppeal_post_Post = (
   { __typename?: 'Post' }

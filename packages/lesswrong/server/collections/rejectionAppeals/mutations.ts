@@ -10,8 +10,6 @@ import { updateComment } from "@/server/collections/comments/mutations";
 import { sendMessageAs } from "@/server/utils/teamInbox";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { updateConversation } from "@/server/collections/conversations/mutations";
-import { createHash } from "crypto";
-import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
 import { getRejectionReview, type AppealTarget } from "./helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrlFromDB } from "@/lib/collections/comments/helpers";
@@ -61,18 +59,8 @@ function getAppealSummaryHtml({ contentLinkHtml, explanation }: {
   ].join("");
 }
 
-async function sendAppealMessage(appeal: DbRejectionAppeal, kind: "submission" | "outcome", author: DbUser, html: string, context: ResolverContext) {
-  const messageId = createHash("sha256").update(`rejection-appeal:${appeal._id}:${kind}`).digest("hex").slice(0, 27);
-  if (await context.Messages.findOne(messageId)) return;
-  try {
-    await sendMessageAs({ author, conversationId: appeal.conversationId, html, noEmail: false, context, messageId });
-  } catch (error) {
-    if (!isPostgresUniqueViolation(error) || !await context.Messages.findOne(messageId)) throw error;
-  }
-}
-
 export async function createRejectionAppeal({ data }: CreateRejectionAppealInput, context: ResolverContext) {
-  const { currentUser, RejectionAppeals } = context;
+  const { currentUser } = context;
   if (!currentUser) throw new Error("You must be logged in to request a rejection review");
   const review = await getRejectionReview(data, context);
   if (review.unavailableReason) throw new Error(review.unavailableReason);
@@ -81,32 +69,30 @@ export async function createRejectionAppeal({ data }: CreateRejectionAppealInput
   const explanation = data.explanation.trim();
   if (!explanation) throw new Error("Please explain why you think the rejection was a mistake");
 
-  let appeal = review.appeal;
-  if (!appeal) {
-    try {
-      appeal = await insertAndReturnDocument({
-        userId: currentUser._id,
-        postId: review.post?._id ?? null,
-        commentId: review.comment?._id ?? null,
-        conversationId: document.rejectionConversationId,
-        explanation,
-        reasonIds: review.reasonIds,
-        acknowledgedMisunderstandings: review.reasonIds.length > 0 && data.acknowledgedMisunderstandings,
-        status: "open",
-        resolvedByUserId: null,
-        resolvedAt: null,
-      }, 'RejectionAppeals', context);
-    } catch (error) {
-      if (!isPostgresUniqueViolation(error)) throw error;
-      appeal = await RejectionAppeals.findOne(data.postId ? { postId: data.postId } : { commentId: data.commentId });
-      if (!appeal) throw error;
-    }
-  }
+  if (review.appeal) throw new Error("A review has already been requested for this content");
+  const appeal = await insertAndReturnDocument({
+    userId: currentUser._id,
+    postId: review.post?._id ?? null,
+    commentId: review.comment?._id ?? null,
+    conversationId: document.rejectionConversationId,
+    explanation,
+    reasonIds: review.reasonIds,
+    acknowledgedMisunderstandings: review.reasonIds.length > 0 && data.acknowledgedMisunderstandings,
+    status: "open",
+    resolvedByUserId: null,
+    resolvedAt: null,
+  }, 'RejectionAppeals', context);
 
-  await sendAppealMessage(appeal, "submission", currentUser, getAppealSummaryHtml({
-    contentLinkHtml: await getAppealedContentLinkHtml(appeal, context),
-    explanation: appeal.explanation,
-  }), context);
+  await sendMessageAs({
+    author: currentUser,
+    conversationId: appeal.conversationId,
+    html: getAppealSummaryHtml({
+      contentLinkHtml: await getAppealedContentLinkHtml(appeal, context),
+      explanation,
+    }),
+    noEmail: false,
+    context,
+  });
   return appeal;
 }
 
@@ -116,15 +102,17 @@ export async function updateRejectionAppeal({ selector, data }: UpdateRejectionA
   const { status } = data;
   if (status !== "approved" && status !== "denied") throw new Error("Choose whether to approve or deny the review");
   const _id = getDocumentId(selector);
+  const appeal = await RejectionAppeals.findOne(_id);
+  if (!appeal) throw new Error("Review not found");
+  if (appeal.status !== "open") return appeal;
   const teamAccount = await getAdminTeamAccount(context);
   if (!teamAccount) throw new Error("Couldn't find the admin team account");
 
-  // Claim the decision once; resolvedAt records completion so failed work remains in the queue and can be retried.
-  await RejectionAppeals.rawUpdateOne({ _id, status: "open" }, { $set: { status, resolvedByUserId: currentUser._id } });
-  const appeal = await RejectionAppeals.findOne(_id);
-  if (!appeal) throw new Error("Review not found");
-  if (appeal.status !== status) throw new Error("Another moderator has already chosen a different outcome. Reload this conversation.");
-  if (appeal.resolvedAt) return appeal;
+  const updatedAppeal = await updateAndReturnDocument({
+    status,
+    resolvedByUserId: currentUser._id,
+    resolvedAt: new Date(),
+  }, RejectionAppeals, { _id }, context);
 
   if (status === "approved") {
     const unrejected = { rejected: false, rejectedReason: null };
@@ -134,10 +122,15 @@ export async function updateRejectionAppeal({ selector, data }: UpdateRejectionA
       await updateComment({ data: unrejected, selector: { _id: appeal.commentId } }, context);
     }
   }
-  await sendAppealMessage(appeal, "outcome", teamAccount,
-    getAppealResolvedHtml(status, appeal.postId ? "post" : "comment"), context);
+  await sendMessageAs({
+    author: teamAccount,
+    conversationId: appeal.conversationId,
+    html: getAppealResolvedHtml(status, appeal.postId ? "post" : "comment"),
+    noEmail: false,
+    context,
+  });
   await updateConversation({ data: { awaitingModeratorReply: false }, selector: { _id: appeal.conversationId } }, context);
-  return await updateAndReturnDocument({ resolvedAt: new Date() }, RejectionAppeals, { _id }, context);
+  return updatedAppeal;
 }
 
 export const createRejectionAppealGqlMutation = makeGqlCreateMutation('RejectionAppeals', createRejectionAppeal, {

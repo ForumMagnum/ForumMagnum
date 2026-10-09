@@ -189,21 +189,21 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
       <div className={classes.actionsSection}>
         {appeal && <AppealedContent appeal={appeal} />}
         <div className={classes.buttonRow}>
-          {appeal && !appeal.resolvedAt
+          {appeal && appeal.status === 'open'
             ? <>
               <Button
                 className={classes.button}
-                disabled={pending || appeal.status === 'denied'}
+                disabled={pending}
                 onClick={() => void resolveAppeal('approved')}
               >
-                {appeal.status === 'approved' ? 'Finish approval' : 'Approve (unreject)'}
+                Approve (unreject)
               </Button>
               <Button
                 className={classes.button}
-                disabled={pending || appeal.status === 'approved'}
+                disabled={pending}
                 onClick={() => void resolveAppeal('denied')}
               >
-                {appeal.status === 'denied' ? 'Finish denial' : 'Deny'}
+                Deny
               </Button>
               <span className={classes.resolveNote}>The user gets an automated message with the outcome.</span>
             </>
