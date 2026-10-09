@@ -95,13 +95,13 @@ const SingleUserSupermodQuery = gql(`
 const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   root: {
     width: '100%',
-    height: '100vh',
+    top: "var(--header-height)",
+    bottom: 0,
     display: 'flex',
     flexDirection: 'column',
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     overflow: 'hidden',
     position: 'fixed',
-    marginTop: -50,
     // Portaled template previews can extend past the viewport. Keep the page
     // scrollable without showing an extra scrollbar alongside the sidebar.
     'html:has(&)': {
@@ -454,6 +454,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
         {isAppealsTab && !openedUser && (
           <div className={classes.postDetailPanel}>
             <TeamInboxThreadView
+              key={focusedThread?.conversation._id}
               thread={focusedThread}
               currentUser={currentUser}
               dispatch={dispatch}

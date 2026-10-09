@@ -1276,6 +1276,18 @@ extend type Mutation {
   unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
 }
 
+type RejectionReview {
+  post: Post
+  comment: Comment
+  appeal: RejectionAppeal
+  reasonIds: [String!]!
+  unavailableReason: String
+}
+
+extend type Query {
+  rejectionReview(postId: String, commentId: String): RejectionReview!
+}
+
 extend type Mutation {
   reorderSummaries(parentDocumentId: String!, parentDocumentCollectionName: String!, summaryIds: [String!]!): Boolean
 }
@@ -3217,11 +3229,6 @@ enum RejectionAppealStatus {
   denied
 }
 
-input SingleRejectionAppealInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
 type SingleRejectionAppealOutput {
   result: RejectionAppeal
 }
@@ -3236,21 +3243,14 @@ input RejectionAppealSelector {
   userAppeals: RejectionAppealsUserAppealsInput
 }
 
-input MultiRejectionAppealInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
 type MultiRejectionAppealOutput {
   results: [RejectionAppeal!]!
   totalCount: Int
 }
 
 extend type Query {
-  rejectionAppeal(input: SingleRejectionAppealInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleRejectionAppealOutput
-  rejectionAppeals(input: MultiRejectionAppealInput @deprecated(reason: "Use the selector field instead"), selector: RejectionAppealSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiRejectionAppealOutput
+  rejectionAppeal(selector: SelectorInput): SingleRejectionAppealOutput
+  rejectionAppeals(selector: RejectionAppealSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiRejectionAppealOutput
 }
 
 type TypoSuggestion {
@@ -9178,7 +9178,6 @@ input CreateRejectionAppealDataInput {
   postId: String
   commentId: String
   explanation: String!
-  reasonIds: [String!]!
   acknowledgedMisunderstandings: Boolean!
 }
 

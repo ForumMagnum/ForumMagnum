@@ -9,7 +9,7 @@ declare global {
 
 function openAppeals(terms: RejectionAppealsViewTerms) {
   return {
-    selector: { status: "open" },
+    selector: { resolvedAt: null },
     options: { sort: { createdAt: 1 } },
   };
 }

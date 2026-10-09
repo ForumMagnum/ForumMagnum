@@ -19,33 +19,19 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { conversationGetPageUrl } from "@/lib/collections/conversations/helpers";
 import uniq from "lodash/uniq";
-import { APPEAL_REASONS, getReasonIdsMatchingRejection, type AppealReason } from "@/lib/collections/rejectionAppeals/appealReasons";
+import { APPEAL_REASONS, type AppealReason } from "@/lib/collections/rejectionAppeals/appealReasons";
 
-const AppealedPostQuery = gql(`
-  query RejectionAppealPagePostQuery($postId: String, $userId: String) {
-    post(selector: { _id: $postId }) {
-      result {
+const RejectionReviewQuery = gql(`
+  query RejectionAppealPageQuery($postId: String, $commentId: String) {
+    rejectionReview(postId: $postId, commentId: $commentId) {
+      post {
         _id
         slug
         title
-        rejected
         rejectedReason
       }
-    }
-    rejectionAppeals(selector: { userAppeals: { userId: $userId } }, limit: 100) {
-      results {
-        ...RejectionAppealsUserInfo
-      }
-    }
-  }
-`);
-
-const AppealedCommentQuery = gql(`
-  query RejectionAppealPageCommentQuery($commentId: String, $userId: String) {
-    comment(selector: { _id: $commentId }) {
-      result {
+      comment {
         _id
-        rejected
         rejectedReason
         post {
           _id
@@ -53,25 +39,11 @@ const AppealedCommentQuery = gql(`
           title
         }
       }
-    }
-    rejectionAppeals(selector: { userAppeals: { userId: $userId } }, limit: 100) {
-      results {
+      appeal {
         ...RejectionAppealsUserInfo
       }
-    }
-  }
-`);
-
-const RejectionTemplatesQuery = gql(`
-  query RejectionAppealPageTemplatesQuery {
-    moderationTemplates(selector: { moderationTemplatesList: { collectionName: "Rejections" } }, limit: 200) {
-      results {
-        _id
-        name
-        contents {
-          html
-        }
-      }
+      reasonIds
+      unavailableReason
     }
   }
 `);
@@ -343,19 +315,14 @@ interface PostLink {
   title: string;
 }
 
-interface RejectionTemplate {
-  name: string | null;
-  contents: { html: string | null } | null;
-}
-
-function getAppealedItem({ postId, commentId, document, post, appeals }: {
+function getAppealedItem({ postId, commentId, document, post, appeal }: {
   postId: string | null,
   commentId: string | null,
-  document: { _id: string, rejected: boolean, rejectedReason: string | null } | null | undefined,
+  document: { _id: string, rejectedReason: string | null } | null | undefined,
   post: PostLink | null | undefined,
-  appeals: RejectionAppealsUserInfo[],
+  appeal: RejectionAppealsUserInfo | null,
 }): AppealedItem | null {
-  if (!document?.rejected) return null;
+  if (!document) return null;
   if (postId) {
     return {
       postId,
@@ -366,7 +333,7 @@ function getAppealedItem({ postId, commentId, document, post, appeals }: {
       contentLabel: `Post: ${post?.title ?? ""}`,
       contentUrl: post ? postGetPageUrl(post) : "",
       rejectedReason: document.rejectedReason,
-      existingAppeal: appeals.find(appeal => appeal.postId === postId) ?? null,
+      existingAppeal: appeal,
     };
   }
   return {
@@ -378,7 +345,7 @@ function getAppealedItem({ postId, commentId, document, post, appeals }: {
     contentLabel: post ? `Comment on ${post.title}` : "Comment",
     contentUrl: commentGetPageUrlFromIds({ postId: post?._id, postSlug: post?.slug, commentId }),
     rejectedReason: document.rejectedReason,
-    existingAppeal: appeals.find(appeal => appeal.commentId === commentId) ?? null,
+    existingAppeal: appeal,
   };
 }
 
@@ -562,8 +529,8 @@ const AlreadyAppealedState = ({ appeal }: { appeal: RejectionAppealsUserInfo }) 
   return <div className={classes.endState}>
     <h2 className={classes.endStateHeading}>You've already requested a review of this rejection</h2>
     <p className={classes.endStateMessage}>
-      {appeal.status && <>Status: {APPEAL_STATUS_LABELS[appeal.status]}</>}
-      {appeal.status === "open" && <>
+      {appeal.status && <>Status: {APPEAL_STATUS_LABELS[appeal.resolvedAt ? appeal.status : "open"]}</>}
+      {!appeal.resolvedAt && <>
         <br />
         We aim to complete reviews within 72 hours. We'll message you in your conversation with us once we've made
         a decision.
@@ -573,12 +540,11 @@ const AlreadyAppealedState = ({ appeal }: { appeal: RejectionAppealsUserInfo }) 
   </div>;
 };
 
-const NotAppealableState = () => {
+const NotAppealableState = ({ reason }: { reason?: string | null }) => {
   const classes = useStyles(styles);
   return <div className={classes.endState}>
     <p className={classes.endStateMessage}>
-      We couldn't find a rejected post or comment to review from this link. If you think that's a mistake, please
-      reply in your conversation with us.
+      {reason ?? "We couldn't find a rejected post or comment to review from this link. Please reply in your conversation with us."}
     </p>
   </div>;
 };
@@ -595,37 +561,31 @@ const RejectionAppealPage = () => {
 
   // This page is reached from the link in a rejection DM, which names the rejected content
   const postId = query.postId || null;
-  const commentId = postId ? null : (query.commentId || null);
+  const commentId = query.commentId || null;
 
-  const { data: postData, loading: postLoading } = useQuery(AppealedPostQuery, {
-    variables: { postId, userId: currentUser?._id },
-    skip: !currentUser || !postId,
+  const { data, loading, error: queryError } = useQuery(RejectionReviewQuery, {
+    variables: { postId, commentId },
+    errorPolicy: "all",
+    skip: !currentUser || (!postId && !commentId),
   });
-  const { data: commentData, loading: commentLoading } = useQuery(AppealedCommentQuery, {
-    variables: { commentId, userId: currentUser?._id },
-    skip: !currentUser || !commentId,
-  });
-  const { data: templatesData } = useQuery(RejectionTemplatesQuery, { skip: !currentUser });
   const [createAppeal, { loading: submitting }] = useMutation(CreateRejectionAppealMutation);
 
   if (!currentUser) {
     return <SingleColumnSection>Please log in to request a rejection review.</SingleColumnSection>;
   }
-  if ((postLoading && !postData) || (commentLoading && !commentData)) {
+  if (loading && !data) {
     return <Loading />;
   }
 
-  const comment = commentData?.comment?.result;
+  const review = data?.rejectionReview;
   const item = getAppealedItem({
     postId,
     commentId,
-    document: postId ? postData?.post?.result : comment,
-    post: postId ? postData?.post?.result : comment?.post,
-    appeals: (postId ? postData?.rejectionAppeals?.results : commentData?.rejectionAppeals?.results) ?? [],
+    document: review?.post ?? review?.comment,
+    post: review?.post ?? review?.comment?.post,
+    appeal: review?.appeal ?? null,
   });
-  const templates = templatesData?.moderationTemplates?.results ?? [];
-  // Our rejection message states the reason; recognize which of our appeal reasons it was from the template used
-  const reasonIds = getReasonIdsMatchingRejection(item?.rejectedReason ?? null, templates);
+  const reasonIds = review?.reasonIds ?? [];
   const reasons = getSelectedReasons(reasonIds);
   const misunderstandings = uniq(reasons.flatMap(reason => reason.commonMisunderstandings));
   const canSubmit = !!explanation.trim() && !submitting;
@@ -638,7 +598,6 @@ const RejectionAppealPage = () => {
         variables: { data: {
           postId: item.postId,
           commentId: item.commentId,
-          reasonIds,
           acknowledgedMisunderstandings: misunderstandings.length > 0 && acknowledgedMisunderstandings,
           explanation,
         } },
@@ -660,10 +619,13 @@ const RejectionAppealPage = () => {
       />;
     }
     if (!item) {
-      return <NotAppealableState />;
+      return <NotAppealableState reason={queryError?.message} />;
     }
     if (item.existingAppeal) {
       return <AlreadyAppealedState appeal={item.existingAppeal} />;
+    }
+    if (review?.unavailableReason) {
+      return <NotAppealableState reason={review.unavailableReason} />;
     }
     return <>
       <IntroSection contentType={item.contentType} hasMisunderstandings={misunderstandings.length > 0} />

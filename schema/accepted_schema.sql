@@ -2331,17 +2331,21 @@ CREATE TABLE "RejectionAppeals" (
   "resolvedAt" TIMESTAMPTZ
 );
 
--- Index "idx_RejectionAppeals_postId"
-CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_postId" ON "RejectionAppeals" USING btree ("postId");
+-- Index "idx_RejectionAppeals_postId_filtered"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_RejectionAppeals_postId_filtered" ON "RejectionAppeals" USING btree (COALESCE("postId", ''))
+WHERE
+  "postId" IS NOT NULL;
 
--- Index "idx_RejectionAppeals_commentId"
-CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_commentId" ON "RejectionAppeals" USING btree ("commentId");
+-- Index "idx_RejectionAppeals_commentId_filtered"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_RejectionAppeals_commentId_filtered" ON "RejectionAppeals" USING btree (COALESCE("commentId", ''))
+WHERE
+  "commentId" IS NOT NULL;
 
 -- Index "idx_RejectionAppeals_userId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_userId_createdAt" ON "RejectionAppeals" USING btree ("userId", "createdAt");
 
--- Index "idx_RejectionAppeals_status_createdAt"
-CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_status_createdAt" ON "RejectionAppeals" USING btree ("status", "createdAt");
+-- Index "idx_RejectionAppeals_resolvedAt_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_resolvedAt_createdAt" ON "RejectionAppeals" USING btree ("resolvedAt", "createdAt");
 
 -- Table "Reports"
 CREATE TABLE "Reports" (

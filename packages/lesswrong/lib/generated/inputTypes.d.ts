@@ -73,6 +73,7 @@ interface Query {
   convertDocument: any;
   latestGoogleDocMetadata: any;
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
+  rejectionReview: RejectionReview;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
   AdminMetadata: string | null;
@@ -1239,6 +1240,14 @@ interface PangramTextEvaluationResult {
   pangramMaxScore: number | null;
   pangramPrediction: string | null;
   pangramWindowScores: Array<PangramWindowScore> | null;
+}
+
+interface RejectionReview {
+  post: Post | null;
+  comment: Comment | null;
+  appeal: RejectionAppeal | null;
+  reasonIds: Array<string>;
+  unavailableReason: string | null;
 }
 
 interface ToggleBookmarkInput {
@@ -2903,11 +2912,6 @@ interface RejectionAppeal {
   resolvedAt: Date | null;
 }
 
-interface SingleRejectionAppealInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
 interface SingleRejectionAppealOutput {
   result: RejectionAppeal | null;
 }
@@ -2920,13 +2924,6 @@ interface RejectionAppealSelector {
   default: EmptyViewInput | null;
   openAppeals: EmptyViewInput | null;
   userAppeals: RejectionAppealsUserAppealsInput | null;
-}
-
-interface MultiRejectionAppealInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
 }
 
 interface MultiRejectionAppealOutput {
@@ -8397,7 +8394,6 @@ interface CreateRejectionAppealDataInput {
   postId?: string | null;
   commentId?: string | null;
   explanation: string;
-  reasonIds: Array<string>;
   acknowledgedMisunderstandings: boolean;
 }
 
@@ -9455,6 +9451,7 @@ interface GraphQLTypeMap {
   ExternalPostImportData: ExternalPostImportData;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   PangramTextEvaluationResult: PangramTextEvaluationResult;
+  RejectionReview: RejectionReview;
   ToggleBookmarkInput: ToggleBookmarkInput;
   SetIsBookmarkedInput: SetIsBookmarkedInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;
@@ -9665,11 +9662,9 @@ interface GraphQLTypeMap {
   MarketplaceHomePageDesign: MarketplaceHomePageDesign;
   AdminHomePageDesign: AdminHomePageDesign;
   RejectionAppeal: RejectionAppeal;
-  SingleRejectionAppealInput: SingleRejectionAppealInput;
   SingleRejectionAppealOutput: SingleRejectionAppealOutput;
   RejectionAppealsUserAppealsInput: RejectionAppealsUserAppealsInput;
   RejectionAppealSelector: RejectionAppealSelector;
-  MultiRejectionAppealInput: MultiRejectionAppealInput;
   MultiRejectionAppealOutput: MultiRejectionAppealOutput;
   TypoSuggestion: TypoSuggestion;
   SingleTypoSuggestionInput: SingleTypoSuggestionInput;

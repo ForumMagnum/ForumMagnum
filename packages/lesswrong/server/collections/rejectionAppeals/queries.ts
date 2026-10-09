@@ -14,11 +14,6 @@ export const graphqlRejectionAppealQueryTypeDefs = gql`
     denied
   }
 
-  input SingleRejectionAppealInput {
-    selector: SelectorInput
-    resolverArgs: JSON
-  }
-
   type SingleRejectionAppealOutput {
     result: RejectionAppeal
   }
@@ -33,13 +28,6 @@ export const graphqlRejectionAppealQueryTypeDefs = gql`
     userAppeals: RejectionAppealsUserAppealsInput
   }
 
-  input MultiRejectionAppealInput {
-    terms: JSON
-    resolverArgs: JSON
-    enableTotal: Boolean
-    enableCache: Boolean
-  }
-
   type MultiRejectionAppealOutput {
     results: [RejectionAppeal!]!
     totalCount: Int
@@ -47,11 +35,9 @@ export const graphqlRejectionAppealQueryTypeDefs = gql`
 
   extend type Query {
     rejectionAppeal(
-      input: SingleRejectionAppealInput @deprecated(reason: "Use the selector field instead"),
       selector: SelectorInput
     ): SingleRejectionAppealOutput
     rejectionAppeals(
-      input: MultiRejectionAppealInput @deprecated(reason: "Use the selector field instead"),
       selector: RejectionAppealSelector,
       limit: Int,
       offset: Int,

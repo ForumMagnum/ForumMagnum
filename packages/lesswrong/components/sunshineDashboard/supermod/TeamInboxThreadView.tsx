@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -76,6 +76,10 @@ const styles = defineStyles('TeamInboxThreadView', (theme: ThemeType) => ({
     flexDirection: 'column',
     backgroundColor: theme.palette.background.paper,
   },
+  error: {
+    color: theme.palette.error.main,
+    marginTop: 8,
+  },
   empty: {
     padding: 40,
     textAlign: 'center',
@@ -146,8 +150,10 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
   dispatch: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
-  const [updateAppeal] = useMutation(UpdateRejectionAppealMutation);
-  const [updateConversation] = useMutation(UpdateTeamInboxConversationMutation);
+  const [error, setError] = useState<string | null>(null);
+  const [updateAppeal, { loading: resolving }] = useMutation(UpdateRejectionAppealMutation);
+  const [updateConversation, { loading: markingHandled }] = useMutation(UpdateTeamInboxConversationMutation);
+  const pending = resolving || markingHandled;
 
   if (!thread) {
     return <div className={classes.root}>
@@ -159,16 +165,23 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
 
   const resolveAppeal = async (status: 'approved' | 'denied') => {
     if (!appeal) return;
-    const { data } = await updateAppeal({ variables: { selector: { _id: appeal._id }, data: { status } } });
-    const updatedAppeal = data?.updateRejectionAppeal?.data;
-    if (updatedAppeal) {
-      dispatch({ type: 'UPDATE_THREAD', thread: { conversation, appeal: updatedAppeal } });
+    setError(null);
+    try {
+      await updateAppeal({ variables: { selector: { _id: appeal._id }, data: { status } } });
+      dispatch({ type: 'REMOVE_THREAD', conversationId: conversation._id });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unable to resolve this review. Please try again.');
     }
   };
 
   const markHandled = async () => {
-    await updateConversation({ variables: { selector: { _id: conversation._id }, data: { awaitingModeratorReply: false } } });
-    dispatch({ type: 'REMOVE_THREAD', conversationId: conversation._id });
+    setError(null);
+    try {
+      await updateConversation({ variables: { selector: { _id: conversation._id }, data: { awaitingModeratorReply: false } } });
+      dispatch({ type: 'REMOVE_THREAD', conversationId: conversation._id });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unable to mark this conversation handled. Please try again.');
+    }
   };
 
   return (
@@ -176,14 +189,27 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
       <div className={classes.actionsSection}>
         {appeal && <AppealedContent appeal={appeal} />}
         <div className={classes.buttonRow}>
-          {appeal?.status === 'open'
+          {appeal && !appeal.resolvedAt
             ? <>
-              <Button className={classes.button} onClick={() => void resolveAppeal('approved')}>Approve (unreject)</Button>
-              <Button className={classes.button} onClick={() => void resolveAppeal('denied')}>Deny</Button>
+              <Button
+                className={classes.button}
+                disabled={pending || appeal.status === 'denied'}
+                onClick={() => void resolveAppeal('approved')}
+              >
+                {appeal.status === 'approved' ? 'Finish approval' : 'Approve (unreject)'}
+              </Button>
+              <Button
+                className={classes.button}
+                disabled={pending || appeal.status === 'approved'}
+                onClick={() => void resolveAppeal('denied')}
+              >
+                {appeal.status === 'denied' ? 'Finish denial' : 'Deny'}
+              </Button>
               <span className={classes.resolveNote}>The user gets an automated message with the outcome.</span>
             </>
-            : <Button className={classes.button} onClick={() => void markHandled()}>Mark handled</Button>}
+            : <Button className={classes.button} disabled={pending} onClick={() => void markHandled()}>Mark handled</Button>}
         </div>
+        {error && <div className={classes.error} role="alert">{error}</div>}
       </div>
       <div className={classes.conversation} key={conversation._id}>
         <ConversationContents conversation={conversation} currentUserId={currentUser._id} />

@@ -1562,7 +1562,6 @@ type CreateRejectionAppealDataInput = {
   commentId?: InputMaybe<Scalars['String']['input']>;
   explanation: Scalars['String']['input'];
   postId?: InputMaybe<Scalars['String']['input']>;
-  reasonIds: Array<Scalars['String']['input']>;
 };
 
 type CreateRejectionAppealInput = {
@@ -3554,13 +3553,6 @@ type MultiRSSFeedOutput = {
   __typename?: 'MultiRSSFeedOutput';
   results: Array<RSSFeed>;
   totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiRejectionAppealInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 type MultiRejectionAppealOutput = {
@@ -7440,6 +7432,7 @@ type Query = {
   rSSFeeds?: Maybe<MultiRSSFeedOutput>;
   rejectionAppeal?: Maybe<SingleRejectionAppealOutput>;
   rejectionAppeals?: Maybe<MultiRejectionAppealOutput>;
+  rejectionReview: RejectionReview;
   report?: Maybe<SingleReportOutput>;
   reports?: Maybe<MultiReportOutput>;
   researchConversation?: Maybe<SingleResearchConversationOutput>;
@@ -8398,17 +8391,21 @@ type QueryrSSFeedsArgs = {
 
 
 type QueryrejectionAppealArgs = {
-  input?: InputMaybe<SingleRejectionAppealInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
 type QueryrejectionAppealsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiRejectionAppealInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<RejectionAppealSelector>;
+};
+
+
+type QueryrejectionReviewArgs = {
+  commentId?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -8997,6 +8994,15 @@ type RejectionAppealStatus =
 
 type RejectionAppealsUserAppealsInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type RejectionReview = {
+  __typename?: 'RejectionReview';
+  appeal?: Maybe<RejectionAppeal>;
+  comment?: Maybe<Comment>;
+  post?: Maybe<Post>;
+  reasonIds: Array<Scalars['String']['output']>;
+  unavailableReason?: Maybe<Scalars['String']['output']>;
 };
 
 type ReorderResearchDocumentsOutput = {
@@ -9942,11 +9948,6 @@ type SingleRSSFeedInput = {
 type SingleRSSFeedOutput = {
   __typename?: 'SingleRSSFeedOutput';
   result?: Maybe<RSSFeed>;
-};
-
-type SingleRejectionAppealInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
 };
 
 type SingleRejectionAppealOutput = {
@@ -12886,65 +12887,29 @@ type multiModeratorCommentsQueryQueryVariables = Exact<{
 
 type multiModeratorCommentsQueryQuery = multiModeratorCommentsQueryQuery_Query;
 
-type RejectionAppealPagePostQueryQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, title: string, rejected: boolean, rejectedReason: string | null };
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string, rejectedReason: string | null };
 
-type RejectionAppealPagePostQueryQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: RejectionAppealPagePostQueryQuery_post_SinglePostOutput_result_Post | null };
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_comment_Comment_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
 
-type RejectionAppealPagePostQueryQuery_rejectionAppeals_MultiRejectionAppealOutput_results_RejectionAppeal = (
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_comment_Comment = { __typename?: 'Comment', _id: string, rejectedReason: string | null, post: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_comment_Comment_post_Post | null };
+
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_appeal_RejectionAppeal = (
   { __typename?: 'RejectionAppeal' }
   & RejectionAppealsUserInfo
 );
 
-type RejectionAppealPagePostQueryQuery_rejectionAppeals_MultiRejectionAppealOutput = { __typename?: 'MultiRejectionAppealOutput', results: Array<RejectionAppealPagePostQueryQuery_rejectionAppeals_MultiRejectionAppealOutput_results_RejectionAppeal> };
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview = { __typename?: 'RejectionReview', reasonIds: Array<string>, unavailableReason: string | null, post: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_post_Post | null, comment: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_comment_Comment | null, appeal: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_appeal_RejectionAppeal | null };
 
-type RejectionAppealPagePostQueryQuery_Query = { __typename?: 'Query', post: RejectionAppealPagePostQueryQuery_post_SinglePostOutput | null, rejectionAppeals: RejectionAppealPagePostQueryQuery_rejectionAppeals_MultiRejectionAppealOutput | null };
+type RejectionAppealPageQueryQuery_Query = { __typename?: 'Query', rejectionReview: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview };
 
 
-type RejectionAppealPagePostQueryQueryVariables = Exact<{
+type RejectionAppealPageQueryQueryVariables = Exact<{
   postId: InputMaybe<Scalars['String']['input']>;
-  userId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type RejectionAppealPagePostQueryQuery = RejectionAppealPagePostQueryQuery_Query;
-
-type RejectionAppealPageCommentQueryQuery_comment_SingleCommentOutput_result_Comment_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
-
-type RejectionAppealPageCommentQueryQuery_comment_SingleCommentOutput_result_Comment = { __typename?: 'Comment', _id: string, rejected: boolean, rejectedReason: string | null, post: RejectionAppealPageCommentQueryQuery_comment_SingleCommentOutput_result_Comment_post_Post | null };
-
-type RejectionAppealPageCommentQueryQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: RejectionAppealPageCommentQueryQuery_comment_SingleCommentOutput_result_Comment | null };
-
-type RejectionAppealPageCommentQueryQuery_rejectionAppeals_MultiRejectionAppealOutput_results_RejectionAppeal = (
-  { __typename?: 'RejectionAppeal' }
-  & RejectionAppealsUserInfo
-);
-
-type RejectionAppealPageCommentQueryQuery_rejectionAppeals_MultiRejectionAppealOutput = { __typename?: 'MultiRejectionAppealOutput', results: Array<RejectionAppealPageCommentQueryQuery_rejectionAppeals_MultiRejectionAppealOutput_results_RejectionAppeal> };
-
-type RejectionAppealPageCommentQueryQuery_Query = { __typename?: 'Query', comment: RejectionAppealPageCommentQueryQuery_comment_SingleCommentOutput | null, rejectionAppeals: RejectionAppealPageCommentQueryQuery_rejectionAppeals_MultiRejectionAppealOutput | null };
-
-
-type RejectionAppealPageCommentQueryQueryVariables = Exact<{
   commentId: InputMaybe<Scalars['String']['input']>;
-  userId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type RejectionAppealPageCommentQueryQuery = RejectionAppealPageCommentQueryQuery_Query;
-
-type RejectionAppealPageTemplatesQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate_contents_Revision = { __typename?: 'Revision', html: string | null };
-
-type RejectionAppealPageTemplatesQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = { __typename?: 'ModerationTemplate', _id: string, name: string, contents: RejectionAppealPageTemplatesQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate_contents_Revision | null };
-
-type RejectionAppealPageTemplatesQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', results: Array<RejectionAppealPageTemplatesQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
-
-type RejectionAppealPageTemplatesQueryQuery_Query = { __typename?: 'Query', moderationTemplates: RejectionAppealPageTemplatesQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
-
-
-type RejectionAppealPageTemplatesQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-type RejectionAppealPageTemplatesQueryQuery = RejectionAppealPageTemplatesQueryQuery_Query;
+type RejectionAppealPageQueryQuery = RejectionAppealPageQueryQuery_Query;
 
 type createRejectionAppealRejectionAppealPageMutation_createRejectionAppeal_RejectionAppealOutput_data_RejectionAppeal = (
   { __typename?: 'RejectionAppeal' }
@@ -24953,7 +24918,7 @@ type SuggestAlignmentPost = (
 
 type ChapterPostSlim = { __typename?: 'Post', _id: string, title: string, slug: string, isRead: boolean | null };
 
-type RejectionAppealsUserInfo = { __typename?: 'RejectionAppeal', _id: string, createdAt: string, postId: string | null, commentId: string | null, conversationId: string | null, status: RejectionAppealStatus | null };
+type RejectionAppealsUserInfo = { __typename?: 'RejectionAppeal', _id: string, createdAt: string, postId: string | null, commentId: string | null, conversationId: string | null, status: RejectionAppealStatus | null, resolvedAt: string | null };
 
 type RejectionAppealsModerationInfo_RejectionAppeal_post_Post = (
   { __typename?: 'Post' }

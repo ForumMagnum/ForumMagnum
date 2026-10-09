@@ -47,6 +47,7 @@ import { reviewWinnerGraphQLQueries, reviewWinnerGraphQLTypeDefs } from '@/serve
 import { importUrlAsDraftPostGqlMutation, importUrlAsDraftPostTypeDefs } from '@/server/resolvers/importUrlAsDraftPost';
 import { revisionResolversGraphQLQueries, revisionResolversGraphQLMutations, revisionResolversGraphQLTypeDefs } from '@/server/resolvers/revisionResolvers';
 import { moderationGqlMutations, moderationGqlQueries, moderationGqlTypeDefs } from '@/server/resolvers/moderationResolvers';
+import { rejectionReviewTypeDefs, rejectionReviewQueries } from "@/server/resolvers/rejectionReviewResolvers";
 import { multiDocumentMutations, multiDocumentTypeDefs } from '@/server/resolvers/multiDocumentResolvers';
 import { spotlightGqlMutations, spotlightGqlQueries, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
 import { hidePostGqlMutations, hidePostGqlTypeDefs } from '@/server/hidePostMutation';
@@ -291,6 +292,7 @@ export const getTypeDefs = () => gql`
   ${importUrlAsDraftPostTypeDefs}
   ${revisionResolversGraphQLTypeDefs}
   ${moderationGqlTypeDefs}
+  ${rejectionReviewTypeDefs}
   ${multiDocumentTypeDefs}
   ${spotlightGqlTypeDefs}
   ${bookmarkGqlTypeDefs}
@@ -484,6 +486,7 @@ const getResolvers = () => ({
     ...reviewWinnerGraphQLQueries,  
     ...revisionResolversGraphQLQueries,
     ...moderationGqlQueries,
+    ...rejectionReviewQueries,
     ...tagResolversGraphQLQueries,
     ...cronGraphQLQueries,
     ...siteAdminMetadataGraphQLQueries,

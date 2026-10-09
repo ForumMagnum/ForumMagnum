@@ -77,7 +77,6 @@ export type InboxAction =
   | { type: 'FOCUS_THREAD'; conversationId: string; }
   | { type: 'NEXT_THREAD'; }
   | { type: 'PREV_THREAD'; }
-  | { type: 'UPDATE_THREAD'; thread: TeamInboxThread; }
   | { type: 'REMOVE_THREAD'; conversationId: string; }
   | { type: 'NEXT_TAB'; }
   | { type: 'PREV_TAB'; }
@@ -604,16 +603,6 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       const currentIndex = threads.findIndex(t => t.conversation._id === state.focusedThreadId);
       const prevIndex = currentIndex <= 0 ? threads.length - 1 : currentIndex - 1;
       return { ...state, focusedThreadId: threads[prevIndex].conversation._id };
-    }
-
-    case 'UPDATE_THREAD': {
-      return {
-        ...state,
-        teamInboxThreads: state.teamInboxThreads.map(thread => thread.conversation._id === action.thread.conversation._id
-          ? action.thread
-          : thread
-        ),
-      };
     }
 
     case 'REMOVE_THREAD': {

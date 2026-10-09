@@ -97,7 +97,6 @@ const schema = {
       canCreate: ["members"],
     },
   },
-  // Ids from APPEAL_REASONS that the user selected as why their content was rejected
   reasonIds: {
     database: {
       type: "TEXT[]",
@@ -107,9 +106,7 @@ const schema = {
     },
     graphql: {
       outputType: "[String!]",
-      inputType: "[String!]!",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
     },
   },
   // Whether the user confirmed that the common misunderstandings for these reasons aren't the basis of their appeal
@@ -140,7 +137,7 @@ const schema = {
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
       validation: {
-        allowedValues: ["open", "approved", "denied"],
+        allowedValues: ["approved", "denied"],
         optional: true,
       },
     },
@@ -163,7 +160,7 @@ const schema = {
     },
     graphql: {
       outputType: "Date",
-      canRead: ["sunshineRegiment", "admins"],
+      canRead: [userOwns, "sunshineRegiment", "admins"],
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"RejectionAppeals">>;
