@@ -21,16 +21,34 @@ import {
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
+const TABLE_SCROLL_FADE_WIDTH = 40;
+
+const styles = defineStyles('LexicalContentEditable',(theme: ThemeType) => ({
   root: {
     border: 0,
     display: 'block',
     position: 'relative',
     outline: 0,
-    minHeight: 150,
+    minHeight: 'var(--lexical-content-editable-min-height, 150px)',
     height: '100%',
     '& hr': {
       height: 'auto',
+    },
+    // Lexical wraps each table in this (see TablePlugin's hasHorizontalScroll)
+    // so that wide tables scroll horizontally.
+    '& .table-scrollable-wrapper': {
+      overflowX: 'auto',
+    },
+    // Fade out whichever edges have more table beyond them. These classes are
+    // maintained by TableScrollShadowPlugin.
+    '& .table-scroll-right': {
+      maskImage: `linear-gradient(to right, ${theme.palette.text.alwaysBlack} calc(100% - ${TABLE_SCROLL_FADE_WIDTH}px), transparent)`,
+    },
+    '& .table-scroll-left': {
+      maskImage: `linear-gradient(to left, ${theme.palette.text.alwaysBlack} calc(100% - ${TABLE_SCROLL_FADE_WIDTH}px), transparent)`,
+    },
+    '& .table-scroll-middle': {
+      maskImage: `linear-gradient(to right, transparent, ${theme.palette.text.alwaysBlack} ${TABLE_SCROLL_FADE_WIDTH}px, ${theme.palette.text.alwaysBlack} calc(100% - ${TABLE_SCROLL_FADE_WIDTH}px), transparent)`,
     },
   },
   rootComment: {

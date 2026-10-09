@@ -5,6 +5,7 @@ import ModerationPostItem from './ModerationPostItem';
 import CurationPostItem from './CurationPostItem';
 import TeamInboxThreadItem from './TeamInboxThreadItem';
 import type { TeamInboxThread } from './teamInboxThreads';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import type { TabId } from './groupings';
 import classNames from 'classnames';
 
@@ -27,6 +28,9 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
     textAlign: 'center',
     color: theme.palette.grey[600],
     fontSize: 16,
+  },
+  reloadButton: {
+    marginTop: 12,
   },
   group: {},
   newContent: {
@@ -54,6 +58,19 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
 
 export type GroupEntry = [ReviewGroup, SunshineUsersList[]];
 
+// Only the first page of the queue is loaded, so a tab can run out of loaded items while its count is still non-zero
+const UnloadedItemsNotice = ({ unloadedCount, itemName }: { unloadedCount: number; itemName: string }) => {
+  const classes = useStyles(styles);
+  return (
+    <div className={classes.empty}>
+      <div>{unloadedCount} more queued {itemName}{unloadedCount === 1 ? '' : 's'} not loaded</div>
+      <Button className={classes.reloadButton} variant="outlined" onClick={() => window.location.reload()}>
+        Reload
+      </Button>
+    </div>
+  );
+};
+
 const ModerationInboxList = ({
   userGroups,
   posts,
@@ -67,6 +84,7 @@ const ModerationInboxList = ({
   onFocusPost,
   onFocusThread,
   activeTab,
+  unloadedCount,
 }: {
   userGroups: GroupEntry[];
   posts: SunshinePostsList[];
@@ -80,6 +98,7 @@ const ModerationInboxList = ({
   onFocusPost: (postId: string) => void;
   onFocusThread: (conversationId: string) => void;
   activeTab: TabId;
+  unloadedCount: number;
 }) => {
   const classes = useStyles(styles);
 
@@ -119,9 +138,13 @@ const ModerationInboxList = ({
         )
       ) : (activeTab === 'posts' || activeTab === 'classifiedPosts') ? (
         posts.length === 0 ? (
-          <div className={classes.empty}>
-            {activeTab === 'classifiedPosts' ? 'No auto-classified posts to review' : 'No posts to review'}
-          </div>
+          unloadedCount > 0 ? (
+            <UnloadedItemsNotice unloadedCount={unloadedCount} itemName="post" />
+          ) : (
+            <div className={classes.empty}>
+              {activeTab === 'classifiedPosts' ? 'No auto-classified posts to review' : 'No posts to review'}
+            </div>
+          )
         ) : (
           <div className={classes.scrollContainer}>
             {posts.map((post) => (
@@ -136,9 +159,13 @@ const ModerationInboxList = ({
         )
       ) : (
         userCount === 0 ? (
-          <div className={classes.empty}>
-            No users to review
-          </div>
+          unloadedCount > 0 ? (
+            <UnloadedItemsNotice unloadedCount={unloadedCount} itemName="user" />
+          ) : (
+            <div className={classes.empty}>
+              No users to review
+            </div>
+          )
         ) : (
           <div className={classes.scrollContainer}>
             {userGroups.map(([group, users]) => {

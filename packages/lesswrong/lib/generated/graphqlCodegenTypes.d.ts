@@ -2970,6 +2970,7 @@ type ModeratorActionSelector = {
 
 type ModeratorActionType =
   | 'autoBlockedFromSendingDMs'
+  | 'autoPurgedProfileSpam'
   | 'exemptFromRateLimits'
   | 'flaggedForNDMs'
   | 'lowAverageKarmaCommentAlert'
@@ -11918,6 +11919,7 @@ type User = {
   hasAuth0Id?: Maybe<Scalars['Boolean']['output']>;
   hasClaudeCodeOAuthToken?: Maybe<Scalars['Boolean']['output']>;
   hasContinueReading?: Maybe<Scalars['Boolean']['output']>;
+  hasPendingComments?: Maybe<Scalars['Boolean']['output']>;
   hiddenPosts?: Maybe<Array<Post>>;
   hiddenPostsMetadata?: Maybe<Array<PostMetadataOutput>>;
   hideAFNonMemberInitialWarning?: Maybe<Scalars['Boolean']['output']>;
@@ -21299,19 +21301,23 @@ type ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User = (
 
 type ModerationInboxDataQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User> };
 
+type ModerationInboxDataQueryQuery_reviewQueueUsers_MultiUserOutput_results_User = { __typename?: 'User', _id: string, reviewGroup: ReviewGroup | null };
+
+type ModerationInboxDataQueryQuery_reviewQueueUsers_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<ModerationInboxDataQueryQuery_reviewQueueUsers_MultiUserOutput_results_User> };
+
 type ModerationInboxDataQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & SunshinePostsList
 );
 
-type ModerationInboxDataQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<ModerationInboxDataQueryQuery_posts_MultiPostOutput_results_Post> };
+type ModerationInboxDataQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<ModerationInboxDataQueryQuery_posts_MultiPostOutput_results_Post> };
 
 type ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & SunshinePostsList
 );
 
-type ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput_results_Post> };
+type ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput_results_Post> };
 
 type ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post = (
   { __typename?: 'Post' }
@@ -21336,7 +21342,7 @@ type ModerationInboxDataQueryQuery_openAppeals_MultiRejectionAppealOutput_result
 
 type ModerationInboxDataQueryQuery_openAppeals_MultiRejectionAppealOutput = { __typename?: 'MultiRejectionAppealOutput', results: Array<ModerationInboxDataQueryQuery_openAppeals_MultiRejectionAppealOutput_results_RejectionAppeal> };
 
-type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', users: ModerationInboxDataQueryQuery_users_MultiUserOutput | null, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult, teamInboxConversations: ModerationInboxDataQueryQuery_teamInboxConversations_MultiConversationOutput | null, openAppeals: ModerationInboxDataQueryQuery_openAppeals_MultiRejectionAppealOutput | null };
+type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', users: ModerationInboxDataQueryQuery_users_MultiUserOutput | null, reviewQueueUsers: ModerationInboxDataQueryQuery_reviewQueueUsers_MultiUserOutput | null, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult, teamInboxConversations: ModerationInboxDataQueryQuery_teamInboxConversations_MultiConversationOutput | null, openAppeals: ModerationInboxDataQueryQuery_openAppeals_MultiRejectionAppealOutput | null };
 
 
 type ModerationInboxDataQueryQueryVariables = Exact<{
@@ -21344,6 +21350,7 @@ type ModerationInboxDataQueryQueryVariables = Exact<{
   postSelector: InputMaybe<PostSelector>;
   classifiedPostSelector: InputMaybe<PostSelector>;
   userLimit: InputMaybe<Scalars['Int']['input']>;
+  reviewQueueLimit: InputMaybe<Scalars['Int']['input']>;
   postLimit: InputMaybe<Scalars['Int']['input']>;
   curationLimit: InputMaybe<Scalars['Int']['input']>;
 }>;
@@ -25717,7 +25724,7 @@ type SunshineUsersList_User_userRateLimits_UserRateLimit = (
 );
 
 type SunshineUsersList = (
-  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, reviewGroup: ReviewGroup | null, usersContactedBeforeReview: Array<string> | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
+  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, reviewGroup: ReviewGroup | null, hasPendingComments: boolean | null, usersContactedBeforeReview: Array<string> | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
   & UsersMinimumInfo
 );
 

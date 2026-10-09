@@ -1,6 +1,6 @@
 import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import type { NextRequest } from "next/server";
-import { GraphQLError, type GraphQLFormattedError, graphql } from "graphql";
+import { GraphQLError, type GraphQLFormattedError, graphql, locatedError } from "graphql";
 import { inspect } from "util";
 import { formatError } from "apollo-errors";
 
@@ -12,7 +12,7 @@ import { getClientIP } from "@/server/utils/getClientIP";
 import { fmCrosspostBaseUrlSetting, performanceMetricLoggingEnabled } from "@/lib/instanceSettings";
 import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
 import { createGraphqlDeduplicatedObjectStore, extractToObjectStoreAndSubstitute } from "@/lib/apollo/graphqlDeduplicatedObjectStore";
-import { NOISY_GRAPHQL_ERROR_MESSAGES, shouldCaptureGraphQLErrorInSentry } from "@/server/utils/graphqlErrorUtil";
+import { NOISY_GRAPHQL_ERROR_MESSAGES, captureGraphQLErrorInSentry, type InvalidGraphQLOperation } from "@/server/utils/graphqlErrorUtil";
 
 type GraphqlHttpRequestBody = {
   operationName?: string | null;
@@ -47,43 +47,40 @@ function isCrossSiteRequest(request: NextRequest) {
   }
 }
 
-function formatGraphQLError(err: any): any {
-  if (shouldCaptureGraphQLErrorInSentry(err)) {
-    captureException(err);
+function formatGraphQLError(err: unknown, invalidOperation: InvalidGraphQLOperation | undefined): GraphQLFormattedError {
+  captureGraphQLErrorInSentry(err, invalidOperation);
+  // Errors from inside graphql-js are GraphQLErrors, but exceptions from
+  // elsewhere (eg while serializing a result) might not be
+  const graphqlError = err instanceof GraphQLError ? err : locatedError(err, undefined);
+  const formatted = graphqlError.toJSON();
+  const { message, ...properties } = formatted;
+  if (!NOISY_GRAPHQL_ERROR_MESSAGES.has(message)) {
+    // eslint-disable-next-line no-console
+    console.error(`[GraphQLError: ${message}]`, inspect(properties, { depth: null }), err);
   }
-  if (err instanceof GraphQLError) {
-    const formatted = err.toJSON();
-    const { message, ...properties } = formatted;
-    if (!NOISY_GRAPHQL_ERROR_MESSAGES.has(message)) {
-      // eslint-disable-next-line no-console
-      console.error(`[GraphQLError: ${message}]`, inspect(properties, { depth: null }), err);
-    }
-  
-    // ApolloServer includes stack traces; mimic that shape for parity.
-    const stack =
-      err.originalError?.stack ??
-      err.stack ??
-      undefined;
-  
-    const withStack: GraphQLFormattedError = {
-      ...formatted,
-      extensions: {
-        ...(formatted.extensions ?? {}),
-        exception: {
-          ...(typeof formatted.extensions?.exception === "object"
-            ? (formatted.extensions.exception as Record<string, unknown>)
-            : {}),
-          stacktrace: stack ? stack.split("\n") : undefined,
-        },
+
+  // ApolloServer includes stack traces; mimic that shape for parity.
+  const stack =
+    graphqlError.originalError?.stack ??
+    graphqlError.stack ??
+    undefined;
+
+  const withStack: GraphQLFormattedError = {
+    ...formatted,
+    extensions: {
+      ...(formatted.extensions ?? {}),
+      exception: {
+        ...(typeof formatted.extensions?.exception === "object"
+          ? (formatted.extensions.exception as Record<string, unknown>)
+          : {}),
+        stacktrace: stack ? stack.split("\n") : undefined,
       },
-    };
-  
-    // TODO: Replace sketchy apollo-errors package with something first-party
-    // and that doesn't require a cast here
-    return formatError(withStack) as unknown as GraphQLFormattedError;
-  } else {
-    return err?.message ?? JSON.stringify(err);
-  }
+    },
+  };
+
+  // TODO: Replace sketchy apollo-errors package with something first-party
+  // and that doesn't require a cast here
+  return formatError(withStack) as unknown as GraphQLFormattedError;
 }
 
 async function executeGraphqlOperation({ op, context }: {
@@ -101,9 +98,12 @@ async function executeGraphqlOperation({ op, context }: {
   });
 
   if (result.errors?.length) {
+    // If there's no data, the operation failed before execution started (eg a
+    // syntax error, a query for fields that don't exist, or invalid variables)
+    const invalidOperation = result.data === undefined ? op : undefined;
     return {
       ...result,
-      errors: result.errors.map(formatGraphQLError),
+      errors: result.errors.map((err) => formatGraphQLError(err, invalidOperation)),
     };
   }
 
@@ -132,6 +132,9 @@ async function graphqlStreamingHandler(request: NextRequest, { onComplete }: { o
 
       const enqueueLine = (obj: unknown) => {
         if (cancelled) return;
+        // Serialize before writing anything, so that if serialization throws,
+        // we haven't written a partial entry
+        const json = JSON.stringify(obj);
         if (!wroteOpenBracket) {
           controller.enqueue(encoder.encode("[\n"));
           wroteOpenBracket = true;
@@ -139,7 +142,7 @@ async function graphqlStreamingHandler(request: NextRequest, { onComplete }: { o
         if (wroteAnyItem) {
           controller.enqueue(encoder.encode(",\n"));
         }
-        controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
+        controller.enqueue(encoder.encode(json + "\n"));
         wroteAnyItem = true;
       };
 
@@ -175,10 +178,7 @@ async function graphqlStreamingHandler(request: NextRequest, { onComplete }: { o
                     : { index, result: substituted },
                 );
               } catch(error) {
-                captureException(error);
-                // eslint-disable-next-line no-console
-                console.log(error);
-                enqueueLine({ index, result: { errors: [{ message: "Internal server error" }] } });
+                enqueueLine({ index, result: { errors: [formatGraphQLError(error, undefined)] } });
               } finally {
                 inFlight -= 1;
                 maybeClose();

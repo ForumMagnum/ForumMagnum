@@ -6,7 +6,7 @@ import type { InboxAction, InboxState } from './inboxReducer';
 import ModerationSidebar from './ModerationSidebar';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
-import { prettyScrollbars } from '@/themes/styleUtils';
+import { hideScrollBars, prettyScrollbars } from '@/themes/styleUtils';
 import type { SelectedSidebarTab } from './sidebarTabs';
 import { getModerationContentItems, isMapPin } from './helpers';
 
@@ -36,7 +36,8 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   },
   sidebarColumn: {
     height: 'calc(100vh - 64px)',
-    ...prettyScrollbars(theme),
+    overflow: 'auto',
+    ...hideScrollBars,
   },
   // Sits flush against the bottom of the column, taking only the height its
   // contents need, so the rest goes to the user info above it.

@@ -69,7 +69,7 @@ import DateTimePlugin from './plugins/DateTimePlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 // import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
 import { MathPlugin } from '../editor/lexicalPlugins/math/MathPlugin';
-// import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
+import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
 import FigmaPlugin from './plugins/FigmaPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
@@ -951,6 +951,11 @@ export default function Editor({
             />
             {onChangeHtml && (
               <OnChangePlugin
+                // Don't report cursor moves, which don't change the contents.
+                // When collaborating, keep reporting them: the first sync isn't
+                // reported (the editor was empty before it), and a click is
+                // what then updated the contents the form submits.
+                ignoreSelectionChange={!isCollab}
                 onChange={isCollab ? debouncedOnChange : onChange}
               />
             )}
@@ -991,7 +996,7 @@ export default function Editor({
             <InlineCodeEscapePlugin />
             <BlockCursorNavigationPlugin />
             <MathPlugin />
-            {/* <ExcalidrawPlugin /> */}
+            <ExcalidrawPlugin isSuggestionMode={isSuggestionMode} />
             <TabFocusPlugin />
             <TabIndentationPlugin maxIndent={7} />
             <CollapsibleSectionsPlugin isSuggestionMode={isSuggestionMode} />

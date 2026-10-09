@@ -115,6 +115,7 @@ function createThreadsState(teamInboxThreads: TeamInboxThread[]): InboxState {
     undoQueue: [],
     history: [],
     runningLlmCheckId: null,
+    unloadedCounts: {},
   };
 }
 
@@ -143,6 +144,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       const newState = inboxStateReducer(state, { type: 'CLOSE_DETAIL' });
@@ -177,6 +179,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       // Next from last user should wrap to first
@@ -207,6 +210,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       // Prev from first user should wrap to last
@@ -239,6 +243,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       // Start at newContent (highest priority)
@@ -283,6 +288,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       // Start at newContent (highest priority)
@@ -323,6 +329,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -356,6 +363,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -387,6 +395,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -422,6 +431,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -455,6 +465,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -487,6 +498,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -522,6 +534,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: true })],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
@@ -557,6 +570,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: false })],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
@@ -585,6 +599,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
@@ -616,6 +631,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
 
       // Try to change tabs
@@ -644,6 +660,7 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts: {},
       };
     }
 

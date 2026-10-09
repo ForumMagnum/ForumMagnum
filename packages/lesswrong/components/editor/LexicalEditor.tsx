@@ -45,6 +45,11 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
   editorShell: {
     '--lexical-editor-min-height': '400px',
   },
+  editorShellFitToContent: {
+    '--lexical-editor-min-height': '0px',
+    '--lexical-content-editable-min-height': '0px',
+    '--lexical-comment-min-height': '0px',
+  },
   editorInner: {
     position: 'relative',
     background: theme.palette.panelBackground.default,
@@ -271,6 +276,8 @@ interface LexicalEditorProps {
   fieldName?: string;
   /** Collaborative editor access level for suggested edits permissions */
   accessLevel?: CollaborativeEditingAccessLevel;
+  /** Only as tall as the contents, with no minimum height. */
+  fitToContent?: boolean;
   extraNodes?: LexicalNodeConfig[];
   disableComponentPicker?: boolean;
   disableMentions?: boolean;
@@ -351,6 +358,7 @@ const LexicalEditor = ({
   fieldName = 'contents',
   commentEditor = false,
   accessLevel,
+  fitToContent = false,
   extraNodes,
   disableComponentPicker,
   disableMentions,
@@ -486,7 +494,7 @@ const LexicalEditor = ({
               {collaborationWarning && shouldEnableCollaboration && (
                 <WarningBanner message={collaborationWarning} />
               )}
-              <div className={classNames(!commentEditor && classes.editorShell)}>
+              <div className={classNames(fitToContent ? classes.editorShellFitToContent : !commentEditor && classes.editorShell)}>
                 <ErrorBoundary>
                 <Editor
                   key={`${collaborationDocumentKey}-${editorVersion}`}

@@ -1,6 +1,7 @@
 'use client';
 
 import groupBy from 'lodash/groupBy';
+import sortBy from 'lodash/sortBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
@@ -27,6 +28,7 @@ export interface UndoHistoryItem {
   wasDetailView: boolean;
 };
 
+export type UnloadedCounts = Partial<Record<TabId, number>>;
 
 export type InboxState = {
   // The local copy of users (mutated when actions complete)
@@ -59,6 +61,8 @@ export type InboxState = {
   history: HistoryItem[];
   // Document ID for which an LLM detection check is currently running
   runningLlmCheckId: string | null;
+  // Queued items beyond the loaded page, per tab. Tab counts include these.
+  unloadedCounts: UnloadedCounts;
 };
 
 export type InboxAction =
@@ -92,12 +96,25 @@ export type InboxAction =
 
 
 
+// Held comments can't go live until reviewed
+function orderUsersWithinGroup(group: ReviewGroup, users: SunshineUsersList[]): SunshineUsersList[] {
+  if (group !== 'newContent') {
+    return users;
+  }
+  return sortBy(users, user => user.hasPendingComments ? 0 : 1);
+}
+
+export function getOrderedGroups(groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>): GroupEntry[] {
+  return (Object.entries(groupedUsers) as GroupEntry[])
+    .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a])
+    .map(([group, users]): GroupEntry => [group, orderUsersWithinGroup(group, users)]);
+}
+
 export function getFilteredGroups(
   groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
   activeTab: TabId
 ): GroupEntry[] {
-  const orderedGroups = (Object.entries(groupedUsers) as GroupEntry[])
-    .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a]);
+  const orderedGroups = getOrderedGroups(groupedUsers);
   
   if (activeTab === 'all') {
     return orderedGroups;
@@ -112,6 +129,7 @@ export function getVisibleTabsInOrder(
   totalClassifiedPosts: number,
   totalCurationNotices: number,
   totalTeamInboxThreads: number,
+  unloadedCounts: UnloadedCounts,
 ): TabInfo[] {
   const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [
@@ -128,7 +146,7 @@ export function getVisibleTabsInOrder(
   tabs.push({ group: 'posts', count: totalPosts });
   tabs.push({ group: 'classifiedPosts', count: totalClassifiedPosts });
   
-  return tabs;
+  return tabs.map(tab => ({ ...tab, count: tab.count + (unloadedCounts[tab.group] ?? 0) }));
 }
 
 const NON_USER_TABS: ReadonlySet<TabId> = new Set<TabId>(['posts', 'classifiedPosts', 'curation', 'appeals']);
@@ -343,7 +361,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length, state.unloadedCounts);
 
       if (visibleTabs.length === 0) return state;
 
@@ -369,7 +387,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length, state.unloadedCounts);
 
       if (visibleTabs.length === 0) return state;
 

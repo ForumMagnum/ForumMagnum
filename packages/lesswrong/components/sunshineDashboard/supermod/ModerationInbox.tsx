@@ -7,17 +7,17 @@ import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
-import ModerationInboxList, { GroupEntry } from './ModerationInboxList';
+import ModerationInboxList from './ModerationInboxList';
 import ModerationUserDetailView from './ModerationUserDetailView';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import Loading from '@/components/vulcan-core/Loading';
+import countBy from 'lodash/countBy';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, type TabId } from './groupings';
-import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
-import { enterTab, getVisibleTabsInOrder, InboxState, inboxStateReducer, isUserTab } from './inboxReducer';
+import { enterTab, getOrderedGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer, isUserTab, type UnloadedCounts } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
@@ -29,6 +29,7 @@ import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import TeamInboxThreadView from './TeamInboxThreadView';
 import { getTeamInboxThreads, type TeamInboxThread } from './teamInboxThreads';
+import { hideScrollBars } from '@/themes/styleUtils';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated/team inbox)
@@ -36,21 +37,29 @@ import { getTeamInboxThreads, type TeamInboxThread } from './teamInboxThreads';
 // separate useQuery suspends. (directUser is kept separate below because it
 // depends on whether the opened user is already in the users list.)
 const ModerationInboxDataQuery = gql(`
-  query ModerationInboxDataQuery($userSelector: UserSelector, $postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int, $postLimit: Int, $curationLimit: Int) {
+  query ModerationInboxDataQuery($userSelector: UserSelector, $postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int, $reviewQueueLimit: Int, $postLimit: Int, $curationLimit: Int) {
     users(selector: $userSelector, limit: $userLimit) {
       results {
         ...SunshineUsersList
       }
     }
-    posts(selector: $postSelector, limit: $postLimit) {
+    reviewQueueUsers: users(selector: $userSelector, limit: $reviewQueueLimit) {
       results {
-        ...SunshinePostsList
+        _id
+        reviewGroup
       }
     }
-    classifiedPosts: posts(selector: $classifiedPostSelector, limit: $postLimit) {
+    posts(selector: $postSelector, limit: $postLimit, enableTotal: true) {
       results {
         ...SunshinePostsList
       }
+      totalCount
+    }
+    classifiedPosts: posts(selector: $classifiedPostSelector, limit: $postLimit, enableTotal: true) {
+      results {
+        ...SunshinePostsList
+      }
+      totalCount
     }
     CurationCandidatePosts(limit: $curationLimit) {
       results {
@@ -93,6 +102,11 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     overflow: 'hidden',
     position: 'fixed',
     marginTop: -50,
+    // Portaled template previews can extend past the viewport. Keep the page
+    // scrollable without showing an extra scrollbar alongside the sidebar.
+    'html:has(&)': {
+      ...hideScrollBars,
+    },
   },
   mainContent: {
     flex: 1,
@@ -131,12 +145,13 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, teamInboxThreads, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
+const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, teamInboxThreads, unloadedCounts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
   curationPosts: SunshineCurationPostsListItem[];
   teamInboxThreads: TeamInboxThread[];
+  unloadedCounts: UnloadedCounts;
   lastCuratedDate: string | null;
   initialOpenedUserId: string | null;
   directUser: SunshineUsersList | null;
@@ -167,6 +182,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        unloadedCounts,
       };
 
       if (initialOpenedUserId) {
@@ -175,7 +191,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
 
       const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount, teamInboxThreads.length);
+      // Start on a tab with loaded items, so ignore the unloaded ones here
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount, teamInboxThreads.length, {});
 
       // Default to curation when there are no curation notices (so you can add some)
       // Otherwise, find the first non-empty non-curation tab
@@ -207,9 +224,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
-  const orderedGroups = useMemo(() => (
-    (Object.entries(groupedUsers) as GroupEntry[]).sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a])
-  ), [groupedUsers]);
+  const orderedGroups = useMemo(() => getOrderedGroups(groupedUsers), [groupedUsers]);
 
   const allOrderedUsers = useMemo(() => orderedGroups.map(([_, users]) => users).flat(), [orderedGroups]);
 
@@ -224,9 +239,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
 
   const curationNoticeCount = useMemo(() => sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0), [state.curationPosts]);
 
-  const visibleTabs = useMemo((): TabInfo[] => {
-    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length);
-  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length]);
+  const visibleTabs = useMemo(
+    (): TabInfo[] => getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length, state.unloadedCounts),
+    [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length, state.unloadedCounts]
+  );
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
@@ -420,6 +436,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
                   onFocusPost={handleFocusPost}
                   onFocusThread={handleFocusThread}
                   activeTab={state.activeTab}
+                  unloadedCount={state.unloadedCounts[state.activeTab] ?? 0}
                 />
               </div>
             </>
@@ -468,6 +485,7 @@ const ModerationInbox = () => {
       postSelector: { sunshineNewPosts: {} },
       classifiedPostSelector: { sunshineAutoClassifiedPosts: {} },
       userLimit: 100,
+      reviewQueueLimit: 5000,
       postLimit: 100,
       curationLimit: 200,
     },
@@ -502,6 +520,20 @@ const ModerationInbox = () => {
     return directUserData?.user?.result ?? null;
   }, [shouldFetchDirectUser, directUserData]);
 
+  const unloadedCounts = useMemo((): UnloadedCounts => {
+    const loadedUserIds = new Set(users.map(user => user._id));
+    if (directUser) {
+      loadedUserIds.add(directUser._id);
+    }
+    const unloadedUsers = data?.reviewQueueUsers?.results.filter(user => !loadedUserIds.has(user._id)) ?? [];
+    return {
+      ...countBy(unloadedUsers, user => user.reviewGroup ?? 'unknown'),
+      all: unloadedUsers.length,
+      posts: Math.max(0, (data?.posts?.totalCount ?? 0) - (data?.posts?.results.length ?? 0)),
+      classifiedPosts: Math.max(0, (data?.classifiedPosts?.totalCount ?? 0) - (data?.classifiedPosts?.results.length ?? 0)),
+    };
+  }, [data, users, directUser]);
+
   useHydrateModerationPostCache(posts);
   useHydrateModerationPostCache(classifiedPosts);
 
@@ -526,6 +558,7 @@ const ModerationInbox = () => {
     classifiedPosts={classifiedPosts}
     curationPosts={curationPosts}
     teamInboxThreads={teamInboxThreads}
+    unloadedCounts={unloadedCounts}
     lastCuratedDate={lastCuratedDate}
     initialOpenedUserId={initialOpenedUserId}
     directUser={directUser}

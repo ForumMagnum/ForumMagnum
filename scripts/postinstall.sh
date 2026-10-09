@@ -38,6 +38,13 @@ else
   exit 1
 fi
 
+# Excalidraw (the diagram editor) is vendored as source and built here, rather
+# than having its build output committed; see excalidraw/README.md. The app
+# can't build without it, so this happens in production too. (`--production=false`
+# because the build tools are devDependencies.)
+echo 'Building Excalidraw (excalidraw/)'
+(cd excalidraw && yarn install --frozen-lockfile --production=false && yarn build) || exit 1
+
 if [ "$NODE_ENV" == "production" ]; then
   echo "production run, skipping unnecessary checks"
   exit 0

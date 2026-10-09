@@ -38,6 +38,7 @@ import { useEditorCommands } from './EditorCommandsContext';
 import { CkEditorShortcut, augmentEditor } from './editorAugmentations';
 import { useCommandPalette } from '../hooks/useCommandPalette';
 import { makeEditorConfig } from './editorConfigs';
+import { CkEditorLoadError } from './CkEditorLoadError';
 
 // If any custom commands' execute methods change their signatures, we need to update this declaration
 declare module '@ckeditor/ckeditor5-core' {
@@ -453,6 +454,7 @@ const CKPostEditor = ({
   
     // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
+  const [loadError, setLoadError] = useState<Error | null>(null);
   useEffect(() => {
     setLayoutReady(true)
   }, [])
@@ -674,8 +676,17 @@ const CKPostEditor = ({
     <div className={classes.hidden} ref={hiddenPresenceListRef}/>
     <div ref={sidebarRef} className={classes.sidebar}/>
 
-    {layoutReady && <CKEditor
+    {loadError && <CkEditorLoadError error={loadError} />}
+
+    {layoutReady && !loadError && <CKEditor
       ref={editorRef}
+      onError={(error, { phase }) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        if (phase === 'initialization') {
+          setLoadError(error);
+        }
+      }}
       onChange={onChange}
       onFocus={onFocus}
       editor={getCkPostEditor(!!isCollaborative)}

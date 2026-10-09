@@ -39,6 +39,7 @@ import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
 import { getReviewGroupFromActions } from "./reviewGroups";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
+import { hideUnreviewedAuthorCommentsSettings } from "@/lib/instanceSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
   const db = getSqlClientOrThrow();
@@ -4373,6 +4374,22 @@ const schema = {
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
         return await getLastRemovedFromReviewQueueAt(context, user._id);
+      },
+    },
+  },
+  hasPendingComments: {
+    graphql: {
+      outputType: "Boolean",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        const hideSince = hideUnreviewedAuthorCommentsSettings.get(context);
+        if (!hideSince) {
+          return false;
+        }
+        return await getWithCustomLoader(context, "hasPendingComments", user._id, async (userIds) => {
+          const userIdsWithPendingComments = new Set(await context.repos.users.getUserIdsWithPendingComments(userIds, new Date(hideSince)));
+          return userIds.map((id) => userIdsWithPendingComments.has(id));
+        });
       },
     },
   },

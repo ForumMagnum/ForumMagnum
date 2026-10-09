@@ -62,9 +62,9 @@ const PANGRAM_TASK_URL = "https://text.external-api.pangram.com/task";
 const PANGRAM_TASK_POLL_INTERVAL_MS = 2_000;
 const PANGRAM_TASK_REQUEST_TIMEOUT_MS = 10_000;
 
-// The GraphQL route has a 120-second limit. Leave time for request overhead and
-// for GraphQL to return a useful timeout error.
-const PANGRAM_TASK_TIMEOUT_MS = 90_000;
+// Checks normally take 5-15s. This keeps the every-ten-minutes cron, which retries
+// failed checks, under its 60s limit with time left for its other tasks.
+const PANGRAM_TASK_TIMEOUT_MS = 40_000;
 
 export interface PangramEvaluationResult {
   analyzedText: string;
