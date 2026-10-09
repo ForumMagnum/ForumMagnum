@@ -6,6 +6,7 @@ export const RejectionAppealsUserInfo = gql(`
     createdAt
     postId
     commentId
+    conversationId
     status
   }
 `);
@@ -14,6 +15,7 @@ export const RejectionAppealsModerationInfo = gql(`
   fragment RejectionAppealsModerationInfo on RejectionAppeal {
     ...RejectionAppealsUserInfo
     explanation
+    reasonIds
     post {
       ...SunshinePostsList
     }

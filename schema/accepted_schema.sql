@@ -2324,6 +2324,8 @@ CREATE TABLE "RejectionAppeals" (
   "commentId" VARCHAR(27),
   "conversationId" VARCHAR(27) NOT NULL,
   "explanation" TEXT NOT NULL,
+  "reasonIds" TEXT[] NOT NULL DEFAULT '{}',
+  "acknowledgedMisunderstandings" BOOL NOT NULL DEFAULT FALSE,
   "status" TEXT NOT NULL DEFAULT 'open',
   "resolvedByUserId" VARCHAR(27),
   "resolvedAt" TIMESTAMPTZ

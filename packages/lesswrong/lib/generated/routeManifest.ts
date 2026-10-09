@@ -676,9 +676,6 @@ export const routeTrie = {
       },
       "hasRoute": true
     },
-    "appeal": {
-      "hasPage": true
-    },
     "arbital": {
       "hasPage": true
     },
@@ -1212,6 +1209,9 @@ export const routeTrie = {
     "recommendations": {
       "hasPage": true
     },
+    "rejection-review": {
+      "hasPage": true
+    },
     "research": {
       "staticChildren": {
         "projects": {
@@ -1449,7 +1449,6 @@ export const routeTrie = {
     "allgroups": "allgroups",
     "analyticsevent": "analyticsEvent",
     "api": "api",
-    "appeal": "appeal",
     "arbital": "arbital",
     "auth": "auth",
     "autocompletesettings": "autocompleteSettings",
@@ -1519,6 +1518,7 @@ export const routeTrie = {
     "quicktakes": "quicktakes",
     "rationality": "rationality",
     "recommendations": "recommendations",
+    "rejection-review": "rejection-review",
     "research": "research",
     "resendverificationemail": "resendVerificationEmail",
     "resetpassword": "resetPassword",

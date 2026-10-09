@@ -97,6 +97,36 @@ const schema = {
       canCreate: ["members"],
     },
   },
+  // Ids from APPEAL_REASONS that the user selected as why their content was rejected
+  reasonIds: {
+    database: {
+      type: "TEXT[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]!",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+    },
+  },
+  // Whether the user confirmed that the common misunderstandings for these reasons aren't the basis of their appeal
+  acknowledgedMisunderstandings: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      inputType: "Boolean!",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+    },
+  },
   status: {
     database: {
       type: "TEXT",

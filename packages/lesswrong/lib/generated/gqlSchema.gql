@@ -3204,6 +3204,8 @@ type RejectionAppeal {
   conversationId: String
   conversation: Conversation
   explanation: String
+  reasonIds: [String!]!
+  acknowledgedMisunderstandings: Boolean
   status: RejectionAppealStatus
   resolvedByUserId: String
   resolvedAt: Date
@@ -9174,6 +9176,8 @@ input CreateRejectionAppealDataInput {
   postId: String
   commentId: String
   explanation: String!
+  reasonIds: [String!]!
+  acknowledgedMisunderstandings: Boolean!
 }
 
 input CreateRejectionAppealInput {

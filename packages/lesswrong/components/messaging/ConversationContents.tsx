@@ -246,6 +246,9 @@ const ConversationContents = ({conversation, currentUserId, sendEmail = true}: {
                 },
               }
             })
+            // Sending can trigger an automated reply (e.g. the appeal link in a
+            // rejection thread), which only a refetch will pick up.
+            void refetch();
           }}
         />
       </div>

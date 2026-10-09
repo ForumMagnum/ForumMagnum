@@ -30,6 +30,11 @@ async function rejectPost(post: DbPost, moderator: DbUser) {
   return rejectedPost;
 }
 
+async function getMessageHtmls(conversationId: string) {
+  const messages = await Messages.find({ conversationId }, { sort: { createdAt: 1 } }).fetch();
+  return messages.map(message => message.contents?.html ?? "");
+}
+
 async function getConversation(conversationId: string) {
   const conversation = await Conversations.findOne({ _id: conversationId });
   if (!conversation) throw new Error("Conversation not found");
@@ -69,6 +74,20 @@ describe("rejection team inbox", () => {
     expect(conversation.awaitingModeratorReply).toBe(false);
     expect(conversation.participantIds).not.toContain(otherModerator._id);
   });
+
+  it("answers a user's first reply with a link to the appeal page, without taking the reply out of the queue", async () => {
+    const post = await rejectPost(await createDummyPost(author), moderator);
+    const conversationId = post.rejectionConversationId!;
+
+    await sendMessageAs({ author, conversationId, html: "<p>Why?</p>", noEmail: true, context: contextFor(author) });
+    const messagesAfterFirstReply = await Messages.find({ conversationId }, { sort: { createdAt: 1 } }).fetch();
+    expect(messagesAfterFirstReply.map(message => message.userId)).toEqual([moderator._id, author._id, mockTeamAccount!._id]);
+    expect(messagesAfterFirstReply[2].contents?.html).toContain(`/rejection-review?postId=${post._id}`);
+    expect((await getConversation(conversationId)).awaitingModeratorReply).toBe(true);
+
+    await sendMessageAs({ author, conversationId, html: "<p>Hello?</p>", noEmail: true, context: contextFor(author) });
+    expect(await Messages.find({ conversationId }).count()).toBe(4);
+  });
 });
 
 describe("rejection appeals", () => {
@@ -82,7 +101,7 @@ describe("rejection appeals", () => {
   });
 
   async function appeal(user: DbUser, postId: string) {
-    return await createRejectionAppealGqlMutation(undefined, { data: { postId, explanation: "It was a mistake" } }, contextFor(user));
+    return await createRejectionAppealGqlMutation(undefined, { data: { postId, reasonIds: ["llmWritten"], acknowledgedMisunderstandings: true, explanation: "It was a mistake" } }, contextFor(user));
   }
 
   it("only lets the author appeal rejected content, once", async () => {
@@ -95,13 +114,32 @@ describe("rejection appeals", () => {
     await expect(appeal(author, post._id)).rejects.toThrow();
   });
 
-  it("posts the appeal into the rejection conversation", async () => {
+  it("posts a summary of the appeal into the rejection conversation", async () => {
     const post = await rejectPost(await createDummyPost(author), moderator);
     const { data } = await appeal(author, post._id);
 
     expect(data?.conversationId).toBe(post.rejectionConversationId);
     const conversation = await getConversation(post.rejectionConversationId!);
     expect(conversation.awaitingModeratorReply).toBe(true);
+
+    // The summary is the user's first message, but it isn't answered with the appeal link
+    const htmls = await getMessageHtmls(conversation._id);
+    expect(htmls).toHaveLength(2);
+    expect(htmls[1]).toContain("Rejection review requested");
+    expect(htmls[1]).toContain("It was a mistake");
+  });
+
+  it("doesn't allow appeals of content with no rejection message", async () => {
+    const post = await createDummyPost(author);
+    await Posts.rawUpdateOne({ _id: post._id }, { $set: { rejected: true } });
+    await expect(appeal(author, post._id)).rejects.toThrow();
+  });
+
+  it("rejects unknown appeal reasons", async () => {
+    const post = await rejectPost(await createDummyPost(author), moderator);
+    await expect(createRejectionAppealGqlMutation(undefined, {
+      data: { postId: post._id, reasonIds: ["notAReason"], acknowledgedMisunderstandings: false, explanation: "It was a mistake" },
+    }, contextFor(author))).rejects.toThrow();
   });
 
   it("unrejects the content when approved", async () => {
@@ -115,5 +153,22 @@ describe("rejection appeals", () => {
 
     expect(resolvedAppeal.resolvedByUserId).toBe(moderator._id);
     expect((await Posts.findOne({ _id: post._id }))?.rejected).toBe(false);
+  });
+
+  it("tells the user the outcome and takes the thread out of the queue when an appeal is resolved", async () => {
+    const post = await rejectPost(await createDummyPost(author), moderator);
+    const { data } = await appeal(author, post._id);
+    expect((await getConversation(post.rejectionConversationId!)).awaitingModeratorReply).toBe(true);
+
+    await updateRejectionAppeal({
+      selector: { _id: data!._id! },
+      data: { status: "denied" },
+    }, contextFor(moderator));
+
+    const messages = await Messages.find({ conversationId: post.rejectionConversationId! }, { sort: { createdAt: 1 } }).fetch();
+    const lastMessage = messages[messages.length - 1];
+    expect(lastMessage.userId).toBe(mockTeamAccount!._id);
+    expect(lastMessage.contents?.html).toContain("keeping the original decision");
+    expect((await getConversation(post.rejectionConversationId!)).awaitingModeratorReply).toBe(false);
   });
 });

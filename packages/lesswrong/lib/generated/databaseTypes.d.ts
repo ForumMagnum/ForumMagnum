@@ -1141,11 +1141,13 @@ type RejectionAppealsCollection = PgCollection<"RejectionAppeals">;
 
 interface DbRejectionAppeal extends DbObject {
   __collectionName?: "RejectionAppeals"
+  acknowledgedMisunderstandings: boolean
   commentId: string | null
   conversationId: string
   createdAt: Date
   explanation: string
   postId: string | null
+  reasonIds: Array<string>
   resolvedAt: Date | null
   resolvedByUserId: string | null
   status: 'open' | 'approved' | 'denied'

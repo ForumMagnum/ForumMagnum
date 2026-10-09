@@ -57,7 +57,12 @@ const styles = defineStyles('TeamInboxThreadView', (theme: ThemeType) => ({
   },
   buttonRow: {
     display: 'flex',
+    alignItems: 'center',
     gap: 8,
+  },
+  resolveNote: {
+    fontSize: 12,
+    color: theme.palette.grey[600],
   },
   button: {
     fontSize: 13,
@@ -175,6 +180,7 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
             ? <>
               <Button className={classes.button} onClick={() => void resolveAppeal('approved')}>Approve (unreject)</Button>
               <Button className={classes.button} onClick={() => void resolveAppeal('denied')}>Deny</Button>
+              <span className={classes.resolveNote}>The user gets an automated message with the outcome.</span>
             </>
             : <Button className={classes.button} onClick={() => void markHandled()}>Mark handled</Button>}
         </div>

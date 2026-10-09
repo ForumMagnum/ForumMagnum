@@ -1,0 +1,702 @@
+"use client";
+
+import React, { useState } from "react";
+import classNames from "classnames";
+import { useMutation } from "@apollo/client/react";
+import { gql } from "@/lib/generated/gql-codegen";
+import { useQuery } from "@/lib/crud/useQuery";
+import { useCurrentUser } from "@/components/common/withUser";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
+import SectionTitle from "@/components/common/SectionTitle";
+import Loading from "@/components/vulcan-core/Loading";
+import ContentStyles from "@/components/common/ContentStyles";
+import { ContentItemBody } from "@/components/contents/ContentItemBody";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import { Link } from "@/lib/reactRouterWrapper";
+import { useLocation } from "@/lib/routeUtil";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import { conversationGetPageUrl } from "@/lib/collections/conversations/helpers";
+import uniq from "lodash/uniq";
+import { APPEAL_REASONS, getReasonIdsMatchingRejection, type AppealReason } from "@/lib/collections/rejectionAppeals/appealReasons";
+
+const AppealedPostQuery = gql(`
+  query RejectionAppealPagePostQuery($postId: String, $userId: String) {
+    post(selector: { _id: $postId }) {
+      result {
+        _id
+        slug
+        title
+        rejected
+        rejectedReason
+      }
+    }
+    rejectionAppeals(selector: { userAppeals: { userId: $userId } }, limit: 100) {
+      results {
+        ...RejectionAppealsUserInfo
+      }
+    }
+  }
+`);
+
+const AppealedCommentQuery = gql(`
+  query RejectionAppealPageCommentQuery($commentId: String, $userId: String) {
+    comment(selector: { _id: $commentId }) {
+      result {
+        _id
+        rejected
+        rejectedReason
+        post {
+          _id
+          slug
+          title
+        }
+      }
+    }
+    rejectionAppeals(selector: { userAppeals: { userId: $userId } }, limit: 100) {
+      results {
+        ...RejectionAppealsUserInfo
+      }
+    }
+  }
+`);
+
+const RejectionTemplatesQuery = gql(`
+  query RejectionAppealPageTemplatesQuery {
+    moderationTemplates(selector: { moderationTemplatesList: { collectionName: "Rejections" } }, limit: 200) {
+      results {
+        _id
+        name
+        contents {
+          html
+        }
+      }
+    }
+  }
+`);
+
+const CreateRejectionAppealMutation = gql(`
+  mutation createRejectionAppealRejectionAppealPage($data: CreateRejectionAppealDataInput!) {
+    createRejectionAppeal(data: $data) {
+      data {
+        ...RejectionAppealsUserInfo
+      }
+    }
+  }
+`);
+
+const styles = defineStyles("RejectionAppealPage", (theme: ThemeType) => ({
+  card: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    maxWidth: 680,
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.faint,
+    borderRadius: 6,
+    padding: "24px 32px 28px",
+    [theme.breakpoints.down("xs")]: {
+      padding: "20px 16px 24px",
+    },
+  },
+  section: {
+    marginTop: 28,
+    paddingTop: 24,
+    borderTop: theme.palette.border.faint,
+  },
+  sectionHeading: {
+    fontSize: 12,
+    fontWeight: 600,
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    color: theme.palette.text.dim,
+    marginBottom: 10,
+  },
+  misunderstandings: {
+    marginTop: 0,
+    marginBottom: 16,
+    paddingLeft: 20,
+    lineHeight: 1.6,
+    "& li": {
+      marginBottom: 6,
+    },
+  },
+  clarificationNote: {
+    marginTop: 16,
+    marginBottom: 0,
+    lineHeight: 1.6,
+  },
+  submitRow: {
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    gap: 16,
+    marginTop: 28,
+  },
+  contentTitleBlock: {
+    marginBottom: 14,
+  },
+  contentKind: {
+    fontSize: 13,
+    color: theme.palette.text.dim,
+    marginBottom: 2,
+  },
+  contentTitle: {
+    fontFamily: theme.palette.fonts.serifStack,
+    fontSize: 22,
+    lineHeight: 1.3,
+    color: theme.palette.text.normal,
+    "&:hover": {
+      color: theme.palette.primary.main,
+    },
+  },
+  contentHeader: {
+    padding: "14px 16px",
+    borderRadius: 4,
+    background: theme.palette.greyAlpha(0.04),
+    border: theme.palette.border.faint,
+  },
+  rejectionHeading: {
+    fontSize: 13,
+    color: theme.palette.text.dim,
+    marginBottom: 4,
+  },
+  fullReason: {
+    "& ul, & ol": { paddingLeft: 20 },
+    "& p:last-child": { marginBottom: 0 },
+  },
+  paragraph: {
+    marginTop: 0,
+    marginBottom: 16,
+    lineHeight: 1.6,
+  },
+  inlineLink: {
+    color: theme.palette.primary.main,
+  },
+  prompt: {
+    fontWeight: 600,
+    marginTop: 0,
+    marginBottom: 12,
+  },
+  options: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+  },
+  option: {
+    borderRadius: 4,
+    border: theme.palette.border.faint,
+    transition: "background-color 0.1s ease, border-color 0.1s ease",
+    "&:hover": {
+      background: theme.palette.greyAlpha(0.03),
+    },
+  },
+  optionLabel: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: 6,
+    padding: "10px 12px 10px 6px",
+    cursor: "pointer",
+    lineHeight: 1.5,
+  },
+  optionChecked: {
+    background: theme.palette.background.primaryTranslucent,
+    borderColor: theme.palette.primary.main,
+    "&:hover": {
+      background: theme.palette.background.primaryTranslucent,
+    },
+  },
+  checkbox: {
+    padding: 0,
+    marginTop: 1,
+    marginLeft: 4,
+    marginRight: 4,
+  },
+  textarea: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    display: "block",
+    width: "100%",
+    boxSizing: "border-box",
+    minHeight: 200,
+    padding: "10px 12px",
+    borderRadius: 4,
+    border: theme.palette.border.normal,
+    background: theme.palette.panelBackground.default,
+    color: theme.palette.text.normal,
+    lineHeight: 1.5,
+    resize: "vertical",
+    outline: "none",
+    "&:focus": {
+      borderColor: theme.palette.primary.main,
+      boxShadow: `0 0 0 2px ${theme.palette.background.primaryTranslucent}`,
+    },
+  },
+  button: {
+    ...theme.typography.commentStyle,
+    display: "inline-block",
+    fontSize: 14,
+    fontWeight: 500,
+    padding: "9px 20px",
+    borderRadius: 4,
+    cursor: "pointer",
+    border: "none",
+    transition: "opacity 0.1s ease, background-color 0.1s ease",
+  },
+  primaryButton: {
+    background: theme.palette.primary.main,
+    color: theme.palette.buttons.primaryDarkText,
+    marginLeft: "auto",
+    "&:hover": {
+      opacity: 0.9,
+      color: theme.palette.buttons.primaryDarkText,
+    },
+    "&:disabled": {
+      background: theme.palette.greyAlpha(0.1),
+      color: theme.palette.text.dim,
+      cursor: "default",
+      opacity: 1,
+    },
+  },
+  error: {
+    color: theme.palette.error.main,
+    marginTop: 12,
+  },
+  endState: {
+    textAlign: "center",
+    padding: "16px 0 4px",
+  },
+  endStateMessage: {
+    marginTop: 0,
+    marginBottom: 20,
+    lineHeight: 1.6,
+  },
+  endStateHeading: {
+    fontSize: 18,
+    fontWeight: 600,
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  callout: {
+    padding: "12px 16px",
+    marginBottom: 16,
+    borderRadius: 4,
+    borderLeft: `3px solid ${theme.palette.primary.main}`,
+    background: theme.palette.background.primaryTranslucent,
+    lineHeight: 1.6,
+  },
+  mutedParagraph: {
+    marginTop: 0,
+    marginBottom: 16,
+    lineHeight: 1.6,
+    color: theme.palette.text.dim,
+  },
+  submittedSummary: {
+    textAlign: "left",
+    marginTop: 28,
+    padding: "14px 16px",
+    borderRadius: 4,
+    border: theme.palette.border.faint,
+    background: theme.palette.greyAlpha(0.04),
+  },
+  summaryHeading: {
+    fontWeight: 600,
+    marginBottom: 10,
+  },
+  summaryLabel: {
+    fontSize: 13,
+    color: theme.palette.text.dim,
+    marginTop: 10,
+    marginBottom: 2,
+  },
+  summaryExplanation: {
+    whiteSpace: "pre-wrap",
+    lineHeight: 1.5,
+  },
+}));
+
+type ContentType = "post" | "comment";
+type AppealStatus = "open" | "approved" | "denied";
+
+const APPEAL_STATUS_LABELS: Record<AppealStatus, string> = {
+  open: "Under review",
+  approved: "Rejection reversed",
+  denied: "Rejection upheld",
+};
+
+interface AppealedItem {
+  postId: string | null;
+  commentId: string | null;
+  contentType: ContentType;
+  /** Shown above the title */
+  contentKindLabel: string;
+  contentTitle: string;
+  contentLabel: string;
+  contentUrl: string;
+  rejectedReason: string | null;
+  existingAppeal: RejectionAppealsUserInfo | null;
+}
+
+interface PostLink {
+  _id: string;
+  slug: string;
+  title: string;
+}
+
+interface RejectionTemplate {
+  name: string | null;
+  contents: { html: string | null } | null;
+}
+
+function getAppealedItem({ postId, commentId, document, post, appeals }: {
+  postId: string | null,
+  commentId: string | null,
+  document: { _id: string, rejected: boolean, rejectedReason: string | null } | null | undefined,
+  post: PostLink | null | undefined,
+  appeals: RejectionAppealsUserInfo[],
+}): AppealedItem | null {
+  if (!document?.rejected) return null;
+  if (postId) {
+    return {
+      postId,
+      commentId: null,
+      contentType: "post",
+      contentKindLabel: "Your content:",
+      contentTitle: post?.title ?? "",
+      contentLabel: `Post: ${post?.title ?? ""}`,
+      contentUrl: post ? postGetPageUrl(post) : "",
+      rejectedReason: document.rejectedReason,
+      existingAppeal: appeals.find(appeal => appeal.postId === postId) ?? null,
+    };
+  }
+  return {
+    postId: null,
+    commentId,
+    contentType: "comment",
+    contentKindLabel: "Your content:",
+    contentTitle: post ? `Comment on ${post.title}` : "Comment",
+    contentLabel: post ? `Comment on ${post.title}` : "Comment",
+    contentUrl: commentGetPageUrlFromIds({ postId: post?._id, postSlug: post?.slug, commentId }),
+    rejectedReason: document.rejectedReason,
+    existingAppeal: appeals.find(appeal => appeal.commentId === commentId) ?? null,
+  };
+}
+
+function getSelectedReasons(reasonIds: string[]): AppealReason[] {
+  return APPEAL_REASONS.filter(reason => reasonIds.includes(reason.id));
+}
+
+const AppealedContentHeader = ({ item }: { item: AppealedItem }) => {
+  const classes = useStyles(styles);
+  return <>
+    <div className={classes.contentTitleBlock}>
+      <div className={classes.contentKind}>{item.contentKindLabel}</div>
+      {item.contentTitle && <Link className={classes.contentTitle} to={item.contentUrl}>{item.contentTitle}</Link>}
+    </div>
+    {item.rejectedReason && <div className={classes.contentHeader}>
+      <div className={classes.rejectionHeading}>Our message to you:</div>
+      <ContentStyles contentType="comment" className={classes.fullReason}>
+        <ContentItemBody dangerouslySetInnerHTML={{ __html: item.rejectedReason }} />
+      </ContentStyles>
+    </div>}
+  </>;
+};
+
+const OptionRow = ({ label, checked, onChange }: {
+  label: string,
+  checked: boolean,
+  onChange: () => void,
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classNames(classes.option, { [classes.optionChecked]: checked })}>
+    <label className={classes.optionLabel}>
+      <Checkbox className={classes.checkbox} checked={checked} onChange={onChange} disableRipple />
+      <span>{label}</span>
+    </label>
+  </div>;
+};
+
+const SectionHeading = ({ children }: { children: React.ReactNode }) => {
+  const classes = useStyles(styles);
+  return <div className={classes.sectionHeading}>{children}</div>;
+};
+
+const IntroSection = ({ contentType, hasMisunderstandings }: { contentType: ContentType, hasMisunderstandings: boolean }) => {
+  const classes = useStyles(styles);
+  return <div>
+    <p className={classes.paragraph}>
+      Thank you for attempting to contribute to LessWrong. We're sorry your {contentType} was rejected. We know
+      that's frustrating, especially when you've put real work into something.
+    </p>
+    <p className={classes.paragraph}>
+      As moderators of LessWrong, we face difficult tradeoffs in encouraging new submissions, maintaining quality
+      standards, and preserving LessWrong's unique and special norms for research and discussion. We very much want
+      to approve good new content!
+    </p>
+    <p className={classes.paragraph}>
+      A rejection of your content is not necessarily a harsh criticism of your work. LessWrong is a very particular
+      place with specific communication norms. Also a number of our rules for first submissions are about reducing
+      the time required for moderators to vet content so we can process new submissions quickly. Overall, users who
+      have been regular readers on the site for a while are much more likely to have their content approved compared
+      to those only discovering LessWrong recently and seeking to post immediately. It takes time to understand
+      LessWrong and often the best response to a rejection is to spend more time reading on the site.
+    </p>
+    <p className={classes.paragraph}>
+      Our rejections are often nuanced. Please confirm your understanding of the rejection reason before requesting a
+      review. Before requesting a review, please read the{" "}
+      <Link className={classes.inlineLink} to="/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong">
+        New User's Guide
+      </Link> and{" "}
+      <Link
+        className={classes.inlineLink}
+        to="/posts/nQWavk9mnwcv6ScMR/new-lesswrong-editor-also-an-update-to-our-llm-policy#Policy_on_LLM_Use"
+      >
+        our policy on LLM-generated content
+      </Link>.{hasMisunderstandings && " Common misunderstandings of your rejection reasons are listed below."}
+    </p>
+    <p className={classes.paragraph}>
+      If you still wish to request a review, please proceed!
+    </p>
+    <div className={classes.callout}>
+      If you do request a review, a moderator will look at it, usually within 72 hours, and reply in your
+      conversation with us.
+    </div>
+    <p className={classes.mutedParagraph}>
+      A rejection isn't a ban, and we usually allow for several attempts to submit content before disallowing
+      additional tries. If you'd rather not request a review, you're welcome to take the feedback on board and submit something
+      new later.
+    </p>
+  </div>;
+};
+
+const MisunderstandingsSection = ({ misunderstandings, acknowledged, onToggle }: {
+  misunderstandings: string[],
+  acknowledged: boolean,
+  onToggle: () => void,
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.section}>
+    <SectionHeading>Policy</SectionHeading>
+    <p className={classes.paragraph}>
+      The following are common misunderstandings that cause users to request reviews of valid rejections. Please
+      read these over carefully and confirm that these are <em>not</em> the basis of your request.
+    </p>
+    <ul className={classes.misunderstandings}>
+      {misunderstandings.map(misunderstanding => <li key={misunderstanding}>{misunderstanding}</li>)}
+    </ul>
+    <OptionRow
+      label="I've read these, and they aren't the basis of my request."
+      checked={acknowledged}
+      onChange={onToggle}
+    />
+    <ClarificationNote />
+  </div>;
+};
+
+const ClarificationNote = () => {
+  const classes = useStyles(styles);
+  return <p className={classes.clarificationNote}>
+    We also further apologize that we generally cannot reply to requests for further clarification about why a
+    rejection was made due to the volume of submissions and review requests. We attempt to make the rejection reasons
+    comprehensive. Feel free to leave a specific question or two and we might get back to you. As above, reading more
+    of LessWrong content is the best way to understand site requirements.
+  </p>;
+};
+
+const ExplanationSection = ({ explanation, onChange }: {
+  explanation: string,
+  onChange: (explanation: string) => void,
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.section}>
+    <SectionHeading>Your explanation</SectionHeading>
+    <p className={classes.prompt}>In your own words, tell us why you think the rejection was a mistake.</p>
+    <textarea
+      className={classes.textarea}
+      value={explanation}
+      onChange={(e) => onChange(e.target.value)}
+    />
+  </div>;
+};
+
+const ViewConversationButton = ({ conversationId }: { conversationId: string }) => {
+  const classes = useStyles(styles);
+  return <Link
+    className={classNames(classes.button, classes.primaryButton)}
+    to={conversationGetPageUrl({ _id: conversationId })}
+  >
+    View conversation
+  </Link>;
+};
+
+const SubmittedState = ({ item, reasons, explanation, conversationId }: {
+  item: AppealedItem,
+  reasons: AppealReason[],
+  explanation: string,
+  conversationId: string | null,
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.endState}>
+    <h2 className={classes.endStateHeading}>Your review request has been submitted</h2>
+    <p className={classes.endStateMessage}>
+      Thanks for taking the time to explain. A moderator will look at your request, usually within 72 hours. We've
+      added a summary of it to your conversation with us, and we'll message you there once we've made a decision.
+      You can add anything else there in the meantime.
+    </p>
+    {conversationId && <ViewConversationButton conversationId={conversationId} />}
+    <div className={classes.submittedSummary}>
+      <div className={classes.summaryHeading}>What you sent</div>
+      <div>{item.contentLabel}</div>
+      {reasons.length > 0 && <>
+        <div className={classes.summaryLabel}>Reason</div>
+        <div>{reasons.map(reason => reason.label).join(", ")}</div>
+      </>}
+      <div className={classes.summaryLabel}>Your explanation</div>
+      <div className={classes.summaryExplanation}>{explanation}</div>
+    </div>
+  </div>;
+};
+
+const AlreadyAppealedState = ({ appeal }: { appeal: RejectionAppealsUserInfo }) => {
+  const classes = useStyles(styles);
+  return <div className={classes.endState}>
+    <h2 className={classes.endStateHeading}>You've already requested a review of this rejection</h2>
+    <p className={classes.endStateMessage}>
+      {appeal.status && <>Status: {APPEAL_STATUS_LABELS[appeal.status]}</>}
+      {appeal.status === "open" && <>
+        <br />
+        We aim to complete reviews within 72 hours. We'll message you in your conversation with us once we've made
+        a decision.
+      </>}
+    </p>
+    {appeal.conversationId && <ViewConversationButton conversationId={appeal.conversationId} />}
+  </div>;
+};
+
+const NotAppealableState = () => {
+  const classes = useStyles(styles);
+  return <div className={classes.endState}>
+    <p className={classes.endStateMessage}>
+      We couldn't find a rejected post or comment to review from this link. If you think that's a mistake, please
+      reply in your conversation with us.
+    </p>
+  </div>;
+};
+
+const RejectionAppealPage = () => {
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const { query } = useLocation();
+  const [acknowledgedMisunderstandings, setAcknowledgedMisunderstandings] = useState(false);
+  const [explanation, setExplanation] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [submittedConversationId, setSubmittedConversationId] = useState<string | null>(null);
+
+  // This page is reached from the link in a rejection DM, which names the rejected content
+  const postId = query.postId || null;
+  const commentId = postId ? null : (query.commentId || null);
+
+  const { data: postData, loading: postLoading } = useQuery(AppealedPostQuery, {
+    variables: { postId, userId: currentUser?._id },
+    skip: !currentUser || !postId,
+  });
+  const { data: commentData, loading: commentLoading } = useQuery(AppealedCommentQuery, {
+    variables: { commentId, userId: currentUser?._id },
+    skip: !currentUser || !commentId,
+  });
+  const { data: templatesData } = useQuery(RejectionTemplatesQuery, { skip: !currentUser });
+  const [createAppeal, { loading: submitting }] = useMutation(CreateRejectionAppealMutation);
+
+  if (!currentUser) {
+    return <SingleColumnSection>Please log in to request a rejection review.</SingleColumnSection>;
+  }
+  if ((postLoading && !postData) || (commentLoading && !commentData)) {
+    return <Loading />;
+  }
+
+  const comment = commentData?.comment?.result;
+  const item = getAppealedItem({
+    postId,
+    commentId,
+    document: postId ? postData?.post?.result : comment,
+    post: postId ? postData?.post?.result : comment?.post,
+    appeals: (postId ? postData?.rejectionAppeals?.results : commentData?.rejectionAppeals?.results) ?? [],
+  });
+  const templates = templatesData?.moderationTemplates?.results ?? [];
+  // Our rejection message states the reason; recognize which of our appeal reasons it was from the template used
+  const reasonIds = getReasonIdsMatchingRejection(item?.rejectedReason ?? null, templates);
+  const reasons = getSelectedReasons(reasonIds);
+  const misunderstandings = uniq(reasons.flatMap(reason => reason.commonMisunderstandings));
+  const canSubmit = !!explanation.trim() && !submitting;
+
+  const submit = async () => {
+    if (!item) return;
+    setError(null);
+    try {
+      const { data } = await createAppeal({
+        variables: { data: {
+          postId: item.postId,
+          commentId: item.commentId,
+          reasonIds,
+          acknowledgedMisunderstandings: misunderstandings.length > 0 && acknowledgedMisunderstandings,
+          explanation,
+        } },
+      });
+      setSubmittedConversationId(data?.createRejectionAppeal?.data?.conversationId ?? null);
+      setSubmitted(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong submitting your request. Please try again.");
+    }
+  };
+
+  const renderCardContents = () => {
+    if (submitted && item) {
+      return <SubmittedState
+        item={item}
+        reasons={reasons}
+        explanation={explanation}
+        conversationId={submittedConversationId}
+      />;
+    }
+    if (!item) {
+      return <NotAppealableState />;
+    }
+    if (item.existingAppeal) {
+      return <AlreadyAppealedState appeal={item.existingAppeal} />;
+    }
+    return <>
+      <IntroSection contentType={item.contentType} hasMisunderstandings={misunderstandings.length > 0} />
+      <div className={classes.section}>
+        <AppealedContentHeader item={item} />
+      </div>
+      {misunderstandings.length > 0
+        ? <MisunderstandingsSection
+          misunderstandings={misunderstandings}
+          acknowledged={acknowledgedMisunderstandings}
+          onToggle={() => setAcknowledgedMisunderstandings(!acknowledgedMisunderstandings)}
+        />
+        : <div className={classes.section}><ClarificationNote /></div>}
+      <ExplanationSection explanation={explanation} onChange={setExplanation} />
+      {error && <div className={classes.error}>{error}</div>}
+      <div className={classes.submitRow}>
+        <button
+          className={classNames(classes.button, classes.primaryButton)}
+          onClick={() => void submit()}
+          disabled={!canSubmit}
+        >
+          {submitting ? "Submitting..." : "Request review"}
+        </button>
+      </div>
+    </>;
+  };
+
+  return <SingleColumnSection>
+    <SectionTitle title="Request a review" />
+    <div className={classes.card}>
+      {renderCardContents()}
+    </div>
+  </SingleColumnSection>;
+};
+
+export default RejectionAppealPage;

@@ -7,7 +7,13 @@ import { getDocumentId, makeGqlCreateMutation, makeGqlUpdateMutation } from "@/s
 import { insertAndReturnDocument, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { updatePost } from "@/server/collections/posts/mutations";
 import { updateComment } from "@/server/collections/comments/mutations";
-import { sendMessageAs, startTeamInboxConversation } from "@/server/utils/teamInbox";
+import { sendMessageAs } from "@/server/utils/teamInbox";
+import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
+import { updateConversation } from "@/server/collections/conversations/mutations";
+import { APPEAL_REASONS } from "@/lib/collections/rejectionAppeals/appealReasons";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { commentGetPageUrlFromDB } from "@/lib/collections/comments/helpers";
+import { makeAbsolute } from "@/lib/vulcan-lib/utils";
 import gql from "graphql-tag";
 
 interface AppealTarget {
@@ -32,10 +38,47 @@ function explanationToHtml(explanation: string) {
     .join("");
 }
 
+async function getAppealedContentLinkHtml({ postId, commentId }: AppealTarget, context: ResolverContext) {
+  if (postId) {
+    const post = await context.loaders.Posts.load(postId);
+    return `post, <a href="${makeAbsolute(postGetPageUrl(post), context)}">${escapeHtml(post.title)}</a>`;
+  }
+  if (commentId) {
+    const comment = await context.loaders.Comments.load(commentId);
+    return `<a href="${makeAbsolute(await commentGetPageUrlFromDB(comment, context), context)}">comment</a>`;
+  }
+  return "content";
+}
+
+function getAppealResolvedHtml(status: "approved" | "denied", contentType: "post" | "comment") {
+  if (status === "approved") {
+    return [
+      `<p>Good news: we've reviewed the rejection of your ${contentType} and reversed it. Thanks for taking the time to explain.</p>`,
+      `<p>Your ${contentType} is now back in the queue for new users' content, and a moderator will review it shortly.</p>`,
+    ].join("");
+  }
+  return [
+    `<p>We've reviewed the rejection of your ${contentType}, and we're keeping the original decision. We know this is disappointing, and we appreciate you taking the time to explain your view.</p>`,
+    `<p>If a moderator has anything to add, they'll reply here. A rejection isn't a ban, and you're welcome to submit something new later.</p>`,
+  ].join("");
+}
+
+function getAppealSummaryHtml({ contentLinkHtml, explanation }: {
+  contentLinkHtml: string,
+  explanation: string,
+}) {
+  return [
+    `<p><strong>Rejection review requested</strong> for my ${contentLinkHtml}.</p>`,
+    `<p><strong>Why I think the rejection was a mistake:</strong></p>`,
+    explanationToHtml(explanation),
+  ].join("");
+}
+
 async function newCheck(user: DbUser | null, document: CreateRejectionAppealDataInput | null, context: ResolverContext) {
   if (!user || !document) return false;
   const appealedDocument = await getAppealedDocument(document, context);
-  if (!appealedDocument?.rejected || !userOwns(user, appealedDocument)) return false;
+  // Appeals are made from the rejection DM thread, so content without one can't be appealed
+  if (!appealedDocument?.rejected || !appealedDocument.rejectionConversationId || !userOwns(user, appealedDocument)) return false;
 
   const existingAppeal = await context.RejectionAppeals.findOne(
     document.postId ? { postId: document.postId } : { commentId: document.commentId }
@@ -49,37 +92,42 @@ function editCheck(user: DbUser | null) {
 
 export async function createRejectionAppeal({ data }: CreateRejectionAppealInput, context: ResolverContext) {
   const { currentUser } = context;
-  if (!currentUser) throw new Error("You must be logged in to appeal a rejection");
+  if (!currentUser) throw new Error("You must be logged in to request a rejection review");
 
   const appealedDocument = await getAppealedDocument(data, context);
-  if (!appealedDocument) throw new Error("Appealed content not found");
+  if (!appealedDocument) throw new Error("Content to review not found");
 
-  const html = explanationToHtml(data.explanation);
-  let conversationId = appealedDocument.rejectionConversationId;
-  if (conversationId) {
-    await sendMessageAs({ author: currentUser, conversationId, html, noEmail: false, context });
-  } else {
-    const conversation = await startTeamInboxConversation({
-      recipientId: currentUser._id,
-      author: currentUser,
-      title: data.postId ? "Appeal of rejected post" : "Appeal of rejected comment",
-      html,
-      noEmail: false,
-      context,
-    });
-    conversationId = conversation._id;
+  // The reasons are recognized from the rejection message, so there may be none
+  const reasons = APPEAL_REASONS.filter(reason => data.reasonIds.includes(reason.id));
+  if (reasons.length !== data.reasonIds.length) {
+    throw new Error("Invalid rejection reasons");
   }
 
-  return await insertAndReturnDocument({
+  const html = getAppealSummaryHtml({
+    contentLinkHtml: await getAppealedContentLinkHtml(data, context),
+    explanation: data.explanation,
+  });
+  const conversationId = appealedDocument.rejectionConversationId;
+  if (!conversationId) throw new Error("Only content with a rejection message can be reviewed");
+
+  const appeal = await insertAndReturnDocument({
     userId: currentUser._id,
     postId: data.postId ?? null,
     commentId: data.commentId ?? null,
     conversationId,
     explanation: data.explanation,
+    reasonIds: data.reasonIds,
+    acknowledgedMisunderstandings: data.acknowledgedMisunderstandings,
     status: "open",
     resolvedByUserId: null,
     resolvedAt: null,
   }, 'RejectionAppeals', context);
+
+  // Posted after the appeal exists, so that this message doesn't get the
+  // automated appeal-link reply that a first reply to a rejection gets.
+  await sendMessageAs({ author: currentUser, conversationId, html, noEmail: false, context });
+
+  return appeal;
 }
 
 export async function updateRejectionAppeal({ selector, data }: { data: UpdateRejectionAppealDataInput | Partial<DbRejectionAppeal>; selector: SelectorInput }, context: ResolverContext) {
@@ -100,6 +148,24 @@ export async function updateRejectionAppeal({ selector, data }: { data: UpdateRe
     } else if (updatedAppeal.commentId) {
       await updateComment({ data: unrejected, selector: { _id: updatedAppeal.commentId } }, context);
     }
+  }
+
+  if (statusChanged && (updatedAppeal.status === "approved" || updatedAppeal.status === "denied")) {
+    // Tell the user the outcome in the rejection thread; resolving the appeal also handles the thread
+    const teamAccount = await getAdminTeamAccount(context);
+    if (teamAccount) {
+      await sendMessageAs({
+        author: teamAccount,
+        conversationId: updatedAppeal.conversationId,
+        html: getAppealResolvedHtml(updatedAppeal.status, updatedAppeal.postId ? "post" : "comment"),
+        noEmail: false,
+        context,
+      });
+    }
+    await updateConversation({
+      data: { awaitingModeratorReply: false },
+      selector: { _id: updatedAppeal.conversationId },
+    }, context);
   }
 
   return updatedAppeal;

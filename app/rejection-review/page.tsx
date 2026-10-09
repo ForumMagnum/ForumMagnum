@@ -7,12 +7,12 @@ import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 import RejectionAppealPage from "./RejectionAppealPage";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), await getPageTitleFields("Appeal a rejection"), {
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields("Request a review"), {
     robots: { index: false },
   });
 }
 
-assertRouteAttributes("/appeal", {
+assertRouteAttributes("/rejection-review", {
   whiteBackground: false,
   hasLinkPreview: false,
   hasPingbacks: false,

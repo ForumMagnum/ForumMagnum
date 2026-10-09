@@ -2896,6 +2896,8 @@ interface RejectionAppeal {
   conversationId: string | null;
   conversation: Conversation | null;
   explanation: string | null;
+  reasonIds: Array<string>;
+  acknowledgedMisunderstandings: boolean | null;
   status: RejectionAppealStatus | null;
   resolvedByUserId: string | null;
   resolvedAt: Date | null;
@@ -8394,6 +8396,8 @@ interface CreateRejectionAppealDataInput {
   postId?: string | null;
   commentId?: string | null;
   explanation: string;
+  reasonIds: Array<string>;
+  acknowledgedMisunderstandings: boolean;
 }
 
 interface CreateRejectionAppealInput {
