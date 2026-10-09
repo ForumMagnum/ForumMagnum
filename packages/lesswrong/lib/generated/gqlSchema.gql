@@ -1261,8 +1261,14 @@ enum ContentCollectionName {
   Comments
 }
 
+type ModerationTemplateUsageCount {
+  templateId: String!
+  count: Int!
+}
+
 extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
+  moderationTemplateUsageCounts: [ModerationTemplateUsageCount!]!
 }
 
 extend type Mutation {
@@ -1274,6 +1280,7 @@ extend type Mutation {
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
   unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
+  recordModerationTemplatesUsed(templateIds: [String!]!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
 }
 
 extend type Mutation {

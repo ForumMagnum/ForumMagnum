@@ -93,6 +93,14 @@ export function canRejectContent(item: ContentItem | null | undefined) {
   return !!item && !item.rejected;
 }
 
+export function isRejectionTemplateRelevant(templateName: string, item: ContentItem): boolean {
+  const name = templateName.trim().toLowerCase();
+  if (name.includes('autoreject')) return false;
+  if (name.endsWith('(posts)')) return isPost(item);
+  if (name.endsWith('(comments)')) return !isPost(item);
+  return true;
+}
+
 const CONTENT_TITLE_MAX_LENGTH = 25;
 
 /** One-line label for a post or comment */

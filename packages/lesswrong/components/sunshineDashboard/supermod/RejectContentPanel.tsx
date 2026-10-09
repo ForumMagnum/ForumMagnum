@@ -1,5 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from '@/components/common/ContentStyles';
 import { focusLexicalEditorAtEnd } from '@/components/editor/focusLexicalEditor';
@@ -10,7 +12,16 @@ import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
 import GroupedModerationTemplateList from '../GroupedModerationTemplateList';
 import ComposerKeydownWrapper from './ComposerKeydownWrapper';
 import ComposerSubmitButton from './ComposerSubmitButton';
-import { isPost, type ContentItem } from './helpers';
+import { isPost, isRejectionTemplateRelevant, type ContentItem } from './helpers';
+
+const ModerationTemplateUsageCountsQuery = gql(`
+  query moderationTemplateUsageCountsRejectContentPanelQuery {
+    moderationTemplateUsageCounts {
+      templateId
+      count
+    }
+  }
+`);
 
 // `loading` adds a Suspense boundary; without one, loading the editor blanks the page
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'), { loading: () => null });
@@ -167,6 +178,8 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
 }) => {
   const classes = useStyles(styles);
   const { rejectContent } = useRejectContent();
+  const submittingRef = useRef(false);
+  const [submitting, setSubmitting] = useState(false);
 
   // Source of truth while the preview is showing; the reasons html is derived
   const [addedTemplates, setAddedTemplates] = useState<AddedRejectionTemplate[]>([]);
@@ -212,12 +225,18 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
     const existing = addedTemplates.find(t => t.templateId === template._id);
 
     if (!existing) {
-      setAddedTemplates(prev => [...prev, { templateId: template._id, lead: extractBoldLead(html), html }]);
+      const added = { templateId: template._id, lead: extractBoldLead(html), html };
+      setAddedTemplates(prev => [...prev, added]);
       if (editorOpen) {
         fullMessageRef.current = appendHtml(fullMessageRef.current, html);
         setEditorHtml(fullMessageRef.current);
         setLexicalEditorVersion(prev => prev + 1);
         focusLexicalEditorAtEnd(editorContainerRef.current);
+      } else {
+        fullMessageRef.current = standardRejectionIntroHtml + joinTemplateHtml([...addedTemplates, added]);
+        setEditorHtml(fullMessageRef.current);
+        setLexicalEditorVersion(prev => prev + 1);
+        setEditorOpen(true);
       }
       return;
     }
@@ -242,15 +261,23 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
 
   const hasRejectedReason = editorOpen || addedTemplates.length > 0;
 
-  const handleReject = useCallback(() => {
+  const handleReject = useCallback(async () => {
     const reason = editorOpen ? fullMessageRef.current : joinTemplateHtml(addedTemplates);
-    if (!reason) return;
+    if (!reason || submittingRef.current) return;
 
-    if (isPost(focusedContent)) {
-      void rejectContent({ collectionName: 'Posts', document: focusedContent, reason });
-    } else {
-      void rejectContent({ collectionName: 'Comments', document: focusedContent, reason });
-    }
+    submittingRef.current = true;
+    setSubmitting(true);
+    const templateIds = addedTemplates.map(t => t.templateId);
+    const succeeded = await rejectContent({
+      collectionName: isPost(focusedContent) ? 'Posts' : 'Comments',
+      document: focusedContent,
+      reason,
+      templateIds,
+    });
+    submittingRef.current = false;
+    setSubmitting(false);
+    if (!succeeded || (editorOpen && fullMessageRef.current !== reason)) return;
+
     fullMessageRef.current = '';
     setAddedTemplates([]);
     setEditorOpen(false);
@@ -262,7 +289,7 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
     if (!active) return;
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && hasRejectedReason) {
       e.preventDefault();
-      handleReject();
+      void handleReject();
     }
   }, [active, hasRejectedReason, handleReject]));
 
@@ -282,7 +309,7 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
         />
       </ContentStyles>
     </ComposerKeydownWrapper>}
-    <ComposerSubmitButton label="Reject" disabled={!hasRejectedReason} onClick={handleReject} />
+    <ComposerSubmitButton label="Reject" disabled={!hasRejectedReason || submitting} onClick={handleReject} />
   </div>;
 };
 
@@ -299,6 +326,15 @@ const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
   // Escape anywhere in the panel closes its tab, as if it were clicked again
   onEscape: () => void,
 }) => {
+  const { data: usageData } = useQuery(ModerationTemplateUsageCountsQuery, { ssr: false });
+  const usageCounts = useMemo(
+    () => new Map((usageData?.moderationTemplateUsageCounts ?? []).map(({ templateId, count }) => [templateId, count])),
+    [usageData],
+  );
+  const compareTemplates = useCallback(
+    (a: ModerationTemplateFragment, b: ModerationTemplateFragment) => (usageCounts.get(b._id) ?? 0) - (usageCounts.get(a._id) ?? 0),
+    [usageCounts],
+  );
   const [templateSearchToken, setTemplateSearchToken] = useState(0);
   const [composerFocusToken, setComposerFocusToken] = useState(0);
   const editorContainerRef = useRef<HTMLDivElement>(null);
@@ -307,6 +343,11 @@ const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
   const registerToggleTemplate = useCallback((fn: (template: ModerationTemplateFragment) => void) => {
     toggleTemplateRef.current = fn;
   }, []);
+
+  const templateFilter = useCallback(
+    (template: ModerationTemplateFragment) => isRejectionTemplateRelevant(template.name, focusedContent),
+    [focusedContent],
+  );
 
   // The template search is the initial keyboard target whenever the tab is picked
   useEffect(() => {
@@ -333,6 +374,10 @@ const RejectContentPanel = ({ user, focusedContent, active, onEscape }: {
       active={active}
       onFocusComposer={() => setComposerFocusToken(token => token + 1)}
       onEscape={onEscape}
+      layout="flat"
+      compareTemplates={compareTemplates}
+      templateFilter={templateFilter}
+      numberShortcuts
     />
   </>;
 };

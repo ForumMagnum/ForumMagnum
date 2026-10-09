@@ -18,6 +18,10 @@ import { createModeratorAction } from '../collections/moderatorActions/mutations
 import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
 import { createAutomatedContentEvaluation, getPangramEvaluationForText, rerunLlmCheck } from '../collections/automatedContentEvaluations/helpers';
 import type { PangramModel } from '../../lib/collections/automatedContentEvaluations/constants';
+import { MODERATION_TEMPLATE_USED_EVENT } from '../../lib/collections/moderationTemplates/constants';
+import { createLWEvent } from '../collections/lwevents/mutations';
+
+const MODERATION_TEMPLATE_USAGE_WINDOW_DAYS = 90;
 
 export const moderationGqlTypeDefs = gql`
   type ModeratorIPAddressInfo {
@@ -44,8 +48,14 @@ export const moderationGqlTypeDefs = gql`
     Comments
   }
 
+  type ModerationTemplateUsageCount {
+    templateId: String!
+    count: Int!
+  }
+
   extend type Query {
     moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
+    moderationTemplateUsageCounts: [ModerationTemplateUsageCount!]!
   }
 
   extend type Mutation {
@@ -57,6 +67,7 @@ export const moderationGqlTypeDefs = gql`
     runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
     runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
     unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
+    recordModerationTemplatesUsed(templateIds: [String!]!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
   }
 `
 
@@ -394,6 +405,26 @@ export const moderationGqlMutations = {
 
     return true;
   },
+  async recordModerationTemplatesUsed(_root: void, args: { templateIds: string[], documentId: string, collectionName: ContentCollectionName }, context: ResolverContext) {
+    const { currentUser, ModerationTemplates } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can record moderation template usage");
+    }
+
+    const { templateIds, documentId, collectionName } = args;
+    const templates = await ModerationTemplates.find({ _id: { $in: uniq(templateIds) } }, {}, { _id: 1 }).fetch();
+
+    await Promise.all(templates.map(template => createLWEvent({
+      data: {
+        name: MODERATION_TEMPLATE_USED_EVENT,
+        documentId: template._id,
+        properties: { contentId: documentId, contentCollectionName: collectionName },
+        intercom: false,
+      }
+    }, context)));
+
+    return true;
+  },
 }
 
 export const moderationGqlQueries = {
@@ -413,5 +444,14 @@ export const moderationGqlQueries = {
       ip: ipAddress,
       userIds,
     };
+  },
+  async moderationTemplateUsageCounts(_root: void, _args: {}, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can see moderation template usage");
+    }
+
+    const since = moment().subtract(MODERATION_TEMPLATE_USAGE_WINDOW_DAYS, 'days').toDate();
+    return context.repos.lwEvents.getModerationTemplateUsageCounts(since);
   },
 }

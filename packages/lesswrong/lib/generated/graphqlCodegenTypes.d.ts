@@ -2926,6 +2926,12 @@ type ModerationTemplateType =
   | 'Messages'
   | 'Rejections';
 
+type ModerationTemplateUsageCount = {
+  __typename?: 'ModerationTemplateUsageCount';
+  count: Scalars['Int']['output'];
+  templateId: Scalars['String']['output'];
+};
+
 type ModerationTemplatesModerationTemplatesListInput = {
   collectionName?: InputMaybe<Scalars['String']['input']>;
 };
@@ -3963,6 +3969,7 @@ type Mutation = {
   promoteLensToMain?: Maybe<Scalars['Boolean']['output']>;
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
   publishHomePageDesign?: Maybe<HomePageDesignMutationOutput>;
+  recordModerationTemplatesUsed: Scalars['Boolean']['output'];
   rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
   rejectTypoSuggestion: TypoSuggestion;
   reorderResearchDocuments?: Maybe<ReorderResearchDocumentsOutput>;
@@ -4551,6 +4558,13 @@ type MutationpublishAndDeDuplicateSpotlightArgs = {
 
 type MutationpublishHomePageDesignArgs = {
   input: PublishHomePageDesignInput;
+};
+
+
+type MutationrecordModerationTemplatesUsedArgs = {
+  collectionName: ContentCollectionName;
+  documentId: Scalars['String']['input'];
+  templateIds: Array<Scalars['String']['input']>;
 };
 
 
@@ -7375,6 +7389,7 @@ type Query = {
   message?: Maybe<SingleMessageOutput>;
   messages?: Maybe<MultiMessageOutput>;
   moderationTemplate?: Maybe<SingleModerationTemplateOutput>;
+  moderationTemplateUsageCounts: Array<ModerationTemplateUsageCount>;
   moderationTemplates?: Maybe<MultiModerationTemplateOutput>;
   moderatorAction?: Maybe<SingleModeratorActionOutput>;
   moderatorActions?: Maybe<MultiModeratorActionOutput>;
@@ -15612,6 +15627,18 @@ type rejectCommentMutationMutationVariables = Exact<{
 
 type rejectCommentMutationMutation = rejectCommentMutationMutation_Mutation;
 
+type recordModerationTemplatesUsedRejectContentMutation_Mutation = { __typename?: 'Mutation', recordModerationTemplatesUsed: boolean };
+
+
+type recordModerationTemplatesUsedRejectContentMutationVariables = Exact<{
+  templateIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+}>;
+
+
+type recordModerationTemplatesUsedRejectContentMutation = recordModerationTemplatesUsedRejectContentMutation_Mutation;
+
 type multiMultiDocumentuseTagOrLensQueryQuery_multiDocuments_MultiMultiDocumentOutput_results_MultiDocument = (
   { __typename?: 'MultiDocument' }
   & MultiDocumentParentDocument
@@ -21218,6 +21245,16 @@ type updateUserModeratorNotesMutationVariables = Exact<{
 
 
 type updateUserModeratorNotesMutation = updateUserModeratorNotesMutation_Mutation;
+
+type moderationTemplateUsageCountsRejectContentPanelQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount = { __typename?: 'ModerationTemplateUsageCount', templateId: string, count: number };
+
+type moderationTemplateUsageCountsRejectContentPanelQueryQuery_Query = { __typename?: 'Query', moderationTemplateUsageCounts: Array<moderationTemplateUsageCountsRejectContentPanelQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount> };
+
+
+type moderationTemplateUsageCountsRejectContentPanelQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type moderationTemplateUsageCountsRejectContentPanelQueryQuery = moderationTemplateUsageCountsRejectContentPanelQueryQuery_Query;
 
 type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }
