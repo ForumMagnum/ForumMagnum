@@ -3,6 +3,8 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationInboxItem from './ModerationInboxItem';
 import ModerationPostItem from './ModerationPostItem';
 import CurationPostItem from './CurationPostItem';
+import TeamInboxThreadItem from './TeamInboxThreadItem';
+import type { TeamInboxThread } from './teamInboxThreads';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import type { TabId } from './groupings';
 import classNames from 'classnames';
@@ -73,22 +75,28 @@ const ModerationInboxList = ({
   userGroups,
   posts,
   curationPosts,
+  teamInboxThreads,
   focusedUserId,
   focusedPostId,
+  focusedThreadId,
   onFocusUser,
   onOpenUser,
   onFocusPost,
+  onFocusThread,
   activeTab,
   unloadedCount,
 }: {
   userGroups: GroupEntry[];
   posts: SunshinePostsList[];
   curationPosts: SunshineCurationPostsListItem[];
+  teamInboxThreads: TeamInboxThread[];
   focusedUserId: string | null;
   focusedPostId: string | null;
+  focusedThreadId: string | null;
   onFocusUser: (userId: string) => void;
   onOpenUser: (userId: string) => void;
   onFocusPost: (postId: string) => void;
+  onFocusThread: (conversationId: string) => void;
   activeTab: TabId;
   unloadedCount: number;
 }) => {
@@ -98,7 +106,22 @@ const ModerationInboxList = ({
 
   return (
     <div className={classes.root}>
-      {activeTab === 'curation' ? (
+      {activeTab === 'appeals' ? (
+        teamInboxThreads.length === 0 ? (
+          <div className={classes.empty}>No appeals or replies awaiting moderators</div>
+        ) : (
+          <div className={classes.scrollContainer}>
+            {teamInboxThreads.map((thread) => (
+              <TeamInboxThreadItem
+                key={thread.conversation._id}
+                thread={thread}
+                isFocused={thread.conversation._id === focusedThreadId}
+                onFocus={() => onFocusThread(thread.conversation._id)}
+              />
+            ))}
+          </div>
+        )
+      ) : activeTab === 'curation' ? (
         curationPosts.length === 0 ? (
           <div className={classes.empty}>No curation candidates</div>
         ) : (

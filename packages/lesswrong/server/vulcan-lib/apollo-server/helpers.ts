@@ -58,13 +58,13 @@ export function getDocumentId(selector: SelectorInput | string) {
 
 // Historically we allowed update selectors shaped like { _id: string | null, documentId: string | null }
 // Moving forward, it'd be nice to allow string (_id) selectors.
-type UpdateFunc<N extends CollectionNameString, D extends CreateInputsByCollectionName[N]['data']> = 
+type UpdateFunc<N extends CollectionNameString, D extends UpdateInputsByCollectionName[N]['data']> =
   | ((args: { selector: SelectorInput, data: D }, context: ResolverContext) => Promise<any>)
   | ((args: { selector: string, data: D }, context: ResolverContext) => Promise<any>);
 
   export function makeGqlUpdateMutation<
   N extends CollectionNameString,
-  D extends CreateInputsByCollectionName[N]['data'],
+  D extends UpdateInputsByCollectionName[N]['data'],
   T extends UpdateFunc<N, D>,
   O extends UpdateMutationOptions<ObjectsByCollectionName[N], R>,
   R extends { [ACCESS_FILTERED]: true } | null

@@ -8,6 +8,7 @@ import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
 import type { SelectedSidebarTab } from './sidebarTabs';
+import type { TeamInboxThread } from './teamInboxThreads';
 
 export interface HistoryItem {
   user: SunshineUsersList;
@@ -38,6 +39,8 @@ export type InboxState = {
   classifiedPosts: SunshinePostsList[];
   // The local copy of curation candidate posts
   curationPosts: SunshineCurationPostsListItem[];
+  // The local copy of team inbox threads (rejection appeals and replies to rejection messages)
+  teamInboxThreads: TeamInboxThread[];
   // Current active tab
   activeTab: TabId;
   // Focused user in inbox view
@@ -46,6 +49,8 @@ export type InboxState = {
   openedUserId: string | null;
   // Focused post in inbox view (posts don't have detail view)
   focusedPostId: string | null;
+  // Conversation ID of the focused team inbox thread
+  focusedThreadId: string | null;
   // Index of focused content item in detail view
   focusedContentIndex: number;
   // Which composer is open in the moderation sidebar, or null for neither
@@ -69,6 +74,10 @@ export type InboxAction =
   | { type: 'NEXT_POST'; }
   | { type: 'PREV_POST'; }
   | { type: 'FOCUS_POST'; postId: string; }
+  | { type: 'FOCUS_THREAD'; conversationId: string; }
+  | { type: 'NEXT_THREAD'; }
+  | { type: 'PREV_THREAD'; }
+  | { type: 'REMOVE_THREAD'; conversationId: string; }
   | { type: 'NEXT_TAB'; }
   | { type: 'PREV_TAB'; }
   | { type: 'REMOVE_USER'; userId: string; }
@@ -118,10 +127,14 @@ export function getVisibleTabsInOrder(
   totalPosts: number,
   totalClassifiedPosts: number,
   totalCurationNotices: number,
+  totalTeamInboxThreads: number,
   unloadedCounts: UnloadedCounts,
 ): TabInfo[] {
   const tabsInOrder = getTabsInPriorityOrder();
-  const tabs: TabInfo[] = [{ group: 'curation', count: totalCurationNotices }];
+  const tabs: TabInfo[] = [
+    { group: 'curation', count: totalCurationNotices },
+    { group: 'appeals', count: totalTeamInboxThreads },
+  ];
   
   // Always show all tabs, even if empty
   for (const group of tabsInOrder) {
@@ -133,6 +146,38 @@ export function getVisibleTabsInOrder(
   tabs.push({ group: 'classifiedPosts', count: totalClassifiedPosts });
   
   return tabs.map(tab => ({ ...tab, count: tab.count + (unloadedCounts[tab.group] ?? 0) }));
+}
+
+const NON_USER_TABS: ReadonlySet<TabId> = new Set<TabId>(['posts', 'classifiedPosts', 'curation', 'appeals']);
+
+export function isUserTab(tab: TabId): boolean {
+  return !NON_USER_TABS.has(tab);
+}
+
+export function enterTab(state: InboxState, tab: TabId): InboxState {
+  const unfocused = {
+    ...state,
+    activeTab: tab,
+    focusedUserId: null,
+    focusedPostId: null,
+    focusedThreadId: null,
+    focusedContentIndex: 0,
+  };
+  switch (tab) {
+    case 'posts':
+      return { ...unfocused, focusedPostId: state.posts[0]?._id ?? null };
+    case 'classifiedPosts':
+      return { ...unfocused, focusedPostId: state.classifiedPosts[0]?._id ?? null };
+    case 'curation':
+      return { ...unfocused, focusedPostId: state.curationPosts[0]?._id ?? null };
+    case 'appeals':
+      return { ...unfocused, focusedThreadId: state.teamInboxThreads[0]?.conversation._id ?? null };
+    default: {
+      const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
+      const orderedUsers = getFilteredGroups(groupedUsers, tab).flatMap(([_, users]) => users);
+      return { ...unfocused, focusedUserId: orderedUsers[0]?._id ?? null };
+    }
+  }
 }
 
 /**
@@ -265,57 +310,11 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
     case 'CHANGE_TAB': {
       // Don't change tabs in detail view
       if (state.openedUserId) return state;
-
-      // Switching to posts tab
-      if (action.tab === 'posts') {
-        return {
-          ...state,
-          activeTab: 'posts',
-          focusedPostId: state.posts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // Switching to classified posts tab
-      if (action.tab === 'classifiedPosts') {
-        return {
-          ...state,
-          activeTab: 'classifiedPosts',
-          focusedPostId: state.classifiedPosts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // Switching to curation tab
-      if (action.tab === 'curation') {
-        return {
-          ...state,
-          activeTab: 'curation',
-          focusedPostId: state.curationPosts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // Switching to a user tab
-      const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const filteredGroups = getFilteredGroups(groupedUsers, action.tab);
-      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
-
-      return {
-        ...state,
-        activeTab: action.tab,
-        focusedUserId: orderedUsers[0]?._id ?? null,
-        focusedPostId: null,
-        focusedContentIndex: 0,
-      };
+      return enterTab(state, action.tab);
     }
 
     case 'NEXT_USER': {
-      // Don't navigate users when on posts tab, classified posts tab, or curation tab
-      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') return state;
+      if (!isUserTab(state.activeTab)) return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
@@ -336,8 +335,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
     }
 
     case 'PREV_USER': {
-      // Don't navigate users when on posts tab, classified posts tab, or curation tab
-      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') return state;
+      if (!isUserTab(state.activeTab)) return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
@@ -362,7 +360,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.unloadedCounts);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length, state.unloadedCounts);
 
       if (visibleTabs.length === 0) return state;
 
@@ -380,51 +378,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       if (attempts >= visibleTabs.length) return state;
       
       const nextTab = visibleTabs[nextIndex].group;
-
-      // If switching to posts tab
-      if (nextTab === 'posts') {
-        return {
-          ...state,
-          activeTab: 'posts',
-          focusedPostId: state.posts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // If switching to classified posts tab
-      if (nextTab === 'classifiedPosts') {
-        return {
-          ...state,
-          activeTab: 'classifiedPosts',
-          focusedPostId: state.classifiedPosts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // If switching to curation tab
-      if (nextTab === 'curation') {
-        return {
-          ...state,
-          activeTab: 'curation',
-          focusedPostId: state.curationPosts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // Switching to a user tab
-      const filteredGroups = getFilteredGroups(groupedUsers, nextTab);
-      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
-
-      return {
-        ...state,
-        activeTab: nextTab,
-        focusedUserId: orderedUsers[0]?._id ?? null,
-        focusedPostId: null,
-        focusedContentIndex: 0,
-      };
+      return enterTab(state, nextTab);
     }
 
     case 'PREV_TAB': {
@@ -432,7 +386,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.unloadedCounts);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length, state.unloadedCounts);
 
       if (visibleTabs.length === 0) return state;
 
@@ -450,51 +404,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       if (attempts >= visibleTabs.length) return state;
       
       const prevTab = visibleTabs[prevIndex].group;
-
-      // If switching to posts tab
-      if (prevTab === 'posts') {
-        return {
-          ...state,
-          activeTab: 'posts',
-          focusedPostId: state.posts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // If switching to classified posts tab
-      if (prevTab === 'classifiedPosts') {
-        return {
-          ...state,
-          activeTab: 'classifiedPosts',
-          focusedPostId: state.classifiedPosts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // If switching to curation tab
-      if (prevTab === 'curation') {
-        return {
-          ...state,
-          activeTab: 'curation',
-          focusedPostId: state.curationPosts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // Switching to a user tab
-      const filteredGroups = getFilteredGroups(groupedUsers, prevTab);
-      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
-
-      return {
-        ...state,
-        activeTab: prevTab,
-        focusedUserId: orderedUsers[0]?._id ?? null,
-        focusedPostId: null,
-        focusedContentIndex: 0,
-      };
+      return enterTab(state, prevTab);
     }
 
     case 'UPDATE_POST': {
@@ -584,8 +494,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
         };
       }
 
-      // If we're on posts tab, classified posts tab, or curation tab, just remove the user without changing focus
-      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') {
+      if (!isUserTab(state.activeTab)) {
         return {
           ...state,
           users: newUsers,
@@ -668,6 +577,42 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
         focusedUserId: null,
         openedUserId: null,
         focusedContentIndex: 0,
+      };
+    }
+
+    case 'FOCUS_THREAD': {
+      return {
+        ...state,
+        focusedThreadId: action.conversationId,
+      };
+    }
+
+    case 'NEXT_THREAD': {
+      const threads = state.teamInboxThreads;
+      if (threads.length === 0) return state;
+
+      const currentIndex = threads.findIndex(t => t.conversation._id === state.focusedThreadId);
+      const nextIndex = (currentIndex + 1) % threads.length;
+      return { ...state, focusedThreadId: threads[nextIndex].conversation._id };
+    }
+
+    case 'PREV_THREAD': {
+      const threads = state.teamInboxThreads;
+      if (threads.length === 0) return state;
+
+      const currentIndex = threads.findIndex(t => t.conversation._id === state.focusedThreadId);
+      const prevIndex = currentIndex <= 0 ? threads.length - 1 : currentIndex - 1;
+      return { ...state, focusedThreadId: threads[prevIndex].conversation._id };
+    }
+
+    case 'REMOVE_THREAD': {
+      const currentIndex = state.teamInboxThreads.findIndex(t => t.conversation._id === action.conversationId);
+      const newThreads = state.teamInboxThreads.filter(t => t.conversation._id !== action.conversationId);
+      const nextThread = newThreads[Math.min(Math.max(currentIndex, 0), newThreads.length - 1)];
+      return {
+        ...state,
+        teamInboxThreads: newThreads,
+        focusedThreadId: nextThread?.conversation._id ?? null,
       };
     }
 

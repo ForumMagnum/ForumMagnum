@@ -1209,6 +1209,9 @@ export const routeTrie = {
     "recommendations": {
       "hasPage": true
     },
+    "rejection-review": {
+      "hasPage": true
+    },
     "research": {
       "staticChildren": {
         "projects": {
@@ -1515,6 +1518,7 @@ export const routeTrie = {
     "quicktakes": "quicktakes",
     "rationality": "rationality",
     "recommendations": "recommendations",
+    "rejection-review": "rejection-review",
     "research": "research",
     "resendverificationemail": "resendVerificationEmail",
     "resetpassword": "resetPassword",

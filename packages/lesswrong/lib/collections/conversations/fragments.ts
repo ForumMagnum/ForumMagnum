@@ -31,3 +31,10 @@ export const ConversationsListWithReadStatus = gql(`
     hasUnreadMessages
   }
 `)
+
+export const TeamInboxConversation = gql(`
+  fragment TeamInboxConversation on Conversation {
+    ...ConversationsList
+    awaitingModeratorReply
+  }
+`)
