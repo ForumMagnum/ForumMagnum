@@ -297,67 +297,17 @@ const APPEAL_STATUS_LABELS: Record<AppealStatus, string> = {
 };
 
 interface AppealedItem {
-  postId: string | null;
-  commentId: string | null;
   contentType: ContentType;
-  /** Shown above the title */
-  contentKindLabel: string;
   contentTitle: string;
-  contentLabel: string;
   contentUrl: string;
   rejectedReason: string | null;
-  existingAppeal: RejectionAppealsUserInfo | null;
-}
-
-interface PostLink {
-  _id: string;
-  slug: string;
-  title: string;
-}
-
-function getAppealedItem({ postId, commentId, document, post, appeal }: {
-  postId: string | null,
-  commentId: string | null,
-  document: { _id: string, rejectedReason: string | null } | null | undefined,
-  post: PostLink | null | undefined,
-  appeal: RejectionAppealsUserInfo | null,
-}): AppealedItem | null {
-  if (!document) return null;
-  if (postId) {
-    return {
-      postId,
-      commentId: null,
-      contentType: "post",
-      contentKindLabel: "Your content:",
-      contentTitle: post?.title ?? "",
-      contentLabel: `Post: ${post?.title ?? ""}`,
-      contentUrl: post ? postGetPageUrl(post) : "",
-      rejectedReason: document.rejectedReason,
-      existingAppeal: appeal,
-    };
-  }
-  return {
-    postId: null,
-    commentId,
-    contentType: "comment",
-    contentKindLabel: "Your content:",
-    contentTitle: post ? `Comment on ${post.title}` : "Comment",
-    contentLabel: post ? `Comment on ${post.title}` : "Comment",
-    contentUrl: commentGetPageUrlFromIds({ postId: post?._id, postSlug: post?.slug, commentId }),
-    rejectedReason: document.rejectedReason,
-    existingAppeal: appeal,
-  };
-}
-
-function getSelectedReasons(reasonIds: string[]): AppealReason[] {
-  return APPEAL_REASONS.filter(reason => reasonIds.includes(reason.id));
 }
 
 const AppealedContentHeader = ({ item }: { item: AppealedItem }) => {
   const classes = useStyles(styles);
   return <>
     <div className={classes.contentTitleBlock}>
-      <div className={classes.contentKind}>{item.contentKindLabel}</div>
+      <div className={classes.contentKind}>Your content:</div>
       {item.contentTitle && <Link className={classes.contentTitle} to={item.contentUrl}>{item.contentTitle}</Link>}
     </div>
     {item.rejectedReason && <div className={classes.contentHeader}>
@@ -367,25 +317,6 @@ const AppealedContentHeader = ({ item }: { item: AppealedItem }) => {
       </ContentStyles>
     </div>}
   </>;
-};
-
-const OptionRow = ({ label, checked, onChange }: {
-  label: string,
-  checked: boolean,
-  onChange: () => void,
-}) => {
-  const classes = useStyles(styles);
-  return <div className={classNames(classes.option, { [classes.optionChecked]: checked })}>
-    <label className={classes.optionLabel}>
-      <Checkbox className={classes.checkbox} checked={checked} onChange={onChange} disableRipple />
-      <span>{label}</span>
-    </label>
-  </div>;
-};
-
-const SectionHeading = ({ children }: { children: React.ReactNode }) => {
-  const classes = useStyles(styles);
-  return <div className={classes.sectionHeading}>{children}</div>;
 };
 
 const IntroSection = ({ contentType, hasMisunderstandings }: { contentType: ContentType, hasMisunderstandings: boolean }) => {
@@ -443,7 +374,7 @@ const MisunderstandingsSection = ({ misunderstandings, acknowledged, onToggle }:
 }) => {
   const classes = useStyles(styles);
   return <div className={classes.section}>
-    <SectionHeading>Policy</SectionHeading>
+    <div className={classes.sectionHeading}>Policy</div>
     <p className={classes.paragraph}>
       The following are common misunderstandings that cause users to request reviews of valid rejections. Please
       read these over carefully and confirm that these are <em>not</em> the basis of your request.
@@ -451,11 +382,12 @@ const MisunderstandingsSection = ({ misunderstandings, acknowledged, onToggle }:
     <ul className={classes.misunderstandings}>
       {misunderstandings.map(misunderstanding => <li key={misunderstanding}>{misunderstanding}</li>)}
     </ul>
-    <OptionRow
-      label="I've read these, and they aren't the basis of my request."
-      checked={acknowledged}
-      onChange={onToggle}
-    />
+    <div className={classNames(classes.option, { [classes.optionChecked]: acknowledged })}>
+      <label className={classes.optionLabel}>
+        <Checkbox className={classes.checkbox} checked={acknowledged} onChange={onToggle} disableRipple />
+        <span>I've read these, and they aren't the basis of my request.</span>
+      </label>
+    </div>
     <ClarificationNote />
   </div>;
 };
@@ -468,22 +400,6 @@ const ClarificationNote = () => {
     comprehensive. Feel free to leave a specific question or two and we might get back to you. As above, reading more
     of LessWrong content is the best way to understand site requirements.
   </p>;
-};
-
-const ExplanationSection = ({ explanation, onChange }: {
-  explanation: string,
-  onChange: (explanation: string) => void,
-}) => {
-  const classes = useStyles(styles);
-  return <div className={classes.section}>
-    <SectionHeading>Your explanation</SectionHeading>
-    <p className={classes.prompt}>In your own words, tell us why you think the rejection was a mistake.</p>
-    <textarea
-      className={classes.textarea}
-      value={explanation}
-      onChange={(e) => onChange(e.target.value)}
-    />
-  </div>;
 };
 
 const ViewConversationButton = ({ conversationId }: { conversationId: string }) => {
@@ -513,7 +429,7 @@ const SubmittedState = ({ item, reasons, explanation, conversationId }: {
     {conversationId && <ViewConversationButton conversationId={conversationId} />}
     <div className={classes.submittedSummary}>
       <div className={classes.summaryHeading}>What you sent</div>
-      <div>{item.contentLabel}</div>
+      <div>{item.contentType === "post" ? `Post: ${item.contentTitle}` : item.contentTitle}</div>
       {reasons.length > 0 && <>
         <div className={classes.summaryLabel}>Reason</div>
         <div>{reasons.map(reason => reason.label).join(", ")}</div>
@@ -556,10 +472,7 @@ const RejectionAppealPage = () => {
   const [acknowledgedMisunderstandings, setAcknowledgedMisunderstandings] = useState(false);
   const [explanation, setExplanation] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
-  const [submittedConversationId, setSubmittedConversationId] = useState<string | null>(null);
 
-  // This page is reached from the link in a rejection DM, which names the rejected content
   const postId = query.postId || null;
   const commentId = query.commentId || null;
 
@@ -568,7 +481,7 @@ const RejectionAppealPage = () => {
     errorPolicy: "all",
     skip: !currentUser || (!postId && !commentId),
   });
-  const [createAppeal, { loading: submitting }] = useMutation(CreateRejectionAppealMutation);
+  const [createAppeal, { loading: submitting, data: submission }] = useMutation(CreateRejectionAppealMutation);
 
   if (!currentUser) {
     return <SingleColumnSection>Please log in to request a rejection review.</SingleColumnSection>;
@@ -578,15 +491,18 @@ const RejectionAppealPage = () => {
   }
 
   const review = data?.rejectionReview;
-  const item = getAppealedItem({
-    postId,
-    commentId,
-    document: review?.post ?? review?.comment,
-    post: review?.post ?? review?.comment?.post,
-    appeal: review?.appeal ?? null,
-  });
-  const reasonIds = review?.reasonIds ?? [];
-  const reasons = getSelectedReasons(reasonIds);
+  const document = review?.post ?? review?.comment;
+  const post = review?.post ?? review?.comment?.post;
+  const item: AppealedItem | null = document ? {
+    contentType: postId ? "post" : "comment",
+    contentTitle: postId ? (post?.title ?? "") : (post ? `Comment on ${post.title}` : "Comment"),
+    contentUrl: postId
+      ? (post ? postGetPageUrl(post) : "")
+      : commentGetPageUrlFromIds({ postId: post?._id, postSlug: post?.slug, commentId }),
+    rejectedReason: document.rejectedReason,
+  } : null;
+  const reasons = APPEAL_REASONS.filter(reason => review?.reasonIds.includes(reason.id));
+  const submittedAppeal = submission?.createRejectionAppeal?.data;
   const misunderstandings = uniq(reasons.flatMap(reason => reason.commonMisunderstandings));
   const canSubmit = !!explanation.trim() && !submitting;
 
@@ -594,35 +510,33 @@ const RejectionAppealPage = () => {
     if (!item) return;
     setError(null);
     try {
-      const { data } = await createAppeal({
+      await createAppeal({
         variables: { data: {
-          postId: item.postId,
-          commentId: item.commentId,
+          postId,
+          commentId,
           acknowledgedMisunderstandings: misunderstandings.length > 0 && acknowledgedMisunderstandings,
           explanation,
         } },
       });
-      setSubmittedConversationId(data?.createRejectionAppeal?.data?.conversationId ?? null);
-      setSubmitted(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong submitting your request. Please try again.");
     }
   };
 
   const renderCardContents = () => {
-    if (submitted && item) {
+    if (submittedAppeal && item) {
       return <SubmittedState
         item={item}
         reasons={reasons}
         explanation={explanation}
-        conversationId={submittedConversationId}
+        conversationId={submittedAppeal.conversationId}
       />;
     }
     if (!item) {
       return <NotAppealableState reason={queryError?.message} />;
     }
-    if (item.existingAppeal) {
-      return <AlreadyAppealedState appeal={item.existingAppeal} />;
+    if (review?.appeal) {
+      return <AlreadyAppealedState appeal={review.appeal} />;
     }
     if (review?.unavailableReason) {
       return <NotAppealableState reason={review.unavailableReason} />;
@@ -639,7 +553,11 @@ const RejectionAppealPage = () => {
           onToggle={() => setAcknowledgedMisunderstandings(!acknowledgedMisunderstandings)}
         />
         : <div className={classes.section}><ClarificationNote /></div>}
-      <ExplanationSection explanation={explanation} onChange={setExplanation} />
+      <div className={classes.section}>
+        <div className={classes.sectionHeading}>Your explanation</div>
+        <p className={classes.prompt}>In your own words, tell us why you think the rejection was a mistake.</p>
+        <textarea className={classes.textarea} value={explanation} onChange={e => setExplanation(e.target.value)} />
+      </div>
       {error && <div className={classes.error}>{error}</div>}
       <div className={classes.submitRow}>
         <button

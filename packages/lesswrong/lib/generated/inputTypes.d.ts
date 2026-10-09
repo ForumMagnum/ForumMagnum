@@ -2916,14 +2916,9 @@ interface SingleRejectionAppealOutput {
   result: RejectionAppeal | null;
 }
 
-interface RejectionAppealsUserAppealsInput {
-  userId?: string | null;
-}
-
 interface RejectionAppealSelector {
   default: EmptyViewInput | null;
   openAppeals: EmptyViewInput | null;
-  userAppeals: RejectionAppealsUserAppealsInput | null;
 }
 
 interface MultiRejectionAppealOutput {
@@ -9663,7 +9658,6 @@ interface GraphQLTypeMap {
   AdminHomePageDesign: AdminHomePageDesign;
   RejectionAppeal: RejectionAppeal;
   SingleRejectionAppealOutput: SingleRejectionAppealOutput;
-  RejectionAppealsUserAppealsInput: RejectionAppealsUserAppealsInput;
   RejectionAppealSelector: RejectionAppealSelector;
   MultiRejectionAppealOutput: MultiRejectionAppealOutput;
   TypoSuggestion: TypoSuggestion;

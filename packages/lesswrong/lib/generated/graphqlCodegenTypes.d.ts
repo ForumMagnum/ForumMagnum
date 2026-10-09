@@ -8984,17 +8984,12 @@ type RejectionAppealOutput = {
 type RejectionAppealSelector = {
   default?: InputMaybe<EmptyViewInput>;
   openAppeals?: InputMaybe<EmptyViewInput>;
-  userAppeals?: InputMaybe<RejectionAppealsUserAppealsInput>;
 };
 
 type RejectionAppealStatus =
   | 'approved'
   | 'denied'
   | 'open';
-
-type RejectionAppealsUserAppealsInput = {
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
 
 type RejectionReview = {
   __typename?: 'RejectionReview';

@@ -18,14 +18,9 @@ export const graphqlRejectionAppealQueryTypeDefs = gql`
     result: RejectionAppeal
   }
 
-  input RejectionAppealsUserAppealsInput {
-    userId: String
-  }
-
   input RejectionAppealSelector {
     default: EmptyViewInput
     openAppeals: EmptyViewInput
-    userAppeals: RejectionAppealsUserAppealsInput
   }
 
   type MultiRejectionAppealOutput {

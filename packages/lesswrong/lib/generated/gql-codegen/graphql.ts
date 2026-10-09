@@ -10931,17 +10931,12 @@ export type RejectionAppealOutput = {
 export type RejectionAppealSelector = {
   default?: InputMaybe<EmptyViewInput>;
   openAppeals?: InputMaybe<EmptyViewInput>;
-  userAppeals?: InputMaybe<RejectionAppealsUserAppealsInput>;
 };
 
 export type RejectionAppealStatus =
   | 'approved'
   | 'denied'
   | 'open';
-
-export type RejectionAppealsUserAppealsInput = {
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
 
 export type RejectionReview = {
   __typename?: 'RejectionReview';
