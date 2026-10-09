@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
+import { type ContentsKey, contentsKey, isSameContents } from "../editor/AutoSavedEditorField";
 import { sanitizeEditableFieldValues } from "../tanstack-form-components/helpers";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { primaryEditorButtonStyles, secondaryEditorButtonStyles } from "./editorButtonStyles";
@@ -30,63 +31,84 @@ const styles = defineStyles("SequenceDescriptionEditor", (theme: ThemeType) => (
 
 type DescriptionContents = SequencesEdit["contents"];
 
-function editorText(contents: { originalContents?: { data?: string | null } | null } | null | undefined): string {
-  return contents?.originalContents?.data ?? "";
-}
-
 /**
- * Tracks whether the author has changed the description since it was last
- * saved or cancelled. Loading an older (CKEditor/draftJS) description can
- * reformat it without the author changing anything, so only an actual edit
- * counts, and only when the text then differs from the saved text.
+ * Tracks whether the description differs from its baseline: what the editor
+ * held before the author's first edit, or what was last saved. The baseline is
+ * read from the editor rather than taken from the stored description, since an
+ * editor that loads an older (CKEditor/draftJS) description can hold it in a
+ * different form without the author changing anything.
  *
- * Edits are noticed two ways: `beforeinput` events on the root element fire
- * on every keystroke, paste or delete (Lexical cancels them and applies the
- * edit itself, so plain `input` events never fire), while the form only hears
- * about changes every few seconds, when the editor copies its text in. So
- * `hasUnsavedText` can lag; callers that act on it flush the editor first.
+ * `captureBaseline` runs in the capture phase of the author's first focus,
+ * click, key press, paste or drop in the editor, so the editor's contents are
+ * read before it applies the edit. If the editor isn't ready yet, the next
+ * interaction tries again. A change that comes before any baseline was read is
+ * compared with the stored description instead.
+ *
+ * `handleEditorChange` is called on every change to the editor's contents,
+ * however it was made (typing, Enter, paste, the toolbar), and updates the
+ * page's unsaved flag. The form value is only updated every few seconds, so it
+ * isn't used.
  */
-function useDescriptionEditTracking({ form, savedContentsRef, setDescriptionIsDirty }: {
-  form: { state: { values: { contents: DescriptionContents } }, store: { subscribe: (listener: () => void) => () => void } },
-  savedContentsRef: React.MutableRefObject<DescriptionContents>,
+function useDescriptionChangeTracking({ getContentsCallback, savedContentsRef, setDescriptionIsDirty }: {
+  getContentsCallback: React.RefObject<(() => Promise<ContentsKey | null>) | null>,
+  savedContentsRef: React.RefObject<DescriptionContents>,
   setDescriptionIsDirty: (dirty: boolean) => void,
 }) {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const editedRef = useRef(false);
-  const lastSeenContentsRef = useRef(form.state.values.contents);
+  const baselineRef = useRef<Promise<ContentsKey | null> | null>(null);
+  const changedBeforeBaselineRef = useRef(false);
+  const latestDirtyCheckRef = useRef(0);
 
-  const hasUnsavedText = useCallback(
-    () => editedRef.current && editorText(form.state.values.contents) !== editorText(savedContentsRef.current),
-    [form, savedContentsRef],
-  );
+  const captureBaseline = useCallback(() => {
+    if (baselineRef.current || changedBeforeBaselineRef.current) return;
+    const contents = getContentsCallback.current?.();
+    if (!contents) return;
+    const baseline = contents.then((value) => {
+      if (!value && baselineRef.current === baseline) {
+        baselineRef.current = null;
+      }
+      return value;
+    });
+    baselineRef.current = baseline;
+  }, [getContentsCallback]);
 
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const markEdited = () => {
-      editedRef.current = true;
-      setDescriptionIsDirty(true);
-    };
-    root.addEventListener("beforeinput", markEdited);
-    return () => root.removeEventListener("beforeinput", markEdited);
+  const getBaseline = useCallback(async (): Promise<ContentsKey | null> => {
+    const captured = baselineRef.current ? await baselineRef.current : null;
+    if (captured) return captured;
+    return changedBeforeBaselineRef.current ? contentsKey(savedContentsRef.current) : null;
+  }, [savedContentsRef]);
+
+  const hasChanged = useCallback(async () => {
+    const current = await getContentsCallback.current?.();
+    const baseline = await getBaseline();
+    return !!current && !!baseline && !isSameContents(current, baseline);
+  }, [getContentsCallback, getBaseline]);
+
+  const refreshDirty = useCallback(async () => {
+    const check = ++latestDirtyCheckRef.current;
+    const dirty = await hasChanged();
+    if (check === latestDirtyCheckRef.current) {
+      setDescriptionIsDirty(dirty);
+    }
+  }, [hasChanged, setDescriptionIsDirty]);
+
+  const handleEditorChange = useCallback(() => {
+    if (!baselineRef.current) {
+      changedBeforeBaselineRef.current = true;
+    }
+    void refreshDirty();
+  }, [refreshDirty]);
+
+  const setBaseline = useCallback((baseline: ContentsKey | null) => {
+    baselineRef.current = baseline ? Promise.resolve(baseline) : null;
+    changedBeforeBaselineRef.current = false;
+  }, []);
+
+  const clearDirty = useCallback(() => {
+    ++latestDirtyCheckRef.current;
+    setDescriptionIsDirty(false);
   }, [setDescriptionIsDirty]);
 
-  useEffect(() => form.store.subscribe(() => {
-    if (form.state.values.contents !== lastSeenContentsRef.current) {
-      lastSeenContentsRef.current = form.state.values.contents;
-      editedRef.current = true;
-    }
-    if (editedRef.current) {
-      setDescriptionIsDirty(hasUnsavedText());
-    }
-  }), [form, hasUnsavedText, setDescriptionIsDirty]);
-
-  const resetEdited = useCallback(() => {
-    lastSeenContentsRef.current = form.state.values.contents;
-    editedRef.current = false;
-  }, [form]);
-
-  return { rootRef, editedRef, hasUnsavedText, resetEdited };
+  return { captureBaseline, hasChanged, refreshDirty, handleEditorChange, setBaseline, clearDirty };
 }
 
 /**
@@ -97,9 +119,11 @@ function useDescriptionEditTracking({ form, savedContentsRef, setDescriptionIsDi
  * and Done editing also save it (or ask about it), through the handle
  * registered in descriptionDraftRef.
  *
- * Saving with no real change just marks the description saved. Cancel resets
- * the form to the saved description (kept current as saves update the cached
- * sequence) and remounts the editor, by changing its key, to show it.
+ * Once a save succeeds, what was saved becomes the baseline, so text typed
+ * while the save was in flight still counts as unsaved. Saving with no real
+ * change just clears the unsaved flag. Cancel resets the form to the saved
+ * description (kept current as saves update the cached sequence) and remounts
+ * the editor, by changing its key, to show it.
  */
 const SequenceDescriptionEditor = () => {
   const classes = useStyles(styles);
@@ -107,7 +131,14 @@ const SequenceDescriptionEditor = () => {
   const [editorKey, setEditorKey] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
 
-  const { onSubmitCallback, onSuccessCallback, addOnSubmitCallback, addOnSuccessCallback } = useEditorFormCallbacks<SequencesEdit>();
+  const {
+    onSubmitCallback,
+    onSuccessCallback,
+    getContentsCallback,
+    addOnSubmitCallback,
+    addOnSuccessCallback,
+    addGetContentsCallback,
+  } = useEditorFormCallbacks<SequencesEdit>();
 
   const form = useForm({
     defaultValues: { contents: sequence.contents },
@@ -116,42 +147,51 @@ const SequenceDescriptionEditor = () => {
   const savedContentsRef = useRef(sequence.contents);
   savedContentsRef.current = sequence.contents;
 
-  const { rootRef, editedRef, hasUnsavedText, resetEdited } = useDescriptionEditTracking({ form, savedContentsRef, setDescriptionIsDirty });
+  const {
+    captureBaseline,
+    hasChanged,
+    refreshDirty,
+    handleEditorChange,
+    setBaseline,
+    clearDirty,
+  } = useDescriptionChangeTracking({ getContentsCallback, savedContentsRef, setDescriptionIsDirty });
 
   const getUnsavedContents = useCallback(async () => {
-    if (!editedRef.current) {
+    if (!await hasChanged()) {
       return undefined;
     }
     await onSubmitCallback.current?.();
-    if (!hasUnsavedText()) {
-      return undefined;
-    }
     return sanitizeEditableFieldValues({ contents: form.state.values.contents }, ["contents"]).contents ?? undefined;
-  }, [form, editedRef, onSubmitCallback, hasUnsavedText]);
+  }, [form, hasChanged, onSubmitCallback]);
 
   const clearBackup = useCallback(() => {
     onSuccessCallback.current?.(sequence, { noReload: true });
   }, [onSuccessCallback, sequence]);
 
-  const markSaved = useCallback(() => {
-    resetEdited();
+  const markSaved = useCallback((saved: CreateRevisionDataInput) => {
+    setBaseline(contentsKey(saved));
     clearBackup();
-    setDescriptionIsDirty(false);
-  }, [resetEdited, clearBackup, setDescriptionIsDirty]);
+    void refreshDirty();
+  }, [setBaseline, clearBackup, refreshDirty]);
+
+  const markUnchanged = useCallback(() => {
+    clearBackup();
+    clearDirty();
+  }, [clearBackup, clearDirty]);
 
   useEffect(() => {
-    descriptionDraftRef.current = { getUnsavedContents, markSaved, discard: markSaved };
+    descriptionDraftRef.current = { getUnsavedContents, markSaved, discard: markUnchanged };
     return () => { descriptionDraftRef.current = null; };
-  }, [descriptionDraftRef, getUnsavedContents, markSaved, clearBackup]);
+  }, [descriptionDraftRef, getUnsavedContents, markSaved, markUnchanged]);
 
   const save = async () => {
     setIsSaving(true);
     try {
       const contents = await getUnsavedContents();
       if (!contents) {
-        markSaved();
+        markUnchanged();
       } else if (await saveSequenceNow({ contents })) {
-        markSaved();
+        markSaved(contents);
       }
     } finally {
       setIsSaving(false);
@@ -160,29 +200,40 @@ const SequenceDescriptionEditor = () => {
 
   const cancel = () => {
     form.reset({ contents: savedContentsRef.current });
-    markSaved();
+    setBaseline(null);
+    markUnchanged();
     setEditorKey((key) => key + 1);
   };
 
-  return <div className={classes.root} ref={rootRef}>
-    <form.Field name="contents">
-      {(field) => <EditorFormComponent
-        key={editorKey}
-        field={field}
-        name="contents"
-        formType="edit"
-        document={{ ...sequence, contents: form.state.values.contents }}
-        addOnSubmitCallback={addOnSubmitCallback}
-        addOnSuccessCallback={addOnSuccessCallback}
-        hintText="Add a description…"
-        fieldName="contents"
-        collectionName="Sequences"
-        commentEditor={false}
-        commentStyles={false}
-        hideControls
-        fitToContent
-      />}
-    </form.Field>
+  return <div className={classes.root}>
+    <div
+      onFocusCapture={captureBaseline}
+      onPointerDownCapture={captureBaseline}
+      onKeyDownCapture={captureBaseline}
+      onPasteCapture={captureBaseline}
+      onDropCapture={captureBaseline}
+    >
+      <form.Field name="contents">
+        {(field) => <EditorFormComponent
+          key={editorKey}
+          field={field}
+          name="contents"
+          formType="edit"
+          document={{ ...sequence, contents: form.state.values.contents }}
+          addOnSubmitCallback={addOnSubmitCallback}
+          addOnSuccessCallback={addOnSuccessCallback}
+          addGetContentsCallback={addGetContentsCallback}
+          onBlankStateChange={handleEditorChange}
+          hintText="Add a description…"
+          fieldName="contents"
+          collectionName="Sequences"
+          commentEditor={false}
+          commentStyles={false}
+          hideControls
+          fitToContent
+        />}
+      </form.Field>
+    </div>
     <div className={classes.buttonRow}>
       {(descriptionIsDirty || isSaving) && <>
         <button className={classes.cancelButton} disabled={isSaving} onClick={cancel}>

@@ -135,7 +135,7 @@ export function useDoneEditing(onDone: () => void) {
         setAsking(false);
         return;
       }
-      descriptionDraftRef.current?.markSaved();
+      descriptionDraftRef.current?.markSaved(contents);
     }
     onDone();
   };

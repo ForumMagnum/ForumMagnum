@@ -16,14 +16,14 @@ export const SequenceEditorUpdateMutation = gql(`
 /**
  * Lets sequence-level actions (Publish, Move to Drafts, Done editing) reach
  * the description editor's unsaved changes. `getUnsavedContents` resolves to
- * undefined if the description hasn't changed; `markSaved` is called after
- * those contents were saved some other way; `discard` forgets the unsaved
- * changes and their browser backup when leaving without saving (the same
- * reset as `markSaved`, since the page's unsaved flag outlives edit mode).
+ * undefined if the description hasn't changed; `markSaved` is called with
+ * contents it returned once they've been saved some other way; `discard`
+ * forgets the unsaved changes and their browser backup when leaving without
+ * saving (the page's unsaved flag outlives edit mode).
  */
 export interface DescriptionDraftHandle {
   getUnsavedContents: () => Promise<UpdateSequenceDataInput["contents"] | undefined>;
-  markSaved: () => void;
+  markSaved: (saved: CreateRevisionDataInput) => void;
   discard: () => void;
 }
 

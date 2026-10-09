@@ -8,19 +8,20 @@ interface EditorContentsValue {
 /** The value the editor submits for its field: its contents, plus editor metadata. */
 export type SubmittedEditorContents = EditorContentsValue & { originalContents: { type: string; data: string } };
 
-interface ContentsKey {
+/** What identifies an editor's contents, for telling whether they've changed. */
+export interface ContentsKey {
   type: string | null;
   data: string | null;
 }
 
-function contentsKey(contents: EditorContentsValue | null | undefined): ContentsKey {
+export function contentsKey(contents: EditorContentsValue | null | undefined): ContentsKey {
   return {
     type: contents?.originalContents?.type ?? null,
     data: contents?.originalContents?.data ?? null,
   };
 }
 
-function isSameContents(a: ContentsKey, b: ContentsKey) {
+export function isSameContents(a: ContentsKey, b: ContentsKey) {
   return a.type === b.type && a.data === b.data;
 }
 

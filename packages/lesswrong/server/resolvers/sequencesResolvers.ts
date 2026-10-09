@@ -64,11 +64,13 @@ async function deleteChapter(root: void, { chapterId }: { chapterId: string }, c
 }
 
 /**
- * Moves a post between two chapters of the same sequence in one step. The raw
- * updates deliberately skip the chapter update callbacks: those would notify
- * the sequence's subscribers about the "new" post in the destination chapter,
- * even though it was already in the sequence. Every post page in the sequence
- * is refreshed, since neighbouring posts' previous/next links change too.
+ * Moves a post between two chapters of the same sequence in one request.
+ * Doing it as two updateChapter calls would take the post out of the sequence
+ * in between: the first call's canonizeChapterPostInfo would clear the post's
+ * canonical sequence and previous/next links, and if the second call failed,
+ * the post would stay out. Here both chapters are written before the links are
+ * recomputed, though not in a transaction. Every post page in the sequence is
+ * refreshed, since neighbouring posts' previous/next links change too.
  */
 async function moveSequencePost(
   root: void,

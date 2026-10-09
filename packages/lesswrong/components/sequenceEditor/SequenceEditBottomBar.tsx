@@ -107,7 +107,7 @@ const SequenceEditBottomBar = ({ onDone }: { onDone: () => void }) => {
       const unsavedContents = await descriptionDraftRef.current?.getUnsavedContents();
       const saved = await saveSequenceNow({ draft, ...(unsavedContents ? { contents: unsavedContents } : {}) });
       if (unsavedContents && saved) {
-        descriptionDraftRef.current?.markSaved();
+        descriptionDraftRef.current?.markSaved(unsavedContents);
       }
     } finally {
       setIsChangingStatus(false);

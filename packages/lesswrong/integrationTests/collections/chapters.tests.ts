@@ -8,7 +8,7 @@ import {
   withNoLogs,
 } from '../utils'
 import { Chapters } from '../../server/collections/chapters/collection';
-import { Notifications } from '../../server/collections/notifications/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
 
 async function addChapterAs(user: DbUser, sequenceId: string, postIds: string[]): Promise<string> {
@@ -32,18 +32,14 @@ async function setChapterPostsAs(user: DbUser, chapterId: string, postIds: strin
   `, {}, {currentUser: user});
 }
 
-async function subscribeToSequencePosts(user: DbUser, sequenceId: string) {
+async function setChapterNumberAs(user: DbUser, chapterId: string, number: number) {
   await runQuery(`
     mutation {
-      createSubscription(data: {documentId: "${sequenceId}", collectionName: "Sequences", type: "newSequencePosts", state: "subscribed"}) {
+      updateChapter(selector: {_id: "${chapterId}"}, data: {number: ${number}}) {
         data { _id }
       }
     }
   `, {}, {currentUser: user});
-}
-
-async function countSequencePostNotifications(userId: string): Promise<number> {
-  return (await Notifications.find({userId, type: "newSequencePosts"}).fetch()).length;
 }
 
 async function createSequenceAs(user: DbUser): Promise<{sequenceId: string, chapterId: string}> {
@@ -233,22 +229,22 @@ describe('moveSequencePost', () => {
     (await Chapters.findOne(secondChapterId))?.postIds.should.deep.equal([postB._id, postC._id]);
   });
 
-  it("doesn't notify sequence subscribers about a moved post", async () => {
+  it("updates the posts' previous/next links to the new order", async () => {
     const owner = await createDummyUser();
-    const subscriber = await createDummyUser();
-    const [postA, postB] = [await createDummyPost(owner), await createDummyPost(owner)];
+    const [postA, postB, postC] = [await createDummyPost(owner), await createDummyPost(owner), await createDummyPost(owner)];
     const { sequenceId, chapterId } = await createSequenceAs(owner);
-    const secondChapterId = await addChapterAs(owner, sequenceId, []);
-    await subscribeToSequencePosts(subscriber, sequenceId);
-
-    // Adding posts notifies (sanity check that the subscription works)...
+    await setChapterNumberAs(owner, chapterId, 1);
     await setChapterPostsAs(owner, chapterId, [postA._id, postB._id]);
-    const countAfterAdding = await countSequencePostNotifications(subscriber._id);
-    countAfterAdding.should.be.greaterThan(0);
+    const secondChapterId = await addChapterAs(owner, sequenceId, [postC._id]);
 
-    // ...but moving one of them doesn't.
-    await moveAs(owner, postB._id, chapterId, secondChapterId, 0);
-    (await countSequencePostNotifications(subscriber._id)).should.equal(countAfterAdding);
+    // The reading order goes from A, B, C to B, C, A
+    await moveAs(owner, postA._id, chapterId, secondChapterId, 1);
+
+    const movedPost = await Posts.findOne(postA._id);
+    expect(movedPost?.canonicalSequenceId).toBe(sequenceId);
+    expect(movedPost?.canonicalPrevPostSlug).toBe(postC.slug);
+    expect(movedPost?.canonicalNextPostSlug).toBe("");
+    expect((await Posts.findOne(postB._id))?.canonicalNextPostSlug).toBe(postC.slug);
   });
 
   it("refuses to move a post into a chapter of a different sequence", async () => {
