@@ -21149,6 +21149,40 @@ type ModerationInboxDataQueryQueryVariables = Exact<{
 
 type ModerationInboxDataQueryQuery = ModerationInboxDataQueryQuery_Query;
 
+type ModerationInboxRemainingItemsQueryQuery_users_MultiUserOutput_results_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type ModerationInboxRemainingItemsQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<ModerationInboxRemainingItemsQueryQuery_users_MultiUserOutput_results_User> };
+
+type ModerationInboxRemainingItemsQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type ModerationInboxRemainingItemsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<ModerationInboxRemainingItemsQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type ModerationInboxRemainingItemsQueryQuery_classifiedPosts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type ModerationInboxRemainingItemsQueryQuery_classifiedPosts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<ModerationInboxRemainingItemsQueryQuery_classifiedPosts_MultiPostOutput_results_Post> };
+
+type ModerationInboxRemainingItemsQueryQuery_Query = { __typename?: 'Query', users: ModerationInboxRemainingItemsQueryQuery_users_MultiUserOutput | null, posts: ModerationInboxRemainingItemsQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxRemainingItemsQueryQuery_classifiedPosts_MultiPostOutput | null };
+
+
+type ModerationInboxRemainingItemsQueryQueryVariables = Exact<{
+  userSelector: InputMaybe<UserSelector>;
+  postSelector: InputMaybe<PostSelector>;
+  classifiedPostSelector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type ModerationInboxRemainingItemsQueryQuery = ModerationInboxRemainingItemsQueryQuery_Query;
+
 type singleUserSupermodQueryQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & SunshineUsersList
