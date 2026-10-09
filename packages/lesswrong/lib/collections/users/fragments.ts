@@ -114,6 +114,7 @@ export const UsersCurrent = gql(`
     email
     emails
     banned
+    deleteContent
     paymentEmail
     paymentInfo
     postingDisabled

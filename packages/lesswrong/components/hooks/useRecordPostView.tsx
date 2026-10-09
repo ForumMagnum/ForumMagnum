@@ -98,6 +98,7 @@ export const useRecordPostView = (post: ViewablePost) => {
         && recombeeEnabledSetting.get(forumType)
         && !recommendationOptions?.skip
         && isRecombeeRecommendablePost(post, forumType)
+        && (!currentUser || !excludeUserFromRecombee(currentUser))
       ) {
         void recombeeApi.createDetailView(post._id, attributedUserId, !!currentUser, forumType, recommendationOptions?.recombeeOptions?.recommId);
       }
@@ -125,6 +126,13 @@ export const useRecordPostView = (post: ViewablePost) => {
   };
   
   return { recordPostView, recordPostCommentsView, isRead };
+}
+
+/**
+ * Don't send events from banned-and-purged spam accounts to Recombee
+ */
+function excludeUserFromRecombee(user: UsersCurrent) {
+  return !!user.banned && !!user.deleteContent;
 }
 
 export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead: boolean} => {
