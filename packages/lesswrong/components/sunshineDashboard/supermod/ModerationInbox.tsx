@@ -574,7 +574,7 @@ const ModerationInbox = () => {
       userSelector: { sunshineNewUsers: {} },
       postSelector: { sunshineNewPosts: {} },
       classifiedPostSelector: { sunshineAutoClassifiedPosts: {} },
-      userLimit: 100,
+      userLimit: 200,
       reviewQueueLimit: REVIEW_QUEUE_LIMIT,
       postLimit: 100,
       curationLimit: 200,
