@@ -74,7 +74,7 @@ export const ApolloWrapper = ({ requestId, children }: React.PropsWithChildren<{
   const urlSearchParams = useSearchParams();
 
   if (isServer) {
-    const searchParamsStr = JSON.stringify(urlSearchParams);
+    const searchParamsStr = JSON.stringify(Object.fromEntries(urlSearchParams.entries()));
     return (
       <ApolloWrapperServer searchParamsStr={searchParamsStr} requestId={requestId}>
         {children}
