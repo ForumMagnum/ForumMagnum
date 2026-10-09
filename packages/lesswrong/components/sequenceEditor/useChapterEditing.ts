@@ -38,9 +38,6 @@ const SequenceEditorMovePostMutation = gql(`
   }
 `);
 
-/** The reading-mode chapter list's query, refetched when chapters are added or removed. */
-const READING_CHAPTERS_QUERY = "multiChapterChaptersListQuery";
-
 const EMPTY_DESCRIPTION = { originalContents: { type: "lexical", data: "" } };
 
 const HTML_BASED_FORMATS = new Set(["html", "ckEditorMarkup", "lexical"]);
@@ -78,17 +75,37 @@ function postsById(chapters: ChaptersEdit[]): Record<string, PostsList> {
   return Object.fromEntries(chapters.flatMap((chapter) => chapter.posts.map((post) => [post._id, post])));
 }
 
+function descriptionData(chapter: EditableChapter): string | null {
+  return chapter.description?.originalContents.data ?? null;
+}
+
+/** The ids of reloaded chapters whose description differs from the one shown. */
+function idsWithChangedDescriptions(shown: EditableChapter[], reloaded: EditableChapter[]): string[] {
+  return reloaded
+    .filter((chapter) => {
+      const shownChapter = shown.find((c) => c._id === chapter._id);
+      return !!shownChapter && descriptionData(shownChapter) !== descriptionData(chapter);
+    })
+    .map((chapter) => chapter._id);
+}
+
+function incrementCounts(counts: Record<string, number>, ids: string[]): Record<string, number> {
+  return { ...counts, ...Object.fromEntries(ids.map((id) => [id, (counts[id] ?? 0) + 1])) };
+}
+
 /**
  * The sequence editor's chapters and the actions that change them.
- * `version` changes each time the chapters are reloaded from the server.
- * `loadedPosts` holds the posts loaded with the chapters, by id; rows for
- * other posts fetch their own. `setChapterDescription` resolves to whether
- * the description was saved, and `addChapter` returns the new chapter's
- * temporary id.
+ * `chapterKey` is the React key for a chapter's editor. A reload from the
+ * server changes it only for chapters whose description changed, so their
+ * editors show the reloaded description while other chapters keep what's
+ * being typed in them. `loadedPosts` holds the posts loaded with the
+ * chapters, by id; rows for other posts fetch their own.
+ * `setChapterDescription` resolves to whether the description was saved, and
+ * `addChapter` returns the new chapter's temporary id.
  */
 export interface ChapterEditing {
   chapters: EditableChapter[];
-  version: number;
+  chapterKey: (chapterId: string) => string;
   loadedPosts: Record<string, PostsList>;
   addPost: (chapterId: string, postId: string) => void;
   removePost: (chapterId: string, postId: string) => void;
@@ -110,7 +127,8 @@ export interface ChapterEditing {
  *   state that later saves then change behind the page's back.
  * - **New chapters** get a temporary id until the server returns the real
  *   one; saves queued meanwhile look the real id up in `realIdsRef`. The
- *   mappings survive a reload, since saves queued before it may still use them.
+ *   mappings survive a reload, since saves queued before it may still use them,
+ *   and reloaded chapters keep their temporary ids, so their editors stay mounted.
  * - **Order:** chapters are ordered by `number`, and older chapters often have
  *   none, so every chapter whose stored number doesn't match its position
  *   gets a new one. Adding a chapter numbers the existing ones first, so the
@@ -126,9 +144,10 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
   const { enqueueSave, drainSaves } = useSequenceEditor();
   const [chapters, setChaptersState] = useState<EditableChapter[]>(() => initialChapters.map(toEditableChapter));
   const [loadedPosts, setLoadedPosts] = useState<Record<string, PostsList>>(() => postsById(initialChapters));
-  const [version, setVersion] = useState(0);
+  const [descriptionReloads, setDescriptionReloads] = useState<Record<string, number>>({});
   const chaptersRef = useRef(chapters);
   const realIdsRef = useRef<Record<string, string>>({});
+  const temporaryIdsRef = useRef<Record<string, string>>({});
   const numbersRef = useRef<Record<string, number | null>>(
     Object.fromEntries(initialChapters.map((chapter) => [chapter._id, chapter.number ?? null])),
   );
@@ -144,6 +163,12 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
   }, []);
 
   const realId = useCallback((chapterId: string) => realIdsRef.current[chapterId] ?? chapterId, []);
+  const localId = useCallback((serverId: string) => temporaryIdsRef.current[serverId] ?? serverId, []);
+
+  const chapterKey = useCallback(
+    (chapterId: string) => `${chapterId}-${descriptionReloads[chapterId] ?? 0}`,
+    [descriptionReloads],
+  );
 
   const resyncPendingRef = useRef(false);
   const resyncFromServer = useCallback(() => {
@@ -158,10 +183,14 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
           await tail;
         }
         const serverChapters = await refetchChapters();
-        numbersRef.current = Object.fromEntries(serverChapters.map((chapter) => [chapter._id, chapter.number ?? null]));
+        const reloaded = serverChapters.map((chapter) => ({ ...toEditableChapter(chapter), _id: localId(chapter._id) }));
+        const changedIds = idsWithChangedDescriptions(chaptersRef.current, reloaded);
+        numbersRef.current = Object.fromEntries(serverChapters.map((chapter) => [localId(chapter._id), chapter.number ?? null]));
         setLoadedPosts(postsById(serverChapters));
-        setChapters(serverChapters.map(toEditableChapter));
-        setVersion((previous) => previous + 1);
+        setChapters(reloaded);
+        if (changedIds.length) {
+          setDescriptionReloads((previous) => incrementCounts(previous, changedIds));
+        }
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error("Couldn't reload the sequence's chapters", e);
@@ -169,7 +198,7 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
         resyncPendingRef.current = false;
       }
     })();
-  }, [drainSaves, refetchChapters, setChapters]);
+  }, [drainSaves, refetchChapters, setChapters, localId]);
 
   const rememberPosts = useCallback((chapter: ChaptersEdit | null | undefined) => {
     if (chapter) {
@@ -257,11 +286,11 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
     enqueueSave(async () => {
       const result = await createChapterMutation({
         variables: { data: { sequenceId, number: next.length, postIds: [] } },
-        refetchQueries: [READING_CHAPTERS_QUERY],
       });
       const created = result.data?.createChapter?.data;
       if (!created) throw new Error("Couldn't create the chapter");
       realIdsRef.current[tempId] = created._id;
+      temporaryIdsRef.current[created._id] = tempId;
     }, resyncFromServer);
     return tempId;
   }, [saveChapterOrder, setChapters, enqueueSave, createChapterMutation, sequenceId, resyncFromServer]);
@@ -276,7 +305,7 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
     }
     setChapters(current.filter((c) => c._id !== chapterId));
     enqueueSave(
-      () => deleteChapterMutation({ variables: { chapterId: realId(chapterId) }, refetchQueries: [READING_CHAPTERS_QUERY] }),
+      () => deleteChapterMutation({ variables: { chapterId: realId(chapterId) } }),
       resyncFromServer,
     );
   }, [setChapters, saveChapter, enqueueSave, deleteChapterMutation, realId, resyncFromServer]);
@@ -289,7 +318,7 @@ export function useChapterEditing({ sequenceId, initialChapters, refetchChapters
 
   return {
     chapters,
-    version,
+    chapterKey,
     loadedPosts,
     addPost,
     removePost,

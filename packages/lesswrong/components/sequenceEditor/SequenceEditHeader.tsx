@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useImageUpload } from "../hooks/useImageUpload";
@@ -61,31 +61,41 @@ export const NEW_SEQUENCE_TITLE = "Untitled Sequence";
 
 /**
  * The sequence title, edited in place. Saves when the field loses focus,
- * like a post title (EditTitle). An empty title isn't allowed: it
- * reverts to the last saved title.
+ * like a post title (EditTitle). An empty title isn't allowed: it reverts to
+ * the last title sent to be saved.
+ *
+ * If a save fails, the field goes back to the last title the server took,
+ * unless a later title is already queued (its own save decides) or the
+ * field has been edited again since.
  */
 export const SequenceTitleInput = ({ className }: { className?: string }) => {
   const classes = useStyles(styles);
   const { flash } = useMessages();
-  const { sequence, updateSequence } = useSequenceEditor();
+  const { sequence, saveSequenceNow } = useSequenceEditor();
   const [title, setTitle] = useState(sequence.title);
-  const [lastSavedTitle, setLastSavedTitle] = useState(sequence.title);
+  const queuedTitleRef = useRef(sequence.title);
+  const savedTitleRef = useRef(sequence.title);
+  const latestSaveRef = useRef(0);
 
   const save = () => {
     const trimmed = title.trim();
     if (!trimmed) {
-      setTitle(lastSavedTitle);
+      setTitle(queuedTitleRef.current);
       flash("A sequence needs a title.");
       return;
     }
-    if (trimmed === lastSavedTitle) {
+    if (trimmed === queuedTitleRef.current) {
       return;
     }
-    const previousTitle = lastSavedTitle;
-    setLastSavedTitle(trimmed);
-    updateSequence({ title: trimmed }, () => {
-      setTitle(previousTitle);
-      setLastSavedTitle(previousTitle);
+    queuedTitleRef.current = trimmed;
+    const saveNumber = ++latestSaveRef.current;
+    void saveSequenceNow({ title: trimmed }).then((saved) => {
+      if (saved) {
+        savedTitleRef.current = trimmed;
+      } else if (saveNumber === latestSaveRef.current) {
+        queuedTitleRef.current = savedTitleRef.current;
+        setTitle((current) => current.trim() === trimmed ? savedTitleRef.current : current);
+      }
     });
   };
 

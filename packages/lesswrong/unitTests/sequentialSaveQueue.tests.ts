@@ -39,6 +39,25 @@ describe("createSaveQueue", () => {
     expect(secondRan).toBe(true);
   });
 
+  it("keeps going when a rollback throws", async () => {
+    const consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const statuses: SaveStatus[] = [];
+      let secondRan = false;
+      const queue = createSaveQueue({ onStatusChange: (s) => statuses.push(s), onError: () => {} });
+
+      queue.enqueue(async () => { throw new Error("network down"); }, () => { throw new Error("rollback failed"); });
+      queue.enqueue(async () => { secondRan = true; }, () => {});
+      await queue.drain();
+
+      expect(secondRan).toBe(true);
+      expect(statuses).toEqual(["saving", "saved"]);
+      expect(consoleError).toHaveBeenCalledTimes(1);
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
   it("runs a save queued from a rollback after the saves already waiting", async () => {
     const events: string[] = [];
     const queue = createSaveQueue({ onStatusChange: () => {}, onError: () => {} });

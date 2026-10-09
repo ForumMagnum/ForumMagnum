@@ -16,9 +16,33 @@ export interface EditableChapter {
   postIds: string[];
 }
 
-/** Whether a description's HTML has nothing to show: no text and no images. */
+/**
+ * Tags that only hold or format text, so they show nothing when there's no
+ * text in them. Any other element (an image, an embed's iframe, a diagram, a
+ * table) is something to show.
+ */
+const TEXT_ONLY_TAGS = new Set([
+  "p", "br", "span", "div", "a", "b", "strong", "i", "em", "u", "s", "code", "sub", "sup",
+  "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "ul", "ol", "li",
+]);
+
+/**
+ * Whether a tag has nothing to show without text: a text-only tag that isn't
+ * a Lexical node's export (some, like polls, are a span or div whose
+ * `data-lexical-` attributes hold the content).
+ */
+function isEmptyWithoutText(tag: string): boolean {
+  const tagName = /^<([a-z][a-z0-9]*)/i.exec(tag)?.[1].toLowerCase();
+  return !!tagName && TEXT_ONLY_TAGS.has(tagName) && !/\sdata-lexical-/i.test(tag);
+}
+
+/** Whether a description's HTML has nothing to show: no text, and no images, embeds or other content. */
 export function isBlankDescriptionHtml(html: string): boolean {
-  return !htmlToTextDefault(html).trim() && !/<img\b/i.test(html);
+  if (htmlToTextDefault(html).trim()) {
+    return false;
+  }
+  const openingTags = html.match(/<[a-z][^>]*>/gi) ?? [];
+  return openingTags.every(isEmptyWithoutText);
 }
 
 function hasTitle(chapter: EditableChapter): boolean {

@@ -138,4 +138,15 @@ describe("isBlankDescriptionHtml", () => {
   it("isn't blank when there's only an image", () => {
     expect(isBlankDescriptionHtml('<p><img src="https://example.com/a.png"></p>')).toBe(false);
   });
+
+  it("isn't blank when there's only an embed", () => {
+    expect(isBlankDescriptionHtml('<div class="youtube-preview"><iframe src="https://www.youtube-nocookie.com/embed/abc"></iframe></div>')).toBe(false);
+    expect(isBlankDescriptionHtml('<p><span data-lexical-poll-question="Which?" data-lexical-poll-options="[]"></span></p>')).toBe(false);
+    expect(isBlankDescriptionHtml('<figure class="excalidraw-diagram"><svg></svg></figure>')).toBe(false);
+  });
+
+  it("treats formatting with no text as blank", () => {
+    expect(isBlankDescriptionHtml('<p dir="ltr"><span style="white-space: pre-wrap;"><strong></strong></span></p>')).toBe(true);
+    expect(isBlankDescriptionHtml('<p data-internal-id="abc"><br></p>')).toBe(true);
+  });
 });

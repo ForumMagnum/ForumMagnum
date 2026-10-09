@@ -12,8 +12,9 @@ import PostsListEditorSearchHit from "../search/PostsListEditorSearchHit";
 import PostsTitle from "../posts/PostsTitle";
 
 /**
- * The current user's five most recently edited drafts and ten most recent
- * published posts, listed before they start searching.
+ * The current user's five most recently edited drafts (with drafts shared
+ * with them, as in their drafts list) and ten most recent published posts,
+ * listed before they start searching.
  */
 const SequenceAddPostRecentPostsQuery = gql(`
   query SequenceAddPostRecentPosts($draftsSelector: PostSelector, $publishedSelector: PostSelector) {
@@ -163,7 +164,11 @@ const SequenceAddPostBox = ({ onAdd, onClose, getChapterNameForPost }: {
 
   const { data: recentData, loading: recentLoading } = useQuery(SequenceAddPostRecentPostsQuery, {
     variables: {
-      draftsSelector: { drafts: { userId: currentUser?._id, sortDraftsBy: "lastModified" } },
+      draftsSelector: { drafts: {
+        userId: currentUser?._id,
+        sortDraftsBy: "lastModified",
+        includeShared: currentUser?.draftsListShowShared !== false,
+      } },
       publishedSelector: { userPosts: { userId: currentUser?._id } },
     },
     skip: !currentUser,

@@ -43,6 +43,18 @@ describe("dropMove", () => {
     expect(dropMove(regions, preview, "p4", "c")).toEqual({ itemId: "p4", fromRegionId: "b", toRegionId: "c", toIndex: 0 });
   });
 
+  it("follows the drop target into a region the preview hasn't caught up with", () => {
+    // The preview has p2 in b, but it was dropped on p5 in c before the preview moved it there.
+    const withC: SortableRegion[] = [regions[0], regions[1], { id: "c", itemIds: ["p5", "p6"] }];
+    const preview = moveItemBetweenRegions(withC, "p2", "b", 1);
+    expect(dropMove(withC, preview, "p2", "p5")).toEqual({ itemId: "p2", fromRegionId: "a", toRegionId: "c", toIndex: 0 });
+  });
+
+  it("puts the item at the end of a region the preview hasn't caught up with, when dropped on the region", () => {
+    const preview = moveItemBetweenRegions(regions, "p2", "b", 1);
+    expect(dropMove(regions, preview, "p2", "region:c")).toEqual({ itemId: "p2", fromRegionId: "a", toRegionId: "c", toIndex: 0 });
+  });
+
   it("returns null when the item ends where it started", () => {
     expect(dropMove(regions, regions, "p2", "p2")).toBeNull();
   });

@@ -185,7 +185,7 @@ const SequenceEditChaptersInner = ({ sequenceId, initialChapters, refetchChapter
       </>;
     }
     return <SequenceEditChapter
-      key={`${chapter._id}-${editing.version}`}
+      key={editing.chapterKey(chapter._id)}
       chapter={chapter}
       canMoveUp={index > 0}
       canMoveDown={index < chapters.length - 1}

@@ -44,6 +44,11 @@ export function createSaveQueue({ onStatusChange, onError }: {
           onStatusChange(lastSaveFailed ? "error" : "saved");
         }
       }
+    }).catch((e) => {
+      // A rollback or callback threw. The tail must not reject, or every
+      // later save would be skipped and drain() would never succeed.
+      // eslint-disable-next-line no-console
+      console.error("Error while handling a save", e);
     });
   };
 

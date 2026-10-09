@@ -17,6 +17,7 @@ import DeferRender from '../common/DeferRender';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Error404 from "../common/Error404";
+import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
 import Loading from "../vulcan-core/Loading";
 import CloudinaryImage from "../common/CloudinaryImage";
 import { SequenceEditorProvider } from "../sequenceEditor/SequenceEditorContext";
@@ -187,10 +188,12 @@ const styles = defineStyles('SequencesPage', (theme: ThemeType) => ({
  * edited in place and the title's "[Draft]" label stays on the same line as
  * the title input.
  *
- * Once the sequence has been edited on this page, the cached chapter list is
- * out of date, so reading mode reloads it. The editor's provider is always
- * rendered (with no sequence outside edit mode), so switching modes doesn't
- * remount the page.
+ * Edit mode starts once the sequence's editable fields have loaded; until
+ * then the page stays in reading mode. If they can't be loaded, the page
+ * shows the error (or a 404). Once the sequence has been edited on this page,
+ * the cached chapter list is out of date, so reading mode reloads it. The
+ * editor's provider is always rendered (with no sequence outside edit mode),
+ * so switching modes doesn't remount the page.
  */
 const SequencesPage = ({documentId}: {
   documentId: string,
@@ -207,17 +210,19 @@ const SequencesPage = ({documentId}: {
   const document = data?.sequence?.result;
 
   const canEdit = !!document && (userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document)));
-  const editing = canEdit && query.edit === "true";
+  const editRequested = canEdit && query.edit === "true";
+
+  const { data: editDocument, error: editError } = useQuery(SequencesEditQuery, {
+    variables: { documentId: documentId },
+    skip: !editRequested,
+  });
+  const editableDocument = editRequested ? editDocument?.sequence?.result ?? null : null;
+  const editing = !!editableDocument;
+
   const [hasEdited, setHasEdited] = useState(editing);
   useEffect(() => {
     if (editing) setHasEdited(true);
   }, [editing]);
-
-  const { data: editDocument } = useQuery(SequencesEditQuery, {
-    variables: { documentId: documentId },
-    skip: !editing,
-  });
-  const editableDocument = editDocument?.sequence?.result ?? undefined;
 
   const setEditing = (edit: boolean) => {
     const newQuery = edit ? { ...query, edit: "true" } : omit(query, "edit");
@@ -241,8 +246,8 @@ const SequencesPage = ({documentId}: {
   if (!canEdit && document.draft)
     throw new Error('This sequence is a draft and is not publicly visible')
 
-  if (editing && !editableDocument) {
-    return <Loading />
+  if (editRequested && !editableDocument && (editError || editDocument)) {
+    return <LoadingOrErrorPage loading={false} error={editError} />
   }
 
   const { html = "" } = document.contents || {}
@@ -332,7 +337,7 @@ const SequencesPage = ({documentId}: {
     </div>
   </AnalyticsContext>;
 
-  return <SequenceEditorProvider sequence={editing ? editableDocument ?? null : null}>
+  return <SequenceEditorProvider sequence={editableDocument}>
     {page}
   </SequenceEditorProvider>;
 }

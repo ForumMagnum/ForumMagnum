@@ -48,29 +48,33 @@ export function moveItemBetweenRegions(regions: SortableRegion[], itemId: string
   });
 }
 
-/**
- * The move a drop makes, given the regions before the drag and the preview
- * built while dragging (see `moveItemBetweenRegions`). Dropped on another
- * item in its region, the item takes that item's position; otherwise (on
- * itself, or on an empty region) it stays where the preview put it. Null if
- * it ends where it started.
- */
-export function dropMove(regions: SortableRegion[], preview: SortableRegion[], itemId: string, overId: string): RegionItemMove | null {
-  const fromRegion = findRegion(regions, itemId);
-  const toRegion = findRegion(preview, itemId);
-  if (!fromRegion || !toRegion) return null;
-  const overIndex = toRegion.itemIds.indexOf(overId);
-  const toIndex = overIndex >= 0 ? overIndex : toRegion.itemIds.indexOf(itemId);
-  if (fromRegion.id === toRegion.id && fromRegion.itemIds.indexOf(itemId) === toIndex) return null;
-  return { itemId, fromRegionId: fromRegion.id, toRegionId: toRegion.id, toIndex };
-}
-
 function regionForDragTarget(regions: SortableRegion[], targetId: string): SortableRegion | undefined {
   if (targetId.startsWith(REGION_DROPPABLE_PREFIX)) {
     const regionId = targetId.slice(REGION_DROPPABLE_PREFIX.length);
     return regions.find((region) => region.id === regionId);
   }
   return findRegion(regions, targetId);
+}
+
+/**
+ * The move a drop makes, given the regions before the drag and the preview
+ * built while dragging (see `moveItemBetweenRegions`). Dropped on another
+ * item, the item takes that item's position; otherwise (on itself, or on an
+ * empty region) it stays where the preview put it. The drop target's region
+ * wins over the preview's, which can lag a region behind a fast drag; then
+ * the item goes at the end of that region unless it was dropped on an item.
+ * Null if it ends where it started.
+ */
+export function dropMove(regions: SortableRegion[], preview: SortableRegion[], itemId: string, overId: string): RegionItemMove | null {
+  const fromRegion = findRegion(regions, itemId);
+  const previewRegion = findRegion(preview, itemId);
+  if (!fromRegion || !previewRegion) return null;
+  const toRegion = regionForDragTarget(preview, overId) ?? previewRegion;
+  const overIndex = toRegion.itemIds.indexOf(overId);
+  const fallbackIndex = toRegion.id === previewRegion.id ? previewRegion.itemIds.indexOf(itemId) : toRegion.itemIds.length;
+  const toIndex = overIndex >= 0 ? overIndex : fallbackIndex;
+  if (fromRegion.id === toRegion.id && fromRegion.itemIds.indexOf(itemId) === toIndex) return null;
+  return { itemId, fromRegionId: fromRegion.id, toRegionId: toRegion.id, toIndex };
 }
 
 const SortableRegionItem = ({ itemId, renderItem }: {

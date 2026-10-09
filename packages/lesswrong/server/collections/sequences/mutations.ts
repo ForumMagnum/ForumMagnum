@@ -32,10 +32,11 @@ export function editCheck(user: DbUser | null, document: DbSequence | null) {
     : userCanDo(user, `sequences.edit.all`)
 }
 
-// Post pages show their sequence's title and navigation.
-export async function invalidateSequencePostPages(sequenceId: string, context: ResolverContext): Promise<void> {
+// Post pages show their sequence's title and navigation. `removedPostIds` are
+// posts that have just left the sequence, whose pages still show it.
+export async function invalidateSequencePostPages(sequenceId: string, context: ResolverContext, removedPostIds: readonly string[] = []): Promise<void> {
   const chapters = await context.Chapters.find({ sequenceId }, {}, { postIds: 1 }).fetch();
-  await invalidatePostPageCache(filterNonnull(chapters.flatMap((chapter) => chapter.postIds ?? [])));
+  await invalidatePostPageCache(filterNonnull([...removedPostIds, ...chapters.flatMap((chapter) => chapter.postIds ?? [])]));
 }
 
 export async function createSequence({ data }: CreateSequenceInput, context: ResolverContext) {
