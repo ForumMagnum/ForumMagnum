@@ -3,12 +3,12 @@ import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { appendToSunshineNotes, getSignatureWithNote } from "@/lib/collections/users/helpers";
 import { AUTO_PURGED_LLM_REJECTED_SPAM, AUTO_REMOVED_LLM_REJECTED_USER } from "@/lib/collections/moderatorActions/constants";
 import { isActionActive } from "@/lib/collections/moderatorActions/helpers";
-import { getFreshReviewTriggerActions, getModeratorActionGroup } from "@/lib/collections/users/reviewGroups";
+import { isReviewTriggeredOnlyByContent } from "@/lib/collections/users/reviewGroups";
 import { llmRejectionTriageSetting } from "@/server/databaseSettings";
 import { updateUser } from "@/server/collections/users/mutations";
 import { createModeratorAction } from "@/server/collections/moderatorActions/mutations";
 import { purgeSpamUser } from "@/server/profileSpamClassifier/autoPurge";
-import { adminAccountSetting } from "@/lib/instanceSettings";
+import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import {
   classifyLlmRejectedUser,
@@ -54,15 +54,22 @@ async function getRevisionContentsById(revisionIds: string[], context: ResolverC
       latestPangramScores.set(evaluation.revisionId, evaluation.pangramScore);
     }
   }
-  return new Map(revisions.map(revision => [revision._id, {
-    html: revision.html ?? "",
-    pangramScore: latestPangramScores.get(revision._id) ?? null,
-  }]));
+  const contents = new Map<string, RevisionContent>();
+  for (const revision of revisions) {
+    if (revision.html === null) throw new Error(`Missing HTML for triage revision ${revision._id}`);
+    contents.set(revision._id, {
+      html: revision.html,
+      pangramScore: latestPangramScores.get(revision._id) ?? null,
+    });
+  }
+  return contents;
 }
 
 function getRevisionContent(doc: DbPost | DbComment, revisionContentsById: Map<string, RevisionContent>): RevisionContent {
   const revisionContent = doc.contents_latest ? revisionContentsById.get(doc.contents_latest) : undefined;
-  return revisionContent ?? { html: "", pangramScore: null };
+  if (!doc.contents_latest) return { html: "", pangramScore: null };
+  if (!revisionContent) throw new Error(`Missing revision ${doc.contents_latest} for triage content ${doc._id}`);
+  return revisionContent;
 }
 
 export async function getLlmRejectionTriageInput(user: DbUser, context: ResolverContext): Promise<LlmRejectionTriageInput> {
@@ -110,26 +117,17 @@ export async function getLlmRejectionTriageInput(user: DbUser, context: Resolver
   };
 }
 
-async function getLastRemovedFromReviewQueueAt(userId: string, context: ResolverContext): Promise<Date | null> {
-  const lastRemoval = await context.FieldChanges.findOne(
-    { documentId: userId, fieldName: "needsReview", newValue: "false" },
-    { sort: { createdAt: -1 } },
-  );
-  return lastRemoval?.createdAt ?? null;
-}
-
 async function isInReviewQueueOnlyForContent(userId: string, context: ResolverContext): Promise<boolean> {
-  const [moderatorActions, lastRemovedFromReviewQueueAt] = await Promise.all([
+  const [moderatorActions, [lastRemovedFromReviewQueueAt]] = await Promise.all([
     context.ModeratorActions.find({ userId }).fetch(),
-    getLastRemovedFromReviewQueueAt(userId, context),
+    context.repos.users.getLastRemovedFromReviewQueueAt([userId]),
   ]);
   const actionsWithActiveStatus = moderatorActions.map(action => ({
     type: action.type,
     active: isActionActive(action),
     createdAt: action.createdAt,
   }));
-  const freshActions = getFreshReviewTriggerActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
-  return freshActions.length > 0 && freshActions.every(action => getModeratorActionGroup(action.type) === "newContent");
+  return isReviewTriggeredOnlyByContent(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
 }
 
 export async function isEligibleForLlmRejectionTriage(user: DbUser, context: ResolverContext): Promise<boolean> {
@@ -149,39 +147,23 @@ export async function isEligibleForLlmRejectionTriage(user: DbUser, context: Res
 
 export type LlmRejectionTriageAction = "removeFromQueue" | "keepInQueue" | "keepSpamWithApprovedContentInQueue" | "purge";
 
-async function hasApprovedLiveContent(userId: string, context: ResolverContext): Promise<boolean> {
-  const [approvedPost, approvedComment] = await Promise.all([
-    context.Posts.findOne(
-      { userId, authorIsUnreviewed: { $ne: true }, rejected: { $ne: true }, draft: { $ne: true }, shortform: { $ne: true } },
-      {},
-      { _id: 1 },
-    ),
-    context.Comments.findOne(
-      { userId, authorIsUnreviewed: { $ne: true }, rejected: { $ne: true }, deleted: { $ne: true }, draft: { $ne: true } },
-      {},
-      { _id: 1 },
-    ),
-  ]);
-  return !!approvedPost || !!approvedComment;
-}
-
 async function getLlmRejectionTriageAction(userId: string, verdict: LlmRejectionTriageVerdict, context: ResolverContext): Promise<LlmRejectionTriageAction> {
   switch (verdict.verdict) {
     case "remove":
       return "removeFromQueue";
     case "keep_for_review":
       return "keepInQueue";
-    case "spam":
+    case "spam": {
       // A purge deletes everything, so an account with approved content gets a human decision instead.
-      return (await hasApprovedLiveContent(userId, context)) ? "keepSpamWithApprovedContentInQueue" : "purge";
+      const [stats] = await context.repos.users.getPendingContentStats([userId]);
+      return stats.approvedContentCount > 0 ? "keepSpamWithApprovedContentInQueue" : "purge";
+    }
   }
 }
 
 async function applyLlmRejectionTriageAction(user: DbUser, action: LlmRejectionTriageAction, reason: string, context: ResolverContext) {
-  // Looked up directly rather than via getAdminTeamAccount, whose next/cache wrapper doesn't work in scripts.
-  const adminTeamAccountId = adminAccountSetting.get(context)?._id;
-  const adminTeamAccount = adminTeamAccountId ? await context.Users.findOne({ _id: adminTeamAccountId }) : null;
-  if (!adminTeamAccount) return;
+  const adminTeamAccount = await getAdminTeamAccount(context);
+  if (!adminTeamAccount) throw new Error("LLM rejection triage requires an admin team account");
 
   switch (action) {
     case "removeFromQueue": {

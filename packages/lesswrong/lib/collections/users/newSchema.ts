@@ -75,19 +75,10 @@ const getPendingContentStats = (context: ResolverContext, userId: string) => {
   );
 };
 
-// Get last time user's `needsReview` flag was set to false (or null if never).
-const getLastRemovedFromReviewQueueAt = async (context: ResolverContext, userId: string): Promise<Date | null> => {
-  const fieldChanges = await getWithLoader(
-    context,
-    context.FieldChanges,
-    "needsReviewFieldChanges",
-    { documentId: userId, fieldName: "needsReview", newValue: 'false' },
-    "documentId",
-    userId,
-    { sort: { createdAt: -1 }, limit: 1 },
+const getLastRemovedFromReviewQueueAt = (context: ResolverContext, userId: string) => {
+  return getWithCustomLoader(context, "lastRemovedFromReviewQueueAt", userId, (userIds: string[]) =>
+    context.repos.users.getLastRemovedFromReviewQueueAt(userIds)
   );
-
-  return fieldChanges[0]?.createdAt ?? null;
 };
 
 ///////////////////////////////////////

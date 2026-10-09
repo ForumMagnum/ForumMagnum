@@ -3,7 +3,7 @@ import { z } from "zod";
 import { compile } from "html-to-text";
 import moment from "moment";
 import { captureException } from "@/lib/sentryWrapper";
-import { adminAccountSetting } from "@/lib/instanceSettings";
+import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { getSignatureWithNote } from "@/lib/collections/users/helpers";
 import { AUTO_PURGED_PROFILE_SPAM } from "@/lib/collections/moderatorActions/constants";
@@ -83,9 +83,8 @@ export async function purgeSpamUser(
   moderatorActionType: ModeratorActionType,
   context: ResolverContext,
 ) {
-  const adminTeamAccountId = adminAccountSetting.get(context)?._id;
-  const adminTeamAccount = adminTeamAccountId ? await context.Users.findOne({ _id: adminTeamAccountId }) : null;
-  if (!adminTeamAccount) return;
+  const adminTeamAccount = await getAdminTeamAccount(context);
+  if (!adminTeamAccount) throw new Error("Spam purging requires an admin team account");
   const adminContext = computeContextFromUser({ user: adminTeamAccount, isSSR: false, forumType: context.forumType });
 
   const note = getSignatureWithNote(adminTeamAccount.displayName, sunshineNote);

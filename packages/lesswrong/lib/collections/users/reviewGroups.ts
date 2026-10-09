@@ -88,6 +88,14 @@ export function isSimpleReviewCandidate({ pendingPostCount, pendingCommentCount,
   return pendingCount > 0 && totalContentCount <= MAX_SIMPLE_TOTAL_ITEMS && approvedContentCount === 0;
 }
 
+export function isReviewTriggeredOnlyByContent(
+  moderatorActions: ReviewTriggerActionInfo[],
+  lastRemovedFromReviewQueueAt: Date | string | null | undefined,
+): boolean {
+  const fresh = getFreshReviewTriggerActions(moderatorActions, lastRemovedFromReviewQueueAt);
+  return fresh.length > 0 && fresh.every(action => getModeratorActionGroup(action.type) === "newContent");
+}
+
 export function getReviewGroupFromActions(
   moderatorActions: ReviewTriggerActionInfo[],
   lastRemovedFromReviewQueueAt: Date | string | null | undefined,
