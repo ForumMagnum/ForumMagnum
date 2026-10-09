@@ -39,7 +39,7 @@ import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
 import { getReviewGroupFromActions } from "./reviewGroups";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
-import { hideUnreviewedAuthorCommentsSettings } from "@/lib/instanceSettings";
+import { hideUnreviewedAuthorCommentsSettings, supermodAgentStorageEnabledSetting } from "@/lib/instanceSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
   const db = getSqlClientOrThrow();
@@ -2732,6 +2732,24 @@ const schema = {
     },
     graphql: {
       outputType: "String",
+      canRead: ["admins", "sunshineRegiment"],
+      canUpdate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  llmNotes: {
+    database: {
+      type: "TEXT",
+      defaultValue: "",
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      // Resolve in code so pre-migration databases never select this column explicitly.
+      resolver: (user, args, context) => supermodAgentStorageEnabledSetting.get(context) ? user.llmNotes : null,
       canRead: ["admins", "sunshineRegiment"],
       canUpdate: ["admins", "sunshineRegiment"],
       validation: {

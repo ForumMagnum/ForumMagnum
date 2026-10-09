@@ -58,6 +58,7 @@ const AdminHome = () => {
         <li><Link className={classes.link} to="/admin/supermod">Supermod</Link></li>
         <li><Link className={classes.link} to="/moderation/altAccounts">Alt-Accounts Investigator</Link></li>
         <li><Link className={classes.link} to="/admin/moderationTemplates">Moderation Templates</Link></li>
+        <li><Link className={classes.link} to="/admin/moderationLore">Moderation Lore</Link></li>
         <li><Link className={classes.link} to="/admin/random-user">Random User</Link></li>
         <li><Link className={classes.link} to="/admin/pangram">Pangram (paste text → AI-detection check)</Link></li>
         <li><Link className={classes.link} to="/moderatorComments">Moderator Comments</Link></li>

@@ -1,3 +1,5 @@
+import { useForumType } from '@/components/hooks/useForumType';
+import { supermodAgentStorageEnabledSetting } from '@/lib/instanceSettings';
 import React, { useCallback, useMemo } from 'react';
 import type { CommandPaletteItem } from '@/components/common/CommandPalette';
 import moment from 'moment';
@@ -48,6 +50,7 @@ const ModerationUserKeyboardHandler = ({
   onFocusRejectTab: () => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
+  const { forumType } = useForumType();
   const { flash } = useMessages();
 
   const {
@@ -336,6 +339,13 @@ const ModerationUserKeyboardHandler = ({
     execute: isDetailView ? onCloseDetail : onOpenDetail,
   }), [onCloseDetail, onOpenDetail, isDetailView, selectedUser]);
 
+  const agentChatCommand: CommandPaletteItem = useMemo(() => ({
+    label: 'Agent Chat',
+    keystroke: 'T',
+    isDisabled: () => !isDetailView,
+    execute: () => dispatch({ type: 'FOCUS_AGENT_CHAT' }),
+  }), [isDetailView, dispatch]);
+
   const undoMostRecentActionCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Undo Most Recent Action',
     keystroke: 'Ctrl+Z',
@@ -356,7 +366,8 @@ const ModerationUserKeyboardHandler = ({
     nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand,
     openOrCloseDetailViewCommand, undoMostRecentActionCommand,
     ban3moCommand,
-  ], [rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snooze10Command, snoozeCustomCommand, removeCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, toggleAllPermissionsCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
+    ...(supermodAgentStorageEnabledSetting.get(forumType) ? [agentChatCommand] : []),
+  ], [forumType, rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snooze10Command, snoozeCustomCommand, removeCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, toggleAllPermissionsCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand, agentChatCommand]);
 
   useSupermodKeyboardCommands({
     commands,

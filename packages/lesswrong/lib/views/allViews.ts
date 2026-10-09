@@ -24,6 +24,10 @@ import { LlmConversationsViews } from '../collections/llmConversations/views';
 import { LocalgroupsViews } from '../collections/localgroups/views';
 import { LWEventsViews } from '../collections/lwevents/views';
 import { MessagesViews } from '../collections/messages/views';
+import { ModerationAgentConversationsViews } from '../collections/moderationAgentConversations/views';
+import { ModerationLoreDocsViews } from '../collections/moderationLoreDocs/views';
+import { ModerationProposalsViews } from '../collections/moderationProposals/views';
+import { ModerationSummariesViews } from '../collections/moderationSummaries/views';
 import { ModerationTemplatesViews } from '../collections/moderationTemplates/views';
 import { ModeratorActionsViews } from '../collections/moderatorActions/views';
 import { MultiDocumentsViews } from '../collections/multiDocuments/views';
@@ -105,6 +109,10 @@ export const allViews = {
   MailgunValidations: new CollectionViewSet('MailgunValidations', {}),
   Messages: MessagesViews,
   Migrations: new CollectionViewSet('Migrations', {}),
+  ModerationAgentConversations: ModerationAgentConversationsViews,
+  ModerationLoreDocs: ModerationLoreDocsViews,
+  ModerationProposals: ModerationProposalsViews,
+  ModerationSummaries: ModerationSummariesViews,
   ModerationTemplates: ModerationTemplatesViews,
   ModeratorActions: ModeratorActionsViews,
   MultiDocuments: MultiDocumentsViews,

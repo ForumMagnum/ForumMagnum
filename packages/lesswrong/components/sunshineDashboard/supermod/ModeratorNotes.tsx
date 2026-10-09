@@ -81,10 +81,16 @@ const ModeratorNotes = ({
   user,
   currentUser,
   dispatch,
+  fieldName = 'sunshineNotes',
+  title = 'Moderator Notes',
+  placeholder = 'Add a note for other moderators',
 }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
+  fieldName?: 'sunshineNotes' | 'llmNotes';
+  title?: string;
+  placeholder?: string;
 }) => {
   const classes = useStyles(styles);
   const now = useCurrentTime();
@@ -92,22 +98,24 @@ const ModeratorNotes = ({
 
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
 
-  const entries = useMemo(() => parseModeratorNotes(user.sunshineNotes, now), [user.sunshineNotes, now]);
+  const notes = fieldName === 'llmNotes' ? user.llmNotes : user.sunshineNotes;
+  const entries = useMemo(() => parseModeratorNotes(notes, now), [notes, now]);
 
   const addNote = useCallback(() => {
     const noteText = draft.trim();
     if (!noteText) return;
 
-    const newNotes = getSignatureWithNote(currentUser.displayName, noteText) + (user.sunshineNotes ?? '');
+    const newNotes = getSignatureWithNote(currentUser.displayName, noteText) + (notes ?? '');
+    const data = fieldName === 'llmNotes' ? { llmNotes: newNotes } : { sunshineNotes: newNotes };
     setDraft('');
-    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes } });
+    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: data });
     void updateUser({
       variables: {
         selector: { _id: user._id },
-        data: { sunshineNotes: newNotes },
+        data,
       },
     });
-  }, [draft, currentUser.displayName, user._id, user.sunshineNotes, dispatch, updateUser]);
+  }, [draft, currentUser.displayName, user._id, notes, fieldName, dispatch, updateUser]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     // A bare Escape blurs the composer, rather than closing the whole detail view and losing the draft
@@ -120,14 +128,14 @@ const ModeratorNotes = ({
 
   return (
     <div className={classes.root}>
-      <ModerationSectionTitle>Moderator Notes</ModerationSectionTitle>
+      <ModerationSectionTitle>{title}</ModerationSectionTitle>
       <div className={classes.composer} onKeyDown={handleKeyDown}>
         <Input
           value={draft}
           fullWidth
           onChange={(e) => setDraft(e.target.value)}
           disableUnderline
-          placeholder="Add a note for other moderators"
+          placeholder={placeholder}
           multiline
         />
       </div>

@@ -23,6 +23,8 @@ import {
   replaceWidgetToolSchema,
   validateReplaceWidgetExclusivity,
 } from "../agent/toolSchemas";
+import { moderationReadTools } from "@/server/moderation/agentTools/readTools";
+import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 
 const PostMetadataQuery = gql(`
   query McpPostMetadata($_id: String!) {
@@ -45,6 +47,7 @@ const TOOL_REQUIRED_SCOPES: Record<string, string[]> = {
   replace_widget: [REQUIRED_SCOPE],
   delete_block: [REQUIRED_SCOPE],
   insert_block: [REQUIRED_SCOPE],
+  ...Object.fromEntries(moderationReadTools.map((t) => [t.name, [REQUIRED_SCOPE]])),
 };
 
 function getBearerToken(authInfo: AuthInfo | undefined): string {
@@ -317,6 +320,34 @@ function createMcpServer(forumType: ForumTypeString): McpServer {
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
     },
   );
+
+  // Only the read tools are exposed over MCP, so external agents can't file proposals or take actions.
+  for (const moderationTool of moderationReadTools) {
+    server.registerTool(
+      moderationTool.name,
+      {
+        description: moderationTool.description,
+        inputSchema: moderationTool.inputSchema.shape,
+        annotations: {
+          openWorldHint: false,
+          readOnlyHint: true,
+        },
+      },
+      async (args, extra) => {
+        assertToolScopes(moderationTool.name, extra.authInfo);
+        const context = await contextFromAuth(extra.authInfo, forumType);
+        if (!context.currentUser || !userIsAdminOrMod(context.currentUser)) {
+          return toolError("Moderator access required");
+        }
+        try {
+          const text = await moderationTool.execute(args, context, {});
+          return { content: [{ type: "text" as const, text }] };
+        } catch (error) {
+          return toolError(error instanceof Error ? error.message : "Tool execution failed");
+        }
+      },
+    );
+  }
 
   return server;
 }

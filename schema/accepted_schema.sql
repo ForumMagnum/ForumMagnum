@@ -1104,6 +1104,89 @@ CREATE TABLE "Migrations" (
   "succeeded" BOOL NOT NULL DEFAULT FALSE
 );
 
+-- Table "ModerationAgentConversations"
+CREATE TABLE "ModerationAgentConversations" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "userId" VARCHAR(27) NOT NULL,
+  "targetUserId" VARCHAR(27) NOT NULL,
+  "title" TEXT,
+  "model" TEXT,
+  "messages" JSONB,
+  "deleted" BOOL NOT NULL DEFAULT FALSE
+);
+
+-- Index "idx_ModerationAgentConversations_targetUserId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ModerationAgentConversations_targetUserId_createdAt" ON "ModerationAgentConversations" USING btree ("targetUserId", "createdAt");
+
+-- Table "ModerationLoreDocs"
+CREATE TABLE "ModerationLoreDocs" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "title" TEXT NOT NULL,
+  "scope" TEXT NOT NULL,
+  "targetUserId" VARCHAR(27),
+  "userId" VARCHAR(27) NOT NULL,
+  "deleted" BOOL NOT NULL DEFAULT FALSE
+);
+
+-- Index "idx_ModerationLoreDocs_scope_targetUserId_deleted"
+CREATE INDEX IF NOT EXISTS "idx_ModerationLoreDocs_scope_targetUserId_deleted" ON "ModerationLoreDocs" USING btree ("scope", "targetUserId", "deleted");
+
+-- Table "ModerationProposals"
+CREATE TABLE "ModerationProposals" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "targetUserId" VARCHAR(27) NOT NULL,
+  "createdByUserId" VARCHAR(27) NOT NULL,
+  "conversationId" VARCHAR(27),
+  "title" TEXT NOT NULL,
+  "rationale" TEXT NOT NULL,
+  "steps" JSONB NOT NULL,
+  "status" TEXT NOT NULL DEFAULT 'pending',
+  "stepResults" JSONB,
+  "appliedByUserId" VARCHAR(27),
+  "appliedAt" TIMESTAMPTZ,
+  "model" TEXT
+);
+
+-- Index "idx_ModerationProposals_targetUserId_status_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ModerationProposals_targetUserId_status_createdAt" ON "ModerationProposals" USING btree ("targetUserId", "status", "createdAt");
+
+-- Index "idx_ModerationProposals_status_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ModerationProposals_status_createdAt" ON "ModerationProposals" USING btree ("status", "createdAt");
+
+-- Table "ModerationSummaries"
+CREATE TABLE "ModerationSummaries" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "kind" TEXT NOT NULL,
+  "targetUserId" VARCHAR(27),
+  "memberUserIds" TEXT[],
+  "title" TEXT,
+  "contents" TEXT NOT NULL,
+  "createdByUserId" VARCHAR(27) NOT NULL,
+  "conversationId" VARCHAR(27),
+  "model" TEXT,
+  "deleted" BOOL NOT NULL DEFAULT FALSE
+);
+
+-- Index "idx_ModerationSummaries_targetUserId_kind_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ModerationSummaries_targetUserId_kind_createdAt" ON "ModerationSummaries" USING btree ("targetUserId", "kind", "createdAt");
+
+-- Index "idx_ModerationSummaries_kind_deleted_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ModerationSummaries_kind_deleted_createdAt" ON "ModerationSummaries" USING btree ("kind", "deleted", "createdAt");
+
 -- Table "ModerationTemplates"
 CREATE TABLE "ModerationTemplates" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3219,6 +3302,7 @@ CREATE TABLE "Users" (
   "hideFrontpageBook2019Ad" BOOL,
   "hideFrontpageBook2020Ad" BOOL,
   "sunshineNotes" TEXT NOT NULL DEFAULT '',
+  "llmNotes" TEXT NOT NULL DEFAULT '',
   "sunshineFlagged" BOOL NOT NULL DEFAULT FALSE,
   "needsReview" BOOL NOT NULL DEFAULT FALSE,
   "sunshineSnoozed" BOOL NOT NULL DEFAULT FALSE,

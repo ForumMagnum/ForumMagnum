@@ -100,6 +100,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -133,6 +137,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -162,6 +170,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -193,6 +205,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -236,6 +252,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -275,6 +295,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -307,6 +331,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -337,6 +365,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -371,6 +403,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -403,6 +439,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -434,6 +474,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -468,6 +512,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: true })],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -502,6 +550,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: false })],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -529,6 +581,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -559,6 +615,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
 
@@ -586,6 +646,10 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        agentChatOpen: false,
+        agentChatFocusRequest: 0,
+        agentChatSeed: null,
+        agentChatAutoSend: null,
         unloadedCounts: {},
       };
     }

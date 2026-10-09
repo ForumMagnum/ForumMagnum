@@ -10,7 +10,7 @@ function unauthorized(req: NextRequest, description: string): Response {
   return NextResponse.json({ error: "unauthorized", error_description: description }, {
     status: 401,
     headers: {
-      "WWW-Authenticate": `Bearer resource="${siteUrl}/api/mcp"`,
+      "WWW-Authenticate": `Bearer resource_metadata="${siteUrl}/.well-known/oauth-protected-resource"`,
     },
   });
 }

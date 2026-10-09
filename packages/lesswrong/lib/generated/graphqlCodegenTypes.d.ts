@@ -1362,6 +1362,63 @@ type CreateMessageInput = {
   data: CreateMessageDataInput;
 };
 
+type CreateModerationAgentConversationDataInput = {
+  legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  targetUserId: Scalars['String']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  userId: Scalars['String']['input'];
+};
+
+type CreateModerationAgentConversationInput = {
+  data: CreateModerationAgentConversationDataInput;
+};
+
+type CreateModerationLoreDocDataInput = {
+  contents?: InputMaybe<CreateRevisionDataInput>;
+  legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  scope: Scalars['String']['input'];
+  targetUserId?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type CreateModerationLoreDocInput = {
+  data: CreateModerationLoreDocDataInput;
+};
+
+type CreateModerationProposalDataInput = {
+  conversationId?: InputMaybe<Scalars['String']['input']>;
+  createdByUserId: Scalars['String']['input'];
+  legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  rationale: Scalars['String']['input'];
+  status?: InputMaybe<Scalars['String']['input']>;
+  steps: Array<Scalars['JSON']['input']>;
+  targetUserId: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
+type CreateModerationProposalInput = {
+  data: CreateModerationProposalDataInput;
+};
+
+type CreateModerationSummaryDataInput = {
+  contents: Scalars['String']['input'];
+  conversationId?: InputMaybe<Scalars['String']['input']>;
+  createdByUserId: Scalars['String']['input'];
+  kind: Scalars['String']['input'];
+  legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  memberUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  targetUserId?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+type CreateModerationSummaryInput = {
+  data: CreateModerationSummaryDataInput;
+};
+
 type CreateModerationTemplateDataInput = {
   collectionName: ModerationTemplateType;
   contents?: InputMaybe<CreateRevisionDataInput>;
@@ -2890,6 +2947,144 @@ type MigrationsDashboardData = {
   migrations?: Maybe<Array<MigrationStatus>>;
 };
 
+type ModerationAgentConversation = {
+  __typename?: 'ModerationAgentConversation';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+  deleted?: Maybe<Scalars['Boolean']['output']>;
+  legacyData?: Maybe<Scalars['JSON']['output']>;
+  messages?: Maybe<Scalars['JSON']['output']>;
+  model?: Maybe<Scalars['String']['output']>;
+  schemaVersion: Scalars['Float']['output'];
+  targetUser?: Maybe<User>;
+  targetUserId?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+  user?: Maybe<User>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
+type ModerationAgentConversationOutput = {
+  __typename?: 'ModerationAgentConversationOutput';
+  data?: Maybe<ModerationAgentConversation>;
+};
+
+type ModerationAgentConversationSelector = {
+  conversationsForTarget?: InputMaybe<ModerationAgentConversationsConversationsForTargetInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+type ModerationAgentConversationsConversationsForTargetInput = {
+  targetUserId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ModerationLoreDoc = {
+  __typename?: 'ModerationLoreDoc';
+  _id: Scalars['String']['output'];
+  contents?: Maybe<Revision>;
+  contents_latest?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  deleted?: Maybe<Scalars['Boolean']['output']>;
+  legacyData?: Maybe<Scalars['JSON']['output']>;
+  schemaVersion: Scalars['Float']['output'];
+  scope?: Maybe<Scalars['String']['output']>;
+  targetUser?: Maybe<User>;
+  targetUserId?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+  user?: Maybe<User>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
+
+type ModerationLoreDoccontentsArgs = {
+  version?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ModerationLoreDocOutput = {
+  __typename?: 'ModerationLoreDocOutput';
+  data?: Maybe<ModerationLoreDoc>;
+};
+
+type ModerationLoreDocSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  globalLore?: InputMaybe<EmptyViewInput>;
+  loreForUser?: InputMaybe<ModerationLoreDocsLoreForUserInput>;
+};
+
+type ModerationLoreDocsLoreForUserInput = {
+  targetUserId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ModerationProposal = {
+  __typename?: 'ModerationProposal';
+  _id: Scalars['String']['output'];
+  appliedAt?: Maybe<Scalars['Date']['output']>;
+  appliedByUserId?: Maybe<Scalars['String']['output']>;
+  conversationId?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  createdByUser?: Maybe<User>;
+  createdByUserId?: Maybe<Scalars['String']['output']>;
+  legacyData?: Maybe<Scalars['JSON']['output']>;
+  model?: Maybe<Scalars['String']['output']>;
+  rationale?: Maybe<Scalars['String']['output']>;
+  schemaVersion: Scalars['Float']['output'];
+  status?: Maybe<Scalars['String']['output']>;
+  stepResults?: Maybe<Array<Scalars['JSON']['output']>>;
+  steps?: Maybe<Array<Scalars['JSON']['output']>>;
+  targetUser?: Maybe<User>;
+  targetUserId?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+};
+
+type ModerationProposalOutput = {
+  __typename?: 'ModerationProposalOutput';
+  data?: Maybe<ModerationProposal>;
+};
+
+type ModerationProposalSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  pendingProposals?: InputMaybe<EmptyViewInput>;
+  proposalsForUser?: InputMaybe<ModerationProposalsProposalsForUserInput>;
+};
+
+type ModerationProposalsProposalsForUserInput = {
+  statuses?: InputMaybe<Array<Scalars['String']['input']>>;
+  targetUserId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ModerationSummariesSummariesForUserInput = {
+  targetUserId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ModerationSummary = {
+  __typename?: 'ModerationSummary';
+  _id: Scalars['String']['output'];
+  contents?: Maybe<Scalars['String']['output']>;
+  conversationId?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  createdByUser?: Maybe<User>;
+  createdByUserId?: Maybe<Scalars['String']['output']>;
+  deleted?: Maybe<Scalars['Boolean']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  legacyData?: Maybe<Scalars['JSON']['output']>;
+  memberUserIds?: Maybe<Array<Scalars['String']['output']>>;
+  model?: Maybe<Scalars['String']['output']>;
+  schemaVersion: Scalars['Float']['output'];
+  targetUser?: Maybe<User>;
+  targetUserId?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+};
+
+type ModerationSummaryOutput = {
+  __typename?: 'ModerationSummaryOutput';
+  data?: Maybe<ModerationSummary>;
+};
+
+type ModerationSummarySelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  groupings?: InputMaybe<EmptyViewInput>;
+  summariesForUser?: InputMaybe<ModerationSummariesSummariesForUserInput>;
+};
+
 type ModerationTemplate = {
   __typename?: 'ModerationTemplate';
   _id: Scalars['String']['output'];
@@ -3406,6 +3601,58 @@ type MultiMessageOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+type MultiModerationAgentConversationInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiModerationAgentConversationOutput = {
+  __typename?: 'MultiModerationAgentConversationOutput';
+  results: Array<ModerationAgentConversation>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type MultiModerationLoreDocInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiModerationLoreDocOutput = {
+  __typename?: 'MultiModerationLoreDocOutput';
+  results: Array<ModerationLoreDoc>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type MultiModerationProposalInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiModerationProposalOutput = {
+  __typename?: 'MultiModerationProposalOutput';
+  results: Array<ModerationProposal>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type MultiModerationSummaryInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiModerationSummaryOutput = {
+  __typename?: 'MultiModerationSummaryOutput';
+  results: Array<ModerationSummary>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 type MultiModerationTemplateInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3910,6 +4157,10 @@ type Mutation = {
   createLWEvent?: Maybe<LWEventOutput>;
   createLocalgroup?: Maybe<LocalgroupOutput>;
   createMessage?: Maybe<MessageOutput>;
+  createModerationAgentConversation?: Maybe<ModerationAgentConversationOutput>;
+  createModerationLoreDoc?: Maybe<ModerationLoreDocOutput>;
+  createModerationProposal?: Maybe<ModerationProposalOutput>;
+  createModerationSummary?: Maybe<ModerationSummaryOutput>;
   createModerationTemplate?: Maybe<ModerationTemplateOutput>;
   createModeratorAction?: Maybe<ModeratorActionOutput>;
   createMultiDocument?: Maybe<MultiDocumentOutput>;
@@ -4009,6 +4260,10 @@ type Mutation = {
   updateLlmConversation?: Maybe<LlmConversationOutput>;
   updateLocalgroup?: Maybe<LocalgroupOutput>;
   updateMessage?: Maybe<MessageOutput>;
+  updateModerationAgentConversation?: Maybe<ModerationAgentConversationOutput>;
+  updateModerationLoreDoc?: Maybe<ModerationLoreDocOutput>;
+  updateModerationProposal?: Maybe<ModerationProposalOutput>;
+  updateModerationSummary?: Maybe<ModerationSummaryOutput>;
   updateModerationTemplate?: Maybe<ModerationTemplateOutput>;
   updateModeratorAction?: Maybe<ModeratorActionOutput>;
   updateMultiDocument?: Maybe<MultiDocumentOutput>;
@@ -4264,6 +4519,26 @@ type MutationcreateLocalgroupArgs = {
 
 type MutationcreateMessageArgs = {
   data: CreateMessageDataInput;
+};
+
+
+type MutationcreateModerationAgentConversationArgs = {
+  data: CreateModerationAgentConversationDataInput;
+};
+
+
+type MutationcreateModerationLoreDocArgs = {
+  data: CreateModerationLoreDocDataInput;
+};
+
+
+type MutationcreateModerationProposalArgs = {
+  data: CreateModerationProposalDataInput;
+};
+
+
+type MutationcreateModerationSummaryArgs = {
+  data: CreateModerationSummaryDataInput;
 };
 
 
@@ -4833,6 +5108,30 @@ type MutationupdateLocalgroupArgs = {
 
 type MutationupdateMessageArgs = {
   data: UpdateMessageDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateModerationAgentConversationArgs = {
+  data: UpdateModerationAgentConversationDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateModerationLoreDocArgs = {
+  data: UpdateModerationLoreDocDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateModerationProposalArgs = {
+  data: UpdateModerationProposalDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateModerationSummaryArgs = {
+  data: UpdateModerationSummaryDataInput;
   selector: SelectorInput;
 };
 
@@ -7374,6 +7673,14 @@ type Query = {
   marketplaceHomePageDesigns: Array<MarketplaceHomePageDesign>;
   message?: Maybe<SingleMessageOutput>;
   messages?: Maybe<MultiMessageOutput>;
+  moderationAgentConversation?: Maybe<SingleModerationAgentConversationOutput>;
+  moderationAgentConversations?: Maybe<MultiModerationAgentConversationOutput>;
+  moderationLoreDoc?: Maybe<SingleModerationLoreDocOutput>;
+  moderationLoreDocs?: Maybe<MultiModerationLoreDocOutput>;
+  moderationProposal?: Maybe<SingleModerationProposalOutput>;
+  moderationProposals?: Maybe<MultiModerationProposalOutput>;
+  moderationSummaries?: Maybe<MultiModerationSummaryOutput>;
+  moderationSummary?: Maybe<SingleModerationSummaryOutput>;
   moderationTemplate?: Maybe<SingleModerationTemplateOutput>;
   moderationTemplates?: Maybe<MultiModerationTemplateOutput>;
   moderatorAction?: Maybe<SingleModeratorActionOutput>;
@@ -8191,6 +8498,66 @@ type QuerymessagesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<MessageSelector>;
+};
+
+
+type QuerymoderationAgentConversationArgs = {
+  input?: InputMaybe<SingleModerationAgentConversationInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QuerymoderationAgentConversationsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiModerationAgentConversationInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ModerationAgentConversationSelector>;
+};
+
+
+type QuerymoderationLoreDocArgs = {
+  input?: InputMaybe<SingleModerationLoreDocInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QuerymoderationLoreDocsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiModerationLoreDocInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ModerationLoreDocSelector>;
+};
+
+
+type QuerymoderationProposalArgs = {
+  input?: InputMaybe<SingleModerationProposalInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QuerymoderationProposalsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiModerationProposalInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ModerationProposalSelector>;
+};
+
+
+type QuerymoderationSummariesArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiModerationSummaryInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ModerationSummarySelector>;
+};
+
+
+type QuerymoderationSummaryArgs = {
+  input?: InputMaybe<SingleModerationSummaryInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
@@ -9746,6 +10113,46 @@ type SingleMessageOutput = {
   result?: Maybe<Message>;
 };
 
+type SingleModerationAgentConversationInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleModerationAgentConversationOutput = {
+  __typename?: 'SingleModerationAgentConversationOutput';
+  result?: Maybe<ModerationAgentConversation>;
+};
+
+type SingleModerationLoreDocInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleModerationLoreDocOutput = {
+  __typename?: 'SingleModerationLoreDocOutput';
+  result?: Maybe<ModerationLoreDoc>;
+};
+
+type SingleModerationProposalInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleModerationProposalOutput = {
+  __typename?: 'SingleModerationProposalOutput';
+  result?: Maybe<ModerationProposal>;
+};
+
+type SingleModerationSummaryInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleModerationSummaryOutput = {
+  __typename?: 'SingleModerationSummaryOutput';
+  result?: Maybe<ModerationSummary>;
+};
+
 type SingleModerationTemplateInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
@@ -11078,6 +11485,55 @@ type UpdateMessageInput = {
   selector: SelectorInput;
 };
 
+type UpdateModerationAgentConversationDataInput = {
+  deleted?: InputMaybe<Scalars['Boolean']['input']>;
+  legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+type UpdateModerationAgentConversationInput = {
+  data: UpdateModerationAgentConversationDataInput;
+  selector: SelectorInput;
+};
+
+type UpdateModerationLoreDocDataInput = {
+  contents?: InputMaybe<CreateRevisionDataInput>;
+  deleted?: InputMaybe<Scalars['Boolean']['input']>;
+  legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+type UpdateModerationLoreDocInput = {
+  data: UpdateModerationLoreDocDataInput;
+  selector: SelectorInput;
+};
+
+type UpdateModerationProposalDataInput = {
+  appliedAt?: InputMaybe<Scalars['Date']['input']>;
+  appliedByUserId?: InputMaybe<Scalars['String']['input']>;
+  legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  rationale?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  stepResults?: InputMaybe<Array<Scalars['JSON']['input']>>;
+  steps?: InputMaybe<Array<Scalars['JSON']['input']>>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+type UpdateModerationProposalInput = {
+  data: UpdateModerationProposalDataInput;
+  selector: SelectorInput;
+};
+
+type UpdateModerationSummaryDataInput = {
+  deleted?: InputMaybe<Scalars['Boolean']['input']>;
+  legacyData?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type UpdateModerationSummaryInput = {
+  data: UpdateModerationSummaryDataInput;
+  selector: SelectorInput;
+};
+
 type UpdateModerationTemplateDataInput = {
   collectionName?: InputMaybe<ModerationTemplateType>;
   contents?: InputMaybe<CreateRevisionDataInput>;
@@ -11554,6 +12010,7 @@ type UpdateUserDataInput = {
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   legacyId?: InputMaybe<Scalars['String']['input']>;
   linkedinProfileURL?: InputMaybe<Scalars['String']['input']>;
+  llmNotes?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
   mapLocation?: InputMaybe<Scalars['JSON']['input']>;
   mapMarkerText?: InputMaybe<Scalars['String']['input']>;
@@ -11847,6 +12304,7 @@ type User = {
   legacyData?: Maybe<Scalars['JSON']['output']>;
   legacyId?: Maybe<Scalars['String']['output']>;
   linkedinProfileURL?: Maybe<Scalars['String']['output']>;
+  llmNotes?: Maybe<Scalars['String']['output']>;
   location?: Maybe<Scalars['String']['output']>;
   lwWikiImport?: Maybe<Scalars['Boolean']['output']>;
   mailgunValidation?: Maybe<MailgunValidationResult>;
@@ -21082,6 +21540,60 @@ type createUserRateLimitUserRateLimitItemMutationVariables = Exact<{
 
 type createUserRateLimitUserRateLimitItemMutation = createUserRateLimitUserRateLimitItemMutation_Mutation;
 
+type multiModerationTemplateAgentProposalCardQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type multiModerationTemplateAgentProposalCardQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', results: Array<multiModerationTemplateAgentProposalCardQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
+
+type multiModerationTemplateAgentProposalCardQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateAgentProposalCardQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
+
+
+type multiModerationTemplateAgentProposalCardQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationTemplateSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type multiModerationTemplateAgentProposalCardQueryQuery = multiModerationTemplateAgentProposalCardQueryQuery_Query;
+
+type multiModerationProposalsForUserQueryQuery_moderationProposals_MultiModerationProposalOutput_results_ModerationProposal = (
+  { __typename?: 'ModerationProposal' }
+  & ModerationProposalDisplay
+);
+
+type multiModerationProposalsForUserQueryQuery_moderationProposals_MultiModerationProposalOutput = { __typename?: 'MultiModerationProposalOutput', results: Array<multiModerationProposalsForUserQueryQuery_moderationProposals_MultiModerationProposalOutput_results_ModerationProposal> };
+
+type multiModerationProposalsForUserQueryQuery_Query = { __typename?: 'Query', moderationProposals: multiModerationProposalsForUserQueryQuery_moderationProposals_MultiModerationProposalOutput | null };
+
+
+type multiModerationProposalsForUserQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationProposalSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type multiModerationProposalsForUserQueryQuery = multiModerationProposalsForUserQueryQuery_Query;
+
+type multiModerationSummariesForUserQueryQuery_moderationSummaries_MultiModerationSummaryOutput_results_ModerationSummary = (
+  { __typename?: 'ModerationSummary' }
+  & ModerationSummaryDisplay
+);
+
+type multiModerationSummariesForUserQueryQuery_moderationSummaries_MultiModerationSummaryOutput = { __typename?: 'MultiModerationSummaryOutput', results: Array<multiModerationSummariesForUserQueryQuery_moderationSummaries_MultiModerationSummaryOutput_results_ModerationSummary> };
+
+type multiModerationSummariesForUserQueryQuery_Query = { __typename?: 'Query', moderationSummaries: multiModerationSummariesForUserQueryQuery_moderationSummaries_MultiModerationSummaryOutput | null };
+
+
+type multiModerationSummariesForUserQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationSummarySelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type multiModerationSummariesForUserQueryQuery = multiModerationSummariesForUserQueryQuery_Query;
+
 type CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput_results_CurationNotice = (
   { __typename?: 'CurationNotice' }
   & CurationNoticesFragment
@@ -21165,6 +21677,59 @@ type singleUserSupermodQueryQueryVariables = Exact<{
 
 
 type singleUserSupermodQueryQuery = singleUserSupermodQueryQuery_Query;
+
+type multiModerationLoreDocsPageQueryQuery_moderationLoreDocs_MultiModerationLoreDocOutput_results_ModerationLoreDoc = (
+  { __typename?: 'ModerationLoreDoc' }
+  & ModerationLoreDocDisplay
+);
+
+type multiModerationLoreDocsPageQueryQuery_moderationLoreDocs_MultiModerationLoreDocOutput = { __typename?: 'MultiModerationLoreDocOutput', results: Array<multiModerationLoreDocsPageQueryQuery_moderationLoreDocs_MultiModerationLoreDocOutput_results_ModerationLoreDoc> };
+
+type multiModerationLoreDocsPageQueryQuery_Query = { __typename?: 'Query', moderationLoreDocs: multiModerationLoreDocsPageQueryQuery_moderationLoreDocs_MultiModerationLoreDocOutput | null };
+
+
+type multiModerationLoreDocsPageQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationLoreDocSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type multiModerationLoreDocsPageQueryQuery = multiModerationLoreDocsPageQueryQuery_Query;
+
+type createModerationLoreDocPageMutation_createModerationLoreDoc_ModerationLoreDocOutput_data_ModerationLoreDoc = (
+  { __typename?: 'ModerationLoreDoc' }
+  & ModerationLoreDocDisplay
+);
+
+type createModerationLoreDocPageMutation_createModerationLoreDoc_ModerationLoreDocOutput = { __typename?: 'ModerationLoreDocOutput', data: createModerationLoreDocPageMutation_createModerationLoreDoc_ModerationLoreDocOutput_data_ModerationLoreDoc | null };
+
+type createModerationLoreDocPageMutation_Mutation = { __typename?: 'Mutation', createModerationLoreDoc: createModerationLoreDocPageMutation_createModerationLoreDoc_ModerationLoreDocOutput | null };
+
+
+type createModerationLoreDocPageMutationVariables = Exact<{
+  data: CreateModerationLoreDocDataInput;
+}>;
+
+
+type createModerationLoreDocPageMutation = createModerationLoreDocPageMutation_Mutation;
+
+type updateModerationLoreDocPageMutation_updateModerationLoreDoc_ModerationLoreDocOutput_data_ModerationLoreDoc = (
+  { __typename?: 'ModerationLoreDoc' }
+  & ModerationLoreDocDisplay
+);
+
+type updateModerationLoreDocPageMutation_updateModerationLoreDoc_ModerationLoreDocOutput = { __typename?: 'ModerationLoreDocOutput', data: updateModerationLoreDocPageMutation_updateModerationLoreDoc_ModerationLoreDocOutput_data_ModerationLoreDoc | null };
+
+type updateModerationLoreDocPageMutation_Mutation = { __typename?: 'Mutation', updateModerationLoreDoc: updateModerationLoreDocPageMutation_updateModerationLoreDoc_ModerationLoreDocOutput | null };
+
+
+type updateModerationLoreDocPageMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateModerationLoreDocDataInput;
+}>;
+
+
+type updateModerationLoreDocPageMutation = updateModerationLoreDocPageMutation_Mutation;
 
 type addOrUpvoteTagModeratorCoreTagsChecklistMutation_addOrUpvoteTag_TagRel = (
   { __typename?: 'TagRel' }
@@ -21252,6 +21817,54 @@ type rejectContentAndRemoveFromQueueRestrictAndNotifyMutationVariables = Exact<{
 
 type rejectContentAndRemoveFromQueueRestrictAndNotifyMutation = rejectContentAndRemoveFromQueueRestrictAndNotifyMutation_Mutation;
 
+type multiModerationAgentConversationsForTargetQueryQuery_moderationAgentConversations_MultiModerationAgentConversationOutput_results_ModerationAgentConversation_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type multiModerationAgentConversationsForTargetQueryQuery_moderationAgentConversations_MultiModerationAgentConversationOutput_results_ModerationAgentConversation = { __typename?: 'ModerationAgentConversation', _id: string, createdAt: string, title: string | null, userId: string | null, user: multiModerationAgentConversationsForTargetQueryQuery_moderationAgentConversations_MultiModerationAgentConversationOutput_results_ModerationAgentConversation_user_User | null };
+
+type multiModerationAgentConversationsForTargetQueryQuery_moderationAgentConversations_MultiModerationAgentConversationOutput = { __typename?: 'MultiModerationAgentConversationOutput', results: Array<multiModerationAgentConversationsForTargetQueryQuery_moderationAgentConversations_MultiModerationAgentConversationOutput_results_ModerationAgentConversation> };
+
+type multiModerationAgentConversationsForTargetQueryQuery_Query = { __typename?: 'Query', moderationAgentConversations: multiModerationAgentConversationsForTargetQueryQuery_moderationAgentConversations_MultiModerationAgentConversationOutput | null };
+
+
+type multiModerationAgentConversationsForTargetQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationAgentConversationSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type multiModerationAgentConversationsForTargetQueryQuery = multiModerationAgentConversationsForTargetQueryQuery_Query;
+
+type ModerationAgentConversationMessagesQueryQuery_moderationAgentConversation_SingleModerationAgentConversationOutput_result_ModerationAgentConversation = { __typename?: 'ModerationAgentConversation', _id: string, messages: any | null };
+
+type ModerationAgentConversationMessagesQueryQuery_moderationAgentConversation_SingleModerationAgentConversationOutput = { __typename?: 'SingleModerationAgentConversationOutput', result: ModerationAgentConversationMessagesQueryQuery_moderationAgentConversation_SingleModerationAgentConversationOutput_result_ModerationAgentConversation | null };
+
+type ModerationAgentConversationMessagesQueryQuery_Query = { __typename?: 'Query', moderationAgentConversation: ModerationAgentConversationMessagesQueryQuery_moderationAgentConversation_SingleModerationAgentConversationOutput | null };
+
+
+type ModerationAgentConversationMessagesQueryQueryVariables = Exact<{
+  conversationId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ModerationAgentConversationMessagesQueryQuery = ModerationAgentConversationMessagesQueryQuery_Query;
+
+type createModerationAgentConversationChatPanelMutation_createModerationAgentConversation_ModerationAgentConversationOutput_data_ModerationAgentConversation = (
+  { __typename?: 'ModerationAgentConversation' }
+  & ModerationAgentConversationInfo
+);
+
+type createModerationAgentConversationChatPanelMutation_createModerationAgentConversation_ModerationAgentConversationOutput = { __typename?: 'ModerationAgentConversationOutput', data: createModerationAgentConversationChatPanelMutation_createModerationAgentConversation_ModerationAgentConversationOutput_data_ModerationAgentConversation | null };
+
+type createModerationAgentConversationChatPanelMutation_Mutation = { __typename?: 'Mutation', createModerationAgentConversation: createModerationAgentConversationChatPanelMutation_createModerationAgentConversation_ModerationAgentConversationOutput | null };
+
+
+type createModerationAgentConversationChatPanelMutationVariables = Exact<{
+  data: CreateModerationAgentConversationDataInput;
+}>;
+
+
+type createModerationAgentConversationChatPanelMutation = createModerationAgentConversationChatPanelMutation_Mutation;
+
 type updateModeratorActionSupermodMutation_updateModeratorAction_ModeratorActionOutput_data_ModeratorAction = (
   { __typename?: 'ModeratorAction' }
   & ModeratorActionDisplay
@@ -21269,6 +21882,139 @@ type updateModeratorActionSupermodMutationVariables = Exact<{
 
 
 type updateModeratorActionSupermodMutation = updateModeratorActionSupermodMutation_Mutation;
+
+type updateUserApplyModerationProposalMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type updateUserApplyModerationProposalMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserApplyModerationProposalMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserApplyModerationProposalMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserApplyModerationProposalMutation_updateUser_UserOutput | null };
+
+
+type updateUserApplyModerationProposalMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserApplyModerationProposalMutation = updateUserApplyModerationProposalMutation_Mutation;
+
+type rejectContentAndRemoveFromQueueApplyProposalMutation_Mutation = { __typename?: 'Mutation', rejectContentAndRemoveUserFromQueue: boolean };
+
+
+type rejectContentAndRemoveFromQueueApplyProposalMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+  rejectedReason: Scalars['String']['input'];
+  messageContent: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type rejectContentAndRemoveFromQueueApplyProposalMutation = rejectContentAndRemoveFromQueueApplyProposalMutation_Mutation;
+
+type approveCurrentContentOnlyApplyProposalMutation_Mutation = { __typename?: 'Mutation', approveUserCurrentContentOnly: boolean };
+
+
+type approveCurrentContentOnlyApplyProposalMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+type approveCurrentContentOnlyApplyProposalMutation = approveCurrentContentOnlyApplyProposalMutation_Mutation;
+
+type createModeratorActionApplyProposalMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction = { __typename?: 'ModeratorAction', _id: string, type: ModeratorActionType, userId: string, endedAt: string | null };
+
+type createModeratorActionApplyProposalMutation_createModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: createModeratorActionApplyProposalMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type createModeratorActionApplyProposalMutation_Mutation = { __typename?: 'Mutation', createModeratorAction: createModeratorActionApplyProposalMutation_createModeratorAction_ModeratorActionOutput | null };
+
+
+type createModeratorActionApplyProposalMutationVariables = Exact<{
+  data: CreateModeratorActionDataInput;
+}>;
+
+
+type createModeratorActionApplyProposalMutation = createModeratorActionApplyProposalMutation_Mutation;
+
+type updateModeratorActionApplyProposalMutation_updateModeratorAction_ModeratorActionOutput_data_ModeratorAction = { __typename?: 'ModeratorAction', _id: string, type: ModeratorActionType, userId: string, endedAt: string | null };
+
+type updateModeratorActionApplyProposalMutation_updateModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: updateModeratorActionApplyProposalMutation_updateModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type updateModeratorActionApplyProposalMutation_Mutation = { __typename?: 'Mutation', updateModeratorAction: updateModeratorActionApplyProposalMutation_updateModeratorAction_ModeratorActionOutput | null };
+
+
+type updateModeratorActionApplyProposalMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateModeratorActionDataInput;
+}>;
+
+
+type updateModeratorActionApplyProposalMutation = updateModeratorActionApplyProposalMutation_Mutation;
+
+type createUserRateLimitApplyProposalMutation_createUserRateLimit_UserRateLimitOutput_data_UserRateLimit = { __typename?: 'UserRateLimit', _id: string };
+
+type createUserRateLimitApplyProposalMutation_createUserRateLimit_UserRateLimitOutput = { __typename?: 'UserRateLimitOutput', data: createUserRateLimitApplyProposalMutation_createUserRateLimit_UserRateLimitOutput_data_UserRateLimit | null };
+
+type createUserRateLimitApplyProposalMutation_Mutation = { __typename?: 'Mutation', createUserRateLimit: createUserRateLimitApplyProposalMutation_createUserRateLimit_UserRateLimitOutput | null };
+
+
+type createUserRateLimitApplyProposalMutationVariables = Exact<{
+  data: CreateUserRateLimitDataInput;
+}>;
+
+
+type createUserRateLimitApplyProposalMutation = createUserRateLimitApplyProposalMutation_Mutation;
+
+type initiateConversationApplyProposalMutation_initiateConversation_Conversation = (
+  { __typename?: 'Conversation' }
+  & ConversationsMinimumInfo
+);
+
+type initiateConversationApplyProposalMutation_Mutation = { __typename?: 'Mutation', initiateConversation: initiateConversationApplyProposalMutation_initiateConversation_Conversation | null };
+
+
+type initiateConversationApplyProposalMutationVariables = Exact<{
+  participantIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  moderator: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type initiateConversationApplyProposalMutation = initiateConversationApplyProposalMutation_Mutation;
+
+type createMessageApplyProposalMutation_createMessage_MessageOutput_data_Message = { __typename?: 'Message', _id: string };
+
+type createMessageApplyProposalMutation_createMessage_MessageOutput = { __typename?: 'MessageOutput', data: createMessageApplyProposalMutation_createMessage_MessageOutput_data_Message | null };
+
+type createMessageApplyProposalMutation_Mutation = { __typename?: 'Mutation', createMessage: createMessageApplyProposalMutation_createMessage_MessageOutput | null };
+
+
+type createMessageApplyProposalMutationVariables = Exact<{
+  data: CreateMessageDataInput;
+}>;
+
+
+type createMessageApplyProposalMutation = createMessageApplyProposalMutation_Mutation;
+
+type updateModerationProposalApplyProposalMutation_updateModerationProposal_ModerationProposalOutput_data_ModerationProposal = (
+  { __typename?: 'ModerationProposal' }
+  & ModerationProposalDisplay
+);
+
+type updateModerationProposalApplyProposalMutation_updateModerationProposal_ModerationProposalOutput = { __typename?: 'ModerationProposalOutput', data: updateModerationProposalApplyProposalMutation_updateModerationProposal_ModerationProposalOutput_data_ModerationProposal | null };
+
+type updateModerationProposalApplyProposalMutation_Mutation = { __typename?: 'Mutation', updateModerationProposal: updateModerationProposalApplyProposalMutation_updateModerationProposal_ModerationProposalOutput | null };
+
+
+type updateModerationProposalApplyProposalMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateModerationProposalDataInput;
+}>;
+
+
+type updateModerationProposalApplyProposalMutation = updateModerationProposalApplyProposalMutation_Mutation;
 
 type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
@@ -24103,6 +24849,44 @@ type messageListFragment = { __typename?: 'Message', _id: string, createdAt: str
 
 type WithVoteMessage = { __typename: 'Message', _id: string, score: number, baseScore: number, extendedScore: any | null, afBaseScore: number | null, voteCount: number, currentUserVote: string | null, currentUserExtendedVote: any | null };
 
+type ModerationAgentConversationInfo = { __typename?: 'ModerationAgentConversation', _id: string, createdAt: string, userId: string | null, targetUserId: string | null, title: string | null, model: string | null, deleted: boolean | null };
+
+type ModerationAgentConversationWithMessages = (
+  { __typename?: 'ModerationAgentConversation', messages: any | null }
+  & ModerationAgentConversationInfo
+);
+
+type ModerationLoreDocDisplay_ModerationLoreDoc_targetUser_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type ModerationLoreDocDisplay_ModerationLoreDoc_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type ModerationLoreDocDisplay_ModerationLoreDoc_contents_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionEdit
+);
+
+type ModerationLoreDocDisplay = { __typename?: 'ModerationLoreDoc', _id: string, createdAt: string, title: string | null, scope: string | null, targetUserId: string | null, userId: string | null, deleted: boolean | null, targetUser: ModerationLoreDocDisplay_ModerationLoreDoc_targetUser_User | null, user: ModerationLoreDocDisplay_ModerationLoreDoc_user_User | null, contents: ModerationLoreDocDisplay_ModerationLoreDoc_contents_Revision | null };
+
+type ModerationProposalDisplay_ModerationProposal_createdByUser_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type ModerationProposalDisplay = { __typename?: 'ModerationProposal', _id: string, createdAt: string, targetUserId: string | null, createdByUserId: string | null, conversationId: string | null, title: string | null, rationale: string | null, steps: Array<any> | null, status: string | null, stepResults: Array<any> | null, appliedByUserId: string | null, appliedAt: string | null, model: string | null, createdByUser: ModerationProposalDisplay_ModerationProposal_createdByUser_User | null };
+
+type ModerationSummaryDisplay_ModerationSummary_createdByUser_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type ModerationSummaryDisplay = { __typename?: 'ModerationSummary', _id: string, createdAt: string, kind: string | null, targetUserId: string | null, memberUserIds: Array<string> | null, title: string | null, contents: string | null, createdByUserId: string | null, conversationId: string | null, model: string | null, deleted: boolean | null, createdByUser: ModerationSummaryDisplay_ModerationSummary_createdByUser_User | null };
+
 type ModerationTemplateFragment_ModerationTemplate_contents_Revision = (
   { __typename?: 'Revision' }
   & RevisionEdit
@@ -25452,7 +26236,7 @@ type SunshineUsersList_User_userRateLimits_UserRateLimit = (
 );
 
 type SunshineUsersList = (
-  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, reviewGroup: ReviewGroup | null, hasPendingComments: boolean | null, usersContactedBeforeReview: Array<string> | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
+  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, needsReview: boolean | null, sunshineNotes: string | null, llmNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, reviewGroup: ReviewGroup | null, hasPendingComments: boolean | null, usersContactedBeforeReview: Array<string> | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
   & UsersMinimumInfo
 );
 
@@ -25863,6 +26647,108 @@ type multiPostPostsEmailQueryQueryVariables = Exact<{
 
 
 type multiPostPostsEmailQueryQuery = multiPostPostsEmailQueryQuery_Query;
+
+type AgentUserDossierQuery_user_SingleUserOutput_result_User_associatedClientIds_ClientId = { __typename?: 'ClientId', clientId: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, userIds: Array<string> | null };
+
+type AgentUserDossierQuery_user_SingleUserOutput_result_User = (
+  { __typename?: 'User', altAccountsDetected: boolean | null, associatedClientIds: Array<AgentUserDossierQuery_user_SingleUserOutput_result_User_associatedClientIds_ClientId> | null }
+  & SunshineUsersList
+);
+
+type AgentUserDossierQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: AgentUserDossierQuery_user_SingleUserOutput_result_User | null };
+
+type AgentUserDossierQuery_Query = { __typename?: 'Query', user: AgentUserDossierQuery_user_SingleUserOutput | null };
+
+
+type AgentUserDossierQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+type AgentUserDossierQuery = AgentUserDossierQuery_Query;
+
+type AgentUserPostsQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type AgentUserPostsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<AgentUserPostsQuery_posts_MultiPostOutput_results_Post> };
+
+type AgentUserPostsQuery_Query = { __typename?: 'Query', posts: AgentUserPostsQuery_posts_MultiPostOutput | null };
+
+
+type AgentUserPostsQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type AgentUserPostsQuery = AgentUserPostsQuery_Query;
+
+type AgentUserCommentsQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & SunshineCommentsList
+);
+
+type AgentUserCommentsQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<AgentUserCommentsQuery_comments_MultiCommentOutput_results_Comment> };
+
+type AgentUserCommentsQuery_Query = { __typename?: 'Query', comments: AgentUserCommentsQuery_comments_MultiCommentOutput | null };
+
+
+type AgentUserCommentsQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type AgentUserCommentsQuery = AgentUserCommentsQuery_Query;
+
+type AgentModeratorActionsQuery_moderatorActions_MultiModeratorActionOutput_results_ModeratorAction = { __typename?: 'ModeratorAction', _id: string, type: ModeratorActionType, active: boolean, createdAt: string, endedAt: string | null };
+
+type AgentModeratorActionsQuery_moderatorActions_MultiModeratorActionOutput = { __typename?: 'MultiModeratorActionOutput', results: Array<AgentModeratorActionsQuery_moderatorActions_MultiModeratorActionOutput_results_ModeratorAction> };
+
+type AgentModeratorActionsQuery_Query = { __typename?: 'Query', moderatorActions: AgentModeratorActionsQuery_moderatorActions_MultiModeratorActionOutput | null };
+
+
+type AgentModeratorActionsQueryVariables = Exact<{
+  selector: InputMaybe<ModeratorActionSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type AgentModeratorActionsQuery = AgentModeratorActionsQuery_Query;
+
+type AgentModerationTemplatesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type AgentModerationTemplatesQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', results: Array<AgentModerationTemplatesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
+
+type AgentModerationTemplatesQuery_Query = { __typename?: 'Query', moderationTemplates: AgentModerationTemplatesQuery_moderationTemplates_MultiModerationTemplateOutput | null };
+
+
+type AgentModerationTemplatesQueryVariables = Exact<{
+  selector: InputMaybe<ModerationTemplateSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type AgentModerationTemplatesQuery = AgentModerationTemplatesQuery_Query;
+
+type AgentReviewQueueQuery_users_MultiUserOutput_results_User = { __typename?: 'User', _id: string, displayName: string, slug: string, karma: number, createdAt: string, postCount: number, commentCount: number, reviewGroup: ReviewGroup | null, rejectedContentCount: number | null };
+
+type AgentReviewQueueQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<AgentReviewQueueQuery_users_MultiUserOutput_results_User> };
+
+type AgentReviewQueueQuery_Query = { __typename?: 'Query', users: AgentReviewQueueQuery_users_MultiUserOutput | null };
+
+
+type AgentReviewQueueQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type AgentReviewQueueQuery = AgentReviewQueueQuery_Query;
 
 type PostMetadataQuery_post_SinglePostOutput_result_Post_socialPreviewData_SocialPreviewType = { __typename?: 'SocialPreviewType', _id: string, imageUrl: string, text: string | null };
 
