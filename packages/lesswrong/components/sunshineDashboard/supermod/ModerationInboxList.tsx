@@ -57,13 +57,18 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
 export type GroupEntry = [ReviewGroup, SunshineUsersList[]];
 
 // Only the first page of the queue is loaded, so a tab can run out of loaded items while its count is still non-zero
-const UnloadedItemsNotice = ({ unloadedCount, itemName }: { unloadedCount: number; itemName: string }) => {
+const UnloadedItemsNotice = ({ unloadedCount, itemName, onLoad, loading }: {
+  unloadedCount: number;
+  itemName: string;
+  onLoad: () => void;
+  loading: boolean;
+}) => {
   const classes = useStyles(styles);
   return (
     <div className={classes.empty}>
       <div>{unloadedCount} more queued {itemName}{unloadedCount === 1 ? '' : 's'} not loaded</div>
-      <Button className={classes.reloadButton} variant="outlined" onClick={() => window.location.reload()}>
-        Reload
+      <Button className={classes.reloadButton} variant="outlined" onClick={onLoad} disabled={loading}>
+        {loading ? 'Loading…' : 'Load them'}
       </Button>
     </div>
   );
@@ -80,6 +85,8 @@ const ModerationInboxList = ({
   onFocusPost,
   activeTab,
   unloadedCount,
+  onLoadUnloaded,
+  loadingUnloaded,
 }: {
   userGroups: GroupEntry[];
   posts: SunshinePostsList[];
@@ -91,6 +98,8 @@ const ModerationInboxList = ({
   onFocusPost: (postId: string) => void;
   activeTab: TabId;
   unloadedCount: number;
+  onLoadUnloaded: () => void;
+  loadingUnloaded: boolean;
 }) => {
   const classes = useStyles(styles);
 
@@ -116,7 +125,7 @@ const ModerationInboxList = ({
       ) : (activeTab === 'posts' || activeTab === 'classifiedPosts') ? (
         posts.length === 0 ? (
           unloadedCount > 0 ? (
-            <UnloadedItemsNotice unloadedCount={unloadedCount} itemName="post" />
+            <UnloadedItemsNotice unloadedCount={unloadedCount} itemName="post" onLoad={onLoadUnloaded} loading={loadingUnloaded} />
           ) : (
             <div className={classes.empty}>
               {activeTab === 'classifiedPosts' ? 'No auto-classified posts to review' : 'No posts to review'}
@@ -137,7 +146,7 @@ const ModerationInboxList = ({
       ) : (
         userCount === 0 ? (
           unloadedCount > 0 ? (
-            <UnloadedItemsNotice unloadedCount={unloadedCount} itemName="user" />
+            <UnloadedItemsNotice unloadedCount={unloadedCount} itemName="user" onLoad={onLoadUnloaded} loading={loadingUnloaded} />
           ) : (
             <div className={classes.empty}>
               No users to review

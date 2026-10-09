@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -70,6 +70,34 @@ const ModerationInboxDataQuery = gql(`
   }
 `);
 
+const ModerationInboxRemainingItemsQuery = gql(`
+  query ModerationInboxRemainingItemsQuery($userSelector: UserSelector, $postSelector: PostSelector, $classifiedPostSelector: PostSelector, $limit: Int) {
+    users(selector: $userSelector, limit: $limit) {
+      results {
+        ...SunshineUsersList
+      }
+    }
+    posts(selector: $postSelector, limit: $limit) {
+      results {
+        ...SunshinePostsList
+      }
+    }
+    classifiedPosts: posts(selector: $classifiedPostSelector, limit: $limit) {
+      results {
+        ...SunshinePostsList
+      }
+    }
+  }
+`);
+
+const REVIEW_QUEUE_LIMIT = 5000;
+
+interface RemainingItems {
+  users: SunshineUsersList[];
+  posts: SunshinePostsList[];
+  classifiedPosts: SunshinePostsList[];
+}
+
 const SingleUserSupermodQuery = gql(`
   query singleUserSupermodQuery($documentId: String) {
     user(selector: { documentId: $documentId }) {
@@ -133,7 +161,7 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, unloadedCounts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
+const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, unloadedCounts, lastCuratedDate, initialOpenedUserId, directUser, currentUser, remainingItems, onLoadRemaining, loadingRemaining }: {
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
@@ -143,6 +171,9 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
   initialOpenedUserId: string | null;
   directUser: SunshineUsersList | null;
   currentUser: UsersCurrent;
+  remainingItems: RemainingItems | null;
+  onLoadRemaining: () => void;
+  loadingRemaining: boolean;
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
@@ -299,6 +330,12 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
       }, { replace: true, skipRouter: true });
     }
   }, [state.openedUserId, query.user, location, navigate]);
+
+  useEffect(() => {
+    if (remainingItems) {
+      dispatch({ type: 'ADD_LOADED_ITEMS', ...remainingItems, unloadedCounts });
+    }
+  }, [remainingItems, unloadedCounts]);
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
@@ -495,6 +532,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
                   onFocusPost={handleFocusPost}
                   activeTab={state.activeTab}
                   unloadedCount={state.unloadedCounts[state.activeTab] ?? 0}
+                  onLoadUnloaded={onLoadRemaining}
+                  loadingUnloaded={loadingRemaining}
                 />
               </div>
             </>
@@ -534,12 +573,25 @@ const ModerationInbox = () => {
       postSelector: { sunshineNewPosts: {} },
       classifiedPostSelector: { sunshineAutoClassifiedPosts: {} },
       userLimit: 100,
-      reviewQueueLimit: 5000,
+      reviewQueueLimit: REVIEW_QUEUE_LIMIT,
       postLimit: 100,
       curationLimit: 200,
     },
     fetchPolicy: 'cache-and-network',
   });
+
+  const [loadRemaining, setLoadRemaining] = useState(false);
+  const { data: remainingData, loading: loadingRemaining } = useQuery(ModerationInboxRemainingItemsQuery, {
+    variables: {
+      userSelector: { sunshineNewUsers: {} },
+      postSelector: { sunshineNewPosts: {} },
+      classifiedPostSelector: { sunshineAutoClassifiedPosts: {} },
+      limit: REVIEW_QUEUE_LIMIT,
+    },
+    skip: !loadRemaining,
+    fetchPolicy: 'network-only',
+  });
+  const handleLoadRemaining = useCallback(() => setLoadRemaining(true), []);
 
   const initialOpenedUserId = query.user || null;
 
@@ -565,8 +617,17 @@ const ModerationInbox = () => {
     return directUserData?.user?.result ?? null;
   }, [shouldFetchDirectUser, directUserData]);
 
+  const remainingItems = useMemo((): RemainingItems | null => {
+    if (!remainingData) return null;
+    return {
+      users: remainingData.users?.results.filter(user => user.needsReview) ?? [],
+      posts: remainingData.posts?.results.filter(post => !post.reviewedByUserId) ?? [],
+      classifiedPosts: remainingData.classifiedPosts?.results ?? [],
+    };
+  }, [remainingData]);
+
   const unloadedCounts = useMemo((): UnloadedCounts => {
-    const loadedUserIds = new Set(users.map(user => user._id));
+    const loadedUserIds = new Set([...users, ...(remainingItems?.users ?? [])].map(user => user._id));
     if (directUser) {
       loadedUserIds.add(directUser._id);
     }
@@ -574,10 +635,10 @@ const ModerationInbox = () => {
     return {
       ...countBy(unloadedUsers, user => user.reviewGroup ?? 'unknown'),
       all: unloadedUsers.length,
-      posts: Math.max(0, (data?.posts?.totalCount ?? 0) - (data?.posts?.results.length ?? 0)),
-      classifiedPosts: Math.max(0, (data?.classifiedPosts?.totalCount ?? 0) - (data?.classifiedPosts?.results.length ?? 0)),
+      posts: Math.max(0, (data?.posts?.totalCount ?? 0) - Math.max(data?.posts?.results.length ?? 0, remainingData?.posts?.results.length ?? 0)),
+      classifiedPosts: Math.max(0, (data?.classifiedPosts?.totalCount ?? 0) - Math.max(data?.classifiedPosts?.results.length ?? 0, remainingData?.classifiedPosts?.results.length ?? 0)),
     };
-  }, [data, users, directUser]);
+  }, [data, users, directUser, remainingItems, remainingData]);
 
   useHydrateModerationPostCache(posts);
   useHydrateModerationPostCache(classifiedPosts);
@@ -607,6 +668,9 @@ const ModerationInbox = () => {
     initialOpenedUserId={initialOpenedUserId}
     directUser={directUser}
     currentUser={currentUser}
+    remainingItems={remainingItems}
+    onLoadRemaining={handleLoadRemaining}
+    loadingRemaining={loadingRemaining}
   />;
 };
 
