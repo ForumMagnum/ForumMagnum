@@ -141,6 +141,7 @@ const ModerationInboxList = ({
                 onFocus={() => onFocusPost(post._id)}
               />
             ))}
+            {unloadedCount > 0 && <UnloadedItemsNotice unloadedCount={unloadedCount} itemName="post" onLoad={onLoadUnloaded} loading={loadingUnloaded} />}
           </div>
         )
       ) : (
@@ -168,6 +169,7 @@ const ModerationInboxList = ({
                 ))}
               </div>
             })}
+            {unloadedCount > 0 && <UnloadedItemsNotice unloadedCount={unloadedCount} itemName="user" onLoad={onLoadUnloaded} loading={loadingUnloaded} />}
           </div>
         )
       )}
