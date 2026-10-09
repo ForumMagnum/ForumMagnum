@@ -449,9 +449,9 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   // Mirrors `commentIsHiddenPendingReview`
-  async getUserIdsWithPendingComments(userIds: string[], hideSince: Date): Promise<string[]> {
+  async getUserIdsWithHeldComments(userIds: string[], hideSince: Date): Promise<string[]> {
     const rows = await this.getRawDb().any<{ userId: string }>(`
-      -- UsersRepo.getUserIdsWithPendingComments
+      -- UsersRepo.getUserIdsWithHeldComments
       SELECT DISTINCT c."userId"
       FROM "Comments" c
       WHERE c."userId" = ANY($(userIds)::text[])
