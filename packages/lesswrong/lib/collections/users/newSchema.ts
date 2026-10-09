@@ -4361,7 +4361,7 @@ const schema = {
       },
     },
   },
-  hasPendingComments: {
+  hasHeldComments: {
     graphql: {
       outputType: "Boolean",
       canRead: ["sunshineRegiment", "admins"],
@@ -4370,9 +4370,9 @@ const schema = {
         if (!hideSince) {
           return false;
         }
-        return await getWithCustomLoader(context, "hasPendingComments", user._id, async (userIds) => {
-          const userIdsWithPendingComments = new Set(await context.repos.users.getUserIdsWithPendingComments(userIds, new Date(hideSince)));
-          return userIds.map((id) => userIdsWithPendingComments.has(id));
+        return await getWithCustomLoader(context, "hasHeldComments", user._id, async (userIds) => {
+          const userIdsWithHeldComments = new Set(await context.repos.users.getUserIdsWithHeldComments(userIds, new Date(hideSince)));
+          return userIds.map((id) => userIdsWithHeldComments.has(id));
         });
       },
     },

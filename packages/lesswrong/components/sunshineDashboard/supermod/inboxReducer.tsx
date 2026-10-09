@@ -108,7 +108,7 @@ function orderUsersWithinGroup(group: ReviewGroup, users: SunshineUsersList[]): 
   if (group !== 'newContent') {
     return users;
   }
-  return sortBy(users, user => user.hasPendingComments ? 0 : 1);
+  return sortBy(users, user => user.hasHeldComments ? 0 : 1);
 }
 
 export function getOrderedGroups(groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>): GroupEntry[] {
