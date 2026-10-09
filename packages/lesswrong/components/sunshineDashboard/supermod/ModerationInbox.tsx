@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -28,6 +28,7 @@ import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import { hideScrollBars } from '@/themes/styleUtils';
+import { ConcurrentModeratorChangesContext, useConcurrentModeratorChanges } from './useConcurrentModeratorChanges';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -282,6 +283,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
     }
   );
 
+  // Users can leave and re-enter the local lists (via the undo queue), so track everything that was loaded
+  const [loadedDocumentIds] = useState(() => [...state.users, ...state.posts, ...state.classifiedPosts].map(document => document._id));
+  const concurrentModeratorChanges = useConcurrentModeratorChanges(loadedDocumentIds);
+
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
     const currentUrlUser = query.user;
@@ -407,6 +412,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
   const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
   return (
+    <ConcurrentModeratorChangesContext.Provider value={concurrentModeratorChanges}>
     <CoreTagsKeyboardProvider>
     <div className={classes.root}>
       {isCurationTab ? (
@@ -520,6 +526,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
       </div>
     </div>
     </CoreTagsKeyboardProvider>
+    </ConcurrentModeratorChangesContext.Provider>
   );
 };
 

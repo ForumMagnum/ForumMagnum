@@ -1261,8 +1261,15 @@ enum ContentCollectionName {
   Comments
 }
 
+type SupermodQueueChange {
+  documentId: String!
+  moderatorName: String!
+  lastChangedAt: Date!
+}
+
 extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
+  supermodQueueChanges(documentIds: [String!]!, since: Date!): [SupermodQueueChange!]!
 }
 
 extend type Mutation {

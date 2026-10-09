@@ -6,11 +6,13 @@ import { Users } from '../../server/collections/users/collection';
 import { Posts } from '../../server/collections/posts/collection';
 import moment from 'moment';
 import uniq from 'lodash/uniq';
+import groupBy from 'lodash/groupBy';
+import maxBy from 'lodash/maxBy';
 import gql from 'graphql-tag';
 import { createComment, updateComment } from '../collections/comments/mutations';
 import { updatePost } from '../collections/posts/mutations';
 import { updateUser } from '../collections/users/mutations';
-import { getSignatureWithNote } from '../../lib/collections/users/helpers';
+import { getSignatureWithNote, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { approveUnreviewedSubmissions } from '../callbacks/userCallbackFunctions';
 import { createConversation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
@@ -44,8 +46,15 @@ export const moderationGqlTypeDefs = gql`
     Comments
   }
 
+  type SupermodQueueChange {
+    documentId: String!
+    moderatorName: String!
+    lastChangedAt: Date!
+  }
+
   extend type Query {
     moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
+    supermodQueueChanges(documentIds: [String!]!, since: Date!): [SupermodQueueChange!]!
   }
 
   extend type Mutation {
@@ -396,6 +405,9 @@ export const moderationGqlMutations = {
   },
 }
 
+// Bounds the FieldChanges lookup; the inbox loads a few hundred items at most
+const MAX_QUEUE_CHANGE_DOCUMENT_IDS = 1000;
+
 export const moderationGqlQueries = {
   async moderatorViewIPAddress(_root: void, args: {ipAddress: string}, context: ResolverContext) {
     const { currentUser } = context;
@@ -413,5 +425,39 @@ export const moderationGqlQueries = {
       ip: ipAddress,
       userIds,
     };
+  },
+  /** Which moderators other than the current user have changed the given users/posts since `since`, and when they last did */
+  async supermodQueueChanges(_root: void, { documentIds, since }: { documentIds: string[], since: Date }, context: ResolverContext) {
+    const { currentUser, FieldChanges } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can see moderation queue changes");
+    }
+    if (documentIds.length === 0) return [];
+
+    const changes = await FieldChanges.find({
+      documentId: { $in: documentIds.slice(0, MAX_QUEUE_CHANGE_DOCUMENT_IDS) },
+      createdAt: { $gt: since },
+    }, {}, { documentId: 1, userId: 1, createdAt: 1 }).fetch();
+
+    // Authors editing their own posts and profiles also produce FieldChanges, so only count moderators
+    const actorIds = uniq(changes.flatMap(change => change.userId && change.userId !== currentUser._id ? [change.userId] : []));
+    if (actorIds.length === 0) return [];
+    const actors = await Users.find({ _id: { $in: actorIds } }, {
+      projection: { _id: 1, isAdmin: 1, groups: 1, displayName: 1, username: 1, fullName: 1 },
+    }).fetch();
+    const moderatorsById = new Map(actors.filter(userIsAdminOrMod).map(user => [user._id, user]));
+
+    const moderatorChanges = changes.flatMap(change => {
+      const moderator = change.userId ? moderatorsById.get(change.userId) : undefined;
+      return change.documentId && moderator ? [{ ...change, documentId: change.documentId, moderator }] : [];
+    });
+    return Object.values(groupBy(moderatorChanges, change => `${change.documentId}:${change.moderator._id}`)).map(group => {
+      const latest = maxBy(group, change => change.createdAt.getTime()) ?? group[0];
+      return {
+        documentId: latest.documentId,
+        moderatorName: userGetDisplayName(latest.moderator, context.forumType),
+        lastChangedAt: latest.createdAt,
+      };
+    });
   },
 }
