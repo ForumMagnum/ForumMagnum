@@ -125,6 +125,7 @@ import { EditorUserMode, getDefaultEditorUserMode, type EditorUserModeType } fro
 import { SET_USER_MODE_COMMAND } from '../editor/lexicalPlugins/suggestedEdits/Commands';
 import BlockCursorNavigationPlugin from '../editor/lexicalPlugins/blockCursorNavigation/BlockCursorNavigationPlugin';
 import { SideCommentsPlugin } from '../editor/lexicalPlugins/sideComments/SideCommentsPlugin';
+import { CommentThreadPopoverPlugin } from '../editor/lexicalPlugins/sideComments/CommentThreadPopoverPlugin';
 import { useLexicalEditorContext } from '../editor/LexicalEditorContext';
 import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
 import InlineCodeEscapePlugin from '../editor/lexicalPlugins/inlineCodeEscape';
@@ -885,6 +886,7 @@ export default function Editor({
                   <>
                     <CommentPlugin />
                     {showPostCommentFeatures && <SideCommentsPlugin />}
+                    {showPostCommentFeatures && <CommentThreadPopoverPlugin />}
                   </>
                 )}
               <SuggestedEditsPlugin

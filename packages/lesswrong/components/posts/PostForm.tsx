@@ -27,6 +27,7 @@ import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import EditorSettingsSidebar from "./EditorSettingsSidebar";
 import MobileEditorBottomBar from "./MobileEditorBottomBar";
+import UnanchoredCommentsBadge from "./UnanchoredCommentsBadge";
 import { useIsAboveBreakpoint } from "../hooks/useScreenWidth";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { isClient } from "@/lib/executionEnvironment";
@@ -118,6 +119,10 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     borderColor: theme.palette.greyAlpha(0.34),
     background: theme.palette.background.pageActiveAreaBackground,
     boxShadow: `0 0 0 1px ${theme.palette.greyAlpha(0.08)} inset`,
+  },
+  commentsButton: {
+    // Positioning context for UnanchoredCommentsBadge
+    position: "relative",
   },
   iconButtonDisconnected: {
     borderColor: theme.palette.warning.main,
@@ -443,6 +448,7 @@ const PostForm = ({
   const [sidebarPanel, setSidebarPanel] = useState<"publish" | "settings" | "sharing" | null>(null);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
+  const [unanchoredCommentCount, setUnanchoredCommentCount] = useState(0);
   const [showCoauthorSearch, setShowCoauthorSearch] = useState(false);
   const [editingLinkpostUrl, setEditingLinkpostUrl] = useState(false);
   const [linkpostUrlDraft, setLinkpostUrlDraft] = useState("");
@@ -570,7 +576,8 @@ const PostForm = ({
 
   const inlineCommentsContext = useMemo(() => ({
     showComments, setShowComments, commentCount, setCommentCount,
-  }), [showComments, commentCount]);
+    unanchoredCommentCount, setUnanchoredCommentCount,
+  }), [showComments, commentCount, unanchoredCommentCount]);
 
   if (formType === 'edit' && !initialData) {
     return <Error404 />;
@@ -633,10 +640,16 @@ const PostForm = ({
           </button>
           </LWTooltip>
         </>}
-        {(commentCount > 0 || showComments) && <LWTooltip title="Comments" placement="left">
+        {(commentCount > 0 || showComments) && <LWTooltip
+          title={unanchoredCommentCount > 0
+            ? `Comments (${unanchoredCommentCount} not attached to any text)`
+            : "Comments"
+          }
+          placement="left"
+        >
         <button
           type="button"
-          className={classNames(classes.iconButton, showComments && classes.iconButtonActive)}
+          className={classNames(classes.iconButton, classes.commentsButton, showComments && classes.iconButtonActive)}
           title={showComments ? "Hide comments" : "Show comments"}
           onClick={() => {
             setSidebarPanel(null);
@@ -644,6 +657,7 @@ const PostForm = ({
           }}
         >
           <ForumIcon icon="Comment" className={classes.icon} />
+          <UnanchoredCommentsBadge />
         </button>
         </LWTooltip>}
         {editorType === "lexical" && (

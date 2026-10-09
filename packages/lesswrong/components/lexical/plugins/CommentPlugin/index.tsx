@@ -63,7 +63,6 @@ import useModal from '../../hooks/useModal';
 import Button from '../../ui/Button';
 import { InlineCommentsPanelContext } from '@/components/common/sharedContexts';
 import LWClickAwayListener from '@/components/common/LWClickAwayListener';
-import { useHasSideComments } from '@/components/editor/lexicalPlugins/sideComments/SideCommentsPlugin';
 import { PlainTextEditor, useOnChange, CommentsComposer, SuggestionStatusOrActions, RESOLVE_THREAD_COMMAND, getThreadMarkId, acceptSuggestionThread, rejectSuggestionThread } from './CommentPluginComponents';
 import ForumIcon from '@/components/common/ForumIcon';
 import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
@@ -474,6 +473,26 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
 const isSuggestionThread = (thread: Thread): boolean => thread.threadType === 'suggestion';
 
 const getSuggestionSummaryComment = (thread: Thread): Comment | undefined => thread.comments.find((comment) => comment.commentKind === SUGGESTION_SUMMARY_KIND);
+
+/**
+ * Count the open threads whose marks are no longer in the document (eg
+ * because the commented text was deleted), plus any standalone comments.
+ * These can only be seen in the comments panel.
+ */
+function countUnanchoredComments(comments: Comments, markNodeMap: Map<string, Set<NodeKey>>): number {
+  let count = 0;
+  for (const commentOrThread of comments) {
+    if (commentOrThread.type === 'thread') {
+      const isOpen = (commentOrThread.status ?? 'open') === 'open';
+      if (isOpen && !markNodeMap.get(getThreadMarkId(commentOrThread))?.size) {
+        count++;
+      }
+    } else if (!commentOrThread.deleted) {
+      count++;
+    }
+  }
+  return count;
+}
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
@@ -1131,8 +1150,7 @@ export default function CommentPlugin(): JSX.Element {
   const [commentAnchorRect, setCommentAnchorRect] = useState<DOMRect | null>(
     null,
   );
-  const { showComments, setShowComments, setCommentCount, panelPortalEl } = useContext(InlineCommentsPanelContext);
-  const hasSideComments = useHasSideComments();
+  const { showComments, setShowComments, setCommentCount, setUnanchoredCommentCount, panelPortalEl } = useContext(InlineCommentsPanelContext);
   const panelRef = useRef<HTMLDivElement>(null);
   const replyActivatedRef = useRef(false);
   const cancelAddComment = useCallback(() => {
@@ -1209,12 +1227,6 @@ export default function CommentPlugin(): JSX.Element {
     },
     [commentStore, editor],
   );
-
-  useEffect(() => {
-    if (activeIDs.length > 0 && !hasSideComments) {
-      setShowComments(true);
-    }
-  }, [activeIDs, setShowComments, hasSideComments]);
 
   useEffect(() => {
     if (!showComments) {
@@ -1425,7 +1437,6 @@ export default function CommentPlugin(): JSX.Element {
           $addUpdateTag(HISTORY_MERGE_TAG);
           $wrapSelectionInMarkNode(selection, isBackward, threadId);
 
-          setShowComments(true);
           setShowCommentInput(false);
           return true;
         },
@@ -1516,7 +1527,7 @@ export default function CommentPlugin(): JSX.Element {
         COMMAND_PRIORITY_EDITOR,
       ),
     );
-  }, [author, authorId, commentStore, editor, markNodeMap, setShowComments]);
+  }, [author, authorId, commentStore, editor, markNodeMap]);
 
   const onAddComment = () => {
     editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
@@ -1531,6 +1542,17 @@ export default function CommentPlugin(): JSX.Element {
     ).length;
     setCommentCount(openCount);
   }, [supportsCollabComments, comments, setCommentCount]);
+
+  useEffect(() => {
+    if (!supportsCollabComments) return;
+    // markNodeMap is mutated in place by mark/suggestion mutation listeners,
+    // which run before update listeners, so recount after every update.
+    const refresh = () => {
+      setUnanchoredCommentCount(countUnanchoredComments(comments, markNodeMap));
+    };
+    refresh();
+    return editor.registerUpdateListener(refresh);
+  }, [supportsCollabComments, comments, editor, markNodeMap, setUnanchoredCommentCount]);
 
   return (
     <>
