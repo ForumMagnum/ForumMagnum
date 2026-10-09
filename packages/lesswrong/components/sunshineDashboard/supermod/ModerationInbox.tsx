@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -331,8 +331,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
     }
   }, [state.openedUserId, query.user, location, navigate]);
 
+  const addedRemainingItems = useRef(false);
   useEffect(() => {
-    if (remainingItems) {
+    if (remainingItems && !addedRemainingItems.current) {
+      addedRemainingItems.current = true;
       dispatch({ type: 'ADD_LOADED_ITEMS', ...remainingItems, unloadedCounts });
     }
   }, [remainingItems, unloadedCounts]);
@@ -627,7 +629,8 @@ const ModerationInbox = () => {
   }, [remainingData]);
 
   const unloadedCounts = useMemo((): UnloadedCounts => {
-    const loadedUserIds = new Set([...users, ...(remainingItems?.users ?? [])].map(user => user._id));
+    // Users acted on lose needsReview, but are still in the reviewQueueUsers snapshot, so count them as loaded
+    const loadedUserIds = new Set([...(data?.users?.results ?? []), ...(remainingData?.users?.results ?? [])].map(user => user._id));
     if (directUser) {
       loadedUserIds.add(directUser._id);
     }
@@ -638,7 +641,7 @@ const ModerationInbox = () => {
       posts: Math.max(0, (data?.posts?.totalCount ?? 0) - Math.max(data?.posts?.results.length ?? 0, remainingData?.posts?.results.length ?? 0)),
       classifiedPosts: Math.max(0, (data?.classifiedPosts?.totalCount ?? 0) - Math.max(data?.classifiedPosts?.results.length ?? 0, remainingData?.classifiedPosts?.results.length ?? 0)),
     };
-  }, [data, users, directUser, remainingItems, remainingData]);
+  }, [data, directUser, remainingData]);
 
   useHydrateModerationPostCache(posts);
   useHydrateModerationPostCache(classifiedPosts);
