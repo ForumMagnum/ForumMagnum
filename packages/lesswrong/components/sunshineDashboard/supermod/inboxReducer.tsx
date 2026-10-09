@@ -8,7 +8,6 @@ import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
 import type { SelectedSidebarTab } from './sidebarTabs';
-import { sortSimpleUsers } from './userSort';
 
 export interface HistoryItem {
   user: SunshineUsersList;
@@ -86,6 +85,20 @@ export type InboxAction =
   | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; };
 
 
+
+function getSimpleSortKey(user: SunshineUsersList): [number, number] {
+  const hasPendingComments = (user.pendingCommentCount ?? 0) > 0;
+  const words = hasPendingComments ? user.pendingCommentWordCount : user.pendingPostWordCount;
+  return [hasPendingComments ? 0 : 1, words ?? 0];
+}
+
+function sortSimpleUsers(users: SunshineUsersList[]): SunshineUsersList[] {
+  return [...users].sort((a, b) => {
+    const [aSection, aWords] = getSimpleSortKey(a);
+    const [bSection, bWords] = getSimpleSortKey(b);
+    return aSection - bSection || aWords - bWords;
+  });
+}
 
 // Held comments can't go live until reviewed
 function orderUsersWithinGroup(group: ReviewGroup, users: SunshineUsersList[]): SunshineUsersList[] {
