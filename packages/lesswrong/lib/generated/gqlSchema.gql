@@ -7787,7 +7787,6 @@ type User {
   reviewedByUser: User
   isReviewed: Boolean
   reviewedAt: Date
-  spamRiskScore: Float!
   afKarma: Float!
   voteCount: Float
   smallUpvoteCount: Float

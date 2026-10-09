@@ -29,7 +29,7 @@ const styles = defineStyles('LexicalContentEditable',(theme: ThemeType) => ({
     display: 'block',
     position: 'relative',
     outline: 0,
-    minHeight: 150,
+    minHeight: 'var(--lexical-content-editable-min-height, 150px)',
     height: '100%',
     '& hr': {
       height: 'auto',

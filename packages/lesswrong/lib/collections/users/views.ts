@@ -1,4 +1,3 @@
-import { spamRiskScoreThreshold } from './helpers';
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
@@ -99,7 +98,6 @@ async function sunshineNewUsers(terms: UsersViewTerms, _: ApolloClient | undefin
       needsReview: true,
       banned: viewFieldNullOrMissing,
       reviewedByUserId: null,
-      $or: [{signUpReCaptchaRating: {$gt: spamRiskScoreThreshold*1.25}}, {signUpReCaptchaRating: {$exists: false}}, {signUpReCaptchaRating:null}],
       ...(nothingPendingUserIds.length ? { _id: { $nin: nothingPendingUserIds } } : {}),
     },
     options: {
@@ -108,7 +106,6 @@ async function sunshineNewUsers(terms: UsersViewTerms, _: ApolloClient | undefin
         reviewedByUserId: 1,
         postCount: -1,
         commentCount: -1,
-        signUpReCaptchaRating: -1,
         createdAt: -1
       }
     }

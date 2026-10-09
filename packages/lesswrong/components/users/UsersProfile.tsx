@@ -266,8 +266,8 @@ const UsersProfileFn = ({terms, slug}: {
       return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 
-    // Does this profile page belong to a likely-spam account?
-    if (user.spamRiskScore < 0.4) {
+    // Does this profile page belong to a banned-and-purged spam account?
+    if (user.banned && user.deleteContent) {
       if (currentUser?._id === user._id) {
         // Logged-in spammer can see their own profile
       } else if (currentUser && userCanDo(currentUser, 'posts.moderate.all')) {
@@ -275,7 +275,7 @@ const UsersProfileFn = ({terms, slug}: {
       } else {
         // Anyone else gets a 404 here
         // eslint-disable-next-line no-console
-        console.log(`Not rendering profile page for account with poor spam risk score: ${user.displayName}`);
+        console.log(`Not rendering profile page for banned-and-purged account: ${user.displayName}`);
         return <Error404/>
       }
     }
