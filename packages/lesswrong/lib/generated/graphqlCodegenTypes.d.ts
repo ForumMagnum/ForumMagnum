@@ -9158,7 +9158,7 @@ type ReviewGroup =
   | 'highContext'
   | 'maybeSpam'
   | 'newContent'
-  | 'offboard'
+  | 'simple'
   | 'snoozeExpired'
   | 'unknown';
 
@@ -11802,7 +11802,7 @@ type User = {
   hasAuth0Id?: Maybe<Scalars['Boolean']['output']>;
   hasClaudeCodeOAuthToken?: Maybe<Scalars['Boolean']['output']>;
   hasContinueReading?: Maybe<Scalars['Boolean']['output']>;
-  hasPendingComments?: Maybe<Scalars['Boolean']['output']>;
+  hasHeldComments?: Maybe<Scalars['Boolean']['output']>;
   hiddenPosts?: Maybe<Array<Post>>;
   hiddenPostsMetadata?: Maybe<Array<PostMetadataOutput>>;
   hideAFNonMemberInitialWarning?: Maybe<Scalars['Boolean']['output']>;
@@ -11915,6 +11915,10 @@ type User = {
   partiallyReadSequences?: Maybe<Array<PartiallyReadSequenceItemOutput>>;
   paymentEmail?: Maybe<Scalars['String']['output']>;
   paymentInfo?: Maybe<Scalars['String']['output']>;
+  pendingCommentCount?: Maybe<Scalars['Int']['output']>;
+  pendingCommentWordCount?: Maybe<Scalars['Int']['output']>;
+  pendingPostCount?: Maybe<Scalars['Int']['output']>;
+  pendingPostWordCount?: Maybe<Scalars['Int']['output']>;
   permanentDeletionRequestedAt?: Maybe<Scalars['Date']['output']>;
   petrovLaunchCodeDate?: Maybe<Scalars['Date']['output']>;
   petrovOptOut: Scalars['Boolean']['output'];
@@ -25452,7 +25456,7 @@ type SunshineUsersList_User_userRateLimits_UserRateLimit = (
 );
 
 type SunshineUsersList = (
-  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, reviewGroup: ReviewGroup | null, hasPendingComments: boolean | null, usersContactedBeforeReview: Array<string> | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
+  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, reviewGroup: ReviewGroup | null, hasHeldComments: boolean | null, pendingPostCount: number | null, pendingCommentCount: number | null, pendingPostWordCount: number | null, pendingCommentWordCount: number | null, usersContactedBeforeReview: Array<string> | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
   & UsersMinimumInfo
 );
 

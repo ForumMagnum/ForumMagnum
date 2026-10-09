@@ -37,7 +37,7 @@ import { bothChannelsEnabledNotificationTypeSettings, defaultNotificationTypeSet
 import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
-import { getReviewGroupFromActions } from "./reviewGroups";
+import { getReviewGroupFromActions, isSimpleReviewCandidate } from "./reviewGroups";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 import { hideUnreviewedAuthorCommentsSettings } from "@/lib/instanceSettings";
 
@@ -69,15 +69,10 @@ const getModeratorActionsForUser = (context: ResolverContext, userId: string) =>
   );
 };
 
-// Karma is checked first, to skip the batched content query when it can.
-const getIsOffboardCandidate = async (context: ResolverContext, user: DbUser): Promise<boolean> => {
-  if (user.karma < 0) {
-    return true;
-  }
-  return getWithCustomLoader(context, "offboardCandidates", user._id, async (userIds) => {
-    const candidateIds = new Set(await context.repos.users.getOffboardCandidateUserIds(userIds));
-    return userIds.map((id) => candidateIds.has(id));
-  });
+const getPendingContentStats = (context: ResolverContext, userId: string) => {
+  return getWithCustomLoader(context, "pendingContentStats", userId, (userIds: string[]) =>
+    context.repos.users.getPendingContentStats(userIds)
+  );
 };
 
 // Get last time user's `needsReview` flag was set to false (or null if never).
@@ -3962,13 +3957,11 @@ const schema = {
           active: isActionActive(action),
           createdAt: action.createdAt,
         }));
-        const baseGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
-
-        if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc)) {
-          return 'offboard';
+        const reviewGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
+        if (reviewGroup !== 'newContent') {
+          return reviewGroup;
         }
-
-        return baseGroup;
+        return isSimpleReviewCandidate(await getPendingContentStats(context, doc._id)) ? 'simple' : reviewGroup;
       },
     },
   },
@@ -4347,7 +4340,7 @@ const schema = {
       },
     },
   },
-  hasPendingComments: {
+  hasHeldComments: {
     graphql: {
       outputType: "Boolean",
       canRead: ["sunshineRegiment", "admins"],
@@ -4356,9 +4349,9 @@ const schema = {
         if (!hideSince) {
           return false;
         }
-        return await getWithCustomLoader(context, "hasPendingComments", user._id, async (userIds) => {
-          const userIdsWithPendingComments = new Set(await context.repos.users.getUserIdsWithPendingComments(userIds, new Date(hideSince)));
-          return userIds.map((id) => userIdsWithPendingComments.has(id));
+        return await getWithCustomLoader(context, "hasHeldComments", user._id, async (userIds) => {
+          const userIdsWithHeldComments = new Set(await context.repos.users.getUserIdsWithHeldComments(userIds, new Date(hideSince)));
+          return userIds.map((id) => userIdsWithHeldComments.has(id));
         });
       },
     },
@@ -4373,6 +4366,42 @@ const schema = {
         );
       },
     }
+  },
+  pendingPostCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).pendingPostCount;
+      },
+    },
+  },
+  pendingCommentCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).pendingCommentCount;
+      },
+    },
+  },
+  pendingPostWordCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).pendingPostWordCount;
+      },
+    },
+  },
+  pendingCommentWordCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).pendingCommentWordCount;
+      },
+    },
   },
   userRateLimits: {
     graphql: {

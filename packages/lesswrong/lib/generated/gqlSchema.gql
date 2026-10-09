@@ -7877,8 +7877,12 @@ type User {
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
   lastRemovedFromReviewQueueAt: Date
-  hasPendingComments: Boolean
+  hasHeldComments: Boolean
   rejectedContentCount: Int
+  pendingPostCount: Int
+  pendingCommentCount: Int
+  pendingPostWordCount: Int
+  pendingCommentWordCount: Int
   userRateLimits: [UserRateLimit!]
   claudeLinkedAt: Date
   hasClaudeCodeOAuthToken: Boolean
@@ -7931,8 +7935,8 @@ enum SubforumPreferredLayout {
 }
 
 enum ReviewGroup {
+  simple
   newContent
-  offboard
   highContext
   maybeSpam
   automod

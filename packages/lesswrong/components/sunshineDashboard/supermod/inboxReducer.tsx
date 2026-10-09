@@ -86,12 +86,29 @@ export type InboxAction =
 
 
 
+function getSimpleSortKey(user: SunshineUsersList): [number, number] {
+  const hasPendingComments = (user.pendingCommentCount ?? 0) > 0;
+  const words = hasPendingComments ? user.pendingCommentWordCount : user.pendingPostWordCount;
+  return [hasPendingComments ? 0 : 1, words ?? 0];
+}
+
+function sortSimpleUsers(users: SunshineUsersList[]): SunshineUsersList[] {
+  return [...users].sort((a, b) => {
+    const [aSection, aWords] = getSimpleSortKey(a);
+    const [bSection, bWords] = getSimpleSortKey(b);
+    return aSection - bSection || aWords - bWords;
+  });
+}
+
 // Held comments can't go live until reviewed
 function orderUsersWithinGroup(group: ReviewGroup, users: SunshineUsersList[]): SunshineUsersList[] {
+  if (group === 'simple') {
+    return sortSimpleUsers(users);
+  }
   if (group !== 'newContent') {
     return users;
   }
-  return sortBy(users, user => user.hasPendingComments ? 0 : 1);
+  return sortBy(users, user => user.hasHeldComments ? 0 : 1);
 }
 
 export function getOrderedGroups(groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>): GroupEntry[] {

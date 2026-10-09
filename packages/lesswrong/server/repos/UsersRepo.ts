@@ -5,10 +5,14 @@ import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFiel
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
 
-// Pangram score above which a rejected item counts toward offboarding 
-// deliberately higher than the autoreject threshold in
-// `createAutomatedContentEvaluation`;
-const OFFBOARD_HIGH_PANGRAM_SCORE_THRESHOLD = 0.6;
+export interface PendingContentStats {
+  pendingPostCount: number;
+  pendingCommentCount: number;
+  pendingPostWordCount: number;
+  pendingCommentWordCount: number;
+  approvedContentCount: number;
+  totalContentCount: number;
+}
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -444,59 +448,10 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return results.map(({_id}) => _id);
   }
 
-  /**
-   * Of the requested users, return the ids of those who belong in the supermod
-   * "offboard" review group, because they either:
-   *   (1) have a rejected post/comment with a high Pangram score, or
-   *   (2) have at least two rejected posts and/or comments, or
-   *   (3) have all of their content rejected.
-   * Negative karma is a further criterion, in `getIsOffboardCandidate`.
-   * Rejected content counts for all criteria even if the user has since
-   * re-drafted/deleted the post or deleted the comment; never-rejected drafts
-   * and deleted items are ignored. Criterion (1) considers evaluations of any
-   * revision, not just the latest.
-   * All criteria are evaluated over all-time content state (deliberately not
-   * bounded by `lastRemovedFromReviewQueueAt`), so the offboard question keeps
-   * getting re-asked until the user is offboarded or their record improves.
-   */
-  async getOffboardCandidateUserIds(userIds: string[]): Promise<string[]> {
-    const rows = await this.getRawDb().any<{ userId: string }>(`
-      -- UsersRepo.getOffboardCandidateUserIds
-      WITH content AS (
-        SELECT p."_id" AS "documentId", p."userId", p."rejected"
-        FROM "Posts" p
-        WHERE p."userId" = ANY($(userIds)::text[])
-          AND (p."rejected" IS TRUE OR (p."draft" IS NOT TRUE AND p."deletedDraft" IS NOT TRUE))
-        UNION ALL
-        SELECT c."_id", c."userId", c."rejected"
-        FROM "Comments" c
-        WHERE c."userId" = ANY($(userIds)::text[])
-          AND (c."rejected" IS TRUE OR c."deleted" IS NOT TRUE)
-      ),
-      highPangramRejections AS (
-        SELECT c."userId"
-        FROM content c
-        JOIN "Revisions" r ON r."documentId" = c."documentId" AND r."fieldName" = 'contents'
-        JOIN "AutomatedContentEvaluations" ace ON ace."revisionId" = r."_id"
-        WHERE c."rejected" IS TRUE AND ace."pangramScore" > $(highPangramScoreThreshold)
-      )
-      -- (1) a rejected item with a high Pangram score
-      SELECT "userId" FROM highPangramRejections
-      UNION
-      -- (2) at least two rejected items, or (3) all content rejected
-      SELECT c."userId"
-      FROM content c
-      GROUP BY c."userId"
-      HAVING COUNT(*) FILTER (WHERE c."rejected" IS TRUE) >= 2
-        OR COUNT(*) FILTER (WHERE c."rejected" IS NOT TRUE) = 0
-    `, { userIds, highPangramScoreThreshold: OFFBOARD_HIGH_PANGRAM_SCORE_THRESHOLD });
-    return rows.map((row) => row.userId);
-  }
-
   // Mirrors `commentIsHiddenPendingReview`
-  async getUserIdsWithPendingComments(userIds: string[], hideSince: Date): Promise<string[]> {
+  async getUserIdsWithHeldComments(userIds: string[], hideSince: Date): Promise<string[]> {
     const rows = await this.getRawDb().any<{ userId: string }>(`
-      -- UsersRepo.getUserIdsWithPendingComments
+      -- UsersRepo.getUserIdsWithHeldComments
       SELECT DISTINCT c."userId"
       FROM "Comments" c
       WHERE c."userId" = ANY($(userIds)::text[])
@@ -525,6 +480,52 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [userIds]);
     const countsByUser = new Map(rows.map((row) => [row.userId, row.count]));
     return userIds.map((userId) => countsByUser.get(userId) ?? 0);
+  }
+
+  async getPendingContentStats(userIds: string[]): Promise<PendingContentStats[]> {
+    const rows = await this.getRawDb().any<{ userId: string } & PendingContentStats>(`
+      -- UsersRepo.getPendingContentStats
+      SELECT
+        "userId",
+        (COUNT(*) FILTER (WHERE "isPending" AND "isPost"))::int AS "pendingPostCount",
+        (COUNT(*) FILTER (WHERE "isPending" AND NOT "isPost"))::int AS "pendingCommentCount",
+        COALESCE(SUM("wordCount") FILTER (WHERE "isPending" AND "isPost"), 0)::int AS "pendingPostWordCount",
+        COALESCE(SUM("wordCount") FILTER (WHERE "isPending" AND NOT "isPost"), 0)::int AS "pendingCommentWordCount",
+        (COUNT(*) FILTER (WHERE "isLive" AND NOT "isPending"))::int AS "approvedContentCount",
+        COUNT(*)::int AS "totalContentCount"
+      FROM (
+        SELECT
+          p."userId",
+          TRUE AS "isPost",
+          (p."rejected" IS NOT TRUE AND p."draft" IS NOT TRUE) AS "isLive",
+          (p."rejected" IS NOT TRUE AND p."draft" IS NOT TRUE AND p."authorIsUnreviewed" IS TRUE) AS "isPending",
+          r."wordCount"
+        FROM "Posts" p
+        LEFT JOIN "Revisions" r ON r."_id" = p."contents_latest"
+        WHERE p."userId" = ANY($1::text[])
+          AND p."shortform" IS NOT TRUE
+        UNION ALL
+        SELECT
+          c."userId",
+          FALSE AS "isPost",
+          (c."rejected" IS NOT TRUE AND c."deleted" IS NOT TRUE AND c."draft" IS NOT TRUE) AS "isLive",
+          (c."rejected" IS NOT TRUE AND c."deleted" IS NOT TRUE AND c."draft" IS NOT TRUE AND c."authorIsUnreviewed" IS TRUE) AS "isPending",
+          r."wordCount"
+        FROM "Comments" c
+        LEFT JOIN "Revisions" r ON r."_id" = c."contents_latest"
+        WHERE c."userId" = ANY($1::text[])
+      ) "allContent"
+      GROUP BY "userId"
+    `, [userIds]);
+    const statsByUser = new Map(rows.map(({ userId, ...stats }) => [userId, stats]));
+    return userIds.map((userId) => statsByUser.get(userId) ?? {
+      pendingPostCount: 0,
+      pendingCommentCount: 0,
+      pendingPostWordCount: 0,
+      pendingCommentWordCount: 0,
+      approvedContentCount: 0,
+      totalContentCount: 0,
+    });
   }
 
   /**

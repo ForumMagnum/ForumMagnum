@@ -7292,8 +7292,12 @@ interface User {
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
   lastRemovedFromReviewQueueAt: Date | null;
-  hasPendingComments: boolean | null;
+  hasHeldComments: boolean | null;
   rejectedContentCount: number | null;
+  pendingPostCount: number | null;
+  pendingCommentCount: number | null;
+  pendingPostWordCount: number | null;
+  pendingCommentWordCount: number | null;
   userRateLimits: Array<UserRateLimit> | null;
   claudeLinkedAt: Date | null;
   hasClaudeCodeOAuthToken: boolean | null;

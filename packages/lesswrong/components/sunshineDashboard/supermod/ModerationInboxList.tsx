@@ -31,11 +31,11 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
     marginTop: 12,
   },
   group: {},
-  newContent: {
+  simple: {
     background: theme.palette.panelBackground.sunshineNewContentGroup,
   },
-  offboard: {
-    background: theme.palette.panelBackground.sunshineWarningHighlight,
+  newContent: {
+    background: theme.palette.panelBackground.sunshineNewContentGroup,
   },
   highContext: {
     background: theme.palette.panelBackground.sunshineHighContextGroup,
