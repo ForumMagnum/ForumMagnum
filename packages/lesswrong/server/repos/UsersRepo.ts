@@ -550,11 +550,17 @@ class UsersRepo extends AbstractRepo<"Users"> {
     const users = await Users.find({ needsReview: true }, {}, { _id: 1 }).fetch();
     const userIds = users.map(user => user._id);
     if (!userIds.length) return [];
-    const [stats, rejectedCounts, lastRemovedAt, actions] = await Promise.all([
+    const [stats, rejectedCounts] = await Promise.all([
       this.getPendingContentStats(userIds),
       this.getRejectedContentCounts(userIds),
-      this.getLastRemovedFromReviewQueueAt(userIds),
-      ModeratorActions.find({ userId: { $in: userIds } }, {}, { userId: 1, type: 1, endedAt: 1, createdAt: 1 }).fetch(),
+    ]);
+    const candidates = userIds.filter((userId, index) =>
+      !rejectedCounts[index] && !stats[index].pendingPostCount && !stats[index].pendingCommentCount
+    );
+    if (!candidates.length) return [];
+    const [lastRemovedAt, actions] = await Promise.all([
+      this.getLastRemovedFromReviewQueueAt(candidates),
+      ModeratorActions.find({ userId: { $in: candidates } }, {}, { userId: 1, type: 1, endedAt: 1, createdAt: 1 }).fetch(),
     ]);
     const actionsByUserId = groupBy(actions.map(action => ({
       userId: action.userId,
@@ -562,9 +568,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
       active: isActionActive(action),
       createdAt: action.createdAt,
     })), action => action.userId);
-    return userIds.filter((userId, index) =>
-      !rejectedCounts[index] && !stats[index].pendingPostCount && !stats[index].pendingCommentCount
-      && isReviewTriggeredOnlyByContent(actionsByUserId[userId] ?? [], lastRemovedAt[index])
+    return candidates.filter((userId, index) =>
+      isReviewTriggeredOnlyByContent(actionsByUserId[userId] ?? [], lastRemovedAt[index])
     );
   }
 
