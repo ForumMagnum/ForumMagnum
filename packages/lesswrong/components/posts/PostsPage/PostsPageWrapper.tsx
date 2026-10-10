@@ -10,6 +10,7 @@ import Loading from "../../vulcan-core/Loading";
 import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
 import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
 import { StatusCodeSetter } from '@/components/next/StatusCodeSetter';
+import { useLocation } from '@/lib/routeUtil';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
   query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
@@ -37,6 +38,9 @@ const PostsPageWrapper = ({ sequenceId, version, documentId, embedded }: {
   documentId: string,
   embedded?: boolean,
 }) => {
+  const { query, params } = useLocation();
+  const isCommentLink = !!(query.commentId || params.commentId);
+
   // Check the cache for a copy of the post with the PostsListWithVotes fragment, so that when you click through
   // a PostsItem, you can see the start of the post (the part of the text that was in the hover-preview) while
   // it loads the rest.
@@ -89,7 +93,13 @@ const PostsPageWrapper = ({ sequenceId, version, documentId, embedded }: {
     if (isMissingDocumentError(error)) {
       return <Error404/>
     } else if (isOperationNotAllowedError(error)) {
-      return <ErrorAccessDenied explanation={"This is usually because the post in question has been removed by the author."} skipLoginPrompt />
+      return <ErrorAccessDenied
+        message={isCommentLink
+          ? "Sorry, you don't have access to the post containing this comment. The post may have been removed by its author or made private."
+          : undefined}
+        explanation={"This is usually because the post in question has been removed by the author."}
+        skipLoginPrompt
+      />
     } else {
       throw new Error(error.message);
     }
