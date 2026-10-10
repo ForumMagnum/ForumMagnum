@@ -305,6 +305,8 @@ interface Mutation {
   generateCoverImagesForPost: Array<ReviewWinnerArt | null> | null;
   flipSplashArtImage: boolean | null;
   upscaleReviewWinnerArt: ReviewWinnerArt | null;
+  deleteChapter: boolean;
+  moveSequencePost: boolean;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
   createBook: BookOutput | null;

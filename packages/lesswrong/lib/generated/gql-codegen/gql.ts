@@ -428,22 +428,24 @@ type Documents = {
     "\n  mutation createPetrovDayActionPetrovWarningConsole($data: CreatePetrovDayActionDataInput!) {\n    createPetrovDayAction(data: $data) {\n      data {\n        ...PetrovDayActionInfo\n      }\n    }\n  }\n": typeof types.createPetrovDayActionPetrovWarningConsoleDocument,
     "\n    query petrovDay2024Resolvers {\n      PetrovDay2024CheckNumberOfIncoming {\n        count\n      }\n    }\n  ": typeof types.petrovDay2024ResolversDocument,
     "\n  query HomepageCommunityEventPostsQuery($eventType: String!) {\n    HomepageCommunityEventPosts(eventType: $eventType) {\n      posts {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.HomepageCommunityEventPostsQueryDocument,
-    "\n  mutation updateChapterAddDraftPostDialog($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersFragment\n      }\n    }\n  }\n": typeof types.updateChapterAddDraftPostDialogDocument,
+    "\n  query SequenceAddPostRecentPosts($draftsSelector: PostSelector, $publishedSelector: PostSelector) {\n    drafts: posts(selector: $draftsSelector, limit: 5, enableTotal: false) {\n      results {\n        ...PostsList\n      }\n    }\n    published: posts(selector: $publishedSelector, limit: 10, enableTotal: false) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.SequenceAddPostRecentPostsDocument,
+    "\n  query SequenceEditChapters($selector: ChapterSelector, $limit: Int) {\n    chapters(selector: $selector, limit: $limit, enableTotal: false) {\n      results {\n        ...ChaptersEdit\n      }\n    }\n  }\n": typeof types.SequenceEditChaptersDocument,
+    "\n  query SequenceEditPostRow($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.SequenceEditPostRowDocument,
+    "\n  mutation updateSequenceSequenceEditor($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": typeof types.updateSequenceSequenceEditorDocument,
+    "\n  mutation updateChapterSequenceEditor($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n": typeof types.updateChapterSequenceEditorDocument,
+    "\n  mutation createChapterSequenceEditor($data: CreateChapterDataInput!) {\n    createChapter(data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n": typeof types.createChapterSequenceEditorDocument,
+    "\n  mutation deleteChapterSequenceEditor($chapterId: String!) {\n    deleteChapter(chapterId: $chapterId)\n  }\n": typeof types.deleteChapterSequenceEditorDocument,
+    "\n  mutation moveSequencePostSequenceEditor($postId: String!, $fromChapterId: String!, $toChapterId: String!, $toIndex: Int!) {\n    moveSequencePost(postId: $postId, fromChapterId: $fromChapterId, toChapterId: $toChapterId, toIndex: $toIndex)\n  }\n": typeof types.moveSequencePostSequenceEditorDocument,
     "\n  mutation updateBookBooksForm($selector: SelectorInput!, $data: UpdateBookDataInput!) {\n    updateBook(selector: $selector, data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n": typeof types.updateBookBooksFormDocument,
     "\n  mutation createBookBooksForm($data: CreateBookDataInput!) {\n    createBook(data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n": typeof types.createBookBooksFormDocument,
     "\n  query BooksItem($documentId: String) {\n    book(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...BookEdit\n      }\n    }\n  }\n": typeof types.BooksItemDocument,
     "\n  query GetBookWordCount($bookId: String!) {\n    getBookWordCount(bookId: $bookId)\n  }\n": typeof types.GetBookWordCountDocument,
-    "\n  mutation updateChapterChaptersForm($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n": typeof types.updateChapterChaptersFormDocument,
-    "\n  mutation createChapterChaptersForm($data: CreateChapterDataInput!) {\n    createChapter(data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n": typeof types.createChapterChaptersFormDocument,
-    "\n  query ChaptersItem($documentId: String) {\n    chapter(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ChaptersEdit\n      }\n    }\n  }\n": typeof types.ChaptersItemDocument,
     "\n  query multiChapterChaptersListQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {\n    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ChaptersFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiChapterChaptersListQueryDocument,
     "\n  mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {\n    updateCollection(selector: $selector, data: $data) {\n      data {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": typeof types.updateCollectionCollectionsEditFormDocument,
     "\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n": typeof types.CollectionsEditDocument,
     "\n  query GetSequenceStats($sequenceId: String!) {\n    getSequenceStats(sequenceId: $sequenceId) {\n      totalWordCount\n      totalReadTime\n    }\n  }\n": typeof types.GetSequenceStatsDocument,
-    "\n  query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostSequenceDraftsListQueryDocument,
-    "\n  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": typeof types.updateSequenceSequencesFormDocument,
-    "\n  mutation createSequenceSequencesForm($data: CreateSequenceDataInput!) {\n    createSequence(data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": typeof types.createSequenceSequencesFormDocument,
     "\n  query multiSequenceSequencesGridWrapperQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequencesPageFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiSequenceSequencesGridWrapperQueryDocument,
+    "\n  mutation createSequenceSequencesNewForm($data: CreateSequenceDataInput!) {\n    createSequence(data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": typeof types.createSequenceSequencesNewFormDocument,
     "\n  query SequencesPage($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...SequencesPageFragment\n      }\n    }\n  }\n": typeof types.SequencesPageDocument,
     "\n  query SequencesEdit($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...SequencesEdit\n      }\n    }\n  }\n": typeof types.SequencesEditDocument,
     "\n  query multiChapterSequencesSummaryQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {\n    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ChaptersFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiChapterSequencesSummaryQueryDocument,
@@ -1313,22 +1315,24 @@ const documents: Documents = {
     "\n  mutation createPetrovDayActionPetrovWarningConsole($data: CreatePetrovDayActionDataInput!) {\n    createPetrovDayAction(data: $data) {\n      data {\n        ...PetrovDayActionInfo\n      }\n    }\n  }\n": types.createPetrovDayActionPetrovWarningConsoleDocument,
     "\n    query petrovDay2024Resolvers {\n      PetrovDay2024CheckNumberOfIncoming {\n        count\n      }\n    }\n  ": types.petrovDay2024ResolversDocument,
     "\n  query HomepageCommunityEventPostsQuery($eventType: String!) {\n    HomepageCommunityEventPosts(eventType: $eventType) {\n      posts {\n        ...PostsList\n      }\n    }\n  }\n": types.HomepageCommunityEventPostsQueryDocument,
-    "\n  mutation updateChapterAddDraftPostDialog($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersFragment\n      }\n    }\n  }\n": types.updateChapterAddDraftPostDialogDocument,
+    "\n  query SequenceAddPostRecentPosts($draftsSelector: PostSelector, $publishedSelector: PostSelector) {\n    drafts: posts(selector: $draftsSelector, limit: 5, enableTotal: false) {\n      results {\n        ...PostsList\n      }\n    }\n    published: posts(selector: $publishedSelector, limit: 10, enableTotal: false) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": types.SequenceAddPostRecentPostsDocument,
+    "\n  query SequenceEditChapters($selector: ChapterSelector, $limit: Int) {\n    chapters(selector: $selector, limit: $limit, enableTotal: false) {\n      results {\n        ...ChaptersEdit\n      }\n    }\n  }\n": types.SequenceEditChaptersDocument,
+    "\n  query SequenceEditPostRow($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.SequenceEditPostRowDocument,
+    "\n  mutation updateSequenceSequenceEditor($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": types.updateSequenceSequenceEditorDocument,
+    "\n  mutation updateChapterSequenceEditor($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n": types.updateChapterSequenceEditorDocument,
+    "\n  mutation createChapterSequenceEditor($data: CreateChapterDataInput!) {\n    createChapter(data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n": types.createChapterSequenceEditorDocument,
+    "\n  mutation deleteChapterSequenceEditor($chapterId: String!) {\n    deleteChapter(chapterId: $chapterId)\n  }\n": types.deleteChapterSequenceEditorDocument,
+    "\n  mutation moveSequencePostSequenceEditor($postId: String!, $fromChapterId: String!, $toChapterId: String!, $toIndex: Int!) {\n    moveSequencePost(postId: $postId, fromChapterId: $fromChapterId, toChapterId: $toChapterId, toIndex: $toIndex)\n  }\n": types.moveSequencePostSequenceEditorDocument,
     "\n  mutation updateBookBooksForm($selector: SelectorInput!, $data: UpdateBookDataInput!) {\n    updateBook(selector: $selector, data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n": types.updateBookBooksFormDocument,
     "\n  mutation createBookBooksForm($data: CreateBookDataInput!) {\n    createBook(data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n": types.createBookBooksFormDocument,
     "\n  query BooksItem($documentId: String) {\n    book(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...BookEdit\n      }\n    }\n  }\n": types.BooksItemDocument,
     "\n  query GetBookWordCount($bookId: String!) {\n    getBookWordCount(bookId: $bookId)\n  }\n": types.GetBookWordCountDocument,
-    "\n  mutation updateChapterChaptersForm($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n": types.updateChapterChaptersFormDocument,
-    "\n  mutation createChapterChaptersForm($data: CreateChapterDataInput!) {\n    createChapter(data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n": types.createChapterChaptersFormDocument,
-    "\n  query ChaptersItem($documentId: String) {\n    chapter(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ChaptersEdit\n      }\n    }\n  }\n": types.ChaptersItemDocument,
     "\n  query multiChapterChaptersListQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {\n    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ChaptersFragment\n      }\n      totalCount\n    }\n  }\n": types.multiChapterChaptersListQueryDocument,
     "\n  mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {\n    updateCollection(selector: $selector, data: $data) {\n      data {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": types.updateCollectionCollectionsEditFormDocument,
     "\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n": types.CollectionsEditDocument,
     "\n  query GetSequenceStats($sequenceId: String!) {\n    getSequenceStats(sequenceId: $sequenceId) {\n      totalWordCount\n      totalReadTime\n    }\n  }\n": types.GetSequenceStatsDocument,
-    "\n  query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostSequenceDraftsListQueryDocument,
-    "\n  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": types.updateSequenceSequencesFormDocument,
-    "\n  mutation createSequenceSequencesForm($data: CreateSequenceDataInput!) {\n    createSequence(data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": types.createSequenceSequencesFormDocument,
     "\n  query multiSequenceSequencesGridWrapperQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequencesPageFragment\n      }\n      totalCount\n    }\n  }\n": types.multiSequenceSequencesGridWrapperQueryDocument,
+    "\n  mutation createSequenceSequencesNewForm($data: CreateSequenceDataInput!) {\n    createSequence(data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": types.createSequenceSequencesNewFormDocument,
     "\n  query SequencesPage($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...SequencesPageFragment\n      }\n    }\n  }\n": types.SequencesPageDocument,
     "\n  query SequencesEdit($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...SequencesEdit\n      }\n    }\n  }\n": types.SequencesEditDocument,
     "\n  query multiChapterSequencesSummaryQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {\n    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ChaptersFragment\n      }\n      totalCount\n    }\n  }\n": types.multiChapterSequencesSummaryQueryDocument,
@@ -3457,7 +3461,35 @@ export function gql(source: "\n  query HomepageCommunityEventPostsQuery($eventTy
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  mutation updateChapterAddDraftPostDialog($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateChapterAddDraftPostDialog($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersFragment\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query SequenceAddPostRecentPosts($draftsSelector: PostSelector, $publishedSelector: PostSelector) {\n    drafts: posts(selector: $draftsSelector, limit: 5, enableTotal: false) {\n      results {\n        ...PostsList\n      }\n    }\n    published: posts(selector: $publishedSelector, limit: 10, enableTotal: false) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query SequenceAddPostRecentPosts($draftsSelector: PostSelector, $publishedSelector: PostSelector) {\n    drafts: posts(selector: $draftsSelector, limit: 5, enableTotal: false) {\n      results {\n        ...PostsList\n      }\n    }\n    published: posts(selector: $publishedSelector, limit: 10, enableTotal: false) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SequenceEditChapters($selector: ChapterSelector, $limit: Int) {\n    chapters(selector: $selector, limit: $limit, enableTotal: false) {\n      results {\n        ...ChaptersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  query SequenceEditChapters($selector: ChapterSelector, $limit: Int) {\n    chapters(selector: $selector, limit: $limit, enableTotal: false) {\n      results {\n        ...ChaptersEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SequenceEditPostRow($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query SequenceEditPostRow($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateSequenceSequenceEditor($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateSequenceSequenceEditor($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation updateChapterSequenceEditor($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateChapterSequenceEditor($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation createChapterSequenceEditor($data: CreateChapterDataInput!) {\n    createChapter(data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createChapterSequenceEditor($data: CreateChapterDataInput!) {\n    createChapter(data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation deleteChapterSequenceEditor($chapterId: String!) {\n    deleteChapter(chapterId: $chapterId)\n  }\n"): (typeof documents)["\n  mutation deleteChapterSequenceEditor($chapterId: String!) {\n    deleteChapter(chapterId: $chapterId)\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation moveSequencePostSequenceEditor($postId: String!, $fromChapterId: String!, $toChapterId: String!, $toIndex: Int!) {\n    moveSequencePost(postId: $postId, fromChapterId: $fromChapterId, toChapterId: $toChapterId, toIndex: $toIndex)\n  }\n"): (typeof documents)["\n  mutation moveSequencePostSequenceEditor($postId: String!, $fromChapterId: String!, $toChapterId: String!, $toIndex: Int!) {\n    moveSequencePost(postId: $postId, fromChapterId: $fromChapterId, toChapterId: $toChapterId, toIndex: $toIndex)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -3477,18 +3509,6 @@ export function gql(source: "\n  query GetBookWordCount($bookId: String!) {\n   
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  mutation updateChapterChaptersForm($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateChapterChaptersForm($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation createChapterChaptersForm($data: CreateChapterDataInput!) {\n    createChapter(data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createChapterChaptersForm($data: CreateChapterDataInput!) {\n    createChapter(data: $data) {\n      data {\n        ...ChaptersEdit\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query ChaptersItem($documentId: String) {\n    chapter(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ChaptersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  query ChaptersItem($documentId: String) {\n    chapter(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ChaptersEdit\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  query multiChapterChaptersListQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {\n    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ChaptersFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiChapterChaptersListQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {\n    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ChaptersFragment\n      }\n      totalCount\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -3505,19 +3525,11 @@ export function gql(source: "\n  query GetSequenceStats($sequenceId: String!) {\
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation createSequenceSequencesForm($data: CreateSequenceDataInput!) {\n    createSequence(data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createSequenceSequencesForm($data: CreateSequenceDataInput!) {\n    createSequence(data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  query multiSequenceSequencesGridWrapperQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequencesPageFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiSequenceSequencesGridWrapperQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequencesPageFragment\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation createSequenceSequencesNewForm($data: CreateSequenceDataInput!) {\n    createSequence(data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createSequenceSequencesNewForm($data: CreateSequenceDataInput!) {\n    createSequence(data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
