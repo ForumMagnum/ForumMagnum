@@ -8,6 +8,7 @@ import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
+import { INSERT_LLM_CONTENT_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
 import { InsertImageDialog } from '../ImagesPlugin';
 import { FileImageIcon } from '../../icons/FileImageIcon';
 import { useDialog } from '@/components/common/withDialog';
@@ -17,6 +18,7 @@ import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
 import { InsertClaimIcon } from '../../icons/InsertClaimIcon';
+import { RobotIcon } from '@/components/icons/RobotIcon';
 
 const styles = defineStyles('LexicalBlockInsertToolbar', (theme: ThemeType) => ({
   popup: {
@@ -253,6 +255,22 @@ function BlockInsertToolbar({
     </button>
   );
 
+  const llmContentButton = (
+    <button
+      key="llmContent"
+      type="button"
+      onClick={() =>
+        handleItemClick(() =>
+          editor.dispatchCommand(INSERT_LLM_CONTENT_BLOCK_COMMAND, undefined),
+        )
+      }
+      className={classes.popupItem}
+      title="Insert LLM content block"
+      aria-label="Insert LLM content block">
+      <RobotIcon className={classes.format} />
+    </button>
+  );
+
   const footnoteButton = (
     <button
       key="footnote"
@@ -284,7 +302,7 @@ function BlockInsertToolbar({
   const groups: Array<JSX.Element[]> = [
     [imageButton, tableButton, horizontalRuleButton],
     [mathDisplayButton],
-    [collapsibleButton],
+    [collapsibleButton, llmContentButton],
     [footnoteButton, ...(claimButton ? [claimButton] : [])],
   ];
 
