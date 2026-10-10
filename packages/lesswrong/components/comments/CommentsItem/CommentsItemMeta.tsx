@@ -117,6 +117,16 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
     top: 12,
     display: "flex",
   },
+  // When there are extra right-section elements (eg the participants list on
+  // collapsed quick takes), keep the section in the flex flow so that it wraps
+  // onto its own line rather than overlapping the vote buttons when the row is
+  // too narrow.
+  rightSectionInFlow: {
+    position: "static",
+    marginLeft: "auto",
+    marginRight: -26,
+    alignItems: "center",
+  },
   linkIcon: {
     "--icon-size": "15.6px",
     verticalAlign: "top",
@@ -310,7 +320,9 @@ export const CommentsItemMeta = ({
         />}
       </span>}
 
-      {(rightSectionElements || menuVisible) && <span className={classes.rightSection}>
+      {(rightSectionElements || menuVisible) && <span className={classNames(classes.rightSection, {
+        [classes.rightSectionInFlow]: !!rightSectionElements,
+      })}>
         {rightSectionElements}
         {menuVisible &&
           <AnalyticsContext pageElementContext="tripleDotMenu">
