@@ -2,6 +2,7 @@ import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
 import {
   $createRangeSelection,
+  $createTextNode,
   $isDecoratorNode,
   $getNodeByKey,
   $getRoot,
@@ -30,6 +31,8 @@ export interface FinalSelection {
   focus: MarkdownSelectionPoint
   narrowedQuote: string
   narrowedReplacement: string
+  /** Whether the selection was narrowed to the minimal diff. */
+  narrowed: boolean
 }
 
 /**
@@ -52,13 +55,14 @@ export function $computeFinalSelection(
 ): FinalSelection {
   const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range);
   if (!narrowing || narrowing.quote.length === 0) {
-    return { anchor, focus, narrowedQuote: quote, narrowedReplacement: replacement };
+    return { anchor, focus, narrowedQuote: quote, narrowedReplacement: replacement, narrowed: false };
   }
   return {
     anchor: narrowing.anchor,
     focus: narrowing.focus,
     narrowedQuote: narrowing.quote,
     narrowedReplacement: narrowing.replacement,
+    narrowed: true,
   };
 }
 
@@ -82,6 +86,44 @@ export function $htmlToInlineNodes(editor: LexicalEditor, html: string): Lexical
   } finally {
     dom.window.close();
   }
+}
+
+/**
+ * Convert a narrowed replacement string into Lexical nodes while preserving
+ * edge whitespace. The standard markdown→HTML pipeline strips leading/trailing
+ * whitespace; for narrowed replacements those spaces are meaningful content.
+ * When the narrowed text is plain (no formatting), a TextNode is created
+ * directly. Otherwise the markdown pipeline is used with whitespace patched.
+ */
+export function $narrowedReplacementToNodes(
+  editor: LexicalEditor,
+  replacement: string,
+  markdownIt: MarkdownIt,
+  expectedPlainText?: string,
+): LexicalNode[] {
+  if (replacement.length === 0) return [];
+
+  const plainText = expectedPlainText ?? markdownQuoteToPlainText(replacement);
+  if (replacement === plainText) {
+    return [$createTextNode(replacement)];
+  }
+
+  const nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
+  const nodesText = nodes.map(n => n.getTextContent()).join("");
+
+  const leadingWs = plainText.match(/^(\s+)/)?.[1] ?? "";
+  const nodesLeadingWs = nodesText.match(/^(\s+)/)?.[1] ?? "";
+  if (leadingWs.length > nodesLeadingWs.length) {
+    nodes.unshift($createTextNode(leadingWs.slice(0, leadingWs.length - nodesLeadingWs.length)));
+  }
+
+  const trailingWs = plainText.match(/(\s+)$/)?.[1] ?? "";
+  const nodesTrailingWs = nodesText.match(/(\s+)$/)?.[1] ?? "";
+  if (trailingWs.length > nodesTrailingWs.length) {
+    nodes.push($createTextNode(trailingWs.slice(nodesTrailingWs.length)));
+  }
+
+  return nodes;
 }
 
 /**
@@ -526,9 +568,14 @@ export function $applyEditModeReplacement({
   markdownIt: MarkdownIt
 }): { replaced: boolean, narrowedQuote: string, narrowedReplacement: string } {
   const sel = $computeFinalSelection(anchor, focus, quote, replacement, range);
-  const inlineNodes = sel.narrowedReplacement.length > 0
-    ? $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, sel.narrowedReplacement))
-    : [];
+  // A narrowed replacement is a fragment of a sentence (e.g. a lone "-" or
+  // " and"), which must not be rendered as standalone markdown: a bare "-"
+  // would become a list block, and edge whitespace would be trimmed.
+  const inlineNodes = sel.narrowed
+    ? $narrowedReplacementToNodes(editor, sel.narrowedReplacement, markdownIt)
+    : sel.narrowedReplacement.length > 0
+      ? $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, sel.narrowedReplacement))
+      : [];
   const replaced = $applyEditAtSelection({
     editor, anchor: sel.anchor, focus: sel.focus, inlineNodes,
   });

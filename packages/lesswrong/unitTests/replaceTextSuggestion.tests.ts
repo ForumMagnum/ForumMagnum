@@ -338,6 +338,37 @@ describe("replaceText edit mode", () => {
     expect(text).not.toContain("**");
     expect(text).toContain("bold");
   });
+
+  it.each([
+    ["under discussed", "under-discussed", "Methods like this are under-discussed in general."],
+    ["helpful only", "helpful-only", "Methods like this are helpful-only in general."],
+    ["near-future", "near future", "Methods like this are near future in general."],
+    ["teacher, run", "teacher and run", "Methods like this are teacher and run in general."],
+    ["(prompt,teacher-response", "(prompt, teacher-response", "Methods like this are (prompt, teacher-response in general."],
+  ])("keeps a narrowed whitespace/hyphen edit %j -> %j inline", async (quote, replacement, expected) => {
+    const editor = await setupEditorWithContent(
+      `Methods like this are ${quote} in general.`,
+    );
+
+    const replaced = await replaceTextInEditMode(editor, quote, replacement);
+
+    expect(replaced).toBe(true);
+    expect(getPlainTextContent(editor)).toBe(expected);
+    editor.getEditorState().read(() => {
+      expect($getRoot().getChildrenSize()).toBe(1);
+    });
+  });
+
+  it("keeps edge whitespace of a narrowed replacement that contains formatting", async () => {
+    const editor = await setupEditorWithContent("Alpha, beta.");
+
+    // Narrows to ", beta" -> " and **beta**", whose leading space the
+    // markdown renderer would otherwise trim.
+    const replaced = await replaceTextInEditMode(editor, "Alpha, beta.", "Alpha and **beta**.");
+
+    expect(replaced).toBe(true);
+    expect(getPlainTextContent(editor)).toBe("Alpha and beta.");
+  });
 });
 
 describe("replaceText edit mode when quote starts at beginning of text node", () => {
