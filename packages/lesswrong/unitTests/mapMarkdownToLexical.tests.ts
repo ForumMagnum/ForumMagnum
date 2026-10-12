@@ -4,6 +4,7 @@ import {
   $createRangeSelection,
   $getRoot,
   $getSelection,
+  $isElementNode,
   $isRangeSelection,
   $setSelection,
   type LexicalEditor,
@@ -17,7 +18,12 @@ import {
   markdownQuoteToRenderedPlainText,
   type MarkdownQuoteSelectionResult,
 } from "../../../app/api/agent/mapMarkdownToLexical";
-import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
+import {
+  $locateBlockByPrefix,
+  $locateQuoteWithTextIndex,
+  parseLeadingImageToken,
+} from "../../../app/api/agent/textIndexQuoteLocator";
+import { $createImageNode, $isImageNode } from "@/components/lexical/nodes/ImageNode";
 import { resolveInsertionIndex } from "../../../app/api/agent/insertBlock/route";
 import { $isListItemNode, $isListNode } from "@lexical/list";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
@@ -409,6 +415,110 @@ describe("resolveInsertionIndex with nested structures", () => {
     // Document top level: [paragraph, list, paragraph] — "after" the matched
     // nested item must insert after the whole list (index 2), not at a
     // root position derived from inner-list indices.
+    expect(result.index).toBe(2);
+  });
+});
+
+describe("$locateBlockByPrefix with image prefixes", () => {
+  interface ImageMatchInfo { type: string; imageSrc: string | null; text: string; reason?: string }
+  function locateImageBlock(editor: LexicalEditor, prefix: string): ImageMatchInfo | null {
+    let result: ImageMatchInfo | null = null;
+    editor.getEditorState().read(() => {
+      const { node, reason } = $locateBlockByPrefix(prefix);
+      if (!node) {
+        result = { type: "none", imageSrc: null, text: "", reason };
+        return;
+      }
+      const image = $isImageNode(node)
+        ? node
+        : $isElementNode(node) ? node.getChildren().find($isImageNode) : undefined;
+      result = { type: node.getType(), imageSrc: image?.getSrc() ?? null, text: node.getTextContent() };
+    });
+    return result;
+  }
+
+  const twoImageDocument = [
+    "Intro paragraph.",
+    "![First figure](https://example.com/figures/one.png)",
+    "Middle paragraph.",
+    "![Second figure](https://example.com/figures/two.png)",
+    "Closing paragraph.",
+  ].join("\n\n");
+
+  it("parses a leading image token and the rest of the prefix", () => {
+    expect(parseLeadingImageToken("![alt](https://example.com/a.png) Caption")).toEqual({
+      src: "https://example.com/a.png",
+      rest: " Caption",
+    });
+    expect(parseLeadingImageToken("![a](<https://example.com/a b.png> \"Title\")")?.src)
+      .toBe("https://example.com/a b.png");
+    expect(parseLeadingImageToken("![a](https://en.wikipedia.org/wiki/X_(Y).png)")?.src)
+      .toBe("https://en.wikipedia.org/wiki/X_(Y).png");
+    expect(parseLeadingImageToken("Text before ![a](https://example.com/a.png)")).toBeNull();
+  });
+
+  it("matches an image-only paragraph by its image markdown", async () => {
+    const editor = await setupEditorWithContent(twoImageDocument);
+    const matched = locateImageBlock(editor, "![Second figure](https://example.com/figures/two.png)");
+    expect(matched?.reason).toBeUndefined();
+    expect(matched?.imageSrc).toBe("https://example.com/figures/two.png");
+  });
+
+  it("identifies the image by URL, ignoring the alt text", async () => {
+    const editor = await setupEditorWithContent(twoImageDocument);
+    const matched = locateImageBlock(editor, "![](https://example.com/figures/one.png)");
+    expect(matched?.imageSrc).toBe("https://example.com/figures/one.png");
+  });
+
+  it("reports a missing image URL instead of an empty prefix", async () => {
+    const editor = await setupEditorWithContent(twoImageDocument);
+    const matched = locateImageBlock(editor, "![Second figure](https://example.com/figures/three.png)");
+    expect(matched?.type).toBe("none");
+    expect(matched?.reason).toContain("https://example.com/figures/three.png");
+    expect(matched?.reason).not.toContain("empty after normalization");
+  });
+
+  it("matches an image block followed by caption text, using the text to disambiguate", async () => {
+    const editor = await setupEditorWithContent([
+      "![fig](https://example.com/same.png)\n*Caption A*",
+      "![fig](https://example.com/same.png)\n*Caption B*",
+    ].join("\n\n"));
+    expect(locateImageBlock(editor, "![fig](https://example.com/same.png)")?.reason).toContain("Ambiguous");
+    expect(locateImageBlock(editor, "![fig](https://example.com/same.png)*Caption B*")?.text).toContain("Caption B");
+  });
+
+  it("matches a list item that consists of an image", async () => {
+    const editor = await setupEditorWithContent(
+      "*   item one\n*   ![pic](https://example.com/b.png)\n*   item three"
+    );
+    const matched = locateImageBlock(editor, "![pic](https://example.com/b.png)");
+    expect(matched?.type).toBe("listitem");
+    expect(matched?.imageSrc).toBe("https://example.com/b.png");
+  });
+
+  it("matches a top-level image node", async () => {
+    const editor = await setupEditorWithContent("Intro paragraph.");
+    await runEditorUpdate(editor, () => {
+      $getRoot().append($createImageNode({ src: "https://example.com/top.png", altText: "top" }));
+    });
+    const matched = locateImageBlock(editor, "![top](https://example.com/top.png)");
+    expect(matched?.type).toBe("image");
+  });
+
+  it("does not match an image that follows text in its block", async () => {
+    const editor = await setupEditorWithContent("Text before ![inline](https://example.com/c.png) after.");
+    expect(locateImageBlock(editor, "![inline](https://example.com/c.png)")?.type).toBe("none");
+  });
+
+  it("resolves an insertion index after an image block", async () => {
+    const editor = await setupEditorWithContent(twoImageDocument);
+    let result: { index: number | null } = { index: null };
+    editor.getEditorState().read(() => {
+      result = resolveInsertionIndex(
+        { after: "![First figure](https://example.com/figures/one.png)" },
+        $getRoot().getChildren(),
+      );
+    });
     expect(result.index).toBe(2);
   });
 });

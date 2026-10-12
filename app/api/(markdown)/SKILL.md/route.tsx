@@ -265,7 +265,13 @@ leading text — the matcher descends into lists at any nesting depth, so
 deleting "second item" removes just that item and leaves the surrounding
 list intact. Match a table by the leading text of its first cell; tables are
 always deleted as a whole (there is no per-cell deletion). Match a display
-equation by its whole \`$$...$$\` token.
+equation by its whole \`$$...$$\` token. Match an image block by its
+\`![alt](url)\` markdown as it appears in the editPost output; the image is
+identified by its URL (alt text is ignored), and any text after the image
+token must match the text that follows the image in that block (e.g. a
+caption). To change an image's URL, insert a new image block next to it with
+insertBlock (using the old image's markdown as the location) and then delete
+the old one.
 In edit mode, the matched block is removed immediately. In suggest mode, the
 matched block is wrapped as a deletion suggestion; a few block types (e.g.
 display equations) cannot be represented as deletion suggestions, and the
