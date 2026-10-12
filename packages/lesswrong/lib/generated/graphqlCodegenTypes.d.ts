@@ -16147,6 +16147,23 @@ type ArbitalPageRequestQueryVariables = Exact<{
 
 type ArbitalPageRequestQuery = ArbitalPageRequestQuery_Query;
 
+type UserLinkPreviewQuery_users_MultiUserOutput_results_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type UserLinkPreviewQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<UserLinkPreviewQuery_users_MultiUserOutput_results_User> };
+
+type UserLinkPreviewQuery_Query = { __typename?: 'Query', users: UserLinkPreviewQuery_users_MultiUserOutput | null };
+
+
+type UserLinkPreviewQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+type UserLinkPreviewQuery = UserLinkPreviewQuery_Query;
+
 type multiUserCommunityMapQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
   & UsersMapEntry
