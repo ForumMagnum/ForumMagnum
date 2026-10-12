@@ -23,6 +23,7 @@ import {INSERT_INLINE_COMMAND} from '../CommentPlugin';
 import { INSERT_CODE_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
+import { OPEN_CREATE_CLAIM_DIALOG_COMMAND } from '../../embeds/ElicitEmbed/ClaimsPlugin';
 import {
   clearFormatting,
   formatBulletList,
@@ -55,6 +56,7 @@ import {
   isInsertInlineMath,
   isInsertLink,
   isInsertFootnote,
+  isInsertClaim,
   isLowercase,
   isOutdent,
   isStrikeThrough,
@@ -141,6 +143,8 @@ export default function ShortcutsPlugin({
         editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
       } else if (isInsertFootnote(event)) {
         editor.dispatchCommand(INSERT_FOOTNOTE_COMMAND, {});
+      } else if (isInsertClaim(event)) {
+        editor.dispatchCommand(OPEN_CREATE_CLAIM_DIALOG_COMMAND, undefined);
       } else {
         // No match for any of the event handlers
         return false;

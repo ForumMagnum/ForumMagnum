@@ -17,6 +17,7 @@ import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
 import { InsertClaimIcon } from '../../icons/InsertClaimIcon';
+import { OPEN_CREATE_CLAIM_DIALOG_COMMAND } from '../../embeds/ElicitEmbed/ClaimsPlugin';
 
 const styles = defineStyles('LexicalBlockInsertToolbar', (theme: ThemeType) => ({
   popup: {
@@ -95,7 +96,6 @@ interface BlockInsertToolbarProps {
   anchorElem: HTMLElement;
   buttonElem: HTMLElement;
   onClose: () => void;
-  insertClaim: (() => void) | null;
 }
 
 function BlockInsertToolbar({
@@ -103,7 +103,6 @@ function BlockInsertToolbar({
   anchorElem,
   buttonElem,
   onClose,
-  insertClaim,
 }: BlockInsertToolbarProps): JSX.Element {
   const classes = useStyles(styles);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
@@ -269,23 +268,27 @@ function BlockInsertToolbar({
     </button>
   );
 
-  const claimButton = insertClaim ? (
+  const claimButton = (
     <button
       key="claim"
       type="button"
-      onClick={() => handleItemClick(insertClaim)}
+      onClick={() =>
+        handleItemClick(() =>
+          editor.dispatchCommand(OPEN_CREATE_CLAIM_DIALOG_COMMAND, undefined),
+        )
+      }
       className={classes.popupItem}
       title="Insert claim"
       aria-label="Insert claim">
       <InsertClaimIcon className={classes.format} />
     </button>
-  ) : null;
+  );
 
   const groups: Array<JSX.Element[]> = [
     [imageButton, tableButton, horizontalRuleButton],
     [mathDisplayButton],
     [collapsibleButton],
-    [footnoteButton, ...(claimButton ? [claimButton] : [])],
+    [footnoteButton, claimButton],
   ];
 
   const visibleGroups = groups.filter((group) => group.length > 0);
@@ -307,7 +310,6 @@ interface BlockInsertToolbarPluginProps {
   anchorElem: HTMLElement;
   buttonElem: HTMLElement;
   onClose: () => void;
-  insertClaim: (() => void) | null;
 }
 
 export default function BlockInsertToolbarPlugin({
@@ -315,7 +317,6 @@ export default function BlockInsertToolbarPlugin({
   anchorElem,
   buttonElem,
   onClose,
-  insertClaim,
 }: BlockInsertToolbarPluginProps): JSX.Element {
   return createPortal(
     <BlockInsertToolbar
@@ -323,7 +324,6 @@ export default function BlockInsertToolbarPlugin({
       anchorElem={anchorElem}
       buttonElem={buttonElem}
       onClose={onClose}
-      insertClaim={insertClaim}
     />,
     anchorElem,
   );

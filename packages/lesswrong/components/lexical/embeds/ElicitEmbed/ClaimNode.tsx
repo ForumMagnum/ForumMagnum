@@ -1,5 +1,7 @@
 import React from 'react';
 import {
+  $getSelection,
+  $isRangeSelection,
   DecoratorNode,
   LexicalNode,
   NodeKey,
@@ -8,6 +10,7 @@ import {
   DOMConversionOutput,
   DOMExportOutput,
 } from 'lexical';
+import { $insertNodeToNearestRoot } from '@lexical/utils';
 import ElicitBlock from '@/components/contents/ElicitBlock';
 
 export interface SerializedClaimNode extends SerializedLexicalNode {
@@ -120,4 +123,18 @@ export function $createClaimNode(claimId: string): ClaimNode {
 
 export function $isClaimNode(node: LexicalNode | null | undefined): node is ClaimNode {
   return node instanceof ClaimNode;
+}
+
+/**
+ * Replace the current selection with a claim. Claims are block-level, so this
+ * splits the surrounding paragraph rather than nesting the claim inside it. If
+ * the editor has no selection (eg because focus moved to the create-claim
+ * dialog), this falls back to the previous selection.
+ */
+export function $insertClaimNode(claimId: string): ClaimNode {
+  const selection = $getSelection();
+  if ($isRangeSelection(selection)) {
+    selection.removeText();
+  }
+  return $insertNodeToNearestRoot($createClaimNode(claimId));
 }

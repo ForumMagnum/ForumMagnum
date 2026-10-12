@@ -38,6 +38,7 @@ import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalP
 import { INSERT_SPOILER_COMMAND } from '@/components/editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
+import { OPEN_CREATE_CLAIM_DIALOG_COMMAND } from '../../embeds/ElicitEmbed/ClaimsPlugin';
 import {InsertImageDialog} from '../ImagesPlugin';
 import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin/commands';
 
@@ -57,6 +58,7 @@ import { FileImageIcon } from '../../icons/FileImageIcon';
 import { Diagram2Icon } from '../../icons/Diagram2Icon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
+import { InsertClaimIcon } from '../../icons/InsertClaimIcon';
 import ForumIcon from '@/components/common/ForumIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
@@ -243,6 +245,12 @@ function useBaseOptions(
       keywords: ['footnote', 'note', 'reference'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_FOOTNOTE_COMMAND, {}),
+    }),
+    new ComponentPickerOption('Claim', {
+      icon: <InsertClaimIcon className={classes.icon} />,
+      keywords: ['claim', 'prediction', 'elicit', 'forecast'],
+      onSelect: () =>
+        editor.dispatchCommand(OPEN_CREATE_CLAIM_DIALOG_COMMAND, undefined),
     }),
     new ComponentPickerOption('Inline Equation', {
       icon: <PlusSlashMinusIcon style={iconStyle} />,
