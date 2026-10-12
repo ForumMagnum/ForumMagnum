@@ -2,7 +2,7 @@
 
 import React from "react";
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
+import { ApolloClient, ApolloLink, InMemoryCache, NetworkStatus } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import { Observable, type Subscriber } from "rxjs";
 import { parse, print } from "graphql";
@@ -92,6 +92,8 @@ describe("useQueryWithLoadMore", () => {
     expect(requests[1].limit).toBe(51);
     expect(result.current.data?.spotlights.results).toHaveLength(1);
     expect(result.current.loading).toBe(true);
+    // Callers treat NetworkStatus.loading as the initial load and hide the list
+    expect(result.current.networkStatus).not.toBe(NetworkStatus.loading);
     if (!initialResponseLast) {
       await act(async () => { respond(requests[0], 1); });
     }
@@ -167,6 +169,7 @@ describe("useQueryWithLoadMore", () => {
     let loadingMore: Promise<void>;
     act(() => { loadingMore = result.current.loadMoreProps.loadMore(); });
     expect(result.current.data?.spotlights.results).toHaveLength(1);
+    expect(result.current.networkStatus).not.toBe(NetworkStatus.loading);
     expect(requests[initialRequestCount].limit).toBe(51);
     await act(async () => {
       respond(requests[initialRequestCount], 51);
