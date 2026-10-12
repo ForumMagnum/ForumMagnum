@@ -203,6 +203,16 @@ To reply to an existing comment thread on the draft:
 The threadId comes from the Comment Threads section of the editPost response.
 This adds a reply to the specified thread, visible in the editor's comment panel.
 
+To resolve an open comment thread on the draft (for example, once the issue it
+raised has been fixed, or its anchor text has been deleted):
+    POST /api/agent/resolveCommentThread
+    with JSON body: { postId, key, agentName?, threadId }
+This does the same thing as the editor's "Resolve" button: it removes the
+thread's highlight and moves the thread out of the open-threads list. Only
+comment threads can be resolved; suggestion threads are accepted or rejected
+by the author in the editor. Only resolve threads the user has asked you to
+resolve, or that you started yourself.
+
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText
     with JSON body: { postId, key, agentName?, quote, replacement, mode?: "edit"|"suggest" }

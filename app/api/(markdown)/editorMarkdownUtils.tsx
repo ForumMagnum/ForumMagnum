@@ -102,7 +102,7 @@ function formatSuggestionSummaryForMarkdown(content: string): string {
   }
 }
 
-const POST_REPLY_INSTRUCTIONS = "To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }";
+const POST_REPLY_INSTRUCTIONS = "To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }. To resolve a comment thread: POST /api/agent/resolveCommentThread { postId, key, threadId }";
 
 function serializeThreadsToMarkdown(threads: SerializedThread[], replyInstructions: string): string {
   if (threads.length === 0) return "";
