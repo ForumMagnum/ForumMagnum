@@ -630,7 +630,9 @@ export const ManifoldPreview = ({href, id, className, children}: {
 };
 
 // Neuronpedia pages with a complex UI. They need a taller hover preview.
-const INTERACTIVE_NEURONPEDIA_PAGES = new Set(['assistant-axis', 'gemmascope', 'gemmascope-2', 'graph', 'jlens', 'nla', 'steer']);
+const INTERACTIVE_NEURONPEDIA_PAGES = new Set([
+  'assistant-axis', 'gemma-scope', 'gemma-scope-2', 'gemmascope', 'gemmascope-2', 'graph', 'jlens', 'nla', 'steer',
+]);
 
 export const NeuronpediaPreview = ({href, id, className, children}: {
   href: string;
