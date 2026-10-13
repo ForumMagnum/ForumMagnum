@@ -129,10 +129,10 @@ export const useRecordPostView = (post: ViewablePost) => {
 }
 
 /**
- * If a user looks like a spambot, don't send their events to Recombee
+ * Don't send events from banned-and-purged spam accounts to Recombee
  */
 function excludeUserFromRecombee(user: UsersCurrent) {
-  return user.spamRiskScore <= 0.1;
+  return !!user.banned && !!user.deleteContent;
 }
 
 export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead: boolean} => {

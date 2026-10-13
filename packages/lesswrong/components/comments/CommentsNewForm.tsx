@@ -19,7 +19,6 @@ import { getCommentsNewFormPadding } from '@/lib/collections/comments/constants'
 import { CommentForm, type CommentInteractionType } from './CommentForm';
 import NewUserGuidelinesDialog from "./NewUserGuidelinesDialog";
 import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelinesBox";
-import RecaptchaWarning from "../common/RecaptchaWarning";
 import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerationWarning";
 import RateLimitWarning from "../editor/RateLimitWarning";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -315,58 +314,56 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
         [classes.quickTakesSubmitButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
       }
     )} onFocus={onFocusCommentForm}>
-      <RecaptchaWarning currentUser={currentUser}>
-        <div className={padding
-          ? classNames({
-            [classes.form]: !isMinimalist && !(isQuickTake && quickTakesSubmitButtonAtBottom),
-            [classes.formMinimalist]: isMinimalist,
-          })
-          : undefined
-        }>
-          {formDisabledDueToRateLimit && <RateLimitWarning
-            contentType="comment"
-            lastRateLimitExpiry={lastRateLimitExpiry}
-            rateLimitMessage={rateLimitMessage}
-          />}
-          <div onFocus={(ev) => {
-            afNonMemberDisplayInitialPopup(currentUser, openDialog, forumType)
-            ev.preventDefault()
-          }}>
-            <CommentForm
-              key={commentFormInstance}
-              prefilledProps={prefilledProps}
-              commentSubmitProps={commentSubmitProps}
-              // Note: This is overly restrictive at the moment to focus on the core use case first, many of these would work
-              disableSubmitDropdown={isAnswer || post?.question || prefilledProps.tagId}
-              interactionType={interactionType}
-              alignmentForumPost={post?.af}
-              hideAlignmentForumCheckbox={hideAlignmentForumCheckbox}
-              formClassName={mergedFormProps.formClassName}
-              editorHintText={mergedFormProps.editorHintText}
-              commentMinimalistStyle={mergedFormProps.commentMinimalistStyle}
-              maxHeight={mergedFormProps.maxHeight}
-              submitLabel={getSubmitLabel(isQuickTake, isAnswer)}
-              cancelLabel={cancelLabel}
-              onSuccess={wrappedSuccessCallback}
-              onCancel={wrappedCancelCallback}
-              onSubmit={() => {
-                setLoading(true);
-                commentSubmitStartTimeRef.current = Date.now()
-                captureEvent("wrappedSubmitCallbackStarted")
-              }}
-              onError={() => {
-                setLoading(false)
-              }}
-            />
-          </div>
+      <div className={padding
+        ? classNames({
+          [classes.form]: !isMinimalist && !(isQuickTake && quickTakesSubmitButtonAtBottom),
+          [classes.formMinimalist]: isMinimalist,
+        })
+        : undefined
+      }>
+        {formDisabledDueToRateLimit && <RateLimitWarning
+          contentType="comment"
+          lastRateLimitExpiry={lastRateLimitExpiry}
+          rateLimitMessage={rateLimitMessage}
+        />}
+        <div onFocus={(ev) => {
+          afNonMemberDisplayInitialPopup(currentUser, openDialog, forumType)
+          ev.preventDefault()
+        }}>
+          <CommentForm
+            key={commentFormInstance}
+            prefilledProps={prefilledProps}
+            commentSubmitProps={commentSubmitProps}
+            // Note: This is overly restrictive at the moment to focus on the core use case first, many of these would work
+            disableSubmitDropdown={isAnswer || post?.question || prefilledProps.tagId}
+            interactionType={interactionType}
+            alignmentForumPost={post?.af}
+            hideAlignmentForumCheckbox={hideAlignmentForumCheckbox}
+            formClassName={mergedFormProps.formClassName}
+            editorHintText={mergedFormProps.editorHintText}
+            commentMinimalistStyle={mergedFormProps.commentMinimalistStyle}
+            maxHeight={mergedFormProps.maxHeight}
+            submitLabel={getSubmitLabel(isQuickTake, isAnswer)}
+            cancelLabel={cancelLabel}
+            onSuccess={wrappedSuccessCallback}
+            onCancel={wrappedCancelCallback}
+            onSubmit={() => {
+              setLoading(true);
+              commentSubmitStartTimeRef.current = Date.now()
+              captureEvent("wrappedSubmitCallbackStarted")
+            }}
+            onError={() => {
+              setLoading(false)
+            }}
+          />
         </div>
-        {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
-          {commentWillBeHidden && <div className={classes.modNote}>
-            <NewCommentModerationWarning />
-          </div>}
-          <ModerationGuidelinesBox documentId={parentDocumentId} commentType={post?._id ? "post" : "subforum"} />
+      </div>
+      {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+        {commentWillBeHidden && <div className={classes.modNote}>
+          <NewCommentModerationWarning />
         </div>}
-      </RecaptchaWarning>
+        <ModerationGuidelinesBox documentId={parentDocumentId} commentType={post?._id ? "post" : "subforum"} />
+      </div>}
     </div>
   );
 };

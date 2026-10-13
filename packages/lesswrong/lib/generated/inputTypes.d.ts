@@ -306,6 +306,8 @@ interface Mutation {
   generateCoverImagesForPost: Array<ReviewWinnerArt | null> | null;
   flipSplashArtImage: boolean | null;
   upscaleReviewWinnerArt: ReviewWinnerArt | null;
+  deleteChapter: boolean;
+  moveSequencePost: boolean;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
   createBook: BookOutput | null;
@@ -7207,7 +7209,6 @@ interface User {
   reviewedByUser: User | null;
   isReviewed: boolean | null;
   reviewedAt: Date | null;
-  spamRiskScore: number;
   afKarma: number;
   voteCount: number | null;
   smallUpvoteCount: number | null;

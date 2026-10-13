@@ -233,13 +233,15 @@ const NotificationsSettingsTab = ({
         )}
       </SettingsSection>
 
-      <SettingsSection title="Karma & Voting">
+      {/* Only readable by the user themself and admins, so null when a
+          moderator is viewing someone else's settings */}
+      {settings.karmaChangeNotifierSettings && <SettingsSection title="Karma & Voting">
         <HighlightableField name="karmaChangeNotifierSettings">
           <div className={fieldWrapperClass}>
             <KarmaChangeNotifierSettings field={bind('karmaChangeNotifierSettings')} />
           </div>
         </HighlightableField>
-      </SettingsSection>
+      </SettingsSection>}
 
       <SettingsSection title="Emails">
         {/* Operates on the logged-in user's own verification state, so hide it

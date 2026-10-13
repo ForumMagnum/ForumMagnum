@@ -10,8 +10,6 @@ import { isE2E } from '@/lib/executionEnvironment';
 
 export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
-export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0.2
-
 export type UserDisplayNameInfo = { username?: string | null, fullName?: string | null, displayName: string | null };
 export interface PermissionsPostMinimumInfo {
   shortform?: boolean | null,
