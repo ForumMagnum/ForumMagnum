@@ -4,6 +4,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '@/components/common/withUser';
 import type { InboxAction } from './inboxReducer';
 import { VOTING_DISABLED } from '@/lib/collections/moderatorActions/constants';
+import { getModeratorActionNoteText } from '@/lib/collections/moderatorActions/helpers';
 import { useDebouncedCallback } from '@/components/hooks/useDebouncedCallback';
 import { areAllContentPermissionsDisabled } from './helpers';
 import { getOptimisticNotes, useAddModeratorNote } from '../useAddModeratorNote';
@@ -155,9 +156,9 @@ export function useUserContentPermissions(
     
     // votingDisabled is a resolver field that checks for active VOTING_DISABLED moderator actions
     const isCurrentlyDisabled = user.votingDisabled;
-    const abled = isCurrentlyDisabled ? 'enabled' : 'disabled';
-    const note = `voting ${abled}`;
     const newVotingDisabled = !isCurrentlyDisabled;
+    // Creating the moderator action records its own note, so only re-enabling adds one here
+    const note = isCurrentlyDisabled ? 'voting enabled' : getModeratorActionNoteText(VOTING_DISABLED);
     
     // Perform optimistic update of the user's new votingDisabled state
     dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: getOptimisticNotes(user.sunshineNotes, currentUser.displayName, note), votingDisabled: newVotingDisabled } });
@@ -188,6 +189,7 @@ export function useUserContentPermissions(
           },
         },
       });
+      return;
     }
     
     const updatedUser = await addModeratorNote(user._id, note);
