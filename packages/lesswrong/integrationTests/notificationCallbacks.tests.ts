@@ -72,9 +72,9 @@ describe("coauthor notifications on author approval", () => {
     });
     if (archived) {
       expect(createNotifications).not.toHaveBeenCalledWith(notification);
-    } else {
-      expect(createNotifications).toHaveBeenCalledWith(notification);
+      await updatePost({ selector: { _id: post._id }, data: { deletedDraft: false } }, context);
     }
+    expect(createNotifications).toHaveBeenCalledWith(notification);
   });
 });
 
