@@ -4900,7 +4900,9 @@ export type ModeratorActionSelector = {
 
 export type ModeratorActionType =
   | 'autoBlockedFromSendingDMs'
+  | 'autoPurgedLlmRejectedSpam'
   | 'autoPurgedProfileSpam'
+  | 'autoRemovedLlmRejectedUser'
   | 'exemptFromRateLimits'
   | 'flaggedForNDMs'
   | 'lowAverageKarmaCommentAlert'
