@@ -452,18 +452,6 @@ export const getSignatureWithNote = (name: string, note: string) => {
   return `${getSignature(name)}: ${note}\n`;
 };
 
-export async function appendToSunshineNotes({moderatedUserId, adminName, text, context}: {
-  moderatedUserId: string,
-  adminName: string,
-  text: string,
-  context: ResolverContext,
-}): Promise<DbUser> {
-  const newNote = getSignatureWithNote(adminName, text);
-  const updatedUser = await context.repos.users.prependToSunshineNotes(moderatedUserId, newNote);
-  if (!updatedUser) throw "Invalid userId in appendToSunshineNotes";
-  return updatedUser;
-}
-
 export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   linkedinProfileURL: 'linkedin.com/in/',
   facebookProfileURL: 'facebook.com/',

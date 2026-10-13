@@ -5,7 +5,7 @@ import moment from "moment";
 import { captureException } from "@/lib/sentryWrapper";
 import { adminAccountSetting } from "@/lib/instanceSettings";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { appendToSunshineNotes } from "@/lib/collections/users/helpers";
+import { appendToSunshineNotes } from "@/server/users/sunshineNotes";
 import { AUTO_PURGED_PROFILE_SPAM } from "@/lib/collections/moderatorActions/constants";
 import { profileSpamAutoPurgeSetting } from "@/server/databaseSettings";
 import { triggerReviewIfNeeded } from "@/server/callbacks/sunshineCallbackUtils";
