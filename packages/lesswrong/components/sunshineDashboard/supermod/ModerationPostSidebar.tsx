@@ -9,6 +9,7 @@ import { MANUAL_FLAG_ALERT } from '@/lib/collections/moderatorActions/constants'
 import classNames from 'classnames';
 import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
 import KeystrokeDisplay from './KeystrokeDisplay';
+import ConcurrentModeratorChangeIndicator from './ConcurrentModeratorChangeIndicator';
 import type { InboxAction } from './inboxReducer';
 import { usePostReviewActions } from './usePostReviewActions';
 import ModeratorCoreTagsChecklist from './ModeratorCoreTagsChecklist';
@@ -141,6 +142,7 @@ const ModerationPostSidebar = ({
 
   return (
     <div className={classes.root}>
+      <ConcurrentModeratorChangeIndicator documentId={post._id} variant="banner" />
       <div className={classes.actionsSection}>
         <div className={classes.tagsSection}>
           <ModeratorCoreTagsChecklist post={post} dispatch={dispatch} />
