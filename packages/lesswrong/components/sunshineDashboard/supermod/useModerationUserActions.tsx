@@ -3,13 +3,14 @@ import moment from 'moment';
 import { useDialog } from '@/components/common/withDialog';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
-import { getSignatureWithNote } from '@/lib/collections/users/helpers';
 import { getNewSnoozeUntilContentCount } from '../ModeratorActions';
 import SnoozeAmountModal from './SnoozeAmountModal';
 import RestrictAndNotifyModal from './RestrictAndNotifyModal';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
+import { useAddModeratorNote } from '../useAddModeratorNote';
+import type { InboxAction } from './inboxReducer';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -60,55 +61,59 @@ export function useModerationUserActions({
   selectedUser,
   currentUser,
   addToUndoQueue,
+  dispatch,
 }: {
   selectedUser: SunshineUsersList | null;
   currentUser: UsersCurrent;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
+  dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) {
   const { openDialog } = useDialog();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
   const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
   const [approveCurrentContentOnly] = useMutation(ApproveCurrentContentOnlyMutation);
+  const addModeratorNote = useAddModeratorNote();
 
   const { posts, comments } = useModeratedUserContents(selectedUser?._id ?? '', 20);
 
   const { rejectionTemplates } = useRejectContent();
-
-  const getModSignatureWithNote = useCallback(
-    (note: string) => getSignatureWithNote(currentUser.displayName, note),
-    [currentUser.displayName]
-  );
 
   const handleAction = useCallback(
     (actionLabel: string, actionFn: () => Promise<void>) => addToUndoQueue(actionLabel, actionFn),
     [addToUndoQueue]
   );
 
-  const updateUserWith = useCallback((data: UpdateUserDataInput, undoActionLabel?: string) => {
+  // The note is sent on its own, when the action runs (after the undo window, for
+  // queued actions), so that the server adds it to the notes as they are then.
+  const updateUserWithNote = useCallback((data: UpdateUserDataInput, note: string, undoActionLabel?: string) => {
     if (!selectedUser) return;
 
-    const variables = { selector: { _id: selectedUser._id }, data };
+    const userId = selectedUser._id;
+    const executeAction = async () => {
+      await updateUser({ variables: { selector: { _id: userId }, data } });
+      const updatedUser = await addModeratorNote(userId, note);
+      if (updatedUser) {
+        dispatch({ type: 'UPDATE_USER', userId, fields: { sunshineNotes: updatedUser.sunshineNotes } });
+      }
+    };
 
     if (undoActionLabel) {
-      handleAction(undoActionLabel, async () => { await updateUser({ variables }); });
+      handleAction(undoActionLabel, executeAction);
     } else {
-      void updateUser({ variables });
+      void executeAction();
     }
-  }, [selectedUser, updateUser, handleAction]);
+  }, [selectedUser, updateUser, addModeratorNote, handleAction, dispatch]);
 
   const handleReview = useCallback(() => {
     if (!selectedUser) return;
-    const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote('Approved') + notes;
-    void updateUserWith({
+    updateUserWithNote({
       sunshineFlagged: false,
       reviewedByUserId: currentUser._id,
       reviewedAt: new Date(),
       needsReview: false,
-      sunshineNotes: newNotes,
       snoozedUntilContentCount: null,
-    }, 'Approved');
-  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
+    }, 'Approved', 'Approved');
+  }, [selectedUser, currentUser, updateUserWithNote]);
 
   const handleApproveCurrentOnly = useCallback(() => {
     if (!selectedUser) return;
@@ -120,17 +125,14 @@ export function useModerationUserActions({
   const handleSnooze = useCallback(
     (contentCount: number) => {
       if (!selectedUser) return;
-      const notes = selectedUser.sunshineNotes || '';
-      const newNotes = getModSignatureWithNote(`Snooze ${contentCount}`) + notes;
-      void updateUserWith({
+      updateUserWithNote({
         needsReview: false,
         reviewedAt: new Date(),
         reviewedByUserId: currentUser._id,
-        sunshineNotes: newNotes,
         snoozedUntilContentCount: getNewSnoozeUntilContentCount(selectedUser, contentCount),
-      }, `Snoozed ${contentCount}`);
+      }, `Snooze ${contentCount}`, `Snoozed ${contentCount}`);
     },
-    [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]
+    [selectedUser, currentUser, updateUserWithNote]
   );
 
   const handleSnoozeCustom = useCallback(() => {
@@ -151,23 +153,18 @@ export function useModerationUserActions({
 
   const handleRemoveNeedsReview = useCallback(() => {
     if (!selectedUser) return;
-    const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote('removed from review queue without snooze/approval') + notes;
-    void updateUserWith({
+    updateUserWithNote({
       needsReview: false,
       reviewedByUserId: null,
       reviewedAt: selectedUser.reviewedAt ? new Date() : null,
-      sunshineNotes: newNotes,
-    }, 'Removed from queue');
-  }, [selectedUser, getModSignatureWithNote, updateUserWith]);
+    }, 'removed from review queue without snooze/approval', 'Removed from queue');
+  }, [selectedUser, updateUserWithNote]);
 
   const handlePurge = useCallback(() => {
     if (!selectedUser) return;
     if (!confirm("Are you sure you want to delete all this user's posts, comments, sequences, and votes?")) return;
 
-    const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote('Purge') + notes;
-    void updateUserWith({
+    updateUserWithNote({
       sunshineFlagged: false,
       reviewedByUserId: currentUser._id,
       nullifyVotes: true,
@@ -175,9 +172,8 @@ export function useModerationUserActions({
       needsReview: false,
       reviewedAt: new Date(),
       banned: moment().add(1000, 'years').toDate(),
-      sunshineNotes: newNotes,
-    }, 'Purged');
-  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
+    }, 'Purge', 'Purged');
+  }, [selectedUser, currentUser, updateUserWithNote]);
 
   const handleRestrictAndNotify = useCallback(() => {
     if (!selectedUser) return;
@@ -268,8 +264,7 @@ export function useModerationUserActions({
     handleRestrictAndNotify,
     handleRemoveNeedsReview,
     handlePurge,
-    updateUserWith,
-    getModSignatureWithNote,
+    updateUserWithNote,
     posts,
     comments,
   };

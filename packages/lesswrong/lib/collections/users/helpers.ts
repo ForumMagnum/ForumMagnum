@@ -452,20 +452,6 @@ export const getSignatureWithNote = (name: string, note: string) => {
   return `${getSignature(name)}: ${note}\n`;
 };
 
-export async function appendToSunshineNotes({moderatedUserId, adminName, text, context}: {
-  moderatedUserId: string,
-  adminName: string,
-  text: string,
-  context: ResolverContext,
-}): Promise<void> {
-  const moderatedUser = await context.Users.findOne({_id: moderatedUserId});
-  if (!moderatedUser) throw "Invalid userId in appendToSunshineNotes";
-  const newNote = getSignatureWithNote(adminName, text);
-  const oldNotes = moderatedUser.sunshineNotes ?? "";
-  const updatedNotes = `${newNote}${oldNotes}`;
-  await context.Users.rawUpdateOne({_id: moderatedUserId}, {$set: {sunshineNotes: updatedNotes}});
-}
-
 export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   linkedinProfileURL: 'linkedin.com/in/',
   facebookProfileURL: 'facebook.com/',
