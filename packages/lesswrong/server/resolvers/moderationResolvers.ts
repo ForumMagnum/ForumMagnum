@@ -53,7 +53,7 @@ export const moderationGqlTypeDefs = gql`
 
   extend type Query {
     moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
-    supermodQueueChanges(documentIds: [String!]!, since: Date!): [SupermodQueueChange!]!
+    supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
     supermodQueueSnapshotTime: Date!
   }
 
@@ -425,23 +425,20 @@ export const moderationGqlQueries = {
       userIds,
     };
   },
-  async supermodQueueChanges(_root: void, { documentIds, since }: { documentIds: string[], since: Date }, context: ResolverContext) {
-    const { currentUser, FieldChanges } = context;
+  async supermodQueueChanges(_root: void, { userIds, postIds, since }: { userIds: string[], postIds: string[], since: Date }, context: ResolverContext) {
+    const { currentUser } = context;
     if (!currentUser || !userIsAdminOrMod(currentUser)) {
       throw new Error("Only admins and moderators can see moderation queue changes");
     }
-    if (documentIds.length > MAX_QUEUE_CHANGE_DOCUMENT_IDS) {
-      throw new Error(`supermodQueueChanges accepts at most ${MAX_QUEUE_CHANGE_DOCUMENT_IDS} document IDs`);
+    if (userIds.length + postIds.length > MAX_QUEUE_CHANGE_DOCUMENT_IDS) {
+      throw new Error(`supermodQueueChanges accepts at most ${MAX_QUEUE_CHANGE_DOCUMENT_IDS} user and post IDs`);
     }
-    if (documentIds.length === 0) return [];
+    if (userIds.length + postIds.length === 0) return [];
 
-    const changes = await FieldChanges.find({
-      documentId: { $in: documentIds },
-      createdAt: { $gt: since },
-    }, {}, { documentId: 1, userId: 1, createdAt: 1 }).fetch();
+    const changes = await context.repos.fieldChanges.getModerationRecordChanges({ userIds, postIds, since, excludeActorId: currentUser._id });
 
-    // Authors editing their own posts and profiles also produce FieldChanges, so only count moderators
-    const actorIds = uniq(changes.flatMap(change => change.userId && change.userId !== currentUser._id ? [change.userId] : []));
+    // Authors editing their own posts, comments and profiles also produce FieldChanges, so only count moderators
+    const actorIds = uniq(changes.map(change => change.actorId));
     if (actorIds.length === 0) return [];
     const actors = await Users.find({ _id: { $in: actorIds } }, {
       projection: { _id: 1, isAdmin: 1, groups: 1, displayName: 1, username: 1, fullName: 1 },
@@ -449,13 +446,13 @@ export const moderationGqlQueries = {
     const moderatorsById = new Map(actors.filter(userIsAdminOrMod).map(user => [user._id, user]));
 
     const moderatorChanges = changes.flatMap(change => {
-      const moderator = change.userId ? moderatorsById.get(change.userId) : undefined;
-      return change.documentId && moderator ? [{ ...change, documentId: change.documentId, moderator }] : [];
+      const moderator = moderatorsById.get(change.actorId);
+      return moderator ? [{ ...change, moderator }] : [];
     });
-    return Object.values(groupBy(moderatorChanges, change => `${change.documentId}:${change.moderator._id}`)).map(group => {
+    return Object.values(groupBy(moderatorChanges, change => `${change.recordId}:${change.moderator._id}`)).map(group => {
       const latest = group.reduce((a, b) => b.createdAt > a.createdAt ? b : a);
       return {
-        documentId: latest.documentId,
+        documentId: latest.recordId,
         moderatorName: userGetDisplayName(latest.moderator, context.forumType),
         lastChangedAt: latest.createdAt,
       };

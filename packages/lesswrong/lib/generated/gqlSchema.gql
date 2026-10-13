@@ -1269,7 +1269,7 @@ type SupermodQueueChange {
 
 extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
-  supermodQueueChanges(documentIds: [String!]!, since: Date!): [SupermodQueueChange!]!
+  supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
   supermodQueueSnapshotTime: Date!
 }
 

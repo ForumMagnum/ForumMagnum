@@ -8614,8 +8614,9 @@ type QuerysubscriptionsArgs = {
 
 
 type QuerysupermodQueueChangesArgs = {
-  documentIds: Array<Scalars['String']['input']>;
+  postIds: Array<Scalars['String']['input']>;
   since: Scalars['Date']['input'];
+  userIds: Array<Scalars['String']['input']>;
 };
 
 
@@ -21349,7 +21350,8 @@ type SupermodQueueChangesQueryQuery_Query = { __typename?: 'Query', supermodQueu
 
 
 type SupermodQueueChangesQueryQueryVariables = Exact<{
-  documentIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  userIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  postIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
   since: Scalars['Date']['input'];
 }>;
 

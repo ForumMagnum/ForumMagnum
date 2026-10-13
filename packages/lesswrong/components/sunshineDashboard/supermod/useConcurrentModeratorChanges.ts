@@ -1,14 +1,14 @@
 'use client';
 
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useContext, useEffect, useMemo } from 'react';
 import groupBy from 'lodash/groupBy';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import type { SupermodQueueChangesQueryQuery } from '@/lib/generated/gql-codegen/graphql';
 
 const SupermodQueueChangesQuery = gql(`
-  query SupermodQueueChangesQuery($documentIds: [String!]!, $since: Date!) {
-    supermodQueueChanges(documentIds: $documentIds, since: $since) {
+  query SupermodQueueChangesQuery($userIds: [String!]!, $postIds: [String!]!, $since: Date!) {
+    supermodQueueChanges(userIds: $userIds, postIds: $postIds, since: $since) {
       documentId
       moderatorName
       lastChangedAt
@@ -16,21 +16,32 @@ const SupermodQueueChangesQuery = gql(`
   }
 `);
 
-const POLL_INTERVAL_MS = 30_000;
+const POLL_INTERVAL_MS = 10_000;
 
 export type ConcurrentModeratorChange = SupermodQueueChangesQueryQuery['supermodQueueChanges'][number];
 
 export const ConcurrentModeratorChangesContext = createContext<Partial<Record<string, ConcurrentModeratorChange[]>>>({});
 
-export function useConcurrentModeratorChanges(documentIds: string[], since: Date): Partial<Record<string, ConcurrentModeratorChange[]>> {
-  const { data } = useQuery(SupermodQueueChangesQuery, {
-    variables: { documentIds, since },
-    skip: documentIds.length === 0,
+export function useConcurrentModeratorChanges(userIds: string[], postIds: string[], since: Date): Partial<Record<string, ConcurrentModeratorChange[]>> {
+  const skip = userIds.length + postIds.length === 0;
+  const { data, refetch } = useQuery(SupermodQueueChangesQuery, {
+    variables: { userIds, postIds, since },
+    skip,
     ssr: false,
     fetchPolicy: 'network-only',
     pollInterval: POLL_INTERVAL_MS,
     skipPollAttempt: () => document.hidden,
   });
+
+  useEffect(() => {
+    if (skip) return;
+    const handleVisibilityChange = () => {
+      if (!document.hidden) void refetch();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [skip, refetch]);
+
   return useMemo(() => groupBy(data?.supermodQueueChanges ?? [], change => change.documentId), [data]);
 }
 

@@ -287,9 +287,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
   );
 
   // Users can leave and re-enter the local lists (via the undo queue), so track everything that was loaded
-  const [loadedDocumentIds] = useState(() => [...state.users, ...state.posts, ...state.classifiedPosts].map(document => document._id));
+  const [loadedUserIds] = useState(() => state.users.map(user => user._id));
+  const [loadedPostIds] = useState(() => [...state.posts, ...state.classifiedPosts].map(post => post._id));
   const [changesSince] = useState(() => new Date(queueSnapshotTime));
-  const concurrentModeratorChanges = useConcurrentModeratorChanges(loadedDocumentIds, changesSince);
+  const concurrentModeratorChanges = useConcurrentModeratorChanges(loadedUserIds, loadedPostIds, changesSince);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
