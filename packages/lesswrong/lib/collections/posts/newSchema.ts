@@ -2271,9 +2271,6 @@ const schema = {
       outputType: "[String!]!",
       inputType: "[String!]",
       canRead: ['guests'],
-      // Unreviewed authors can add coauthors because their posts are held for
-      // review anyway; coauthor notifications are deferred until approval (see
-      // notifyUsersAddedAsCoauthors).
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
