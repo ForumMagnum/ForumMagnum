@@ -1274,6 +1274,7 @@ extend type Mutation {
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
   unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
+  addModeratorNote(userId: String!, note: String!): User
 }
 
 extend type Mutation {

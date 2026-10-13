@@ -5,7 +5,7 @@ import moment from "moment";
 import { captureException } from "@/lib/sentryWrapper";
 import { adminAccountSetting } from "@/lib/instanceSettings";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { getSignatureWithNote } from "@/lib/collections/users/helpers";
+import { appendToSunshineNotes } from "@/lib/collections/users/helpers";
 import { AUTO_PURGED_PROFILE_SPAM } from "@/lib/collections/moderatorActions/constants";
 import { profileSpamAutoPurgeSetting } from "@/server/databaseSettings";
 import { triggerReviewIfNeeded } from "@/server/callbacks/sunshineCallbackUtils";
@@ -83,7 +83,6 @@ async function purgeProfileSpammer(user: DbUser, reason: string, context: Resolv
   if (!adminTeamAccount) return;
   const adminContext = computeContextFromUser({ user: adminTeamAccount, isSSR: false, forumType: context.forumType });
 
-  const note = getSignatureWithNote(adminTeamAccount.displayName, `Auto-purged (profile spam classifier): ${reason}`);
   await updateUser({
     selector: { _id: user._id },
     data: {
@@ -94,11 +93,15 @@ async function purgeProfileSpammer(user: DbUser, reason: string, context: Resolv
       nullifyVotes: true,
       deleteContent: true,
       banned: moment().add(1000, "years").toDate(),
-      sunshineNotes: note + (user.sunshineNotes ?? ""),
     },
   }, adminContext);
+  await appendToSunshineNotes({
+    moderatedUserId: user._id,
+    adminName: adminTeamAccount.displayName,
+    text: `Auto-purged (profile spam classifier): ${reason}`,
+    context: adminContext,
+  });
 
-  // Must come after the update, which would otherwise overwrite this action's sunshine note.
   await createModeratorAction({ data: { userId: user._id, type: AUTO_PURGED_PROFILE_SPAM } }, adminContext);
 }
 

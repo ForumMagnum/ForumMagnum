@@ -9,6 +9,7 @@ import { useModerationUserActions } from './useModerationUserActions';
 import { areAllContentPermissionsDisabled, canRejectContent, getModerationContentItems, isMapPin, isPost, type ContentItem } from './helpers';
 import { useMessages } from '@/components/common/withMessages';
 import { useRerunLlmCheck } from './useRerunLlmCheck';
+import { getOptimisticNotes } from '../useAddModeratorNote';
 
 function canRerunLlmCheck(selectedContent?: ContentItem) {
   if (!selectedContent) return false;
@@ -63,11 +64,10 @@ const ModerationUserKeyboardHandler = ({
     handleRestrictAndNotify,
     handleRemoveNeedsReview,
     handlePurge,
-    updateUserWith,
-    getModSignatureWithNote,
+    updateUserWithNote,
     posts,
     comments,
-  } = useModerationUserActions({ selectedUser, currentUser, addToUndoQueue });
+  } = useModerationUserActions({ selectedUser, currentUser, addToUndoQueue, dispatch });
 
   const {
     toggleDisablePosting,
@@ -96,32 +96,26 @@ const ModerationUserKeyboardHandler = ({
     const banMonths = 3;
     if (!confirm(`Ban this user for ${banMonths} months?`)) return;
 
-    const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote('Ban') + notes;
-    void updateUserWith({
+    updateUserWithNote({
       sunshineFlagged: false,
       reviewedByUserId: currentUser._id,
       needsReview: false,
       reviewedAt: new Date(),
       banned: moment().add(banMonths, 'months').toDate(),
-      sunshineNotes: newNotes,
-    }, 'Banned 3mo');
-  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
+    }, 'Ban', 'Banned 3mo');
+  }, [selectedUser, currentUser, updateUserWithNote]);
 
   const handleFlag = useCallback(() => {
     if (!selectedUser) return;
     const flagStatus = selectedUser.sunshineFlagged ? 'Unflag' : 'Flag';
-    const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote(flagStatus) + notes;
     const newFlaggedState = !selectedUser.sunshineFlagged;
     
-    dispatch({ type: 'UPDATE_USER', userId: selectedUser._id, fields: { sunshineNotes: newNotes, sunshineFlagged: newFlaggedState } });
+    dispatch({ type: 'UPDATE_USER', userId: selectedUser._id, fields: { sunshineNotes: getOptimisticNotes(selectedUser.sunshineNotes, currentUser.displayName, flagStatus), sunshineFlagged: newFlaggedState } });
     
-    void updateUserWith({
+    updateUserWithNote({
       sunshineFlagged: newFlaggedState,
-      sunshineNotes: newNotes,
-    });
-  }, [selectedUser, getModSignatureWithNote, dispatch, updateUserWith]);
+    }, flagStatus);
+  }, [selectedUser, currentUser.displayName, dispatch, updateUserWithNote]);
 
   const handleUnrejectCurrentContent = useCallback(() => {
     if (!selectedUser) return;

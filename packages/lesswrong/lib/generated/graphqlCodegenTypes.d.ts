@@ -3884,6 +3884,7 @@ type Mutation = {
   UserExpandFrontpageSection?: Maybe<Scalars['Boolean']['output']>;
   UserUpdateSubforumMembership?: Maybe<User>;
   acceptTypoSuggestion: TypoSuggestion;
+  addModeratorNote?: Maybe<User>;
   addOrUpvoteTag?: Maybe<TagRel>;
   addTags?: Maybe<Scalars['Boolean']['output']>;
   adminSendBulkEmail: AdminSendBulkEmailResult;
@@ -4123,6 +4124,12 @@ type MutationUserUpdateSubforumMembershipArgs = {
 type MutationacceptTypoSuggestionArgs = {
   mode: TypoAcceptMode;
   suggestionId: Scalars['String']['input'];
+};
+
+
+type MutationaddModeratorNoteArgs = {
+  note: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
 };
 
 
@@ -21259,24 +21266,6 @@ type performVoteTagRelModeratorCoreTagsChecklistMutationVariables = Exact<{
 
 type performVoteTagRelModeratorCoreTagsChecklistMutation = performVoteTagRelModeratorCoreTagsChecklistMutation_Mutation;
 
-type updateUserModeratorNotesMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & SunshineUsersList
-);
-
-type updateUserModeratorNotesMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserModeratorNotesMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserModeratorNotesMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserModeratorNotesMutation_updateUser_UserOutput | null };
-
-
-type updateUserModeratorNotesMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserModeratorNotesMutation = updateUserModeratorNotesMutation_Mutation;
-
 type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }
   & ModerationTemplateFragment
@@ -21463,6 +21452,22 @@ type updateModeratorActionContentPermissionsMutationVariables = Exact<{
 
 
 type updateModeratorActionContentPermissionsMutation = updateModeratorActionContentPermissionsMutation_Mutation;
+
+type addModeratorNoteMutation_addModeratorNote_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type addModeratorNoteMutation_Mutation = { __typename?: 'Mutation', addModeratorNote: addModeratorNoteMutation_addModeratorNote_User | null };
+
+
+type addModeratorNoteMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+  note: Scalars['String']['input'];
+}>;
+
+
+type addModeratorNoteMutation = addModeratorNoteMutation_Mutation;
 
 type addPostsToTagMutation_addOrUpvoteTag_TagRel = (
   { __typename?: 'TagRel' }

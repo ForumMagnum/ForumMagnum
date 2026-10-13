@@ -2,10 +2,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useMutation } from '@apollo/client/react';
-import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { getSignatureWithNote } from '@/lib/collections/users/helpers';
 import { hideScrollBars, prettyScrollbars } from '@/themes/styleUtils';
 import { parseModeratorNotes } from './parseModeratorNotes';
 import { blurEditorOnEscape } from '@/components/editor/focusLexicalEditor';
@@ -14,16 +11,7 @@ import FormatDate from '@/components/common/FormatDate';
 import ModerationSectionTitle from './ModerationSectionTitle';
 import ComposerSubmitButton from './ComposerSubmitButton';
 import type { InboxAction } from './inboxReducer';
-
-const SunshineUsersListUpdateMutation = gql(`
-  mutation updateUserModeratorNotes($selector: SelectorInput!, $data: UpdateUserDataInput!) {
-    updateUser(selector: $selector, data: $data) {
-      data {
-        ...SunshineUsersList
-      }
-    }
-  }
-`);
+import { getOptimisticNotes, useAddModeratorNote } from '../useAddModeratorNote';
 
 const styles = defineStyles('ModeratorNotes', (theme: ThemeType) => ({
   root: {
@@ -90,7 +78,7 @@ const ModeratorNotes = ({
   const now = useCurrentTime();
   const [draft, setDraft] = useState('');
 
-  const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
+  const addModeratorNote = useAddModeratorNote();
 
   const entries = useMemo(() => parseModeratorNotes(user.sunshineNotes, now), [user.sunshineNotes, now]);
 
@@ -98,16 +86,14 @@ const ModeratorNotes = ({
     const noteText = draft.trim();
     if (!noteText) return;
 
-    const newNotes = getSignatureWithNote(currentUser.displayName, noteText) + (user.sunshineNotes ?? '');
     setDraft('');
-    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes } });
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data: { sunshineNotes: newNotes },
-      },
+    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: getOptimisticNotes(user.sunshineNotes, currentUser.displayName, noteText) } });
+    void addModeratorNote(user._id, noteText).then((updatedUser) => {
+      if (updatedUser) {
+        dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: updatedUser.sunshineNotes } });
+      }
     });
-  }, [draft, currentUser.displayName, user._id, user.sunshineNotes, dispatch, updateUser]);
+  }, [draft, currentUser.displayName, user._id, user.sunshineNotes, dispatch, addModeratorNote]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     // A bare Escape blurs the composer, rather than closing the whole detail view and losing the draft

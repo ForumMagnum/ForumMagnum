@@ -10,7 +10,8 @@ import gql from 'graphql-tag';
 import { createComment, updateComment } from '../collections/comments/mutations';
 import { updatePost } from '../collections/posts/mutations';
 import { updateUser } from '../collections/users/mutations';
-import { getSignatureWithNote } from '../../lib/collections/users/helpers';
+import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
+import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { approveUnreviewedSubmissions } from '../callbacks/userCallbackFunctions';
 import { createConversation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
@@ -57,6 +58,7 @@ export const moderationGqlTypeDefs = gql`
     runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
     runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
     unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
+    addModeratorNote(userId: String!, note: String!): User
   }
 `
 
@@ -171,10 +173,6 @@ export const moderationGqlMutations = {
 
     // If messageContent is provided, we restrict all of the user's permissions and send them an offboarding message
     if (messageContent) {
-      const restrictNote = 'Restricted & notified (rejected content, disabled all permissions)';
-      const notes = user.sunshineNotes || '';
-      const newNotes = getSignatureWithNote(currentUser.displayName, restrictNote) + notes;
-
       await updateUser({
         data: {
           postingDisabled: true,
@@ -183,10 +181,15 @@ export const moderationGqlMutations = {
           needsReview: false,
           reviewedByUserId: null,
           reviewedAt: user.reviewedAt ? new Date() : null,
-          sunshineNotes: newNotes,
         },
         selector: { _id: userId }
       }, context);
+      await appendToSunshineNotes({
+        moderatedUserId: userId,
+        adminName: currentUser.displayName,
+        text: 'Restricted & notified (rejected content, disabled all permissions)',
+        context,
+      });
 
       await createModeratorAction({
         data: {
@@ -222,17 +225,20 @@ export const moderationGqlMutations = {
         data: messageData,
       }, context);
     } else {
-      const notes = user.sunshineNotes || '';
-      const newNotes = getSignatureWithNote(currentUser.displayName, 'removed from review queue (content rejected)') + notes;
       await updateUser({
         data: {
           needsReview: false,
           reviewedByUserId: null,
           reviewedAt: user.reviewedAt ? new Date() : null,
-          sunshineNotes: newNotes,
         },
         selector: { _id: userId }
       }, context);
+      await appendToSunshineNotes({
+        moderatedUserId: userId,
+        adminName: currentUser.displayName,
+        text: 'removed from review queue (content rejected)',
+        context,
+      });
     }
 
     return true;
@@ -253,19 +259,22 @@ export const moderationGqlMutations = {
     // Approve existing content but don't set reviewedByUserId so future content still needs review
     await approveUnreviewedSubmissions(userId, context);
 
-    const notes = user.sunshineNotes;
-    const newNotes = getSignatureWithNote(currentUser.displayName, 'Approved current content only (future content will need review)') + notes;
     await updateUser({
       data: {
         sunshineFlagged: false,
         reviewedByUserId: null,
         reviewedAt: new Date(),
         needsReview: false,
-        sunshineNotes: newNotes,
         snoozedUntilContentCount: null,
       },
       selector: { _id: userId }
     }, context);
+    await appendToSunshineNotes({
+      moderatedUserId: userId,
+      adminName: currentUser.displayName,
+      text: 'Approved current content only (future content will need review)',
+      context,
+    });
 
     return true;
   },
@@ -380,19 +389,41 @@ export const moderationGqlMutations = {
     }, context);
 
     // Unapprove the user so future content needs review
-    const notes = user.sunshineNotes || '';
-    const newNotes = getSignatureWithNote(currentUser.displayName, 'LLM policy violation - unapproved user, unlisted post') + notes;
     await updateUser({
       data: {
         reviewedByUserId: null,
         reviewedAt: user.reviewedAt ? new Date() : null,
         needsReview: true,
-        sunshineNotes: newNotes,
       },
       selector: { _id: user._id }
     }, context);
+    await appendToSunshineNotes({
+      moderatedUserId: user._id,
+      adminName: currentUser.displayName,
+      text: 'LLM policy violation - unapproved user, unlisted post',
+      context,
+    });
 
     return true;
+  },
+  async addModeratorNote(_root: void, args: {userId: string, note: string}, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can add moderator notes");
+    }
+
+    const note = args.note.trim();
+    if (!note) {
+      throw new Error("Note is required");
+    }
+
+    const updatedUser = await appendToSunshineNotes({
+      moderatedUserId: args.userId,
+      adminName: currentUser.displayName,
+      text: note,
+      context,
+    });
+    return accessFilterSingle(currentUser, 'Users', updatedUser, context);
   },
 }
 

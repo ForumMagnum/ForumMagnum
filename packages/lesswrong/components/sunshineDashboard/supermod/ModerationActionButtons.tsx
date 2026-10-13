@@ -63,7 +63,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
     handleSnoozeCustom,
     handleRemoveNeedsReview,
     handlePurge,
-  } = useModerationUserActions({ selectedUser: user, currentUser, addToUndoQueue });
+  } = useModerationUserActions({ selectedUser: user, currentUser, addToUndoQueue, dispatch });
 
   const { toggleAllPermissions } = useUserContentPermissions(user, dispatch);
   const allPermissionsDisabled = areAllContentPermissionsDisabled(user);
