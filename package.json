@@ -86,7 +86,7 @@
     "@lexical/table": "^0.44.0",
     "@lexical/text": "^0.44.0",
     "@lexical/utils": "^0.44.0",
-    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@modelcontextprotocol/sdk": "^1.31.0",
     "@popperjs/core": "^2.11.5",
     "@sentry/nextjs": "^10.42.0",
     "@slack/web-api": "^7.10.0",
