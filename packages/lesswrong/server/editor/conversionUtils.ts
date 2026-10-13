@@ -171,8 +171,71 @@ function stripIframeWidgetSrcdocs(html: string): string {
   return $.html();
 }
 
+/**
+ * Ordinals (counting every `[`/`]` in `text` in order) of the brackets in
+ * balanced pairs that can't be read as markdown syntax: the `]` is followed by
+ * something other than `(`, `[` or `:` (so not an inline link, reference link
+ * or link definition), and the `[` isn't followed by `^` (a footnote
+ * reference). A `]` at the end of `text` doesn't qualify, since the next text
+ * node could supply the `(`. Neither does a bracket preceded by a literal
+ * backslash.
+ */
+function findLiteralBracketPairs(text: string): Set<number> {
+  const literal = new Set<number>();
+  const openers: Array<{ ordinal: number, index: number }> = [];
+  let ordinal = 0;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch !== '[' && ch !== ']') continue;
+    if (ch === '[') {
+      openers.push({ ordinal, index: i });
+    } else {
+      const opener = openers.pop();
+      const following = text[i + 1];
+      const isLiteral = !!opener
+        && following !== undefined
+        && !'([:'.includes(following)
+        && text[opener.index + 1] !== '^'
+        && text[opener.index - 1] !== '\\'
+        && text[i - 1] !== '\\';
+      if (isLiteral) {
+        literal.add(opener.ordinal);
+        literal.add(ordinal);
+      }
+    }
+    ordinal++;
+  }
+  return literal;
+}
+
+/**
+ * Turndown backslash-escapes every `[` and `]` in text. That's harmless as
+ * CommonMark, but `\[…\]` is also LaTeX display-math syntax, which the agent
+ * markdown dialect parses as an equation, so prose like "He said [...] and"
+ * exported as `\[...\]` came back as math when an agent re-inserted it.
+ * Drop the escapes from bracket pairs that can't form link or footnote syntax
+ * (see `findLiteralBracketPairs`). `escaped` is Turndown's escaping of `text`,
+ * in which every bracket is preceded by its escaping backslash.
+ */
+function unescapeLiteralBracketPairs(text: string, escaped: string): string {
+  const literal = findLiteralBracketPairs(text);
+  if (literal.size === 0) return escaped;
+  let result = '';
+  let ordinal = 0;
+  for (const ch of escaped) {
+    if (ch === '[' || ch === ']') {
+      if (literal.has(ordinal) && result.endsWith('\\')) {
+        result = result.slice(0, -1);
+      }
+      ordinal++;
+    }
+    result += ch;
+  }
+  return result;
+}
+
 let _turndownService: TurndownService|null = null;
-const TURNDOWN_BUILD_MARKER = 'widget-markdown-v7-singleline-links';
+const TURNDOWN_BUILD_MARKER = 'widget-markdown-v8-literal-brackets';
 function getTurndown(): TurndownService {
   const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
   if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
@@ -443,6 +506,8 @@ function getTurndown(): TurndownService {
         return prefixed ? `\n\n${prefixed}\n\n` : '';
       },
     });
+    const defaultEscape = turndownService.escape.bind(turndownService);
+    turndownService.escape = (text: string) => unescapeLiteralBracketPairs(text, defaultEscape(text));
     (turndownService as AnyBecauseHard).__buildMarker = TURNDOWN_BUILD_MARKER;
     _turndownService = turndownService;
   }

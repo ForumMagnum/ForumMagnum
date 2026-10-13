@@ -1,4 +1,6 @@
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
+import { renderAgentMarkdownToHtml } from "../../../app/api/agent/editorAgentUtil";
 
 /**
  * Text-fidelity regressions for the Lexical→HTML→Turndown read path, found
@@ -77,5 +79,41 @@ describe("htmlToMarkdown text fidelity", () => {
   it("keeps ordinary inline links unchanged", () => {
     expect(htmlToMarkdown('<p>see <a href="https://example.com" title="the site">this link</a> here</p>'))
       .toBe('see [this link](https://example.com "the site") here');
+  });
+});
+
+describe("htmlToMarkdown literal brackets", () => {
+  // `\[…\]` is display-math syntax in the agent markdown dialect, so escaped
+  // literal brackets came back as equations when an agent re-inserted text
+  // copied from the markdown view.
+  it("leaves balanced literal brackets unescaped", () => {
+    const markdown = htmlToMarkdown("<blockquote><p>He said [...] and then [sic] left.</p></blockquote>");
+    expect(markdown).toBe("> He said [...] and then [sic] left.");
+  });
+
+  it("round-trips literal brackets through the agent markdown dialect as text", () => {
+    const markdown = htmlToMarkdown("<p>He said [...] and then [left].</p>");
+    const html = renderAgentMarkdownToHtml(getMarkdownItForAgentPosts(), markdown);
+    expect(html).not.toContain("math-tex");
+    expect(html).toContain("He said [...] and then [left].");
+  });
+
+  it("keeps escaping brackets that would form link or footnote syntax", () => {
+    expect(htmlToMarkdown("<p>Literal [text](url) here</p>")).toBe("Literal \\[text\\](url) here");
+    expect(htmlToMarkdown("<p>Literal [a][b] here</p>")).toBe("Literal \\[a\\][b] here");
+    expect(htmlToMarkdown("<p>[term]: definition</p>")).toBe("\\[term\\]: definition");
+    expect(htmlToMarkdown("<p>Literal [^1] here</p>")).toBe("Literal \\[^1\\] here");
+  });
+
+  it("keeps escaping unbalanced brackets and a closer at the end of a text node", () => {
+    expect(htmlToMarkdown("<p>Open [ only</p>")).toBe("Open \\[ only");
+    expect(htmlToMarkdown("<p>Ends [here]</p>")).toBe("Ends \\[here\\]");
+  });
+
+  it("leaves balanced brackets inside link text unescaped without breaking the link", () => {
+    const markdown = htmlToMarkdown('<p>See <a href="https://example.com">the [draft] notes</a>.</p>');
+    expect(markdown).toBe("See [the [draft] notes](https://example.com).");
+    const html = renderAgentMarkdownToHtml(getMarkdownItForAgentPosts(), markdown);
+    expect(html).toContain('<a href="https://example.com">the [draft] notes</a>');
   });
 });

@@ -103,8 +103,8 @@ export function $applyEditAtSelection({
   focus: MarkdownSelectionPoint
   inlineNodes: LexicalNode[]
 }): boolean {
-  if (!$pointsShareBlock(anchor, focus)) {
-    return $applyEditAcrossBlocks({ anchor, focus, inlineNodes });
+  if (!$pointsShareBlock(anchor, focus) || !$pointsShareParent(anchor, focus)) {
+    return $applyEditWithRangeSelection({ anchor, focus, inlineNodes });
   }
   const sameTextNode =
     anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
@@ -156,12 +156,39 @@ function $pointsShareBlock(
 }
 
 /**
- * Apply an edit whose range spans block boundaries, via Lexical's own
- * range-selection editing (the paste path): removing a cross-block range
- * merges the boundary blocks, and inserting nodes splits blocks as needed
- * when the replacement itself is multi-block.
+ * The element whose children a selection point sits between: a text point's
+ * parent, or the element an element point is keyed on.
  */
-function $applyEditAcrossBlocks({
+function $parentOfPoint(point: MarkdownSelectionPoint): LexicalNode | null {
+  const node = $getNodeByKey(point.key);
+  if (!node) return null;
+  return point.type === "element" ? node : node.getParent();
+}
+
+/**
+ * Whether both selection points sit among the same parent's children. Within
+ * one block they can still differ, e.g. a range from plain text into (or out
+ * of) a link's text; the sibling walk in `$applyEditMultiNode` can't span
+ * that nesting.
+ */
+function $pointsShareParent(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+): boolean {
+  const anchorParent = $parentOfPoint(anchor);
+  const focusParent = $parentOfPoint(focus);
+  return !!anchorParent && !!focusParent && anchorParent.getKey() === focusParent.getKey();
+}
+
+/**
+ * Apply an edit via Lexical's own range-selection editing (the paste path).
+ * Used for ranges spanning block boundaries — removing a cross-block range
+ * merges the boundary blocks, and inserting nodes splits blocks as needed
+ * when the replacement itself is multi-block — and for ranges whose
+ * endpoints sit at different inline nesting levels, such as a quote that
+ * ends inside a link.
+ */
+function $applyEditWithRangeSelection({
   anchor,
   focus,
   inlineNodes,

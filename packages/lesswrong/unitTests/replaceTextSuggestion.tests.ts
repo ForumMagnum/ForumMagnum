@@ -385,6 +385,52 @@ describe("replaceText edit mode when quote starts at beginning of text node", ()
   });
 });
 
+describe("replaceText when a quote ends inside or after a link", () => {
+  const doc = "Intro text and additional discussion in [Appendix: Asking the model to explain its reasoning](#appendix).\n\nNext paragraph.";
+
+  it("replaces a quote ending after a link at the end of a paragraph in edit mode", async () => {
+    const editor = await setupEditorWithContent(doc);
+
+    // Narrowing strips the shared "and " and ".", leaving a range that starts
+    // in plain text and ends inside the link's text.
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "and additional discussion in Appendix: Asking the model to explain its reasoning.",
+      "and further discussion in the appendix.",
+    );
+
+    expect(replaced).toBe(true);
+    expect(getPlainTextContent(editor)).toContain("Intro text and further discussion in the appendix.");
+    expect(getPlainTextContent(editor)).not.toContain("Asking the model");
+  });
+
+  it("replaces a quote ending exactly at the end of a link in edit mode", async () => {
+    const editor = await setupEditorWithContent(doc);
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "and additional discussion in Appendix: Asking the model to explain its reasoning",
+      "and further discussion in the appendix",
+    );
+
+    expect(replaced).toBe(true);
+    expect(getPlainTextContent(editor)).toContain("Intro text and further discussion in the appendix.");
+  });
+
+  it("replaces a quote starting inside a link and ending after it in edit mode", async () => {
+    const editor = await setupEditorWithContent(doc);
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "Asking the model to explain its reasoning.",
+      "Asking the model to explain its reasoning, below.",
+    );
+
+    expect(replaced).toBe(true);
+    expect(getPlainTextContent(editor)).toContain("Appendix: Asking the model to explain its reasoning, below.");
+  });
+});
+
 describe("replaceText when quote spans formatting boundaries", () => {
   it("replaces text spanning plain text and inline code in edit mode", async () => {
     const editor = await setupEditorWithContent(
