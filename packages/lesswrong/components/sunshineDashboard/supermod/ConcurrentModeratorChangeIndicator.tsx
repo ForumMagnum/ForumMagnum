@@ -18,7 +18,6 @@ const styles = defineStyles('ConcurrentModeratorChangeIndicator', (theme: ThemeT
     marginRight: 8,
     flexShrink: 0,
     whiteSpace: 'nowrap',
-    cursor: 'pointer',
     color: theme.palette.text.warning,
     backgroundColor: theme.palette.background.warningTranslucent,
   },
@@ -57,12 +56,6 @@ const ChangeDescriptions = ({ changes }: { changes: ConcurrentModeratorChange[] 
   ))}
 </>;
 
-function reloadPage(event: React.MouseEvent) {
-  // The badge sits inside list rows, whose own click handlers open the record
-  event.stopPropagation();
-  window.location.reload();
-}
-
 /** Flags users/posts that another moderator has changed since this inbox loaded */
 const ConcurrentModeratorChangeIndicator = ({ documentId, variant }: {
   documentId: string;
@@ -77,7 +70,7 @@ const ConcurrentModeratorChangeIndicator = ({ documentId, variant }: {
       <div className={classes.banner}>
         <ForumIcon icon="Warning" className={classes.icon} />
         <div className={classes.bannerMessage}><ChangeDescriptions changes={changes} /></div>
-        <Button className={classes.reloadButton} variant="outlined" onClick={reloadPage}>
+        <Button className={classes.reloadButton} variant="outlined" onClick={() => window.location.reload()}>
           Reload
         </Button>
       </div>
@@ -85,8 +78,8 @@ const ConcurrentModeratorChangeIndicator = ({ documentId, variant }: {
   }
 
   return (
-    <LWTooltip title={<><ChangeDescriptions changes={changes} /><div>Click to reload.</div></>}>
-      <span className={classes.badge} onClick={reloadPage}>
+    <LWTooltip title={<ChangeDescriptions changes={changes} />}>
+      <span className={classes.badge}>
         <ForumIcon icon="Warning" className={classes.icon} />
         {changes.map(change => change.moderatorName).join(', ')}
       </span>
