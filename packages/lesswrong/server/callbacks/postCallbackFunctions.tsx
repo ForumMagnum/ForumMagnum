@@ -652,7 +652,6 @@ export async function extractSocialPreviewImage(post: DbPost, callbackProperties
 
 /* CREATE ASYNC */
 export async function notifyUsersAddedAsPostCoauthors({ document: post, context }: AfterCreateCallbackProperties<'Posts'>) {
-  // Deferred until the author is approved; see notifyUsersAddedAsCoauthors
   if (post.authorIsUnreviewed) return;
   await createNotifications({ context, userIds: post.coauthorUserIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
 }
@@ -827,7 +826,6 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
 export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDocument: newPost, context }: UpdateCallbackProperties<'Posts'>) {
   if (newPost.authorIsUnreviewed) return;
 
-  // If the author was just approved, none of the coauthors have been notified yet
   const coauthorIdsToNotify = oldPost.authorIsUnreviewed
     ? newPost.coauthorUserIds
     : difference(newPost.coauthorUserIds, oldPost.coauthorUserIds);
