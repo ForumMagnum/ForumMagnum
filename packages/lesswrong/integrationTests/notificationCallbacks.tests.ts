@@ -1,5 +1,5 @@
 import "./integrationTestSetup";
-import { createDummyPost, createDummyLocalgroup } from "./utils";
+import { createDummyPost, createDummyLocalgroup, createDummyUser } from "./utils";
 
 // TODO: this is a temporary hack to resolve an import order issue with callback hooks on ReviewVotes.  Do not remove this or the stringify, or move it below the import of `notificationCallbacks`!
 import ReviewVotes from "../server/collections/reviewVotes/collection";
@@ -7,6 +7,10 @@ JSON.stringify({ ReviewVotes });
 
 import { sendNewPostNotifications } from "@/server/callbacks/postCallbackFunctions";
 import { createNotifications } from "../server/notificationCallbacksHelpers";
+import { updatePost } from "@/server/collections/posts/mutations";
+import { updateUser } from "@/server/collections/users/mutations";
+import { createAdminContext } from "@/server/vulcan-lib/createContexts";
+import Posts from "@/server/collections/posts/collection";
 
 jest.mock('../server/notificationCallbacksHelpers', () => {
   const originalModule = jest.requireActual('../server/notificationCallbacksHelpers');
@@ -27,6 +31,52 @@ jest.mock('../server/notificationCallbacksHelpers', () => {
     createNotifications: jest.fn()
   };
 })
+
+describe("coauthor notifications on author approval", () => {
+  it.each([
+    { label: "archived", archived: true },
+    { label: "active", archived: false },
+  ])("handles deferred invitations for an $label draft", async ({ archived }) => {
+    const moderator = await createDummyUser({ isAdmin: true });
+    const author = await createDummyUser({ reviewedByUserId: null });
+    const coauthor = await createDummyUser();
+    const context = createAdminContext({ currentUser: moderator, forumType: "LessWrong" });
+    const post = await createDummyPost(author, {
+      draft: true,
+      coauthorUserIds: [coauthor._id],
+    });
+    expect(post.authorIsUnreviewed).toBe(true);
+
+    if (archived) {
+      await updatePost({
+        selector: { _id: post._id },
+        data: { deletedDraft: true },
+      }, context);
+    }
+
+    jest.clearAllMocks();
+    await updateUser({
+      selector: { _id: author._id },
+      data: { reviewedByUserId: moderator._id },
+    }, context);
+
+    expect(await Posts.findOne(post._id)).toMatchObject({
+      authorIsUnreviewed: false,
+      draft: true,
+      deletedDraft: archived,
+    });
+    const notification = expect.objectContaining({
+      userIds: [coauthor._id],
+      notificationType: "addedAsCoauthor",
+      documentId: post._id,
+    });
+    if (archived) {
+      expect(createNotifications).not.toHaveBeenCalledWith(notification);
+    } else {
+      expect(createNotifications).toHaveBeenCalledWith(notification);
+    }
+  });
+});
 
 describe("test postsNewNotifications", () => {
   beforeEach(() => {

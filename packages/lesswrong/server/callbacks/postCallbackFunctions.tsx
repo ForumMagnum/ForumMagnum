@@ -824,7 +824,7 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
 }
 
 export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDocument: newPost, context }: UpdateCallbackProperties<'Posts'>) {
-  if (newPost.authorIsUnreviewed) return;
+  if (newPost.authorIsUnreviewed || newPost.deletedDraft) return;
 
   const coauthorIdsToNotify = oldPost.authorIsUnreviewed
     ? newPost.coauthorUserIds
