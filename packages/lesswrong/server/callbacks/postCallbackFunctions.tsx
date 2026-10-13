@@ -652,6 +652,10 @@ export async function extractSocialPreviewImage(post: DbPost, callbackProperties
 
 /* CREATE ASYNC */
 export async function notifyUsersAddedAsPostCoauthors({ document: post, context }: AfterCreateCallbackProperties<'Posts'>) {
+  // Unreviewed authors can add coauthors, but we hold the notifications until a
+  // moderator approves the author, so they can't be used to spam people.
+  // notifyUsersAddedAsCoauthors sends them when authorIsUnreviewed is cleared.
+  if (post.authorIsUnreviewed) return;
   await createNotifications({ context, userIds: post.coauthorUserIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
 }
 
@@ -823,12 +827,17 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
 }
 
 export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDocument: newPost, context }: UpdateCallbackProperties<'Posts'>) {
-  const newCoauthorIds = newPost.coauthorUserIds;
-  const oldCoauthorIds = oldPost.coauthorUserIds;
-  const addedCoauthorIds = difference(newCoauthorIds, oldCoauthorIds);
+  // See notifyUsersAddedAsPostCoauthors: no coauthor notifications while the
+  // author is unreviewed, and when they get approved, we notify every coauthor
+  // (none of whom have been notified yet).
+  if (newPost.authorIsUnreviewed) return;
 
-  if (addedCoauthorIds.length) {
-    await createNotifications({ context, userIds: addedCoauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: newPost._id });
+  const coauthorIdsToNotify = oldPost.authorIsUnreviewed
+    ? newPost.coauthorUserIds
+    : difference(newPost.coauthorUserIds, oldPost.coauthorUserIds);
+
+  if (coauthorIdsToNotify.length) {
+    await createNotifications({ context, userIds: coauthorIdsToNotify, notificationType: "addedAsCoauthor", documentType: "post", documentId: newPost._id });
   }
 }
 

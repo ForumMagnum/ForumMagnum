@@ -2271,8 +2271,11 @@ const schema = {
       outputType: "[String!]!",
       inputType: "[String!]",
       canRead: ['guests'],
-      canUpdate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
-      canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
+      // Unreviewed authors can add coauthors because their posts are held for
+      // review anyway; coauthor notifications are deferred until approval (see
+      // notifyUsersAddedAsCoauthors).
+      canUpdate: ["members", "sunshineRegiment", "admins"],
+      canCreate: ["members"],
       validation: {
         optional: true,
       },
