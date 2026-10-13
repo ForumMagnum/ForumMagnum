@@ -21,15 +21,16 @@ const styles = defineStyles("ErrorAccessDenied", (theme: ThemeType) => ({
  * However, for pages that are normally meant to be publicly accessible (like the post page),
  * we skip the login prompt and just display the "you don't have access" message.
  */
-const ErrorAccessDenied = ({explanation, skipLoginPrompt}: {
+const ErrorAccessDenied = ({explanation, skipLoginPrompt, message: customMessage}: {
   explanation?: string,
   skipLoginPrompt?: boolean,
+  message?: string,
 }) => {
   const currentUser = useCurrentUser();
   const classes = useStyles(styles);
 
   if (currentUser || skipLoginPrompt) {
-    const message = `Sorry, you don't have access to this page.${(explanation ? ` ${explanation}` : "")}`
+    const message = customMessage ?? `Sorry, you don't have access to this page.${(explanation ? ` ${explanation}` : "")}`
     return <>
       <StatusCodeSetter status={401}/>
       <SingleColumnSection>
