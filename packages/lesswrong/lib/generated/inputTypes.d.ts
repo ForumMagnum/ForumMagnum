@@ -74,6 +74,7 @@ interface Query {
   latestGoogleDocMetadata: any;
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
   supermodQueueChanges: Array<SupermodQueueChange>;
+  supermodQueueSnapshotTime: Date;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
   AdminMetadata: string | null;

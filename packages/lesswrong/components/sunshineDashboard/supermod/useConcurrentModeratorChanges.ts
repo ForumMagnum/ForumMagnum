@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import groupBy from 'lodash/groupBy';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -22,9 +22,7 @@ export type ConcurrentModeratorChange = SupermodQueueChangesQueryQuery['supermod
 
 export const ConcurrentModeratorChangesContext = createContext<Partial<Record<string, ConcurrentModeratorChange[]>>>({});
 
-/** Polls for changes other moderators have made to the given users/posts since the inbox loaded */
-export function useConcurrentModeratorChanges(documentIds: string[]): Partial<Record<string, ConcurrentModeratorChange[]>> {
-  const [since] = useState(() => new Date());
+export function useConcurrentModeratorChanges(documentIds: string[], since: Date): Partial<Record<string, ConcurrentModeratorChange[]>> {
   const { data } = useQuery(SupermodQueueChangesQuery, {
     variables: { documentIds, since },
     skip: documentIds.length === 0,

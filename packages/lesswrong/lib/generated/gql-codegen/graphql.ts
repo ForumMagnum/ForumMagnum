@@ -9393,6 +9393,7 @@ export type Query = {
   subscription: Maybe<SingleSubscriptionOutput>;
   subscriptions: Maybe<MultiSubscriptionOutput>;
   supermodQueueChanges: Array<SupermodQueueChange>;
+  supermodQueueSnapshotTime: Scalars['Date']['output'];
   tag: Maybe<SingleTagOutput>;
   tagFlag: Maybe<SingleTagFlagOutput>;
   tagFlags: Maybe<MultiTagFlagOutput>;
@@ -19608,7 +19609,7 @@ export type ModerationInboxDataQueryQueryVariables = Exact<{
 }>;
 
 
-export type ModerationInboxDataQueryQuery = { __typename?: 'Query', users: { __typename?: 'MultiUserOutput', results: Array<(
+export type ModerationInboxDataQueryQuery = { __typename?: 'Query', supermodQueueSnapshotTime: string, users: { __typename?: 'MultiUserOutput', results: Array<(
       { __typename?: 'User' }
       & SunshineUsersList
     )> } | null, reviewQueueUsers: { __typename?: 'MultiUserOutput', results: Array<{ __typename?: 'User', _id: string, reviewGroup: ReviewGroup | null }> } | null, posts: { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<(
@@ -23467,7 +23468,7 @@ export const updateUserRateLimitUserRateLimitItemDocument = _o1(_1,[_o11(_986,_9
 export const createUserRateLimitUserRateLimitItem1Document = _o1(_1,[_o11(_986,_987,_o3(_3,"createUserRateLimitUserRateLimitItem1"),_1787,_o5(_7,[_o7(_8,_1788,_1145,_1785)])),_850]) as unknown as DocumentNode<createUserRateLimitUserRateLimitItem1Mutation, createUserRateLimitUserRateLimitItem1MutationVariables>;
 export const createUserRateLimitUserRateLimitItemDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"createUserRateLimitUserRateLimitItem"),_1787,_o5(_7,[_o7(_8,_1788,_1145,_1786)])),_61,_661]) as unknown as DocumentNode<createUserRateLimitUserRateLimitItemMutation, createUserRateLimitUserRateLimitItemMutationVariables>;
 export const CurationPostViewQueryDocument = _o1(_1,[_o11(_986,_995,_o3(_3,"CurationPostViewQuery"),_1336,_o5(_7,[_o7(_8,_527,[_o8(_536,_1003,_o14(_1001,[_o8(_1002,_o3(_3,"curationNoticesPostView"),_o14(_1001,[_1399]))]))],_o5(_7,[_1153]))])),_61,_146,_158,_184,_23,_226,_270,_525]) as unknown as DocumentNode<CurationPostViewQueryQuery, CurationPostViewQueryQueryVariables>;
-export const ModerationInboxDataQueryDocument = _o1(_1,[_o11(_986,_995,_o3(_3,"ModerationInboxDataQuery"),[_o12(_988,_1789,_1113),_o12(_988,_1790,_1057),_o12(_988,_1791,_1057),_o12(_988,_1792,_1012),_o12(_988,_1793,_1012),_o12(_988,_1794,_1012),_o12(_988,_1795,_1012)],_o5(_7,[_o7(_8,_288,[_1796,_o8(_536,_793,_1792)],_o5(_7,[_1768])),_o15(_8,_o3(_3,"reviewQueueUsers"),_288,[_1796,_o8(_536,_793,_1793)],_o5(_7,[_o6(_8,_1025,_o5(_7,[_10,_676]))])),_o7(_8,_250,[_o8(_536,_1003,_1790),_1797,_1798],_1429),_o15(_8,_o3(_3,"classifiedPosts"),_250,[_o8(_536,_1003,_1791),_1797,_1798],_1429),_o7(_8,_o3(_3,"CurationCandidatePosts"),[_o8(_536,_793,_1795)],_o5(_7,[_o6(_8,_1025,_o5(_7,[_o4(_25,_530)]))])),_o6(_8,_o3(_3,"LastCuratedDate"),_o5(_7,[_o4(_8,_o3(_3,"lastCuratedDate"))]))])),_61,_622,_661,_23,_127,_136,_146,_158,_184,_192,_335,_226,_624,_629,_681,_639,_531]) as unknown as DocumentNode<ModerationInboxDataQueryQuery, ModerationInboxDataQueryQueryVariables>;
+export const ModerationInboxDataQueryDocument = _o1(_1,[_o11(_986,_995,_o3(_3,"ModerationInboxDataQuery"),[_o12(_988,_1789,_1113),_o12(_988,_1790,_1057),_o12(_988,_1791,_1057),_o12(_988,_1792,_1012),_o12(_988,_1793,_1012),_o12(_988,_1794,_1012),_o12(_988,_1795,_1012)],_o5(_7,[_o4(_8,_o3(_3,"supermodQueueSnapshotTime")),_o7(_8,_288,[_1796,_o8(_536,_793,_1792)],_o5(_7,[_1768])),_o15(_8,_o3(_3,"reviewQueueUsers"),_288,[_1796,_o8(_536,_793,_1793)],_o5(_7,[_o6(_8,_1025,_o5(_7,[_10,_676]))])),_o7(_8,_250,[_o8(_536,_1003,_1790),_1797,_1798],_1429),_o15(_8,_o3(_3,"classifiedPosts"),_250,[_o8(_536,_1003,_1791),_1797,_1798],_1429),_o7(_8,_o3(_3,"CurationCandidatePosts"),[_o8(_536,_793,_1795)],_o5(_7,[_o6(_8,_1025,_o5(_7,[_o4(_25,_530)]))])),_o6(_8,_o3(_3,"LastCuratedDate"),_o5(_7,[_o4(_8,_o3(_3,"lastCuratedDate"))]))])),_61,_622,_661,_23,_127,_136,_146,_158,_184,_192,_335,_226,_624,_629,_681,_639,_531]) as unknown as DocumentNode<ModerationInboxDataQueryQuery, ModerationInboxDataQueryQueryVariables>;
 export const singleUserSupermodQueryDocument = _o1(_1,[_o11(_986,_995,_o3(_3,"singleUserSupermodQuery"),_1180,_o5(_7,[_o7(_8,_30,_1220,_1782)])),_61,_622,_661,_681]) as unknown as DocumentNode<singleUserSupermodQueryQuery, singleUserSupermodQueryQueryVariables>;
 export const addOrUpvoteTagModeratorCoreTagsChecklistDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"addOrUpvoteTagModeratorCoreTagsChecklist"),_1799,_1802),_624,_146,_158,_629]) as unknown as DocumentNode<addOrUpvoteTagModeratorCoreTagsChecklistMutation, addOrUpvoteTagModeratorCoreTagsChecklistMutationVariables>;
 export const performVoteTagRelModeratorCoreTagsChecklistDocument = _o1(_1,[_o11(_986,_987,_o3(_3,"performVoteTagRelModeratorCoreTagsChecklist"),_1805,_o5(_7,[_o7(_8,_1806,_1807,_o5(_7,[_1808]))])),_534]) as unknown as DocumentNode<performVoteTagRelModeratorCoreTagsChecklistMutation, performVoteTagRelModeratorCoreTagsChecklistMutationVariables>;

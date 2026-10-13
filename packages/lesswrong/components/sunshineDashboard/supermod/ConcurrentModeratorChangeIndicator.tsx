@@ -1,9 +1,12 @@
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ForumIcon from '@/components/common/ForumIcon';
-import FormatDate from '@/components/common/FormatDate';
 import LWTooltip from '@/components/common/LWTooltip';
+import WarningBanner from '@/components/common/WarningBanner';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { formatRelative } from '@/lib/utils/timeFormat';
+import { escapeHtml } from '@/lib/utils/sanitize';
 import { useConcurrentModeratorChangesFor, type ConcurrentModeratorChange } from './useConcurrentModeratorChanges';
 
 const styles = defineStyles('ConcurrentModeratorChangeIndicator', (theme: ThemeType) => ({
@@ -21,20 +24,6 @@ const styles = defineStyles('ConcurrentModeratorChangeIndicator', (theme: ThemeT
     color: theme.palette.text.warning,
     backgroundColor: theme.palette.background.warningTranslucent,
   },
-  banner: {
-    ...theme.typography.commentStyle,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    fontSize: 13,
-    lineHeight: '18px',
-    padding: '8px 12px',
-    color: theme.palette.text.warning,
-    backgroundColor: theme.palette.background.warningTranslucent,
-  },
-  bannerMessage: {
-    flex: 1,
-  },
   icon: {
     fontSize: 14,
     flexShrink: 0,
@@ -43,42 +32,39 @@ const styles = defineStyles('ConcurrentModeratorChangeIndicator', (theme: ThemeT
     fontSize: 12,
     padding: '2px 10px',
     minWidth: 'auto',
-    flexShrink: 0,
     color: theme.palette.text.warning,
   },
 }));
 
-const ChangeDescriptions = ({ changes }: { changes: ConcurrentModeratorChange[] }) => <>
-  {changes.map(change => (
-    <div key={change.moderatorName}>
-      {change.moderatorName} changed this record <FormatDate date={change.lastChangedAt} tooltip={false} includeAgo />
-    </div>
-  ))}
-</>;
+function describeChanges(changes: ConcurrentModeratorChange[], now: Date): string[] {
+  return changes.map(change => `${change.moderatorName} changed this record ${formatRelative(change.lastChangedAt, now, true)}`);
+}
 
-/** Flags users/posts that another moderator has changed since this inbox loaded */
 const ConcurrentModeratorChangeIndicator = ({ documentId, variant }: {
   documentId: string;
   variant: 'badge' | 'banner';
 }) => {
   const classes = useStyles(styles);
+  const now = useCurrentTime();
   const changes = useConcurrentModeratorChangesFor(documentId);
   if (changes.length === 0) return null;
+  const descriptions = describeChanges(changes, now);
 
   if (variant === 'banner') {
     return (
-      <div className={classes.banner}>
-        <ForumIcon icon="Warning" className={classes.icon} />
-        <div className={classes.bannerMessage}><ChangeDescriptions changes={changes} /></div>
-        <Button className={classes.reloadButton} variant="outlined" onClick={() => window.location.reload()}>
-          Reload
-        </Button>
-      </div>
+      <WarningBanner
+        message={descriptions.map(escapeHtml).join('<br/>')}
+        action={
+          <Button className={classes.reloadButton} variant="outlined" onClick={() => window.location.reload()}>
+            Reload
+          </Button>
+        }
+      />
     );
   }
 
   return (
-    <LWTooltip title={<ChangeDescriptions changes={changes} />}>
+    <LWTooltip title={descriptions.map(description => <div key={description}>{description}</div>)}>
       <span className={classes.badge}>
         <ForumIcon icon="Warning" className={classes.icon} />
         {changes.map(change => change.moderatorName).join(', ')}

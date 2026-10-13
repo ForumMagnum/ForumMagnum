@@ -7,7 +7,6 @@ import { Posts } from '../../server/collections/posts/collection';
 import moment from 'moment';
 import uniq from 'lodash/uniq';
 import groupBy from 'lodash/groupBy';
-import maxBy from 'lodash/maxBy';
 import gql from 'graphql-tag';
 import { createComment, updateComment } from '../collections/comments/mutations';
 import { updatePost } from '../collections/posts/mutations';
@@ -55,6 +54,7 @@ export const moderationGqlTypeDefs = gql`
   extend type Query {
     moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
     supermodQueueChanges(documentIds: [String!]!, since: Date!): [SupermodQueueChange!]!
+    supermodQueueSnapshotTime: Date!
   }
 
   extend type Mutation {
@@ -405,7 +405,6 @@ export const moderationGqlMutations = {
   },
 }
 
-// Bounds the FieldChanges lookup; the inbox loads a few hundred items at most
 const MAX_QUEUE_CHANGE_DOCUMENT_IDS = 1000;
 
 export const moderationGqlQueries = {
@@ -426,16 +425,18 @@ export const moderationGqlQueries = {
       userIds,
     };
   },
-  /** Which moderators other than the current user have changed the given users/posts since `since`, and when they last did */
   async supermodQueueChanges(_root: void, { documentIds, since }: { documentIds: string[], since: Date }, context: ResolverContext) {
     const { currentUser, FieldChanges } = context;
     if (!currentUser || !userIsAdminOrMod(currentUser)) {
       throw new Error("Only admins and moderators can see moderation queue changes");
     }
+    if (documentIds.length > MAX_QUEUE_CHANGE_DOCUMENT_IDS) {
+      throw new Error(`supermodQueueChanges accepts at most ${MAX_QUEUE_CHANGE_DOCUMENT_IDS} document IDs`);
+    }
     if (documentIds.length === 0) return [];
 
     const changes = await FieldChanges.find({
-      documentId: { $in: documentIds.slice(0, MAX_QUEUE_CHANGE_DOCUMENT_IDS) },
+      documentId: { $in: documentIds },
       createdAt: { $gt: since },
     }, {}, { documentId: 1, userId: 1, createdAt: 1 }).fetch();
 
@@ -452,12 +453,15 @@ export const moderationGqlQueries = {
       return change.documentId && moderator ? [{ ...change, documentId: change.documentId, moderator }] : [];
     });
     return Object.values(groupBy(moderatorChanges, change => `${change.documentId}:${change.moderator._id}`)).map(group => {
-      const latest = maxBy(group, change => change.createdAt.getTime()) ?? group[0];
+      const latest = group.reduce((a, b) => b.createdAt > a.createdAt ? b : a);
       return {
         documentId: latest.documentId,
         moderatorName: userGetDisplayName(latest.moderator, context.forumType),
         lastChangedAt: latest.createdAt,
       };
     });
+  },
+  supermodQueueSnapshotTime() {
+    return new Date();
   },
 }

@@ -37,6 +37,8 @@ import { ConcurrentModeratorChangesContext, useConcurrentModeratorChanges } from
 // depends on whether the opened user is already in the users list.)
 const ModerationInboxDataQuery = gql(`
   query ModerationInboxDataQuery($userSelector: UserSelector, $postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int, $reviewQueueLimit: Int, $postLimit: Int, $curationLimit: Int) {
+    # Must stay first, so the time is taken before the queue below is read
+    supermodQueueSnapshotTime
     users(selector: $userSelector, limit: $userLimit) {
       results {
         ...SunshineUsersList
@@ -134,13 +136,14 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, unloadedCounts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
+const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, unloadedCounts, lastCuratedDate, queueSnapshotTime, initialOpenedUserId, directUser, currentUser }: {
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
   curationPosts: SunshineCurationPostsListItem[];
   unloadedCounts: UnloadedCounts;
   lastCuratedDate: string | null;
+  queueSnapshotTime: string;
   initialOpenedUserId: string | null;
   directUser: SunshineUsersList | null;
   currentUser: UsersCurrent;
@@ -285,7 +288,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
 
   // Users can leave and re-enter the local lists (via the undo queue), so track everything that was loaded
   const [loadedDocumentIds] = useState(() => [...state.users, ...state.posts, ...state.classifiedPosts].map(document => document._id));
-  const concurrentModeratorChanges = useConcurrentModeratorChanges(loadedDocumentIds);
+  const [changesSince] = useState(() => new Date(queueSnapshotTime));
+  const concurrentModeratorChanges = useConcurrentModeratorChanges(loadedDocumentIds, changesSince);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
@@ -535,7 +539,7 @@ const ModerationInbox = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
 
-  const { data, loading } = useQuery(ModerationInboxDataQuery, {
+  const { data, loading, error } = useQuery(ModerationInboxDataQuery, {
     variables: {
       userSelector: { sunshineNewUsers: {} },
       postSelector: { sunshineNewPosts: {} },
@@ -603,6 +607,9 @@ const ModerationInbox = () => {
       </div>
     );
   }
+  if (!data) {
+    throw error ?? new Error("Moderation inbox data failed to load");
+  }
 
   return <ModerationInboxInner
     users={users}
@@ -611,6 +618,7 @@ const ModerationInbox = () => {
     curationPosts={curationPosts}
     unloadedCounts={unloadedCounts}
     lastCuratedDate={lastCuratedDate}
+    queueSnapshotTime={data.supermodQueueSnapshotTime}
     initialOpenedUserId={initialOpenedUserId}
     directUser={directUser}
     currentUser={currentUser}
