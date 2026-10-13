@@ -652,6 +652,7 @@ export async function extractSocialPreviewImage(post: DbPost, callbackProperties
 
 /* CREATE ASYNC */
 export async function notifyUsersAddedAsPostCoauthors({ document: post, context }: AfterCreateCallbackProperties<'Posts'>) {
+  if (post.authorIsUnreviewed) return;
   await createNotifications({ context, userIds: post.coauthorUserIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
 }
 
@@ -823,12 +824,14 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
 }
 
 export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDocument: newPost, context }: UpdateCallbackProperties<'Posts'>) {
-  const newCoauthorIds = newPost.coauthorUserIds;
-  const oldCoauthorIds = oldPost.coauthorUserIds;
-  const addedCoauthorIds = difference(newCoauthorIds, oldCoauthorIds);
+  if (newPost.authorIsUnreviewed || newPost.deletedDraft) return;
 
-  if (addedCoauthorIds.length) {
-    await createNotifications({ context, userIds: addedCoauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: newPost._id });
+  const coauthorIdsToNotify = (oldPost.authorIsUnreviewed || oldPost.deletedDraft)
+    ? newPost.coauthorUserIds
+    : difference(newPost.coauthorUserIds, oldPost.coauthorUserIds);
+
+  if (coauthorIdsToNotify.length) {
+    await createNotifications({ context, userIds: coauthorIdsToNotify, notificationType: "addedAsCoauthor", documentType: "post", documentId: newPost._id });
   }
 }
 

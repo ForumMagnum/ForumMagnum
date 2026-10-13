@@ -1,4 +1,4 @@
-import { EditablePost, PostSubmitMeta, userCanEditCoauthors, canUserEditPostMetadata, detectLinkpost } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta, canUserEditPostMetadata, detectLinkpost } from "@/lib/collections/posts/helpers";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
@@ -738,7 +738,7 @@ const PostForm = ({
                       }}>&times;</span>}
                     </span>
                   ))}
-                  {canEditMetadata && userCanEditCoauthors(currentUser) && (
+                  {canEditMetadata && (
                     <LWTooltip title="Add co-author">
                       <button
                         type="button"
