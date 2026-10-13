@@ -2956,7 +2956,9 @@ type ModeratorActionSelector = {
 
 type ModeratorActionType =
   | 'autoBlockedFromSendingDMs'
+  | 'autoPurgedLlmRejectedSpam'
   | 'autoPurgedProfileSpam'
+  | 'autoRemovedLlmRejectedUser'
   | 'exemptFromRateLimits'
   | 'flaggedForNDMs'
   | 'lowAverageKarmaCommentAlert'
@@ -7455,6 +7457,8 @@ type Query = {
   spotlights?: Maybe<MultiSpotlightOutput>;
   subscription?: Maybe<SingleSubscriptionOutput>;
   subscriptions?: Maybe<MultiSubscriptionOutput>;
+  supermodQueueChanges: Array<SupermodQueueChange>;
+  supermodQueueSnapshotTime: Scalars['Date']['output'];
   tag?: Maybe<SingleTagOutput>;
   tagFlag?: Maybe<SingleTagFlagOutput>;
   tagFlags?: Maybe<MultiTagFlagOutput>;
@@ -8615,6 +8619,13 @@ type QuerysubscriptionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<SubscriptionSelector>;
+};
+
+
+type QuerysupermodQueueChangesArgs = {
+  postIds: Array<Scalars['String']['input']>;
+  since: Scalars['Date']['input'];
+  userIds: Array<Scalars['String']['input']>;
 };
 
 
@@ -10314,6 +10325,13 @@ type SuggestedFeedSubscriptionUsersResult = {
 type SuggestedTopActiveUsersResult = {
   __typename?: 'SuggestedTopActiveUsersResult';
   results: Array<User>;
+};
+
+type SupermodQueueChange = {
+  __typename?: 'SupermodQueueChange';
+  documentId: Scalars['String']['output'];
+  lastChangedAt: Scalars['Date']['output'];
+  moderatorName: Scalars['String']['output'];
 };
 
 type Tag = {
@@ -21198,7 +21216,7 @@ type ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePosts
 
 type ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult = { __typename?: 'LastCuratedDateResult', lastCuratedDate: string | null };
 
-type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', users: ModerationInboxDataQueryQuery_users_MultiUserOutput | null, reviewQueueUsers: ModerationInboxDataQueryQuery_reviewQueueUsers_MultiUserOutput | null, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult };
+type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', supermodQueueSnapshotTime: string, users: ModerationInboxDataQueryQuery_users_MultiUserOutput | null, reviewQueueUsers: ModerationInboxDataQueryQuery_reviewQueueUsers_MultiUserOutput | null, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult };
 
 
 type ModerationInboxDataQueryQueryVariables = Exact<{
@@ -21316,6 +21334,20 @@ type updateModeratorActionSupermodMutationVariables = Exact<{
 
 
 type updateModeratorActionSupermodMutation = updateModeratorActionSupermodMutation_Mutation;
+
+type SupermodQueueChangesQueryQuery_supermodQueueChanges_SupermodQueueChange = { __typename?: 'SupermodQueueChange', documentId: string, moderatorName: string, lastChangedAt: string };
+
+type SupermodQueueChangesQueryQuery_Query = { __typename?: 'Query', supermodQueueChanges: Array<SupermodQueueChangesQueryQuery_supermodQueueChanges_SupermodQueueChange> };
+
+
+type SupermodQueueChangesQueryQueryVariables = Exact<{
+  userIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  postIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  since: Scalars['Date']['input'];
+}>;
+
+
+type SupermodQueueChangesQueryQuery = SupermodQueueChangesQueryQuery_Query;
 
 type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }

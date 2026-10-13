@@ -11,6 +11,7 @@ import ForumIcon from '@/components/common/ForumIcon';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import ReviewTriggerBadge from './ReviewTriggerBadge';
+import ConcurrentModeratorChangeIndicator from './ConcurrentModeratorChangeIndicator';
 
 const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   root: {
@@ -261,6 +262,7 @@ const ModerationInboxItem = ({
       {likelyReviewTrigger && (
         <ReviewTriggerBadge badge={likelyReviewTrigger} />
       )}
+      <ConcurrentModeratorChangeIndicator documentId={user._id} variant="badge" />
 
       <div className={classes.contextualInfo}>
         {reviewGroup === 'newContent' || reviewGroup === 'offboard'

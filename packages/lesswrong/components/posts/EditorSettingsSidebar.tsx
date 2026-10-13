@@ -2,7 +2,7 @@ import { useForumType } from '@/components/hooks/useForumType';
 import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { useCallback, useEffect, useState } from "react";
 import classNames from "classnames";
-import { EditablePost, PostSubmitMeta, userCanEditCoauthors, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl, postGetAbsoluteEditUrl } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl, postGetAbsoluteEditUrl } from "@/lib/collections/posts/helpers";
 import { postStatusLabels, MODERATION_GUIDELINES_OPTIONS } from "@/lib/collections/posts/constants";
 import { getDefaultEditorPlaceholder } from "@/lib/editor/defaultEditorPlaceholder";
 import { hasGoogleDocImportSetting } from "@/lib/instanceSettings";
@@ -981,10 +981,9 @@ function ClaudeConnectionStatus({ currentUser, postId }: { currentUser: UsersCur
   );
 }
 
-function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: {
+function SharingPanel({ form, canShare, flash, currentUser }: {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   canShare: boolean;
-  canEditCoauthors: boolean;
   flash: (message: string) => void;
   currentUser: UsersCurrent | null;
 }) {
@@ -1099,20 +1098,18 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
         </div>
 
         {/* Co-Authors */}
-        {canEditCoauthors && <>
-          <div className={classes.sharingDivider} />
-          <div className={classes.sharingSection}>
-            <form.Field name="coauthorUserIds">
-              {(field) => (
-                <CoauthorsListEditor
-                  field={field}
-                  post={form.state.values}
-                  label="Add co-author"
-                />
-              )}
-            </form.Field>
-          </div>
-        </>}
+        <div className={classes.sharingDivider} />
+        <div className={classes.sharingSection}>
+          <form.Field name="coauthorUserIds">
+            {(field) => (
+              <CoauthorsListEditor
+                field={field}
+                post={form.state.values}
+                label="Add co-author"
+              />
+            )}
+          </form.Field>
+        </div>
       </> : (
         <div className={classes.disabledMessage}>
           You need to be logged in to use sharing features
@@ -1334,7 +1331,6 @@ const EditorSettingsSidebar = ({
   const isDialogue = !!initialData.collabEditorDialogue;
 
   const isAdminOrMod = userIsAdminOrMod(currentUser);
-  const canEditCoauthors = userCanEditCoauthors(currentUser);
   const canSeeHighlight = isAdminOrMod;
   const canSeeAdmin = isAdminOrMod;
   const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, "podcasters");
@@ -1430,7 +1426,6 @@ const EditorSettingsSidebar = ({
         <SharingPanel
           form={form}
           canShare={canShare}
-          canEditCoauthors={canEditCoauthors}
           flash={flash}
           currentUser={currentUser}
         />

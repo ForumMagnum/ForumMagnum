@@ -73,6 +73,8 @@ interface Query {
   convertDocument: any;
   latestGoogleDocMetadata: any;
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
+  supermodQueueChanges: Array<SupermodQueueChange>;
+  supermodQueueSnapshotTime: Date;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
   AdminMetadata: string | null;
@@ -1238,6 +1240,12 @@ interface PangramTextEvaluationResult {
   pangramMaxScore: number | null;
   pangramPrediction: string | null;
   pangramWindowScores: Array<PangramWindowScore> | null;
+}
+
+interface SupermodQueueChange {
+  documentId: string;
+  moderatorName: string;
+  lastChangedAt: Date;
 }
 
 interface ToggleBookmarkInput {
@@ -9375,6 +9383,7 @@ interface GraphQLTypeMap {
   ExternalPostImportData: ExternalPostImportData;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   PangramTextEvaluationResult: PangramTextEvaluationResult;
+  SupermodQueueChange: SupermodQueueChange;
   ToggleBookmarkInput: ToggleBookmarkInput;
   SetIsBookmarkedInput: SetIsBookmarkedInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useForumType } from '@/components/hooks/useForumType';
-import { postGetEditUrl, isPostCategory, postDefaultCategory, userCanEditCoauthors } from '@/lib/collections/posts/helpers';
+import { postGetEditUrl, isPostCategory, postDefaultCategory } from '@/lib/collections/posts/helpers';
 import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
 import React, { useEffect, useRef, useState } from 'react';
@@ -129,7 +129,7 @@ type PrefilledPost = Partial<PrefilledEventTemplate | PrefilledPostBase> & {
   contents: CreateRevisionDataInput | null;
 };
 
-const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: UsersCurrent | null): PrefilledEventTemplate => {
+const prefillFromTemplate = (template: PostsEditMutationFragment): PrefilledEventTemplate => {
   const { startTime, endTime, ...fields } = pick(
     template,
     [
@@ -151,7 +151,7 @@ const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: U
       "types",
       "groupId",
       "title",
-      ...(userCanEditCoauthors(currentUser) ? ["coauthorUserIds"] as const : []),
+      "coauthorUserIds",
     ] as const
   );
 
@@ -211,7 +211,7 @@ const PostsNewFormInner = () => {
     ? { originalContents: { type: getUserDefaultRichTextEditor(currentUser), data: meetupMonthData } }
     : { originalContents: { type: getUserDefaultEditor(currentUser), data: "" }};
 
-  let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
+  let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,

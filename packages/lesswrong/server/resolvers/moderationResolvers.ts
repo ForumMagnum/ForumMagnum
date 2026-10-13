@@ -6,11 +6,12 @@ import { Users } from '../../server/collections/users/collection';
 import { Posts } from '../../server/collections/posts/collection';
 import moment from 'moment';
 import uniq from 'lodash/uniq';
+import groupBy from 'lodash/groupBy';
 import gql from 'graphql-tag';
 import { createComment, updateComment } from '../collections/comments/mutations';
 import { updatePost } from '../collections/posts/mutations';
 import { updateUser } from '../collections/users/mutations';
-import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
+import { appendToSunshineNotes, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { approveUnreviewedSubmissions } from '../callbacks/userCallbackFunctions';
 import { createConversation } from '../collections/conversations/mutations';
@@ -45,8 +46,16 @@ export const moderationGqlTypeDefs = gql`
     Comments
   }
 
+  type SupermodQueueChange {
+    documentId: String!
+    moderatorName: String!
+    lastChangedAt: Date!
+  }
+
   extend type Query {
     moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
+    supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
+    supermodQueueSnapshotTime: Date!
   }
 
   extend type Mutation {
@@ -427,6 +436,8 @@ export const moderationGqlMutations = {
   },
 }
 
+const MAX_QUEUE_CHANGE_DOCUMENT_IDS = 1000;
+
 export const moderationGqlQueries = {
   async moderatorViewIPAddress(_root: void, args: {ipAddress: string}, context: ResolverContext) {
     const { currentUser } = context;
@@ -444,5 +455,41 @@ export const moderationGqlQueries = {
       ip: ipAddress,
       userIds,
     };
+  },
+  async supermodQueueChanges(_root: void, { userIds, postIds, since }: { userIds: string[], postIds: string[], since: Date }, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can see moderation queue changes");
+    }
+    if (userIds.length + postIds.length > MAX_QUEUE_CHANGE_DOCUMENT_IDS) {
+      throw new Error(`supermodQueueChanges accepts at most ${MAX_QUEUE_CHANGE_DOCUMENT_IDS} user and post IDs`);
+    }
+    if (userIds.length + postIds.length === 0) return [];
+
+    const changes = await context.repos.fieldChanges.getModerationRecordChanges({ userIds, postIds, since, excludeActorId: currentUser._id });
+
+    // Authors editing their own posts, comments and profiles also produce FieldChanges, so only count moderators
+    const actorIds = uniq(changes.map(change => change.actorId));
+    if (actorIds.length === 0) return [];
+    const actors = await Users.find({ _id: { $in: actorIds } }, {
+      projection: { _id: 1, isAdmin: 1, groups: 1, displayName: 1, username: 1, fullName: 1 },
+    }).fetch();
+    const moderatorsById = new Map(actors.filter(userIsAdminOrMod).map(user => [user._id, user]));
+
+    const moderatorChanges = changes.flatMap(change => {
+      const moderator = moderatorsById.get(change.actorId);
+      return moderator ? [{ ...change, moderator }] : [];
+    });
+    return Object.values(groupBy(moderatorChanges, change => `${change.recordId}:${change.moderator._id}`)).map(group => {
+      const latest = group.reduce((a, b) => b.createdAt > a.createdAt ? b : a);
+      return {
+        documentId: latest.recordId,
+        moderatorName: userGetDisplayName(latest.moderator, context.forumType),
+        lastChangedAt: latest.createdAt,
+      };
+    });
+  },
+  supermodQueueSnapshotTime() {
+    return new Date();
   },
 }

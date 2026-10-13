@@ -10,6 +10,7 @@ import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import PostActionsButton from '@/components/dropdowns/posts/PostActionsButton';
 import { ModerationMapPinDetail } from './ModerationMapPin';
+import UsersName from '@/components/users/UsersName';
 
 const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
   root: {
@@ -87,7 +88,13 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
     fontSize: 20,
     color: theme.palette.grey[700],
     marginBottom: 4,
-  }
+  },
+  coauthors: {
+    ...theme.typography.commentStyle,
+    fontSize: 14,
+    color: theme.palette.grey[700],
+    marginBottom: 12,
+  },
 }));
 const ModerationContentDetail = ({
   item,
@@ -140,6 +147,12 @@ const ModerationContentDetail = ({
               </Link>
               <PostActionsButton post={item} vertical flip className={classes.postActionsButton} />
             </div>
+            {!!item.coauthors?.length && <div className={classes.coauthors}>
+              Co-authors: {item.coauthors.map((coauthor, i) => <span key={coauthor._id}>
+                {i > 0 && ", "}
+                <UsersName user={coauthor} /> ({coauthor.karma} karma)
+              </span>)}
+            </div>}
             <PostBodyPrefix post={item} />
             <ContentStyles contentType="postHighlight">
               <ContentItemBody
