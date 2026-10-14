@@ -18,7 +18,9 @@ import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAna
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import {
   $applyEditModeReplacement,
+  $applyInheritedTextFormat,
   $computeNarrowing,
+  $getInheritedTextFormat,
   $htmlToInlineNodes,
 } from "../applyEditAtSelection";
 
@@ -290,12 +292,17 @@ export function $applySuggestionWithNarrowing({
   const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range);
 
   if (!narrowing) {
-    const replaced = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId, markdownIt);
+    const replacementNodes = $narrowedReplacementToNodes(editor, replacement, markdownIt);
+    $applyInheritedTextFormat(replacementNodes, $getInheritedTextFormat(anchor, focus, quote));
+    const replaced = $applySuggestionForSelection(
+      editor, anchor, focus, replacement, suggestionId, markdownIt, replacementNodes,
+    );
     return { replaced, narrowedQuote: quote, narrowedReplacement: replacement };
   }
 
   const narrowedPlainText = markdownQuoteToPlainText(narrowing.replacement);
   const replacementNodes = $narrowedReplacementToNodes(editor, narrowing.replacement, markdownIt, narrowedPlainText);
+  $applyInheritedTextFormat(replacementNodes, $getInheritedTextFormat(narrowing.anchor, narrowing.focus, narrowing.quote));
   const replaced = $applySuggestionForSelection(
     editor, narrowing.anchor, narrowing.focus, narrowing.replacement, suggestionId, markdownIt, replacementNodes,
   );

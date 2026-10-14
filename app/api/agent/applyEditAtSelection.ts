@@ -11,6 +11,7 @@ import {
   $isTextNode,
   type LexicalEditor,
   type LexicalNode,
+  type TextNode,
 } from "lexical";
 import {
   markdownQuoteToPlainText,
@@ -81,6 +82,56 @@ export function $htmlToInlineNodes(editor: LexicalEditor, html: string): Lexical
     return nodes;
   } finally {
     dom.window.close();
+  }
+}
+
+/**
+ * The text formatting (bold, italic, code, ...) that a replacement for this
+ * selection should inherit: the format bits shared by every text node the
+ * selection covers. A quote written as plain text (no markdown markers) says
+ * nothing about formatting, so a plain replacement of words inside an italic
+ * span should stay italic. A quote that spells out markers (e.g. `*foo*`)
+ * makes formatting explicit, so nothing is inherited and the replacement's own
+ * markdown decides it — that's how an agent removes formatting.
+ *
+ * Must be called inside a Lexical read/update context, before the selection
+ * is mutated.
+ */
+export function $getInheritedTextFormat(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+  quote: string,
+): number {
+  if (markdownQuoteToPlainText(quote) !== quote) return 0;
+  const selection = $createRangeSelection();
+  selection.anchor.set(anchor.key, anchor.offset, anchor.type);
+  selection.focus.set(focus.key, focus.offset, focus.type);
+  const collapsed = selection.isCollapsed();
+  const coveredTextNodes = selection.getNodes().filter((node): node is TextNode => {
+    if (!$isTextNode(node)) return false;
+    if (collapsed) return true;
+    // A boundary node the selection only touches at its edge isn't covered.
+    if (anchor.type === "text" && node.getKey() === anchor.key && anchor.offset >= node.getTextContentSize()) return false;
+    if (focus.type === "text" && node.getKey() === focus.key && focus.offset <= 0) return false;
+    return true;
+  });
+  if (coveredTextNodes.length === 0) return 0;
+  return coveredTextNodes.reduce((format, node) => format & node.getFormat(), coveredTextNodes[0].getFormat());
+}
+
+/**
+ * Add `format` bits to every text node in `nodes`, including text nested in
+ * inline elements such as links. Formatting the replacement markdown asked
+ * for is kept, so `**bold**` inside an italic span becomes bold italic.
+ */
+export function $applyInheritedTextFormat(nodes: LexicalNode[], format: number): void {
+  if (format === 0) return;
+  for (const node of nodes) {
+    if ($isTextNode(node)) {
+      node.setFormat(node.getFormat() | format);
+    } else if ($isElementNode(node)) {
+      $applyInheritedTextFormat(node.getChildren(), format);
+    }
   }
 }
 
@@ -529,6 +580,7 @@ export function $applyEditModeReplacement({
   const inlineNodes = sel.narrowedReplacement.length > 0
     ? $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, sel.narrowedReplacement))
     : [];
+  $applyInheritedTextFormat(inlineNodes, $getInheritedTextFormat(sel.anchor, sel.focus, sel.narrowedQuote));
   const replaced = $applyEditAtSelection({
     editor, anchor: sel.anchor, focus: sel.focus, inlineNodes,
   });
