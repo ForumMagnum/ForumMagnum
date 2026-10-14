@@ -217,6 +217,13 @@ formatting boundaries and even paragraph boundaries. In suggest mode, a quote
 spanning paragraphs produces per-paragraph deletion suggestions plus one
 insertion; accepting it does not merge the paragraphs.
 
+The quote may also span the entire body, which lets one replace a draft body in
+a single call. Build a whole-body quote from the visible-text projection used
+for ordinary matching: links contribute their visible text rather than URLs;
+text within each block and list item is space-joined; display equations
+contribute their full \`$$...$$\` token; and setext heading underlines,
+horizontal rules, and blocks with no visible text contribute nothing.
+
 If the mode is "edit", the change will be applied immediately; if the mode is
 "suggest", the change will be displayed as a suggestion in the post editor. If
 the user hasn't said whether to use edit mode or suggest mode, use suggest mode.
@@ -270,6 +277,14 @@ In edit mode, the matched block is removed immediately. In suggest mode, the
 matched block is wrapped as a deletion suggestion; a few block types (e.g.
 display equations) cannot be represented as deletion suggestions, and the
 call will fail with a note telling you to use edit mode instead.
+
+Matching failures from replaceText and deleteBlock include a stable
+machine-readable \`code\`: \`"no_match"\`, \`"ambiguous"\`, or
+\`"empty_after_normalization"\`. The response also includes \`matchCount\`
+when matching was attempted (0 for no match, the exact number for ambiguity).
+Use these fields rather than parsing the human-readable \`note\`: retry an
+ambiguous match with a longer quote or prefix, but re-read the live draft
+before retrying a no-match response.
 
 To insert an LLM content block (a visually distinct block attributed to a
 specific AI model) into the draft, make a POST request to:
