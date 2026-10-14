@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef } from 'react';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from '@/lib/crud/useQuery';
+import { useMessages } from '@/components/common/withMessages';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateRejectContentDialogQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -42,17 +43,14 @@ export type RejectContentParams = {
   document: CommentsListWithParentMetadata
 }
 
-export type RejectContentWithReason = {
-  collectionName: "Posts",
-  document: SunshinePostsList
-  reason: string
-} | {
-  collectionName: "Comments",
-  document: CommentsListWithParentMetadata
-  reason: string
+export interface RejectContentWithReason {
+  collectionName: "Posts" | "Comments";
+  document: { _id: string };
+  reason: string;
 }
 
 export function useRejectContent() {
+  const { flash } = useMessages();
   const [updatePost] = useMutation(rejectPostMutation);
   const [updateComment] = useMutation(rejectCommentMutation);
 
@@ -69,15 +67,15 @@ export function useRejectContent() {
   // Mutation queue to ensure sequential execution and prevent race conditions from sending the opposite-direction action before the previous one has finished
   const mutationQueueRef = useRef<Promise<void>>(Promise.resolve());
 
-  const queueMutation = useCallback(async (mutationFn: () => Promise<any>) => {
-    const currentQueue = mutationQueueRef.current;
-    const newMutation = currentQueue
-      .then(mutationFn)
-      .catch(_ => {});
-    mutationQueueRef.current = newMutation;
-    return newMutation;
-  }, []);
-  
+  const queueMutation = useCallback((mutationFn: () => Promise<void>) => {
+    const result = mutationQueueRef.current.then(mutationFn).then(() => true, (error: unknown) => {
+      flash({ messageString: error instanceof Error ? error.message : String(error), type: "error" });
+      return false;
+    });
+    mutationQueueRef.current = result.then(() => {});
+    return result;
+  }, [flash]);
+
   const rejectContent = useCallback(({ collectionName, document, reason }: RejectContentWithReason) => {
     return queueMutation(async () => {
       const variables = {
@@ -88,14 +86,10 @@ export function useRejectContent() {
       if (collectionName === "Posts") {
         await updatePost({
           variables,
-          optimisticResponse: { updatePost: { data: { ...document, rejected: true, rejectedReason: reason } } },
-          onError: () => {},
         });
       } else {
         await updateComment({
           variables,
-          optimisticResponse: { updateComment: { data: { ...document, rejected: true, rejectedReason: reason } } },
-          onError: () => {}
         });
       }
     });
@@ -112,13 +106,11 @@ export function useRejectContent() {
         await updatePost({
           variables,
           optimisticResponse: { updatePost: { data: { ...document, rejected: false, rejectedReason: null } } },
-          onError: () => {}
         });
       } else {
         await updateComment({
           variables,
           optimisticResponse: { updateComment: { data: { ...document, rejected: false, rejectedReason: null } } },
-          onError: () => {}
         });
       }
     });
