@@ -36,12 +36,12 @@ const ModerationInboxQueueQuery = gql(`
   query ModerationInboxQueueQuery($userLimit: Int!, $reviewQueueLimit: Int!, $postLimit: Int!) {
     # Must stay first, so the time is taken before the queue below is read
     supermodQueueSnapshotTime
-    users(selector: { sunshineNewUsers: {} }, limit: $userLimit) {
+    users: supermodQueueUsers(limit: $userLimit) {
       results {
         ...SunshineUsersList
       }
     }
-    reviewQueueUsers: users(selector: { sunshineNewUsers: {} }, limit: $reviewQueueLimit) {
+    reviewQueueUsers: supermodQueueUsers(limit: $reviewQueueLimit) {
       results {
         _id
         reviewGroup

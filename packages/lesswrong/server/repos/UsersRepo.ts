@@ -4,11 +4,14 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
+import { getReviewableContentExcludedFields } from "@/lib/collections/users/reviewGroups";
 
-// Pangram score above which a rejected item counts toward offboarding 
-// deliberately higher than the autoreject threshold in
-// `createAutomatedContentEvaluation`;
-const OFFBOARD_HIGH_PANGRAM_SCORE_THRESHOLD = 0.6;
+export interface PendingContentStats {
+  pendingPostCount: number;
+  pendingCommentCount: number;
+  oldestPendingContentAt: Date | null;
+  approvedContentCount: number;
+}
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -455,71 +458,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return results.map(({_id}) => _id);
   }
 
-  /**
-   * Of the requested users, return the ids of those who belong in the supermod
-   * "offboard" review group, because they either:
-   *   (1) have a rejected post/comment with a high Pangram score, or
-   *   (2) have at least two rejected posts and/or comments, or
-   *   (3) have all of their content rejected.
-   * Negative karma is a further criterion, in `getIsOffboardCandidate`.
-   * Rejected content counts for all criteria even if the user has since
-   * re-drafted/deleted the post or deleted the comment; never-rejected drafts
-   * and deleted items are ignored. Criterion (1) considers evaluations of any
-   * revision, not just the latest.
-   * All criteria are evaluated over all-time content state (deliberately not
-   * bounded by `lastRemovedFromReviewQueueAt`), so the offboard question keeps
-   * getting re-asked until the user is offboarded or their record improves.
-   */
-  async getOffboardCandidateUserIds(userIds: string[]): Promise<string[]> {
-    const rows = await this.getRawDb().any<{ userId: string }>(`
-      -- UsersRepo.getOffboardCandidateUserIds
-      WITH content AS (
-        SELECT p."_id" AS "documentId", p."userId", p."rejected"
-        FROM "Posts" p
-        WHERE p."userId" = ANY($(userIds)::text[])
-          AND (p."rejected" IS TRUE OR (p."draft" IS NOT TRUE AND p."deletedDraft" IS NOT TRUE))
-        UNION ALL
-        SELECT c."_id", c."userId", c."rejected"
-        FROM "Comments" c
-        WHERE c."userId" = ANY($(userIds)::text[])
-          AND (c."rejected" IS TRUE OR c."deleted" IS NOT TRUE)
-      ),
-      highPangramRejections AS (
-        SELECT c."userId"
-        FROM content c
-        JOIN "Revisions" r ON r."documentId" = c."documentId" AND r."fieldName" = 'contents'
-        JOIN "AutomatedContentEvaluations" ace ON ace."revisionId" = r."_id"
-        WHERE c."rejected" IS TRUE AND ace."pangramScore" > $(highPangramScoreThreshold)
-      )
-      -- (1) a rejected item with a high Pangram score
-      SELECT "userId" FROM highPangramRejections
-      UNION
-      -- (2) at least two rejected items, or (3) all content rejected
-      SELECT c."userId"
-      FROM content c
-      GROUP BY c."userId"
-      HAVING COUNT(*) FILTER (WHERE c."rejected" IS TRUE) >= 2
-        OR COUNT(*) FILTER (WHERE c."rejected" IS NOT TRUE) = 0
-    `, { userIds, highPangramScoreThreshold: OFFBOARD_HIGH_PANGRAM_SCORE_THRESHOLD });
-    return rows.map((row) => row.userId);
-  }
-
-  // Mirrors `commentIsHiddenPendingReview`
-  async getUserIdsWithPendingComments(userIds: string[], hideSince: Date): Promise<string[]> {
-    const rows = await this.getRawDb().any<{ userId: string }>(`
-      -- UsersRepo.getUserIdsWithPendingComments
-      SELECT DISTINCT c."userId"
-      FROM "Comments" c
-      WHERE c."userId" = ANY($(userIds)::text[])
-        AND c."authorIsUnreviewed" IS TRUE
-        AND c."postedAt" > $(hideSince)
-        AND c."rejected" IS NOT TRUE
-        AND c."deleted" IS NOT TRUE
-        AND c."draft" IS NOT TRUE
-    `, { userIds, hideSince });
-    return rows.map((row) => row.userId);
-  }
-
   async getRejectedContentCounts(userIds: string[]): Promise<number[]> {
     const rows = await this.getRawDb().any<{ userId: string, count: number }>(`
       -- UsersRepo.getRejectedContentCounts
@@ -536,6 +474,53 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [userIds]);
     const countsByUser = new Map(rows.map((row) => [row.userId, row.count]));
     return userIds.map((userId) => countsByUser.get(userId) ?? 0);
+  }
+
+  async getPendingContentStats(userIds: string[]): Promise<PendingContentStats[]> {
+    const postConditions = getReviewableContentExcludedFields("Posts").map(field => `p."${field}" IS NOT TRUE`).join(" AND ");
+    const commentConditions = getReviewableContentExcludedFields("Comments").map(field => `c."${field}" IS NOT TRUE`).join(" AND ");
+    const rows = await this.getRawDb().any<{ userId: string } & PendingContentStats>(`
+      -- UsersRepo.getPendingContentStats
+      SELECT
+        "userId",
+        (COUNT(*) FILTER (WHERE "isPending" AND "isPost"))::int AS "pendingPostCount",
+        (COUNT(*) FILTER (WHERE "isPending" AND NOT "isPost"))::int AS "pendingCommentCount",
+        MIN("postedAt") FILTER (WHERE "isPending") AS "oldestPendingContentAt",
+        (COUNT(*) FILTER (WHERE NOT "isPending"))::int AS "approvedContentCount"
+      FROM (
+        SELECT p."userId", TRUE AS "isPost", p."postedAt", p."authorIsUnreviewed" IS TRUE AS "isPending"
+        FROM "Posts" p
+        WHERE p."userId" = ANY($(userIds)::text[])
+          AND ${postConditions}
+        UNION ALL
+        SELECT c."userId", FALSE AS "isPost", c."postedAt", c."authorIsUnreviewed" IS TRUE AS "isPending"
+        FROM "Comments" c
+        WHERE c."userId" = ANY($(userIds)::text[])
+          AND ${commentConditions}
+      ) "liveContent"
+      GROUP BY "userId"
+    `, { userIds });
+    const statsByUser = new Map(rows.map(({ userId, ...stats }) => [userId, stats]));
+    return userIds.map((userId) => statsByUser.get(userId) ?? {
+      pendingPostCount: 0,
+      pendingCommentCount: 0,
+      oldestPendingContentAt: null,
+      approvedContentCount: 0,
+    });
+  }
+
+  async getLastRemovedFromReviewQueueAt(userIds: string[]): Promise<(Date | null)[]> {
+    const rows = await this.getRawDb().any<{ userId: string, createdAt: Date }>(`
+      -- UsersRepo.getLastRemovedFromReviewQueueAt
+      SELECT "documentId" AS "userId", MAX("createdAt") AS "createdAt"
+      FROM "FieldChanges"
+      WHERE "documentId" = ANY($(userIds)::text[])
+        AND "fieldName" = 'needsReview'
+        AND "newValue" = 'false'::jsonb
+      GROUP BY "documentId"
+    `, { userIds });
+    const datesByUserId = new Map(rows.map(row => [row.userId, row.createdAt]));
+    return userIds.map(userId => datesByUserId.get(userId) ?? null);
   }
 
   /**

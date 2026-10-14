@@ -75,6 +75,7 @@ interface Query {
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
   supermodQueueChanges: Array<SupermodQueueChange>;
   supermodQueueSnapshotTime: Date;
+  supermodQueueUsers: MultiUserOutput;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
   AdminMetadata: string | null;
@@ -7303,7 +7304,9 @@ interface User {
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
   lastRemovedFromReviewQueueAt: Date | null;
-  hasPendingComments: boolean | null;
+  pendingPostCount: number | null;
+  pendingCommentCount: number | null;
+  oldestPendingContentAt: Date | null;
   rejectedContentCount: number | null;
   userRateLimits: Array<UserRateLimit> | null;
   claudeLinkedAt: Date | null;
@@ -7342,7 +7345,6 @@ interface UserSelector {
   LWTrustLevel1List: EmptyViewInput | null;
   LWUsersAdmin: EmptyViewInput | null;
   usersWithBannedUsers: EmptyViewInput | null;
-  sunshineNewUsers: EmptyViewInput | null;
   recentlyActive: EmptyViewInput | null;
   allUsers: EmptyViewInput | null;
   usersMapLocations: EmptyViewInput | null;
