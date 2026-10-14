@@ -44,9 +44,10 @@ export const RejectContentButton = ({contentWrapper, onReject}: {
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
   const { document } = contentWrapper;
 
-  const handleRejectContent = (reason: string) => {
-    setShowRejectionDialog(false);
-    void rejectContent({ reason, ...contentWrapper });
+  const handleRejectContent = async (reason: string) => {
+    const succeeded = await rejectContent({ reason, ...contentWrapper });
+    if (succeeded) setShowRejectionDialog(false);
+    return succeeded;
   };
 
   const openRejectionDialog = () => {
