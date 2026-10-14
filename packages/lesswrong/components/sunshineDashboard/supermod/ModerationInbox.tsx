@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
+import { useMessages } from '@/components/common/withMessages';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
@@ -94,7 +95,7 @@ const ModerationInboxRemainingItemsQuery = gql(`
   }
 `);
 
-const REVIEW_QUEUE_LIMIT = 5000;
+const REVIEW_QUEUE_LIMIT = 1000;
 
 interface RemainingItems {
   users: SunshineUsersList[];
@@ -583,6 +584,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
 const ModerationInbox = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const { flash } = useMessages();
   const { query } = useLocation();
 
   const { data, loading, error } = useQuery(ModerationInboxDataQuery, {
@@ -599,7 +601,7 @@ const ModerationInbox = () => {
   });
 
   const [loadRemaining, setLoadRemaining] = useState(false);
-  const { data: remainingData, loading: loadingRemaining } = useQuery(ModerationInboxRemainingItemsQuery, {
+  const { data: remainingData, loading: loadingRemaining, error: remainingError } = useQuery(ModerationInboxRemainingItemsQuery, {
     variables: {
       userSelector: { sunshineNewUsers: {} },
       postSelector: { sunshineNewPosts: {} },
@@ -610,6 +612,12 @@ const ModerationInbox = () => {
     fetchPolicy: 'network-only',
   });
   const handleLoadRemaining = useCallback(() => setLoadRemaining(true), []);
+
+  useEffect(() => {
+    if (!remainingError) return;
+    flash({ messageString: `Failed to load remaining queue items: ${remainingError.message}`, type: 'error' });
+    setLoadRemaining(false);
+  }, [remainingError, flash]);
 
   const initialOpenedUserId = query.user || null;
 
