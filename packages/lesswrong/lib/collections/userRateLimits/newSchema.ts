@@ -80,13 +80,46 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins"],
     },
   },
+  // Null for limits that only lift on karma (see liftAtAverageKarma)
   endedAt: {
     database: {
       type: "TIMESTAMPTZ",
-      nullable: false,
+      nullable: true,
     },
     graphql: {
-      outputType: "Date!",
+      outputType: "Date",
+      canRead: ["guests"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  // The limit lifts once the user's last `liftAverageKarmaCount` posts or comments
+  // (whichever this limit is for) average at least this much karma
+  liftAtAverageKarma: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["guests"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  liftAverageKarmaCount: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
