@@ -7523,7 +7523,9 @@ type UserRateLimit {
   intervalUnit: UserRateLimitIntervalUnit!
   intervalLength: Float!
   actionsPerInterval: Float!
-  endedAt: Date!
+  endedAt: Date
+  liftAtAverageKarma: Float
+  liftAverageKarmaCount: Int
 }
 
 enum UserRateLimitType {
@@ -9696,7 +9698,9 @@ input CreateUserRateLimitDataInput {
   intervalUnit: UserRateLimitIntervalUnit!
   intervalLength: Float!
   actionsPerInterval: Float!
-  endedAt: Date!
+  endedAt: Date
+  liftAtAverageKarma: Float
+  liftAverageKarmaCount: Int
 }
 
 input CreateUserRateLimitInput {
@@ -9711,6 +9715,8 @@ input UpdateUserRateLimitDataInput {
   intervalLength: Float
   actionsPerInterval: Float
   endedAt: Date
+  liftAtAverageKarma: Float
+  liftAverageKarmaCount: Int
 }
 
 input UpdateUserRateLimitInput {

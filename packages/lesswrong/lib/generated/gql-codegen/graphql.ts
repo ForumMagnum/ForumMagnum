@@ -676,7 +676,7 @@ const _657=_o4(_5,_o3(_3,"UserRateLimit"))
 const _658=_o4(_8,_o3(_3,"actionsPerInterval"))
 const _659=_o4(_8,_o3(_3,"intervalUnit"))
 const _660=_o4(_8,_o3(_3,"intervalLength"))
-const _661=_o2(_2,_656,_657,_o5(_7,[_10,_68,_20,_265,_658,_659,_660,_47,_283]))
+const _661=_o2(_2,_656,_657,_o5(_7,[_10,_68,_20,_265,_658,_659,_660,_47,_283,_o4(_8,_o3(_3,"liftAtAverageKarma")),_o4(_8,_o3(_3,"liftAverageKarmaCount"))]))
 const _662=_o3(_3,"SunshineUsersList")
 const _663=_o4(_8,_o3(_3,"emails"))
 const _664=_o4(_8,_o3(_3,"error"))
@@ -3872,10 +3872,12 @@ export type CreateUserMostValuablePostInput = {
 
 export type CreateUserRateLimitDataInput = {
   actionsPerInterval: Scalars['Float']['input'];
-  endedAt: Scalars['Date']['input'];
+  endedAt?: InputMaybe<Scalars['Date']['input']>;
   intervalLength: Scalars['Float']['input'];
   intervalUnit: UserRateLimitIntervalUnit;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  liftAtAverageKarma?: InputMaybe<Scalars['Float']['input']>;
+  liftAverageKarmaCount?: InputMaybe<Scalars['Int']['input']>;
   type: UserRateLimitType;
   userId: Scalars['String']['input'];
 };
@@ -13671,6 +13673,8 @@ export type UpdateUserRateLimitDataInput = {
   intervalLength?: InputMaybe<Scalars['Float']['input']>;
   intervalUnit?: InputMaybe<UserRateLimitIntervalUnit>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  liftAtAverageKarma?: InputMaybe<Scalars['Float']['input']>;
+  liftAverageKarmaCount?: InputMaybe<Scalars['Int']['input']>;
   type?: InputMaybe<UserRateLimitType>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -14125,10 +14129,12 @@ export type UserRateLimit = {
   _id: Scalars['String']['output'];
   actionsPerInterval: Scalars['Float']['output'];
   createdAt: Scalars['Date']['output'];
-  endedAt: Scalars['Date']['output'];
+  endedAt: Maybe<Scalars['Date']['output']>;
   intervalLength: Scalars['Float']['output'];
   intervalUnit: UserRateLimitIntervalUnit;
   legacyData: Maybe<Scalars['JSON']['output']>;
+  liftAtAverageKarma: Maybe<Scalars['Float']['output']>;
+  liftAverageKarmaCount: Maybe<Scalars['Int']['output']>;
   schemaVersion: Scalars['Float']['output'];
   type: UserRateLimitType;
   user: Maybe<User>;
@@ -22361,9 +22367,9 @@ export type TypoSuggestionsDefaultFragment = { __typename?: 'TypoSuggestion', _i
 
 export type UserMostValuablePostInfo = { __typename?: 'UserMostValuablePost', _id: string, userId: string | null, postId: string | null, deleted: boolean | null };
 
-export type UserRateLimitMutationFragment = { __typename?: 'UserRateLimit', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string, type: UserRateLimitType, intervalUnit: UserRateLimitIntervalUnit, intervalLength: number, actionsPerInterval: number, endedAt: string };
+export type UserRateLimitMutationFragment = { __typename?: 'UserRateLimit', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string, type: UserRateLimitType, intervalUnit: UserRateLimitIntervalUnit, intervalLength: number, actionsPerInterval: number, endedAt: string | null };
 
-export type UserRateLimitDisplay = { __typename?: 'UserRateLimit', _id: string, userId: string, type: UserRateLimitType, actionsPerInterval: number, intervalUnit: UserRateLimitIntervalUnit, intervalLength: number, createdAt: string, endedAt: string, user: (
+export type UserRateLimitDisplay = { __typename?: 'UserRateLimit', _id: string, userId: string, type: UserRateLimitType, actionsPerInterval: number, intervalUnit: UserRateLimitIntervalUnit, intervalLength: number, createdAt: string, endedAt: string | null, liftAtAverageKarma: number | null, liftAverageKarmaCount: number | null, user: (
     { __typename?: 'User' }
     & UsersMinimumInfo
   ) | null };

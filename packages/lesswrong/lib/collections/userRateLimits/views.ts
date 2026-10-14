@@ -22,7 +22,8 @@ function userRateLimits(terms: UserRateLimitsViewTerms) {
 
 function activeUserRateLimits(terms: UserRateLimitsViewTerms) {
   return {
-    selector: { endedAt: { $gt: new Date() } },
+    // Karma-lifted limits have no end date
+    selector: { $or: [{ endedAt: { $gt: new Date() } }, { endedAt: null }] },
     options: { sort: { createdAt: -1 } }
   };
 }

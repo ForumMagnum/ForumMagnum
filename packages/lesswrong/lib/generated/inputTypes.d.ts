@@ -6955,7 +6955,9 @@ interface UserRateLimit {
   intervalUnit: UserRateLimitIntervalUnit;
   intervalLength: number;
   actionsPerInterval: number;
-  endedAt: Date;
+  endedAt: Date | null;
+  liftAtAverageKarma: number | null;
+  liftAverageKarmaCount: number | null;
 }
 
 interface SingleUserRateLimitInput {
@@ -8834,7 +8836,9 @@ interface CreateUserRateLimitDataInput {
   intervalUnit: UserRateLimitIntervalUnit;
   intervalLength: number;
   actionsPerInterval: number;
-  endedAt: Date;
+  endedAt?: Date | null;
+  liftAtAverageKarma?: number | null;
+  liftAverageKarmaCount?: number | null;
 }
 
 interface CreateUserRateLimitInput {
@@ -8849,6 +8853,8 @@ interface UpdateUserRateLimitDataInput {
   intervalLength?: number | null;
   actionsPerInterval?: number | null;
   endedAt?: Date | null;
+  liftAtAverageKarma?: number | null;
+  liftAverageKarmaCount?: number | null;
 }
 
 interface UpdateUserRateLimitInput {
