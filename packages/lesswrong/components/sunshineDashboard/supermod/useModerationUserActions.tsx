@@ -11,6 +11,7 @@ import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { getOptimisticNotes, useAddModeratorNote } from '../useAddModeratorNote';
 import type { InboxAction } from './inboxReducer';
+import { isAwaitingReview } from './helpers';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -36,13 +37,11 @@ const ApproveCurrentContentOnlyMutation = gql(`
 
 function getMostRecentUnapprovedContent(posts: SunshinePostsList[], comments: CommentsListWithParentMetadata[]) {
   const allContent = [
-    ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, authorIsUnreviewed: p.authorIsUnreviewed, collectionName: 'Posts' as const })),
-    ...(comments || []).map(c => ({ _id: c._id, postedAt: c.postedAt, rejected: c.rejected, authorIsUnreviewed: c.authorIsUnreviewed, collectionName: 'Comments' as const }))
+    ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, authorIsUnreviewed: p.authorIsUnreviewed, draft: p.draft, collectionName: 'Posts' as const })),
+    ...(comments || []).map(c => ({ _id: c._id, postedAt: c.postedAt, rejected: c.rejected, authorIsUnreviewed: c.authorIsUnreviewed, deleted: c.deleted, collectionName: 'Comments' as const }))
   ];
 
-  const unapprovedContent = allContent.filter(
-    item => !item.rejected && item.authorIsUnreviewed
-  );
+  const unapprovedContent = allContent.filter(isAwaitingReview);
 
   if (unapprovedContent.length === 0) {
     return null;

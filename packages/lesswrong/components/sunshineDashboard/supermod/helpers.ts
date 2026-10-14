@@ -1,7 +1,20 @@
+import moment from 'moment';
 import { UNREVIEWED_MAP_LOCATION_UPDATE } from '@/lib/collections/moderatorActions/constants';
 import { getFreshReviewTriggerActions } from '@/lib/collections/users/reviewGroups';
 
 export type ContentItem = SunshinePostsList | SunshineCommentsList;
+
+export const POSITIVE_KARMA = 2;
+
+export const CONTENT_PERIODS = [
+  { label: 'Last 30 days', shortLabel: '30d', startsAgo: moment.duration(30, 'days') },
+  { label: 'Last year', shortLabel: '1y', startsAgo: moment.duration(1, 'year') },
+  { label: 'Older', shortLabel: 'older', startsAgo: null },
+];
+
+export function getContentPeriodIndex(postedAt: string, now: moment.Moment) {
+  return CONTENT_PERIODS.findIndex(({ startsAgo }) => !startsAgo || moment(postedAt).isAfter(now.clone().subtract(startsAgo)));
+}
 
 export interface ModerationMapPinItem {
   contentType: 'mapPin';
@@ -86,7 +99,18 @@ export function getModerationContentItems(
     ? [...posts, ...comments, mapPin]
     : [...posts, ...comments];
 
-  return items.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+  return items.sort((a, b) =>
+    Number(needsDecision(b)) - Number(needsDecision(a))
+    || new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
+  );
+}
+
+export function needsDecision(item: ModerationContentItem) {
+  return isMapPin(item) || isAwaitingReview(item);
+}
+
+export function isAwaitingReview(item: { rejected: boolean, authorIsUnreviewed: boolean, deleted?: boolean, draft?: boolean | null }) {
+  return !item.rejected && item.authorIsUnreviewed && !item.deleted && !item.draft;
 }
 
 export function canRejectContent(item: ContentItem | null | undefined) {

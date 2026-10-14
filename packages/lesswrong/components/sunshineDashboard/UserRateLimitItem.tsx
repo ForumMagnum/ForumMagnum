@@ -199,7 +199,7 @@ const getRemainingIntervalDescription = (rateLimit: UserRateLimitDisplay) => {
   return moment(rateLimit.endedAt).fromNow();
 };
 
-const getRateLimitDescription = (rateLimit: UserRateLimitDisplay) => {
+export const getRateLimitDescription = (rateLimit: UserRateLimitDisplay) => {
   const intervalDescription = getIntervalDescription(rateLimit);
   return `${USER_RATE_LIMIT_TYPES[rateLimit.type]}, ${rateLimit.actionsPerInterval} per ${intervalDescription}`;
 };

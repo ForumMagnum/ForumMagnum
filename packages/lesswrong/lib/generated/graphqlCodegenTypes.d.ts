@@ -21058,25 +21058,6 @@ type multiModerationTemplateSunshineSendMessageWithDefaultsQueryQueryVariables =
 
 type multiModerationTemplateSunshineSendMessageWithDefaultsQueryQuery = multiModerationTemplateSunshineSendMessageWithDefaultsQueryQuery_Query;
 
-type multiConversationSunshineUserMessagesQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
-  { __typename?: 'Conversation' }
-  & ConversationsList
-);
-
-type multiConversationSunshineUserMessagesQueryQuery_conversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', totalCount: number | null, results: Array<multiConversationSunshineUserMessagesQueryQuery_conversations_MultiConversationOutput_results_Conversation> };
-
-type multiConversationSunshineUserMessagesQueryQuery_Query = { __typename?: 'Query', conversations: multiConversationSunshineUserMessagesQueryQuery_conversations_MultiConversationOutput | null };
-
-
-type multiConversationSunshineUserMessagesQueryQueryVariables = Exact<{
-  selector: InputMaybe<ConversationSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiConversationSunshineUserMessagesQueryQuery = multiConversationSunshineUserMessagesQueryQuery_Query;
-
 type multiUserRateLimitUserRateLimitItemQueryQuery_userRateLimits_MultiUserRateLimitOutput_results_UserRateLimit = (
   { __typename?: 'UserRateLimit' }
   & UserRateLimitDisplay
@@ -21183,6 +21164,59 @@ type CurationPostViewQueryQueryVariables = Exact<{
 
 type CurationPostViewQueryQuery = CurationPostViewQueryQuery_Query;
 
+type multiConversationModerationActivityFeedQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
+  { __typename?: 'Conversation' }
+  & ConversationsList
+);
+
+type multiConversationModerationActivityFeedQueryQuery_conversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', results: Array<multiConversationModerationActivityFeedQueryQuery_conversations_MultiConversationOutput_results_Conversation> };
+
+type multiConversationModerationActivityFeedQueryQuery_Query = { __typename?: 'Query', conversations: multiConversationModerationActivityFeedQueryQuery_conversations_MultiConversationOutput | null };
+
+
+type multiConversationModerationActivityFeedQueryQueryVariables = Exact<{
+  selector: InputMaybe<ConversationSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type multiConversationModerationActivityFeedQueryQuery = multiConversationModerationActivityFeedQueryQuery_Query;
+
+type firstMessageModerationActivityFeedQueryQuery_messages_MultiMessageOutput_results_Message = (
+  { __typename?: 'Message' }
+  & messageListFragment
+);
+
+type firstMessageModerationActivityFeedQueryQuery_messages_MultiMessageOutput = { __typename?: 'MultiMessageOutput', results: Array<firstMessageModerationActivityFeedQueryQuery_messages_MultiMessageOutput_results_Message> };
+
+type firstMessageModerationActivityFeedQueryQuery_Query = { __typename?: 'Query', messages: firstMessageModerationActivityFeedQueryQuery_messages_MultiMessageOutput | null };
+
+
+type firstMessageModerationActivityFeedQueryQueryVariables = Exact<{
+  selector: InputMaybe<MessageSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type firstMessageModerationActivityFeedQueryQuery = firstMessageModerationActivityFeedQueryQuery_Query;
+
+type ModerationFeedCardParentCommentQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type ModerationFeedCardParentCommentQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: ModerationFeedCardParentCommentQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type ModerationFeedCardParentCommentQuery_Query = { __typename?: 'Query', comment: ModerationFeedCardParentCommentQuery_comment_SingleCommentOutput | null };
+
+
+type ModerationFeedCardParentCommentQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ModerationFeedCardParentCommentQuery = ModerationFeedCardParentCommentQuery_Query;
+
 type ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -21249,6 +21283,24 @@ type singleUserSupermodQueryQueryVariables = Exact<{
 
 
 type singleUserSupermodQueryQuery = singleUserSupermodQueryQuery_Query;
+
+type multiPostModerationUserFeedCoauthoredQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type multiPostModerationUserFeedCoauthoredQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<multiPostModerationUserFeedCoauthoredQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type multiPostModerationUserFeedCoauthoredQueryQuery_Query = { __typename?: 'Query', posts: multiPostModerationUserFeedCoauthoredQueryQuery_posts_MultiPostOutput | null };
+
+
+type multiPostModerationUserFeedCoauthoredQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type multiPostModerationUserFeedCoauthoredQueryQuery = multiPostModerationUserFeedCoauthoredQueryQuery_Query;
 
 type addOrUpvoteTagModeratorCoreTagsChecklistMutation_addOrUpvoteTag_TagRel = (
   { __typename?: 'TagRel' }
