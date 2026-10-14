@@ -21,7 +21,16 @@ const styles = defineStyles('LLMScoreBadge', (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[300],
     },
   },
+  highScore: {
+    color: theme.palette.error.main,
+    backgroundColor: 'light-dark(rgba(191,54,12,0.1),rgba(191,54,12,0.25))',
+    '&:hover': {
+      backgroundColor: 'light-dark(rgba(191,54,12,0.18),rgba(191,54,12,0.35))',
+    },
+  },
 }));
+
+const HIGH_SCORE_THRESHOLD = 0.2;
 
 const LLMScoreBadge = ({
   documentId,
@@ -85,7 +94,7 @@ const LLMScoreBadge = ({
           : <div>Average: {score.toFixed(2)}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</div>
         : <div>No LLM evaluation — click to run check</div>}
     >
-      <span className={classNames(classes.badge, className)} onClick={handleClick}>
+      <span className={classNames(classes.badge, hasScore && score > HIGH_SCORE_THRESHOLD && classes.highScore, className)} onClick={handleClick}>
         LLM: {hasScore ? score.toFixed(2) : '—'}
       </span>
     </HoverOver>

@@ -3,9 +3,7 @@
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import UsersName from '@/components/users/UsersName';
-import ForumIcon from '@/components/common/ForumIcon';
 import LWTooltip from '@/components/common/LWTooltip';
-import FormatDate from '@/components/common/FormatDate';
 import AltAccountInfo from '../ModeratorUserInfo/AltAccountInfo';
 import { Link } from '@/lib/reactRouterWrapper';
 import ReviewTriggerBadge from './ReviewTriggerBadge';
@@ -18,48 +16,28 @@ const styles = defineStyles('ModerationUserIdentityColumn', (theme: ThemeType) =
     gap: 8,
     flexShrink: 0,
     alignItems: 'flex-start',
-    width: 180,
   },
   displayNameRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
+    maxWidth: '100%',
   },
   displayName: {
     fontSize: 18,
     fontWeight: 600,
-    width: 148,
+    minWidth: 0,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-  },
-  icon: {
-    height: 13,
-    color: theme.palette.grey[500],
-    position: "relative",
-    top: 2
   },
   email: {
     color: theme.palette.grey[600],
     fontSize: 14,
-    width: 180,
+    maxWidth: '100%',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-  },
-  topMetadata: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    fontSize: 14,
-  },
-  createdAt: {
-    color: theme.palette.grey[600],
-    marginBottom: 2,
-  },
-  karma: {
-    color: theme.palette.grey[600],
-    marginBottom: 2,
   },
   qualitySignalRow: {
     fontSize: 12,
@@ -90,8 +68,6 @@ const ModerationUserIdentityColumn = ({
   likelyReviewTrigger: React.ReactNode;
 }) => {
   const classes = useStyles(styles);
-  const clientIdsInfo = useUserClientIdsInfo(user._id);
-  const firstClientId = clientIdsInfo?.associatedClientIds?.[0];
 
   return (
     <div className={classes.column}>
@@ -99,24 +75,27 @@ const ModerationUserIdentityColumn = ({
         <div className={classes.displayName}>
           <UsersName user={user} />
         </div>
-        <LWTooltip title={user.reviewedByUserId ? "Already reviewed; future content will go live by default" : "Unreviewed; future content will require review before going live"}>
-          <ForumIcon icon={user.reviewedByUserId ? "Check" : "Eye"} className={classes.icon} />
-        </LWTooltip>
+        {likelyReviewTrigger && (
+          <ReviewTriggerBadge badge={likelyReviewTrigger} />
+        )}
       </div>
       <div className={classes.email}>
         {user.email}
       </div>
-      <div className={classes.topMetadata}>
-        {likelyReviewTrigger && (
-          <ReviewTriggerBadge badge={likelyReviewTrigger} />
-        )}
-        <div className={classes.createdAt}>
-          <FormatDate date={user.createdAt} />
-        </div>
-        <div className={classes.karma}>
-          {user.karma} karma
-        </div>
-      </div>
+    </div>
+  );
+};
+
+export const ModerationUserClientInfo = ({ user }: { user: SunshineUsersList }) => {
+  const classes = useStyles(styles);
+  const clientIdsInfo = useUserClientIdsInfo(user._id);
+  const firstClientId = clientIdsInfo?.associatedClientIds?.[0];
+  if (!firstClientId?.firstSeenReferrer && !firstClientId?.firstSeenLandingPage && !clientIdsInfo?.altAccountsDetected) {
+    return null;
+  }
+
+  return (
+    <div className={classes.column}>
       {firstClientId?.firstSeenReferrer && (
         <div className={classes.qualitySignalRow}>
           <LWTooltip title={firstClientId.firstSeenReferrer} inlineBlock={false}>
