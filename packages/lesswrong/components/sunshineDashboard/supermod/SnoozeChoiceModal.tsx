@@ -93,8 +93,9 @@ const SnoozeChoiceModal = ({ onConfirm, onClose }: {
   const classes = useStyles(styles);
 
   useGlobalKeydown(useCallback((event: KeyboardEvent) => {
-    // Holding down the S that opened the picker would otherwise pick "s" too
-    if (event.repeat || event.metaKey || event.ctrlKey || event.altKey) return;
+    // Holding down the S that opened the picker would otherwise pick "s" too,
+    // and Shift+S would otherwise pick "s" rather than doing nothing
+    if (event.repeat || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
     const amount = getSnoozeAmountForKey(event.key);
     if (amount !== undefined) {
       event.preventDefault();
