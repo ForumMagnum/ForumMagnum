@@ -72,8 +72,6 @@ async function isEligibleForAutoPurge(user: DbUser, context: ResolverContext): P
 function profileTextChanged(before: DbUser, after: DbUser): boolean {
   return before.biography?.html !== after.biography?.html || before.mapMarkerText !== after.mapMarkerText;
 }
-
-
 async function maybeAutoPurgeProfileSpam(userId: string, context: ResolverContext) {
   if (!profileSpamAutoPurgeSetting.get(context)) return;
 
