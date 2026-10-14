@@ -58,7 +58,6 @@ const ModerationUserKeyboardHandler = ({
     handleReview,
     handleApproveCurrentOnly,
     handleSnoozeChoice,
-    handleSnoozeCustom,
     handleRejectContentAndRemove,
     handleRestrictAndNotify,
     handleRemoveNeedsReview,
@@ -169,13 +168,6 @@ const ModerationUserKeyboardHandler = ({
     isDisabled: () => !selectedUser,
     execute: handleSnoozeChoice,
   }), [selectedUser, handleSnoozeChoice]);
-
-  const snoozeCustomCommand: CommandPaletteItem = useMemo(() => ({
-    label: 'Snooze Custom Amount',
-    keystroke: 'Shift+S',
-    isDisabled: () => !selectedUser,
-    execute: handleSnoozeCustom,
-  }), [selectedUser, handleSnoozeCustom]);
 
   const removeCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Remove',
@@ -343,7 +335,7 @@ const ModerationUserKeyboardHandler = ({
   const commands: CommandPaletteItem[] = useMemo(() => [
     rerunLlmCheckCommand,
     approveCommand, approveCurrentOnlyCommand,
-    snoozeChoiceCommand, snoozeCustomCommand,
+    snoozeChoiceCommand,
     removeCommand, removeKeepingReviewStatusCommand,
     rejectOrUnrejectCommand, messageCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand,
     purgeCommand,
@@ -353,7 +345,7 @@ const ModerationUserKeyboardHandler = ({
     nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand,
     openOrCloseDetailViewCommand, undoMostRecentActionCommand,
     ban3moCommand,
-  ], [rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snoozeChoiceCommand, snoozeCustomCommand, removeCommand, removeKeepingReviewStatusCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, messageCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, toggleAllPermissionsCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
+  ], [rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snoozeChoiceCommand, removeCommand, removeKeepingReviewStatusCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, messageCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, toggleAllPermissionsCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
 
   useSupermodKeyboardCommands({
     commands,

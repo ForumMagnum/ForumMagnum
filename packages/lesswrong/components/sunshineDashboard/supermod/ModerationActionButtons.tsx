@@ -60,7 +60,6 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
     handleReview,
     handleApproveCurrentOnly,
     handleSnoozeChoice,
-    handleSnoozeCustom,
     handleRemoveNeedsReview,
     handlePurge,
     handleFlag,
@@ -90,12 +89,6 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
         keystroke: 'S',
         tooltip: "Remove this user from the review queue for now; they'll return for review after that many more posts or comments. Opens a picker: press A, S, D or F for 1, 3, 5 or 10, any digit 1–9 for that amount, or click a button. Signs a 'Snooze N' note in their moderator notes.",
         onClick: handleSnoozeChoice,
-      },
-      {
-        label: 'Snooze X',
-        keystroke: 'Shift+S',
-        tooltip: 'Same as Snooze, but opens a dialog to type any number of posts or comments the user can make before they return to the review queue.',
-        onClick: handleSnoozeCustom,
       },
       {
         label: 'Approve Current Only',

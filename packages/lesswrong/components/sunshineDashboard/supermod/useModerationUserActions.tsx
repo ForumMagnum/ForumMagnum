@@ -4,7 +4,6 @@ import { useDialog } from '@/components/common/withDialog';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { getNewSnoozeUntilContentCount } from '../ModeratorActions';
-import SnoozeAmountModal from './SnoozeAmountModal';
 import SnoozeChoiceModal from './SnoozeChoiceModal';
 import RestrictAndNotifyModal from './RestrictAndNotifyModal';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
@@ -152,22 +151,6 @@ export function useModerationUserActions({
     });
   }, [selectedUser, openDialog, handleSnooze]);
 
-  const handleSnoozeCustom = useCallback(() => {
-    if (!selectedUser) return;
-    openDialog({
-      name: 'SnoozeAmountModal',
-      contents: ({ onClose }) => (
-        <SnoozeAmountModal
-          onConfirm={(amount) => {
-            handleSnooze(amount);
-            onClose();
-          }}
-          onClose={onClose}
-        />
-      ),
-    });
-  }, [selectedUser, openDialog, handleSnooze]);
-
   const handleRemoveNeedsReview = useCallback(() => {
     if (!selectedUser) return;
     updateUserWithNote({
@@ -297,7 +280,6 @@ export function useModerationUserActions({
     handleApproveCurrentOnly,
     handleSnooze,
     handleSnoozeChoice,
-    handleSnoozeCustom,
     handleRejectContentAndRemove,
     handleRestrictAndNotify,
     handleRemoveNeedsReview,
