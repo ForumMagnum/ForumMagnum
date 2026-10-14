@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import { useApolloClient } from '@apollo/client/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useMessages } from '@/components/common/withMessages';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
-import { useQuery } from '@/lib/crud/useQuery';
+import { useBackgroundQuery, useQuery, useReadQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import ModerationInboxList from './ModerationInboxList';
 import ModerationUserDetailView from './ModerationUserDetailView';
@@ -14,12 +15,11 @@ import { useModeratedUserContents } from '@/components/hooks/useModeratedUserCon
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import Loading from '@/components/vulcan-core/Loading';
-import countBy from 'lodash/countBy';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
-import uniq from 'lodash/uniq';
 import { getUserReviewGroup, type TabId } from './groupings';
-import { getFilteredGroups, getOrderedGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer, type UnloadedCounts } from './inboxReducer';
+import { createInitialInboxState, getOrderedGroups, getVisibleTabsInOrder, inboxStateReducer } from './inboxReducer';
+import { getModerationQueueSnapshot, type ModerationQueueSnapshot } from './moderationQueue';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
@@ -32,39 +32,39 @@ import ModerationUndoHistory from './ModerationUndoHistory';
 import { hideScrollBars } from '@/themes/styleUtils';
 import { ConcurrentModeratorChangesContext, useConcurrentModeratorChanges } from './useConcurrentModeratorChanges';
 
-// All of the moderation inbox's initial data is fetched in a single query so
-// that its root fields (users/posts/classifiedPosts/curation/lastCurated)
-// resolve concurrently server-side, rather than as a serial waterfall of
-// separate useQuery suspends. (directUser is kept separate below because it
-// depends on whether the opened user is already in the users list.)
-const ModerationInboxDataQuery = gql(`
-  query ModerationInboxDataQuery($userSelector: UserSelector, $postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int, $reviewQueueLimit: Int, $postLimit: Int, $curationLimit: Int) {
+const ModerationInboxQueueQuery = gql(`
+  query ModerationInboxQueueQuery($userLimit: Int!, $reviewQueueLimit: Int!, $postLimit: Int!) {
     # Must stay first, so the time is taken before the queue below is read
     supermodQueueSnapshotTime
-    users(selector: $userSelector, limit: $userLimit) {
+    users(selector: { sunshineNewUsers: {} }, limit: $userLimit) {
       results {
         ...SunshineUsersList
       }
     }
-    reviewQueueUsers: users(selector: $userSelector, limit: $reviewQueueLimit) {
+    reviewQueueUsers: users(selector: { sunshineNewUsers: {} }, limit: $reviewQueueLimit) {
       results {
         _id
         reviewGroup
       }
     }
-    posts(selector: $postSelector, limit: $postLimit, enableTotal: true) {
+    posts(selector: { sunshineNewPosts: {} }, limit: $postLimit, enableTotal: true) {
       results {
         ...SunshinePostsList
       }
       totalCount
     }
-    classifiedPosts: posts(selector: $classifiedPostSelector, limit: $postLimit, enableTotal: true) {
+    classifiedPosts: posts(selector: { sunshineAutoClassifiedPosts: {} }, limit: $postLimit, enableTotal: true) {
       results {
         ...SunshinePostsList
       }
       totalCount
     }
-    CurationCandidatePosts(limit: $curationLimit) {
+  }
+`);
+
+const ModerationInboxCurationQuery = gql(`
+  query ModerationInboxCurationQuery {
+    CurationCandidatePosts(limit: 200) {
       results {
         ...SunshineCurationPostsListItem
       }
@@ -75,37 +75,13 @@ const ModerationInboxDataQuery = gql(`
   }
 `);
 
-const ModerationInboxRemainingItemsQuery = gql(`
-  query ModerationInboxRemainingItemsQuery($userSelector: UserSelector, $postSelector: PostSelector, $classifiedPostSelector: PostSelector, $limit: Int) {
-    users(selector: $userSelector, limit: $limit) {
-      results {
-        ...SunshineUsersList
-      }
-    }
-    posts(selector: $postSelector, limit: $limit) {
-      results {
-        ...SunshinePostsList
-      }
-    }
-    classifiedPosts: posts(selector: $classifiedPostSelector, limit: $limit) {
-      results {
-        ...SunshinePostsList
-      }
-    }
-  }
-`);
-
 const REVIEW_QUEUE_LIMIT = 1000;
-
-interface RemainingItems {
-  users: SunshineUsersList[];
-  posts: SunshinePostsList[];
-  classifiedPosts: SunshinePostsList[];
-}
+const initialQueueLimits = { userLimit: 200, postLimit: 100, reviewQueueLimit: REVIEW_QUEUE_LIMIT };
+const fullQueueLimits = { userLimit: REVIEW_QUEUE_LIMIT, postLimit: REVIEW_QUEUE_LIMIT, reviewQueueLimit: REVIEW_QUEUE_LIMIT };
 
 const SingleUserSupermodQuery = gql(`
   query singleUserSupermodQuery($documentId: String) {
-    user(selector: { documentId: $documentId }) {
+    user(selector: { _id: $documentId }) {
       result {
         ...SunshineUsersList
       }
@@ -166,164 +142,45 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, unloadedCounts, lastCuratedDate, queueSnapshotTime, initialOpenedUserId, directUser, currentUser, remainingItems, onLoadRemaining, loadingRemaining }: {
-  users: SunshineUsersList[];
-  posts: SunshinePostsList[];
-  classifiedPosts: SunshinePostsList[];
+const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnapshotTime, initialOpenedUserId, currentUser }: {
+  queue: ModerationQueueSnapshot;
   curationPosts: SunshineCurationPostsListItem[];
-  unloadedCounts: UnloadedCounts;
   lastCuratedDate: string | null;
   queueSnapshotTime: string;
   initialOpenedUserId: string | null;
-  directUser: SunshineUsersList | null;
   currentUser: UsersCurrent;
-  remainingItems: RemainingItems | null;
-  onLoadRemaining: () => void;
-  loadingRemaining: boolean;
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
   const { query, location } = useLocation();
-
-  const [state, dispatch] = useReducer(
-    inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, sidebarTab: null, undoQueue: [], history: [], runningLlmCheckId: null, unloadedCounts },
-    (): InboxState => {
-      const initialUsers = directUser ? [directUser, ...users] : users;
-      if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
-        return {
-          users: [],
-          posts: [],
-          classifiedPosts: [],
-          curationPosts: [],
-          activeTab: 'curation',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: null,
-          focusedContentIndex: 0,
-          sidebarTab: null,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-          unloadedCounts,
-        };
-      }
-
-      if (initialOpenedUserId) {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'all',
-          focusedUserId: initialOpenedUserId,
-          openedUserId: initialOpenedUserId,
-          focusedPostId: null,
-          focusedContentIndex: 0,
-          sidebarTab: null,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-          unloadedCounts,
-        };
-      }
-
-      const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
-      const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
-      // Start on a tab with loaded items, so ignore the unloaded ones here
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount, {});
-
-      // Default to curation when there are no curation notices (so you can add some)
-      // Otherwise, find the first non-empty non-curation tab
-      const firstNonEmptyTab = curationNoticeCount === 0
-        ? undefined
-        : visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0);
-      const firstTab = firstNonEmptyTab?.group ?? 'curation';
-
-      if (firstTab === 'curation') {
-        return { 
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'curation',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: curationPosts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          sidebarTab: null,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-          unloadedCounts,
-        };
-      }
-      
-      if (firstTab === 'posts') {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'posts',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: posts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          sidebarTab: null,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-          unloadedCounts,
-        };
-      }
-
-      if (firstTab === 'classifiedPosts') {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'classifiedPosts',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: classifiedPosts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          sidebarTab: null,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-          unloadedCounts,
-        };
-      }
-
-      const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
-      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
-
-      return {
-        users: initialUsers,
-        posts,
-        classifiedPosts,
-        curationPosts,
-        activeTab: firstTab,
-        focusedUserId: orderedUsers[0]?._id ?? null,
-        openedUserId: initialOpenedUserId,
-        focusedPostId: null,
-        focusedContentIndex: 0,
-        sidebarTab: null,
-        undoQueue: [],
-        history: [],
-        runningLlmCheckId: null,
-        unloadedCounts,
-      };
-    }
-  );
-
-  // Users can leave and re-enter the local lists (via the undo queue), so track everything that was loaded
-  const [loadedUserIds, setLoadedUserIds] = useState(() => state.users.map(user => user._id));
-  const [loadedPostIds, setLoadedPostIds] = useState(() => [...state.posts, ...state.classifiedPosts].map(post => post._id));
+  const apolloClient = useApolloClient();
+  const { flash } = useMessages();
+  const [loadingRemaining, setLoadingRemaining] = useState(false);
+  const [state, dispatch] = useReducer(inboxStateReducer, { queue, curationPosts, initialOpenedUserId }, createInitialInboxState);
   const [changesSince] = useState(() => new Date(queueSnapshotTime));
-  const concurrentModeratorChanges = useConcurrentModeratorChanges(loadedUserIds, loadedPostIds, changesSince);
+  const concurrentModeratorChanges = useConcurrentModeratorChanges(state.loadedUserIds, state.loadedPostIds, changesSince);
+
+  useHydrateModerationPostCache(state.posts);
+  useHydrateModerationPostCache(state.classifiedPosts);
+
+  const handleLoadRemaining = useCallback(async () => {
+    if (loadingRemaining) return;
+    setLoadingRemaining(true);
+    try {
+      // Keep bulk-load errors out of the initial Suspense query, preserving the inbox and undo state.
+      const { data } = await apolloClient.query({
+        query: ModerationInboxQueueQuery,
+        variables: fullQueueLimits,
+        fetchPolicy: 'network-only',
+      });
+      if (!data) throw new Error('Moderation queue data failed to load');
+      dispatch({ type: 'ADD_LOADED_ITEMS', snapshot: getModerationQueueSnapshot(data) });
+    } catch (error) {
+      flash({ messageString: `Failed to load remaining queue items: ${error instanceof Error ? error.message : String(error)}`, type: 'error' });
+    } finally {
+      setLoadingRemaining(false);
+    }
+  }, [apolloClient, flash, loadingRemaining]);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
@@ -342,17 +199,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
       }, { replace: true, skipRouter: true });
     }
   }, [state.openedUserId, query.user, location, navigate]);
-
-  const addedRemainingItems = useRef(false);
-  useEffect(() => {
-    if (remainingItems && !addedRemainingItems.current) {
-      addedRemainingItems.current = true;
-      dispatch({ type: 'ADD_LOADED_ITEMS', ...remainingItems, unloadedCounts });
-      // Watched for other moderators' changes from the same baseline as the first page
-      setLoadedUserIds(ids => uniq([...ids, ...remainingItems.users.map(user => user._id)]));
-      setLoadedPostIds(ids => uniq([...ids, ...[...remainingItems.posts, ...remainingItems.classifiedPosts].map(post => post._id)]));
-    }
-  }, [remainingItems, unloadedCounts]);
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
@@ -550,7 +396,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
                   onFocusPost={handleFocusPost}
                   activeTab={state.activeTab}
                   unloadedCount={state.unloadedCounts[state.activeTab] ?? 0}
-                  onLoadUnloaded={onLoadRemaining}
+                  onLoadUnloaded={handleLoadRemaining}
                   loadingUnloaded={loadingRemaining}
                 />
               </div>
@@ -581,128 +427,54 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, un
   );
 };
 
-const ModerationInbox = () => {
+const ModerationInboxLoader = ({ currentUser }: { currentUser: UsersCurrent }) => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
-  const { flash } = useMessages();
   const { query } = useLocation();
+  const [initialOpenedUserId] = useState(() => query.user || null);
 
-  const { data, loading, error } = useQuery(ModerationInboxDataQuery, {
-    variables: {
-      userSelector: { sunshineNewUsers: {} },
-      postSelector: { sunshineNewPosts: {} },
-      classifiedPostSelector: { sunshineAutoClassifiedPosts: {} },
-      userLimit: 200,
-      reviewQueueLimit: REVIEW_QUEUE_LIMIT,
-      postLimit: 100,
-      curationLimit: 200,
-    },
+  // Start both requests before reading either, so SSR does not suspend them serially.
+  const [queueRef] = useBackgroundQuery(ModerationInboxQueueQuery, {
+    variables: initialQueueLimits,
     fetchPolicy: 'cache-and-network',
   });
-
-  const [loadRemaining, setLoadRemaining] = useState(false);
-  const { data: remainingData, loading: loadingRemaining, error: remainingError } = useQuery(ModerationInboxRemainingItemsQuery, {
-    variables: {
-      userSelector: { sunshineNewUsers: {} },
-      postSelector: { sunshineNewPosts: {} },
-      classifiedPostSelector: { sunshineAutoClassifiedPosts: {} },
-      limit: REVIEW_QUEUE_LIMIT,
-    },
-    skip: !loadRemaining,
-    fetchPolicy: 'network-only',
+  const [curationRef] = useBackgroundQuery(ModerationInboxCurationQuery, {
+    fetchPolicy: 'cache-and-network',
   });
-  const handleLoadRemaining = useCallback(() => setLoadRemaining(true), []);
+  const { data } = useReadQuery(queueRef);
+  const { data: curationData } = useReadQuery(curationRef);
 
-  useEffect(() => {
-    if (!remainingError) return;
-    flash({ messageString: `Failed to load remaining queue items: ${remainingError.message}`, type: 'error' });
-    setLoadRemaining(false);
-  }, [remainingError, flash]);
-
-  const initialOpenedUserId = query.user || null;
-
-  const users = useMemo(() => data?.users?.results.filter(user => user.needsReview) ?? [], [data]);
-  const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !users.some(u => u._id === initialOpenedUserId);
-
+  // This lookup gates initialization only; a later queue refresh must not unmount the inbox.
+  const [queuedDirectUser] = useState(() => data.users?.results.find(user => user._id === initialOpenedUserId));
+  const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !queuedDirectUser;
   const { data: directUserData, loading: directUserLoading } = useQuery(SingleUserSupermodQuery, {
     variables: { documentId: initialOpenedUserId },
     skip: !shouldFetchDirectUser,
     fetchPolicy: 'cache-and-network',
   });
+  const directUser = queuedDirectUser ?? directUserData?.user?.result ?? null;
+  const queue = useMemo(() => getModerationQueueSnapshot(data, directUser), [data, directUser]);
 
-  // This is just to pre-fetch the core tags so that they're available when you open the posts tab
+  // Pre-fetch core tags for the posts tab.
   useCoreTags({ ssr: false });
 
-  const posts = useMemo(() => data?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [data]);
-  const classifiedPosts = useMemo(() => data?.classifiedPosts?.results ?? [], [data]);
-  const curationPosts = useMemo(() => data?.CurationCandidatePosts?.results ?? [], [data]);
-  const lastCuratedDate = data?.LastCuratedDate?.lastCuratedDate ?? null;
-
-  const directUser = useMemo(() => {
-    if (!shouldFetchDirectUser) return null;
-    return directUserData?.user?.result ?? null;
-  }, [shouldFetchDirectUser, directUserData]);
-
-  const remainingItems = useMemo((): RemainingItems | null => {
-    if (!remainingData) return null;
-    return {
-      users: remainingData.users?.results.filter(user => user.needsReview) ?? [],
-      posts: remainingData.posts?.results.filter(post => !post.reviewedByUserId) ?? [],
-      classifiedPosts: remainingData.classifiedPosts?.results ?? [],
-    };
-  }, [remainingData]);
-
-  const unloadedCounts = useMemo((): UnloadedCounts => {
-    // Users acted on lose needsReview, but are still in the reviewQueueUsers snapshot, so count them as loaded
-    const loadedUserIds = new Set([...(data?.users?.results ?? []), ...(remainingData?.users?.results ?? [])].map(user => user._id));
-    if (directUser) {
-      loadedUserIds.add(directUser._id);
-    }
-    const unloadedUsers = data?.reviewQueueUsers?.results.filter(user => !loadedUserIds.has(user._id)) ?? [];
-    return {
-      ...countBy(unloadedUsers, user => user.reviewGroup ?? 'unknown'),
-      all: unloadedUsers.length,
-      posts: Math.max(0, (data?.posts?.totalCount ?? 0) - Math.max(data?.posts?.results.length ?? 0, remainingData?.posts?.results.length ?? 0)),
-      classifiedPosts: Math.max(0, (data?.classifiedPosts?.totalCount ?? 0) - Math.max(data?.classifiedPosts?.results.length ?? 0, remainingData?.classifiedPosts?.results.length ?? 0)),
-    };
-  }, [data, directUser, remainingData]);
-
-  useHydrateModerationPostCache(posts);
-  useHydrateModerationPostCache(classifiedPosts);
-
-  if (!currentUser || !userIsAdminOrMod(currentUser)) {
-    return null;
-  }
-
-  const dataNotReady = loading && !data;
-  const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUserData;
-
-  if (dataNotReady || directUserNotReady) {
-    return (
-      <div className={classes.loading}>
-        <Loading />
-      </div>
-    );
-  }
-  if (!data) {
-    throw error ?? new Error("Moderation inbox data failed to load");
+  if (shouldFetchDirectUser && directUserLoading && !directUserData) {
+    return <div className={classes.loading}><Loading /></div>;
   }
 
   return <ModerationInboxInner
-    users={users}
-    posts={posts}
-    classifiedPosts={classifiedPosts}
-    curationPosts={curationPosts}
-    unloadedCounts={unloadedCounts}
-    lastCuratedDate={lastCuratedDate}
+    queue={queue}
+    curationPosts={curationData.CurationCandidatePosts?.results ?? []}
+    lastCuratedDate={curationData.LastCuratedDate.lastCuratedDate}
     queueSnapshotTime={data.supermodQueueSnapshotTime}
     initialOpenedUserId={initialOpenedUserId}
-    directUser={directUser}
     currentUser={currentUser}
-    remainingItems={remainingItems}
-    onLoadRemaining={handleLoadRemaining}
-    loadingRemaining={loadingRemaining}
   />;
+};
+
+const ModerationInbox = () => {
+  const currentUser = useCurrentUser();
+  if (!currentUser || !userIsAdminOrMod(currentUser)) return null;
+  return <ModerationInboxLoader currentUser={currentUser} />;
 };
 
 export default ModerationInbox;
