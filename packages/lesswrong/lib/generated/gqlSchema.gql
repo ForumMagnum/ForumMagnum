@@ -1279,7 +1279,39 @@ extend type Query {
   moderationTemplateUsageCounts: [ModerationTemplateUsageCount!]!
 }
 
+input ModerationContentRejectionInput {
+  documentId: String!
+  collectionName: ContentCollectionName!
+  reason: String!
+  templateIds: [String!]
+}
+
+input ModerationMessageInput {
+  conversationId: String
+  contents: CreateRevisionDataInput!
+  noEmail: Boolean
+}
+
+input CompleteUserModerationInput {
+  operationId: String!
+  userId: String!
+  rejection: ModerationContentRejectionInput
+  message: ModerationMessageInput
+  disablePermissions: Boolean!
+  rateLimits: [CreateUserRateLimitDataInput!]!
+  rejectAll: Boolean!
+  removeFromQueue: Boolean!
+}
+
+type CompleteUserModerationResult {
+  user: User!
+  rejectedPosts: [Post!]!
+  rejectedComments: [Comment!]!
+  message: Message
+}
+
 extend type Mutation {
+  completeUserModeration(input: CompleteUserModerationInput!): CompleteUserModerationResult!
   lockThread(commentId: String!, until: String): Boolean!
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!

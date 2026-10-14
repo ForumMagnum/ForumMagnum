@@ -120,6 +120,7 @@ const ModerationUserDetailView = ({
             comments={comments}
             focusedContent={focusedContent}
             sidebarTab={sidebarTab}
+            rejectComposerFocusToken={state.rejectComposerFocusToken ?? 0}
             setSidebarTab={setSidebarTab}
             addToUndoQueue={addToUndoQueue}
             dispatch={dispatch}

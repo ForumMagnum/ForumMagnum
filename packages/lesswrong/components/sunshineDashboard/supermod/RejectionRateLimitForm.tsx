@@ -1,18 +1,6 @@
-import React, { useCallback } from 'react';
-import { useMutation } from '@apollo/client/react';
-import { gql } from '@/lib/generated/gql-codegen';
+import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import type { InboxAction } from './inboxReducer';
-
-const CreateUserRateLimitMutation = gql(`
-  mutation createUserRateLimitRejectionRateLimitForm($data: CreateUserRateLimitDataInput!) {
-    createUserRateLimit(data: $data) {
-      data {
-        ...UserRateLimitDisplay
-      }
-    }
-  }
-`);
+import { validateUserRateLimit } from '@/lib/collections/userRateLimits/helpers';
 
 const RATE_LIMIT_UNITS = ['hours', 'days', 'weeks'] as const;
 type RateLimitUnit = typeof RATE_LIMIT_UNITS[number];
@@ -57,26 +45,33 @@ interface ActiveContentRateLimit {
   kind: ContentKind;
   count: number;
   unit: RateLimitUnit;
-  liftCount: number | null;
-  liftKarma: number | null;
+  liftCount: number;
+  liftKarma: number;
 }
 
 function getActiveRateLimits(settings: RejectionRateLimitSettings): ActiveContentRateLimit[] {
   return (['posts', 'comments'] as const).flatMap(kind => {
     const { count, unit, liftCount, liftKarma } = settings[kind];
-    const parsedCount = parsePositiveNumber(count);
-    if (parsedCount === null) return [];
-    const parsedLiftCount = parsePositiveNumber(liftCount);
-    const parsedLiftKarma = liftKarma.trim() && Number.isFinite(Number(liftKarma)) ? Number(liftKarma) : null;
-    const hasLift = parsedLiftCount !== null && parsedLiftKarma !== null;
-    return [{
-      kind,
-      count: parsedCount,
-      unit,
-      liftCount: hasLift ? Math.round(parsedLiftCount) : null,
-      liftKarma: hasLift ? parsedLiftKarma : null,
-    }];
+    if (!count.trim()) return [];
+    if (!liftCount.trim() || !liftKarma.trim()) {
+      throw new Error(`Complete the ${kind} karma-lift condition`);
+    }
+    const parsedCount = Number(count);
+    if (parsedCount < 1) throw new Error(`${kind} per interval must be at least one; leave it blank for no limit`);
+    const parsedLiftCount = Number(liftCount);
+    const parsedLiftKarma = Number(liftKarma);
+    validateUserRateLimit({ actionsPerInterval: parsedCount, intervalLength: 1, liftAtAverageKarma: parsedLiftKarma, liftAverageKarmaCount: parsedLiftCount });
+    return [{ kind, count: parsedCount, unit, liftCount: parsedLiftCount, liftKarma: parsedLiftKarma }];
   });
+}
+
+export function getRejectionRateLimitError(settings: RejectionRateLimitSettings): string | null {
+  try {
+    getActiveRateLimits(settings);
+    return null;
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  }
 }
 
 function describeRate({ kind, count, unit }: ActiveContentRateLimit) {
@@ -90,6 +85,7 @@ function describeLift({ kind, liftCount, liftKarma }: ActiveContentRateLimit) {
 
 /** The paragraph announcing the limits in the rejection message, or null when no limit is set */
 export function getRateLimitParagraphHtml(settings: RejectionRateLimitSettings): string | null {
+  if (getRejectionRateLimitError(settings)) return null;
   const limits = getActiveRateLimits(settings);
   if (!limits.length) return null;
   const rates = limits.map(describeRate).join(' and ');
@@ -102,19 +98,7 @@ export function getRateLimitParagraphHtml(settings: RejectionRateLimitSettings):
   return `<p>I've also rate-limited your account to ${rates}.${liftSentence}</p>`;
 }
 
-/** Creates the limits the settings describe, and adds them to the user's activity feed */
-export function useCreateRejectionRateLimits(user: SunshineUsersList, dispatch: React.ActionDispatch<[action: InboxAction]>) {
-  const [createUserRateLimit] = useMutation(CreateUserRateLimitMutation);
-  return useCallback(async (settings: RejectionRateLimitSettings) => {
-    const rateLimitsToCreate = getRateLimitsToCreate(settings, user._id);
-    if (!rateLimitsToCreate.length) return;
-    const results = await Promise.all(rateLimitsToCreate.map(data => createUserRateLimit({ variables: { data } })));
-    const created = results.flatMap(({ data }) => data?.createUserRateLimit?.data ?? []);
-    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { userRateLimits: [...created, ...(user.userRateLimits ?? [])] } });
-  }, [user, dispatch, createUserRateLimit]);
-}
-
-function getRateLimitsToCreate(settings: RejectionRateLimitSettings, userId: string): CreateUserRateLimitDataInput[] {
+export function getRateLimitsToCreate(settings: RejectionRateLimitSettings, userId: string): CreateUserRateLimitDataInput[] {
   return getActiveRateLimits(settings).map(limit => ({
     userId,
     type: limit.kind === 'posts' ? 'allPosts' : 'allComments',
@@ -245,7 +229,9 @@ const RejectionRateLimitForm = ({ settings, onChange }: {
 }) => {
   const classes = useStyles(styles);
   // Inside the message form, Enter in a field would otherwise send the message
+  const error = getRejectionRateLimitError(settings);
   return <div className={classes.root} onKeyDown={preventEnterSubmit}>
+    {error && <div role="alert">{error}</div>}
     <ContentRateLimitFields kind="posts" settings={settings.posts} onChange={(posts) => onChange({ ...settings, posts })} />
     <ContentRateLimitFields kind="comments" settings={settings.comments} onChange={(comments) => onChange({ ...settings, comments })} />
   </div>;

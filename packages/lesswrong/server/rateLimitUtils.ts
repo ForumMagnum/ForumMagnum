@@ -1,6 +1,6 @@
 import type { ForumTypeString } from '@/lib/instanceSettings';
 import moment from "moment"
-import { getTimeframeForRateLimit } from "../lib/collections/moderatorActions/helpers"
+import { getAverageContentKarma, getTimeframeForRateLimit } from "../lib/collections/moderatorActions/helpers"
 import { EXEMPT_FROM_RATE_LIMITS, MODERATOR_ACTION_TYPES, PostAndCommentRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, postAndCommentRateLimits } from "@/lib/collections/moderatorActions/constants"
 import { forumSelect } from "../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../lib/vulcan-users/permissions"
@@ -58,11 +58,11 @@ async function getPostsInTimeframe(user: DbUser, maxHours: number, context: Reso
   }, {sort: {postedAt: -1}, projection: {postedAt: 1}}).fetch()
 }
 
-async function getRecentContentScores(userId: string, type: DbUserRateLimit['type'], limit: number, context: ResolverContext): Promise<number[]> {
+async function getRecentContentScores(userId: string, type: DbUserRateLimit['type'], limit: number, context: ResolverContext): Promise<Array<Pick<DbPost, "baseScore">>> {
   const recentContent = type === 'allPosts'
     ? await context.Posts.find({ userId, draft: false, isEvent: false }, { sort: { postedAt: -1 }, limit, projection: { baseScore: 1 } }).fetch()
     : await context.Comments.find({ userId, draft: false }, { sort: { postedAt: -1 }, limit, projection: { baseScore: 1 } }).fetch();
-  return recentContent.map(document => document.baseScore ?? 0);
+  return recentContent;
 }
 
 /**
@@ -75,7 +75,7 @@ async function isKarmaLiftMet(rateLimit: DbUserRateLimit, context: ResolverConte
   if (liftAtAverageKarma === null || !liftAverageKarmaCount) return false;
   const scores = await getRecentContentScores(rateLimit.userId, rateLimit.type, liftAverageKarmaCount, context);
   if (scores.length < liftAverageKarmaCount) return false;
-  const averageKarma = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+  const averageKarma = getAverageContentKarma(scores);
   return averageKarma >= liftAtAverageKarma;
 }
 

@@ -1,5 +1,7 @@
 import React from 'react';
 import moment from 'moment';
+import { isActionActive } from '@/lib/collections/moderatorActions/helpers';
+import { maybeDate } from '@/lib/utils/dateUtils';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useForumType } from '@/components/hooks/useForumType';
@@ -62,10 +64,6 @@ function getEndDescription(endedAt: string | null) {
   return endedAt ? `ends ${moment(endedAt).fromNow()}` : null;
 }
 
-function isActive(endedAt: string | null) {
-  return !endedAt || new Date(endedAt) > new Date();
-}
-
 function getActiveRateLimitRows(user: SunshineUsersList, forumType: ForumTypeString): ActiveRateLimitRow[] {
   const autoRateLimits = [...forumSelect(autoPostRateLimits, forumType), ...forumSelect(autoCommentRateLimits, forumType)];
   const autoRows = getStrictestActiveRateLimitNames(user, autoRateLimits).map(({ name, isActive, rateLimitType }): ActiveRateLimitRow => {
@@ -80,7 +78,7 @@ function getActiveRateLimitRows(user: SunshineUsersList, forumType: ForumTypeStr
   });
 
   const manualRows = (user.userRateLimits ?? [])
-    .filter(rateLimit => isActive(rateLimit.endedAt))
+    .filter(rateLimit => isActionActive({ endedAt: maybeDate(rateLimit.endedAt) }))
     .map((rateLimit): ActiveRateLimitRow => ({
       key: rateLimit._id,
       source: 'Manual',
@@ -89,7 +87,7 @@ function getActiveRateLimitRows(user: SunshineUsersList, forumType: ForumTypeStr
     }));
 
   const moderatorActionRows = (user.moderatorActions ?? []).flatMap((action): ActiveRateLimitRow[] => {
-    if (!isRateLimitActionType(action.type) || !isActive(action.endedAt)) return [];
+    if (!isRateLimitActionType(action.type) || !action.active) return [];
     return [{
       key: action._id,
       source: 'Mod action',

@@ -166,7 +166,7 @@ export function useUserContentPermissions(
     if (isCurrentlyDisabled) {
       // Find and end the existing VOTING_DISABLED moderator action
       const votingDisabledAction = user.moderatorActions?.find(
-        action => action.type === VOTING_DISABLED && !action.endedAt
+        action => action.type === VOTING_DISABLED && action.active
       );
       
       if (votingDisabledAction && !disableOnly) {
@@ -200,9 +200,10 @@ export function useUserContentPermissions(
     }
   }, [user, currentUser, updateModeratorAction, createModeratorAction, addModeratorNote, dispatch]);
 
-  const setAllPermissions = useCallback((disableAll: boolean) => {
+  const toggleAllPermissions = useCallback(() => {
     if (!user || !currentUser) return;
 
+    const disableAll = !areAllContentPermissionsDisabled(user);
     const abled = disableAll ? 'disabled' : 'enabled';
     const note = `all permissions ${abled}`;
 
@@ -232,7 +233,7 @@ export function useUserContentPermissions(
         }
       } else {
         const votingDisabledAction = user.moderatorActions?.find(
-          action => action.type === VOTING_DISABLED && !action.endedAt
+          action => action.type === VOTING_DISABLED && action.active
         );
         if (votingDisabledAction) {
           await updateModeratorAction({
@@ -258,20 +259,11 @@ export function useUserContentPermissions(
     });
   }, [user, currentUser, dispatch, queueMutation, createModeratorAction, updateModeratorAction, updateUser, addModeratorNote, debouncedSourceOfTruthUpdate]);
 
-  const toggleAllPermissions = useCallback(() => {
-    if (!user) return;
-    setAllPermissions(!areAllContentPermissionsDisabled(user));
-  }, [user, setAllPermissions]);
-
-  const disableAllPermissions = useCallback(() => setAllPermissions(true), [setAllPermissions]);
-
   return {
     toggleDisablePosting,
     toggleDisableCommenting,
     toggleDisableMessaging,
     toggleDisableVoting,
     toggleAllPermissions,
-    disableAllPermissions,
   };
 }
-

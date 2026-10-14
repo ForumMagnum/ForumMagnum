@@ -12,6 +12,7 @@ import { usePostForTooltip } from "@/components/hooks/usePostForTooltip";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
 const styles = defineStyles("PostsTooltip", (_theme: ThemeType) => ({
+  preview: { position: "relative" },
   sentinel: {
     height: 0,
     width: 0,
@@ -33,6 +34,8 @@ interface PostsTooltipPropsBase {
   flip?: boolean,
   placement?: PopperPlacementType,
   children?: ReactNode,
+  /** Content displayed over the preview, independent of the hover trigger. */
+  previewOverlay?: ReactNode,
   pageElementContext?: string,
   pageElementSubContext?: string,
   //bypasses the component and just returns the children
@@ -73,6 +76,7 @@ const PostsTooltip = ({
   flip,
   placement,
   children,
+  previewOverlay,
   pageElementContext,
   pageElementSubContext,
   disabled,
@@ -150,7 +154,7 @@ const PostsTooltip = ({
   };
   return (
     <HoverOver
-      title={renderTitle()}
+      title={previewOverlay ? <div className={classes.preview}>{previewOverlay}{renderTitle()}</div> : renderTitle()}
       placement={placement}
       tooltip={false}
       hideOnTouchScreens

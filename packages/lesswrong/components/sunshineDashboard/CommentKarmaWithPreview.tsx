@@ -15,6 +15,7 @@ const styles = defineStyles('CommentKarmaWithPreview', (theme: ThemeType) => ({
     whiteSpace: "nowrap"
   },
   commentPreview: {
+    position: "relative",
     maxWidth: 600,
     maxHeight: '50vh',
     overflow: 'auto'
@@ -44,9 +45,11 @@ const styles = defineStyles('CommentKarmaWithPreview', (theme: ThemeType) => ({
 }))
 
 
-const CommentKarmaWithPreview = ({comment, displayTitle, reviewedAt}: {
+const CommentKarmaWithPreview = ({comment, displayTitle = false, reviewedAt, children, previewOverlay}: {
   comment: CommentsListWithParentMetadata,
-  displayTitle: boolean,
+  displayTitle?: boolean,
+  children?: React.ReactNode,
+  previewOverlay?: React.ReactNode,
   reviewedAt?: Date
 }) => {
   const classes = useStyles(styles);
@@ -54,7 +57,7 @@ const CommentKarmaWithPreview = ({comment, displayTitle, reviewedAt}: {
   if (!comment) return null 
 
   return <span className={classNames(classes.root, {[classes.titleDisplay]: displayTitle})} {...eventHandlers}>
-    <Link className={classNames({[classes.highlight]: !reviewedAt || new Date(comment.postedAt) > reviewedAt, [classes.deleted]: comment.deleted, [classes.default]: !comment.deleted})}
+    {children ?? <Link className={classNames({[classes.highlight]: !reviewedAt || new Date(comment.postedAt) > reviewedAt, [classes.deleted]: comment.deleted, [classes.default]: !comment.deleted})}
       to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}
     >
       {displayTitle && <span className={classes.scoreTitleFormat}>
@@ -64,13 +67,14 @@ const CommentKarmaWithPreview = ({comment, displayTitle, reviewedAt}: {
         {comment.baseScore} 
       </span>
       {displayTitle && comment.post?.title }
-    </Link>
+    </Link>}
     <LWPopper
         open={hover}
         anchorEl={anchorEl}
         placement={displayTitle ? "right-start" : "bottom-start"}
       >
       <div className={classes.commentPreview}>
+        {previewOverlay}
         <CommentsNode treeOptions={{showPostTitle: true}} comment={comment} forceUnTruncated forceUnCollapsed/>
       </div>
     </LWPopper>

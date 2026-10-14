@@ -1,14 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import { useApolloClient } from '@apollo/client/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModeratorMessageComposer from '../ModeratorMessageComposer';
 import RejectContentPanel from './RejectContentPanel';
 import KeystrokeDisplay from './KeystrokeDisplay';
-import { canRejectContent, getContentTitle, isAwaitingReview, type ContentItem } from './helpers';
+import { canRejectContent, getContentTitle, type ContentItem } from './helpers';
 import type { SelectedSidebarTab } from './sidebarTabs';
 import type { InboxAction } from './inboxReducer';
-import { useModerationUserActions } from './useModerationUserActions';
 
 const styles = defineStyles('ModerationSidebarComposers', (theme: ThemeType) => ({
   tabs: {
@@ -77,24 +75,19 @@ const styles = defineStyles('ModerationSidebarComposers', (theme: ThemeType) => 
  * default for rejectable content, but only takes keyboard input once its tab
  * is picked, so the moderation shortcuts keep working.
  */
-const ModerationSidebarComposers = ({ user, currentUser, posts, comments, focusedContent, sidebarTab, setSidebarTab, addToUndoQueue, dispatch }: {
+const ModerationSidebarComposers = ({ user, currentUser, posts, comments, focusedContent, sidebarTab, rejectComposerFocusToken, setSidebarTab, dispatch }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   posts: SunshinePostsList[];
   comments: SunshineCommentsList[];
   focusedContent: ContentItem | null;
   sidebarTab: SelectedSidebarTab;
+  rejectComposerFocusToken: number;
   setSidebarTab: (tab: SelectedSidebarTab) => void;
-  addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
-  const apolloClient = useApolloClient();
   const rejectPanelRef = useRef<HTMLDivElement>(null);
-  const { handleRemoveNeedsReview } = useModerationUserActions({ selectedUser: user, currentUser, addToUndoQueue, dispatch });
-
-  const otherPendingContent = [...posts, ...comments]
-    .filter(item => isAwaitingReview(item) && item._id !== focusedContent?._id);
 
   const canReject = canRejectContent(focusedContent);
   const dmTabActive = sidebarTab === 'dm';
@@ -110,12 +103,6 @@ const ModerationSidebarComposers = ({ user, currentUser, posts, comments, focuse
   }, [rejectTabActive]);
 
   const closeTab = () => setSidebarTab(null);
-
-  const handleSent = () => {
-    // The activity feed lists the user's conversations, which may now include a new one
-    void apolloClient.refetchQueries({ include: ['multiConversationModerationActivityFeedQuery'] });
-    closeTab();
-  };
 
   return <div>
     <div className={classes.tabs}>
@@ -145,17 +132,15 @@ const ModerationSidebarComposers = ({ user, currentUser, posts, comments, focuse
         comments={comments}
         active={dmTabActive}
         onEscape={closeTab}
-        onSent={handleSent}
-        onRemoveFromQueue={handleRemoveNeedsReview}
+        onSent={closeTab}
         dispatch={dispatch}
       />
     </div>
     {canReject && focusedContent && (
       <div ref={rejectPanelRef} className={classNames({ [classes.hiddenTabContent]: !rejectPanelVisible })}>
-        <RejectContentPanel user={user} focusedContent={focusedContent} active={rejectTabActive} otherPendingContent={otherPendingContent}
+        <RejectContentPanel rejectComposerFocusToken={rejectComposerFocusToken} user={user} focusedContent={focusedContent} active={rejectTabActive}
           onEscape={closeTab}
           onRejected={closeTab}
-          onRemoveFromQueue={handleRemoveNeedsReview}
           dispatch={dispatch}
         />
       </div>

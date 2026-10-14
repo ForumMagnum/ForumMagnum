@@ -274,6 +274,7 @@ interface Mutation {
   importUrlAsDraftPost: ExternalPostImportData;
   revertTagToRevision: Tag | null;
   convertDocumentEditorType: any;
+  completeUserModeration: CompleteUserModerationResult;
   lockThread: boolean;
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;
@@ -1253,6 +1254,37 @@ interface SupermodQueueChange {
 interface ModerationTemplateUsageCount {
   templateId: string;
   count: number;
+}
+
+interface ModerationContentRejectionInput {
+  documentId: string;
+  collectionName: ContentCollectionName;
+  reason: string;
+  templateIds?: Array<string> | null;
+}
+
+interface ModerationMessageInput {
+  conversationId?: string | null;
+  contents: CreateRevisionDataInput;
+  noEmail?: boolean | null;
+}
+
+interface CompleteUserModerationInput {
+  operationId: string;
+  userId: string;
+  rejection?: ModerationContentRejectionInput | null;
+  message?: ModerationMessageInput | null;
+  disablePermissions: boolean;
+  rateLimits: Array<CreateUserRateLimitDataInput>;
+  rejectAll: boolean;
+  removeFromQueue: boolean;
+}
+
+interface CompleteUserModerationResult {
+  user: User;
+  rejectedPosts: Array<Post>;
+  rejectedComments: Array<Comment>;
+  message: Message | null;
 }
 
 interface ToggleBookmarkInput {
@@ -9400,6 +9432,10 @@ interface GraphQLTypeMap {
   PangramTextEvaluationResult: PangramTextEvaluationResult;
   SupermodQueueChange: SupermodQueueChange;
   ModerationTemplateUsageCount: ModerationTemplateUsageCount;
+  ModerationContentRejectionInput: ModerationContentRejectionInput;
+  ModerationMessageInput: ModerationMessageInput;
+  CompleteUserModerationInput: CompleteUserModerationInput;
+  CompleteUserModerationResult: CompleteUserModerationResult;
   ToggleBookmarkInput: ToggleBookmarkInput;
   SetIsBookmarkedInput: SetIsBookmarkedInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;

@@ -49,6 +49,7 @@ const ModerationSidebar = ({
   comments,
   focusedContent,
   sidebarTab,
+  rejectComposerFocusToken,
   setSidebarTab,
   addToUndoQueue,
   dispatch,
@@ -59,6 +60,7 @@ const ModerationSidebar = ({
   comments: SunshineCommentsList[];
   focusedContent: ContentItem | null;
   sidebarTab: SelectedSidebarTab;
+  rejectComposerFocusToken: number;
   setSidebarTab: (tab: SelectedSidebarTab) => void;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
@@ -86,8 +88,8 @@ const ModerationSidebar = ({
           comments={comments}
           focusedContent={focusedContent}
           sidebarTab={sidebarTab}
+          rejectComposerFocusToken={rejectComposerFocusToken}
           setSidebarTab={setSidebarTab}
-          addToUndoQueue={addToUndoQueue}
           dispatch={dispatch}
         />
       </div>

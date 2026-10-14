@@ -1073,6 +1073,25 @@ type CommentsWithReactsResult = {
   results: Array<Comment>;
 };
 
+type CompleteUserModerationInput = {
+  disablePermissions: Scalars['Boolean']['input'];
+  message?: InputMaybe<ModerationMessageInput>;
+  operationId: Scalars['String']['input'];
+  rateLimits: Array<CreateUserRateLimitDataInput>;
+  rejectAll: Scalars['Boolean']['input'];
+  rejection?: InputMaybe<ModerationContentRejectionInput>;
+  removeFromQueue: Scalars['Boolean']['input'];
+  userId: Scalars['String']['input'];
+};
+
+type CompleteUserModerationResult = {
+  __typename?: 'CompleteUserModerationResult';
+  message?: Maybe<Message>;
+  rejectedComments: Array<Comment>;
+  rejectedPosts: Array<Post>;
+  user: User;
+};
+
 type ContentCollectionName =
   | 'Comments'
   | 'Posts';
@@ -2892,6 +2911,19 @@ type MigrationsDashboardData = {
   migrations?: Maybe<Array<MigrationStatus>>;
 };
 
+type ModerationContentRejectionInput = {
+  collectionName: ContentCollectionName;
+  documentId: Scalars['String']['input'];
+  reason: Scalars['String']['input'];
+  templateIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+type ModerationMessageInput = {
+  contents: CreateRevisionDataInput;
+  conversationId?: InputMaybe<Scalars['String']['input']>;
+  noEmail?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 type ModerationTemplate = {
   __typename?: 'ModerationTemplate';
   _id: Scalars['String']['output'];
@@ -3906,6 +3938,7 @@ type Mutation = {
   approveUserCurrentContentOnly: Scalars['Boolean']['output'];
   cancelResearchConversation?: Maybe<ResearchConversationOutput>;
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
+  completeUserModeration: CompleteUserModerationResult;
   connectCrossposter?: Maybe<Scalars['String']['output']>;
   continueResearchConversation?: Maybe<ResearchConversationOutput>;
   convertDocumentEditorType?: Maybe<Scalars['JSON']['output']>;
@@ -4203,6 +4236,11 @@ type MutationcancelResearchConversationArgs = {
 
 type MutationclickRecommendationArgs = {
   postId: Scalars['String']['input'];
+};
+
+
+type MutationcompleteUserModerationArgs = {
+  input: CompleteUserModerationInput;
 };
 
 
@@ -21380,23 +21418,6 @@ type moderationTemplateUsageCountsRejectContentPanelQueryQueryVariables = Exact<
 
 type moderationTemplateUsageCountsRejectContentPanelQueryQuery = moderationTemplateUsageCountsRejectContentPanelQueryQuery_Query;
 
-type createUserRateLimitRejectionRateLimitFormMutation_createUserRateLimit_UserRateLimitOutput_data_UserRateLimit = (
-  { __typename?: 'UserRateLimit' }
-  & UserRateLimitDisplay
-);
-
-type createUserRateLimitRejectionRateLimitFormMutation_createUserRateLimit_UserRateLimitOutput = { __typename?: 'UserRateLimitOutput', data: createUserRateLimitRejectionRateLimitFormMutation_createUserRateLimit_UserRateLimitOutput_data_UserRateLimit | null };
-
-type createUserRateLimitRejectionRateLimitFormMutation_Mutation = { __typename?: 'Mutation', createUserRateLimit: createUserRateLimitRejectionRateLimitFormMutation_createUserRateLimit_UserRateLimitOutput | null };
-
-
-type createUserRateLimitRejectionRateLimitFormMutationVariables = Exact<{
-  data: CreateUserRateLimitDataInput;
-}>;
-
-
-type createUserRateLimitRejectionRateLimitFormMutation = createUserRateLimitRejectionRateLimitFormMutation_Mutation;
-
 type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }
   & ModerationTemplateFragment
@@ -21447,6 +21468,38 @@ type updateModeratorActionSupermodMutationVariables = Exact<{
 
 
 type updateModeratorActionSupermodMutation = updateModeratorActionSupermodMutation_Mutation;
+
+type CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_user_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_rejectedPosts_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_rejectedComments_Comment = (
+  { __typename?: 'Comment' }
+  & SunshineCommentsList
+);
+
+type CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_message_Message = (
+  { __typename?: 'Message' }
+  & messageListFragment
+);
+
+type CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult = { __typename?: 'CompleteUserModerationResult', user: CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_user_User, rejectedPosts: Array<CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_rejectedPosts_Post>, rejectedComments: Array<CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_rejectedComments_Comment>, message: CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_message_Message | null };
+
+type CompleteUserModerationMutation_Mutation = { __typename?: 'Mutation', completeUserModeration: CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult };
+
+
+type CompleteUserModerationMutationVariables = Exact<{
+  input: CompleteUserModerationInput;
+}>;
+
+
+type CompleteUserModerationMutation = CompleteUserModerationMutation_Mutation;
 
 type SupermodQueueChangesQueryQuery_supermodQueueChanges_SupermodQueueChange = { __typename?: 'SupermodQueueChange', documentId: string, moderatorName: string, lastChangedAt: string };
 

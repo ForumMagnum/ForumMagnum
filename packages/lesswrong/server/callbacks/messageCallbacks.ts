@@ -8,7 +8,7 @@ import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/contex
 import { updateConversation } from '../collections/conversations/mutations';
 import { backgroundTask } from "../utils/backgroundTask";
 
-export function checkIfNewMessageIsEmpty(message: CreateMessageDataInput) {
+export function checkIfNewMessageIsEmpty(message: Pick<CreateMessageDataInput, 'contents'>) {
   const { data } = (message.contents && message.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot send an empty message");

@@ -32,7 +32,7 @@ const PARENT_INITIAL_WORDS = 40;
 
 const ParentCommentQuery = gql(`
   query ModerationFeedCardParentComment($documentId: String) {
-    comment(input: { selector: { documentId: $documentId } }) {
+    comment(selector: { _id: $documentId }) {
       result {
         ...CommentsList
       }

@@ -11,15 +11,11 @@ import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
 import GroupedModerationTemplateList from './GroupedModerationTemplateList';
 import ComposerKeydownWrapper from './supermod/ComposerKeydownWrapper';
 import { focusLexicalEditorAtEnd, focusLexicalEditorWhenReady } from '../editor/focusLexicalEditor';
-import { useRejectContent } from '../hooks/useRejectContent';
+import { useCompleteUserModeration } from './supermod/useCompleteUserModeration';
 import ModerationSendOptions from './supermod/ModerationSendOptions';
-import { DEFAULT_REJECTION_RATE_LIMIT_SETTINGS, useCreateRejectionRateLimits, type RejectionRateLimitSettings } from './supermod/RejectionRateLimitForm';
-import { useUserContentPermissions } from './supermod/useUserContentPermissions';
-import { areAllContentPermissionsDisabled, isAwaitingReview, isPost } from './supermod/helpers';
+import { DEFAULT_REJECTION_RATE_LIMIT_SETTINGS, getRateLimitsToCreate, type RejectionRateLimitSettings } from './supermod/RejectionRateLimitForm';
+import { areAllContentPermissionsDisabled } from './supermod/helpers';
 import type { InboxAction } from './supermod/inboxReducer';
-
-// The rejection notice for content rejected alongside a moderator's message, which carries the explanation
-const SEE_MODERATOR_MESSAGE_REASON = '<p>Look for a separate message from a moderator explaining why your content was rejected.</p>';
 
 const styles = defineStyles('ModeratorMessageComposer', (theme: ThemeType) => ({
   conversationForm: {
@@ -45,21 +41,17 @@ interface ModeratorMessageComposerProps {
   active: boolean;
   onEscape: () => void;
   onSent: () => void;
-  onRemoveFromQueue: () => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }
 
-const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, active, onEscape, onSent, onRemoveFromQueue, dispatch }: ModeratorMessageComposerProps) => {
+const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, active, onEscape, onSent, dispatch }: ModeratorMessageComposerProps) => {
   const classes = useStyles(styles);
-  const { rejectContent } = useRejectContent();
-  const { disableAllPermissions } = useUserContentPermissions(user, dispatch);
-  const createRateLimits = useCreateRejectionRateLimits(user, dispatch);
+  const completeModeration = useCompleteUserModeration(dispatch);
   const permissionsAlreadyDisabled = areAllContentPermissionsDisabled(user);
   const [rateLimitEnabled, setRateLimitEnabled] = useState(false);
   const [rateLimitSettings, setRateLimitSettings] = useState<RejectionRateLimitSettings>(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
   const [disablePermissions, setDisablePermissions] = useState(false);
   const [rejectAll, setRejectAll] = useState(false);
-  const pendingContent = [...posts, ...comments].filter(isAwaitingReview);
 
   const highlightedTemplateNames = useMemo(
     () => getHighlightedTemplateNames({ user, moderatorActions: user.moderatorActions ?? [] }, posts, comments),
@@ -117,28 +109,17 @@ const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, act
     }
   };
 
-  // Runs once the message has gone out, so the rejection notices have something to point to
-  const applySendOptions = async () => {
-    if (disablePermissions && !permissionsAlreadyDisabled) {
-      disableAllPermissions();
-      setDisablePermissions(false);
-    }
-    if (rateLimitEnabled) {
-      await createRateLimits(rateLimitSettings);
-      setRateLimitEnabled(false);
-      setRateLimitSettings(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
-    }
-    if (rejectAll) {
-      for (const item of pendingContent) {
-        await rejectContent({
-          collectionName: isPost(item) ? 'Posts' : 'Comments',
-          document: item,
-          reason: SEE_MODERATOR_MESSAGE_REASON,
-        });
-      }
-      setRejectAll(false);
-      onRemoveFromQueue();
-    }
+  const submitModeratorMessage = async (message: CreateMessageDataInput) => {
+    const rateLimits = rateLimitEnabled ? getRateLimitsToCreate(rateLimitSettings, user._id) : [];
+    if (!message.contents) throw new Error('Message contents are required');
+    const moderatorMessage = { conversationId: message.conversationId, contents: message.contents, noEmail: message.noEmail };
+    const result = await completeModeration({ userId: user._id, message: moderatorMessage, rateLimits, disablePermissions, rejectAll, removeFromQueue: rejectAll });
+    if (!result.message) throw new Error('Moderation completed without the requested message');
+    setDisablePermissions(false);
+    setRateLimitEnabled(false);
+    setRateLimitSettings(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
+    setRejectAll(false);
+    return result.message;
   };
 
   const handleFocusComposer = () => {
@@ -159,6 +140,7 @@ const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, act
       >
         <MessagesNewForm
           conversationId={conversationId}
+          submitMessage={submitModeratorMessage}
           templateQueries={templateQueries}
           keystrokeSubmitButton
           // One line tall until the moderator types or inserts a template
@@ -174,7 +156,7 @@ const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, act
             disablePermissions={disablePermissions}
             onDisablePermissionsChange={setDisablePermissions}
             rejectAll={rejectAll}
-            rejectAllLabel={`Reject all${pendingContent.length > 0 ? ` (${pendingContent.length})` : ''}, remove from queue`}
+            rejectAllLabel="Reject all pending content, remove from queue"
             rejectAllTooltip="User receives a rejection notice for each pending submission, pointing them to this message."
             onRejectAllChange={setRejectAll}
           />}
@@ -184,7 +166,6 @@ const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, act
               sender: currentUser._id,
               moderatorConveration: true
             });
-            void applySendOptions();
             onSent();
           }}
         />

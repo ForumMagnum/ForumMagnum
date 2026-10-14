@@ -6,19 +6,18 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from '@/components/common/ContentStyles';
 import { focusLexicalEditorAtEnd } from '@/components/editor/focusLexicalEditor';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
-import { useRejectContent } from '@/components/hooks/useRejectContent';
+import { useCompleteUserModeration } from './useCompleteUserModeration';
+import { useMessages } from '@/components/common/withMessages';
 import { disabledPermissionsRejectionHtml, standardRejectionIntroHtml, standardRejectionIntroPlaintext } from '@/lib/collections/moderationTemplates/rejectionIntro';
 import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
-import GroupedModerationTemplateList, { isInTextInput } from '../GroupedModerationTemplateList';
+import GroupedModerationTemplateList from '../GroupedModerationTemplateList';
 import ComposerKeydownWrapper from './ComposerKeydownWrapper';
 import ComposerSubmitButton from './ComposerSubmitButton';
 import { areAllContentPermissionsDisabled, isPost, isRejectionTemplateRelevant, type ContentItem } from './helpers';
-import { useUserContentPermissions } from './useUserContentPermissions';
 import type { InboxAction } from './inboxReducer';
 import ModerationSendOptions from './ModerationSendOptions';
-import { DEFAULT_REJECTION_RATE_LIMIT_SETTINGS, getRateLimitParagraphHtml, useCreateRejectionRateLimits, type RejectionRateLimitSettings } from './RejectionRateLimitForm';
+import { DEFAULT_REJECTION_RATE_LIMIT_SETTINGS, getRateLimitParagraphHtml, getRateLimitsToCreate, type RejectionRateLimitSettings } from './RejectionRateLimitForm';
 
-const REJECTED_ALONGSIDE_REASON = '<p>This submission was rejected alongside your other recent submissions. For more information, look for the primary rejection notice.</p>';
 
 const ModerationTemplateUsageCountsQuery = gql(`
   query moderationTemplateUsageCountsRejectContentPanelQuery {
@@ -171,11 +170,9 @@ function extractBoldLead(html: string): string {
  * uses it verbatim, substituting the content link for the "[content]"
  * placeholder.
  */
-const RejectContentEditor = ({ user, focusedContent, otherPendingContent, active, editorContainerRef, composerFocusToken, registerToggleTemplate, onArrowDownPastEnd, onEscape, onRejected, onRemoveFromQueue, dispatch }: {
+const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef, composerFocusToken, registerToggleTemplate, onArrowDownPastEnd, onEscape, onRejected, dispatch }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
-  // Rejected too when "Reject all" is ticked
-  otherPendingContent: ContentItem[],
   active: boolean,
   editorContainerRef: React.RefObject<HTMLDivElement | null>,
   // Bumped when the template list hands focus to the composer; opens the editor
@@ -184,13 +181,11 @@ const RejectContentEditor = ({ user, focusedContent, otherPendingContent, active
   onArrowDownPastEnd: () => void,
   onEscape: () => void,
   onRejected?: () => void,
-  onRemoveFromQueue: () => void,
   dispatch: React.ActionDispatch<[action: InboxAction]>,
 }) => {
   const classes = useStyles(styles);
-  const { rejectContent } = useRejectContent();
-  const { disableAllPermissions } = useUserContentPermissions(user, dispatch);
-  const createRateLimits = useCreateRejectionRateLimits(user, dispatch);
+  const completeModeration = useCompleteUserModeration(dispatch);
+  const { flash } = useMessages();
   const [disablePermissions, setDisablePermissions] = useState(false);
   const permissionsAlreadyDisabled = areAllContentPermissionsDisabled(user);
   const [rateLimitEnabled, setRateLimitEnabled] = useState(false);
@@ -325,51 +320,37 @@ const RejectContentEditor = ({ user, focusedContent, otherPendingContent, active
   const handleReject = useCallback(async () => {
     const reason = editorOpen ? fullMessageRef.current : joinTemplateHtml(addedTemplates);
     if (!reason || submittingRef.current) return;
-    const shouldDisablePermissions = disablePermissions && !permissionsAlreadyDisabled;
-
     submittingRef.current = true;
     setSubmitting(true);
-    const templateIds = addedTemplates.map(t => t.templateId);
-    const succeeded = await rejectContent({
-      collectionName: isPost(focusedContent) ? 'Posts' : 'Comments',
-      document: focusedContent,
-      reason,
-      templateIds,
-    });
-    if (succeeded) {
-      if (shouldDisablePermissions) {
-        disableAllPermissions();
-        setDisablePermissions(false);
-      }
-      if (rateLimitEnabled) {
-        await createRateLimits(rateLimitSettings);
-        setRateLimitEnabled(false);
-        setRateLimitSettings(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
-        insertedRateLimitHtmlRef.current = null;
-      }
-      if (rejectAll) {
-        for (const item of otherPendingContent) {
-          await rejectContent({
-            collectionName: isPost(item) ? 'Posts' : 'Comments',
-            document: item,
-            reason: REJECTED_ALONGSIDE_REASON,
-          });
-        }
-        setRejectAll(false);
-        onRemoveFromQueue();
-      }
+    try {
+      const rateLimits = rateLimitEnabled ? getRateLimitsToCreate(rateLimitSettings, user._id) : [];
+      await completeModeration({
+        userId: user._id,
+        rejection: { documentId: focusedContent._id, collectionName: isPost(focusedContent) ? 'Posts' : 'Comments', reason, templateIds: addedTemplates.map(template => template.templateId) },
+        rateLimits,
+        disablePermissions: disablePermissions && !permissionsAlreadyDisabled,
+        rejectAll,
+        removeFromQueue: rejectAll,
+      });
+      setDisablePermissions(false);
+      setRateLimitEnabled(false);
+      setRateLimitSettings(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
+      insertedRateLimitHtmlRef.current = null;
+      setRejectAll(false);
+      if (editorOpen && fullMessageRef.current !== reason) return;
+      fullMessageRef.current = '';
+      setAddedTemplates([]);
+      setEditorOpen(false);
+      setEditorHtml('');
+      setLexicalEditorVersion(prev => prev + 1);
+      onRejected?.();
+    } catch (error) {
+      flash({ messageString: `Moderation action did not complete. Retry to finish it: ${error instanceof Error ? error.message : String(error)}`, type: 'error' });
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
-    submittingRef.current = false;
-    setSubmitting(false);
-    if (!succeeded || (editorOpen && fullMessageRef.current !== reason)) return;
-
-    fullMessageRef.current = '';
-    setAddedTemplates([]);
-    setEditorOpen(false);
-    setEditorHtml('');
-    setLexicalEditorVersion(prev => prev + 1);
-    onRejected?.();
-  }, [editorOpen, addedTemplates, disablePermissions, permissionsAlreadyDisabled, rateLimitEnabled, rateLimitSettings, rejectAll, otherPendingContent, focusedContent, rejectContent, disableAllPermissions, createRateLimits, onRemoveFromQueue, onRejected]);
+  }, [editorOpen, addedTemplates, disablePermissions, permissionsAlreadyDisabled, rateLimitEnabled, rateLimitSettings, rejectAll, focusedContent, completeModeration, user._id, flash, onRejected]);
 
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
     if (!active) return;
@@ -404,7 +385,7 @@ const RejectContentEditor = ({ user, focusedContent, otherPendingContent, active
       disablePermissions={disablePermissions}
       onDisablePermissionsChange={toggleDisablePermissions}
       rejectAll={rejectAll}
-      rejectAllLabel={`Reject all${otherPendingContent.length > 0 ? ` (+${otherPendingContent.length})` : ''}, remove from queue`}
+      rejectAllLabel="Reject all pending content, remove from queue"
       rejectAllTooltip="User receives rejection notice for each rejected submission."
       onRejectAllChange={setRejectAll}
     />
@@ -418,14 +399,13 @@ const RejectContentEditor = ({ user, focusedContent, otherPendingContent, active
  * Stays mounted while `active` is false so the draft survives the tab
  * being toggled closed and reopened.
  */
-const RejectContentPanel = ({ user, focusedContent, otherPendingContent, active, onEscape, onRejected, onRemoveFromQueue, dispatch }: {
+const RejectContentPanel = ({ user, focusedContent, active, rejectComposerFocusToken, onEscape, onRejected, dispatch }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
-  otherPendingContent: ContentItem[],
   active: boolean,
+  rejectComposerFocusToken: number,
   onEscape: () => void,
   onRejected?: () => void,
-  onRemoveFromQueue: () => void,
   dispatch: React.ActionDispatch<[action: InboxAction]>,
 }) => {
   const { data: usageData } = useQuery(ModerationTemplateUsageCountsQuery, { ssr: false });
@@ -439,8 +419,7 @@ const RejectContentPanel = ({ user, focusedContent, otherPendingContent, active,
   );
   const [templateSearchToken, setTemplateSearchToken] = useState(0);
   const [composerFocusToken, setComposerFocusToken] = useState(0);
-  // Set when "I" picks the tab, so the editor rather than the template search takes focus as it activates
-  const focusComposerOnActivateRef = useRef(false);
+  const handledComposerFocusTokenRef = useRef(0);
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const toggleTemplateRef = useRef<(template: ModerationTemplateFragment) => void>(() => {});
 
@@ -453,36 +432,23 @@ const RejectContentPanel = ({ user, focusedContent, otherPendingContent, active,
     [focusedContent],
   );
 
-  // The template search is the initial keyboard target whenever the tab is picked
+  // The registered I command selects this tab and explicitly requests editor focus.
   useEffect(() => {
+    if (!rejectComposerFocusToken) handledComposerFocusTokenRef.current = 0;
     if (!active) return;
-    if (focusComposerOnActivateRef.current) {
-      focusComposerOnActivateRef.current = false;
+    if (rejectComposerFocusToken && rejectComposerFocusToken !== handledComposerFocusTokenRef.current) {
+      handledComposerFocusTokenRef.current = rejectComposerFocusToken;
       setComposerFocusToken(token => token + 1);
     } else {
+      handledComposerFocusTokenRef.current = rejectComposerFocusToken;
       setTemplateSearchToken(token => token + 1);
     }
-  }, [active]);
-
-  // "I" jumps into the message editor from the rest of the supermod keyboard flow,
-  // picking the tab first if needed (it's shown by default without being picked)
-  useGlobalKeydown(useCallback((event: KeyboardEvent) => {
-    if (event.key.toLowerCase() !== 'i' || event.shiftKey || event.metaKey || event.ctrlKey || event.altKey) return;
-    if (isInTextInput(event.target)) return;
-    event.preventDefault();
-    if (active) {
-      setComposerFocusToken(token => token + 1);
-    } else {
-      focusComposerOnActivateRef.current = true;
-      dispatch({ type: 'SET_SIDEBAR_TAB', tab: 'reject' });
-    }
-  }, [active, dispatch]));
+  }, [active, rejectComposerFocusToken]);
 
   return <>
     <RejectContentEditor
       user={user}
       focusedContent={focusedContent}
-      otherPendingContent={otherPendingContent}
       active={active}
       editorContainerRef={editorContainerRef}
       composerFocusToken={composerFocusToken}
@@ -490,7 +456,6 @@ const RejectContentPanel = ({ user, focusedContent, otherPendingContent, active,
       onArrowDownPastEnd={() => setTemplateSearchToken(token => token + 1)}
       onEscape={onEscape}
       onRejected={onRejected}
-      onRemoveFromQueue={onRemoveFromQueue}
       dispatch={dispatch}
     />
     <GroupedModerationTemplateList

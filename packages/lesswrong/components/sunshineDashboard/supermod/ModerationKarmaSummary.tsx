@@ -5,12 +5,10 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message';
-import HoverOver from '@/components/common/HoverOver';
-import { PostsPreviewTooltip } from '@/components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import LLMScoreBadge from './LLMScoreBadge';
-import LWPopper from '@/components/common/LWPopper';
-import CommentsNode from '@/components/comments/CommentsNode';
-import { useHover } from '@/components/common/withHover';
+import PostKarmaWithPreview from '../PostKarmaWithPreview';
+import CommentKarmaWithPreview from '../CommentKarmaWithPreview';
+import { getAverageContentKarma } from '@/lib/collections/moderatorActions/helpers';
 import LWTooltip from '@/components/common/LWTooltip';
 import FormatDate from '@/components/common/FormatDate';
 import ForumIcon from '@/components/common/ForumIcon';
@@ -143,9 +141,6 @@ const styles = defineStyles('ModerationKarmaSummary', (theme: ThemeType) => ({
   awaiting: {
     boxShadow: `inset 0 0 0 1.5px ${theme.palette.primary.dark}`,
   },
-  previewWithScore: {
-    position: 'relative',
-  },
   llmScoreCorner: {
     ...theme.typography.commentStyle,
     position: 'absolute',
@@ -153,12 +148,7 @@ const styles = defineStyles('ModerationKarmaSummary', (theme: ThemeType) => ({
     right: 12,
     zIndex: 1,
   },
-  commentPreview: {
-    position: 'relative',
-    maxWidth: 600,
-    maxHeight: '50vh',
-    overflow: 'auto',
-  },
+
 }));
 
 const Karma = ({ item }: { item: ContentItem }) => {
@@ -192,32 +182,6 @@ const LlmScoreCorner = ({ item }: { item: ContentItem }) => {
   </div>;
 };
 
-const PostKarmaWithPreview = ({ post }: { post: SunshinePostsList }) => {
-  const classes = useStyles(styles);
-  return <HoverOver
-    title={<div className={classes.previewWithScore}><LlmScoreCorner item={post} /><PostsPreviewTooltip post={post} /></div>}
-    placement="bottom-start"
-    tooltip={false}
-    clickable
-  >
-    <Karma item={post} />
-  </HoverOver>;
-};
-
-const CommentKarmaWithPreview = ({ comment }: { comment: SunshineCommentsList }) => {
-  const classes = useStyles(styles);
-  const { hover, anchorEl, eventHandlers } = useHover();
-  return <span {...eventHandlers}>
-    <Karma item={comment} />
-    <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-      <div className={classes.commentPreview}>
-        <LlmScoreCorner item={comment} />
-        <CommentsNode treeOptions={{ showPostTitle: true }} comment={comment} forceUnTruncated forceUnCollapsed />
-      </div>
-    </LWPopper>
-  </span>;
-};
-
 function formatSigned(value: number) {
   return value > 0 ? `+${value}` : value < 0 ? `−${-value}` : '0';
 }
@@ -240,10 +204,6 @@ const KarmaStat = ({ value, label, tooltip, signed }: {
   </LWTooltip>;
 };
 
-function getAverageKarma(items: ContentItem[]) {
-  return items.reduce((sum, item) => sum + (item.baseScore ?? 0), 0) / items.length;
-}
-
 const ContentTypeStrip = ({ icon, noun, items, hiddenCount, now }: {
   icon: React.ReactNode;
   noun: string;
@@ -264,7 +224,7 @@ const ContentTypeStrip = ({ icon, noun, items, hiddenCount, now }: {
       {icon}
       <span className={classes.typeCount}>{items.length} {items.length === 1 ? noun : `${noun}s`}</span>
       <span className={classes.typeDetail}>
-        avg {getAverageKarma(items).toFixed(1)}
+        avg {getAverageContentKarma(items).toFixed(1)}
         {hiddenCount > 0 && ` · ${hiddenCount} drafted/rejected`}
       </span>
     </div>
@@ -273,8 +233,8 @@ const ContentTypeStrip = ({ icon, noun, items, hiddenCount, now }: {
         {index > 0 && <span className={classes.periodDivider} />}
         <span className={classes.periodLabel}>{period.shortLabel}</span>
         {period.items.map(item => isPost(item)
-          ? <PostKarmaWithPreview key={item._id} post={item} />
-          : <CommentKarmaWithPreview key={item._id} comment={item} />)}
+          ? <PostKarmaWithPreview key={item._id} post={item} previewOverlay={<LlmScoreCorner item={item} />}><Karma item={item} /></PostKarmaWithPreview>
+          : <CommentKarmaWithPreview key={item._id} comment={item} previewOverlay={<LlmScoreCorner item={item} />}><Karma item={item} /></CommentKarmaWithPreview>)}
       </React.Fragment>)}
     </div>
   </div>;
