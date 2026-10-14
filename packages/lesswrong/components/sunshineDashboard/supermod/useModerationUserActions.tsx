@@ -4,12 +4,12 @@ import { useDialog } from '@/components/common/withDialog';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { getNewSnoozeUntilContentCount } from '../ModeratorActions';
-import SnoozeAmountModal from './SnoozeAmountModal';
+import SnoozeChoiceModal from './SnoozeChoiceModal';
 import RestrictAndNotifyModal from './RestrictAndNotifyModal';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
-import { useAddModeratorNote } from '../useAddModeratorNote';
+import { getOptimisticNotes, useAddModeratorNote } from '../useAddModeratorNote';
 import type { InboxAction } from './inboxReducer';
 
 const SunshineUsersListUpdateMutation = gql(`
@@ -135,15 +135,15 @@ export function useModerationUserActions({
     [selectedUser, currentUser, updateUserWithNote]
   );
 
-  const handleSnoozeCustom = useCallback(() => {
+  const handleSnoozeChoice = useCallback(() => {
     if (!selectedUser) return;
     openDialog({
-      name: 'SnoozeAmountModal',
+      name: 'SnoozeChoiceModal',
       contents: ({ onClose }) => (
-        <SnoozeAmountModal
+        <SnoozeChoiceModal
           onConfirm={(amount) => {
-            handleSnooze(amount);
             onClose();
+            handleSnooze(amount);
           }}
           onClose={onClose}
         />
@@ -159,6 +159,26 @@ export function useModerationUserActions({
       reviewedAt: selectedUser.reviewedAt ? new Date() : null,
     }, 'removed from review queue without snooze/approval', 'Removed from queue');
   }, [selectedUser, updateUserWithNote]);
+
+  // Unlike handleRemoveNeedsReview, leaves an approved user approved
+  const handleRemoveKeepingReviewStatus = useCallback(() => {
+    if (!selectedUser) return;
+    updateUserWithNote({
+      needsReview: false,
+    }, 'removed from review queue, keeping review status', 'Removed from queue');
+  }, [selectedUser, updateUserWithNote]);
+
+  const handleFlag = useCallback(() => {
+    if (!selectedUser) return;
+    const flagStatus = selectedUser.sunshineFlagged ? 'Unflag' : 'Flag';
+    const newFlaggedState = !selectedUser.sunshineFlagged;
+
+    dispatch({ type: 'UPDATE_USER', userId: selectedUser._id, fields: { sunshineNotes: getOptimisticNotes(selectedUser.sunshineNotes, currentUser.displayName, flagStatus), sunshineFlagged: newFlaggedState } });
+
+    updateUserWithNote({
+      sunshineFlagged: newFlaggedState,
+    }, flagStatus);
+  }, [selectedUser, currentUser.displayName, dispatch, updateUserWithNote]);
 
   const handlePurge = useCallback(() => {
     if (!selectedUser) return;
@@ -259,11 +279,13 @@ export function useModerationUserActions({
     handleReview,
     handleApproveCurrentOnly,
     handleSnooze,
-    handleSnoozeCustom,
+    handleSnoozeChoice,
     handleRejectContentAndRemove,
     handleRestrictAndNotify,
     handleRemoveNeedsReview,
+    handleRemoveKeepingReviewStatus,
     handlePurge,
+    handleFlag,
     updateUserWithNote,
     posts,
     comments,
