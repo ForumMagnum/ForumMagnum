@@ -25,23 +25,22 @@ interface ReviewableContent {
 }
 
 // One definition for queue counts, bulk moderation selectors, and client previews.
-const reviewableContentExcludedFields = {
-  Posts: ['rejected', 'draft', 'shortform'],
-  Comments: ['rejected', 'draft', 'deleted'],
+export const contentReviewPolicy = {
+  pendingField: 'authorIsUnreviewed',
+  excludedFields: {
+    Posts: ['rejected', 'draft', 'shortform'],
+    Comments: ['rejected', 'draft', 'deleted'],
+  },
 } as const;
 
-export function getReviewableContentExcludedFields(collectionName: 'Posts' | 'Comments') {
-  return reviewableContentExcludedFields[collectionName];
-}
-
 export function isAwaitingReview(content: ReviewableContent, collectionName: 'Posts' | 'Comments'): boolean {
-  return content.authorIsUnreviewed && getReviewableContentExcludedFields(collectionName).every(field => !content[field]);
+  return content[contentReviewPolicy.pendingField] && contentReviewPolicy.excludedFields[collectionName].every(field => !content[field]);
 }
 
 export function getPendingContentSelector(collectionName: 'Posts' | 'Comments') {
   return {
-    ...Object.fromEntries(getReviewableContentExcludedFields(collectionName).map(field => [field, { $ne: true }])),
-    authorIsUnreviewed: true,
+    ...Object.fromEntries(contentReviewPolicy.excludedFields[collectionName].map(field => [field, { $ne: true }])),
+    [contentReviewPolicy.pendingField]: true,
   };
 }
 

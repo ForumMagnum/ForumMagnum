@@ -4,7 +4,7 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
-import { getReviewableContentExcludedFields } from "@/lib/collections/users/reviewGroups";
+import { contentReviewPolicy } from "@/lib/collections/users/reviewGroups";
 
 export interface PendingContentStats {
   pendingPostCount: number;
@@ -477,8 +477,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   async getPendingContentStats(userIds: string[]): Promise<PendingContentStats[]> {
-    const postConditions = getReviewableContentExcludedFields("Posts").map(field => `p."${field}" IS NOT TRUE`).join(" AND ");
-    const commentConditions = getReviewableContentExcludedFields("Comments").map(field => `c."${field}" IS NOT TRUE`).join(" AND ");
+    const postConditions = contentReviewPolicy.excludedFields.Posts.map(field => `p."${field}" IS NOT TRUE`).join(" AND ");
+    const commentConditions = contentReviewPolicy.excludedFields.Comments.map(field => `c."${field}" IS NOT TRUE`).join(" AND ");
     const rows = await this.getRawDb().any<{ userId: string } & PendingContentStats>(`
       -- UsersRepo.getPendingContentStats
       SELECT
@@ -488,12 +488,12 @@ class UsersRepo extends AbstractRepo<"Users"> {
         MIN("postedAt") FILTER (WHERE "isPending") AS "oldestPendingContentAt",
         (COUNT(*) FILTER (WHERE NOT "isPending"))::int AS "approvedContentCount"
       FROM (
-        SELECT p."userId", TRUE AS "isPost", p."postedAt", p."authorIsUnreviewed" IS TRUE AS "isPending"
+        SELECT p."userId", TRUE AS "isPost", p."postedAt", p."${contentReviewPolicy.pendingField}" IS TRUE AS "isPending"
         FROM "Posts" p
         WHERE p."userId" = ANY($(userIds)::text[])
           AND ${postConditions}
         UNION ALL
-        SELECT c."userId", FALSE AS "isPost", c."postedAt", c."authorIsUnreviewed" IS TRUE AS "isPending"
+        SELECT c."userId", FALSE AS "isPost", c."postedAt", c."${contentReviewPolicy.pendingField}" IS TRUE AS "isPending"
         FROM "Comments" c
         WHERE c."userId" = ANY($(userIds)::text[])
           AND ${commentConditions}

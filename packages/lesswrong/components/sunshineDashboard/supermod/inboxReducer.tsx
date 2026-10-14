@@ -120,9 +120,6 @@ export type InboxAction =
   | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; }
   | { type: 'ADD_LOADED_ITEMS'; snapshot: ModerationQueueSnapshot; };
 
-
-
-
 export function getOrderedGroups(groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>): GroupEntry[] {
   return (Object.entries(groupedUsers) as GroupEntry[])
     .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a])
