@@ -21,8 +21,8 @@ import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
-import { getUserReviewGroup, type TabId } from './groupings';
-import { createInitialInboxState, getOrderedGroups, getVisibleTabsInOrder, inboxStateReducer, isUserTab } from './inboxReducer';
+import { getUserReviewGroup, parseTabId, type TabId } from './groupings';
+import { createInitialInboxState, getLinkedUserTab, getOrderedGroups, getVisibleTabsInOrder, inboxStateReducer, isUserTab, type InboxAction } from './inboxReducer';
 import { getModerationQueueSnapshot, type ModerationQueueSnapshot } from './moderationQueue';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
@@ -177,6 +177,21 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
+/**
+ * Actions that make the inbox show the user and queue from incoming navigation.
+ * A missing queue keeps the current one.
+ */
+function getUrlSelectionActions(openedUserId: string | null, activeTab: TabId, urlUserId: string | null, urlTab: TabId | null): InboxAction[] {
+  if (urlUserId) {
+    if (urlUserId === openedUserId && (!urlTab || getLinkedUserTab(urlTab) === activeTab)) return [];
+    return [{ type: 'OPEN_USER', userId: urlUserId, fromUrl: { tab: urlTab } }];
+  }
+  const actions: InboxAction[] = [];
+  if (openedUserId) actions.push({ type: 'CLOSE_DETAIL' });
+  if (urlTab && urlTab !== activeTab) actions.push({ type: 'CHANGE_TAB', tab: urlTab });
+  return actions;
+}
+
 const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCuratedDate, queueSnapshotTime, reviewQueueUsers, currentUser }: {
   queue: ModerationQueueSnapshot;
   curationPosts: SunshineCurationPostsListItem[];
@@ -192,7 +207,8 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
   const [loadingRemaining, setLoadingRemaining] = useState(false);
   const { query, pathname } = useSubscribedLocation();
   const urlUserId = typeof query.user === 'string' && query.user ? query.user : null;
-  const [state, dispatch] = useReducer(inboxStateReducer, { queue, curationPosts, teamInboxThreads, initialOpenedUserId: urlUserId }, createInitialInboxState);
+  const urlTab = parseTabId(query.queue);
+  const [state, dispatch] = useReducer(inboxStateReducer, { queue, curationPosts, teamInboxThreads, initialOpenedUserId: urlUserId, initialTab: urlTab }, createInitialInboxState);
   const [changesSince] = useState(() => new Date(queueSnapshotTime));
   const concurrentModeratorChanges = useConcurrentModeratorChanges(state.loadedUserIds, state.loadedPostIds, changesSince);
 
@@ -221,39 +237,40 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
   const navigate = useNavigate();
   const syncedSelection = useRef<{
     urlUserId: string | null;
-    openedUserId: string | null;
-    writtenUserId?: string | null;
-  }>({ urlUserId, openedUserId: state.openedUserId });
+    urlTab: TabId | null;
+    written?: { userId: string | null; tab: TabId };
+  }>({ urlUserId, urlTab });
 
   useEffect(() => {
     if (pathname !== '/admin/supermod') return;
     const previous = syncedSelection.current;
-    syncedSelection.current = { ...previous, urlUserId, openedUserId: state.openedUserId };
+    syncedSelection.current = { ...previous, urlUserId, urlTab };
 
     // Next can restore a cached inbox. Incoming navigation takes precedence over
     // its old selection, without resetting the queue or pending undo actions.
-    if (urlUserId !== previous.urlUserId) {
-      syncedSelection.current.writtenUserId = undefined;
-      if (urlUserId !== previous.writtenUserId) {
-        dispatch(urlUserId ? { type: 'OPEN_USER', userId: urlUserId, fromUrl: true } : { type: 'CLOSE_DETAIL' });
-        return;
-      }
+    if (urlUserId !== previous.urlUserId || urlTab !== previous.urlTab) {
+      syncedSelection.current.written = undefined;
+      const isOwnWrite = previous.written?.userId === urlUserId && previous.written.tab === urlTab;
+      const actions = isOwnWrite ? [] : getUrlSelectionActions(state.openedUserId, state.activeTab, urlUserId, urlTab);
+      for (const action of actions) dispatch(action);
+      if (actions.length) return;
     }
-    if (state.openedUserId === previous.openedUserId || state.openedUserId === urlUserId) return;
+    if (state.openedUserId === urlUserId && state.activeTab === urlTab) return;
 
     // Remember our own URL update so it isn't treated as incoming navigation.
-    syncedSelection.current.writtenUserId = state.openedUserId;
+    syncedSelection.current.written = { userId: state.openedUserId, tab: state.activeTab };
     navigate(currentLocation => {
       if (currentLocation.pathname !== '/admin/supermod') return currentLocation.location;
       const search = new URLSearchParams(currentLocation.location.search);
+      search.set('queue', state.activeTab);
       if (state.openedUserId) {
         search.set('user', state.openedUserId);
       } else {
         search.delete('user');
       }
-      return { ...currentLocation.location, search: search.toString() ? `?${search}` : '' };
+      return { ...currentLocation.location, search: `?${search}` };
     }, { replace: true, skipRouter: true });
-  }, [urlUserId, pathname, state.openedUserId, navigate]);
+  }, [urlUserId, urlTab, pathname, state.openedUserId, state.activeTab, navigate]);
 
   const needsDirectUser = !!state.openedUserId && !state.users.some(user => user._id === state.openedUserId);
   const directUserResult = useQuery(SingleUserSupermodQuery, {

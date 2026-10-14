@@ -4,7 +4,7 @@ import partition from 'lodash/partition';
 import ForumIcon, { ForumIconName } from '@/components/common/ForumIcon'
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
-import { getFreshReviewTriggerActions, getModeratorActionGroup, typeAssertModeratorActionTypeIsNotReviewTrigger } from '@/lib/collections/users/reviewGroups';
+import { getFreshReviewTriggerActions, getModeratorActionGroup, REVIEW_GROUPS_IN_PRIORITY_ORDER, typeAssertModeratorActionTypeIsNotReviewTrigger } from '@/lib/collections/users/reviewGroups';
 
 function getActiveModeratorActions(moderatorActions: ModeratorActionDisplay[]): ModeratorActionDisplay[] {
   return moderatorActions.filter(action => action.active).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) ?? [];
@@ -26,7 +26,15 @@ export function partitionModeratorActions(user: SunshineUsersList): PartitionedM
   return { fresh, stale, nonTriggerActions };
 }
 
-export type TabId = ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation' | 'inbox';
+const NON_REVIEW_GROUP_TABS = ['all', 'posts', 'classifiedPosts', 'curation', 'inbox'] as const;
+
+export type TabId = ReviewGroup | typeof NON_REVIEW_GROUP_TABS[number];
+
+const TAB_IDS: readonly TabId[] = [...REVIEW_GROUPS_IN_PRIORITY_ORDER, ...NON_REVIEW_GROUP_TABS];
+
+export function parseTabId(value: unknown): TabId | null {
+  return TAB_IDS.find(tab => tab === value) ?? null;
+}
 
 // Computed server-side via the `reviewGroup` resolver on the User schema.
 export function getUserReviewGroup(user: SunshineUsersList): ReviewGroup {
