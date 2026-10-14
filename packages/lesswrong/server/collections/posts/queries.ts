@@ -77,6 +77,10 @@ export const graphqlPostQueryTypeDefs = gql`
     curatedAfter: String
   }
   
+  input PostsCoauthoredPostsInput {
+    userId: String!
+  }
+
   input PostsMagicInput {
     postIds: [String!]
     notPostIds: [String!]
@@ -1509,6 +1513,7 @@ export const graphqlPostQueryTypeDefs = gql`
   input PostSelector  {
     default: PostDefaultViewInput
     userPosts: PostsUserPostsInput
+    coauthoredPosts: PostsCoauthoredPostsInput
     magic: PostsMagicInput
     top: PostsTopInput
     new: PostsNewInput

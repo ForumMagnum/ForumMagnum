@@ -7700,6 +7700,7 @@ export type PostSelector = {
   afRecentDiscussionThreadsList?: InputMaybe<PostsAfRecentDiscussionThreadsListInput>;
   alignmentSuggestedPosts?: InputMaybe<PostsAlignmentSuggestedPostsInput>;
   all_drafts?: InputMaybe<PostsAll_draftsInput>;
+  coauthoredPosts?: InputMaybe<PostsCoauthoredPostsInput>;
   community?: InputMaybe<PostsCommunityInput>;
   communityResourcePosts?: InputMaybe<PostsCommunityResourcePostsInput>;
   communityRss?: InputMaybe<PostsCommunityRssInput>;
@@ -7840,6 +7841,10 @@ export type PostsAll_draftsInput = {
 export type PostsBySubscribedAuthorsResult = {
   __typename?: 'PostsBySubscribedAuthorsResult';
   results: Array<Post>;
+};
+
+export type PostsCoauthoredPostsInput = {
+  userId: Scalars['String']['input'];
 };
 
 export type PostsCommunityInput = {

@@ -4133,6 +4133,10 @@ interface PostsUserPostsInput {
   curatedAfter?: string | null;
 }
 
+interface PostsCoauthoredPostsInput {
+  userId: string;
+}
+
 interface PostsMagicInput {
   postIds?: Array<string> | null;
   notPostIds?: Array<string> | null;
@@ -5565,6 +5569,7 @@ interface PostsCurrentOpenThreadInput {
 interface PostSelector {
   default: PostDefaultViewInput | null;
   userPosts: PostsUserPostsInput | null;
+  coauthoredPosts: PostsCoauthoredPostsInput | null;
   magic: PostsMagicInput | null;
   top: PostsTopInput | null;
   new: PostsNewInput | null;
@@ -9781,6 +9786,7 @@ interface GraphQLTypeMap {
   SinglePostOutput: SinglePostOutput;
   PostDefaultViewInput: PostDefaultViewInput;
   PostsUserPostsInput: PostsUserPostsInput;
+  PostsCoauthoredPostsInput: PostsCoauthoredPostsInput;
   PostsMagicInput: PostsMagicInput;
   PostsTopInput: PostsTopInput;
   PostsNewInput: PostsNewInput;

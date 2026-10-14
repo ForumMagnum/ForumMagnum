@@ -5746,6 +5746,7 @@ type PostSelector = {
   afRecentDiscussionThreadsList?: InputMaybe<PostsAfRecentDiscussionThreadsListInput>;
   alignmentSuggestedPosts?: InputMaybe<PostsAlignmentSuggestedPostsInput>;
   all_drafts?: InputMaybe<PostsAll_draftsInput>;
+  coauthoredPosts?: InputMaybe<PostsCoauthoredPostsInput>;
   community?: InputMaybe<PostsCommunityInput>;
   communityResourcePosts?: InputMaybe<PostsCommunityResourcePostsInput>;
   communityRss?: InputMaybe<PostsCommunityRssInput>;
@@ -5886,6 +5887,10 @@ type PostsAll_draftsInput = {
 type PostsBySubscribedAuthorsResult = {
   __typename?: 'PostsBySubscribedAuthorsResult';
   results: Array<Post>;
+};
+
+type PostsCoauthoredPostsInput = {
+  userId: Scalars['String']['input'];
 };
 
 type PostsCommunityInput = {

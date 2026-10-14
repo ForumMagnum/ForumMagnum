@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import FullscreenExitIcon from '@/lib/vendor/@material-ui/icons/src/FullscreenExit';
 import moment from 'moment';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -89,8 +89,7 @@ const styles = defineStyles('ModerationUserFeed', (theme: ThemeType) => ({
   },
 }));
 
-// The userPosts view matches posts the user wrote or co-authored
-const UserAndCoauthoredPostsQuery = gql(`
+const CoauthoredPostsQuery = gql(`
   query multiPostModerationUserFeedCoauthoredQuery($selector: PostSelector, $limit: Int) {
     posts(selector: $selector, limit: $limit) {
       results {
@@ -103,6 +102,11 @@ const UserAndCoauthoredPostsQuery = gql(`
 interface IndexedItem {
   item: ModerationContentItem;
   index: number;
+}
+
+interface FullscreenSelection {
+  postId: string;
+  focusedItemId: string | null;
 }
 
 type PeriodEntry =
@@ -174,7 +178,7 @@ const FeedCard = ({ entry: { item, index }, initialWordCount, showParentDefault,
 };
 
 const ModerationUserFeed = ({ user, items, focusedItemId, runningLlmCheckId, dispatch }: {
-  user: SunshineUsersList;
+  user: Pick<SunshineUsersList, '_id'>;
   items: ModerationContentItem[];
   focusedItemId: string | null;
   runningLlmCheckId: string | null;
@@ -183,27 +187,29 @@ const ModerationUserFeed = ({ user, items, focusedItemId, runningLlmCheckId, dis
   const classes = useStyles(styles);
   const currentTime = useCurrentTime();
 
-  const { data: postsData } = useQuery(UserAndCoauthoredPostsQuery, {
-    variables: { selector: { userPosts: { userId: user._id, sortedBy: 'new' } }, limit: MODERATED_USER_CONTENT_LIMIT },
+  const { data: postsData } = useQuery(CoauthoredPostsQuery, {
+    variables: { selector: { coauthoredPosts: { userId: user._id } }, limit: MODERATED_USER_CONTENT_LIMIT },
     ssr: false,
   });
   // Kept out of `items`, which the stats card and keyboard navigation work from
-  const coauthoredPosts = useMemo(
-    () => (postsData?.posts?.results ?? []).filter(post => post.userId !== user._id),
-    [postsData, user._id],
-  );
+  const coauthoredPosts = postsData?.posts?.results ?? [];
 
-  const [fullscreenPostId, setFullscreenPostId] = useState<string | null>(null);
+  const [fullscreen, setFullscreen] = useState<FullscreenSelection | null>(null);
+  const fullscreenPostId = fullscreen?.postId;
   const fullscreenRef = useRef<HTMLDivElement>(null);
   const fullscreenPost = [...items, ...coauthoredPosts].find(item => item._id === fullscreenPostId);
-  const fullscreenIsOwnItem = items.some(item => item._id === fullscreenPostId);
+
+  const openFullscreen = (postId: string) => {
+    // Own cards also select their item in the click's capture phase.
+    setFullscreen({ postId, focusedItemId: items.some(item => item._id === postId) ? postId : focusedItemId });
+  };
 
   // Keyboard navigation to another item leaves fullscreen, back to the feed at that item
   useEffect(() => {
-    if (fullscreenIsOwnItem && focusedItemId !== fullscreenPostId) {
-      setFullscreenPostId(null);
+    if (fullscreen && focusedItemId !== fullscreen.focusedItemId) {
+      setFullscreen(null);
     }
-  }, [fullscreenIsOwnItem, focusedItemId, fullscreenPostId]);
+  }, [fullscreen, focusedItemId]);
 
   useEffect(() => {
     if (fullscreenPostId) fullscreenRef.current?.scrollIntoView({ block: 'start' });
@@ -213,7 +219,7 @@ const ModerationUserFeed = ({ user, items, focusedItemId, runningLlmCheckId, dis
     return (
       <div ref={fullscreenRef} className={classes.fullscreenRoot}>
         <div className={classes.fullscreenHeader}>
-          <span className={classes.backToFeedButton} onClick={() => setFullscreenPostId(null)}>
+          <span className={classes.backToFeedButton} onClick={() => setFullscreen(null)}>
             <FullscreenExitIcon className={classes.exitIcon} />
             Back to feed
           </span>
@@ -229,7 +235,7 @@ const ModerationUserFeed = ({ user, items, focusedItemId, runningLlmCheckId, dis
   const decisions = indexed.filter(({ item }) => needsDecision(item));
   const periods = getItemsByPeriod(indexed.filter(({ item }) => !needsDecision(item)), coauthoredPosts, currentTime);
 
-  const entryProps = { focusedItemId, runningLlmCheckId, onFullscreen: setFullscreenPostId, dispatch };
+  const entryProps = { focusedItemId, runningLlmCheckId, onFullscreen: openFullscreen, dispatch };
 
   return (
     <div className={classes.root}>
@@ -254,7 +260,7 @@ const ModerationUserFeed = ({ user, items, focusedItemId, runningLlmCheckId, dis
                 isCoauthored
                 initialWordCount={periodIndex > 0 ? EARLIER_INITIAL_WORDS : undefined}
                 isRunningLlmCheck={false}
-                onFullscreen={() => setFullscreenPostId(periodEntry.post._id)}
+                onFullscreen={() => openFullscreen(periodEntry.post._id)}
                 dispatch={dispatch}
               />
             </div>)}
