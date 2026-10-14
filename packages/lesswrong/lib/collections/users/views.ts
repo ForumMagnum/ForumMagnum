@@ -89,8 +89,6 @@ function usersWithBannedUsers() {
     },
   }
 }
-
-
 function recentlyActive(terms: UsersViewTerms) {
   return {
     selector: {
