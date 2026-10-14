@@ -195,7 +195,15 @@ const getIntervalDescription = (rateLimit: UserRateLimitDisplay) => {
   return `${intervalLength} ${intervalUnit}`;
 };
 
+export const getKarmaLiftDescription = (rateLimit: UserRateLimitDisplay) => {
+  const { liftAtAverageKarma, liftAverageKarmaCount, type } = rateLimit;
+  if (liftAtAverageKarma === null || !liftAverageKarmaCount) return null;
+  const noun = USER_RATE_LIMIT_TYPES[type].toLowerCase();
+  return `lifts when last ${liftAverageKarmaCount} ${noun} average ≥ ${liftAtAverageKarma} karma`;
+};
+
 const getRemainingIntervalDescription = (rateLimit: UserRateLimitDisplay) => {
+  if (!rateLimit.endedAt) return getKarmaLiftDescription(rateLimit) ?? 'no end date';
   return moment(rateLimit.endedAt).fromNow();
 };
 
@@ -218,9 +226,15 @@ const formStyles = defineStyles('SurveySchedulesForm', (theme: ThemeType) => ({
 }));
 
 
+// Karma-lifted limits have no end date, and only those have lift fields
 type EditableUserRateLimit = Required<Omit<{
   [k in keyof UpdateUserRateLimitDataInput]-?: NonNullable<UpdateUserRateLimitDataInput[k]>
-}, 'legacyData'>> & { _id: string; };
+}, 'legacyData' | 'endedAt' | 'liftAtAverageKarma' | 'liftAverageKarmaCount'>> & {
+  _id: string;
+  endedAt: Date | null;
+  liftAtAverageKarma?: number | null;
+  liftAverageKarmaCount?: number | null;
+};
 
 type EditableUserRateLimitFormData = {
   onSuccess: (doc: UserRateLimitDisplay) => void;

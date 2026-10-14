@@ -58,9 +58,38 @@ async function getPostsInTimeframe(user: DbUser, maxHours: number, context: Reso
   }, {sort: {postedAt: -1}, projection: {postedAt: 1}}).fetch()
 }
 
-function getManualRateLimits(userId: string, type: DbUserRateLimit['type'], context: ResolverContext) {
+async function getRecentContentScores(userId: string, type: DbUserRateLimit['type'], limit: number, context: ResolverContext): Promise<number[]> {
+  const recentContent = type === 'allPosts'
+    ? await context.Posts.find({ userId, draft: false, isEvent: false }, { sort: { postedAt: -1 }, limit, projection: { baseScore: 1 } }).fetch()
+    : await context.Comments.find({ userId, draft: false }, { sort: { postedAt: -1 }, limit, projection: { baseScore: 1 } }).fetch();
+  return recentContent.map(document => document.baseScore ?? 0);
+}
+
+/**
+ * Whether a karma-lifted limit's condition is met: the user's last N posts or
+ * comments (whichever the limit covers, whenever written) average at least the
+ * threshold. Users with fewer than N haven't met it.
+ */
+async function isKarmaLiftMet(rateLimit: DbUserRateLimit, context: ResolverContext): Promise<boolean> {
+  const { liftAtAverageKarma, liftAverageKarmaCount } = rateLimit;
+  if (liftAtAverageKarma === null || !liftAverageKarmaCount) return false;
+  const scores = await getRecentContentScores(rateLimit.userId, rateLimit.type, liftAverageKarmaCount, context);
+  if (scores.length < liftAverageKarmaCount) return false;
+  const averageKarma = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+  return averageKarma >= liftAtAverageKarma;
+}
+
+async function endRateLimits(rateLimits: DbUserRateLimit[], context: ResolverContext) {
+  // A system update, made on behalf of the user being limited, who couldn't end their own limits
+  await context.UserRateLimits.rawUpdateMany(
+    { _id: { $in: rateLimits.map(rateLimit => rateLimit._id) } },
+    { $set: { endedAt: new Date() } },
+  );
+}
+
+async function getManualRateLimits(userId: string, type: DbUserRateLimit['type'], context: ResolverContext) {
   const { UserRateLimits } = context;
-  return UserRateLimits.find({
+  const rateLimits = await UserRateLimits.find({
     userId,
     type,
     $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
@@ -69,6 +98,14 @@ function getManualRateLimits(userId: string, type: DbUserRateLimit['type'], cont
       createdAt: -1
     }
   }).fetch();
+
+  // Karma-lifted limits are checked whenever they're enforced, and ended once lifted
+  const lifted = await Promise.all(rateLimits.map(rateLimit => isKarmaLiftMet(rateLimit, context)));
+  const liftedRateLimits = rateLimits.filter((_, index) => lifted[index]);
+  if (liftedRateLimits.length > 0) {
+    backgroundTask(endRateLimits(liftedRateLimits, context));
+  }
+  return rateLimits.filter((_, index) => !lifted[index]);
 }
 
 function getMaxManualRateLimitHours(userRateLimits: DbUserRateLimit[]) {
