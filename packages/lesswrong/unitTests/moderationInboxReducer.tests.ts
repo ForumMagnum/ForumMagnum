@@ -39,7 +39,7 @@ function createMockUser(
     commentCount: 0,
     pendingPostCount: 1,
     pendingCommentCount: 0,
-    oldestPendingContentAt: new Date(Date.UTC(2026, 0, Number(id.replace('user', '')))).toISOString(),
+    oldestPendingContentAt: '2026-01-01T00:00:00.000Z',
     usersContactedBeforeReview: [],
     rejectedContentCount: 0,
     htmlBio: '',
@@ -195,8 +195,8 @@ describe('Moderation Inbox Reducer', () => {
   describe('CLOSE_DETAIL', () => {
     test('preserves focused user and active tab when exiting detail view via ESC', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
-        createMockUser('user2', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
         createMockUser('user3', 'highContext'),
       ];
 
@@ -228,9 +228,9 @@ describe('Moderation Inbox Reducer', () => {
   describe('NEXT_USER and PREV_USER', () => {
     test('down arrow cycles through end of list back to start', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
-        createMockUser('user2', 'newContent'),
-        createMockUser('user3', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
+        createMockUser('user3', 'newContent', { oldestPendingContentAt: '2026-01-03T00:00:00.000Z' }),
       ];
 
       let state: InboxState = createState({
@@ -257,9 +257,9 @@ describe('Moderation Inbox Reducer', () => {
 
     test('up arrow cycles through start of list back to end', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
-        createMockUser('user2', 'newContent'),
-        createMockUser('user3', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
+        createMockUser('user3', 'newContent', { oldestPendingContentAt: '2026-01-03T00:00:00.000Z' }),
       ];
 
       let state: InboxState = createState({
@@ -289,7 +289,7 @@ describe('Moderation Inbox Reducer', () => {
     test('right arrow cycles through end of tabs back to start', () => {
       const users = [
         createMockUser('user1', 'automod'),
-        createMockUser('user2', 'newContent'),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
         createMockUser('user3', 'highContext'),
       ];
 
@@ -332,7 +332,7 @@ describe('Moderation Inbox Reducer', () => {
     test('left arrow cycles through start of tabs back to end', () => {
       const users = [
         createMockUser('user1', 'automod'),
-        createMockUser('user2', 'newContent'),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
         createMockUser('user3', 'highContext'),
       ];
 
@@ -370,9 +370,9 @@ describe('Moderation Inbox Reducer', () => {
   describe('REMOVE_USER in inbox view', () => {
     test('removing a user focuses the next user in same group', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
-        createMockUser('user2', 'newContent'),
-        createMockUser('user3', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
+        createMockUser('user3', 'newContent', { oldestPendingContentAt: '2026-01-03T00:00:00.000Z' }),
       ];
 
       let state: InboxState = createState({
@@ -402,7 +402,7 @@ describe('Moderation Inbox Reducer', () => {
 
     test('removing last user in tab switches to next tab and focuses first user', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
         createMockUser('user2', 'highContext'),
         createMockUser('user3', 'automod'),
       ];
@@ -434,7 +434,7 @@ describe('Moderation Inbox Reducer', () => {
 
     test('removing last user overall shows empty "all" tab', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
       ];
 
       let state: InboxState = createState({
@@ -466,9 +466,9 @@ describe('Moderation Inbox Reducer', () => {
   describe('REMOVE_USER in detail view', () => {
     test('removing a user opens next user in same group (stays in detail view)', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
-        createMockUser('user2', 'newContent'),
-        createMockUser('user3', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
+        createMockUser('user3', 'newContent', { oldestPendingContentAt: '2026-01-03T00:00:00.000Z' }),
       ];
 
       let state: InboxState = createState({
@@ -498,7 +498,7 @@ describe('Moderation Inbox Reducer', () => {
 
     test('removing last user in tab from detail view goes back to inbox view for next tab', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
         createMockUser('user2', 'highContext'),
         createMockUser('user3', 'automod'),
       ];
@@ -531,7 +531,7 @@ describe('Moderation Inbox Reducer', () => {
 
     test('removing last user in last tab from detail view closes to empty inbox', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
       ];
 
       let state: InboxState = createState({
@@ -562,9 +562,9 @@ describe('Moderation Inbox Reducer', () => {
 
   describe('UNDO_ACTION', () => {
     test('reopens the user detail view when the action was done there', () => {
-      const undoneUser = createMockUser('user1', 'newContent');
+      const undoneUser = createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' });
       const users = [
-        createMockUser('user2', 'newContent'),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
         createMockUser('user3', 'highContext'),
       ];
 
@@ -596,9 +596,9 @@ describe('Moderation Inbox Reducer', () => {
     });
 
     test('refocuses the user in the inbox when the action was done from the inbox', () => {
-      const undoneUser = createMockUser('user1', 'newContent');
+      const undoneUser = createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' });
       const users = [
-        createMockUser('user2', 'newContent'),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
         createMockUser('user3', 'highContext'),
       ];
 
@@ -630,7 +630,7 @@ describe('Moderation Inbox Reducer', () => {
 
     test('does nothing when the user is not in the undo queue', () => {
       const state: InboxState = createState({
-        users: [createMockUser('user2', 'newContent')],
+        users: [createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' })],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
@@ -655,7 +655,7 @@ describe('Moderation Inbox Reducer', () => {
   describe('Edge cases', () => {
     test('tab navigation is blocked when in detail view', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
         createMockUser('user2', 'highContext'),
       ];
 
@@ -687,7 +687,7 @@ describe('Moderation Inbox Reducer', () => {
   describe('sidebarTab', () => {
     function stateWithSidebarTab(sidebarTab: InboxState['sidebarTab']): InboxState {
       return createState({
-        users: [createMockUser('user1', 'newContent'), createMockUser('user2', 'newContent')],
+        users: [createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }), createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' })],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
