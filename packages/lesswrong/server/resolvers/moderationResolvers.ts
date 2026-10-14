@@ -6,11 +6,14 @@ import { Users } from '../../server/collections/users/collection';
 import { Posts } from '../../server/collections/posts/collection';
 import moment from 'moment';
 import uniq from 'lodash/uniq';
+import groupBy from 'lodash/groupBy';
 import gql from 'graphql-tag';
 import { createComment, updateComment } from '../collections/comments/mutations';
 import { updatePost } from '../collections/posts/mutations';
 import { updateUser } from '../collections/users/mutations';
-import { getSignatureWithNote } from '../../lib/collections/users/helpers';
+import { userGetDisplayName } from '../../lib/collections/users/helpers';
+import { appendToSunshineNotes } from '../users/sunshineNotes';
+import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { approveUnreviewedSubmissions } from '../callbacks/userCallbackFunctions';
 import { startTeamInboxConversation } from '../utils/teamInbox';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
@@ -43,8 +46,16 @@ export const moderationGqlTypeDefs = gql`
     Comments
   }
 
+  type SupermodQueueChange {
+    documentId: String!
+    moderatorName: String!
+    lastChangedAt: Date!
+  }
+
   extend type Query {
     moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
+    supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
+    supermodQueueSnapshotTime: Date!
   }
 
   extend type Mutation {
@@ -56,6 +67,7 @@ export const moderationGqlTypeDefs = gql`
     runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
     runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
     unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
+    addModeratorNote(userId: String!, note: String!): User
   }
 `
 
@@ -170,10 +182,6 @@ export const moderationGqlMutations = {
 
     // If messageContent is provided, we restrict all of the user's permissions and send them an offboarding message
     if (messageContent) {
-      const restrictNote = 'Restricted & notified (rejected content, disabled all permissions)';
-      const notes = user.sunshineNotes || '';
-      const newNotes = getSignatureWithNote(currentUser.displayName, restrictNote) + notes;
-
       await updateUser({
         data: {
           postingDisabled: true,
@@ -182,10 +190,15 @@ export const moderationGqlMutations = {
           needsReview: false,
           reviewedByUserId: null,
           reviewedAt: user.reviewedAt ? new Date() : null,
-          sunshineNotes: newNotes,
         },
         selector: { _id: userId }
       }, context);
+      await appendToSunshineNotes({
+        moderatedUserId: userId,
+        adminName: currentUser.displayName,
+        text: 'Restricted & notified (rejected content, disabled all permissions)',
+        context,
+      });
 
       await createModeratorAction({
         data: {
@@ -204,17 +217,20 @@ export const moderationGqlMutations = {
         context,
       });
     } else {
-      const notes = user.sunshineNotes || '';
-      const newNotes = getSignatureWithNote(currentUser.displayName, 'removed from review queue (content rejected)') + notes;
       await updateUser({
         data: {
           needsReview: false,
           reviewedByUserId: null,
           reviewedAt: user.reviewedAt ? new Date() : null,
-          sunshineNotes: newNotes,
         },
         selector: { _id: userId }
       }, context);
+      await appendToSunshineNotes({
+        moderatedUserId: userId,
+        adminName: currentUser.displayName,
+        text: 'removed from review queue (content rejected)',
+        context,
+      });
     }
 
     return true;
@@ -235,19 +251,22 @@ export const moderationGqlMutations = {
     // Approve existing content but don't set reviewedByUserId so future content still needs review
     await approveUnreviewedSubmissions(userId, context);
 
-    const notes = user.sunshineNotes;
-    const newNotes = getSignatureWithNote(currentUser.displayName, 'Approved current content only (future content will need review)') + notes;
     await updateUser({
       data: {
         sunshineFlagged: false,
         reviewedByUserId: null,
         reviewedAt: new Date(),
         needsReview: false,
-        sunshineNotes: newNotes,
         snoozedUntilContentCount: null,
       },
       selector: { _id: userId }
     }, context);
+    await appendToSunshineNotes({
+      moderatedUserId: userId,
+      adminName: currentUser.displayName,
+      text: 'Approved current content only (future content will need review)',
+      context,
+    });
 
     return true;
   },
@@ -362,21 +381,45 @@ export const moderationGqlMutations = {
     }, context);
 
     // Unapprove the user so future content needs review
-    const notes = user.sunshineNotes || '';
-    const newNotes = getSignatureWithNote(currentUser.displayName, 'LLM policy violation - unapproved user, unlisted post') + notes;
     await updateUser({
       data: {
         reviewedByUserId: null,
         reviewedAt: user.reviewedAt ? new Date() : null,
         needsReview: true,
-        sunshineNotes: newNotes,
       },
       selector: { _id: user._id }
     }, context);
+    await appendToSunshineNotes({
+      moderatedUserId: user._id,
+      adminName: currentUser.displayName,
+      text: 'LLM policy violation - unapproved user, unlisted post',
+      context,
+    });
 
     return true;
   },
+  async addModeratorNote(_root: void, args: {userId: string, note: string}, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can add moderator notes");
+    }
+
+    const note = args.note.trim();
+    if (!note) {
+      throw new Error("Note is required");
+    }
+
+    const updatedUser = await appendToSunshineNotes({
+      moderatedUserId: args.userId,
+      adminName: currentUser.displayName,
+      text: note,
+      context,
+    });
+    return accessFilterSingle(currentUser, 'Users', updatedUser, context);
+  },
 }
+
+const MAX_QUEUE_CHANGE_DOCUMENT_IDS = 1000;
 
 export const moderationGqlQueries = {
   async moderatorViewIPAddress(_root: void, args: {ipAddress: string}, context: ResolverContext) {
@@ -395,5 +438,41 @@ export const moderationGqlQueries = {
       ip: ipAddress,
       userIds,
     };
+  },
+  async supermodQueueChanges(_root: void, { userIds, postIds, since }: { userIds: string[], postIds: string[], since: Date }, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can see moderation queue changes");
+    }
+    if (userIds.length + postIds.length > MAX_QUEUE_CHANGE_DOCUMENT_IDS) {
+      throw new Error(`supermodQueueChanges accepts at most ${MAX_QUEUE_CHANGE_DOCUMENT_IDS} user and post IDs`);
+    }
+    if (userIds.length + postIds.length === 0) return [];
+
+    const changes = await context.repos.fieldChanges.getModerationRecordChanges({ userIds, postIds, since, excludeActorId: currentUser._id });
+
+    // Authors editing their own posts, comments and profiles also produce FieldChanges, so only count moderators
+    const actorIds = uniq(changes.map(change => change.actorId));
+    if (actorIds.length === 0) return [];
+    const actors = await Users.find({ _id: { $in: actorIds } }, {
+      projection: { _id: 1, isAdmin: 1, groups: 1, displayName: 1, username: 1, fullName: 1 },
+    }).fetch();
+    const moderatorsById = new Map(actors.filter(userIsAdminOrMod).map(user => [user._id, user]));
+
+    const moderatorChanges = changes.flatMap(change => {
+      const moderator = moderatorsById.get(change.actorId);
+      return moderator ? [{ ...change, moderator }] : [];
+    });
+    return Object.values(groupBy(moderatorChanges, change => `${change.recordId}:${change.moderator._id}`)).map(group => {
+      const latest = group.reduce((a, b) => b.createdAt > a.createdAt ? b : a);
+      return {
+        documentId: latest.recordId,
+        moderatorName: userGetDisplayName(latest.moderator, context.forumType),
+        lastChangedAt: latest.createdAt,
+      };
+    });
+  },
+  supermodQueueSnapshotTime() {
+    return new Date();
   },
 }

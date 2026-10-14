@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -30,6 +30,7 @@ import ModerationUndoHistory from './ModerationUndoHistory';
 import TeamInboxThreadView from './TeamInboxThreadView';
 import { getTeamInboxThreads, type TeamInboxThread } from './teamInboxThreads';
 import { hideScrollBars } from '@/themes/styleUtils';
+import { ConcurrentModeratorChangesContext, useConcurrentModeratorChanges } from './useConcurrentModeratorChanges';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated/team inbox)
@@ -38,6 +39,8 @@ import { hideScrollBars } from '@/themes/styleUtils';
 // depends on whether the opened user is already in the users list.)
 const ModerationInboxDataQuery = gql(`
   query ModerationInboxDataQuery($userSelector: UserSelector, $postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int, $reviewQueueLimit: Int, $postLimit: Int, $curationLimit: Int) {
+    # Must stay first, so the time is taken before the queue below is read
+    supermodQueueSnapshotTime
     users(selector: $userSelector, limit: $userLimit) {
       results {
         ...SunshineUsersList
@@ -145,7 +148,7 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, teamInboxThreads, unloadedCounts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
+const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, teamInboxThreads, unloadedCounts, lastCuratedDate, queueSnapshotTime, initialOpenedUserId, directUser, currentUser }: {
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
@@ -153,6 +156,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
   teamInboxThreads: TeamInboxThread[];
   unloadedCounts: UnloadedCounts;
   lastCuratedDate: string | null;
+  queueSnapshotTime: string;
   initialOpenedUserId: string | null;
   directUser: SunshineUsersList | null;
   currentUser: UsersCurrent;
@@ -203,6 +207,12 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
       return enterTab(initialState, firstNonEmptyTab?.group ?? 'curation');
     }
   );
+
+  // Users can leave and re-enter the local lists (via the undo queue), so track everything that was loaded
+  const [loadedUserIds] = useState(() => state.users.map(user => user._id));
+  const [loadedPostIds] = useState(() => [...state.posts, ...state.classifiedPosts].map(post => post._id));
+  const [changesSince] = useState(() => new Date(queueSnapshotTime));
+  const concurrentModeratorChanges = useConcurrentModeratorChanges(loadedUserIds, loadedPostIds, changesSince);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
@@ -339,6 +349,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
   const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
   return (
+    <ConcurrentModeratorChangesContext.Provider value={concurrentModeratorChanges}>
     <CoreTagsKeyboardProvider>
     <div className={classes.root}>
       {isAppealsTab ? (
@@ -472,6 +483,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
       </div>
     </div>
     </CoreTagsKeyboardProvider>
+    </ConcurrentModeratorChangesContext.Provider>
   );
 };
 
@@ -480,7 +492,7 @@ const ModerationInbox = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
 
-  const { data, loading } = useQuery(ModerationInboxDataQuery, {
+  const { data, loading, error } = useQuery(ModerationInboxDataQuery, {
     variables: {
       userSelector: { sunshineNewUsers: {} },
       postSelector: { sunshineNewPosts: {} },
@@ -552,6 +564,9 @@ const ModerationInbox = () => {
       </div>
     );
   }
+  if (!data) {
+    throw error ?? new Error("Moderation inbox data failed to load");
+  }
 
   return <ModerationInboxInner
     users={users}
@@ -561,6 +576,7 @@ const ModerationInbox = () => {
     teamInboxThreads={teamInboxThreads}
     unloadedCounts={unloadedCounts}
     lastCuratedDate={lastCuratedDate}
+    queueSnapshotTime={data.supermodQueueSnapshotTime}
     initialOpenedUserId={initialOpenedUserId}
     directUser={directUser}
     currentUser={currentUser}

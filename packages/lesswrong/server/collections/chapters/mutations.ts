@@ -6,12 +6,14 @@ import { canonizeChapterPostInfo, notifyUsersOfNewPosts, updateSequenceLastUpdat
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { invalidateSequencePostPages } from "@/server/collections/sequences/mutations";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import isEqual from "lodash/isEqual";
 
 async function newCheck(user: DbUser|null, document: DbChapter|null, context: ResolverContext) {
   const { Sequences } = context;
@@ -117,7 +119,14 @@ export async function updateChapter({ selector, data }: UpdateChapterInput, cont
 
   backgroundTask(logFieldChanges({ currentUser, collection: Chapters, oldDocument, data: origData }));
 
-  await invalidatePostPageCache([...(oldDocument.postIds ?? []), ...(updatedDocument.postIds ?? [])]);
+  // Changing which posts the chapter has, their order, or the chapter's
+  // position can change the previous/next links of posts in other chapters
+  const { sequenceId } = updatedDocument;
+  if (sequenceId && (oldDocument.number !== updatedDocument.number || !isEqual(oldDocument.postIds, updatedDocument.postIds))) {
+    await invalidateSequencePostPages(sequenceId, context, oldDocument.postIds ?? []);
+  } else {
+    await invalidatePostPageCache([...(oldDocument.postIds ?? []), ...(updatedDocument.postIds ?? [])]);
+  }
 
   return updatedDocument;
 }

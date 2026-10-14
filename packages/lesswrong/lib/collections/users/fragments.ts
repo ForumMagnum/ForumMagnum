@@ -24,7 +24,6 @@ export const UsersMinimumInfo = gql(`
     sequenceCount
     afPostCount
     afCommentCount
-    spamRiskScore
     tagRevisionCount
     reviewedByUserId
   }
@@ -73,6 +72,7 @@ export const UsersProfile = gql(`
     email
     emails
     banned
+    deleteContent
     noindex
     paymentEmail
     paymentInfo
@@ -114,6 +114,7 @@ export const UsersCurrent = gql(`
     email
     emails
     banned
+    deleteContent
     paymentEmail
     paymentInfo
     postingDisabled

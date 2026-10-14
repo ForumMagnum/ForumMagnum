@@ -1261,8 +1261,16 @@ enum ContentCollectionName {
   Comments
 }
 
+type SupermodQueueChange {
+  documentId: String!
+  moderatorName: String!
+  lastChangedAt: Date!
+}
+
 extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
+  supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
+  supermodQueueSnapshotTime: Date!
 }
 
 extend type Mutation {
@@ -1274,6 +1282,7 @@ extend type Mutation {
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
   unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
+  addModeratorNote(userId: String!, note: String!): User
 }
 
 type RejectionReview {
@@ -1531,6 +1540,11 @@ type SequenceStats {
 
 extend type Query {
   getSequenceStats(sequenceId: String!): SequenceStats
+}
+
+extend type Mutation {
+  deleteChapter(chapterId: String!): Boolean!
+  moveSequencePost(postId: String!, fromChapterId: String!, toChapterId: String!, toIndex: Int!): Boolean!
 }
 
 extend type Query {
@@ -3830,6 +3844,8 @@ enum ModeratorActionType {
   manualRateLimitExpired
   votingDisabled
   autoPurgedProfileSpam
+  autoRemovedLlmRejectedUser
+  autoPurgedLlmRejectedSpam
 }
 
 input SingleModeratorActionInput {
@@ -7843,7 +7859,6 @@ type User {
   reviewedByUser: User
   isReviewed: Boolean
   reviewedAt: Date
-  spamRiskScore: Float!
   afKarma: Float!
   voteCount: Float
   smallUpvoteCount: Float

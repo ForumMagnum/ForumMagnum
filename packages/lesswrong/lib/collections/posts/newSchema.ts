@@ -2271,8 +2271,8 @@ const schema = {
       outputType: "[String!]!",
       inputType: "[String!]",
       canRead: ['guests'],
-      canUpdate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
-      canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
+      canUpdate: ["members", "sunshineRegiment", "admins"],
+      canCreate: ["members"],
       validation: {
         optional: true,
       },

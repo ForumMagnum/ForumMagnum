@@ -123,6 +123,17 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, { query, limit });
   }
 
+  // A single statement, so concurrent notes from different moderators are all kept
+  async prependToSunshineNotes(userId: string, note: string): Promise<DbUser | null> {
+    return this.oneOrNone(`
+      -- UsersRepo.prependToSunshineNotes
+      UPDATE "Users"
+      SET "sunshineNotes" = $(note) || COALESCE("sunshineNotes", '')
+      WHERE "_id" = $(userId)
+      RETURNING *
+    `, { userId, note });
+  }
+
   async resetPassword(userId: string, hashedPassword: string): Promise<void> {
     await this.none(`
       -- UsersRepo.resetPassword

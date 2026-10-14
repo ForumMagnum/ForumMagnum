@@ -1,21 +1,34 @@
 import React, { useCallback, useRef } from 'react';
 import { EditorFormComponent, useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
-import { fieldUpdate, type UpdateUserSettings } from '@/components/users/account/useAutoSavedUserSettings';
-import type { EditableUser } from '@/lib/collections/users/helpers';
 
-interface CommittedContents {
+interface EditorContentsValue {
+  originalContents?: { type?: string | null; data?: string | null } | null;
+}
+
+/** The value the editor submits for its field: its contents, plus editor metadata. */
+export type SubmittedEditorContents = EditorContentsValue & { originalContents: { type: string; data: string } };
+
+/** What identifies an editor's contents, for telling whether they've changed. */
+export interface ContentsKey {
   type: string | null;
   data: string | null;
 }
 
-function isSameContents(a: CommittedContents, b: CommittedContents) {
+export function contentsKey(contents: EditorContentsValue | null | undefined): ContentsKey {
+  return {
+    type: contents?.originalContents?.type ?? null,
+    data: contents?.originalContents?.data ?? null,
+  };
+}
+
+export function isSameContents(a: ContentsKey, b: ContentsKey) {
   return a.type === b.type && a.data === b.data;
 }
 
 /**
- * An editor field for the account-settings page: commits the editor contents
- * through the autosave queue when focus leaves the editor, rather than on an
- * explicit form submit.
+ * An editor field that saves itself when focus leaves it, rather than on an
+ * explicit form submit. `onCommit` saves the contents and resolves to whether
+ * the save succeeded.
  *
  * Nothing is committed unless the contents differ from the last committed
  * contents. Before the first commit, those are the contents as the editor
@@ -24,18 +37,28 @@ function isSameContents(a: CommittedContents, b: CommittedContents) {
  * differently, so comparing with the stored contents would save a converted
  * copy when nothing was edited.
  */
-const AutoSavedEditorField = ({
-  name,
-  settings,
-  updateSettings,
+const AutoSavedEditorField = <D extends { _id: string }, F extends keyof D & string>({
+  document,
+  fieldName,
+  collectionName,
   hintText,
   label,
+  commentEditor,
+  commentStyles,
+  hideControls,
+  fitToContent,
+  onCommit,
 }: {
-  name: 'biography' | 'moderationGuidelines';
-  settings: EditableUser;
-  updateSettings: UpdateUserSettings;
+  document: D & Record<F, EditorContentsValue | null | undefined>;
+  fieldName: F;
+  collectionName: CollectionNameString;
   hintText: string;
   label?: string;
+  commentEditor: boolean;
+  commentStyles: boolean;
+  hideControls: boolean;
+  fitToContent?: boolean;
+  onCommit: (contents: SubmittedEditorContents) => Promise<boolean>;
 }) => {
   const {
     onSubmitCallback,
@@ -44,18 +67,15 @@ const AutoSavedEditorField = ({
     addOnSubmitCallback,
     addOnSuccessCallback,
     addGetContentsCallback,
-  } = useEditorFormCallbacks<UsersEdit>();
+  } = useEditorFormCallbacks<D>();
 
-  const capturedValueRef = useRef<AnyBecauseHard>(null);
-  const lastCommittedRef = useRef<CommittedContents>({
-    type: settings[name]?.originalContents?.type ?? null,
-    data: settings[name]?.originalContents?.data ?? null,
-  });
+  const capturedValueRef = useRef<SubmittedEditorContents | null>(null);
+  const lastCommittedRef = useRef<ContentsKey>(contentsKey(document[fieldName]));
   const hasCapturedBaselineRef = useRef(false);
 
   const binding = {
-    state: { value: settings[name] },
-    setValue: (value: AnyBecauseHard) => {
+    state: { value: document[fieldName] },
+    setValue: (value: SubmittedEditorContents) => {
       capturedValueRef.current = value;
     },
     // The editor echoes its contents into the field, throttled, for form
@@ -90,23 +110,19 @@ const AutoSavedEditorField = ({
     const payload = capturedValueRef.current;
     if (!payload) return;
 
-    const newContents = {
-      type: payload.originalContents?.type ?? null,
-      data: payload.originalContents?.data ?? null,
-    };
+    const newContents = contentsKey(payload);
     const previous = lastCommittedRef.current;
     if (isSameContents(newContents, previous)) return;
 
     // Advance before awaiting so a repeated blur during the in-flight save
     // doesn't queue a duplicate revision
     lastCommittedRef.current = newContents;
-    const result = await updateSettings(fieldUpdate(name, payload));
-    if (result.success) {
-      onSuccessCallback.current?.(result.doc, { noReload: true });
+    if (await onCommit(payload)) {
+      onSuccessCallback.current?.(document, { noReload: true });
     } else {
       lastCommittedRef.current = previous;
     }
-  }, [name, updateSettings, onSubmitCallback, onSuccessCallback, getContentsCallback]);
+  }, [document, onCommit, onSubmitCallback, onSuccessCallback, getContentsCallback]);
 
   const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
     const focusMovedTo = e.relatedTarget instanceof Node ? e.relatedTarget : null;
@@ -118,19 +134,20 @@ const AutoSavedEditorField = ({
     <div onBlur={handleBlur} onFocus={handleInteraction} onPointerDown={handleInteraction}>
       <EditorFormComponent
         field={binding}
-        name={name}
+        name={fieldName}
         formType="edit"
-        document={settings}
+        document={document}
         addOnSubmitCallback={addOnSubmitCallback}
         addOnSuccessCallback={addOnSuccessCallback}
         addGetContentsCallback={addGetContentsCallback}
         hintText={hintText}
-        fieldName={name}
-        collectionName="Users"
+        fieldName={fieldName}
+        collectionName={collectionName}
         label={label}
-        commentEditor={true}
-        commentStyles={true}
-        hideControls={false}
+        commentEditor={commentEditor}
+        commentStyles={commentStyles}
+        hideControls={hideControls}
+        fitToContent={fitToContent}
       />
     </div>
   );

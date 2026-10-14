@@ -73,6 +73,8 @@ interface Query {
   convertDocument: any;
   latestGoogleDocMetadata: any;
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
+  supermodQueueChanges: Array<SupermodQueueChange>;
+  supermodQueueSnapshotTime: Date;
   rejectionReview: RejectionReview;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
@@ -282,6 +284,7 @@ interface Mutation {
   runLlmCheckForDocument: AutomatedContentEvaluation;
   runPangramOnText: PangramTextEvaluationResult;
   unlistLlmPost: boolean;
+  addModeratorNote: User | null;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -308,6 +311,8 @@ interface Mutation {
   generateCoverImagesForPost: Array<ReviewWinnerArt | null> | null;
   flipSplashArtImage: boolean | null;
   upscaleReviewWinnerArt: ReviewWinnerArt | null;
+  deleteChapter: boolean;
+  moveSequencePost: boolean;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
   createBook: BookOutput | null;
@@ -1240,6 +1245,12 @@ interface PangramTextEvaluationResult {
   pangramMaxScore: number | null;
   pangramPrediction: string | null;
   pangramWindowScores: Array<PangramWindowScore> | null;
+}
+
+interface SupermodQueueChange {
+  documentId: string;
+  moderatorName: string;
+  lastChangedAt: Date;
 }
 
 interface RejectionReview {
@@ -7248,7 +7259,6 @@ interface User {
   reviewedByUser: User | null;
   isReviewed: boolean | null;
   reviewedAt: Date | null;
-  spamRiskScore: number;
   afKarma: number;
   voteCount: number | null;
   smallUpvoteCount: number | null;
@@ -9446,6 +9456,7 @@ interface GraphQLTypeMap {
   ExternalPostImportData: ExternalPostImportData;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   PangramTextEvaluationResult: PangramTextEvaluationResult;
+  SupermodQueueChange: SupermodQueueChange;
   RejectionReview: RejectionReview;
   ToggleBookmarkInput: ToggleBookmarkInput;
   SetIsBookmarkedInput: SetIsBookmarkedInput;
