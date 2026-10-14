@@ -81,6 +81,15 @@ export function isReviewTriggeredOnlyByContent(
   return fresh.length > 0 && fresh.every(action => getModeratorActionGroup(action.type) === "newContent");
 }
 
+export function isReviewTriggeredOnlyByContentOrProfile(
+  moderatorActions: ReviewTriggerActionInfo[],
+  lastRemovedFromReviewQueueAt: Date | string | null | undefined,
+): boolean {
+  const groups = getFreshReviewTriggerActions(moderatorActions, lastRemovedFromReviewQueueAt)
+    .map(action => getModeratorActionGroup(action.type));
+  return groups.includes("newContent") && groups.every(group => group === "newContent" || group === "maybeSpam");
+}
+
 export function getReviewGroupFromActions(
   moderatorActions: ReviewTriggerActionInfo[],
   lastRemovedFromReviewQueueAt: Date | string | null | undefined,

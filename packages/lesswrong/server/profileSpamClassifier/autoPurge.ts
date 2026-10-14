@@ -3,7 +3,7 @@ import { z } from "zod";
 import { compile } from "html-to-text";
 import moment from "moment";
 import { captureException } from "@/lib/sentryWrapper";
-import { adminAccountSetting } from "@/lib/instanceSettings";
+import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { appendToSunshineNotes } from "@/server/users/sunshineNotes";
 import { AUTO_PURGED_PROFILE_SPAM } from "@/lib/collections/moderatorActions/constants";
@@ -77,10 +77,14 @@ function profileTextChanged(before: DbUser, after: DbUser): boolean {
   return before.biography?.html !== after.biography?.html || before.mapMarkerText !== after.mapMarkerText;
 }
 
-async function purgeProfileSpammer(user: DbUser, reason: string, context: ResolverContext) {
-  const adminTeamAccountId = adminAccountSetting.get(context)?._id;
-  const adminTeamAccount = adminTeamAccountId ? await context.Users.findOne({ _id: adminTeamAccountId }) : null;
-  if (!adminTeamAccount) return;
+export async function purgeSpamUser(
+  user: DbUser,
+  sunshineNote: string,
+  moderatorActionType: ModeratorActionType,
+  context: ResolverContext,
+) {
+  const adminTeamAccount = await getAdminTeamAccount(context);
+  if (!adminTeamAccount) throw new Error("Spam purging requires an admin team account");
   const adminContext = computeContextFromUser({ user: adminTeamAccount, isSSR: false, forumType: context.forumType });
 
   await updateUser({
@@ -98,11 +102,11 @@ async function purgeProfileSpammer(user: DbUser, reason: string, context: Resolv
   await appendToSunshineNotes({
     moderatedUserId: user._id,
     adminName: adminTeamAccount.displayName,
-    text: `Auto-purged (profile spam classifier): ${reason}`,
+    text: sunshineNote,
     context: adminContext,
   });
 
-  await createModeratorAction({ data: { userId: user._id, type: AUTO_PURGED_PROFILE_SPAM } }, adminContext);
+  await createModeratorAction({ data: { userId: user._id, type: moderatorActionType } }, adminContext);
 }
 
 async function maybeAutoPurgeProfileSpam(userId: string, context: ResolverContext) {
@@ -118,7 +122,7 @@ async function maybeAutoPurgeProfileSpam(userId: string, context: ResolverContex
   const latestUser = await context.Users.findOne({ _id: userId });
   if (!latestUser || profileTextChanged(user, latestUser) || !(await isEligibleForAutoPurge(latestUser, context))) return;
 
-  await purgeProfileSpammer(latestUser, verdict.reason, context);
+  await purgeSpamUser(latestUser, `Auto-purged (profile spam classifier): ${verdict.reason}`, AUTO_PURGED_PROFILE_SPAM, context);
 }
 
 // The purge must wait for the review trigger, which sets needsReview and would put a purged user back in the queue.
