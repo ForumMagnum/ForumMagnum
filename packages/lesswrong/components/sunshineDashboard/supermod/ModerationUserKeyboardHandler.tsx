@@ -9,7 +9,6 @@ import { useModerationUserActions } from './useModerationUserActions';
 import { areAllContentPermissionsDisabled, canRejectContent, getModerationContentItems, isMapPin, isPost, type ContentItem } from './helpers';
 import { useMessages } from '@/components/common/withMessages';
 import { useRerunLlmCheck } from './useRerunLlmCheck';
-import { getOptimisticNotes } from '../useAddModeratorNote';
 
 function canRerunLlmCheck(selectedContent?: ContentItem) {
   if (!selectedContent) return false;
@@ -58,12 +57,14 @@ const ModerationUserKeyboardHandler = ({
   const {
     handleReview,
     handleApproveCurrentOnly,
-    handleSnooze,
+    handleSnoozeChoice,
     handleSnoozeCustom,
     handleRejectContentAndRemove,
     handleRestrictAndNotify,
     handleRemoveNeedsReview,
+    handleRemoveKeepingReviewStatus,
     handlePurge,
+    handleFlag,
     updateUserWithNote,
     posts,
     comments,
@@ -104,18 +105,6 @@ const ModerationUserKeyboardHandler = ({
       banned: moment().add(banMonths, 'months').toDate(),
     }, 'Ban', 'Banned 3mo');
   }, [selectedUser, currentUser, updateUserWithNote]);
-
-  const handleFlag = useCallback(() => {
-    if (!selectedUser) return;
-    const flagStatus = selectedUser.sunshineFlagged ? 'Unflag' : 'Flag';
-    const newFlaggedState = !selectedUser.sunshineFlagged;
-    
-    dispatch({ type: 'UPDATE_USER', userId: selectedUser._id, fields: { sunshineNotes: getOptimisticNotes(selectedUser.sunshineNotes, currentUser.displayName, flagStatus), sunshineFlagged: newFlaggedState } });
-    
-    updateUserWithNote({
-      sunshineFlagged: newFlaggedState,
-    }, flagStatus);
-  }, [selectedUser, currentUser.displayName, dispatch, updateUserWithNote]);
 
   const handleUnrejectCurrentContent = useCallback(() => {
     if (!selectedUser) return;
@@ -174,12 +163,12 @@ const ModerationUserKeyboardHandler = ({
     execute: handleApproveCurrentOnly,
   }), [selectedUser, handleApproveCurrentOnly]);
 
-  const snooze10Command: CommandPaletteItem = useMemo(() => ({
-    label: 'Snooze 10',
+  const snoozeChoiceCommand: CommandPaletteItem = useMemo(() => ({
+    label: 'Snooze (1, 3, 5, 10 or any 1–9)',
     keystroke: 'S',
     isDisabled: () => !selectedUser,
-    execute: () => handleSnooze(10),
-  }), [selectedUser, handleSnooze]);
+    execute: handleSnoozeChoice,
+  }), [selectedUser, handleSnoozeChoice]);
 
   const snoozeCustomCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Snooze Custom Amount',
@@ -194,6 +183,13 @@ const ModerationUserKeyboardHandler = ({
     isDisabled: () => !selectedUser,
     execute: handleRemoveNeedsReview,
   }), [selectedUser, handleRemoveNeedsReview]);
+
+  const removeKeepingReviewStatusCommand: CommandPaletteItem = useMemo(() => ({
+    label: 'Remove, Keeping Review Status',
+    keystroke: 'Shift+Q',
+    isDisabled: () => !selectedUser,
+    execute: handleRemoveKeepingReviewStatus,
+  }), [selectedUser, handleRemoveKeepingReviewStatus]);
 
   const ban3moCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Ban 3mo',
@@ -238,6 +234,13 @@ const ModerationUserKeyboardHandler = ({
       : onFocusRejectTab,
   }), [isDetailView, selectedUser, selectedContent, onFocusRejectTab, handleUnrejectCurrentContent]);
 
+  const messageCommand: CommandPaletteItem = useMemo(() => ({
+    label: 'Message',
+    keystroke: 'M',
+    isDisabled: () => !isDetailView || !selectedUser,
+    execute: () => dispatch({ type: 'SET_SIDEBAR_TAB', tab: 'dm' }),
+  }), [isDetailView, selectedUser, dispatch]);
+
   const rejectLatestAndRemoveCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Reject Latest & Remove',
     keystroke: 'X',
@@ -268,7 +271,7 @@ const ModerationUserKeyboardHandler = ({
 
   const disableMessagingCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Disable Messaging',
-    keystroke: 'M',
+    keystroke: 'Shift+M',
     isDisabled: () => !isDetailView || !selectedUser,
     execute: toggleDisableMessaging,
   }), [isDetailView, selectedUser, toggleDisableMessaging]);
@@ -340,9 +343,9 @@ const ModerationUserKeyboardHandler = ({
   const commands: CommandPaletteItem[] = useMemo(() => [
     rerunLlmCheckCommand,
     approveCommand, approveCurrentOnlyCommand,
-    snooze10Command, snoozeCustomCommand,
-    removeCommand,
-    rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand,
+    snoozeChoiceCommand, snoozeCustomCommand,
+    removeCommand, removeKeepingReviewStatusCommand,
+    rejectOrUnrejectCommand, messageCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand,
     purgeCommand,
     flagCommand,
     copyUserIdCommand,
@@ -350,7 +353,7 @@ const ModerationUserKeyboardHandler = ({
     nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand,
     openOrCloseDetailViewCommand, undoMostRecentActionCommand,
     ban3moCommand,
-  ], [rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snooze10Command, snoozeCustomCommand, removeCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, toggleAllPermissionsCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
+  ], [rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snoozeChoiceCommand, snoozeCustomCommand, removeCommand, removeKeepingReviewStatusCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, messageCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, toggleAllPermissionsCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
 
   useSupermodKeyboardCommands({
     commands,
