@@ -25959,11 +25959,10 @@ type multiPostPostsEmailQueryQueryVariables = Exact<{
 
 type multiPostPostsEmailQueryQuery = multiPostPostsEmailQueryQuery_Query;
 
-type AgentUserDossierQuery_user_SingleUserOutput_result_User_associatedClientIds_ClientId = { __typename?: 'ClientId', clientId: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, userIds: Array<string> | null };
-
 type AgentUserDossierQuery_user_SingleUserOutput_result_User = (
-  { __typename?: 'User', altAccountsDetected: boolean | null, associatedClientIds: Array<AgentUserDossierQuery_user_SingleUserOutput_result_User_associatedClientIds_ClientId> | null }
+  { __typename?: 'User' }
   & SunshineUsersList
+  & UserClientIdsInfo
 );
 
 type AgentUserDossierQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: AgentUserDossierQuery_user_SingleUserOutput_result_User | null };
@@ -25978,10 +25977,61 @@ type AgentUserDossierQueryVariables = Exact<{
 
 type AgentUserDossierQuery = AgentUserDossierQuery_Query;
 
-type AgentUserPostsQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & SunshinePostsList
+type AgentClientIdsQuery_user_SingleUserOutput_result_User = (
+  { __typename?: 'User' }
+  & UserClientIdsInfo
 );
+
+type AgentClientIdsQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: AgentClientIdsQuery_user_SingleUserOutput_result_User | null };
+
+type AgentClientIdsQuery_Query = { __typename?: 'Query', user: AgentClientIdsQuery_user_SingleUserOutput | null };
+
+
+type AgentClientIdsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+type AgentClientIdsQuery = AgentClientIdsQuery_Query;
+
+type AgentAltAccountsQuery_users_MultiUserOutput_results_User = { __typename?: 'User', _id: string, displayName: string, slug: string, karma: number, banned: string | null, deleted: boolean, createdAt: string };
+
+type AgentAltAccountsQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<AgentAltAccountsQuery_users_MultiUserOutput_results_User> };
+
+type AgentAltAccountsQuery_Query = { __typename?: 'Query', users: AgentAltAccountsQuery_users_MultiUserOutput | null };
+
+
+type AgentAltAccountsQueryVariables = Exact<{
+  userIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+
+type AgentAltAccountsQuery = AgentAltAccountsQuery_Query;
+
+type AgentIPAddressQuery_moderatorViewIPAddress_ModeratorIPAddressInfo = { __typename?: 'ModeratorIPAddressInfo', ip: string, userIds: Array<string> };
+
+type AgentIPAddressQuery_Query = { __typename?: 'Query', moderatorViewIPAddress: AgentIPAddressQuery_moderatorViewIPAddress_ModeratorIPAddressInfo | null };
+
+
+type AgentIPAddressQueryVariables = Exact<{
+  ipAddress: Scalars['String']['input'];
+}>;
+
+
+type AgentIPAddressQuery = AgentIPAddressQuery_Query;
+
+type AgentUserPostsQuery_posts_MultiPostOutput_results_Post_contents_Revision = (
+  { __typename?: 'Revision', version: string, wordCount: number }
+  & RevisionHTML
+);
+
+type AgentUserPostsQuery_posts_MultiPostOutput_results_Post_automatedContentEvaluations_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AgentContentEvaluation
+);
+
+type AgentUserPostsQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, title: string, postedAt: string, baseScore: number, voteCount: number, draft: boolean | null, frontpageDate: string | null, rejected: boolean, rejectedReason: string | null, authorIsUnreviewed: boolean, contents?: AgentUserPostsQuery_posts_MultiPostOutput_results_Post_contents_Revision | null, automatedContentEvaluations: AgentUserPostsQuery_posts_MultiPostOutput_results_Post_automatedContentEvaluations_AutomatedContentEvaluation | null };
 
 type AgentUserPostsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<AgentUserPostsQuery_posts_MultiPostOutput_results_Post> };
 
@@ -25991,15 +26041,25 @@ type AgentUserPostsQuery_Query = { __typename?: 'Query', posts: AgentUserPostsQu
 type AgentUserPostsQueryVariables = Exact<{
   selector: InputMaybe<PostSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
+  includeBodies: Scalars['Boolean']['input'];
 }>;
 
 
 type AgentUserPostsQuery = AgentUserPostsQuery_Query;
 
-type AgentUserCommentsQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & SunshineCommentsList
+type AgentUserCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post = { __typename?: 'Post', _id: string, title: string };
+
+type AgentUserCommentsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = (
+  { __typename?: 'Revision', version: string }
+  & RevisionHTML
 );
+
+type AgentUserCommentsQuery_comments_MultiCommentOutput_results_Comment_automatedContentEvaluations_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AgentContentEvaluation
+);
+
+type AgentUserCommentsQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, postId: string | null, postedAt: string, baseScore: number | null, voteCount: number, deleted: boolean, rejected: boolean, rejectedReason: string | null, authorIsUnreviewed: boolean, post: AgentUserCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post | null, contents?: AgentUserCommentsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision | null, automatedContentEvaluations: AgentUserCommentsQuery_comments_MultiCommentOutput_results_Comment_automatedContentEvaluations_AutomatedContentEvaluation | null };
 
 type AgentUserCommentsQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<AgentUserCommentsQuery_comments_MultiCommentOutput_results_Comment> };
 
@@ -26009,30 +26069,96 @@ type AgentUserCommentsQuery_Query = { __typename?: 'Query', comments: AgentUserC
 type AgentUserCommentsQueryVariables = Exact<{
   selector: InputMaybe<CommentSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
+  includeBodies: Scalars['Boolean']['input'];
 }>;
 
 
 type AgentUserCommentsQuery = AgentUserCommentsQuery_Query;
 
+type AgentContentEvaluation = { __typename?: 'AutomatedContentEvaluation', _id: string, pangramScore: number | null, pangramPrediction: string | null, pangramFractionAi: number | null, aiChoice: string | null };
+
+type AgentPostBodyQuery_post_SinglePostOutput_result_Post_contents_Revision = (
+  { __typename?: 'Revision', version: string }
+  & RevisionHTML
+);
+
+type AgentPostBodyQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, contents: AgentPostBodyQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+
+type AgentPostBodyQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: AgentPostBodyQuery_post_SinglePostOutput_result_Post | null };
+
+type AgentPostBodyQuery_Query = { __typename?: 'Query', post: AgentPostBodyQuery_post_SinglePostOutput | null };
+
+
+type AgentPostBodyQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+  version: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type AgentPostBodyQuery = AgentPostBodyQuery_Query;
+
+type AgentCommentBodyQuery_comment_SingleCommentOutput_result_Comment_contents_Revision = (
+  { __typename?: 'Revision', version: string }
+  & RevisionHTML
+);
+
+type AgentCommentBodyQuery_comment_SingleCommentOutput_result_Comment = { __typename?: 'Comment', _id: string, contents: AgentCommentBodyQuery_comment_SingleCommentOutput_result_Comment_contents_Revision | null };
+
+type AgentCommentBodyQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: AgentCommentBodyQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type AgentCommentBodyQuery_Query = { __typename?: 'Query', comment: AgentCommentBodyQuery_comment_SingleCommentOutput | null };
+
+
+type AgentCommentBodyQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+  version: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type AgentCommentBodyQuery = AgentCommentBodyQuery_Query;
+
+type AgentMessageBodyQuery_message_SingleMessageOutput_result_Message_contents_Revision = (
+  { __typename?: 'Revision', version: string }
+  & RevisionHTML
+);
+
+type AgentMessageBodyQuery_message_SingleMessageOutput_result_Message = { __typename?: 'Message', _id: string, conversationId: string | null, contents: AgentMessageBodyQuery_message_SingleMessageOutput_result_Message_contents_Revision | null };
+
+type AgentMessageBodyQuery_message_SingleMessageOutput = { __typename?: 'SingleMessageOutput', result: AgentMessageBodyQuery_message_SingleMessageOutput_result_Message | null };
+
+type AgentMessageBodyQuery_Query = { __typename?: 'Query', message: AgentMessageBodyQuery_message_SingleMessageOutput | null };
+
+
+type AgentMessageBodyQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+  version: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type AgentMessageBodyQuery = AgentMessageBodyQuery_Query;
+
 type AgentModeratorActionsQuery_moderatorActions_MultiModeratorActionOutput_results_ModeratorAction = { __typename?: 'ModeratorAction', _id: string, type: ModeratorActionType, active: boolean, createdAt: string, endedAt: string | null };
 
-type AgentModeratorActionsQuery_moderatorActions_MultiModeratorActionOutput = { __typename?: 'MultiModeratorActionOutput', results: Array<AgentModeratorActionsQuery_moderatorActions_MultiModeratorActionOutput_results_ModeratorAction> };
+type AgentModeratorActionsQuery_moderatorActions_MultiModeratorActionOutput = { __typename?: 'MultiModeratorActionOutput', totalCount: number | null, results: Array<AgentModeratorActionsQuery_moderatorActions_MultiModeratorActionOutput_results_ModeratorAction> };
 
 type AgentModeratorActionsQuery_Query = { __typename?: 'Query', moderatorActions: AgentModeratorActionsQuery_moderatorActions_MultiModeratorActionOutput | null };
 
 
 type AgentModeratorActionsQueryVariables = Exact<{
   selector: InputMaybe<ModeratorActionSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
+  limit: Scalars['Int']['input'];
+  offset: Scalars['Int']['input'];
 }>;
 
 
 type AgentModeratorActionsQuery = AgentModeratorActionsQuery_Query;
 
-type AgentModerationTemplatesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
-  { __typename?: 'ModerationTemplate' }
-  & ModerationTemplateFragment
+type AgentModerationTemplatesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate_contents_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionHTML
 );
+
+type AgentModerationTemplatesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = { __typename?: 'ModerationTemplate', _id: string, name: string, groupLabel: string | null, contents: AgentModerationTemplatesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate_contents_Revision | null };
 
 type AgentModerationTemplatesQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', results: Array<AgentModerationTemplatesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
 
@@ -26060,6 +26186,59 @@ type AgentReviewQueueQueryVariables = Exact<{
 
 
 type AgentReviewQueueQuery = AgentReviewQueueQuery_Query;
+
+type AgentModeratorConversationsQuery_conversations_MultiConversationOutput_results_Conversation = { __typename?: 'Conversation', _id: string, title: string | null, createdAt: string | null, latestActivity: string | null };
+
+type AgentModeratorConversationsQuery_conversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', totalCount: number | null, results: Array<AgentModeratorConversationsQuery_conversations_MultiConversationOutput_results_Conversation> };
+
+type AgentModeratorConversationsQuery_Query = { __typename?: 'Query', conversations: AgentModeratorConversationsQuery_conversations_MultiConversationOutput | null };
+
+
+type AgentModeratorConversationsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+  offset: Scalars['Int']['input'];
+}>;
+
+
+type AgentModeratorConversationsQuery = AgentModeratorConversationsQuery_Query;
+
+type AgentModeratorConversationQuery_conversation_SingleConversationOutput_result_Conversation = { __typename?: 'Conversation', _id: string, moderator: boolean | null };
+
+type AgentModeratorConversationQuery_conversation_SingleConversationOutput = { __typename?: 'SingleConversationOutput', result: AgentModeratorConversationQuery_conversation_SingleConversationOutput_result_Conversation | null };
+
+type AgentModeratorConversationQuery_Query = { __typename?: 'Query', conversation: AgentModeratorConversationQuery_conversation_SingleConversationOutput | null };
+
+
+type AgentModeratorConversationQueryVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+}>;
+
+
+type AgentModeratorConversationQuery = AgentModeratorConversationQuery_Query;
+
+type AgentModeratorMessagesQuery_messages_MultiMessageOutput_results_Message_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type AgentModeratorMessagesQuery_messages_MultiMessageOutput_results_Message_contents_Revision = (
+  { __typename?: 'Revision', version: string }
+  & RevisionHTML
+);
+
+type AgentModeratorMessagesQuery_messages_MultiMessageOutput_results_Message = { __typename?: 'Message', _id: string, userId: string | null, createdAt: string | null, user: AgentModeratorMessagesQuery_messages_MultiMessageOutput_results_Message_user_User | null, contents: AgentModeratorMessagesQuery_messages_MultiMessageOutput_results_Message_contents_Revision | null };
+
+type AgentModeratorMessagesQuery_messages_MultiMessageOutput = { __typename?: 'MultiMessageOutput', totalCount: number | null, results: Array<AgentModeratorMessagesQuery_messages_MultiMessageOutput_results_Message> };
+
+type AgentModeratorMessagesQuery_Query = { __typename?: 'Query', messages: AgentModeratorMessagesQuery_messages_MultiMessageOutput | null };
+
+
+type AgentModeratorMessagesQueryVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+  offset: Scalars['Int']['input'];
+}>;
+
+
+type AgentModeratorMessagesQuery = AgentModeratorMessagesQuery_Query;
 
 type PostMetadataQuery_post_SinglePostOutput_result_Post_socialPreviewData_SocialPreviewType = { __typename?: 'SocialPreviewType', _id: string, imageUrl: string, text: string | null };
 

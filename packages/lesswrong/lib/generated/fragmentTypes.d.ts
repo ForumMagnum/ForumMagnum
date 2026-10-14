@@ -8,6 +8,7 @@
 // server/codegen/generateFragmentTypes.ts.
 //
 interface FragmentTypes {
+  AgentContentEvaluation: AgentContentEvaluation
   AllTagsPageFragment: AllTagsPageFragment
   ArbitalLinkedPagesFragment: ArbitalLinkedPagesFragment
   AutomatedContentEvaluationsFragment: AutomatedContentEvaluationsFragment
@@ -220,7 +221,7 @@ interface FragmentTypes {
 
 interface FragmentTypesByCollection {
   ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
-  AutomatedContentEvaluations: "AutomatedContentEvaluationsFragment"
+  AutomatedContentEvaluations: "AgentContentEvaluation"|"AutomatedContentEvaluationsFragment"
   Bookmarks: "BookmarksFeedItemFragment"|"BookmarksMinimumInfoFragment"|"BookmarksWithDocumentFragment"
   Books: "BookEdit"|"BookPageFragment"
   Chapters: "ChaptersEdit"|"ChaptersFragment"|"SlimChapter"
@@ -273,6 +274,7 @@ interface FragmentTypesByCollection {
 }
 
 interface CollectionNamesByFragmentName {
+  AgentContentEvaluation: "AutomatedContentEvaluations"
   AllTagsPageFragment: "Tags"
   ArbitalLinkedPagesFragment: never
   AutomatedContentEvaluationsFragment: "AutomatedContentEvaluations"

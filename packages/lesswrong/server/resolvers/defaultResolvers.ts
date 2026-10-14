@@ -224,7 +224,8 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     if (enableTotal) {
       // get total count of documents matching the selector
       // TODO: Make this handle synthetic fields
-      if (saturated) {
+      // A short page only establishes the total when it starts at offset zero.
+      if (saturated || terms.offset) {
         data.totalCount = await collection.find(parameters.selector).count();
       } else {
         data.totalCount = viewableDocs.length;
