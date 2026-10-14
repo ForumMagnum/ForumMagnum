@@ -952,17 +952,17 @@ export async function commentsPublishedNotifications(comment: DbComment, oldComm
 
 /**
  * Create an automated content evaluation for a comment when it transitions from draft to published.
- * Only runs on LessWrong for unreviewed users.
+ * Only runs on LessWrong for unreviewed and snoozed users.
  */
 export async function maybeCreateAutomatedContentEvaluationForComment(
   comment: DbComment,
   oldComment: DbComment | null,
   context: ResolverContext
 ) {
-  // Skip running this by default for reviewed users for now,
-  // since comments are much higher volume than posts and there
-  // isn't any UI for looking at the results yet anyways.
-  if (context.forumType !== 'LessWrong' || context.currentUser?.reviewedByUserId) {
+  // Skip running this by default for approved users for now,
+  // since comments are much higher volume than posts.
+  const authorIsApproved = !!context.currentUser?.reviewedByUserId && !context.currentUser.snoozedUntilContentCount;
+  if (context.forumType !== 'LessWrong' || authorIsApproved) {
     return;
   }
 

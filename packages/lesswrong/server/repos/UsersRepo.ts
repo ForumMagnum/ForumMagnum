@@ -13,6 +13,7 @@ export interface PendingContentStats {
   pendingPostCount: number;
   pendingCommentCount: number;
   oldestPendingContentAt: Date | null;
+  approvedContentCount: number;
 }
 
 const GET_USERS_BY_EMAIL_QUERY = `
@@ -483,26 +484,25 @@ class UsersRepo extends AbstractRepo<"Users"> {
       -- UsersRepo.getPendingContentStats
       SELECT
         "userId",
-        (COUNT(*) FILTER (WHERE "isPost"))::int AS "pendingPostCount",
-        (COUNT(*) FILTER (WHERE NOT "isPost"))::int AS "pendingCommentCount",
-        MIN("postedAt") AS "oldestPendingContentAt"
+        (COUNT(*) FILTER (WHERE "isPending" AND "isPost"))::int AS "pendingPostCount",
+        (COUNT(*) FILTER (WHERE "isPending" AND NOT "isPost"))::int AS "pendingCommentCount",
+        MIN("postedAt") FILTER (WHERE "isPending") AS "oldestPendingContentAt",
+        (COUNT(*) FILTER (WHERE NOT "isPending"))::int AS "approvedContentCount"
       FROM (
-        SELECT p."userId", TRUE AS "isPost", p."postedAt"
+        SELECT p."userId", TRUE AS "isPost", p."postedAt", p."authorIsUnreviewed" IS TRUE AS "isPending"
         FROM "Posts" p
         WHERE p."userId" = ANY($1::text[])
           AND p."shortform" IS NOT TRUE
           AND p."rejected" IS NOT TRUE
           AND p."draft" IS NOT TRUE
-          AND p."authorIsUnreviewed" IS TRUE
         UNION ALL
-        SELECT c."userId", FALSE AS "isPost", c."postedAt"
+        SELECT c."userId", FALSE AS "isPost", c."postedAt", c."authorIsUnreviewed" IS TRUE AS "isPending"
         FROM "Comments" c
         WHERE c."userId" = ANY($1::text[])
           AND c."rejected" IS NOT TRUE
           AND c."deleted" IS NOT TRUE
           AND c."draft" IS NOT TRUE
-          AND c."authorIsUnreviewed" IS TRUE
-      ) "pendingContent"
+      ) "liveContent"
       GROUP BY "userId"
     `, [userIds]);
     const statsByUser = new Map(rows.map(({ userId, ...stats }) => [userId, stats]));
@@ -510,6 +510,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
       pendingPostCount: 0,
       pendingCommentCount: 0,
       oldestPendingContentAt: null,
+      approvedContentCount: 0,
     });
   }
 
