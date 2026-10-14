@@ -7,8 +7,11 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { useMessages } from '@/components/common/withMessages';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
-import { useBackgroundQuery, useQuery, useReadQuery } from '@/lib/crud/useQuery';
+import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
+import type { ModerationInboxQueueQueryQuery, ModerationInboxCurationQueryQuery } from '@/lib/generated/gql-codegen/graphql';
+import ErrorMessage from '@/components/common/ErrorMessage';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ModerationInboxList from './ModerationInboxList';
 import ModerationUserDetailView from './ModerationUserDetailView';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
@@ -136,6 +139,8 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
   loading: {
     display: 'flex',
+    flexDirection: 'column',
+    gap: 12,
     alignItems: 'center',
     justifyContent: 'center',
     height: '100vh',
@@ -427,21 +432,16 @@ const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnap
   );
 };
 
-const ModerationInboxLoader = ({ currentUser }: { currentUser: UsersCurrent }) => {
+// Mount only once both initial queries have succeeded, so direct-user lookup and
+// reducer initialization never run against an incomplete queue.
+const ModerationInboxReady = ({ currentUser, data, curationData }: {
+  currentUser: UsersCurrent;
+  data: ModerationInboxQueueQueryQuery;
+  curationData: ModerationInboxCurationQueryQuery;
+}) => {
   const classes = useStyles(styles);
   const { query } = useLocation();
   const [initialOpenedUserId] = useState(() => query.user || null);
-
-  // Start both requests before reading either, so SSR does not suspend them serially.
-  const [queueRef] = useBackgroundQuery(ModerationInboxQueueQuery, {
-    variables: initialQueueLimits,
-    fetchPolicy: 'cache-and-network',
-  });
-  const [curationRef] = useBackgroundQuery(ModerationInboxCurationQuery, {
-    fetchPolicy: 'cache-and-network',
-  });
-  const { data } = useReadQuery(queueRef);
-  const { data: curationData } = useReadQuery(curationRef);
 
   // This lookup gates initialization only; a later queue refresh must not unmount the inbox.
   const [queuedDirectUser] = useState(() => data.users?.results.find(user => user._id === initialOpenedUserId));
@@ -469,6 +469,52 @@ const ModerationInboxLoader = ({ currentUser }: { currentUser: UsersCurrent }) =
     initialOpenedUserId={initialOpenedUserId}
     currentUser={currentUser}
   />;
+};
+
+const ModerationInboxLoader = ({ currentUser }: { currentUser: UsersCurrent }) => {
+  const classes = useStyles(styles);
+  const { flash } = useMessages();
+
+  // This interactive inbox loads both queries in parallel on the client. Regular
+  // queries expose refresh errors without throwing away the mounted inbox.
+  const queueResult = useQuery(ModerationInboxQueueQuery, {
+    variables: initialQueueLimits,
+    fetchPolicy: 'cache-and-network',
+    ssr: false,
+  });
+  const curationResult = useQuery(ModerationInboxCurationQuery, {
+    fetchPolicy: 'cache-and-network',
+    ssr: false,
+  });
+  const data = queueResult.data ?? queueResult.previousData;
+  const curationData = curationResult.data ?? curationResult.previousData;
+  const hasData = !!data && !!curationData;
+  const queueError = queueResult.error;
+  const curationError = curationResult.error;
+
+  useEffect(() => {
+    if (!hasData) return;
+    const errors = [queueError, curationError].filter(error => !!error);
+    if (errors.length) {
+      flash({ messageString: `Failed to refresh moderation inbox: ${errors.map(error => error.message).join('; ')}`, type: 'error' });
+    }
+  }, [hasData, queueError, curationError, flash]);
+
+  if (!data || !curationData) {
+    return <div className={classes.loading}>
+      {queueError && <ErrorMessage message={queueError.message} />}
+      {curationError && <ErrorMessage message={curationError.message} />}
+      {queueError || curationError
+        ? <Button
+            disabled={queueResult.loading || curationResult.loading}
+            // Query results above display failures, including failed retries.
+            onClick={() => Promise.allSettled([queueResult.refetch(), curationResult.refetch()])}
+          >Retry</Button>
+        : <Loading />}
+    </div>;
+  }
+
+  return <ModerationInboxReady currentUser={currentUser} data={data} curationData={curationData} />;
 };
 
 const ModerationInbox = () => {
