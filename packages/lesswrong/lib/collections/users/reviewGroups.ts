@@ -8,14 +8,73 @@ import maxBy from "lodash/maxBy";
  * highest-priority fresh review-trigger group.
  */
 export const REVIEW_GROUP_TO_PRIORITY = {
-  newContent: 7,
-  offboard: 6,
+  newContent: 6,
   highContext: 5,
   maybeSpam: 4,
   automod: 3,
   snoozeExpired: 2,
   unknown: 1,
 } as const satisfies Record<ReviewGroup, number>;
+
+interface ReviewableContent {
+  authorIsUnreviewed: boolean;
+  rejected?: boolean | null;
+  draft?: boolean | null;
+  deleted?: boolean | null;
+  shortform?: boolean | null;
+}
+
+// One definition for queue counts, bulk moderation selectors, and client previews.
+const reviewableContentExcludedFields = {
+  Posts: ['rejected', 'draft', 'shortform'],
+  Comments: ['rejected', 'draft', 'deleted'],
+} as const;
+
+export function getReviewableContentExcludedFields(collectionName: 'Posts' | 'Comments') {
+  return reviewableContentExcludedFields[collectionName];
+}
+
+export function isAwaitingReview(content: ReviewableContent, collectionName: 'Posts' | 'Comments'): boolean {
+  return content.authorIsUnreviewed && getReviewableContentExcludedFields(collectionName).every(field => !content[field]);
+}
+
+export function getPendingContentSelector(collectionName: 'Posts' | 'Comments') {
+  return {
+    ...Object.fromEntries(getReviewableContentExcludedFields(collectionName).map(field => [field, { $ne: true }])),
+    authorIsUnreviewed: true,
+  };
+}
+
+export interface ReviewQueueSortUser {
+  _id: string;
+  reviewGroup: ReviewGroup | null;
+  sunshineFlagged: boolean | null;
+  pendingCommentCount: number | null;
+  oldestPendingContentAt: Date | string | null;
+  reviewedByUserId: string | null;
+  postCount: number;
+  commentCount: number;
+  createdAt: Date | string;
+}
+
+/** Used before server pagination and whenever local moderation changes the list. */
+export function compareReviewQueueUsers(a: ReviewQueueSortUser, b: ReviewQueueSortUser): number {
+  const group = a.reviewGroup ?? 'unknown';
+  const groupOrder = REVIEW_GROUP_TO_PRIORITY[b.reviewGroup ?? 'unknown'] - REVIEW_GROUP_TO_PRIORITY[group];
+  const flagOrder = Number(!!b.sunshineFlagged) - Number(!!a.sunshineFlagged);
+  if (groupOrder || flagOrder) return groupOrder || flagOrder;
+  if (group === 'newContent') {
+    const commentOrder = Number((b.pendingCommentCount ?? 0) > 0) - Number((a.pendingCommentCount ?? 0) > 0);
+    const aTime = a.oldestPendingContentAt ? new Date(a.oldestPendingContentAt).getTime() : Infinity;
+    const bTime = b.oldestPendingContentAt ? new Date(b.oldestPendingContentAt).getTime() : Infinity;
+    if (commentOrder || aTime !== bTime) return commentOrder || aTime - bTime;
+  }
+  const reviewerOrder = a.reviewedByUserId === b.reviewedByUserId ? 0
+    : !a.reviewedByUserId ? -1 : !b.reviewedByUserId ? 1 : a.reviewedByUserId < b.reviewedByUserId ? -1 : 1;
+  return reviewerOrder || b.postCount - a.postCount || b.commentCount - a.commentCount
+    || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    || (a._id === b._id ? 0 : a._id < b._id ? 1 : -1);
+}
 
 /**
  * Ensures that we don't forget to add new review-trigger moderator action types
@@ -74,6 +133,24 @@ export function getFreshReviewTriggerActions<T extends ReviewTriggerActionInfo>(
     .filter(action => new Date(action.createdAt).getTime() > lastRemovedFromReviewQueueAtTs);
 }
 
+export function isReviewTriggeredOnlyByContent(
+  moderatorActions: ReviewTriggerActionInfo[],
+  lastRemovedFromReviewQueueAt: Date | string | null | undefined,
+): boolean {
+  const fresh = getFreshReviewTriggerActions(moderatorActions, lastRemovedFromReviewQueueAt);
+  return fresh.length > 0 && fresh.every(action => getModeratorActionGroup(action.type) === "newContent");
+}
+
+export function isReviewTriggeredOnlyByContentOrBio(
+  moderatorActions: ReviewTriggerActionInfo[],
+  lastRemovedFromReviewQueueAt: Date | string | null | undefined,
+): boolean {
+  const fresh = getFreshReviewTriggerActions(moderatorActions, lastRemovedFromReviewQueueAt);
+  // Triage reads the bio and submissions. Map and profile-image changes still need a human review.
+  return fresh.some(action => getModeratorActionGroup(action.type) === "newContent")
+    && fresh.every(action => getModeratorActionGroup(action.type) === "newContent" || action.type === UNREVIEWED_BIO_UPDATE);
+}
+
 export function getReviewGroupFromActions(
   moderatorActions: ReviewTriggerActionInfo[],
   lastRemovedFromReviewQueueAt: Date | string | null | undefined,
@@ -87,8 +164,6 @@ export function getReviewGroupDisplayName(group: ReviewGroup | 'all' | 'posts' |
   switch (group) {
     case 'newContent':
       return 'New Content';
-    case 'offboard':
-      return 'Offboard?';
     case 'highContext':
       return 'High Context';
     case 'maybeSpam':

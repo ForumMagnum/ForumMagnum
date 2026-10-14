@@ -1,10 +1,9 @@
 'use client';
 
 import groupBy from 'lodash/groupBy';
-import sortBy from 'lodash/sortBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
-import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
+import { compareReviewQueueUsers, REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
 import type { SelectedSidebarTab } from './sidebarTabs';
@@ -86,18 +85,11 @@ export type InboxAction =
 
 
 
-// Held comments can't go live until reviewed
-function orderUsersWithinGroup(group: ReviewGroup, users: SunshineUsersList[]): SunshineUsersList[] {
-  if (group !== 'newContent') {
-    return users;
-  }
-  return sortBy(users, user => user.hasPendingComments ? 0 : 1);
-}
 
 export function getOrderedGroups(groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>): GroupEntry[] {
   return (Object.entries(groupedUsers) as GroupEntry[])
     .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a])
-    .map(([group, users]): GroupEntry => [group, orderUsersWithinGroup(group, users)]);
+    .map(([group, users]): GroupEntry => [group, [...users].sort(compareReviewQueueUsers)]);
 }
 
 export function getFilteredGroups(

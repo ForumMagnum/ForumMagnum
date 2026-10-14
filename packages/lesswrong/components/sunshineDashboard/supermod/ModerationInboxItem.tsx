@@ -3,11 +3,10 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import FormatDate from '@/components/common/FormatDate';
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
-import { getUserEmail } from '@/lib/collections/users/helpers';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import { getDisplayedReasonForGroupAssignment } from './groupings';
-import ForumIcon from '@/components/common/ForumIcon';
+import LWTooltip from '@/components/common/LWTooltip';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import ReviewTriggerBadge from './ReviewTriggerBadge';
@@ -52,6 +51,14 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     flexShrink: 0,
   },
+  oldestPending: {
+    fontSize: 13,
+    color: 'light-dark(#8a5a00, #e0a526)',
+    marginRight: 8,
+    width: 32,
+    textAlign: 'right',
+    flexShrink: 0,
+  },
   karma: {
     fontSize: 13,
     marginRight: 8,
@@ -88,17 +95,6 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     color: theme.palette.error.main,
     marginLeft: 4,
   },
-  email: {
-    fontSize: 12,
-    color: theme.palette.grey[500],
-    marginLeft: 'auto',
-    maxWidth: 200,
-    minWidth: 0,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    flexShrink: 1,
-  },
   contentCounts: {
     color: theme.palette.grey[600],
     display: 'flex',
@@ -106,9 +102,6 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   },
   contentCountItem: {
     width: 36,
-  },
-  wideContentCountItem: {
-    width: 50,
   },
   deemphasizedContentCountItem: {
     opacity: 0.5,
@@ -172,14 +165,14 @@ const ContentPreview = ({ user }: { user: SunshineUsersList }) => {
   const firstUnreviewedPost = useMemo(() => (
     posts
       .sort((a, b) => new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime())
-      .filter(post => !post.reviewedByUserId && !post.rejected)
+      .filter(post => !post.reviewedByUserId && !post.rejected && !post.draft)
       .at(0)
   ), [posts]);
 
   const firstUnreviewedComment = useMemo(() => (
     comments
       .sort((a, b) => new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime())
-      .filter(comment => !comment.reviewedByUserId && !comment.rejected)
+      .filter(comment => !comment.reviewedByUserId && !comment.rejected && !comment.deleted)
       .at(0)
   ), [comments]);
 
@@ -219,8 +212,6 @@ const ModerationInboxItem = ({
   const karma = user.karma;
   const karmaClass = karma < 0 ? classes.karmaNegative : karma < 10 ? classes.karmaLow : classes.karmaPositive;
 
-  const showEmail = !user.reviewedByUserId;
-
   return (
     <div
       className={classNames(classes.root, {
@@ -232,6 +223,10 @@ const ModerationInboxItem = ({
       <div className={classes.displayName}>
         {user.displayName}
       </div>
+      {/* Rendered even when empty, to keep the columns aligned */}
+      <div className={classes.oldestPending}>
+        {user.oldestPendingContentAt && <FormatDate date={user.oldestPendingContentAt} tooltip="Age of their oldest content awaiting review" />}
+      </div>
       <div className={classNames(classes.karma, karmaClass)}>
         {karma}
       </div>
@@ -239,22 +234,23 @@ const ModerationInboxItem = ({
         <FormatDate date={user.createdAt} />
       </div>
       <div className={classes.contentCounts}>
-        <span className={classNames(classes.contentCountItem, !user.postCount && classes.deemphasizedContentCountItem)}>
+        {/* The tooltip's wrapper is the flex item, so it carries the column width */}
+        <LWTooltip
+          title="Posts awaiting review"
+          placement="top"
+          className={classNames(classes.contentCountItem, !user.pendingPostCount && classes.deemphasizedContentCountItem)}
+        >
           <DescriptionIcon className={classes.icon} />
-          {user.postCount}
-        </span>
-        <span className={classNames(classes.wideContentCountItem, !user.commentCount && classes.deemphasizedContentCountItem)}>
+          {user.pendingPostCount ?? 0}
+        </LWTooltip>
+        <LWTooltip
+          title="Comments awaiting review"
+          placement="top"
+          className={classNames(classes.contentCountItem, !user.pendingCommentCount && classes.deemphasizedContentCountItem)}
+        >
           <MessageIcon className={classes.icon} />
-          {user.commentCount}
-        </span>
-        <span className={classNames(classes.contentCountItem, !user.usersContactedBeforeReview?.length && classes.deemphasizedContentCountItem)}>
-          <ForumIcon icon="Email" className={classes.icon} />
-          {user.usersContactedBeforeReview?.length ?? 0}
-        </span>
-        <span className={classNames(classes.contentCountItem, !user.rejectedContentCount && classes.deemphasizedContentCountItem)}>
-          <ForumIcon icon="NotInterested" className={classes.icon} />
-          {user.rejectedContentCount}
-        </span>
+          {user.pendingCommentCount ?? 0}
+        </LWTooltip>
       </div>
       <div className={classes.icons}>
         {user.sunshineFlagged && <FlagIcon className={classes.flagIcon} />}
@@ -265,7 +261,7 @@ const ModerationInboxItem = ({
       <ConcurrentModeratorChangeIndicator documentId={user._id} variant="badge" />
 
       <div className={classes.contextualInfo}>
-        {reviewGroup === 'newContent' || reviewGroup === 'offboard'
+        {reviewGroup === 'newContent'
           ? <ContentPreview user={user} />
           : <PreloadUserContents user={user} />
         }
@@ -273,12 +269,6 @@ const ModerationInboxItem = ({
           <div className={classes.bioPreview}>{htmlToTextDefault(user.htmlBio)}</div>
         )}
       </div>
-
-      {showEmail && (
-        <div className={classes.email}>
-          {getUserEmail(user) || 'No email'}
-        </div>
-      )}
     </div>
   );
 };

@@ -98,7 +98,7 @@ async function getAltAccountsForClientIds(userId: string, clientIds: UserClientI
 
 export const findAltAccountsTool = defineModerationAgentTool({
   name: "find_alt_accounts",
-  description: "Look up possible alternate accounts. Given a userId, returns the client IDs (browser identifiers) associated with that user and every other account sharing any of them. Given an ipAddress (admins only), returns all accounts that have logged in from that IP.",
+  description: "Look up possible alternate accounts. Given a userId, returns the client IDs (browser identifiers) associated with that user and accounts sharing them. Given an ipAddress (admins only), uses the moderator IP lookup to return associated account IDs.",
   inputSchema: z.object({
     userId: z.string().optional().describe("Find accounts sharing a browser client ID with this user"),
     ipAddress: z.string().optional().describe("Find accounts that have logged in from this IP address (admins only)"),
@@ -413,8 +413,8 @@ export const listModerationTemplatesTool = defineModerationAgentTool({
 });
 
 const AgentReviewQueueQuery = gql(`
-  query AgentReviewQueue($limit: Int) {
-    users(selector: { sunshineNewUsers: {} }, limit: $limit) {
+  query AgentReviewQueue($limit: Int!) {
+    users: supermodQueueUsers(limit: $limit) {
       results {
         _id
         displayName

@@ -10,6 +10,10 @@ import { isE2E } from '@/lib/executionEnvironment';
 
 export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
+export function userIsApproved(user: Pick<DbUser, 'reviewedByUserId' | 'snoozedUntilContentCount'> | null | undefined): boolean {
+  return !!user?.reviewedByUserId && !user.snoozedUntilContentCount;
+}
+
 export type UserDisplayNameInfo = { username?: string | null, fullName?: string | null, displayName: string | null };
 export interface PermissionsPostMinimumInfo {
   shortform?: boolean | null,
@@ -619,4 +623,3 @@ export type CareerStage = {
 };
 
 export const MULTISELECT_SUGGESTION_LIMIT = 8;
-

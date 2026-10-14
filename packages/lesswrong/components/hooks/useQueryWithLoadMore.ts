@@ -114,7 +114,8 @@ export function useQueryWithLoadMore<
     ? NetworkStatus.fetchMore
     : queryOutput.networkStatus;
 
-  const queryName = query.definitions.find(d => d.kind === Kind.OPERATION_DEFINITION)?.selectionSet?.selections?.find(s => s.kind === Kind.FIELD)?.name?.value;
+  const queryField = query.definitions.find(d => d.kind === Kind.OPERATION_DEFINITION)?.selectionSet?.selections?.find(s => s.kind === Kind.FIELD);
+  const queryName = queryField?.alias?.value ?? queryField?.name.value;
   const queryResult = queryName ? data?.[queryName] : undefined;
 
   const count = queryResult?.results?.length ?? 0;
