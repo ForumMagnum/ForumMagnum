@@ -6,7 +6,6 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { useLocalStorageState } from '@/components/hooks/useLocalStorageState';
-import { parseDocumentFromString } from '@/lib/domParser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { prettyScrollbars } from '@/themes/styleUtils';
 import { Link } from '@/lib/reactRouterWrapper';
@@ -145,13 +144,6 @@ const styles = defineStyles('ModerationActivityFeed', (theme: ThemeType) => ({
     '& $author': {
       color: theme.palette.grey[500],
     },
-  },
-  rejectionReasons: {
-    margin: '4px 0 0',
-    paddingLeft: 16,
-    fontSize: 10.5,
-    fontWeight: 500,
-    color: theme.palette.grey[800],
   },
   messageSnippet: {
     marginTop: 4,
@@ -331,7 +323,6 @@ const DATE_ONLY_NOTE_MATCH_WINDOW_MS = 24 * 60 * 60 * 1000;
 const TIME_OF_DAY = /\d:\d{2}/;
 const AUTOMOD_RATE_LIMIT_TYPES = new Set<string>([STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT]);
 const AUTOMOD_RATE_LIMIT_NOTE = /^User triggered a stricter (.+) rate limit$/;
-const REJECTION_ACTION_TYPES = new Set<string>([REJECTED_POST, REJECTED_COMMENT]);
 
 const APPROVE_CURRENT_ONLY_EXPLANATION = / \(future content will need review\)$/;
 
@@ -381,7 +372,7 @@ type ActivityItem =
   | { kind: 'note', key: string, date: Date | null, note: ModeratorNoteEntry }
   | { kind: 'moderatorAction', key: string, date: Date, action: ModeratorActionDisplay, author: string | null, detail: string | null }
   | { kind: 'rateLimit', key: string, date: Date, rateLimit: UserRateLimitDisplay }
-  | { kind: 'conversation', key: string, date: Date | null, conversation: ConversationsList, rejections: ModeratorActionDisplay[] };
+  | { kind: 'conversation', key: string, date: Date | null, conversation: ConversationsList };
 
 function getActionTone(type: string): Tone {
   if (RESTRICTIVE_ACTION_TYPES.has(type)) return 'restrictive';
@@ -444,31 +435,6 @@ function mergeActionsWithNotes(actions: ModeratorActionDisplay[], notes: Moderat
   return { mergedActions, remainingNotes: notes.filter(note => !usedNotes.has(note)) };
 }
 
-function isDuringConversation(date: Date, conversation: ConversationsList) {
-  const startedAt = conversation.createdAt ?? conversation.latestActivity;
-  const endedAt = conversation.latestActivity ?? conversation.createdAt;
-  if (!startedAt || !endedAt) return false;
-  const start = new Date(startedAt).getTime() - NOTE_MATCH_WINDOW_MS;
-  const end = new Date(endedAt).getTime() + NOTE_MATCH_WINDOW_MS;
-  return date.getTime() >= start && date.getTime() <= end;
-}
-
-// Messaging a user, or rejecting their content with a message, also records moderator actions; show those as part of the conversation
-function mergeActionsWithConversations<T extends { action: ModeratorActionDisplay, date: Date }>(actions: T[], conversations: ConversationsList[]) {
-  const usedActions = new Set<T>();
-  const mergedConversations = conversations.map(conversation => {
-    const actionsDuring = actions.filter(entry => !usedActions.has(entry)
-      && (entry.action.type === SENT_MODERATOR_MESSAGE || REJECTION_ACTION_TYPES.has(entry.action.type))
-      && isDuringConversation(entry.date, conversation));
-    actionsDuring.forEach(entry => usedActions.add(entry));
-    return {
-      conversation,
-      rejections: actionsDuring.filter(entry => REJECTION_ACTION_TYPES.has(entry.action.type)).map(entry => entry.action),
-    };
-  });
-  return { mergedConversations, remainingActions: actions.filter(entry => !usedActions.has(entry)) };
-}
-
 function getGroupKey(item: ActivityItem) {
   switch (item.kind) {
     case 'note':
@@ -495,24 +461,24 @@ function collapseRepeats(items: ActivityItem[]) {
   return collapsed;
 }
 
-function getActivityItems(user: SunshineUsersList, conversations: ConversationsList[], now: Date, filterNoise: boolean) {
+export function getActivityItems(user: Pick<SunshineUsersList, 'moderatorActions' | 'sunshineNotes' | 'userRateLimits'>, conversations: ConversationsList[], now: Date, filterNoise: boolean) {
   const actions = user.moderatorActions ?? [];
   const notes = parseModeratorNotes(user.sunshineNotes, now);
   const { mergedActions, remainingNotes } = mergeActionsWithNotes(
     filterNoise ? actions.filter(action => !HIDDEN_ACTION_TYPES.has(action.type)) : actions,
     filterNoise ? notes.filter(note => !isNoiseNote(note)) : notes,
   );
-  const { mergedConversations, remainingActions } = mergeActionsWithConversations(mergedActions, conversations);
+  // Actions have no conversation ID. Keep their own dates and authors instead of
+  // inferring a relationship from an overlapping conversation's activity span.
   const items: ActivityItem[] = [
     ...remainingNotes.map((note, index): ActivityItem => ({ kind: 'note', key: `note-${index}`, date: note.date, note })),
-    ...remainingActions.map(({ action, date, author, detail }): ActivityItem => ({ kind: 'moderatorAction', key: action._id, date, action, author, detail })),
+    ...mergedActions.map(({ action, date, author, detail }): ActivityItem => ({ kind: 'moderatorAction', key: action._id, date, action, author, detail })),
     ...(user.userRateLimits ?? []).map((rateLimit): ActivityItem => ({ kind: 'rateLimit', key: rateLimit._id, date: new Date(rateLimit.createdAt), rateLimit })),
-    ...mergedConversations.map(({ conversation, rejections }): ActivityItem => ({
+    ...conversations.map((conversation): ActivityItem => ({
       kind: 'conversation',
       key: conversation._id,
       date: conversation.latestActivity ? new Date(conversation.latestActivity) : null,
       conversation,
-      rejections,
     })),
   ];
   // Undated items (mostly hand-written legacy notes) go last, in their original order
@@ -520,15 +486,6 @@ function getActivityItems(user: SunshineUsersList, conversations: ConversationsL
     .map((item, index) => ({ item, index }))
     .sort((a, b) => (b.item.date?.getTime() ?? -Infinity) - (a.item.date?.getTime() ?? -Infinity) || a.index - b.index)
     .map(({ item }) => item));
-}
-
-// Rejection messages list each reason as a bullet that opens with its bolded title
-function getRejectionReasonTitles(html: string) {
-  const { document } = parseDocumentFromString(html);
-  return Array.from(document.querySelectorAll('li'))
-    .filter(item => !item.parentElement?.closest('li'))
-    .map(item => item.querySelector('strong')?.textContent?.trim().replace(/[.:]$/, ''))
-    .filter((title): title is string => !!title);
 }
 
 function getPendingDescription(user: SunshineUsersList) {
@@ -576,26 +533,19 @@ const ActivityRow = ({ icon, date, author, tone, isHuman, count = 1, expansion, 
   </div>;
 };
 
-const ConversationActivityRow = ({ user, conversation, rejections, date }: {
+const ConversationActivityRow = ({ user, conversation, date }: {
   user: SunshineUsersList;
   conversation: ConversationsList;
-  rejections: ModeratorActionDisplay[];
   date: React.ReactNode;
 }) => {
   const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false);
   const moderators = conversation.participants?.filter(participant => participant._id !== user._id) ?? [];
-  const isRejection = rejections.length > 0;
-  const reasonTitles = useMemo(
-    () => isRejection ? getRejectionReasonTitles(conversation.latestMessage?.contents?.html ?? '') : [],
-    [isRejection, conversation.latestMessage],
-  );
-
   // A single-message conversation's latest message is also its first
   const hasEarlierMessages = conversation.messageCount > 1;
   const { data: firstMessageData } = useQuery(FirstMessageQuery, {
     variables: { selector: { messagesConversation: { conversationId: conversation._id } }, limit: 1 },
-    skip: isRejection || !hasEarlierMessages,
+    skip: !hasEarlierMessages,
   });
   const firstMessage = hasEarlierMessages ? firstMessageData?.messages?.results?.[0] : conversation.latestMessage;
   const snippet = useMemo(
@@ -603,10 +553,10 @@ const ConversationActivityRow = ({ user, conversation, rejections, date }: {
     [firstMessage],
   );
   // Whoever opened the thread, falling back to the moderators in it
-  const author = (isRejection ? conversation.latestMessage : firstMessage)?.user?.displayName
+  const author = firstMessage?.user?.displayName
     ?? moderators.map(moderator => moderator.displayName).join(', ');
   return <ActivityRow
-    icon={isRejection ? <NotInterestedIcon className={classes.icon} /> : <EmailIcon className={classes.icon} />}
+    icon={<EmailIcon className={classes.icon} />}
     date={date}
     author={author}
     isHuman
@@ -624,10 +574,6 @@ const ConversationActivityRow = ({ user, conversation, rejections, date }: {
     >
       <div className={classes.conversationHeader} onClick={() => setExpanded(!expanded)}>
         <span>
-          {rejections.length > 0 && <>
-            <span className={classes.restrictive}>{rejections.map(action => MODERATOR_ACTION_TYPES[action.type]).join(', ')}</span>
-            {' · '}
-          </>}
           Conversation with {moderators.map((participant, index) => <React.Fragment key={participant._id}>
             {index > 0 && ', '}
             <UsersName simple user={participant} />
@@ -640,10 +586,7 @@ const ConversationActivityRow = ({ user, conversation, rejections, date }: {
         <ForumIcon icon={expanded ? 'ExpandLess' : 'ExpandMore'} className={classes.conversationIcon} />
       </div>
     </LWTooltip>
-    {reasonTitles.length > 0 && <ul className={classes.rejectionReasons}>
-      {reasonTitles.map(title => <li key={title}>{title}</li>)}
-    </ul>}
-    {!isRejection && !expanded && snippet && <div className={classes.messageSnippet}>{snippet}</div>}
+    {!expanded && snippet && <div className={classes.messageSnippet}>{snippet}</div>}
   </ActivityRow>;
 };
 
@@ -700,7 +643,7 @@ const ActivityItemRow = ({ user, item, count, now }: {
       </ActivityRow>;
     }
     case 'conversation':
-      return <ConversationActivityRow user={user} conversation={item.conversation} rejections={item.rejections} date={date} />;
+      return <ConversationActivityRow user={user} conversation={item.conversation} date={date} />;
   }
 };
 

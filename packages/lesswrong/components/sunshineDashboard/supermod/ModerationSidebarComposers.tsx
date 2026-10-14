@@ -138,7 +138,7 @@ const ModerationSidebarComposers = ({ user, currentUser, posts, comments, focuse
     </div>
     {canReject && focusedContent && (
       <div ref={rejectPanelRef} className={classNames({ [classes.hiddenTabContent]: !rejectPanelVisible })}>
-        <RejectContentPanel rejectComposerFocusToken={rejectComposerFocusToken} user={user} focusedContent={focusedContent} active={rejectTabActive}
+        <RejectContentPanel key={focusedContent._id} rejectComposerFocusToken={rejectComposerFocusToken} user={user} focusedContent={focusedContent} active={rejectTabActive}
           onEscape={closeTab}
           onRejected={closeTab}
           dispatch={dispatch}

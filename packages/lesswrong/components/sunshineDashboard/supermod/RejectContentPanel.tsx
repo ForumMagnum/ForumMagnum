@@ -8,6 +8,7 @@ import { focusLexicalEditorAtEnd } from '@/components/editor/focusLexicalEditor'
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useCompleteUserModeration } from './useCompleteUserModeration';
 import { useMessages } from '@/components/common/withMessages';
+import { useIsMounted } from '@/components/hooks/useIsMounted';
 import { disabledPermissionsRejectionHtml, standardRejectionIntroHtml, standardRejectionIntroPlaintext } from '@/lib/collections/moderationTemplates/rejectionIntro';
 import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
 import GroupedModerationTemplateList from '../GroupedModerationTemplateList';
@@ -185,6 +186,7 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
 }) => {
   const classes = useStyles(styles);
   const completeModeration = useCompleteUserModeration(dispatch);
+  const { getIsMounted } = useIsMounted();
   const { flash } = useMessages();
   const [disablePermissions, setDisablePermissions] = useState(false);
   const permissionsAlreadyDisabled = areAllContentPermissionsDisabled(user);
@@ -332,6 +334,8 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
         rejectAll,
         removeFromQueue: rejectAll,
       });
+      // A different content item now owns the composer if this keyed panel unmounted.
+      if (!getIsMounted()) return;
       setDisablePermissions(false);
       setRateLimitEnabled(false);
       setRateLimitSettings(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
@@ -348,9 +352,9 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
       flash({ messageString: `Moderation action did not complete. Retry to finish it: ${error instanceof Error ? error.message : String(error)}`, type: 'error' });
     } finally {
       submittingRef.current = false;
-      setSubmitting(false);
+      if (getIsMounted()) setSubmitting(false);
     }
-  }, [editorOpen, addedTemplates, disablePermissions, permissionsAlreadyDisabled, rateLimitEnabled, rateLimitSettings, rejectAll, focusedContent, completeModeration, user._id, flash, onRejected]);
+  }, [editorOpen, addedTemplates, disablePermissions, permissionsAlreadyDisabled, rateLimitEnabled, rateLimitSettings, rejectAll, focusedContent, completeModeration, user._id, flash, onRejected, getIsMounted]);
 
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
     if (!active) return;
