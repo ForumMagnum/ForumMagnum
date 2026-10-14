@@ -80,7 +80,7 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins"],
     },
   },
-  // Null for limits that only lift on karma (see liftAtAverageKarma)
+  // Null for karma-lifted limits and explicit zero-action blocks with no scheduled expiry
   endedAt: {
     database: {
       type: "TIMESTAMPTZ",

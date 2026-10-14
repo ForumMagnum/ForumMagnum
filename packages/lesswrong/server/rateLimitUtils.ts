@@ -1,4 +1,5 @@
 import type { ForumTypeString } from '@/lib/instanceSettings';
+import { getActiveUserRateLimitSelector } from '@/lib/collections/userRateLimits/helpers';
 import moment from "moment"
 import { getAverageContentKarma, getTimeframeForRateLimit } from "../lib/collections/moderatorActions/helpers"
 import { EXEMPT_FROM_RATE_LIMITS, MODERATOR_ACTION_TYPES, PostAndCommentRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, postAndCommentRateLimits } from "@/lib/collections/moderatorActions/constants"
@@ -92,7 +93,7 @@ async function getManualRateLimits(userId: string, type: DbUserRateLimit['type']
   const rateLimits = await UserRateLimits.find({
     userId,
     type,
-    $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
+    ...getActiveUserRateLimitSelector(),
   }, {
     sort: {
       createdAt: -1

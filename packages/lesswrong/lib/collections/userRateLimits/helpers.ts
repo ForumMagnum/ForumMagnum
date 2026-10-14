@@ -6,6 +6,11 @@ interface UserRateLimitValidationInput {
   liftAverageKarmaCount?: number | null;
 }
 
+/** Active manual limits include explicit restrictions without a scheduled expiry. */
+export function getActiveUserRateLimitSelector() {
+  return { $or: [{ endedAt: { $gt: new Date() } }, { endedAt: null }] };
+}
+
 /** Validate expiry/karma-lift limits and the existing explicit zero-action block. */
 export function validateUserRateLimit(limit: UserRateLimitValidationInput) {
   if (limit.actionsPerInterval === null || !Number.isInteger(limit.actionsPerInterval) || limit.actionsPerInterval < 0) {

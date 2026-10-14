@@ -1,4 +1,5 @@
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
+import { getActiveUserRateLimitSelector } from './helpers';
 
 declare global {
   type UserRateLimitsViewTerms = Omit<ViewTermsBase, 'view'> & ({
@@ -13,7 +14,7 @@ declare global {
 }
 
 function userRateLimits(terms: UserRateLimitsViewTerms) {
-  const activeFilter = terms.active ? { $or: [{ endedAt: { $gt: new Date() } }, { endedAt: null }]} : {};
+  const activeFilter = terms.active ? getActiveUserRateLimitSelector() : {};
   return {
     selector: { userId: { $in: terms.userIds }, ...activeFilter },
     options: { sort: { createdAt: -1 } }
@@ -22,8 +23,7 @@ function userRateLimits(terms: UserRateLimitsViewTerms) {
 
 function activeUserRateLimits(terms: UserRateLimitsViewTerms) {
   return {
-    // Karma-lifted limits have no end date
-    selector: { $or: [{ endedAt: { $gt: new Date() } }, { endedAt: null }] },
+    selector: getActiveUserRateLimitSelector(),
     options: { sort: { createdAt: -1 } }
   };
 }
