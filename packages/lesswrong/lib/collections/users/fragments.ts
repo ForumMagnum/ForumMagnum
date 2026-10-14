@@ -371,7 +371,9 @@ export const SunshineUsersList = gql(`
       ...ModeratorActionDisplay
     }
     reviewGroup
-    hasPendingComments
+    pendingPostCount
+    pendingCommentCount
+    oldestPendingContentAt
     usersContactedBeforeReview
 
     voteReceivedCount

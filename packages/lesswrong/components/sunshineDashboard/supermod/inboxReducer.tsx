@@ -86,12 +86,29 @@ export type InboxAction =
 
 
 
-// Held comments can't go live until reviewed
+// TODO: harmonize with the server-side sort in the sunshineNewUsers view (lib/collections/users/views.ts),
+// which orders by flag, post count and comment count, and so decides which users get loaded first
+// Flagged users, then users with pending comments, then users with only pending posts;
+// within each, whoever's content has waited longest
+function getPendingContentSortKey(user: SunshineUsersList): [number, number, number] {
+  const oldestPendingAt = user.oldestPendingContentAt ? new Date(user.oldestPendingContentAt).getTime() : Infinity;
+  return [user.sunshineFlagged ? 0 : 1, (user.pendingCommentCount ?? 0) > 0 ? 0 : 1, oldestPendingAt];
+}
+
+function sortByPendingContent(users: SunshineUsersList[]): SunshineUsersList[] {
+  return [...users].sort((a, b) => {
+    const aKey = getPendingContentSortKey(a);
+    const bKey = getPendingContentSortKey(b);
+    return aKey[0] - bKey[0] || aKey[1] - bKey[1] || aKey[2] - bKey[2];
+  });
+}
+
 function orderUsersWithinGroup(group: ReviewGroup, users: SunshineUsersList[]): SunshineUsersList[] {
-  if (group !== 'newContent') {
-    return users;
+  if (group === 'newContent') {
+    return sortByPendingContent(users);
   }
-  return sortBy(users, user => user.hasPendingComments ? 0 : 1);
+  // Flagged users lead every group; the sort is stable, so the server's order holds otherwise
+  return sortBy(users, user => user.sunshineFlagged ? 0 : 1);
 }
 
 export function getOrderedGroups(groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>): GroupEntry[] {

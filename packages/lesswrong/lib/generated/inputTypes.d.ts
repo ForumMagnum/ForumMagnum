@@ -7303,7 +7303,9 @@ interface User {
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
   lastRemovedFromReviewQueueAt: Date | null;
-  hasPendingComments: boolean | null;
+  pendingPostCount: number | null;
+  pendingCommentCount: number | null;
+  oldestPendingContentAt: Date | null;
   rejectedContentCount: number | null;
   userRateLimits: Array<UserRateLimit> | null;
   claudeLinkedAt: Date | null;

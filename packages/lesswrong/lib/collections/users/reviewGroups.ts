@@ -8,8 +8,7 @@ import maxBy from "lodash/maxBy";
  * highest-priority fresh review-trigger group.
  */
 export const REVIEW_GROUP_TO_PRIORITY = {
-  newContent: 7,
-  offboard: 6,
+  newContent: 6,
   highContext: 5,
   maybeSpam: 4,
   automod: 3,
@@ -74,6 +73,14 @@ export function getFreshReviewTriggerActions<T extends ReviewTriggerActionInfo>(
     .filter(action => new Date(action.createdAt).getTime() > lastRemovedFromReviewQueueAtTs);
 }
 
+export function isReviewTriggeredOnlyByContent(
+  moderatorActions: ReviewTriggerActionInfo[],
+  lastRemovedFromReviewQueueAt: Date | string | null | undefined,
+): boolean {
+  const fresh = getFreshReviewTriggerActions(moderatorActions, lastRemovedFromReviewQueueAt);
+  return fresh.length > 0 && fresh.every(action => getModeratorActionGroup(action.type) === "newContent");
+}
+
 export function getReviewGroupFromActions(
   moderatorActions: ReviewTriggerActionInfo[],
   lastRemovedFromReviewQueueAt: Date | string | null | undefined,
@@ -87,8 +94,6 @@ export function getReviewGroupDisplayName(group: ReviewGroup | 'all' | 'posts' |
   switch (group) {
     case 'newContent':
       return 'New Content';
-    case 'offboard':
-      return 'Offboard?';
     case 'highContext':
       return 'High Context';
     case 'maybeSpam':
