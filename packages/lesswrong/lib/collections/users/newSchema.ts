@@ -37,7 +37,7 @@ import { bothChannelsEnabledNotificationTypeSettings, defaultNotificationTypeSet
 import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
-import { getReviewGroupFromActions } from "./reviewGroups";
+import { getModeratorActionsForUser, getPendingContentStats, getLastRemovedFromReviewQueueAt, getRejectedContentCount, getReviewGroupForUser } from "@/server/users/reviewQueue";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
@@ -55,30 +55,6 @@ const getCoauthoredPostCount = async (user: DbUser) => {
   });
 
   return Number(result.count);
-};
-
-const getModeratorActionsForUser = (context: ResolverContext, userId: string) => {
-  return getWithLoader(
-    context,
-    context.ModeratorActions,
-    "moderatorActionsByUserId",
-    {},
-    "userId",
-    userId,
-  );
-};
-
-const getPendingContentStats = (context: ResolverContext, userId: string) => {
-  return getWithCustomLoader(context, "pendingContentStats", userId, (userIds: string[]) =>
-    context.repos.users.getPendingContentStats(userIds)
-  );
-};
-
-// Get last time user's `needsReview` flag was set to false (or null if never).
-const getLastRemovedFromReviewQueueAt = (context: ResolverContext, userId: string) => {
-  return getWithCustomLoader(context, "lastRemovedFromReviewQueueAt", userId, (userIds: string[]) =>
-    context.repos.users.getLastRemovedFromReviewQueueAt(userIds)
-  );
 };
 
 ///////////////////////////////////////
@@ -3938,17 +3914,7 @@ const schema = {
       outputType: "ReviewGroup",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (doc, args, context) => {
-        const [moderatorActions, lastRemovedFromReviewQueueAt] = await Promise.all([
-          getModeratorActionsForUser(context, doc._id),
-          getLastRemovedFromReviewQueueAt(context, doc._id),
-        ]);
-
-        const actionsWithActiveStatus = moderatorActions.map(action => ({
-          type: action.type,
-          active: isActionActive(action),
-          createdAt: action.createdAt,
-        }));
-        return getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
+        return await getReviewGroupForUser(context, doc._id);
       },
     },
   },
@@ -4359,9 +4325,7 @@ const schema = {
       outputType: "Int",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        return await getWithCustomLoader(context, "rejectedContentCount", user._id, (userIds) =>
-          context.repos.users.getRejectedContentCounts(userIds)
-        );
+        return await getRejectedContentCount(context, user._id);
       },
     }
   },

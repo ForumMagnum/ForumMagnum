@@ -9,7 +9,7 @@ import { reviewTriggerModeratorActions } from '@/lib/collections/moderatorAction
 import { PostsViews } from '@/lib/collections/posts/views';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { getReviewGroupDisplayName, getReviewGroupFromActions } from '@/lib/collections/users/reviewGroups';
-import { UsersViews } from '@/lib/collections/users/views';
+import { getReviewQueueUsers } from '@/server/users/reviewQueue';
 import { adminAccountSetting, type ForumTypeString } from '@/lib/instanceSettings';
 import { viewTermsToQuery } from '@/lib/utils/viewUtils';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
@@ -203,8 +203,8 @@ export async function getSupermodStatus(
   const dailyStart = addPacificDays(windowEnd, -1);
   const twoMonthStart = addPacificDays(windowEnd, -60);
   const start = includeWeekly ? twoMonthStart : dailyStart;
-  const [userQuery, postQuery, recentChanges] = await Promise.all([
-    viewTermsToQuery(UsersViews, { view: 'sunshineNewUsers' }, undefined, context),
+  const [queueUsers, postQuery, recentChanges] = await Promise.all([
+    getReviewQueueUsers(context),
     viewTermsToQuery(PostsViews, { view: 'sunshineNewPosts' }, undefined, context),
     context.FieldChanges.find({
       fieldName: { $in: ['needsReview', 'reviewedByUserId'] },
@@ -216,12 +216,9 @@ export async function getSupermodStatus(
 
   // Keep the view's eligibility rules, but historical work must survive the ban,
   // deletion, approval or snooze that resulted from handling the user.
-  const historicalUserSelector = omit(userQuery.selector, ['needsReview', 'reviewedByUserId', 'banned', 'deleted']);
   const historicalPostSelector = omit(postQuery.selector, ['reviewedByUserId']);
   const [users, posts] = await Promise.all([
-    context.Users.find({ $or: [userQuery.selector, { ...historicalUserSelector, _id: { $in: documentIds(clears) } }] }, {
-      sort: userQuery.options.sort,
-    }).fetch(),
+    context.Users.find({ _id: { $in: [...new Set([...queueUsers.map(user => user._id), ...documentIds(clears)])] } }).fetch(),
     context.Posts.find({ $or: [postQuery.selector, { ...historicalPostSelector, _id: { $in: documentIds(reviews) } }] }).fetch(),
   ]);
   const userIds = users.map(user => user._id);

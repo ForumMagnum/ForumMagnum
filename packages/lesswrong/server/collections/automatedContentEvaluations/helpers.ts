@@ -1,4 +1,3 @@
-import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod";
@@ -6,10 +5,8 @@ import { captureException } from "@/lib/sentryWrapper";
 import Posts from "../posts/collection";
 import Comments from "../comments/collection";
 import ModerationTemplates from "../moderationTemplates/collection";
-import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 import { updateComment } from "@/server/collections/comments/mutations";
-import { createModeratorAction } from "@/server/collections/moderatorActions/mutations";
-import { REJECTED_POST } from "@/lib/collections/moderatorActions/constants";
+import { updatePost } from "@/server/collections/posts/mutations";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { stripExcludedContentForAIDetection } from "./preprocessing";
@@ -316,30 +313,13 @@ async function rejectContentForLLM(
 
   // Rejections are attributed to the LW account, since we don't want a human account to front auto-llm-rejections
   const lwAccount = await getAdminTeamAccount(context);
+  if (!lwAccount) throw new Error("Automated rejection requires an admin team account");
   const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
 
   if (collectionName === "Posts") {
-    const post = await context.loaders["Posts"].load(documentId);
-    await Posts.rawUpdateOne(
-      { _id: documentId },
-      {
-        $set: {
-          rejected: true,
-          rejectedReason,
-        }
-      }
-    );
-    await invalidatePostPageCache(documentId, { hardDelete: true });
-    // We're deliberate not sending auto-llm-rejections from a human account,
-    // because we wanna blankface in this context.
-    await sendRejectionPM({ post: { ...post, rejectedReason }, currentUser: null, context });
-    // The raw update skips the post update callbacks, which record this for comments
-    await createModeratorAction({
-      data: {
-        userId: post.userId,
-        type: REJECTED_POST,
-        endedAt: new Date(),
-      },
+    await updatePost({
+      selector: { _id: documentId },
+      data: { rejected: true, rejectedReason },
     }, lwAccountContext);
   } else {
     // For comments, use updateComment which handles sending the rejection PM via callbacks

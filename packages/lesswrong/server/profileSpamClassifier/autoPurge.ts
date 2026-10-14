@@ -1,17 +1,13 @@
+import { purgeSpamUser } from "@/server/users/moderationUtils";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { compile } from "html-to-text";
 import moment from "moment";
 import { captureException } from "@/lib/sentryWrapper";
-import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { appendToSunshineNotes } from "@/server/users/sunshineNotes";
 import { AUTO_PURGED_PROFILE_SPAM } from "@/lib/collections/moderatorActions/constants";
 import { profileSpamAutoPurgeSetting } from "@/server/databaseSettings";
 import { triggerReviewIfNeeded } from "@/server/callbacks/sunshineCallbackUtils";
-import { updateUser } from "@/server/collections/users/mutations";
-import { createModeratorAction } from "@/server/collections/moderatorActions/mutations";
-import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 
 const PROFILE_SPAM_MODEL = "anthropic/claude-sonnet-5.5";
 
@@ -77,37 +73,6 @@ function profileTextChanged(before: DbUser, after: DbUser): boolean {
   return before.biography?.html !== after.biography?.html || before.mapMarkerText !== after.mapMarkerText;
 }
 
-export async function purgeSpamUser(
-  user: DbUser,
-  sunshineNote: string,
-  moderatorActionType: ModeratorActionType,
-  context: ResolverContext,
-) {
-  const adminTeamAccount = await getAdminTeamAccount(context);
-  if (!adminTeamAccount) throw new Error("Spam purging requires an admin team account");
-  const adminContext = computeContextFromUser({ user: adminTeamAccount, isSSR: false, forumType: context.forumType });
-
-  await updateUser({
-    selector: { _id: user._id },
-    data: {
-      sunshineFlagged: false,
-      reviewedByUserId: adminTeamAccount._id,
-      reviewedAt: new Date(),
-      needsReview: false,
-      nullifyVotes: true,
-      deleteContent: true,
-      banned: moment().add(1000, "years").toDate(),
-    },
-  }, adminContext);
-  await appendToSunshineNotes({
-    moderatedUserId: user._id,
-    adminName: adminTeamAccount.displayName,
-    text: sunshineNote,
-    context: adminContext,
-  });
-
-  await createModeratorAction({ data: { userId: user._id, type: moderatorActionType } }, adminContext);
-}
 
 async function maybeAutoPurgeProfileSpam(userId: string, context: ResolverContext) {
   if (!profileSpamAutoPurgeSetting.get(context)) return;
