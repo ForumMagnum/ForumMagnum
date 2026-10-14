@@ -16,7 +16,7 @@ import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { addPacificDays, PACIFIC_TZ, daysLateFromAge, groupDaysLate, type ModeratorCount, type SupermodStatusReport } from './supermodStatusFormat';
 
 interface ReportUser extends Pick<DbUser,
-  '_id' | 'displayName' | 'username' | 'fullName' | 'karma' | 'createdAt' |
+  '_id' | 'displayName' | 'username' | 'fullName' | 'createdAt' |
   'needsReview' | 'reviewedByUserId' | 'banned' | 'deleted'
 > {}
 
@@ -159,7 +159,7 @@ function queueCounts(entries: Array<Date | null>, windowStart: Date, windowEnd: 
 export function summarizeSupermodStatus(
   data: SupermodStatusData,
   windowStart: Date,
-  offboardIds?: ReadonlySet<string>,
+  includeLongestHandled = false,
 ): SupermodStatusReport {
   const { windowEnd } = data;
   const users = queueCounts(data.queuedUsers, windowStart, windowEnd);
@@ -177,15 +177,13 @@ export function summarizeSupermodStatus(
     newWaitingUsers: users.newWaiting,
     newWaitingPosts: posts.newWaiting,
     averageProcessTimeMs: durations.length ? meanBy(durations, 'durationMs') : null,
-    longestHandled: offboardIds ? sortBy(durations, record => -record.durationMs).slice(0, 3).map(record => {
+    longestHandled: includeLongestHandled ? sortBy(durations, record => -record.durationMs).slice(0, 3).map(record => {
       const user = data.usersById[record.userId];
-      const group = record.reviewGroup === 'newContent' && (user.karma < 0 || offboardIds.has(user._id))
-        ? 'offboard' : record.reviewGroup;
       return {
         userId: user._id,
         displayName: userGetDisplayName(user, data.forumType) || 'Unknown',
         durationMs: record.durationMs,
-        reviewGroupLabel: getReviewGroupDisplayName(group),
+        reviewGroupLabel: getReviewGroupDisplayName(record.reviewGroup),
       };
     }) : [],
     daysLate: groupDaysLate(data.queuedUsers.flatMap(entry => entry ? [windowEnd.getTime() - entry.getTime()] : [])),
@@ -265,15 +263,11 @@ export async function getSupermodStatus(
   const daily = summarizeSupermodStatus(data, dailyStart);
   if (!includeWeekly) return { daily };
 
-  const longest = sortBy(handledDurations(data, twoMonthStart), record => -record.durationMs).slice(0, 3);
-  const offboardIds = longest.length
-    ? await context.repos.users.getOffboardCandidateUserIds(longest.map(record => record.userId))
-    : [];
   return {
     daily,
     weekly: {
       report: summarizeSupermodStatus(data, addPacificDays(windowEnd, -7)),
-      lastTwoMonths: summarizeSupermodStatus(data, twoMonthStart, new Set(offboardIds)),
+      lastTwoMonths: summarizeSupermodStatus(data, twoMonthStart, true),
     },
   };
 }

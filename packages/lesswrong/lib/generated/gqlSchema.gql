@@ -7893,7 +7893,9 @@ type User {
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
   lastRemovedFromReviewQueueAt: Date
-  hasPendingComments: Boolean
+  pendingPostCount: Int
+  pendingCommentCount: Int
+  oldestPendingContentAt: Date
   rejectedContentCount: Int
   userRateLimits: [UserRateLimit!]
   claudeLinkedAt: Date
@@ -7948,7 +7950,6 @@ enum SubforumPreferredLayout {
 
 enum ReviewGroup {
   newContent
-  offboard
   highContext
   maybeSpam
   automod

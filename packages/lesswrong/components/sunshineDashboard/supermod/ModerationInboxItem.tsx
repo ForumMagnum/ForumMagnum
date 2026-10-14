@@ -52,6 +52,14 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     flexShrink: 0,
   },
+  oldestPending: {
+    fontSize: 13,
+    color: 'light-dark(#8a5a00, #e0a526)',
+    marginRight: 8,
+    width: 32,
+    textAlign: 'right',
+    flexShrink: 0,
+  },
   karma: {
     fontSize: 13,
     marginRight: 8,
@@ -172,14 +180,14 @@ const ContentPreview = ({ user }: { user: SunshineUsersList }) => {
   const firstUnreviewedPost = useMemo(() => (
     posts
       .sort((a, b) => new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime())
-      .filter(post => !post.reviewedByUserId && !post.rejected)
+      .filter(post => !post.reviewedByUserId && !post.rejected && !post.draft)
       .at(0)
   ), [posts]);
 
   const firstUnreviewedComment = useMemo(() => (
     comments
       .sort((a, b) => new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime())
-      .filter(comment => !comment.reviewedByUserId && !comment.rejected)
+      .filter(comment => !comment.reviewedByUserId && !comment.rejected && !comment.deleted)
       .at(0)
   ), [comments]);
 
@@ -232,6 +240,10 @@ const ModerationInboxItem = ({
       <div className={classes.displayName}>
         {user.displayName}
       </div>
+      {/* Rendered even when empty, to keep the columns aligned */}
+      <div className={classes.oldestPending}>
+        {user.oldestPendingContentAt && <FormatDate date={user.oldestPendingContentAt} tooltip="Age of their oldest content awaiting review" />}
+      </div>
       <div className={classNames(classes.karma, karmaClass)}>
         {karma}
       </div>
@@ -265,7 +277,7 @@ const ModerationInboxItem = ({
       <ConcurrentModeratorChangeIndicator documentId={user._id} variant="badge" />
 
       <div className={classes.contextualInfo}>
-        {reviewGroup === 'newContent' || reviewGroup === 'offboard'
+        {reviewGroup === 'newContent'
           ? <ContentPreview user={user} />
           : <PreloadUserContents user={user} />
         }

@@ -10,8 +10,6 @@ import {
 
 const moderatorActionTypes: Record<ReviewGroup, ModeratorActionType> = {
   newContent: UNREVIEWED_FIRST_POST,
-  // `offboard` has no moderator action; mocks just need a plausible one.
-  offboard: UNREVIEWED_FIRST_POST,
   highContext: MANUAL_FLAG_ALERT,
   maybeSpam: UNREVIEWED_BIO_UPDATE,
   automod: STRICTER_COMMENT_AUTOMOD_RATE_LIMIT,
