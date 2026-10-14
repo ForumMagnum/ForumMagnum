@@ -15,7 +15,8 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
     padding: 20,
     display: 'flex',
     flexDirection: 'column',
-    overflow: 'auto',
+    maxHeight: 320,
+    overflowY: 'auto',
     borderTop: theme.palette.border.normal,
   },
   section: {
