@@ -1267,10 +1267,16 @@ type SupermodQueueChange {
   lastChangedAt: Date!
 }
 
+type ModerationTemplateUsageCount {
+  templateId: String!
+  count: Int!
+}
+
 extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
   supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
   supermodQueueSnapshotTime: Date!
+  moderationTemplateUsageCounts: [ModerationTemplateUsageCount!]!
 }
 
 extend type Mutation {
@@ -1283,6 +1289,7 @@ extend type Mutation {
   runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
   unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
   addModeratorNote(userId: String!, note: String!): User
+  recordModerationTemplatesUsed(templateIds: [String!]!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
 }
 
 extend type Mutation {

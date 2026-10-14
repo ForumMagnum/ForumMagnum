@@ -17,7 +17,8 @@ const styles = defineStyles('RejectContentButton', (theme: ThemeType) => ({
     padding: 4
   },
   button: {
-    color: theme.palette.grey[500],
+    color: theme.palette.error.main,
+    opacity: .7,
     cursor: "pointer",
     '&:hover': {
       opacity: .5
@@ -25,10 +26,13 @@ const styles = defineStyles('RejectContentButton', (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center"
   },
+  label: {
+    color: 'inherit',
+  },
   icon: {
-    height: 18,
-    width: 18,
-    marginRight: 6
+    height: 15,
+    width: 15,
+    marginRight: 4
   }
 }));
 
@@ -71,7 +75,7 @@ export const RejectContentButton = ({contentWrapper, onReject}: {
       </LWTooltip>
     </span>}
     {!document.rejected && document.authorIsUnreviewed && <span className={classes.button} onClick={onReject ?? openRejectionDialog}>
-      <RejectedIcon className={classes.icon}/> <MetaInfo>Reject</MetaInfo>
+      <RejectedIcon className={classes.icon}/> <MetaInfo className={classes.label}>Reject</MetaInfo>
     </span>}
     <LWPopper
       open={showRejectionDialog}

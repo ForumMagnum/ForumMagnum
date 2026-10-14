@@ -9,7 +9,7 @@ import { forumSelect } from '@/lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '@/lib/rateLimits/constants';
 import { getStrictestActiveRateLimitNames } from '@/lib/rateLimits/utils';
 import { allRateLimits, MODERATOR_ACTION_TYPES, type AllRateLimitTypes } from '@/lib/collections/moderatorActions/constants';
-import { getRateLimitDescription } from '../UserRateLimitItem';
+import { getKarmaLiftDescription, getRateLimitDescription } from '../UserRateLimitItem';
 
 const styles = defineStyles('ModerationActiveRateLimits', (theme: ThemeType) => ({
   root: {
@@ -85,7 +85,7 @@ function getActiveRateLimitRows(user: SunshineUsersList, forumType: ForumTypeStr
       key: rateLimit._id,
       source: 'Manual',
       description: getRateLimitDescription(rateLimit),
-      detail: getEndDescription(rateLimit.endedAt) ?? 'no end date',
+      detail: getEndDescription(rateLimit.endedAt) ?? getKarmaLiftDescription(rateLimit) ?? 'no end date',
     }));
 
   const moderatorActionRows = (user.moderatorActions ?? []).flatMap((action): ActiveRateLimitRow[] => {

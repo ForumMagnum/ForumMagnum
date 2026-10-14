@@ -75,6 +75,7 @@ interface Query {
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
   supermodQueueChanges: Array<SupermodQueueChange>;
   supermodQueueSnapshotTime: Date;
+  moderationTemplateUsageCounts: Array<ModerationTemplateUsageCount>;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
   AdminMetadata: string | null;
@@ -282,6 +283,7 @@ interface Mutation {
   runPangramOnText: PangramTextEvaluationResult;
   unlistLlmPost: boolean;
   addModeratorNote: User | null;
+  recordModerationTemplatesUsed: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -1246,6 +1248,11 @@ interface SupermodQueueChange {
   documentId: string;
   moderatorName: string;
   lastChangedAt: Date;
+}
+
+interface ModerationTemplateUsageCount {
+  templateId: string;
+  count: number;
 }
 
 interface ToggleBookmarkInput {
@@ -9392,6 +9399,7 @@ interface GraphQLTypeMap {
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   PangramTextEvaluationResult: PangramTextEvaluationResult;
   SupermodQueueChange: SupermodQueueChange;
+  ModerationTemplateUsageCount: ModerationTemplateUsageCount;
   ToggleBookmarkInput: ToggleBookmarkInput;
   SetIsBookmarkedInput: SetIsBookmarkedInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;

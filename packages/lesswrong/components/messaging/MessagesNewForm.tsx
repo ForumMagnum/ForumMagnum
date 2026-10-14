@@ -114,6 +114,7 @@ const InnerMessagesNewForm = ({
   sendEmail = true,
   keystrokeSubmitButton = false,
   fitToContent = false,
+  beforeSubmit,
   prefilledProps,
   templateQueries,
   conversationId,
@@ -124,6 +125,7 @@ const InnerMessagesNewForm = ({
   sendEmail?: boolean;
   keystrokeSubmitButton?: boolean;
   fitToContent?: boolean;
+  beforeSubmit?: React.ReactNode;
   prefilledProps: {
     conversationId: string;
     contents: {
@@ -229,6 +231,8 @@ const InnerMessagesNewForm = ({
           </form.Field>
         </div>
 
+        {beforeSubmit}
+
         <form.Subscribe selector={(s) => [s.isSubmitting]}>
           {([isSubmitting]) => (
             <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
@@ -261,6 +265,7 @@ export const MessagesNewForm = ({
   sendEmail = true,
   keystrokeSubmitButton,
   fitToContent,
+  beforeSubmit,
   formStyle="default",
 }: {
   conversationId: string;
@@ -272,6 +277,8 @@ export const MessagesNewForm = ({
   keystrokeSubmitButton?: boolean;
   /** Editor is only as tall as its text, instead of reserving a comment-sized blank area */
   fitToContent?: boolean;
+  /** Rendered between the editor and the submit button */
+  beforeSubmit?: React.ReactNode;
   formStyle?: FormDisplayMode;
 }) => {
   const classes = useStyles(styles);
@@ -303,6 +310,7 @@ export const MessagesNewForm = ({
         sendEmail={sendEmail}
         keystrokeSubmitButton={keystrokeSubmitButton}
         fitToContent={fitToContent}
+        beforeSubmit={beforeSubmit}
         prefilledProps={{
           conversationId,
           contents: {

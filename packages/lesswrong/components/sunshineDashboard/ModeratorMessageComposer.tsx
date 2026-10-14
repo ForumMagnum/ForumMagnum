@@ -11,6 +11,15 @@ import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
 import GroupedModerationTemplateList from './GroupedModerationTemplateList';
 import ComposerKeydownWrapper from './supermod/ComposerKeydownWrapper';
 import { focusLexicalEditorAtEnd, focusLexicalEditorWhenReady } from '../editor/focusLexicalEditor';
+import { useRejectContent } from '../hooks/useRejectContent';
+import ModerationSendOptions from './supermod/ModerationSendOptions';
+import { DEFAULT_REJECTION_RATE_LIMIT_SETTINGS, useCreateRejectionRateLimits, type RejectionRateLimitSettings } from './supermod/RejectionRateLimitForm';
+import { useUserContentPermissions } from './supermod/useUserContentPermissions';
+import { areAllContentPermissionsDisabled, isAwaitingReview, isPost } from './supermod/helpers';
+import type { InboxAction } from './supermod/inboxReducer';
+
+// The rejection notice for content rejected alongside a moderator's message, which carries the explanation
+const SEE_MODERATOR_MESSAGE_REASON = '<p>Look for a separate message from a moderator explaining why your content was rejected.</p>';
 
 const styles = defineStyles('ModeratorMessageComposer', (theme: ThemeType) => ({
   conversationForm: {
@@ -36,10 +45,21 @@ interface ModeratorMessageComposerProps {
   active: boolean;
   onEscape: () => void;
   onSent: () => void;
+  onRemoveFromQueue: () => void;
+  dispatch: React.ActionDispatch<[action: InboxAction]>;
 }
 
-const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, active, onEscape, onSent }: ModeratorMessageComposerProps) => {
+const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, active, onEscape, onSent, onRemoveFromQueue, dispatch }: ModeratorMessageComposerProps) => {
   const classes = useStyles(styles);
+  const { rejectContent } = useRejectContent();
+  const { disableAllPermissions } = useUserContentPermissions(user, dispatch);
+  const createRateLimits = useCreateRejectionRateLimits(user, dispatch);
+  const permissionsAlreadyDisabled = areAllContentPermissionsDisabled(user);
+  const [rateLimitEnabled, setRateLimitEnabled] = useState(false);
+  const [rateLimitSettings, setRateLimitSettings] = useState<RejectionRateLimitSettings>(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
+  const [disablePermissions, setDisablePermissions] = useState(false);
+  const [rejectAll, setRejectAll] = useState(false);
+  const pendingContent = [...posts, ...comments].filter(isAwaitingReview);
 
   const highlightedTemplateNames = useMemo(
     () => getHighlightedTemplateNames({ user, moderatorActions: user.moderatorActions ?? [] }, posts, comments),
@@ -97,6 +117,30 @@ const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, act
     }
   };
 
+  // Runs once the message has gone out, so the rejection notices have something to point to
+  const applySendOptions = async () => {
+    if (disablePermissions && !permissionsAlreadyDisabled) {
+      disableAllPermissions();
+      setDisablePermissions(false);
+    }
+    if (rateLimitEnabled) {
+      await createRateLimits(rateLimitSettings);
+      setRateLimitEnabled(false);
+      setRateLimitSettings(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
+    }
+    if (rejectAll) {
+      for (const item of pendingContent) {
+        await rejectContent({
+          collectionName: isPost(item) ? 'Posts' : 'Comments',
+          document: item,
+          reason: SEE_MODERATOR_MESSAGE_REASON,
+        });
+      }
+      setRejectAll(false);
+      onRemoveFromQueue();
+    }
+  };
+
   const handleFocusComposer = () => {
     if (conversationId) {
       focusLexicalEditorAtEnd(editorContainerRef.current);
@@ -119,12 +163,28 @@ const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, act
           keystrokeSubmitButton
           // One line tall until the moderator types or inserts a template
           fitToContent
+          beforeSubmit={<ModerationSendOptions
+            rateLimitEnabled={rateLimitEnabled}
+            rateLimitSettings={rateLimitSettings}
+            onRateLimitChange={(enabled, settings) => {
+              setRateLimitEnabled(enabled);
+              setRateLimitSettings(settings);
+            }}
+            showDisablePermissions={!permissionsAlreadyDisabled}
+            disablePermissions={disablePermissions}
+            onDisablePermissionsChange={setDisablePermissions}
+            rejectAll={rejectAll}
+            rejectAllLabel={`Reject all${pendingContent.length > 0 ? ` (${pendingContent.length})` : ''}, remove from queue`}
+            rejectAllTooltip="User receives a rejection notice for each pending submission, pointing them to this message."
+            onRejectAllChange={setRejectAll}
+          />}
           successEvent={(newMessage) => {
             captureEvent('messageSent', {
               conversationId: newMessage.conversationId,
               sender: currentUser._id,
               moderatorConveration: true
             });
+            void applySendOptions();
             onSent();
           }}
         />

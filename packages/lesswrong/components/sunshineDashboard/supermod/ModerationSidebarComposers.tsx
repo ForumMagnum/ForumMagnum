@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { useApolloClient } from '@apollo/client/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModeratorMessageComposer from '../ModeratorMessageComposer';
 import RejectContentPanel from './RejectContentPanel';
 import KeystrokeDisplay from './KeystrokeDisplay';
-import { canRejectContent, getContentTitle, type ContentItem } from './helpers';
+import { canRejectContent, getContentTitle, isAwaitingReview, type ContentItem } from './helpers';
 import type { SelectedSidebarTab } from './sidebarTabs';
+import type { InboxAction } from './inboxReducer';
+import { useModerationUserActions } from './useModerationUserActions';
 
 const styles = defineStyles('ModerationSidebarComposers', (theme: ThemeType) => ({
   tabs: {
@@ -70,8 +72,12 @@ const styles = defineStyles('ModerationSidebarComposers', (theme: ThemeType) => 
   },
 }));
 
-/** The sidebar's "Send DM" and "Reject" composers, as tabs */
-const ModerationSidebarComposers = ({ user, currentUser, posts, comments, focusedContent, sidebarTab, setSidebarTab }: {
+/**
+ * The sidebar's "Send DM" and "Reject" composers. The reject panel shows by
+ * default for rejectable content, but only takes keyboard input once its tab
+ * is picked, so the moderation shortcuts keep working.
+ */
+const ModerationSidebarComposers = ({ user, currentUser, posts, comments, focusedContent, sidebarTab, setSidebarTab, addToUndoQueue, dispatch }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   posts: SunshinePostsList[];
@@ -79,13 +85,29 @@ const ModerationSidebarComposers = ({ user, currentUser, posts, comments, focuse
   focusedContent: ContentItem | null;
   sidebarTab: SelectedSidebarTab;
   setSidebarTab: (tab: SelectedSidebarTab) => void;
+  addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
+  dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
   const apolloClient = useApolloClient();
+  const rejectPanelRef = useRef<HTMLDivElement>(null);
+  const { handleRemoveNeedsReview } = useModerationUserActions({ selectedUser: user, currentUser, addToUndoQueue, dispatch });
+
+  const otherPendingContent = [...posts, ...comments]
+    .filter(item => isAwaitingReview(item) && item._id !== focusedContent?._id);
 
   const canReject = canRejectContent(focusedContent);
   const dmTabActive = sidebarTab === 'dm';
   const rejectTabActive = sidebarTab === 'reject' && canReject;
+  const rejectPanelVisible = rejectTabActive || (sidebarTab === null && canReject);
+
+  // The reject panel stays visible after losing its tab, so release its focus or its search box swallows the shortcuts
+  useEffect(() => {
+    const focused = document.activeElement;
+    if (!rejectTabActive && focused instanceof HTMLElement && rejectPanelRef.current?.contains(focused)) {
+      focused.blur();
+    }
+  }, [rejectTabActive]);
 
   const closeTab = () => setSidebarTab(null);
 
@@ -108,7 +130,7 @@ const ModerationSidebarComposers = ({ user, currentUser, posts, comments, focuse
         onClick={() => canReject && setSidebarTab(rejectTabActive ? null : 'reject')}
         title={canReject ? undefined : "This content can't be rejected"}
       >
-        <span className={classNames(classes.tabLabel, classes.keystrokeTabLabel, { [classes.activeTab]: rejectTabActive })}>
+        <span className={classNames(classes.tabLabel, classes.keystrokeTabLabel, { [classes.activeTab]: rejectPanelVisible })}>
           <span className={classes.rejectTabTitle}>Reject “{getContentTitle(focusedContent)}”</span>
           <KeystrokeDisplay keystroke="R" withMargin />
         </span>
@@ -124,11 +146,18 @@ const ModerationSidebarComposers = ({ user, currentUser, posts, comments, focuse
         active={dmTabActive}
         onEscape={closeTab}
         onSent={handleSent}
+        onRemoveFromQueue={handleRemoveNeedsReview}
+        dispatch={dispatch}
       />
     </div>
     {canReject && focusedContent && (
-      <div className={classNames({ [classes.hiddenTabContent]: !rejectTabActive })}>
-        <RejectContentPanel user={user} focusedContent={focusedContent} active={rejectTabActive} onEscape={closeTab} />
+      <div ref={rejectPanelRef} className={classNames({ [classes.hiddenTabContent]: !rejectPanelVisible })}>
+        <RejectContentPanel user={user} focusedContent={focusedContent} active={rejectTabActive} otherPendingContent={otherPendingContent}
+          onEscape={closeTab}
+          onRejected={closeTab}
+          onRemoveFromQueue={handleRemoveNeedsReview}
+          dispatch={dispatch}
+        />
       </div>
     )}
   </div>;
