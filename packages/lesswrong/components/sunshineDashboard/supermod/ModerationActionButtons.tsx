@@ -87,7 +87,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
       {
         label: 'Snooze',
         keystroke: 'S',
-        tooltip: "Remove this user from the review queue for now; they'll return for review after that many more posts or comments. Opens a picker: press A, S, D or F for 1, 3, 5 or 10, any digit 1–9 for that amount, or click a button. Signs a 'Snooze N' note in their moderator notes.",
+        tooltip: "Remove this user from the review queue; they'll return after the chosen N number of posts and comments.",
         onClick: handleSnoozeChoice,
       },
       {
