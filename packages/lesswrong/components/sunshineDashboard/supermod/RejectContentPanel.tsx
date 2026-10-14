@@ -167,6 +167,8 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
 }) => {
   const classes = useStyles(styles);
   const { rejectContent } = useRejectContent();
+  const submittingRef = useRef(false);
+  const [submitting, setSubmitting] = useState(false);
 
   // Source of truth while the preview is showing; the reasons html is derived
   const [addedTemplates, setAddedTemplates] = useState<AddedRejectionTemplate[]>([]);
@@ -242,15 +244,22 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
 
   const hasRejectedReason = editorOpen || addedTemplates.length > 0;
 
-  const handleReject = useCallback(() => {
+  const handleReject = useCallback(async () => {
     const reason = editorOpen ? fullMessageRef.current : joinTemplateHtml(addedTemplates);
-    if (!reason) return;
+    if (!reason || submittingRef.current) return;
 
-    if (isPost(focusedContent)) {
-      void rejectContent({ collectionName: 'Posts', document: focusedContent, reason });
-    } else {
-      void rejectContent({ collectionName: 'Comments', document: focusedContent, reason });
-    }
+    submittingRef.current = true;
+    setSubmitting(true);
+    const succeeded = await rejectContent({
+      collectionName: isPost(focusedContent) ? 'Posts' : 'Comments',
+      document: focusedContent,
+      reason,
+    });
+    submittingRef.current = false;
+    setSubmitting(false);
+    // Keep the draft if the rejection failed, or if the moderator kept typing while it was in flight
+    if (!succeeded || (editorOpen && fullMessageRef.current !== reason)) return;
+
     fullMessageRef.current = '';
     setAddedTemplates([]);
     setEditorOpen(false);
@@ -262,7 +271,7 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
     if (!active) return;
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && hasRejectedReason) {
       e.preventDefault();
-      handleReject();
+      void handleReject();
     }
   }, [active, hasRejectedReason, handleReject]));
 
@@ -282,7 +291,7 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
         />
       </ContentStyles>
     </ComposerKeydownWrapper>}
-    <ComposerSubmitButton label="Reject" disabled={!hasRejectedReason} onClick={handleReject} />
+    <ComposerSubmitButton label="Reject" disabled={!hasRejectedReason || submitting} onClick={handleReject} />
   </div>;
 };
 
