@@ -6,6 +6,8 @@ import classNames from 'classnames';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import type { InboxAction } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
+import { getActionHighlightStyle, type HighlightableModeratorAction, type ModeratorActionHighlightLevel } from './actionHighlightRules';
+import { moderatorActionHighlightStyles } from './ModerationActionButton';
 
 const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) => ({
   permissionButtonsContainer: {
@@ -36,6 +38,7 @@ const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) =>
       },
     },
   },
+  ...moderatorActionHighlightStyles(theme),
   permissionButtonLabel: {
     flexGrow: 1,
   },
@@ -44,9 +47,13 @@ const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) =>
 const ModerationPermissionButtons = ({
   user,
   dispatch,
+  highlightedActions,
+  onlyHighlighted=false,
 }: {
   user: SunshineUsersList;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
+  highlightedActions?: Map<HighlightableModeratorAction, ModeratorActionHighlightLevel>;
+  onlyHighlighted?: boolean;
 }) => {
   const classes = useStyles(styles);
 
@@ -56,6 +63,25 @@ const ModerationPermissionButtons = ({
     toggleDisableMessaging,
     toggleDisableVoting,
   } = useUserContentPermissions(user, dispatch);
+
+  const messagingHighlighted = !!highlightedActions?.has('disableMessages');
+  const messageHighlightStyle = getActionHighlightStyle('disableMessages', highlightedActions?.get('disableMessages'), onlyHighlighted);
+
+  const messageButton = (
+    <div 
+      className={classNames(classes.permissionButton, user.conversationsDisabled && 'active', messageHighlightStyle && classes[messageHighlightStyle])}
+      onClick={toggleDisableMessaging}
+    >
+      <span className={classes.permissionButtonLabel}>Message</span>
+      <KeystrokeDisplay keystroke="M" withMargin activeContext={!!user.conversationsDisabled} />
+    </div>
+  );
+
+  // When showing only the highlighted buttons (i.e. while the section is collapsed),
+  // render the button bare so it flows together in the parent's wrapping row.
+  if (onlyHighlighted) {
+    return messagingHighlighted ? messageButton : null;
+  }
 
   return (
     <div className={classes.permissionButtonsContainer}>
@@ -73,13 +99,7 @@ const ModerationPermissionButtons = ({
         <span className={classes.permissionButtonLabel}>Comment</span>
         <KeystrokeDisplay keystroke="C" withMargin activeContext={!!user.allCommentingDisabled} />
       </div>
-      <div 
-        className={classNames(classes.permissionButton, user.conversationsDisabled && 'active')}
-        onClick={toggleDisableMessaging}
-      >
-        <span className={classes.permissionButtonLabel}>Message</span>
-        <KeystrokeDisplay keystroke="M" withMargin activeContext={!!user.conversationsDisabled} />
-      </div>
+      {messageButton}
       <div 
         className={classNames(classes.permissionButton, user.votingDisabled && 'active')}
         onClick={() => toggleDisableVoting()}

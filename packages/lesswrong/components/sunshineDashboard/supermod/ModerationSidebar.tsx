@@ -38,6 +38,7 @@ const ModerationSidebar = ({
   currentUser,
   posts,
   comments,
+  contentsLoading,
   focusedContent,
   sidebarTab,
   setSidebarTab,
@@ -48,6 +49,7 @@ const ModerationSidebar = ({
   currentUser: UsersCurrent;
   posts: SunshinePostsList[];
   comments: SunshineCommentsList[];
+  contentsLoading: boolean;
   focusedContent: ContentItem | null;
   sidebarTab: SelectedSidebarTab;
   setSidebarTab: (tab: SelectedSidebarTab) => void;
@@ -69,7 +71,7 @@ const ModerationSidebar = ({
   return (
     <div className={classes.root}>
       <div className={classes.section}>
-        <SupermodModeratorActions user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
+        <SupermodModeratorActions user={user} currentUser={currentUser} posts={posts} comments={comments} contentsLoading={contentsLoading} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
       </div>
       <div className={classes.section}>
         <div className={classes.userMessages}>
