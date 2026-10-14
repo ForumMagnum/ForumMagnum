@@ -82,7 +82,8 @@ export type InboxAction =
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
   | { type: 'UNDO_ACTION'; userId: string; }
   | { type: 'EXPIRE_UNDO_ITEM'; userId: string; }
-  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; };
+  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; }
+  | { type: 'ADD_LOADED_ITEMS'; users: SunshineUsersList[]; posts: SunshinePostsList[]; classifiedPosts: SunshinePostsList[]; unloadedCounts: UnloadedCounts; };
 
 
 
@@ -248,6 +249,33 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       return {
         ...state,
         sidebarTab: action.tab,
+      };
+    }
+
+    case 'ADD_LOADED_ITEMS': {
+      const knownUserIds = new Set([
+        ...state.users.map(user => user._id),
+        ...state.undoQueue.map(item => item.user._id),
+        ...state.history.map(item => item.user._id),
+      ]);
+      const knownPostIds = new Set([...state.posts, ...state.classifiedPosts].map(post => post._id));
+      const users = [...state.users, ...action.users.filter(user => !knownUserIds.has(user._id))];
+      const posts = [...state.posts, ...action.posts.filter(post => !knownPostIds.has(post._id))];
+      const classifiedPosts = [...state.classifiedPosts, ...action.classifiedPosts.filter(post => !knownPostIds.has(post._id))];
+
+      const isUserTab = state.activeTab !== 'posts' && state.activeTab !== 'classifiedPosts' && state.activeTab !== 'curation';
+      const firstUserInTab = getFilteredGroups(groupBy(users, user => getUserReviewGroup(user)), state.activeTab)
+        .flatMap(([_, groupUsers]) => groupUsers)[0];
+      const firstPostInTab = state.activeTab === 'posts' ? posts[0] : state.activeTab === 'classifiedPosts' ? classifiedPosts[0] : undefined;
+
+      return {
+        ...state,
+        users,
+        posts,
+        classifiedPosts,
+        unloadedCounts: action.unloadedCounts,
+        focusedUserId: state.focusedUserId ?? (isUserTab && !state.openedUserId ? firstUserInTab?._id ?? null : null),
+        focusedPostId: state.focusedPostId ?? firstPostInTab?._id ?? null,
       };
     }
 
