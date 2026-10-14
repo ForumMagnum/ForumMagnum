@@ -200,10 +200,9 @@ export function useUserContentPermissions(
     }
   }, [user, currentUser, updateModeratorAction, createModeratorAction, addModeratorNote, dispatch]);
 
-  const toggleAllPermissions = useCallback(() => {
+  const setAllPermissions = useCallback((disableAll: boolean) => {
     if (!user || !currentUser) return;
 
-    const disableAll = !areAllContentPermissionsDisabled(user);
     const abled = disableAll ? 'disabled' : 'enabled';
     const note = `all permissions ${abled}`;
 
@@ -259,12 +258,20 @@ export function useUserContentPermissions(
     });
   }, [user, currentUser, dispatch, queueMutation, createModeratorAction, updateModeratorAction, updateUser, addModeratorNote, debouncedSourceOfTruthUpdate]);
 
+  const toggleAllPermissions = useCallback(() => {
+    if (!user) return;
+    setAllPermissions(!areAllContentPermissionsDisabled(user));
+  }, [user, setAllPermissions]);
+
+  const disableAllPermissions = useCallback(() => setAllPermissions(true), [setAllPermissions]);
+
   return {
     toggleDisablePosting,
     toggleDisableCommenting,
     toggleDisableMessaging,
     toggleDisableVoting,
     toggleAllPermissions,
+    disableAllPermissions,
   };
 }
 

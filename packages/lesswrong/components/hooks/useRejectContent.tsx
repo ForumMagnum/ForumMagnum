@@ -35,6 +35,12 @@ const rejectCommentMutation = gql(`
   }
 `);
 
+const RecordRejectionTemplatesUsedMutation = gql(`
+  mutation recordModerationTemplatesUsedRejectContent($templateIds: [String!]!, $documentId: String!, $collectionName: ContentCollectionName!) {
+    recordModerationTemplatesUsed(templateIds: $templateIds, documentId: $documentId, collectionName: $collectionName)
+  }
+`);
+
 export type RejectContentParams = {
   collectionName: "Posts",
   document: SunshinePostsList
@@ -47,10 +53,12 @@ export interface RejectContentWithReason {
   collectionName: "Posts" | "Comments";
   document: { _id: string };
   reason: string;
+  templateIds?: string[];
 }
 
 export function useRejectContent() {
   const { flash } = useMessages();
+  const [recordTemplatesUsed] = useMutation(RecordRejectionTemplatesUsedMutation);
   const [updatePost] = useMutation(rejectPostMutation);
   const [updateComment] = useMutation(rejectCommentMutation);
 
@@ -76,7 +84,7 @@ export function useRejectContent() {
     return result;
   }, [flash]);
 
-  const rejectContent = useCallback(({ collectionName, document, reason }: RejectContentWithReason) => {
+  const rejectContent = useCallback(({ collectionName, document, reason, templateIds }: RejectContentWithReason) => {
     return queueMutation(async () => {
       const variables = {
         selector: { _id: document._id },
@@ -92,8 +100,15 @@ export function useRejectContent() {
           variables,
         });
       }
+      if (templateIds?.length) {
+        try {
+          await recordTemplatesUsed({ variables: { templateIds, documentId: document._id, collectionName } });
+        } catch (error) {
+          flash({ messageString: `Content was rejected, but template usage could not be recorded: ${error instanceof Error ? error.message : String(error)}`, type: "error" });
+        }
+      }
     });
-  }, [updatePost, updateComment, queueMutation]);
+  }, [updatePost, updateComment, queueMutation, recordTemplatesUsed, flash]);
   
   const unrejectContent = useCallback(({ collectionName, document }: RejectContentParams) => {
     return queueMutation(async () => {

@@ -58,7 +58,7 @@ import LWTooltip from '@/components/common/LWTooltip';
 import FormatDate from '@/components/common/FormatDate';
 import UsersName from '@/components/users/UsersName';
 import ConversationPreview from '@/components/messaging/ConversationPreview';
-import { getRateLimitDescription } from '../UserRateLimitItem';
+import { getKarmaLiftDescription, getRateLimitDescription } from '../UserRateLimitItem';
 import ModerationSectionTitle from './ModerationSectionTitle';
 import ModeratorNoteComposer from './ModeratorNoteComposer';
 import { parseModeratorNotes, type ModeratorNoteEntry } from './parseModeratorNotes';
@@ -688,7 +688,7 @@ const ActivityItemRow = ({ user, item, count, now }: {
       </ActivityRow>;
     }
     case 'rateLimit': {
-      const endDescription = getEndDescription(item.rateLimit.endedAt, now);
+      const endDescription = getEndDescription(item.rateLimit.endedAt, now) ?? getKarmaLiftDescription(item.rateLimit);
       return <ActivityRow
         icon={<TimerIcon className={classes.icon} />}
         date={date}
