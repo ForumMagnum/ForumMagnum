@@ -75,6 +75,7 @@ interface Query {
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
   supermodQueueChanges: Array<SupermodQueueChange>;
   supermodQueueSnapshotTime: Date;
+  supermodQueueUsers: MultiUserOutput;
   moderationTemplateUsageCounts: Array<ModerationTemplateUsageCount>;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
@@ -7385,7 +7386,6 @@ interface UserSelector {
   LWTrustLevel1List: EmptyViewInput | null;
   LWUsersAdmin: EmptyViewInput | null;
   usersWithBannedUsers: EmptyViewInput | null;
-  sunshineNewUsers: EmptyViewInput | null;
   recentlyActive: EmptyViewInput | null;
   allUsers: EmptyViewInput | null;
   usersMapLocations: EmptyViewInput | null;

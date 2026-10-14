@@ -1,3 +1,4 @@
+import { userIsApproved } from "@/lib/collections/users/helpers";
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import React from "react";
 import { usesCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
@@ -888,7 +889,7 @@ export async function sendRejectionPM({ post, currentUser, context }: {post: DbP
 
   let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
 
-  const noEmail = !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
+  const noEmail = !userIsApproved(postUser)
   const adminAccount = currentUser ?? await getAdminTeamAccount(context);
   if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
   await utils.sendPostRejectionPM({

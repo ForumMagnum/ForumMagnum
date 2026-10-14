@@ -1276,6 +1276,7 @@ extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
   supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
   supermodQueueSnapshotTime: Date!
+  supermodQueueUsers(limit: Int!, offset: Int = 0): MultiUserOutput!
   moderationTemplateUsageCounts: [ModerationTemplateUsageCount!]!
 }
 
@@ -8030,7 +8031,6 @@ input UserSelector {
   LWTrustLevel1List: EmptyViewInput
   LWUsersAdmin: EmptyViewInput
   usersWithBannedUsers: EmptyViewInput
-  sunshineNewUsers: EmptyViewInput
   recentlyActive: EmptyViewInput
   allUsers: EmptyViewInput
   usersMapLocations: EmptyViewInput

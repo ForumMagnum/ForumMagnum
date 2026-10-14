@@ -1,5 +1,8 @@
 import { createHash } from 'crypto';
-import { completeUserModeration, type UserModerationOptions } from './moderationActions';
+import { completeUserModeration, recordModerationTemplateUsage, type UserModerationOptions } from './moderationActions';
+import { getReviewQueueUsers } from "@/server/users/reviewQueue";
+import { loadByIds } from "@/lib/loaders";
+import { maxDocumentsPerRequestSetting } from "@/lib/instanceSettings";
 import { LWEvents } from '../../server/collections/lwevents/collection';
 import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { getCommentSubtree } from '../utils/commentTreeUtils';
@@ -15,12 +18,10 @@ import { updatePost } from '../collections/posts/mutations';
 import { updateUser } from '../collections/users/mutations';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { appendToSunshineNotes } from '../users/sunshineNotes';
-import { accessFilterSingle, accessFilterMultiple } from '../../lib/utils/schemaUtils';
+import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { approveUnreviewedSubmissions } from '../callbacks/userCallbackFunctions';
 import { createAutomatedContentEvaluation, getPangramEvaluationForText, rerunLlmCheck } from '../collections/automatedContentEvaluations/helpers';
 import type { PangramModel } from '../../lib/collections/automatedContentEvaluations/constants';
-import { MODERATION_TEMPLATE_USED_EVENT } from '../../lib/collections/moderationTemplates/constants';
-import { createLWEvent } from '../collections/lwevents/mutations';
 
 const MODERATION_TEMPLATE_USAGE_WINDOW_DAYS = 90;
 
@@ -64,6 +65,7 @@ export const moderationGqlTypeDefs = gql`
     moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
     supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
     supermodQueueSnapshotTime: Date!
+    supermodQueueUsers(limit: Int!, offset: Int = 0): MultiUserOutput!
     moderationTemplateUsageCounts: [ModerationTemplateUsageCount!]!
   }
 
@@ -397,14 +399,7 @@ export const moderationGqlMutations = {
     const { templateIds, documentId, collectionName } = args;
     const templates = await ModerationTemplates.find({ _id: { $in: uniq(templateIds) } }, {}, { _id: 1 }).fetch();
 
-    await Promise.all(templates.map(template => createLWEvent({
-      data: {
-        name: MODERATION_TEMPLATE_USED_EVENT,
-        documentId: template._id,
-        properties: { contentId: documentId, contentCollectionName: collectionName },
-        intercom: false,
-      }
-    }, context)));
+    await Promise.all(templates.map(template => recordModerationTemplateUsage({ templateId: template._id, documentId, collectionName }, context)));
 
     return true;
   },
@@ -413,6 +408,17 @@ export const moderationGqlMutations = {
 const MAX_QUEUE_CHANGE_DOCUMENT_IDS = 1000;
 
 export const moderationGqlQueries = {
+  async supermodQueueUsers(_root: void, { limit, offset = 0 }: { limit: number, offset?: number }, context: ResolverContext) {
+    if (!userIsAdminOrMod(context.currentUser)) throw new Error("Only admins and moderators can read the moderation queue");
+    if (limit < 1 || offset < 0) throw new Error("Queue limit must be positive and offset must not be negative");
+    const queue = await getReviewQueueUsers(context);
+    const page = queue.slice(offset, offset + Math.min(limit, maxDocumentsPerRequestSetting.get(context)));
+    const users = await loadByIds(context, "Users", page.map(user => user._id));
+    return {
+      results: await accessFilterMultiple(context.currentUser, "Users", users, context),
+      totalCount: queue.length,
+    };
+  },
   async moderatorViewIPAddress(_root: void, args: {ipAddress: string}, context: ResolverContext) {
     const { currentUser } = context;
     const { ipAddress } = args;

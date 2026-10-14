@@ -1,13 +1,14 @@
 import keyBy from "lodash/keyBy";
+import isEqual from "lodash/isEqual";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { appendToSunshineNotes } from "@/server/users/sunshineNotes";
 import { AUTO_PURGED_LLM_REJECTED_SPAM, AUTO_REMOVED_LLM_REJECTED_USER } from "@/lib/collections/moderatorActions/constants";
 import { isActionActive } from "@/lib/collections/moderatorActions/helpers";
-import { isReviewTriggeredOnlyByContentOrProfile } from "@/lib/collections/users/reviewGroups";
+import { isReviewTriggeredOnlyByContentOrBio } from "@/lib/collections/users/reviewGroups";
 import { llmRejectionTriageSetting } from "@/server/databaseSettings";
 import { updateUser } from "@/server/collections/users/mutations";
 import { createModeratorAction } from "@/server/collections/moderatorActions/mutations";
-import { purgeSpamUser } from "@/server/profileSpamClassifier/autoPurge";
+import { purgeSpamUser } from "@/server/users/moderationUtils";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import {
@@ -117,7 +118,7 @@ export async function getLlmRejectionTriageInput(user: DbUser, context: Resolver
   };
 }
 
-async function isInReviewQueueOnlyForContentOrProfile(userId: string, context: ResolverContext): Promise<boolean> {
+async function isInReviewQueueOnlyForContentOrBio(userId: string, context: ResolverContext): Promise<boolean> {
   const [moderatorActions, [lastRemovedFromReviewQueueAt]] = await Promise.all([
     context.ModeratorActions.find({ userId }).fetch(),
     context.repos.users.getLastRemovedFromReviewQueueAt([userId]),
@@ -127,7 +128,7 @@ async function isInReviewQueueOnlyForContentOrProfile(userId: string, context: R
     active: isActionActive(action),
     createdAt: action.createdAt,
   }));
-  return isReviewTriggeredOnlyByContentOrProfile(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
+  return isReviewTriggeredOnlyByContentOrBio(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
 }
 
 export async function isEligibleForLlmRejectionTriage(user: DbUser, context: ResolverContext): Promise<boolean> {
@@ -142,7 +143,7 @@ export async function isEligibleForLlmRejectionTriage(user: DbUser, context: Res
   if (pendingContentStats.pendingPostCount || pendingContentStats.pendingCommentCount) return false;
   if (![...rejectedPosts, ...rejectedComments].some(isAutoRejected)) return false;
 
-  return await isInReviewQueueOnlyForContentOrProfile(user._id, context);
+  return await isInReviewQueueOnlyForContentOrBio(user._id, context);
 }
 
 export type LlmRejectionTriageAction = "removeFromQueue" | "keepInQueue" | "keepSpamWithApprovedContentInQueue" | "purge";
@@ -217,12 +218,16 @@ export async function runLlmRejectionTriage(
   const user = await context.Users.findOne({ _id: userId });
   if (!user || !(await isEligibleForLlmRejectionTriage(user, context))) return null;
 
-  const verdict = await classifyLlmRejectedUser(await getLlmRejectionTriageInput(user, context));
+  const input = await getLlmRejectionTriageInput(user, context);
+  const verdict = await classifyLlmRejectedUser(input);
   if (!verdict) return null;
 
   // The user may have posted, been reviewed, or been moderated while we were classifying.
   const latestUser = await context.Users.findOne({ _id: userId });
   if (!latestUser || !(await isEligibleForLlmRejectionTriage(latestUser, context))) return null;
+  // Eligibility can survive edits to an already rejected submission or to the bio.
+  // Never apply a verdict to evidence the classifier did not see.
+  if (!isEqual(input, await getLlmRejectionTriageInput(latestUser, context))) return null;
 
   const action = await getLlmRejectionTriageAction(userId, verdict, context);
   if (!dryRun) {

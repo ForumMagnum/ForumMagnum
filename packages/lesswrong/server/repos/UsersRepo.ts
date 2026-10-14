@@ -4,10 +4,7 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
-import { isReviewTriggeredOnlyByContent } from "@/lib/collections/users/reviewGroups";
-import { isActionActive } from "@/lib/collections/moderatorActions/helpers";
-import ModeratorActions from "@/server/collections/moderatorActions/collection";
-import groupBy from "lodash/groupBy";
+import { getReviewableContentExcludedFields } from "@/lib/collections/users/reviewGroups";
 
 export interface PendingContentStats {
   pendingPostCount: number;
@@ -480,6 +477,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   async getPendingContentStats(userIds: string[]): Promise<PendingContentStats[]> {
+    const postConditions = getReviewableContentExcludedFields("Posts").map(field => `p."${field}" IS NOT TRUE`).join(" AND ");
+    const commentConditions = getReviewableContentExcludedFields("Comments").map(field => `c."${field}" IS NOT TRUE`).join(" AND ");
     const rows = await this.getRawDb().any<{ userId: string } & PendingContentStats>(`
       -- UsersRepo.getPendingContentStats
       SELECT
@@ -491,20 +490,16 @@ class UsersRepo extends AbstractRepo<"Users"> {
       FROM (
         SELECT p."userId", TRUE AS "isPost", p."postedAt", p."authorIsUnreviewed" IS TRUE AS "isPending"
         FROM "Posts" p
-        WHERE p."userId" = ANY($1::text[])
-          AND p."shortform" IS NOT TRUE
-          AND p."rejected" IS NOT TRUE
-          AND p."draft" IS NOT TRUE
+        WHERE p."userId" = ANY($(userIds)::text[])
+          AND ${postConditions}
         UNION ALL
         SELECT c."userId", FALSE AS "isPost", c."postedAt", c."authorIsUnreviewed" IS TRUE AS "isPending"
         FROM "Comments" c
-        WHERE c."userId" = ANY($1::text[])
-          AND c."rejected" IS NOT TRUE
-          AND c."deleted" IS NOT TRUE
-          AND c."draft" IS NOT TRUE
+        WHERE c."userId" = ANY($(userIds)::text[])
+          AND ${commentConditions}
       ) "liveContent"
       GROUP BY "userId"
-    `, [userIds]);
+    `, { userIds });
     const statsByUser = new Map(rows.map(({ userId, ...stats }) => [userId, stats]));
     return userIds.map((userId) => statsByUser.get(userId) ?? {
       pendingPostCount: 0,
@@ -526,37 +521,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, { userIds });
     const datesByUserId = new Map(rows.map(row => [row.userId, row.createdAt]));
     return userIds.map(userId => datesByUserId.get(userId) ?? null);
-  }
-
-  /**
-   * Queue users who are only there because of new content, but have nothing
-   * left awaiting review and nothing rejected, so there's nothing to decide.
-   */
-  async getContentQueueUserIdsWithNothingPending(): Promise<string[]> {
-    const users = await Users.find({ needsReview: true }, {}, { _id: 1 }).fetch();
-    const userIds = users.map(user => user._id);
-    if (!userIds.length) return [];
-    const [stats, rejectedCounts] = await Promise.all([
-      this.getPendingContentStats(userIds),
-      this.getRejectedContentCounts(userIds),
-    ]);
-    const candidates = userIds.filter((userId, index) =>
-      !rejectedCounts[index] && !stats[index].pendingPostCount && !stats[index].pendingCommentCount
-    );
-    if (!candidates.length) return [];
-    const [lastRemovedAt, actions] = await Promise.all([
-      this.getLastRemovedFromReviewQueueAt(candidates),
-      ModeratorActions.find({ userId: { $in: candidates } }, {}, { userId: 1, type: 1, endedAt: 1, createdAt: 1 }).fetch(),
-    ]);
-    const actionsByUserId = groupBy(actions.map(action => ({
-      userId: action.userId,
-      type: action.type,
-      active: isActionActive(action),
-      createdAt: action.createdAt,
-    })), action => action.userId);
-    return candidates.filter((userId, index) =>
-      isReviewTriggeredOnlyByContent(actionsByUserId[userId] ?? [], lastRemovedAt[index])
-    );
   }
 
   /**

@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { UNREVIEWED_MAP_LOCATION_UPDATE } from '@/lib/collections/moderatorActions/constants';
-import { getFreshReviewTriggerActions } from '@/lib/collections/users/reviewGroups';
+import { getFreshReviewTriggerActions, isAwaitingReview as isDocumentAwaitingReview } from '@/lib/collections/users/reviewGroups';
 
 export type ContentItem = SunshinePostsList | SunshineCommentsList;
 
@@ -109,8 +109,8 @@ export function needsDecision(item: ModerationContentItem) {
   return isMapPin(item) || isAwaitingReview(item);
 }
 
-export function isAwaitingReview(item: { rejected: boolean, authorIsUnreviewed: boolean, deleted?: boolean, draft?: boolean | null }) {
-  return !item.rejected && item.authorIsUnreviewed && !item.deleted && !item.draft;
+export function isAwaitingReview(item: ContentItem) {
+  return isDocumentAwaitingReview(item, isPost(item) ? 'Posts' : 'Comments');
 }
 
 export function canRejectContent(item: ContentItem | null | undefined) {

@@ -48,6 +48,22 @@ function moderationDocumentId(options: UserModerationOptions, moderatorId: strin
   return createHash('sha256').update(`${moderatorId}:${options.userId}:${options.operationId}:${kind}`).digest('hex').slice(0, 27);
 }
 
+export async function recordModerationTemplateUsage({ templateId, documentId, collectionName, eventId }: {
+  templateId: string;
+  documentId: string;
+  collectionName: 'Posts' | 'Comments';
+  eventId?: string;
+}, context: ResolverContext) {
+  if (eventId && await context.LWEvents.findOne(eventId)) return;
+  await createLWEvent({ data: {
+    ...(eventId ? { _id: eventId } : {}),
+    name: MODERATION_TEMPLATE_USED_EVENT,
+    documentId: templateId,
+    properties: { contentId: documentId, contentCollectionName: collectionName },
+    intercom: false,
+  } }, context);
+}
+
 /**
  * Shared by the sidebar and the supported reject-and-remove action. All validation
  * precedes writes, all pending content is fetched on the server, and queue removal
@@ -55,7 +71,7 @@ function moderationDocumentId(options: UserModerationOptions, moderatorId: strin
  * email or other external effects.
  */
 export async function completeUserModeration(options: UserModerationOptions, context: ResolverContext) {
-  const { currentUser, Users, Posts, Comments, Conversations, Messages, UserRateLimits, ModeratorActions, ModerationTemplates, LWEvents } = context;
+  const { currentUser, Users, Posts, Comments, Conversations, Messages, UserRateLimits, ModeratorActions, ModerationTemplates } = context;
   if (!currentUser || !userIsAdminOrMod(currentUser)) throw new Error('Only moderators can perform moderation actions');
   if (!/^[a-zA-Z0-9_-]{16,64}$/.test(options.operationId)) throw new Error('Invalid moderation operation ID');
   const user = await Users.findOne(options.userId);
@@ -127,15 +143,13 @@ export async function completeUserModeration(options: UserModerationOptions, con
     }, context));
   }
 
-  for (const templateId of templateIds) {
-    const eventData = {
-      _id: moderationDocumentId(options, currentUser._id, `template:${templateId}`),
-      name: MODERATION_TEMPLATE_USED_EVENT,
-      documentId: templateId,
-      properties: { contentId: options.rejection?.documentId, contentCollectionName: options.rejection?.collectionName },
-      intercom: false,
-    };
-    if (!await LWEvents.findOne(eventData._id)) await createLWEvent({ data: eventData }, context);
+  if (options.rejection) for (const templateId of templateIds) {
+    await recordModerationTemplateUsage({
+      templateId,
+      documentId: options.rejection.documentId,
+      collectionName: options.rejection.collectionName,
+      eventId: moderationDocumentId(options, currentUser._id, `template:${templateId}`),
+    }, context);
   }
   for (const limit of options.rateLimits) {
     const limitData = { ...limit, _id: moderationDocumentId(options, currentUser._id, `rateLimit:${limit.type}`) };

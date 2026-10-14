@@ -36,15 +36,15 @@ import { ConcurrentModeratorChangesContext, useConcurrentModeratorChanges } from
 // separate useQuery suspends. (directUser is kept separate below because it
 // depends on whether the opened user is already in the users list.)
 const ModerationInboxDataQuery = gql(`
-  query ModerationInboxDataQuery($userSelector: UserSelector, $postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int, $reviewQueueLimit: Int, $postLimit: Int, $curationLimit: Int) {
+  query ModerationInboxDataQuery($postSelector: PostSelector, $classifiedPostSelector: PostSelector, $userLimit: Int!, $reviewQueueLimit: Int!, $postLimit: Int, $curationLimit: Int) {
     # Must stay first, so the time is taken before the queue below is read
     supermodQueueSnapshotTime
-    users(selector: $userSelector, limit: $userLimit) {
+    users: supermodQueueUsers(limit: $userLimit) {
       results {
         ...SunshineUsersList
       }
     }
-    reviewQueueUsers: users(selector: $userSelector, limit: $reviewQueueLimit) {
+    reviewQueueUsers: supermodQueueUsers(limit: $reviewQueueLimit) {
       results {
         _id
         reviewGroup
@@ -542,7 +542,6 @@ const ModerationInbox = () => {
 
   const { data, loading, error } = useQuery(ModerationInboxDataQuery, {
     variables: {
-      userSelector: { sunshineNewUsers: {} },
       postSelector: { sunshineNewPosts: {} },
       classifiedPostSelector: { sunshineAutoClassifiedPosts: {} },
       userLimit: 100,

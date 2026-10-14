@@ -7514,6 +7514,7 @@ type Query = {
   subscriptions?: Maybe<MultiSubscriptionOutput>;
   supermodQueueChanges: Array<SupermodQueueChange>;
   supermodQueueSnapshotTime: Scalars['Date']['output'];
+  supermodQueueUsers: MultiUserOutput;
   tag?: Maybe<SingleTagOutput>;
   tagFlag?: Maybe<SingleTagFlagOutput>;
   tagFlags?: Maybe<MultiTagFlagOutput>;
@@ -8681,6 +8682,12 @@ type QuerysupermodQueueChangesArgs = {
   postIds: Array<Scalars['String']['input']>;
   since: Scalars['Date']['input'];
   userIds: Array<Scalars['String']['input']>;
+};
+
+
+type QuerysupermodQueueUsersArgs = {
+  limit: Scalars['Int']['input'];
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -12288,7 +12295,6 @@ type UserSelector = {
   default?: InputMaybe<EmptyViewInput>;
   recentlyActive?: InputMaybe<EmptyViewInput>;
   reviewAdminUsers?: InputMaybe<EmptyViewInput>;
-  sunshineNewUsers?: InputMaybe<EmptyViewInput>;
   usersByUserIds?: InputMaybe<UsersUsersByUserIdsInput>;
   usersMapLocations?: InputMaybe<EmptyViewInput>;
   usersProfile?: InputMaybe<UsersUsersProfileInput>;
@@ -21012,13 +21018,28 @@ type multiUserSunshineNewUsersListQueryQuery_Query = { __typename?: 'Query', use
 
 
 type multiUserSunshineNewUsersListQueryQueryVariables = Exact<{
-  selector: InputMaybe<UserSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+  limit: Scalars['Int']['input'];
 }>;
 
 
 type multiUserSunshineNewUsersListQueryQuery = multiUserSunshineNewUsersListQueryQuery_Query;
+
+type SunshineQueueUsersQueryQuery_users_MultiUserOutput_results_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type SunshineQueueUsersQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<SunshineQueueUsersQueryQuery_users_MultiUserOutput_results_User> };
+
+type SunshineQueueUsersQueryQuery_Query = { __typename?: 'Query', users: SunshineQueueUsersQueryQuery_users_MultiUserOutput };
+
+
+type SunshineQueueUsersQueryQueryVariables = Exact<{
+  limit: Scalars['Int']['input'];
+}>;
+
+
+type SunshineQueueUsersQueryQuery = SunshineQueueUsersQueryQuery_Query;
 
 type SunshineNewUsersProfileInfoQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
@@ -21322,15 +21343,14 @@ type ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePosts
 
 type ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult = { __typename?: 'LastCuratedDateResult', lastCuratedDate: string | null };
 
-type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', supermodQueueSnapshotTime: string, users: ModerationInboxDataQueryQuery_users_MultiUserOutput | null, reviewQueueUsers: ModerationInboxDataQueryQuery_reviewQueueUsers_MultiUserOutput | null, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult };
+type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', supermodQueueSnapshotTime: string, users: ModerationInboxDataQueryQuery_users_MultiUserOutput, reviewQueueUsers: ModerationInboxDataQueryQuery_reviewQueueUsers_MultiUserOutput, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult };
 
 
 type ModerationInboxDataQueryQueryVariables = Exact<{
-  userSelector: InputMaybe<UserSelector>;
   postSelector: InputMaybe<PostSelector>;
   classifiedPostSelector: InputMaybe<PostSelector>;
-  userLimit: InputMaybe<Scalars['Int']['input']>;
-  reviewQueueLimit: InputMaybe<Scalars['Int']['input']>;
+  userLimit: Scalars['Int']['input'];
+  reviewQueueLimit: Scalars['Int']['input'];
   postLimit: InputMaybe<Scalars['Int']['input']>;
   curationLimit: InputMaybe<Scalars['Int']['input']>;
 }>;

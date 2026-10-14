@@ -35,6 +35,9 @@ function createMockUser(
     karma: 0,
     postCount: 0,
     commentCount: 0,
+    pendingPostCount: 1,
+    pendingCommentCount: 0,
+    oldestPendingContentAt: new Date(Date.UTC(2026, 0, Number(id.replace('user', '')))).toISOString(),
     usersContactedBeforeReview: [],
     rejectedContentCount: 0,
     htmlBio: '',
@@ -595,6 +598,17 @@ describe('Moderation Inbox Reducer', () => {
     test('SET_SIDEBAR_TAB opens a composer', () => {
       const state = inboxStateReducer(stateWithSidebarTab(null), { type: 'SET_SIDEBAR_TAB', tab: 'reject' });
       expect(state.sidebarTab).toBe('reject');
+    });
+
+    test('I requests editor focus each time, while selecting a tab clears that request', () => {
+      const first = inboxStateReducer(stateWithSidebarTab(null), { type: 'FOCUS_REJECT_COMPOSER' });
+      expect(first.sidebarTab).toBe('reject');
+      expect(first.rejectComposerFocusToken).toBe(1);
+      const second = inboxStateReducer(first, { type: 'FOCUS_REJECT_COMPOSER' });
+      expect(second.rejectComposerFocusToken).toBe(2);
+      const reopened = inboxStateReducer(second, { type: 'SET_SIDEBAR_TAB', tab: 'reject' });
+      expect(reopened.rejectComposerFocusToken).toBe(0);
+      expect(inboxStateReducer(reopened, { type: 'FOCUS_REJECT_COMPOSER' }).rejectComposerFocusToken).toBe(1);
     });
 
     test.each([

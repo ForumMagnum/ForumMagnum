@@ -2,7 +2,7 @@ import React from "react";
 import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetAbsoluteDiscussionUrl } from "@/lib/collections/tags/helpers";
-import { userShortformPostTitle } from "@/lib/collections/users/helpers";
+import { userIsApproved, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
@@ -405,7 +405,7 @@ const utils = {
       }
   
       // Only email approved users who are not snoozed, to avoid drawing unapproved users back to the site.
-      const noEmail = !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+      const noEmail = !userIsApproved(commentUser)
   
       await utils.sendModerationPM({
         action: 'deleted',
@@ -445,7 +445,7 @@ const utils = {
     let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
     
     // Only email approved users who are not snoozed, to avoid drawing unapproved users back to the site.
-    const noEmail = !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+    const noEmail = !userIsApproved(commentUser)
   
     await utils.sendModerationPM({
       action: 'rejected',
@@ -962,8 +962,7 @@ export async function maybeCreateAutomatedContentEvaluationForComment(
 ) {
   // Skip running this by default for approved users for now,
   // since comments are much higher volume than posts.
-  const authorIsApproved = !!context.currentUser?.reviewedByUserId && !context.currentUser.snoozedUntilContentCount;
-  if (context.forumType !== 'LessWrong' || authorIsApproved) {
+  if (context.forumType !== 'LessWrong' || userIsApproved(context.currentUser)) {
     return;
   }
 
