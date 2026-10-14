@@ -129,7 +129,13 @@ const ModerationContentDetail = ({
           </div>
           : <div className={classes.commentsNode}>
             {item.postId && <ModerationCommentPostContext postId={item.postId} showOpeningText={!item.parentCommentId} />}
-            <CommentsNode treeOptions={{showPostTitle: !item.postId}} comment={item} forceUnTruncated forceUnCollapsed showParentDefault/>
+            <CommentsNode
+              treeOptions={{showPostTitle: !item.postId, post: item.post ?? undefined, tag: item.tag ?? undefined}}
+              comment={item}
+              forceUnTruncated
+              forceUnCollapsed
+              showParentDefault
+            />
             </div>
           }
       </div>
