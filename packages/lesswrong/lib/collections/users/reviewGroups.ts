@@ -1,13 +1,13 @@
 import { AUTO_BLOCKED_FROM_SENDING_DMS, FLAGGED_FOR_N_DMS, MANUAL_FLAG_ALERT, MANUAL_NEEDS_REVIEW, MANUAL_RATE_LIMIT_EXPIRED, POTENTIAL_TARGETED_DOWNVOTING, RECEIVED_VOTING_PATTERN_WARNING, reviewTriggerModeratorActions, SNOOZE_EXPIRED, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, UNREVIEWED_BIO_UPDATE, UNREVIEWED_COMMENT, UNREVIEWED_FIRST_COMMENT, UNREVIEWED_FIRST_POST, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_POST, UNREVIEWED_PROFILE_IMAGE_UPDATE } from "@/lib/collections/moderatorActions/constants";
 import { maybeDate } from "@/lib/utils/dateUtils";
-import { UnionOf } from "@/lib/utils/typeGuardUtils";
+import { objectKeys, type UnionOf } from "@/lib/utils/typeGuardUtils";
 import maxBy from "lodash/maxBy";
 
 /**
  * Maps each supermod review group to its priority; a user is assigned to their
  * highest-priority fresh review-trigger group.
  */
-export const REVIEW_GROUP_TO_PRIORITY = {
+const REVIEW_GROUP_TO_PRIORITY = {
   newContent: 6,
   highContext: 5,
   maybeSpam: 4,
@@ -15,6 +15,9 @@ export const REVIEW_GROUP_TO_PRIORITY = {
   snoozeExpired: 2,
   unknown: 1,
 } as const satisfies Record<ReviewGroup, number>;
+
+export const REVIEW_GROUPS_IN_PRIORITY_ORDER: readonly ReviewGroup[] = objectKeys(REVIEW_GROUP_TO_PRIORITY)
+  .sort((a, b) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a]);
 
 interface ReviewableContent {
   authorIsUnreviewed: boolean;

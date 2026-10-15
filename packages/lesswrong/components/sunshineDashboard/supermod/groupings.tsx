@@ -44,10 +44,6 @@ export function getDisplayedReasonForGroupAssignment(user: SunshineUsersList): R
   return getPrimaryDisplayedModeratorAction(actionForGroup.type);
 }
 
-export function getTabsInPriorityOrder(): ReviewGroup[] {
-  return ['newContent', 'highContext', 'maybeSpam', 'automod', 'snoozeExpired', 'unknown'];
-}
-
 const styles = defineStyles('BadgeIcon', (theme: ThemeType) => ({
   root: {
     display: 'flex',
