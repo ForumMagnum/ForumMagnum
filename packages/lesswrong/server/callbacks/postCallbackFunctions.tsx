@@ -159,14 +159,15 @@ const onPublishUtils = {
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
 // moderator approval because they're a user's first post (but does fire when
 // they're approved).
-export async function onPostPublished(post: DbPost, context: ResolverContext) {
+export async function onPostPublished(post: DbPost, context: ResolverContext, oldPost?: DbPost) {
   onPublishUtils.updateRecombeeWithPublishedPost(post, context);
   await sendNewPostNotifications(post, context.forumType);
   const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
-  // Content explicitly approved by a moderator does not need another review.
-  if (!post.reviewedByUserId) {
+  // Publishing after a rejection is approved should not request another review.
+  const approvedRejection = oldPost?.rejected && !post.rejected && post.reviewedByUserId;
+  if (!approvedRejection) {
     await triggerReviewIfNeeded(post.userId, 'publishedPost', context);
   }
   await maybeAutoFrontpagePost(post._id, context);
@@ -833,7 +834,7 @@ export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, c
   // or the post author is getting approved,
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !newDocument.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !newDocument.authorIsUnreviewed)) {
-    await onPostPublished(newDocument, context);
+    await onPostPublished(newDocument, context, oldDocument);
   } else if (oldDocument.draft && !newDocument.draft) {
     await triggerReviewIfNeeded(newDocument.userId, 'publishedPost', context);
   }
