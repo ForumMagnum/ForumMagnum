@@ -165,7 +165,10 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
   const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
-  await triggerReviewIfNeeded(post.userId, 'publishedPost', context);
+  // Content explicitly approved by a moderator does not need another review.
+  if (!post.reviewedByUserId) {
+    await triggerReviewIfNeeded(post.userId, 'publishedPost', context);
+  }
   await maybeAutoFrontpagePost(post._id, context);
 }
 

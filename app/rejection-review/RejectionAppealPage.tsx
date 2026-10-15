@@ -299,7 +299,7 @@ type AppealStatus = "open" | "approved" | "denied";
 
 const APPEAL_STATUS_LABELS: Record<AppealStatus, string> = {
   open: "Under review",
-  approved: "Rejection reversed",
+  approved: "Content approved",
   denied: "Rejection upheld",
 };
 

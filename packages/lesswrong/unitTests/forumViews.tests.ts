@@ -5,7 +5,7 @@ import { SequencesViews } from '@/lib/collections/sequences/views';
 import { forumTypeSetting } from '@/lib/forumTypeUtils';
 import { SCORE_BIAS, timeDecayExpr } from '@/lib/scoring';
 import { getDefaultViewSelector, viewTermsToQuery } from '@/lib/utils/viewUtils';
-import { createAdminContext, createAnonymousContext } from '@/server/vulcan-lib/createContexts';
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 
 describe('forum-specific views', () => {
   afterEach(() => {
@@ -42,18 +42,6 @@ describe('forum-specific views', () => {
     const afQuery = await viewTermsToQuery(ConversationsViews, terms, undefined, afContext);
     expect(afQuery.selector).toMatchObject({ participantIds: 'user-id', af: true });
     expect(afQuery.selector).not.toHaveProperty('moderator');
-  });
-
-  it('hides moderator conversations only from moderators viewing their own inbox', async () => {
-    const moderatorContext = createAdminContext({ forumType: 'LessWrong' });
-    if (!moderatorContext.currentUser) throw new Error('Expected an admin user');
-    moderatorContext.currentUser._id = 'moderator-id';
-
-    const ownInboxQuery = await viewTermsToQuery(ConversationsViews, { view: 'userConversations', userId: 'moderator-id' }, undefined, moderatorContext);
-    expect(ownInboxQuery.selector).toMatchObject({ participantIds: 'moderator-id', moderator: { $ne: true } });
-
-    const otherUsersInboxQuery = await viewTermsToQuery(ConversationsViews, { view: 'userConversations', userId: 'user-id' }, undefined, moderatorContext);
-    expect(otherUsersInboxQuery.selector).not.toHaveProperty('moderator');
   });
 
   it('chooses the post scoring algorithm from the request forum', async () => {

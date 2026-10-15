@@ -39,7 +39,7 @@ function getAppealResolvedHtml(status: "approved" | "denied", contentType: "post
   if (status === "approved") {
     return [
       `<p>Good news: we've reviewed the rejection of your ${contentType} and reversed it. Thanks for taking the time to explain.</p>`,
-      `<p>Your ${contentType} is now back in the queue for new users' content, and a moderator will review it shortly.</p>`,
+      `<p>Your ${contentType} is now published.</p>`,
     ].join("");
   }
   return [
@@ -115,11 +115,16 @@ export async function updateRejectionAppeal({ selector, data }: UpdateRejectionA
   }, RejectionAppeals, { _id }, context);
 
   if (status === "approved") {
-    const unrejected = { rejected: false, rejectedReason: null };
+    const approvedContent = {
+      rejected: false,
+      rejectedReason: null,
+      authorIsUnreviewed: false,
+      reviewedByUserId: currentUser._id,
+    };
     if (appeal.postId) {
-      await updatePost({ data: unrejected, selector: { _id: appeal.postId } }, context);
+      await updatePost({ data: approvedContent, selector: { _id: appeal.postId } }, context);
     } else if (appeal.commentId) {
-      await updateComment({ data: unrejected, selector: { _id: appeal.commentId } }, context);
+      await updateComment({ data: approvedContent, selector: { _id: appeal.commentId } }, context);
     }
   }
   await sendMessageAs({

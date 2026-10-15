@@ -243,7 +243,7 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
                 disabled={pending}
                 onClick={() => void resolveAppeal('approved')}
               >
-                Approve (unreject)
+                Approve and publish
               </Button>
               <Button
                 className={classes.button}
