@@ -146,6 +146,12 @@ export const CommentOnSelectionPageWrapper = ({children}: {
   </>
 }
 
+function preserveSelection(event: React.MouseEvent) {
+  // Safari (macOS) clears the selection on mousedown, which closes this toolbar
+  // and empties the quote before the click can be handled.
+  event.preventDefault();
+}
+
 /**
  * SelectedTextToolbar: The toolbar that pops up when you select content inside
  * a post. Consists of just a comment button, which opens a floating comment
@@ -164,12 +170,16 @@ const SelectedTextToolbar = ({onClickComment, x, y}: {
 
   return <div className={classes.toolbarWrapper} style={{left: x, top: y}}>
     <LWTooltip inlineBlock={false} title={<div><p>Click to comment on the selected text</p></div>}>
-      <div className={classes.toolbar}>
+      <div
+        className={classes.toolbar}
+        onMouseDown={preserveSelection}
+        onClick={(ev: React.MouseEvent) => {
+          captureEvent("commentOnSelectionClicked");
+          onClickComment(ev);
+        }}
+      >
         <AnalyticsContext pageElementContext="selectedTextToolbar">
-          <CommentIcon onClick={(ev: React.MouseEvent) => {
-            captureEvent("commentOnSelectionClicked");
-            onClickComment(ev);
-          }}/>
+          <CommentIcon/>
         </AnalyticsContext>
       </div>
     </LWTooltip>
