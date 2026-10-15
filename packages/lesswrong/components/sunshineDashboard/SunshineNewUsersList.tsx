@@ -51,6 +51,7 @@ const SunshineNewUsersList = ({terms, currentUser}: {
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(view === 'sunshineNewUsers' ? SunshineQueueUsersQuery : SunshineUsersListMultiQuery, {
     variables: {
       limit: limit ?? 10,
+      // The pagination hook uses this even though both queries always return a total.
       enableTotal: true,
     },
     itemsPerPage: 60,
