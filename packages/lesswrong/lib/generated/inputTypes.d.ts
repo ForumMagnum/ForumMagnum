@@ -2507,6 +2507,7 @@ interface ConversationSelector {
   userConversations: ConversationsUserConversationsInput | null;
   userConversationsAll: ConversationsUserConversationsAllInput | null;
   teamInboxAwaitingReply: EmptyViewInput | null;
+  teamInboxDone: EmptyViewInput | null;
   userGroupUntitledConversations: ConversationsUserGroupUntitledConversationsInput | null;
 }
 

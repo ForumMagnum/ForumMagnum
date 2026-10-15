@@ -19,6 +19,12 @@ const styles = defineStyles('TeamInboxThreadItem', (theme: ThemeType) => ({
     overflow: 'hidden',
     minWidth: 0,
   },
+  done: {
+    '& $participants, & $title': {
+      color: theme.palette.grey[600],
+      fontWeight: 400,
+    },
+  },
   focused: {
     borderLeft: `3px solid ${theme.palette.primary.main}`,
     paddingLeft: 17,
@@ -66,8 +72,9 @@ const styles = defineStyles('TeamInboxThreadItem', (theme: ThemeType) => ({
   },
 }));
 
-const TeamInboxThreadItem = ({ thread, isFocused, onFocus }: {
+const TeamInboxThreadItem = ({ thread, isDone, isFocused, onFocus }: {
   thread: TeamInboxThread;
+  isDone: boolean;
   isFocused: boolean;
   onFocus: () => void;
 }) => {
@@ -75,7 +82,7 @@ const TeamInboxThreadItem = ({ thread, isFocused, onFocus }: {
   const { conversation, appeal } = thread;
 
   return (
-    <div className={classNames(classes.root, { [classes.focused]: isFocused })} onClick={onFocus}>
+    <div className={classNames(classes.root, { [classes.focused]: isFocused, [classes.done]: isDone })} onClick={onFocus}>
       <div className={classes.participants}>
         {conversation.participants?.map(participant => participant.displayName).join(', ')}
       </div>

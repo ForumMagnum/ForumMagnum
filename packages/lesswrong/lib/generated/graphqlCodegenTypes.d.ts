@@ -1119,6 +1119,7 @@ type ConversationSelector = {
   default?: InputMaybe<EmptyViewInput>;
   moderatorConversations?: InputMaybe<ConversationsModeratorConversationsInput>;
   teamInboxAwaitingReply?: InputMaybe<EmptyViewInput>;
+  teamInboxDone?: InputMaybe<EmptyViewInput>;
   userConversations?: InputMaybe<ConversationsUserConversationsInput>;
   userConversationsAll?: InputMaybe<ConversationsUserConversationsAllInput>;
   userGroupUntitledConversations?: InputMaybe<ConversationsUserGroupUntitledConversationsInput>;
@@ -21399,6 +21400,23 @@ type ModerationInboxDataQueryQueryVariables = Exact<{
 
 
 type ModerationInboxDataQueryQuery = ModerationInboxDataQueryQuery_Query;
+
+type teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
+  { __typename?: 'Conversation' }
+  & TeamInboxConversation
+);
+
+type teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', totalCount: number | null, results: Array<teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput_results_Conversation> };
+
+type teamInboxDoneModerationInboxQueryQuery_Query = { __typename?: 'Query', conversations: teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput | null };
+
+
+type teamInboxDoneModerationInboxQueryQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type teamInboxDoneModerationInboxQueryQuery = teamInboxDoneModerationInboxQueryQuery_Query;
 
 type singleUserSupermodQueryQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }

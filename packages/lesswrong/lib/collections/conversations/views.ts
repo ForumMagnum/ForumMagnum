@@ -57,9 +57,18 @@ function userConversationsAll(terms: ConversationsViewTerms) {
   };
 }
 
+// Moderator conversations waiting on a moderator, longest-waiting first
 function teamInboxAwaitingReply(terms: ConversationsViewTerms) {
   return {
     selector: {moderator: true, awaitingModeratorReply: true},
+    options: {sort: {latestActivity: 1}}
+  };
+}
+
+// Moderator conversations that have been replied to or marked done
+function teamInboxDone(terms: ConversationsViewTerms) {
+  return {
+    selector: {moderator: true, awaitingModeratorReply: {$ne: true}, messageCount: {$gt: 0}},
     options: {sort: {latestActivity: -1}}
   };
 }
@@ -88,5 +97,6 @@ export const ConversationsViews = new CollectionViewSet('Conversations', {
   userConversations,
   userConversationsAll,
   teamInboxAwaitingReply,
+  teamInboxDone,
   userGroupUntitledConversations
 }, defaultView);

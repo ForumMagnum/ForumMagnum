@@ -93,9 +93,11 @@ export async function updateConversationActivity(message: DbMessage, context: Re
   const conversation = await Conversations.findOne(message.conversationId);
   if (!conversation) throw Error(`Can't find conversation for message ${message}`)
     
-  // Messages from the team account itself (e.g. the automated appeal-link
-  // reply) leave the flag alone, so the user's message stays in the queue.
-  const teamInboxFields = await isTeamInboxConversation(conversation, context) && message.userId !== await getAdminTeamAccountId(context)
+  // In moderator conversations, a message from the user puts the conversation in the
+  // moderator inbox and a moderator's reply marks it done. Messages from the team
+  // account itself (e.g. the automated appeal-link reply) leave the flag alone, so
+  // the user's message stays in the queue.
+  const teamInboxFields = conversation.moderator && message.userId !== await getAdminTeamAccountId(context)
     ? { awaitingModeratorReply: !userIsAdminOrMod(user) }
     : {};
 

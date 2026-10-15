@@ -85,6 +85,19 @@ const ModerationInboxDataQuery = gql(`
   }
 `);
 
+const TeamInboxDoneQuery = gql(`
+  query teamInboxDoneModerationInboxQuery($limit: Int) {
+    conversations(selector: { teamInboxDone: {} }, limit: $limit, enableTotal: true) {
+      results {
+        ...TeamInboxConversation
+      }
+      totalCount
+    }
+  }
+`);
+
+const DONE_THREADS_PAGE_SIZE = 50;
+
 const SingleUserSupermodQuery = gql(`
   query singleUserSupermodQuery($documentId: String) {
     user(selector: { documentId: $documentId }) {
@@ -176,6 +189,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
         classifiedPosts,
         curationPosts,
         teamInboxThreads,
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'all',
         focusedUserId: null,
         openedUserId: null,
@@ -279,8 +294,29 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
   }, [state.focusedPostId, state.activeTab, state.curationPosts]);
 
   const focusedThread = useMemo(() => {
-    return state.teamInboxThreads.find(thread => thread.conversation._id === state.focusedThreadId) ?? null;
-  }, [state.focusedThreadId, state.teamInboxThreads]);
+    return [...state.teamInboxThreads, ...state.doneTeamInboxThreads]
+      .find(thread => thread.conversation._id === state.focusedThreadId) ?? null;
+  }, [state.focusedThreadId, state.teamInboxThreads, state.doneTeamInboxThreads]);
+
+  const [doneThreadsLimit, setDoneThreadsLimit] = useState(DONE_THREADS_PAGE_SIZE);
+  const { data: doneThreadsData, loading: doneThreadsLoading } = useQuery(TeamInboxDoneQuery, {
+    variables: { limit: doneThreadsLimit },
+    skip: !state.showDoneTeamInboxThreads,
+    fetchPolicy: 'cache-and-network',
+  });
+  useEffect(() => {
+    const conversations = doneThreadsData?.conversations?.results;
+    if (conversations) {
+      dispatch({ type: 'SET_DONE_THREADS', conversations });
+    }
+  }, [doneThreadsData]);
+  const hasMoreDoneThreads = (doneThreadsData?.conversations?.totalCount ?? 0) > (doneThreadsData?.conversations?.results.length ?? 0);
+
+  const handleToggleShowDoneThreads = useCallback(() => {
+    dispatch({ type: 'SET_SHOW_DONE_THREADS', show: !state.showDoneTeamInboxThreads });
+  }, [state.showDoneTeamInboxThreads]);
+
+  const handleLoadMoreDoneThreads = useCallback(() => setDoneThreadsLimit(limit => limit + DONE_THREADS_PAGE_SIZE), []);
 
   const handleOpenUser = useCallback((userId: string) => dispatch({ type: 'OPEN_USER', userId }), []);
 
@@ -344,7 +380,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
 
   const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
   const isCurationTab = state.activeTab === 'curation';
-  const isAppealsTab = state.activeTab === 'appeals';
+  const isInboxTab = state.activeTab === 'inbox';
 
   const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
@@ -352,7 +388,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
     <ConcurrentModeratorChangesContext.Provider value={concurrentModeratorChanges}>
     <CoreTagsKeyboardProvider>
     <div className={classes.root}>
-      {isAppealsTab ? (
+      {isInboxTab ? (
         <CurationKeyboardHandler
           onNextPost={handleNextThread}
           onPrevPost={handlePrevThread}
@@ -439,6 +475,11 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
                   posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
                   curationPosts={state.curationPosts}
                   teamInboxThreads={state.teamInboxThreads}
+                  doneTeamInboxThreads={state.showDoneTeamInboxThreads ? state.doneTeamInboxThreads : null}
+                  doneTeamInboxThreadsLoading={doneThreadsLoading}
+                  hasMoreDoneTeamInboxThreads={hasMoreDoneThreads}
+                  onToggleShowDoneThreads={handleToggleShowDoneThreads}
+                  onLoadMoreDoneThreads={handleLoadMoreDoneThreads}
                   focusedUserId={state.focusedUserId}
                   focusedPostId={state.focusedPostId}
                   focusedThreadId={state.focusedThreadId}
@@ -462,7 +503,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
             />
           </div>
         )}
-        {isAppealsTab && !openedUser && (
+        {isInboxTab && !openedUser && (
           <div className={classes.postDetailPanel}>
             <TeamInboxThreadView
               key={focusedThread?.conversation._id}

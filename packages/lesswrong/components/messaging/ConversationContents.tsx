@@ -106,10 +106,13 @@ function keepScrollAnchoredAboveEditor(scrollEl: HTMLElement, editorEl: HTMLElem
   return () => observer.disconnect();
 }
 
-const ConversationContents = ({conversation, currentUserId, sendEmail = true}: {
+const ConversationContents = ({conversation, currentUserId, sendEmail = true, onMessageSent, editorAccessory}: {
   conversation: ConversationsList;
   currentUserId: string;
   sendEmail?: boolean;
+  onMessageSent?: (message: messageListFragment) => void;
+  /** Shown above the reply box */
+  editorAccessory?: React.ReactNode;
 }) => {
   const classes = useStyles(styles);
   const scrollRef = useRef<HTMLDivElement|null>(null);
@@ -218,6 +221,7 @@ const ConversationContents = ({conversation, currentUserId, sendEmail = true}: {
         {renderMessages()}
       </div>
       <div className={classes.editor} ref={editorRef}>
+        {editorAccessory}
         <MessagesNewForm
           key={`sendMessage-${conversation._id}-${messageSentCount}`}
           conversationId={conversation._id}
@@ -249,6 +253,7 @@ const ConversationContents = ({conversation, currentUserId, sendEmail = true}: {
             // Sending can trigger an automated reply (e.g. the appeal link in a
             // rejection thread), which only a refetch will pick up.
             void refetch();
+            onMessageSent?.(newMessage);
           }}
         />
       </div>

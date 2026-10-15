@@ -1,4 +1,5 @@
-import { inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
+import { getVisibleTeamInboxThreads, inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
+import type { TeamInboxThread } from '@/components/sunshineDashboard/supermod/teamInboxThreads';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -77,6 +78,45 @@ function createUndoItem(
   };
 }
 
+function createMockThread(id: string, latestActivity: string, awaitingModeratorReply: boolean): TeamInboxThread {
+  return {
+    // TODO: I AM AN INSTANCE OF claude-opus-5-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
+    conversation: {
+      __typename: 'Conversation',
+      _id: id,
+      title: `Conversation ${id}`,
+      latestActivity,
+      awaitingModeratorReply,
+      participants: [],
+    } as unknown as TeamInboxConversation,
+    appeal: null,
+  };
+}
+
+function createInboxState(overrides: Partial<InboxState>): InboxState {
+  return {
+    users: [],
+    posts: [],
+    classifiedPosts: [],
+    curationPosts: [],
+    teamInboxThreads: [],
+    doneTeamInboxThreads: [],
+    showDoneTeamInboxThreads: false,
+    activeTab: 'inbox',
+    focusedUserId: null,
+    openedUserId: null,
+    focusedPostId: null,
+    focusedThreadId: null,
+    focusedContentIndex: 0,
+    sidebarTab: null,
+    undoQueue: [],
+    history: [],
+    runningLlmCheckId: null,
+    unloadedCounts: {},
+    ...overrides,
+  };
+}
+
 describe('Moderation Inbox Reducer', () => {
   describe('CLOSE_DETAIL', () => {
     test('preserves focused user and active tab when exiting detail view via ESC', () => {
@@ -92,6 +132,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
@@ -127,6 +169,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user3',
         openedUserId: null,
@@ -158,6 +202,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
@@ -191,6 +237,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
@@ -236,6 +284,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
@@ -277,6 +327,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
@@ -311,6 +363,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
@@ -343,6 +397,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
@@ -379,6 +435,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
@@ -413,6 +471,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
@@ -446,6 +506,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
@@ -482,6 +544,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'all',
         focusedUserId: null,
         openedUserId: 'user2',
@@ -518,6 +582,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'highContext',
         focusedUserId: null,
         openedUserId: 'user3',
@@ -547,6 +613,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
@@ -579,6 +647,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
@@ -608,6 +678,8 @@ describe('Moderation Inbox Reducer', () => {
         classifiedPosts: [],
         curationPosts: [],
         teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
@@ -660,6 +732,66 @@ describe('Moderation Inbox Reducer', () => {
         documentId: 'post1',
       });
       expect(state.sidebarTab).toBe('reject');
+    });
+  });
+
+  describe('Team inbox threads', () => {
+    const older = createMockThread('older', '2026-10-01T00:00:00.000Z', true);
+    const newer = createMockThread('newer', '2026-10-02T00:00:00.000Z', true);
+    const done = createMockThread('done', '2026-10-03T00:00:00.000Z', false);
+
+    test('marking the focused thread done moves it to the done list and focuses the next open thread', () => {
+      const state = createInboxState({ teamInboxThreads: [older, newer], focusedThreadId: 'older' });
+      const newState = inboxStateReducer(state, {
+        type: 'UPDATE_THREAD',
+        thread: { ...older, conversation: { ...older.conversation, awaitingModeratorReply: false } },
+        advanceFocus: true,
+      });
+
+      expect(newState.teamInboxThreads.map(t => t.conversation._id)).toEqual(['newer']);
+      expect(newState.doneTeamInboxThreads.map(t => t.conversation._id)).toEqual(['older']);
+      expect(newState.focusedThreadId).toBe('newer');
+    });
+
+    test('replying keeps focus on the thread even though it is done', () => {
+      const state = createInboxState({ teamInboxThreads: [older, newer], focusedThreadId: 'older' });
+      const newState = inboxStateReducer(state, {
+        type: 'UPDATE_THREAD',
+        thread: { ...older, conversation: { ...older.conversation, awaitingModeratorReply: false } },
+        advanceFocus: false,
+      });
+
+      expect(newState.focusedThreadId).toBe('older');
+      expect(newState.doneTeamInboxThreads.map(t => t.conversation._id)).toEqual(['older']);
+    });
+
+    test('reopening a done thread puts it back in the open list, longest-waiting first', () => {
+      const state = createInboxState({ teamInboxThreads: [newer], doneTeamInboxThreads: [done], focusedThreadId: 'done' });
+      const reopened = { ...older, conversation: { ...older.conversation, _id: 'done' } };
+      const newState = inboxStateReducer(state, { type: 'UPDATE_THREAD', thread: reopened, advanceFocus: false });
+
+      expect(newState.teamInboxThreads.map(t => t.conversation._id)).toEqual(['done', 'newer']);
+      expect(newState.doneTeamInboxThreads).toEqual([]);
+      expect(newState.focusedThreadId).toBe('done');
+    });
+
+    test('loaded done conversations leave out threads that are open', () => {
+      const state = createInboxState({ teamInboxThreads: [older] });
+      const newState = inboxStateReducer(state, {
+        type: 'SET_DONE_THREADS',
+        conversations: [done.conversation, { ...older.conversation, awaitingModeratorReply: false }],
+      });
+
+      expect(newState.doneTeamInboxThreads.map(t => t.conversation._id)).toEqual(['done']);
+    });
+
+    test('done threads are only navigable while shown', () => {
+      const state = createInboxState({ teamInboxThreads: [older], doneTeamInboxThreads: [done], focusedThreadId: 'older' });
+      expect(getVisibleTeamInboxThreads(state).map(t => t.conversation._id)).toEqual(['older']);
+      expect(inboxStateReducer(state, { type: 'NEXT_THREAD' }).focusedThreadId).toBe('older');
+
+      const shownState = inboxStateReducer(state, { type: 'SET_SHOW_DONE_THREADS', show: true });
+      expect(inboxStateReducer(shownState, { type: 'NEXT_THREAD' }).focusedThreadId).toBe('done');
     });
   });
 });

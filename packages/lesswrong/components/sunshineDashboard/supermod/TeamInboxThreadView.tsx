@@ -3,6 +3,7 @@ import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import ConversationContents from '@/components/messaging/ConversationContents';
 import RejectionNotice from '@/components/posts/PostsPage/RejectionNotice';
 import { Link } from '@/lib/reactRouterWrapper';
@@ -10,7 +11,7 @@ import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { commentGetPageUrl } from '@/lib/collections/comments/helpers';
 import LLMScoreBadge from './LLMScoreBadge';
 import type { InboxAction } from './inboxReducer';
-import type { TeamInboxThread } from './teamInboxThreads';
+import { isTeamInboxThreadOpen, type TeamInboxThread } from './teamInboxThreads';
 
 const UpdateRejectionAppealMutation = gql(`
   mutation updateRejectionAppealTeamInboxThreadView($selector: SelectorInput!, $data: UpdateRejectionAppealDataInput!) {
@@ -79,6 +80,22 @@ const styles = defineStyles('TeamInboxThreadView', (theme: ThemeType) => ({
   error: {
     color: theme.palette.error.main,
     marginTop: 8,
+  },
+  statusNote: {
+    fontSize: 12,
+    color: theme.palette.grey[600],
+  },
+  keepOpenLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '6px 16px 0',
+    fontSize: 13,
+    color: theme.palette.grey[700],
+    cursor: 'pointer',
+  },
+  keepOpenCheckbox: {
+    padding: 0,
   },
   empty: {
     padding: 40,
@@ -151,9 +168,10 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
 }) => {
   const classes = useStyles(styles);
   const [error, setError] = useState<string | null>(null);
+  const [keepOpenAfterReply, setKeepOpenAfterReply] = useState(false);
   const [updateAppeal, { loading: resolving }] = useMutation(UpdateRejectionAppealMutation);
-  const [updateConversation, { loading: markingHandled }] = useMutation(UpdateTeamInboxConversationMutation);
-  const pending = resolving || markingHandled;
+  const [updateConversation, { loading: updatingConversation }] = useMutation(UpdateTeamInboxConversationMutation);
+  const pending = resolving || updatingConversation;
 
   if (!thread) {
     return <div className={classes.root}>
@@ -163,25 +181,54 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
 
   const { conversation, appeal } = thread;
 
+  const isOpen = isTeamInboxThreadOpen(thread);
+
   const resolveAppeal = async (status: 'approved' | 'denied') => {
     if (!appeal) return;
     setError(null);
     try {
-      await updateAppeal({ variables: { selector: { _id: appeal._id }, data: { status } } });
-      dispatch({ type: 'REMOVE_THREAD', conversationId: conversation._id });
+      const { data } = await updateAppeal({ variables: { selector: { _id: appeal._id }, data: { status } } });
+      // Resolving a review also marks its conversation done
+      dispatch({
+        type: 'UPDATE_THREAD',
+        thread: {
+          conversation: { ...conversation, awaitingModeratorReply: false },
+          appeal: data?.updateRejectionAppeal?.data ?? { ...appeal, status },
+        },
+        advanceFocus: true,
+      });
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unable to resolve this review. Please try again.');
     }
   };
 
-  const markHandled = async () => {
+  const setAwaitingModeratorReply = async (awaitingModeratorReply: boolean, advanceFocus: boolean) => {
     setError(null);
     try {
-      await updateConversation({ variables: { selector: { _id: conversation._id }, data: { awaitingModeratorReply: false } } });
-      dispatch({ type: 'REMOVE_THREAD', conversationId: conversation._id });
+      const { data } = await updateConversation({ variables: { selector: { _id: conversation._id }, data: { awaitingModeratorReply } } });
+      dispatch({
+        type: 'UPDATE_THREAD',
+        thread: { conversation: data?.updateConversation?.data ?? { ...conversation, awaitingModeratorReply }, appeal },
+        advanceFocus,
+      });
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unable to mark this conversation handled. Please try again.');
+      setError(error instanceof Error ? error.message : 'Unable to update this conversation. Please try again.');
     }
+  };
+
+  // A moderator's reply marks the conversation done on the server, unless they chose to keep it open.
+  // Keeping it open applies to one reply at a time.
+  const handleMessageSent = (message: messageListFragment) => {
+    if (keepOpenAfterReply) {
+      setKeepOpenAfterReply(false);
+      void setAwaitingModeratorReply(true, false);
+      return;
+    }
+    dispatch({
+      type: 'UPDATE_THREAD',
+      thread: { conversation: { ...conversation, awaitingModeratorReply: false, latestActivity: message.createdAt }, appeal },
+      advanceFocus: false,
+    });
   };
 
   return (
@@ -207,12 +254,30 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
               </Button>
               <span className={classes.resolveNote}>The user gets an automated message with the outcome.</span>
             </>
-            : <Button className={classes.button} disabled={pending} onClick={() => void markHandled()}>Mark handled</Button>}
+            : isOpen
+              ? <Button className={classes.button} disabled={pending} onClick={() => void setAwaitingModeratorReply(false, true)}>Mark done</Button>
+              : <>
+                <Button className={classes.button} disabled={pending} onClick={() => void setAwaitingModeratorReply(true, false)}>Reopen</Button>
+                <span className={classes.statusNote}>Done</span>
+              </>}
         </div>
         {error && <div className={classes.error} role="alert">{error}</div>}
       </div>
       <div className={classes.conversation} key={conversation._id}>
-        <ConversationContents conversation={conversation} currentUserId={currentUser._id} />
+        <ConversationContents
+          conversation={conversation}
+          currentUserId={currentUser._id}
+          onMessageSent={handleMessageSent}
+          editorAccessory={<label className={classes.keepOpenLabel}>
+            <Checkbox
+              className={classes.keepOpenCheckbox}
+              checked={keepOpenAfterReply}
+              onChange={() => setKeepOpenAfterReply(!keepOpenAfterReply)}
+              disableRipple
+            />
+            Keep open after replying
+          </label>}
+        />
       </div>
     </div>
   );

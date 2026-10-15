@@ -8,7 +8,7 @@ import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
 import type { SelectedSidebarTab } from './sidebarTabs';
-import type { TeamInboxThread } from './teamInboxThreads';
+import { isTeamInboxThreadOpen, mergeDoneTeamInboxThreads, sortDoneTeamInboxThreads, sortOpenTeamInboxThreads, type TeamInboxThread } from './teamInboxThreads';
 
 export interface HistoryItem {
   user: SunshineUsersList;
@@ -39,8 +39,12 @@ export type InboxState = {
   classifiedPosts: SunshinePostsList[];
   // The local copy of curation candidate posts
   curationPosts: SunshineCurationPostsListItem[];
-  // The local copy of team inbox threads (rejection appeals and replies to rejection messages)
+  // The local copy of moderator conversations that need a moderator (including rejection appeals)
   teamInboxThreads: TeamInboxThread[];
+  // Moderator conversations that are done, loaded only while they're shown
+  doneTeamInboxThreads: TeamInboxThread[];
+  // Whether the inbox tab also lists done conversations
+  showDoneTeamInboxThreads: boolean;
   // Current active tab
   activeTab: TabId;
   // Focused user in inbox view
@@ -77,7 +81,9 @@ export type InboxAction =
   | { type: 'FOCUS_THREAD'; conversationId: string; }
   | { type: 'NEXT_THREAD'; }
   | { type: 'PREV_THREAD'; }
-  | { type: 'REMOVE_THREAD'; conversationId: string; }
+  | { type: 'UPDATE_THREAD'; thread: TeamInboxThread; advanceFocus: boolean; }
+  | { type: 'SET_DONE_THREADS'; conversations: TeamInboxConversation[]; }
+  | { type: 'SET_SHOW_DONE_THREADS'; show: boolean; }
   | { type: 'NEXT_TAB'; }
   | { type: 'PREV_TAB'; }
   | { type: 'REMOVE_USER'; userId: string; }
@@ -133,7 +139,6 @@ export function getVisibleTabsInOrder(
   const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [
     { group: 'curation', count: totalCurationNotices },
-    { group: 'appeals', count: totalTeamInboxThreads },
   ];
   
   // Always show all tabs, even if empty
@@ -144,11 +149,18 @@ export function getVisibleTabsInOrder(
   tabs.push({ group: 'all', count: totalUsers });
   tabs.push({ group: 'posts', count: totalPosts });
   tabs.push({ group: 'classifiedPosts', count: totalClassifiedPosts });
+  tabs.push({ group: 'inbox', count: totalTeamInboxThreads });
   
   return tabs.map(tab => ({ ...tab, count: tab.count + (unloadedCounts[tab.group] ?? 0) }));
 }
 
-const NON_USER_TABS: ReadonlySet<TabId> = new Set<TabId>(['posts', 'classifiedPosts', 'curation', 'appeals']);
+const NON_USER_TABS: ReadonlySet<TabId> = new Set<TabId>(['posts', 'classifiedPosts', 'curation', 'inbox']);
+
+export function getVisibleTeamInboxThreads(state: InboxState): TeamInboxThread[] {
+  return state.showDoneTeamInboxThreads
+    ? [...state.teamInboxThreads, ...state.doneTeamInboxThreads]
+    : state.teamInboxThreads;
+}
 
 export function isUserTab(tab: TabId): boolean {
   return !NON_USER_TABS.has(tab);
@@ -170,7 +182,7 @@ export function enterTab(state: InboxState, tab: TabId): InboxState {
       return { ...unfocused, focusedPostId: state.classifiedPosts[0]?._id ?? null };
     case 'curation':
       return { ...unfocused, focusedPostId: state.curationPosts[0]?._id ?? null };
-    case 'appeals':
+    case 'inbox':
       return { ...unfocused, focusedThreadId: state.teamInboxThreads[0]?.conversation._id ?? null };
     default: {
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
@@ -588,7 +600,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
     }
 
     case 'NEXT_THREAD': {
-      const threads = state.teamInboxThreads;
+      const threads = getVisibleTeamInboxThreads(state);
       if (threads.length === 0) return state;
 
       const currentIndex = threads.findIndex(t => t.conversation._id === state.focusedThreadId);
@@ -597,7 +609,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
     }
 
     case 'PREV_THREAD': {
-      const threads = state.teamInboxThreads;
+      const threads = getVisibleTeamInboxThreads(state);
       if (threads.length === 0) return state;
 
       const currentIndex = threads.findIndex(t => t.conversation._id === state.focusedThreadId);
@@ -605,14 +617,36 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       return { ...state, focusedThreadId: threads[prevIndex].conversation._id };
     }
 
-    case 'REMOVE_THREAD': {
-      const currentIndex = state.teamInboxThreads.findIndex(t => t.conversation._id === action.conversationId);
-      const newThreads = state.teamInboxThreads.filter(t => t.conversation._id !== action.conversationId);
-      const nextThread = newThreads[Math.min(Math.max(currentIndex, 0), newThreads.length - 1)];
+    case 'UPDATE_THREAD': {
+      // Moves the thread between the open and done lists to match its new state
+      const conversationId = action.thread.conversation._id;
+      const openIndex = state.teamInboxThreads.findIndex(t => t.conversation._id === conversationId);
+      const otherOpenThreads = state.teamInboxThreads.filter(t => t.conversation._id !== conversationId);
+      const otherDoneThreads = state.doneTeamInboxThreads.filter(t => t.conversation._id !== conversationId);
+      const isOpen = isTeamInboxThreadOpen(action.thread);
+      const nextOpenThread = otherOpenThreads[Math.min(Math.max(openIndex, 0), otherOpenThreads.length - 1)];
+      const leftOpenList = openIndex >= 0 && !isOpen;
       return {
         ...state,
-        teamInboxThreads: newThreads,
-        focusedThreadId: nextThread?.conversation._id ?? null,
+        teamInboxThreads: isOpen ? sortOpenTeamInboxThreads([...otherOpenThreads, action.thread]) : otherOpenThreads,
+        doneTeamInboxThreads: isOpen ? otherDoneThreads : sortDoneTeamInboxThreads([action.thread, ...otherDoneThreads]),
+        focusedThreadId: (action.advanceFocus && leftOpenList)
+          ? (nextOpenThread?.conversation._id ?? null)
+          : state.focusedThreadId,
+      };
+    }
+
+    case 'SET_DONE_THREADS': {
+      return {
+        ...state,
+        doneTeamInboxThreads: mergeDoneTeamInboxThreads(action.conversations, state.doneTeamInboxThreads, state.teamInboxThreads),
+      };
+    }
+
+    case 'SET_SHOW_DONE_THREADS': {
+      return {
+        ...state,
+        showDoneTeamInboxThreads: action.show,
       };
     }
 

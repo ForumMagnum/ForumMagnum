@@ -1,8 +1,24 @@
 import sortBy from 'lodash/sortBy';
+import uniqBy from 'lodash/uniqBy';
 
 export interface TeamInboxThread {
   conversation: TeamInboxConversation;
   appeal: RejectionAppealsModerationInfo | null;
+}
+
+/** A thread needs a moderator while the user is waiting on a reply or a rejection review is undecided */
+export function isTeamInboxThreadOpen({ conversation, appeal }: TeamInboxThread): boolean {
+  return !!conversation.awaitingModeratorReply || appeal?.status === 'open';
+}
+
+/** Open threads, longest-waiting first */
+export function sortOpenTeamInboxThreads(threads: TeamInboxThread[]): TeamInboxThread[] {
+  return sortBy(threads, thread => thread.conversation.latestActivity);
+}
+
+/** Done threads, most recent activity first */
+export function sortDoneTeamInboxThreads(threads: TeamInboxThread[]): TeamInboxThread[] {
+  return sortBy(threads, thread => thread.conversation.latestActivity).reverse();
 }
 
 export function getTeamInboxThreads(
@@ -18,5 +34,21 @@ export function getTeamInboxThreads(
       ? [{ conversation: appeal.conversation, appeal }]
       : []
   ));
-  return sortBy([...awaitingReplyThreads, ...repliedAppealThreads], thread => thread.conversation.latestActivity).reverse();
+  return sortOpenTeamInboxThreads([...awaitingReplyThreads, ...repliedAppealThreads]);
+}
+
+/**
+ * Combines newly loaded done conversations with the done threads we already
+ * have, leaving out any that are open.
+ */
+export function mergeDoneTeamInboxThreads(
+  doneConversations: TeamInboxConversation[],
+  existingDoneThreads: TeamInboxThread[],
+  openThreads: TeamInboxThread[],
+): TeamInboxThread[] {
+  const openIds = new Set(openThreads.map(thread => thread.conversation._id));
+  const loadedThreads = doneConversations.map(conversation => ({ conversation, appeal: null }));
+  const threads = uniqBy([...loadedThreads, ...existingDoneThreads], thread => thread.conversation._id)
+    .filter(thread => !openIds.has(thread.conversation._id));
+  return sortDoneTeamInboxThreads(threads);
 }
