@@ -36,11 +36,6 @@ export const DEFAULT_REJECTION_RATE_LIMIT_SETTINGS: RejectionRateLimitSettings =
   comments: { count: '2', unit: 'days', liftCount: '10', liftKarma: '2' },
 };
 
-function parsePositiveNumber(value: string) {
-  const number = Number(value);
-  return value.trim() && Number.isFinite(number) && number > 0 ? number : null;
-}
-
 interface ActiveContentRateLimit {
   kind: ContentKind;
   count: number;
@@ -65,7 +60,7 @@ function getActiveRateLimits(settings: RejectionRateLimitSettings): ActiveConten
   });
 }
 
-export function getRejectionRateLimitError(settings: RejectionRateLimitSettings): string | null {
+function getRejectionRateLimitError(settings: RejectionRateLimitSettings): string | null {
   try {
     getActiveRateLimits(settings);
     return null;
@@ -89,12 +84,9 @@ export function getRateLimitParagraphHtml(settings: RejectionRateLimitSettings):
   const limits = getActiveRateLimits(settings);
   if (!limits.length) return null;
   const rates = limits.map(describeRate).join(' and ');
-  const lifted = limits.filter(limit => limit.liftCount !== null);
-  const liftSentence = lifted.length === 2
-    ? ` The post limit lifts once ${describeLift(lifted[0])}, and the comment limit once ${describeLift(lifted[1])}.`
-    : lifted.length === 1
-      ? ` ${limits.length === 2 ? `The ${NOUNS[lifted[0].kind].singular} limit` : 'This'} lifts once ${describeLift(lifted[0])}.`
-      : '';
+  const liftSentence = limits.length === 2
+    ? ` The post limit lifts once ${describeLift(limits[0])}, and the comment limit once ${describeLift(limits[1])}.`
+    : ` This lifts once ${describeLift(limits[0])}.`;
   return `<p>I've also rate-limited your account to ${rates}.${liftSentence}</p>`;
 }
 
@@ -175,7 +167,7 @@ const ContentRateLimitFields = ({ kind, settings, onChange }: {
   onChange: (settings: ContentRateLimitSettings) => void;
 }) => {
   const classes = useStyles(styles);
-  const isSet = parsePositiveNumber(settings.count) !== null;
+  const isSet = settings.count.trim().length > 0;
   return <>
     <div className={classes.row}>
       <span className={classes.label}>{kind === 'posts' ? 'Posts' : 'Comments'}</span>

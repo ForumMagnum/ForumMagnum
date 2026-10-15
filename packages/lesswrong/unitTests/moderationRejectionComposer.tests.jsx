@@ -13,9 +13,9 @@ jest.mock('@/components/common/withMessages', () => ({ useMessages: () => ({ fla
 jest.mock('@/components/sunshineDashboard/supermod/useCompleteUserModeration', () => ({
   useCompleteUserModeration: () => completeModeration,
 }));
-jest.mock('next/dynamic', () => ({
+jest.mock('@/components/editor/LexicalEditor', () => ({
   __esModule: true,
-  default: () => function Editor({ data, onChange }) {
+  default: function Editor({ data, onChange }) {
     return <textarea aria-label="Rejection reason" defaultValue={data} onChange={event => onChange(event.target.value)} />;
   },
 }));
@@ -30,8 +30,8 @@ jest.mock('@/components/sunshineDashboard/GroupedModerationTemplateList', () => 
 jest.mock('@/components/sunshineDashboard/ModeratorMessageComposer', () => ({ __esModule: true, default: () => null }));
 
 // These UI fixtures only need the fields read by the composer; the network is mocked.
-const firstPost = { _id: 'post-a', title: 'First post', rejected: false };
-const secondPost = { _id: 'post-b', title: 'Second post', rejected: false };
+const firstPost = { __typename: 'Post', _id: 'post-a', title: 'First post', rejected: false };
+const secondPost = { __typename: 'Post', _id: 'post-b', title: 'Second post', rejected: false };
 const baseProps = {
   user: { _id: 'author', displayName: 'Author' },
   currentUser: { _id: 'moderator' },
@@ -78,7 +78,7 @@ it('does not close or reset a new composer when the previous content finishes re
   fireEvent.change(screen.getByRole('textbox'), { target: { value: '<p>Reject the first post</p>' } });
   fireEvent.click(screen.getByRole('button', { name: 'Reject' }));
   expect(completeModeration).toHaveBeenCalledWith(expect.objectContaining({
-    rejection: expect.objectContaining({ documentId: firstPost._id, reason: '<p>Reject the first post</p>' }),
+    rejection: expect.objectContaining({ documentId: firstPost._id, collectionName: 'Posts', reason: '<p>Reject the first post</p>' }),
   }));
 
   rerender(<Composer setSidebarTab={setSidebarTab} focusedContent={secondPost} />);

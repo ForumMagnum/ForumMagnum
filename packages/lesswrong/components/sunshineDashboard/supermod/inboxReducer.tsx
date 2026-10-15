@@ -177,7 +177,7 @@ const SIDEBAR_TAB_CLEARING_ACTIONS: ReadonlySet<InboxAction['type']> = new Set([
 
 export function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
   const newState = reduceInboxAction(state, action);
-  if (newState.sidebarTab === null || !SIDEBAR_TAB_CLEARING_ACTIONS.has(action.type)) {
+  if (!SIDEBAR_TAB_CLEARING_ACTIONS.has(action.type) || (newState.sidebarTab === null && !newState.rejectComposerFocusToken)) {
     return newState;
   }
   return { ...newState, sidebarTab: null, rejectComposerFocusToken: 0 };
@@ -269,6 +269,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
         // Closes the composer, unless the caller is opening one — the row's
         // Reject button selects the row and opens the reject tab in one action
         sidebarTab: action.sidebarTab ?? null,
+        rejectComposerFocusToken: 0,
       };
     }
 

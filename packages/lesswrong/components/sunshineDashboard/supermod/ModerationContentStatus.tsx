@@ -11,7 +11,7 @@ import { useRerunLlmCheck } from './useRerunLlmCheck';
 import LLMScoreBadge from './LLMScoreBadge';
 import { extractRejectionReasonSummary } from '@/lib/rejectionReasonSummary';
 import { PANGRAM_AUTOREJECT_THRESHOLD } from '@/lib/collections/automatedContentEvaluations/constants';
-import { isAwaitingReview, type ContentItem } from './helpers';
+import { isAwaitingReview, isPost, type ContentItem } from './helpers';
 
 const styles = defineStyles('ModerationContentStatus', (theme: ThemeType) => ({
   root: {
@@ -116,10 +116,6 @@ const styles = defineStyles('ModerationContentStatus', (theme: ThemeType) => ({
   },
 }));
 
-const isPost = (item: ContentItem): item is SunshinePostsList => {
-  return !('postId' in item);
-};
-
 const ModerationContentStatus = ({
   item,
   isRunningLlmCheck,
@@ -182,9 +178,7 @@ const ModerationContentStatus = ({
     ? 'Autorejected'
     : (rejectedReasonSummary[0] ?? 'Rejected');
 
-  const inactiveLabel = itemIsPost
-    ? (item.draft ? 'Draft' : null)
-    : (item.deleted ? 'Deleted' : null);
+  const inactiveLabel = !itemIsPost && item.deleted ? 'Deleted' : (item.draft ? 'Draft' : null);
   const isLive = !item.rejected && !inactiveLabel && !isAwaitingReview(item);
 
   const rejectedReasonText = item.rejectedReason

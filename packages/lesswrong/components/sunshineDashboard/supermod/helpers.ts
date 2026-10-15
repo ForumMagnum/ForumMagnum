@@ -49,7 +49,7 @@ export function areAllContentPermissionsDisabled(user: {
 }
 
 export function isPost(item: ContentItem): item is SunshinePostsList {
-  return 'title' in item && item.title !== null;
+  return item.__typename === 'Post';
 };
 
 export function isMapPin(item: ModerationContentItem): item is ModerationMapPinItem {

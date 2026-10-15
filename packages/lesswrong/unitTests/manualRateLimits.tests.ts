@@ -6,7 +6,7 @@ import { validateUserRateLimit } from '@/lib/collections/userRateLimits/helpers'
 import { getManualRateLimitInfo, getStrictestRateLimitInfo } from '@/lib/rateLimits/utils';
 import { rateLimitDateWhenUserNextAbleToPost } from '@/server/rateLimitUtils';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
-import { DEFAULT_REJECTION_RATE_LIMIT_SETTINGS, getRateLimitsToCreate, getRejectionRateLimitError } from '@/components/sunshineDashboard/supermod/RejectionRateLimitForm';
+import { DEFAULT_REJECTION_RATE_LIMIT_SETTINGS, getRateLimitsToCreate } from '@/components/sunshineDashboard/supermod/RejectionRateLimitForm';
 
 function manualLimit(overrides: Partial<DbUserRateLimit> = {}): DbUserRateLimit {
   return {
@@ -59,7 +59,6 @@ describe('manual rate-limit validation and enforcement', () => {
 
   it.each(['', ' ', '0', '0.1', '-1', 'nope'])('does not silently turn lift count %j into an indefinite UI restriction', liftCount => {
     const settings = { ...DEFAULT_REJECTION_RATE_LIMIT_SETTINGS, posts: { ...DEFAULT_REJECTION_RATE_LIMIT_SETTINGS.posts, liftCount } };
-    expect(getRejectionRateLimitError(settings)).not.toBeNull();
     expect(() => getRateLimitsToCreate(settings, 'user')).toThrow();
   });
 

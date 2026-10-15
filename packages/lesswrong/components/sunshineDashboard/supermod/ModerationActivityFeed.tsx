@@ -461,7 +461,7 @@ function collapseRepeats(items: ActivityItem[]) {
   return collapsed;
 }
 
-export function getActivityItems(user: Pick<SunshineUsersList, 'moderatorActions' | 'sunshineNotes' | 'userRateLimits'>, conversations: ConversationsList[], now: Date, filterNoise: boolean) {
+function getActivityItems(user: Pick<SunshineUsersList, 'moderatorActions' | 'sunshineNotes' | 'userRateLimits'>, conversations: ConversationsList[], now: Date, filterNoise: boolean) {
   const actions = user.moderatorActions ?? [];
   const notes = parseModeratorNotes(user.sunshineNotes, now);
   const { mergedActions, remainingNotes } = mergeActionsWithNotes(
@@ -590,6 +590,10 @@ const ConversationActivityRow = ({ user, conversation, date }: {
   </ActivityRow>;
 };
 
+function isModeratorName(author: string | null, userDisplayName: string) {
+  return !!author && author !== AUTOMOD_AUTHOR && author !== userDisplayName;
+}
+
 const ActivityItemRow = ({ user, item, count, now }: {
   user: SunshineUsersList;
   item: ActivityItem;
@@ -598,7 +602,6 @@ const ActivityItemRow = ({ user, item, count, now }: {
 }) => {
   const classes = useStyles(styles);
   const date = item.date && <FormatDate date={item.date} />;
-  const isModeratorName = (author: string | null) => !!author && author !== AUTOMOD_AUTHOR && author !== user.displayName;
 
   switch (item.kind) {
     case 'note': {
@@ -608,7 +611,7 @@ const ActivityItemRow = ({ user, item, count, now }: {
         date={date ?? item.note.timestamp}
         author={item.note.author}
         tone={getNoteTone(item.note.body)}
-        isHuman={isModeratorName(item.note.author)}
+        isHuman={isModeratorName(item.note.author, user.displayName)}
         count={count}
       >
         {item.note.body.replace(APPROVE_CURRENT_ONLY_EXPLANATION, '')}
@@ -622,7 +625,7 @@ const ActivityItemRow = ({ user, item, count, now }: {
         date={date}
         author={item.author}
         tone={getActionTone(item.action.type)}
-        isHuman={item.author ? isModeratorName(item.author) : MODERATOR_ONLY_ACTION_TYPES.has(item.action.type)}
+        isHuman={item.author ? isModeratorName(item.author, user.displayName) : MODERATOR_ONLY_ACTION_TYPES.has(item.action.type)}
         count={count}
       >
         {MODERATOR_ACTION_TYPES[item.action.type] ?? item.action.type}
