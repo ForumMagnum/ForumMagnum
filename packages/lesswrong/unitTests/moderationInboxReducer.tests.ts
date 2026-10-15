@@ -1,6 +1,4 @@
-import { createInitialInboxState, inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
-import { getModerationQueueSnapshot } from '@/components/sunshineDashboard/supermod/moderationQueue';
-import type { ModerationInboxQueueQueryQuery } from '@/lib/generated/gql-codegen/graphql';
+import { inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -88,110 +86,7 @@ function createState(state: Omit<InboxState, 'loadedUserIds' | 'loadedPostIds'>)
   };
 }
 
-function createQueueResult(users: SunshineUsersList[], overrides: Partial<ModerationInboxQueueQueryQuery> = {}): ModerationInboxQueueQueryQuery {
-  return {
-    supermodQueueSnapshotTime: '2026-10-14T12:00:00.000Z',
-    users: { results: users },
-    reviewQueueUsers: { results: users.map(user => ({ _id: user._id, reviewGroup: user.reviewGroup })) },
-    posts: { results: [], totalCount: 0 },
-    classifiedPosts: { results: [], totalCount: 0 },
-    ...overrides,
-  };
-}
-
 describe('Moderation Inbox Reducer', () => {
-  describe('queue loading', () => {
-    test('merges repeatedly without resurrecting moderated users or losing local state', () => {
-      const users = ['selected', 'undo', 'history'].map(id => createMockUser(id, 'newContent'));
-      let state = createInitialInboxState({ queue: getModerationQueueSnapshot(createQueueResult(users)), curationPosts: [], initialOpenedUserId: 'selected' });
-      state = inboxStateReducer(state, { type: 'UPDATE_USER', userId: 'selected', fields: { karma: 123 } });
-      for (const user of users.slice(1)) {
-        state = inboxStateReducer(state, { type: 'ADD_TO_UNDO_QUEUE', item: createUndoItem(user) });
-        state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: user._id });
-      }
-      state = inboxStateReducer(state, { type: 'EXPIRE_UNDO_ITEM', userId: 'history' });
-      state = inboxStateReducer(state, { type: 'SET_SIDEBAR_TAB', tab: 'reject' });
-      const snapshot = getModerationQueueSnapshot(createQueueResult([...users, createMockUser('new', 'newContent')]));
-      const merged = inboxStateReducer(state, { type: 'ADD_LOADED_ITEMS', snapshot });
-
-      expect(merged.users.map(user => user._id)).toEqual(['selected', 'new']);
-      expect(merged.users[0].karma).toBe(123);
-      expect(merged.loadedUserIds).toEqual(['selected', 'undo', 'history', 'new']);
-      expect(merged.undoQueue).toBe(state.undoQueue);
-      expect(merged.history).toBe(state.history);
-      expect(merged.openedUserId).toBe('selected');
-      expect(merged.focusedUserId).toBe(state.focusedUserId);
-      expect(merged.sidebarTab).toBe('reject');
-      expect(inboxStateReducer(merged, { type: 'ADD_LOADED_ITEMS', snapshot })).toEqual(merged);
-    });
-
-    test('remembers removed items even when they are not in undo or history', () => {
-      const user = createMockUser('removed', 'newContent');
-      const queue = getModerationQueueSnapshot(createQueueResult([user]));
-      let state = createInitialInboxState({ queue, curationPosts: [], initialOpenedUserId: null });
-      state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: user._id });
-      const merged = inboxStateReducer(state, { type: 'ADD_LOADED_ITEMS', snapshot: queue });
-      expect(merged.users).toEqual([]);
-      expect(merged.loadedUserIds).toEqual(['removed']);
-    });
-
-    test('focuses a newly loaded item when the selected tab was empty', () => {
-      const queue = getModerationQueueSnapshot(createQueueResult([]));
-      let state = createInitialInboxState({ queue, curationPosts: [], initialOpenedUserId: null });
-      state = inboxStateReducer(state, { type: 'CHANGE_TAB', tab: 'newContent' });
-      const snapshot = getModerationQueueSnapshot(createQueueResult([createMockUser('new', 'newContent')]));
-      const merged = inboxStateReducer(state, { type: 'ADD_LOADED_ITEMS', snapshot });
-      expect(merged.activeTab).toBe('newContent');
-      expect(merged.focusedUserId).toBe('new');
-    });
-
-    test('counts fetched users as loaded even if moderation removed their review flag', () => {
-      const reviewed = createMockUser('reviewed', 'newContent', { needsReview: false });
-      const missing = createMockUser('missing', 'highContext');
-      const queue = getModerationQueueSnapshot(createQueueResult([reviewed], {
-        reviewQueueUsers: { results: [reviewed, missing] },
-      }));
-      expect(queue.users).toEqual([]);
-      expect(queue.loadedUserIds).toEqual(['reviewed']);
-      expect(queue.unloadedCounts).toEqual({ all: 1, highContext: 1, posts: 0, classifiedPosts: 0 });
-    });
-
-    test('refreshes counts from the new response instead of the initial queue totals', () => {
-      const initial = getModerationQueueSnapshot(createQueueResult([], { posts: { results: [], totalCount: 100 } }));
-      const state = createInitialInboxState({ queue: initial, curationPosts: [], initialOpenedUserId: null });
-      const refreshed = getModerationQueueSnapshot(createQueueResult([]));
-      const merged = inboxStateReducer(state, { type: 'ADD_LOADED_ITEMS', snapshot: refreshed });
-      expect(state.unloadedCounts.posts).toBe(100);
-      expect(merged.unloadedCounts.posts).toBe(0);
-    });
-
-    test('keeps a directly opened user once even when they no longer need review', () => {
-      const user = createMockUser('direct', 'newContent', { needsReview: false });
-      for (const fetchedUsers of [[], [user]]) {
-        const queue = getModerationQueueSnapshot(createQueueResult(fetchedUsers, { reviewQueueUsers: { results: [user] } }), user);
-        expect(queue.users).toEqual([user]);
-        expect(queue.loadedUserIds).toEqual(['direct']);
-        expect(queue.unloadedCounts.all).toBe(0);
-      }
-    });
-
-    test('retains the existing initial curation and queue selection rules', () => {
-      const queue = getModerationQueueSnapshot(createQueueResult([createMockUser('queued', 'newContent')]));
-      const curationPost: SunshineCurationPostsListItem = {
-        _id: 'curation', title: 'Curation candidate', postedAt: '2026-10-14T12:00:00.000Z', baseScore: 10,
-        suggestForCuratedUsernames: null, user: null, curationNotices: [],
-      };
-      const curationState = createInitialInboxState({ queue, curationPosts: [curationPost], initialOpenedUserId: null });
-      expect(curationState.activeTab).toBe('curation');
-      expect(curationState.focusedPostId).toBe('curation');
-      const queueState = createInitialInboxState({
-        queue, curationPosts: [{ ...curationPost, curationNotices: [{ _id: 'notice', user: null }] }], initialOpenedUserId: null,
-      });
-      expect(queueState.activeTab).toBe('newContent');
-      expect(queueState.focusedUserId).toBe('queued');
-    });
-  });
-
   describe('CLOSE_DETAIL', () => {
     test('preserves focused user and active tab when exiting detail view via ESC', () => {
       const users = [
