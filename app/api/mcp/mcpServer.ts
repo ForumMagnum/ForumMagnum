@@ -24,7 +24,6 @@ import {
   validateReplaceWidgetExclusivity,
 } from "../agent/toolSchemas";
 import { moderationReadTools } from "@/server/moderation/agentTools/readTools";
-import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 
 const PostMetadataQuery = gql(`
   query McpPostMetadata($_id: String!) {
@@ -336,9 +335,6 @@ function createMcpServer(forumType: ForumTypeString): McpServer {
       async (args, extra) => {
         assertToolScopes(moderationTool.name, extra.authInfo);
         const context = await contextFromAuth(extra.authInfo, forumType);
-        if (!context.currentUser || !userIsAdminOrMod(context.currentUser)) {
-          return toolError("Moderator access required");
-        }
         try {
           const text = await moderationTool.execute(args, context);
           return { content: [{ type: "text" as const, text }] };

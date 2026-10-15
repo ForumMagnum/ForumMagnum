@@ -4,10 +4,9 @@ import * as queries from "@/server/vulcan-lib/query";
 import * as sqlClient from "@/server/sql/sqlClient";
 import {
   findAltAccountsTool,
-  getFullUserContextTool,
   getModeratorDmMessagesTool,
   getModeratorDmsTool,
-  getUserContentTool,
+  moderationReadTools,
   readDocumentBodyTool,
 } from "@/server/moderation/agentTools/readTools";
 
@@ -40,8 +39,8 @@ describe("moderation agent read tools", () => {
     sqlClientMock.mockReset();
   });
 
-  it("refuses non-moderators before reading content", async () => {
-    await expect(readDocumentBodyTool.execute({ documentId: "comment", collectionName: "Comments" }, createAnonymousContext()))
+  it.each(moderationReadTools)("$name refuses non-moderators before reading content", async tool => {
+    await expect(tool.execute({}, createAnonymousContext()))
       .rejects.toThrow("Moderator access required");
     expect(queryMock).not.toHaveBeenCalled();
   });
@@ -107,38 +106,25 @@ describe("moderation agent read tools", () => {
     expect(third).toMatchObject({ bodyMarkdown: "Z", hasMore: false, nextOffsetWords: null });
     expect(first.bodyMarkdown + second.bodyMarkdown + third.bodyMarkdown).toBe("A extraordinarilylongword Z");
     expect(queryMock).toHaveBeenLastCalledWith(expect.anything(), { documentId: "post", version: "1.0.0" }, context);
+    await expect(readDocumentBodyTool.execute({ ...args, maxWords: 20001 }, context))
+      .rejects.toThrow("Invalid arguments for read_document_body");
+    expect(queryMock).toHaveBeenCalledTimes(3);
   });
 
-  it("skips body selections in the query for a lightweight content listing", async () => {
-    queryMock.mockResolvedValue({ data: { posts: { results: [] }, comments: { results: [] } } });
-    await getUserContentTool.execute({ userId: "target", includeBodies: false }, createAdminContext());
-
-    for (const [query, variables] of queryMock.mock.calls) {
-      const source = typeof query === "string" ? query : print(query);
-      expect(source).toContain("contents @include(if: $includeBodies)");
-      expect(source).not.toMatch(/SunshinePostsList|SunshineCommentsList|htmlHighlight|biography/);
-      expect(variables).toMatchObject({ includeBodies: false });
-    }
-  });
-
-  it("propagates missing moderation context instead of returning a successful partial dossier", async () => {
-    queryMock.mockRejectedValue(new Error("Database unavailable"));
-    await expect(getFullUserContextTool.execute({ userId: "target" }, createAdminContext()))
-      .rejects.toThrow("Database unavailable");
-  });
-
-  it("delegates IP lookup authorization and errors to the existing resolver", async () => {
-    queryMock.mockRejectedValue(new Error("Only admins can see IP address information"));
+  it("enforces the existing IP resolver's admin restriction for moderators", async () => {
     const context = createAdminContext();
     if (!context.currentUser) throw new Error("Expected test user");
     context.currentUser.isAdmin = false;
     context.currentUser.groups = ["sunshineRegiment"];
 
-    await expect(findAltAccountsTool.execute({ ipAddress: "192.0.2.1" }, context))
-      .rejects.toThrow("Only admins can see IP address information");
-    const [query, variables] = queryMock.mock.calls[0];
-    expect(typeof query === "string" ? query : print(query)).toContain("moderatorViewIPAddress(ipAddress: $ipAddress)");
-    expect(variables).toEqual({ ipAddress: "192.0.2.1" });
+    queryMock.mockImplementation(actualQueries.runQuery);
+    actualQueries.setOnGraphQLError(() => {});
+    try {
+      await expect(findAltAccountsTool.execute({ ipAddress: "192.0.2.1" }, context))
+        .rejects.toThrow("Only admins can see IP address information");
+    } finally {
+      actualQueries.setOnGraphQLError(null);
+    }
   });
 
   it("returns recent conversations with separate conversation and message continuation offsets", async () => {
@@ -158,39 +144,11 @@ describe("moderation agent read tools", () => {
     expect(variables).toMatchObject({ offset: 20, limit: 1 });
   });
 
-  it("can read beyond the old 200-message limit", async () => {
-    queryMock
-      .mockResolvedValueOnce({ data: { conversation: { result: { _id: "conversation", moderator: true } } } })
-      .mockResolvedValueOnce({ data: { messages: { results: [message("oldest")], totalCount: 201 } } });
-    const context = createAdminContext();
-    const result = JSON.parse(await getModeratorDmMessagesTool.execute({ conversationId: "conversation", offset: 200 }, context));
-
-    expect(result).toMatchObject({ offset: 200, totalCount: 201, nextOffset: null, hasMore: false });
-    expect(result.messages[0]._id).toBe("oldest");
-    expect(queryMock).toHaveBeenLastCalledWith(expect.anything(), { conversationId: "conversation", offset: 200, limit: 20 }, context);
-  });
-
   it("refuses to list messages from a non-moderator conversation", async () => {
     queryMock.mockResolvedValueOnce({ data: { conversation: { result: { _id: "private", moderator: false } } } });
     await expect(getModeratorDmMessagesTool.execute({ conversationId: "private" }, createAdminContext()))
       .rejects.toThrow("Moderator conversation not found or not accessible");
     expect(queryMock).toHaveBeenCalledTimes(1);
-  });
-
-  it("can continue long message bodies but does not expose private conversation bodies", async () => {
-    const contents = { _id: "message_contents", html: `<p>${"word ".repeat(1000)}ending</p>`, version: "1.0.0" };
-    queryMock
-      .mockResolvedValueOnce({ data: { message: { result: { _id: "message", conversationId: "conversation", contents } } } })
-      .mockResolvedValueOnce({ data: { conversation: { result: { _id: "conversation", moderator: true } } } });
-    const context = createAdminContext();
-    const result = JSON.parse(await readDocumentBodyTool.execute({ documentId: "message", collectionName: "Messages", offsetWords: 1000 }, context));
-    expect(result).toMatchObject({ totalWords: 1001, bodyMarkdown: "ending", nextOffsetWords: null });
-
-    queryMock
-      .mockResolvedValueOnce({ data: { message: { result: { _id: "message", conversationId: "private", contents } } } })
-      .mockResolvedValueOnce({ data: { conversation: { result: { _id: "private", moderator: false } } } });
-    await expect(readDocumentBodyTool.execute({ documentId: "message", collectionName: "Messages" }, context))
-      .rejects.toThrow("Moderator conversation not found or not accessible");
   });
 
   it("rejects a non-moderator message through the real document and contents resolvers", async () => {

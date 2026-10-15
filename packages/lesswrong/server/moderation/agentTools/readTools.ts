@@ -3,8 +3,37 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { runQuery } from "@/server/vulcan-lib/query";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { truncateMarkdown } from "@/server/markdownApi/markdownTruncation";
+import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import uniq from "lodash/uniq";
-import { defineModerationAgentTool, requireModeratorAccess } from "./types";
+
+interface ModerationAgentTool {
+  name: string;
+  description: string;
+  inputSchema: z.ZodObject<z.ZodRawShape>;
+  execute: (args: unknown, context: ResolverContext) => Promise<string>;
+}
+
+interface ModerationAgentToolSpec<S extends z.ZodObject<z.ZodRawShape>> {
+  name: string;
+  description: string;
+  inputSchema: S;
+  execute: (args: z.infer<S>, context: ResolverContext) => Promise<string>;
+}
+
+// Enforce the same access and argument contract for MCP and composed tool calls.
+function defineModerationAgentTool<S extends z.ZodObject<z.ZodRawShape>>(spec: ModerationAgentToolSpec<S>): ModerationAgentTool {
+  return {
+    ...spec,
+    execute: async (args, context) => {
+      if (!userIsAdminOrMod(context.currentUser)) throw new Error("Moderator access required");
+      const parsed = spec.inputSchema.safeParse(args);
+      if (!parsed.success) {
+        throw new Error(`Invalid arguments for ${spec.name}: ${parsed.error.message}`);
+      }
+      return spec.execute(parsed.data, context);
+    },
+  };
+}
 
 const CONTENT_EXCERPT_LENGTH = 13000;
 const MESSAGE_EXCERPT_LENGTH = 2000;
@@ -43,14 +72,13 @@ async function getUserDossier(userId: string, context: ResolverContext) {
   return { ...rest, bioMarkdown: htmlBio ? htmlToMarkdown(htmlBio) : null };
 }
 
-export const getUserDossierTool = defineModerationAgentTool({
+const getUserDossierTool = defineModerationAgentTool({
   name: "get_user_dossier",
   description: "Fetch a user's full moderation dossier: karma, signup date, bio, email validation and reCaptcha signals, post/comment/vote counts, review-queue state (needsReview, review group, snooze), permission restrictions, active rate limits, recent karma info, rejected content count, moderator notes, moderator action history summary, and alt-account signals (client IDs shared with other accounts).",
   inputSchema: z.object({
     userId: z.string().describe("The _id of the user"),
   }),
   execute: async ({ userId }, context) => {
-    requireModeratorAccess(context);
     return JSON.stringify(await getUserDossier(userId, context));
   },
 });
@@ -104,7 +132,6 @@ export const findAltAccountsTool = defineModerationAgentTool({
     ipAddress: z.string().optional().describe("Find accounts that have logged in from this IP address (admins only)"),
   }),
   execute: async ({ userId, ipAddress }, context) => {
-    requireModeratorAccess(context);
     if (!userId && !ipAddress) {
       throw new Error("Provide userId or ipAddress");
     }
@@ -189,7 +216,7 @@ gql(`
   }
 `);
 
-export const getUserContentTool = defineModerationAgentTool({
+const getUserContentTool = defineModerationAgentTool({
   name: "get_user_content",
   description: "Fetch a user's recent posts and comments as seen by moderators, including markdown excerpts, karma, rejection state, and Pangram scores. If bodyTruncated is true, use read_document_body with the document's _id, collectionName and bodyVersion to read the full body.",
   inputSchema: z.object({
@@ -198,7 +225,6 @@ export const getUserContentTool = defineModerationAgentTool({
     includeBodies: z.boolean().optional().describe("Include body text (default true). Set false for a lighter listing."),
   }),
   execute: async ({ userId, limit, includeBodies }, context) => {
-    requireModeratorAccess(context);
     const contentLimit = limit ?? 20;
     const withBodies = includeBodies ?? true;
 
@@ -309,7 +335,6 @@ export const readDocumentBodyTool = defineModerationAgentTool({
     maxWords: z.number().int().min(1).max(20000).optional().describe("Words to return (default 4000)"),
   }),
   execute: async ({ documentId, collectionName, version, offsetWords = 0, maxWords = 4000 }, context) => {
-    requireModeratorAccess(context);
     const contents = await getDocumentBody(documentId, collectionName, version, context);
     const markdown = contents?.html ? htmlToMarkdown(contents.html) : "";
     const words = [...markdown.matchAll(/\S+/g)];
@@ -346,7 +371,7 @@ const AgentModeratorActionsQuery = gql(`
   }
 `);
 
-export const getModeratorActionHistoryTool = defineModerationAgentTool({
+const getModeratorActionHistoryTool = defineModerationAgentTool({
   name: "get_moderator_action_history",
   description: "Fetch a page of ModeratorActions history for a user, newest first: rate limits, automated alerts, review-queue triggers, and past actions, with active state and dates. Pass nextOffset to continue through older history.",
   inputSchema: z.object({
@@ -355,7 +380,6 @@ export const getModeratorActionHistoryTool = defineModerationAgentTool({
     limit: z.number().int().min(1).max(100).optional().describe("Actions to return (default 100)"),
   }),
   execute: async ({ userId, offset = 0, limit = 100 }, context) => {
-    requireModeratorAccess(context);
     const { data } = await runQuery(
       AgentModeratorActionsQuery,
       { selector: { userModeratorActions: { userIds: [userId] } }, limit, offset },
@@ -387,14 +411,13 @@ const AgentModerationTemplatesQuery = gql(`
   }
 `);
 
-export const listModerationTemplatesTool = defineModerationAgentTool({
+const listModerationTemplatesTool = defineModerationAgentTool({
   name: "list_moderation_templates",
   description: "List the moderation templates used for rejecting content (collectionName: Rejections) or messaging users (collectionName: Messages). Use these when drafting rejection reasons or moderator DMs so wording matches house style; reference a template's _id in proposal steps where applicable.",
   inputSchema: z.object({
     collectionName: z.enum(["Rejections", "Messages"]),
   }),
   execute: async ({ collectionName }, context) => {
-    requireModeratorAccess(context);
     const { data } = await runQuery(
       AgentModerationTemplatesQuery,
       { selector: { moderationTemplatesList: { collectionName } }, limit: 100 },
@@ -430,14 +453,13 @@ const AgentReviewQueueQuery = gql(`
   }
 `);
 
-export const listReviewQueueTool = defineModerationAgentTool({
+const listReviewQueueTool = defineModerationAgentTool({
   name: "list_review_queue",
   description: "List users currently awaiting moderator review, with karma, content counts, review group, and rejected content counts. Useful for surveying the queue or grouping similar users.",
   inputSchema: z.object({
     limit: z.number().int().min(1).max(200).optional().describe("Max users to return (default 50)"),
   }),
   execute: async ({ limit }, context) => {
-    requireModeratorAccess(context);
     const { data } = await runQuery(AgentReviewQueueQuery, { limit: limit ?? 50 }, context);
     return JSON.stringify({ users: data?.users?.results ?? [] });
   },
@@ -522,7 +544,6 @@ export const getModeratorDmsTool = defineModerationAgentTool({
     limit: z.number().int().min(1).max(20).optional().describe("Conversations to return (default 20)"),
   }),
   execute: async ({ userId, offset = 0, limit = 20 }, context) => {
-    requireModeratorAccess(context);
     const { data } = await runQuery(AgentModeratorConversationsQuery, { userId, offset, limit }, context);
     const page = data?.conversations;
     if (!page || page.totalCount === null) throw new Error("Failed to load moderator conversations");
@@ -550,26 +571,31 @@ export const getModeratorDmMessagesTool = defineModerationAgentTool({
     limit: z.number().int().min(1).max(200).optional().describe("Messages to return (default 20)"),
   }),
   execute: async ({ conversationId, offset = 0, limit = 20 }, context) => {
-    requireModeratorAccess(context);
     await getModeratorConversation(conversationId, context);
     return JSON.stringify(await getModeratorMessages(conversationId, offset, limit, context));
   },
 });
 
-async function buildModerationContextForUser(userId: string, context: ResolverContext): Promise<string> {
-  const [
-    dossier, contentJson, dmsJson,
-    rejectionTemplatesJson, messageTemplatesJson,
-  ] = await Promise.all([
-    getUserDossier(userId, context),
-    getUserContentTool.execute({ userId }, context),
-    getModeratorDmsTool.execute({ userId }, context),
-    listModerationTemplatesTool.execute({ collectionName: "Rejections" }, context),
-    listModerationTemplatesTool.execute({ collectionName: "Messages" }, context),
-  ]);
-  const altAccounts = await getAltAccountsForClientIds(userId, dossier.associatedClientIds, context);
+const getFullUserContextTool = defineModerationAgentTool({
+  name: "get_full_user_context",
+  description: "Fetch a user's moderation context in one call: dossier with moderator action history, alt-account signals, recent posts and comments, recent moderator DM excerpts with continuation offsets, and rejection and message templates. Prefer it over the individual read tools unless you need just one piece. Use the body and DM tools to continue truncated results.",
+  inputSchema: z.object({
+    userId: z.string().describe("The _id of the user"),
+  }),
+  execute: async ({ userId }, context) => {
+    const [
+      dossier, contentJson, dmsJson,
+      rejectionTemplatesJson, messageTemplatesJson,
+    ] = await Promise.all([
+      getUserDossier(userId, context),
+      getUserContentTool.execute({ userId }, context),
+      getModeratorDmsTool.execute({ userId }, context),
+      listModerationTemplatesTool.execute({ collectionName: "Rejections" }, context),
+      listModerationTemplatesTool.execute({ collectionName: "Messages" }, context),
+    ]);
+    const altAccounts = await getAltAccountsForClientIds(userId, dossier.associatedClientIds, context);
 
-  return `## Target user dossier (including moderator action history)
+    return `## Target user dossier (including moderator action history)
 ${JSON.stringify(dossier)}
 
 ## Alt-account signals (client IDs and accounts sharing them)
@@ -586,17 +612,6 @@ ${rejectionTemplatesJson}
 
 ## Moderator message templates
 ${messageTemplatesJson}`;
-}
-
-export const getFullUserContextTool = defineModerationAgentTool({
-  name: "get_full_user_context",
-  description: "Fetch a user's moderation context in one call: dossier with moderator action history, alt-account signals, recent posts and comments, recent moderator DM excerpts with continuation offsets, and rejection and message templates. Prefer it over the individual read tools unless you need just one piece. Use the body and DM tools to continue truncated results.",
-  inputSchema: z.object({
-    userId: z.string().describe("The _id of the user"),
-  }),
-  execute: async ({ userId }, context) => {
-    requireModeratorAccess(context);
-    return buildModerationContextForUser(userId, context);
   },
 });
 
