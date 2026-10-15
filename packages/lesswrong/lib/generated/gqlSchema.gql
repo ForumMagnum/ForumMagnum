@@ -1271,6 +1271,7 @@ extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
   supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
   supermodQueueSnapshotTime: Date!
+  supermodQueueUsers(limit: Int!, offset: Int = 0): MultiUserOutput!
 }
 
 extend type Mutation {
@@ -7893,7 +7894,9 @@ type User {
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
   lastRemovedFromReviewQueueAt: Date
-  hasPendingComments: Boolean
+  pendingPostCount: Int
+  pendingCommentCount: Int
+  oldestPendingContentAt: Date
   rejectedContentCount: Int
   userRateLimits: [UserRateLimit!]
   claudeLinkedAt: Date
@@ -7948,7 +7951,6 @@ enum SubforumPreferredLayout {
 
 enum ReviewGroup {
   newContent
-  offboard
   highContext
   maybeSpam
   automod
@@ -7988,7 +7990,6 @@ input UserSelector {
   LWTrustLevel1List: EmptyViewInput
   LWUsersAdmin: EmptyViewInput
   usersWithBannedUsers: EmptyViewInput
-  sunshineNewUsers: EmptyViewInput
   recentlyActive: EmptyViewInput
   allUsers: EmptyViewInput
   usersMapLocations: EmptyViewInput

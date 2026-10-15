@@ -1,13 +1,13 @@
 'use client';
 
 import groupBy from 'lodash/groupBy';
-import sortBy from 'lodash/sortBy';
 import sumBy from 'lodash/sumBy';
-import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
-import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
+import { getUserReviewGroup, type TabId } from './groupings';
+import { compareReviewQueueUsers, REVIEW_GROUPS_IN_PRIORITY_ORDER } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
 import type { SelectedSidebarTab } from './sidebarTabs';
+import type { ModerationQueueSnapshot, UnloadedCounts } from './moderationQueue';
 
 export interface HistoryItem {
   user: SunshineUsersList;
@@ -27,15 +27,7 @@ export interface UndoHistoryItem {
   wasDetailView: boolean;
 };
 
-export type UnloadedCounts = Partial<Record<TabId, number>>;
-
-export type InboxState = {
-  // The local copy of users (mutated when actions complete)
-  users: SunshineUsersList[];
-  // The local copy of posts (mutated when actions complete)
-  posts: SunshinePostsList[];
-  // The local copy of auto-classified posts (mutated when actions complete)
-  classifiedPosts: SunshinePostsList[];
+export interface InboxState extends ModerationQueueSnapshot {
   // The local copy of curation candidate posts
   curationPosts: SunshineCurationPostsListItem[];
   // Current active tab
@@ -56,9 +48,52 @@ export type InboxState = {
   history: HistoryItem[];
   // Document ID for which an LLM detection check is currently running
   runningLlmCheckId: string | null;
-  // Queued items beyond the loaded page, per tab. Tab counts include these.
-  unloadedCounts: UnloadedCounts;
-};
+}
+
+interface InitialInboxData {
+  queue: ModerationQueueSnapshot;
+  curationPosts: SunshineCurationPostsListItem[];
+  initialOpenedUserId: string | null;
+}
+
+export function createInitialInboxState({ queue, curationPosts, initialOpenedUserId }: InitialInboxData): InboxState {
+  const state: InboxState = {
+    ...queue,
+    curationPosts,
+    activeTab: 'curation',
+    focusedUserId: null,
+    openedUserId: null,
+    focusedPostId: null,
+    focusedContentIndex: 0,
+    sidebarTab: null,
+    undoQueue: [],
+    history: [],
+    runningLlmCheckId: null,
+  };
+  if (!queue.users.length && !queue.posts.length && !queue.classifiedPosts.length && !curationPosts.length) {
+    return state;
+  }
+  if (initialOpenedUserId) {
+    return { ...state, activeTab: 'all', focusedUserId: initialOpenedUserId, openedUserId: initialOpenedUserId };
+  }
+
+  const groupedUsers = groupBy(queue.users, user => getUserReviewGroup(user));
+  const curationNoticeCount = sumBy(curationPosts, post => post.curationNotices?.length ?? 0);
+  // Only loaded items can be selected. Default to curation when it has no notices.
+  const visibleTabs = getVisibleTabsInOrder(groupedUsers, queue.users.length, queue.posts.length, queue.classifiedPosts.length, curationNoticeCount, {});
+  const firstQueueTab = curationNoticeCount > 0
+    ? visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0)?.group
+    : undefined;
+  const activeTab = firstQueueTab ?? 'curation';
+  const posts = activeTab === 'curation' ? curationPosts : activeTab === 'posts' ? queue.posts : queue.classifiedPosts;
+  const isPostTab = activeTab === 'curation' || activeTab === 'posts' || activeTab === 'classifiedPosts';
+  return {
+    ...state,
+    activeTab,
+    focusedPostId: isPostTab ? posts[0]?._id ?? null : null,
+    focusedUserId: isPostTab ? null : getFilteredGroups(groupedUsers, activeTab)[0]?.[1][0]?._id ?? null,
+  };
+}
 
 export type InboxAction =
   | { type: 'OPEN_USER'; userId: string; }
@@ -82,22 +117,14 @@ export type InboxAction =
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
   | { type: 'UNDO_ACTION'; userId: string; }
   | { type: 'EXPIRE_UNDO_ITEM'; userId: string; }
-  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; };
-
-
-
-// Held comments can't go live until reviewed
-function orderUsersWithinGroup(group: ReviewGroup, users: SunshineUsersList[]): SunshineUsersList[] {
-  if (group !== 'newContent') {
-    return users;
-  }
-  return sortBy(users, user => user.hasPendingComments ? 0 : 1);
-}
+  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; }
+  | { type: 'ADD_LOADED_ITEMS'; snapshot: ModerationQueueSnapshot; };
 
 export function getOrderedGroups(groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>): GroupEntry[] {
-  return (Object.entries(groupedUsers) as GroupEntry[])
-    .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a])
-    .map(([group, users]): GroupEntry => [group, orderUsersWithinGroup(group, users)]);
+  return REVIEW_GROUPS_IN_PRIORITY_ORDER.flatMap<GroupEntry>(group => {
+    const users = groupedUsers[group];
+    return users ? [[group, [...users].sort(compareReviewQueueUsers)]] : [];
+  });
 }
 
 export function getFilteredGroups(
@@ -120,11 +147,10 @@ export function getVisibleTabsInOrder(
   totalCurationNotices: number,
   unloadedCounts: UnloadedCounts,
 ): TabInfo[] {
-  const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [{ group: 'curation', count: totalCurationNotices }];
   
   // Always show all tabs, even if empty
-  for (const group of tabsInOrder) {
+  for (const group of REVIEW_GROUPS_IN_PRIORITY_ORDER) {
     const count = groupedUsers[group]?.length ?? 0;
     tabs.push({ group, count });
   }
@@ -248,6 +274,32 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       return {
         ...state,
         sidebarTab: action.tab,
+      };
+    }
+
+    case 'ADD_LOADED_ITEMS': {
+      const { snapshot } = action;
+      const knownUserIds = new Set(state.loadedUserIds);
+      const knownPostIds = new Set(state.loadedPostIds);
+      const users = [...state.users, ...snapshot.users.filter(user => !knownUserIds.has(user._id))];
+      const posts = [...state.posts, ...snapshot.posts.filter(post => !knownPostIds.has(post._id))];
+      const classifiedPosts = [...state.classifiedPosts, ...snapshot.classifiedPosts.filter(post => !knownPostIds.has(post._id))];
+
+      const isUserTab = state.activeTab !== 'posts' && state.activeTab !== 'classifiedPosts' && state.activeTab !== 'curation';
+      const firstUserInTab = getFilteredGroups(groupBy(users, user => getUserReviewGroup(user)), state.activeTab)
+        .flatMap(([_, groupUsers]) => groupUsers)[0];
+      const firstPostInTab = state.activeTab === 'posts' ? posts[0] : state.activeTab === 'classifiedPosts' ? classifiedPosts[0] : undefined;
+
+      return {
+        ...state,
+        users,
+        posts,
+        classifiedPosts,
+        loadedUserIds: [...new Set([...state.loadedUserIds, ...snapshot.loadedUserIds])],
+        loadedPostIds: [...new Set([...state.loadedPostIds, ...snapshot.loadedPostIds])],
+        unloadedCounts: snapshot.unloadedCounts,
+        focusedUserId: state.focusedUserId ?? (isUserTab && !state.openedUserId ? firstUserInTab?._id ?? null : null),
+        focusedPostId: state.focusedPostId ?? firstPostInTab?._id ?? null,
       };
     }
 
@@ -632,10 +684,9 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       }
 
       // Current tab is empty, switch to next non-empty tab
-      const tabsInOrder = getTabsInPriorityOrder();
       let nextTab: ReviewGroup | 'all' = 'all';
 
-      for (const group of tabsInOrder) {
+      for (const group of REVIEW_GROUPS_IN_PRIORITY_ORDER) {
         if (groupedUsers[group]?.length > 0) {
           nextTab = group;
           break;

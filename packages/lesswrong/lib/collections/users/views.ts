@@ -89,26 +89,6 @@ function usersWithBannedUsers() {
     },
   }
 }
-
-function sunshineNewUsers() {
-  return {
-    selector: {
-      needsReview: true,
-      banned: viewFieldNullOrMissing,
-      reviewedByUserId: null,
-    },
-    options: {
-      sort: {
-        sunshineFlagged: -1,
-        reviewedByUserId: 1,
-        postCount: -1,
-        commentCount: -1,
-        createdAt: -1
-      }
-    }
-  }
-}
-
 function recentlyActive(terms: UsersViewTerms) {
   return {
     selector: {
@@ -248,7 +228,6 @@ export const UsersViews = new CollectionViewSet('Users', {
   LWTrustLevel1List,
   LWUsersAdmin,
   usersWithBannedUsers,
-  sunshineNewUsers,
   recentlyActive,
   allUsers,
   usersMapLocations,

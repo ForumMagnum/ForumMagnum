@@ -2,7 +2,7 @@ import React from "react";
 import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetAbsoluteDiscussionUrl } from "@/lib/collections/tags/helpers";
-import { userShortformPostTitle } from "@/lib/collections/users/helpers";
+import { userIsApproved, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
@@ -404,7 +404,7 @@ const utils = {
       }
   
       // Only email approved users who are not snoozed, to avoid drawing unapproved users back to the site.
-      const noEmail = !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+      const noEmail = !userIsApproved(commentUser)
   
       await utils.sendModerationPM({
         action: 'deleted',
@@ -444,7 +444,7 @@ const utils = {
     let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
     
     // Only email approved users who are not snoozed, to avoid drawing unapproved users back to the site.
-    const noEmail = !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+    const noEmail = !userIsApproved(commentUser)
   
     await utils.sendModerationPM({
       action: 'rejected',
@@ -952,17 +952,16 @@ export async function commentsPublishedNotifications(comment: DbComment, oldComm
 
 /**
  * Create an automated content evaluation for a comment when it transitions from draft to published.
- * Only runs on LessWrong for unreviewed users.
+ * Only runs on LessWrong for unreviewed and snoozed users.
  */
 export async function maybeCreateAutomatedContentEvaluationForComment(
   comment: DbComment,
   oldComment: DbComment | null,
   context: ResolverContext
 ) {
-  // Skip running this by default for reviewed users for now,
-  // since comments are much higher volume than posts and there
-  // isn't any UI for looking at the results yet anyways.
-  if (context.forumType !== 'LessWrong' || context.currentUser?.reviewedByUserId) {
+  // Skip running this by default for approved users for now,
+  // since comments are much higher volume than posts.
+  if (context.forumType !== 'LessWrong' || userIsApproved(context.currentUser)) {
     return;
   }
 

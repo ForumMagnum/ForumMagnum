@@ -1,3 +1,6 @@
+import { getReviewQueueUsers } from "@/server/users/reviewQueue";
+import { loadByIds } from "@/lib/loaders";
+import { maxDocumentsPerRequestSetting } from "@/lib/instanceSettings";
 import { LWEvents } from '../../server/collections/lwevents/collection';
 import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { getCommentSubtree } from '../utils/commentTreeUtils';
@@ -13,7 +16,7 @@ import { updatePost } from '../collections/posts/mutations';
 import { updateUser } from '../collections/users/mutations';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { appendToSunshineNotes } from '../users/sunshineNotes';
-import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { approveUnreviewedSubmissions } from '../callbacks/userCallbackFunctions';
 import { createConversation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
@@ -57,6 +60,7 @@ export const moderationGqlTypeDefs = gql`
     moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
     supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
     supermodQueueSnapshotTime: Date!
+    supermodQueueUsers(limit: Int!, offset: Int = 0): MultiUserOutput!
   }
 
   extend type Mutation {
@@ -440,6 +444,17 @@ export const moderationGqlMutations = {
 const MAX_QUEUE_CHANGE_DOCUMENT_IDS = 1000;
 
 export const moderationGqlQueries = {
+  async supermodQueueUsers(_root: void, { limit, offset = 0 }: { limit: number, offset?: number }, context: ResolverContext) {
+    if (!userIsAdminOrMod(context.currentUser)) throw new Error("Only admins and moderators can read the moderation queue");
+    if (limit < 1 || offset < 0) throw new Error("Queue limit must be positive and offset must not be negative");
+    const queue = await getReviewQueueUsers(context);
+    const page = queue.slice(offset, offset + Math.min(limit, maxDocumentsPerRequestSetting.get(context)));
+    const users = await loadByIds(context, "Users", page.map(user => user._id));
+    return {
+      results: await accessFilterMultiple(context.currentUser, "Users", users, context),
+      totalCount: queue.length,
+    };
+  },
   async moderatorViewIPAddress(_root: void, args: {ipAddress: string}, context: ResolverContext) {
     const { currentUser } = context;
     const { ipAddress } = args;
