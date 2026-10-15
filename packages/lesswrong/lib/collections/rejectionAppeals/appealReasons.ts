@@ -1,3 +1,5 @@
+import { htmlToTextDefault } from "@/lib/htmlToText";
+
 export interface CommonMisunderstanding {
   /** The misunderstanding in one sentence, shown in bold */
   summary: string;
@@ -42,9 +44,7 @@ export const APPEAL_REASONS: AppealReason[] = [
 ];
 
 function htmlToComparableText(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
+  return htmlToTextDefault(html)
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();

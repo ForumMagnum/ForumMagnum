@@ -56,6 +56,10 @@ const styles = defineStyles('TeamInboxThreadView', (theme: ThemeType) => ({
     fontSize: 14,
     marginBottom: 12,
   },
+  explanation: {
+    whiteSpace: 'pre-wrap',
+    margin: '12px 0',
+  },
   buttonRow: {
     display: 'flex',
     alignItems: 'center',
@@ -157,7 +161,8 @@ const AppealedContent = ({ appeal }: { appeal: RejectionAppealsModerationInfo })
         showWhenEmpty
       />
     </div>
-    <RejectionNotice rejectedReason={content.rejectedReason} />
+    {appeal.status !== 'approved' && <RejectionNotice rejectedReason={content.rejectedReason} />}
+    <div className={classes.explanation}><strong>Appeal:</strong> {appeal.explanation}</div>
   </>;
 };
 
@@ -188,12 +193,14 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
     setError(null);
     try {
       const { data } = await updateAppeal({ variables: { selector: { _id: appeal._id }, data: { status } } });
+      const updatedAppeal = data?.updateRejectionAppeal?.data;
+      if (!updatedAppeal?.conversation) throw new Error('The review update returned no conversation. Please reload and try again.');
       // Resolving a review also marks its conversation done
       dispatch({
         type: 'UPDATE_THREAD',
         thread: {
-          conversation: { ...conversation, awaitingModeratorReply: false },
-          appeal: data?.updateRejectionAppeal?.data ?? { ...appeal, status },
+          conversation: updatedAppeal.conversation,
+          appeal: updatedAppeal,
         },
         advanceFocus: true,
       });
@@ -206,9 +213,11 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
     setError(null);
     try {
       const { data } = await updateConversation({ variables: { selector: { _id: conversation._id }, data: { awaitingModeratorReply } } });
+      const updatedConversation = data?.updateConversation?.data;
+      if (!updatedConversation) throw new Error('The conversation update returned no data. Please reload and try again.');
       dispatch({
         type: 'UPDATE_THREAD',
-        thread: { conversation: data?.updateConversation?.data ?? { ...conversation, awaitingModeratorReply }, appeal },
+        thread: { conversation: updatedConversation, appeal },
         advanceFocus,
       });
     } catch (error) {

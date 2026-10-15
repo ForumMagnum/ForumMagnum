@@ -2468,6 +2468,7 @@ interface Conversation {
   archivedByIds: Array<string>;
   archivedBy: Array<User>;
   latestMessage: Message | null;
+  rejectionAppeal: RejectionAppeal | null;
   hasUnreadMessages: boolean | null;
 }
 

@@ -120,6 +120,7 @@ const TeamInboxList = ({
   openThreads,
   doneThreads,
   doneThreadsLoading,
+  doneThreadsError,
   hasMoreDoneThreads,
   focusedThreadId,
   onFocusThread,
@@ -130,6 +131,7 @@ const TeamInboxList = ({
   /** Null when done conversations aren't shown */
   doneThreads: TeamInboxThread[] | null;
   doneThreadsLoading: boolean;
+  doneThreadsError?: string;
   hasMoreDoneThreads: boolean;
   focusedThreadId: string | null;
   onFocusThread: (conversationId: string) => void;
@@ -165,7 +167,11 @@ const TeamInboxList = ({
         <div className={classes.doneDivider}>Done</div>
         {doneThreads.map(thread => renderThread(thread, true))}
         {doneThreadsLoading && <Loading />}
-        {!doneThreadsLoading && hasMoreDoneThreads && <div className={classes.loadMoreRow}>
+        {doneThreadsError && <div className={classes.inboxEmpty} role="alert">
+          <div>Unable to load done conversations: {doneThreadsError}</div>
+          <Button className={classes.reloadButton} variant="outlined" onClick={() => window.location.reload()}>Reload</Button>
+        </div>}
+        {!doneThreadsLoading && !doneThreadsError && hasMoreDoneThreads && <div className={classes.loadMoreRow}>
           <Button variant="outlined" onClick={onLoadMoreDoneThreads}>Load more</Button>
         </div>}
       </>}
@@ -180,6 +186,7 @@ const ModerationInboxList = ({
   teamInboxThreads,
   doneTeamInboxThreads,
   doneTeamInboxThreadsLoading,
+  doneTeamInboxThreadsError,
   hasMoreDoneTeamInboxThreads,
   onToggleShowDoneThreads,
   onLoadMoreDoneThreads,
@@ -199,6 +206,7 @@ const ModerationInboxList = ({
   teamInboxThreads: TeamInboxThread[];
   doneTeamInboxThreads: TeamInboxThread[] | null;
   doneTeamInboxThreadsLoading: boolean;
+  doneTeamInboxThreadsError?: string;
   hasMoreDoneTeamInboxThreads: boolean;
   onToggleShowDoneThreads: () => void;
   onLoadMoreDoneThreads: () => void;
@@ -223,6 +231,7 @@ const ModerationInboxList = ({
           openThreads={teamInboxThreads}
           doneThreads={doneTeamInboxThreads}
           doneThreadsLoading={doneTeamInboxThreadsLoading}
+          doneThreadsError={doneTeamInboxThreadsError}
           hasMoreDoneThreads={hasMoreDoneTeamInboxThreads}
           focusedThreadId={focusedThreadId}
           onFocusThread={onFocusThread}

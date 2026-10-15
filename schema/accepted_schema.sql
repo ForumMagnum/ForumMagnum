@@ -2327,6 +2327,7 @@ CREATE TABLE "RejectionAppeals" (
   "reasonIds" TEXT[] NOT NULL DEFAULT '{}',
   "acknowledgedMisunderstandings" BOOL NOT NULL DEFAULT FALSE,
   "status" TEXT NOT NULL DEFAULT 'open',
+  "pendingResolution" TEXT,
   "resolvedByUserId" VARCHAR(27),
   "resolvedAt" TIMESTAMPTZ
 );
@@ -2346,6 +2347,9 @@ CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_userId_createdAt" ON "Rejection
 
 -- Index "idx_RejectionAppeals_status_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_status_createdAt" ON "RejectionAppeals" USING btree ("status", "createdAt");
+
+-- Index "idx_RejectionAppeals_conversationId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_RejectionAppeals_conversationId_createdAt" ON "RejectionAppeals" USING btree ("conversationId", "createdAt");
 
 -- Table "Reports"
 CREATE TABLE "Reports" (

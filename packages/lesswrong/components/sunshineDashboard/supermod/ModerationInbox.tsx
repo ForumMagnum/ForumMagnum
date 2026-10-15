@@ -89,7 +89,7 @@ const TeamInboxDoneQuery = gql(`
   query teamInboxDoneModerationInboxQuery($limit: Int) {
     conversations(selector: { teamInboxDone: {} }, limit: $limit, enableTotal: true) {
       results {
-        ...TeamInboxConversation
+        ...DoneTeamInboxConversation
       }
       totalCount
     }
@@ -299,7 +299,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
   }, [state.focusedThreadId, state.teamInboxThreads, state.doneTeamInboxThreads]);
 
   const [doneThreadsLimit, setDoneThreadsLimit] = useState(DONE_THREADS_PAGE_SIZE);
-  const { data: doneThreadsData, loading: doneThreadsLoading } = useQuery(TeamInboxDoneQuery, {
+  const { data: doneThreadsData, loading: doneThreadsLoading, error: doneThreadsError } = useQuery(TeamInboxDoneQuery, {
     variables: { limit: doneThreadsLimit },
     skip: !state.showDoneTeamInboxThreads,
     fetchPolicy: 'cache-and-network',
@@ -477,6 +477,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, te
                   teamInboxThreads={state.teamInboxThreads}
                   doneTeamInboxThreads={state.showDoneTeamInboxThreads ? state.doneTeamInboxThreads : null}
                   doneTeamInboxThreadsLoading={doneThreadsLoading}
+                  doneTeamInboxThreadsError={doneThreadsError?.message}
                   hasMoreDoneTeamInboxThreads={hasMoreDoneThreads}
                   onToggleShowDoneThreads={handleToggleShowDoneThreads}
                   onLoadMoreDoneThreads={handleLoadMoreDoneThreads}

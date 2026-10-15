@@ -1106,6 +1106,7 @@ type Conversation = {
   moderator?: Maybe<Scalars['Boolean']['output']>;
   participantIds?: Maybe<Array<Scalars['String']['output']>>;
   participants?: Maybe<Array<User>>;
+  rejectionAppeal?: Maybe<RejectionAppeal>;
   schemaVersion: Scalars['Float']['output'];
   title?: Maybe<Scalars['String']['output']>;
 };
@@ -21403,7 +21404,7 @@ type ModerationInboxDataQueryQuery = ModerationInboxDataQueryQuery_Query;
 
 type teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
   { __typename?: 'Conversation' }
-  & TeamInboxConversation
+  & DoneTeamInboxConversation
 );
 
 type teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', totalCount: number | null, results: Array<teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput_results_Conversation> };
@@ -24311,6 +24312,16 @@ type ConversationsListWithReadStatus = (
 type TeamInboxConversation = (
   { __typename?: 'Conversation', awaitingModeratorReply: boolean | null }
   & ConversationsList
+);
+
+type DoneTeamInboxConversation_Conversation_rejectionAppeal_RejectionAppeal = (
+  { __typename?: 'RejectionAppeal' }
+  & RejectionAppealsModerationInfo
+);
+
+type DoneTeamInboxConversation = (
+  { __typename?: 'Conversation', rejectionAppeal: DoneTeamInboxConversation_Conversation_rejectionAppeal_RejectionAppeal | null }
+  & TeamInboxConversation
 );
 
 type CurationNoticesFragment_CurationNotice_user_User = (

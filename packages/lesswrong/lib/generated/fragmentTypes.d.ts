@@ -37,6 +37,7 @@ interface FragmentTypes {
   ConversationsMinimumInfo: ConversationsMinimumInfo
   CurationNoticesFragment: CurationNoticesFragment
   DeletedCommentsMetaData: DeletedCommentsMetaData
+  DoneTeamInboxConversation: DoneTeamInboxConversation
   DraftComments: DraftComments
   ElicitQuestionFragment: ElicitQuestionFragment
   ExplorePageTagFragment: ExplorePageTagFragment
@@ -231,7 +232,7 @@ interface FragmentTypesByCollection {
   ClientIds: "ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"CommentsMarkdownFragment"|"DeletedCommentsMetaData"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"SuggestAlignmentComment"|"SunshineCommentsList"|"UltraFeedComment"|"WithVoteComment"
-  Conversations: "ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"|"TeamInboxConversation"
+  Conversations: "ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"|"DoneTeamInboxConversation"|"TeamInboxConversation"
   CurationNotices: "CurationNoticesFragment"
   ElicitQuestions: "ElicitQuestionFragment"
   FeedCommentThreads: "FeedCommentThreadFragment"
@@ -306,6 +307,7 @@ interface CollectionNamesByFragmentName {
   ConversationsMinimumInfo: "Conversations"
   CurationNoticesFragment: "CurationNotices"
   DeletedCommentsMetaData: "Comments"
+  DoneTeamInboxConversation: "Conversations"
   DraftComments: "Comments"
   ElicitQuestionFragment: "ElicitQuestions"
   ExplorePageTagFragment: "Tags"

@@ -4,7 +4,7 @@ import {
   getDenormalizedCountOfReferencesGetValue
 } from "../../utils/schemaUtils";
 import difference from "lodash/difference";
-import { getWithCustomLoader } from "../../loaders";
+import { getWithCustomLoader, getWithLoader } from "../../loaders";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -222,6 +222,19 @@ const schema = {
           },
           resolver: (messagesField) => messagesField("*"),
         }),
+    },
+  },
+  rejectionAppeal: {
+    graphql: {
+      outputType: "RejectionAppeal",
+      canRead: ["admins", "sunshineRegiment"],
+      resolver: async (conversation, _args, context) => {
+        const [appeal] = await getWithLoader(
+          context, context.RejectionAppeals, "conversationRejectionAppeal", {},
+          "conversationId", conversation._id, { sort: { createdAt: -1 } },
+        );
+        return accessFilterSingle(context.currentUser, "RejectionAppeals", appeal ?? null, context);
+      },
     },
   },
   hasUnreadMessages: {

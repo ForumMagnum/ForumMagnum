@@ -38,3 +38,12 @@ export const TeamInboxConversation = gql(`
     awaitingModeratorReply
   }
 `)
+
+export const DoneTeamInboxConversation = gql(`
+  fragment DoneTeamInboxConversation on Conversation {
+    ...TeamInboxConversation
+    rejectionAppeal {
+      ...RejectionAppealsModerationInfo
+    }
+  }
+`)

@@ -82,7 +82,7 @@ export type InboxAction =
   | { type: 'NEXT_THREAD'; }
   | { type: 'PREV_THREAD'; }
   | { type: 'UPDATE_THREAD'; thread: TeamInboxThread; advanceFocus: boolean; }
-  | { type: 'SET_DONE_THREADS'; conversations: TeamInboxConversation[]; }
+  | { type: 'SET_DONE_THREADS'; conversations: DoneTeamInboxConversation[]; }
   | { type: 'SET_SHOW_DONE_THREADS'; show: boolean; }
   | { type: 'NEXT_TAB'; }
   | { type: 'PREV_TAB'; }

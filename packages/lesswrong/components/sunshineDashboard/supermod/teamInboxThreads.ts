@@ -42,12 +42,12 @@ export function getTeamInboxThreads(
  * have, leaving out any that are open.
  */
 export function mergeDoneTeamInboxThreads(
-  doneConversations: TeamInboxConversation[],
+  doneConversations: DoneTeamInboxConversation[],
   existingDoneThreads: TeamInboxThread[],
   openThreads: TeamInboxThread[],
 ): TeamInboxThread[] {
   const openIds = new Set(openThreads.map(thread => thread.conversation._id));
-  const loadedThreads = doneConversations.map(conversation => ({ conversation, appeal: null }));
+  const loadedThreads = doneConversations.map(conversation => ({ conversation, appeal: conversation.rejectionAppeal }));
   const threads = uniqBy([...loadedThreads, ...existingDoneThreads], thread => thread.conversation._id)
     .filter(thread => !openIds.has(thread.conversation._id));
   return sortDoneTeamInboxThreads(threads);
