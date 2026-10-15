@@ -700,6 +700,9 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       return {
         ...state,
         showDoneTeamInboxThreads: action.show,
+        focusedThreadId: !action.show && state.doneTeamInboxThreads.some(thread => thread.conversation._id === state.focusedThreadId)
+          ? state.teamInboxThreads[0]?.conversation._id ?? null
+          : state.focusedThreadId,
       };
     }
 
