@@ -10,6 +10,7 @@ import type { EditablePost, PostSubmitMeta } from '@/lib/collections/posts/helpe
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
 import LWTooltip from "../common/LWTooltip";
+import { useRapidPostingConfirmation } from './useRapidPostingConfirmation';
 
 export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
   formButton: {
@@ -72,16 +73,21 @@ export const PostSubmit = ({
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post");
   const document = formApi.state.values;
+  const confirmRapidPosting = useRapidPostingConfirmation();
 
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (confirm('Warning!  This will publish your dialogue and make it visible to other users.')) {
+    if (confirm('Warning!  This will publish your dialogue and make it visible to other users.') && await confirmRapidPosting(formApi.state.values)) {
       formApi.setFieldValue('draft', false);
       await formApi.handleSubmit();
     }
   };
 
-  const submitWithoutConfirmation = async () =>  {
+  const submitWithoutConfirmation = async (e: React.MouseEvent) =>  {
+    e.preventDefault();
+    if (!await confirmRapidPosting(formApi.state.values)) {
+      return;
+    }
     formApi.setFieldValue('draft', false);
     await formApi.handleSubmit();
   };
