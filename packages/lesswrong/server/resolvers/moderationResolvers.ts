@@ -3,6 +3,7 @@ import { completeUserModeration, recordModerationTemplateUsage, type UserModerat
 import { getReviewQueueUsers } from "@/server/users/reviewQueue";
 import { loadByIds } from "@/lib/loaders";
 import { maxDocumentsPerRequestSetting } from "@/lib/instanceSettings";
+import { MODERATION_TEMPLATE_USED_EVENT } from '@/lib/collections/moderationTemplates/constants';
 import { LWEvents } from '../../server/collections/lwevents/collection';
 import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { getCommentSubtree } from '../utils/commentTreeUtils';
@@ -11,6 +12,7 @@ import { Users } from '../../server/collections/users/collection';
 import { Posts } from '../../server/collections/posts/collection';
 import moment from 'moment';
 import uniq from 'lodash/uniq';
+import countBy from 'lodash/countBy';
 import groupBy from 'lodash/groupBy';
 import gql from 'graphql-tag';
 import { createComment, updateComment } from '../collections/comments/mutations';
@@ -473,12 +475,18 @@ export const moderationGqlQueries = {
     return new Date();
   },
   async moderationTemplateUsageCounts(_root: void, _args: {}, context: ResolverContext) {
-    const { currentUser } = context;
+    const { currentUser, LWEvents } = context;
     if (!userIsAdminOrMod(currentUser)) {
       throw new Error("Only admins and moderators can see moderation template usage");
     }
 
     const since = moment().subtract(MODERATION_TEMPLATE_USAGE_WINDOW_DAYS, 'days').toDate();
-    return context.repos.lwEvents.getModerationTemplateUsageCounts(since);
+    const events = await LWEvents.find({
+      name: MODERATION_TEMPLATE_USED_EVENT,
+      createdAt: { $gt: since },
+      documentId: { $ne: null },
+    }, {}, { _id: 0, documentId: 1 }).fetch();
+
+    return Object.entries(countBy(events, event => event.documentId)).map(([templateId, count]) => ({ templateId, count }));
   },
 }
