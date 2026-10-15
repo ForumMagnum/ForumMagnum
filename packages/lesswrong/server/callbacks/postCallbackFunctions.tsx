@@ -182,6 +182,7 @@ const utils = {
     const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user, context);
     if (rateLimit) {
       const {nextEligible} = rateLimit;
+      if (nextEligible === null) throw new Error('Rate limit: You cannot post until your restriction is lifted.');
       if (nextEligible > new Date()) {
         // "fromNow" makes for a more human readable "how long till I can comment/post?".
         // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
