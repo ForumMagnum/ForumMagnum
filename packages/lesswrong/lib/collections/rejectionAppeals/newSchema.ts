@@ -142,15 +142,6 @@ const schema = {
       },
     },
   },
-  // Remember the decision while its side effects are unfinished, so retries
-  // cannot change an approval into a denial after the content was published.
-  pendingResolution: {
-    database: {
-      type: "TEXT",
-      nullable: true,
-      typescriptType: "'approved' | 'denied'",
-    },
-  },
   resolvedByUserId: {
     database: {
       type: "VARCHAR(27)",

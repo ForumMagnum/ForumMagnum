@@ -15,7 +15,7 @@ import type { ITask } from "pg-promise";
  * performed inside of `callback` use only the connection that was provided
  * as an argument to the callback.
  */
-export function getLockOrAbort<T>(lockName: string, callback: (task: ITask<any>) => Promise<T>) {
+export function getLockOrAbort(lockName: string, callback: (task: ITask<any>) => Promise<void>) {
   const db = getSqlClientOrThrow();
   const lockId = Math.floor(cyrb53Rand(lockName) * 1e15);
 

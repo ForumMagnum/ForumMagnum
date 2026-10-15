@@ -2327,7 +2327,6 @@ CREATE TABLE "RejectionAppeals" (
   "reasonIds" TEXT[] NOT NULL DEFAULT '{}',
   "acknowledgedMisunderstandings" BOOL NOT NULL DEFAULT FALSE,
   "status" TEXT NOT NULL DEFAULT 'open',
-  "pendingResolution" TEXT,
   "resolvedByUserId" VARCHAR(27),
   "resolvedAt" TIMESTAMPTZ
 );

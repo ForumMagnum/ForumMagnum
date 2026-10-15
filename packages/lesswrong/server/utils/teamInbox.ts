@@ -17,23 +17,16 @@ export async function isTeamInboxConversation(conversation: DbConversation, cont
   return !!teamAccountId && conversation.participantIds.includes(teamAccountId);
 }
 
-/** With a stable messageId, a serialized retry reuses the message already saved. */
-export async function sendMessageAs({ author, conversationId, html, noEmail, messageId, context }: {
+export async function sendMessageAs({ author, conversationId, html, noEmail, context }: {
   author: DbUser,
   conversationId: string,
   html: string,
   noEmail: boolean,
-  messageId?: string,
   context: ResolverContext,
 }) {
-  if (messageId) {
-    const existingMessage = await context.Messages.findOne(messageId);
-    if (existingMessage) return existingMessage;
-  }
   const authorContext = computeContextFromUser({ user: author, isSSR: context.isSSR, forumType: context.forumType });
   return await createMessage({
     data: {
-      ...messageId && { _id: messageId },
       userId: author._id,
       conversationId,
       contents: {

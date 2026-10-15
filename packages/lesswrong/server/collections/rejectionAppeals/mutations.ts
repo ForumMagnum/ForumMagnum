@@ -15,8 +15,6 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrlFromDB } from "@/lib/collections/comments/helpers";
 import { makeAbsolute } from "@/lib/vulcan-lib/utils";
 import gql from "graphql-tag";
-import { createHash } from "crypto";
-import { getLockOrAbort } from "@/server/utils/advisoryLockUtil";
 
 function explanationToHtml(explanation: string) {
   return explanation
@@ -61,11 +59,9 @@ function getAppealSummaryHtml({ contentLinkHtml, explanation }: {
   ].join("");
 }
 
-function getAppealMessageId(appealId: string, kind: "request" | "resolution") {
-  return createHash("sha256").update(`rejection-appeal:${appealId}:${kind}`).digest("base64url").slice(0, 27);
-}
-
-async function createRejectionAppealLocked({ data }: CreateRejectionAppealInput, context: ResolverContext, currentUser: DbUser) {
+export async function createRejectionAppeal({ data }: CreateRejectionAppealInput, context: ResolverContext) {
+  const { currentUser } = context;
+  if (!currentUser) throw new Error("You must be logged in to request a rejection review");
   const review = await getRejectionReview(data, context);
   if (review.unavailableReason) throw new Error(review.unavailableReason);
   const document = review.post ?? review.comment;
@@ -73,7 +69,8 @@ async function createRejectionAppealLocked({ data }: CreateRejectionAppealInput,
   const explanation = data.explanation.trim();
   if (!explanation) throw new Error("Please explain why you think the rejection was a mistake");
 
-  const appeal = review.appeal ?? await insertAndReturnDocument({
+  if (review.appeal) throw new Error("A review has already been requested for this content");
+  const appeal = await insertAndReturnDocument({
     userId: currentUser._id,
     postId: review.post?._id ?? null,
     commentId: review.comment?._id ?? null,
@@ -82,18 +79,16 @@ async function createRejectionAppealLocked({ data }: CreateRejectionAppealInput,
     reasonIds: review.reasonIds,
     acknowledgedMisunderstandings: review.reasonIds.length > 0 && data.acknowledgedMisunderstandings,
     status: "open",
-    pendingResolution: null,
     resolvedByUserId: null,
     resolvedAt: null,
   }, 'RejectionAppeals', context);
 
   await sendMessageAs({
     author: currentUser,
-    messageId: getAppealMessageId(appeal._id, "request"),
     conversationId: appeal.conversationId,
     html: getAppealSummaryHtml({
       contentLinkHtml: await getAppealedContentLinkHtml(appeal, context),
-      explanation: appeal.explanation,
+      explanation,
     }),
     noEmail: false,
     context,
@@ -101,19 +96,9 @@ async function createRejectionAppealLocked({ data }: CreateRejectionAppealInput,
   return appeal;
 }
 
-export async function createRejectionAppeal(input: CreateRejectionAppealInput, context: ResolverContext) {
-  const { currentUser } = context;
-  if (!currentUser) throw new Error("You must be logged in to request a rejection review");
-  const result = await getLockOrAbort(
-    `rejection-appeal:${input.data.postId ?? input.data.commentId}`,
-    createRejectionAppealLocked.bind(null, input, context, currentUser),
-  );
-  if (!result) throw new Error("This review is already being updated. Please try again.");
-  return result;
-}
-
-async function updateRejectionAppealLocked({ selector, data }: UpdateRejectionAppealInput, context: ResolverContext, currentUser: DbUser) {
-  const { RejectionAppeals } = context;
+export async function updateRejectionAppeal({ selector, data }: UpdateRejectionAppealInput, context: ResolverContext) {
+  const { currentUser, RejectionAppeals } = context;
+  if (!currentUser || !userIsAdminOrMod(currentUser)) throw new Error("Only moderators can resolve a review");
   const { status } = data;
   if (status !== "approved" && status !== "denied") throw new Error("Choose whether to approve or deny the review");
   const _id = getDocumentId(selector);
@@ -123,15 +108,8 @@ async function updateRejectionAppealLocked({ selector, data }: UpdateRejectionAp
     if (appeal.status !== status) throw new Error("This review has already been resolved with a different decision. Please reload.");
     return appeal;
   }
-  if (appeal.pendingResolution && appeal.pendingResolution !== status) {
-    throw new Error(`This review has an unfinished ${appeal.pendingResolution === "approved" ? "approval" : "denial"}. Please retry that decision.`);
-  }
   const teamAccount = await getAdminTeamAccount(context);
   if (!teamAccount) throw new Error("Couldn't find the admin team account");
-
-  // Keep the appeal open until all required work succeeds. The stored decision
-  // and the shared lock let a failed attempt resume without conflicting outcomes.
-  await updateAndReturnDocument({ pendingResolution: status }, RejectionAppeals, { _id }, context);
 
   if (status === "approved") {
     const approvedContent = {
@@ -148,7 +126,6 @@ async function updateRejectionAppealLocked({ selector, data }: UpdateRejectionAp
   }
   await sendMessageAs({
     author: teamAccount,
-    messageId: getAppealMessageId(appeal._id, "resolution"),
     conversationId: appeal.conversationId,
     html: getAppealResolvedHtml(status, appeal.postId ? "post" : "comment"),
     noEmail: false,
@@ -157,23 +134,9 @@ async function updateRejectionAppealLocked({ selector, data }: UpdateRejectionAp
   await updateConversation({ data: { awaitingModeratorReply: false }, selector: { _id: appeal.conversationId } }, context);
   return await updateAndReturnDocument({
     status,
-    pendingResolution: null,
     resolvedByUserId: currentUser._id,
     resolvedAt: new Date(),
   }, RejectionAppeals, { _id }, context);
-}
-
-export async function updateRejectionAppeal(input: UpdateRejectionAppealInput, context: ResolverContext) {
-  const { currentUser, RejectionAppeals } = context;
-  if (!currentUser || !userIsAdminOrMod(currentUser)) throw new Error("Only moderators can resolve a review");
-  const appeal = await RejectionAppeals.findOne(getDocumentId(input.selector));
-  if (!appeal) throw new Error("Review not found");
-  const result = await getLockOrAbort(
-    `rejection-appeal:${appeal.postId ?? appeal.commentId}`,
-    updateRejectionAppealLocked.bind(null, input, context, currentUser),
-  );
-  if (!result) throw new Error("This review is already being updated. Please try again.");
-  return result;
 }
 
 export const createRejectionAppealGqlMutation = makeGqlCreateMutation('RejectionAppeals', createRejectionAppeal, {

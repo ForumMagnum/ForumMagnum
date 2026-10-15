@@ -1146,7 +1146,6 @@ interface DbRejectionAppeal extends DbObject {
   conversationId: string
   createdAt: Date
   explanation: string
-  pendingResolution: 'approved' | 'denied' | null
   postId: string | null
   reasonIds: Array<string>
   resolvedAt: Date | null
