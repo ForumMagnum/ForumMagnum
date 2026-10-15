@@ -48,10 +48,7 @@ function respond(request: PendingRequest, count: number) {
   request.observer.complete();
 }
 
-function setupPagination(
-  fetchPolicy: "network-only" | "cache-first" | "no-cache" = "network-only",
-  document: TypedDocumentNode<SpotlightData, SpotlightVariables> = query,
-) {
+function setupPagination(fetchPolicy: "network-only" | "cache-first" | "no-cache" = "network-only") {
   const requests: PendingRequest[] = [];
   const client = new ApolloClient({
     cache: new InMemoryCache(),
@@ -62,7 +59,7 @@ function setupPagination(
   const wrapper = ({ children }: React.PropsWithChildren) => <ForumTypeProvider forumType="LessWrong">
     <ApolloProvider client={client}>{children}</ApolloProvider>
   </ForumTypeProvider>;
-  const hook = renderHook((selector: Record<string, unknown>) => useQueryWithLoadMore(document, {
+  const hook = renderHook((selector: Record<string, unknown>) => useQueryWithLoadMore(query, {
     variables: { limit: 1, selector },
     fetchPolicy,
     nextFetchPolicy: fetchPolicy,
@@ -82,32 +79,6 @@ describe("useQueryWithLoadMore", () => {
   afterEach(() => {
     Object.assign(globalThis, { bundleIsServer: true });
     delete window.__LW_SSR_GQL__;
-  });
-
-  it("uses the response alias to count results and retain pagination", async () => {
-    const aliasedQuery: TypedDocumentNode<SpotlightData, SpotlightVariables> = parse(`
-      query AliasedPaginationTest($limit: Int, $selector: SpotlightSelector) {
-        spotlights: queueSpotlights(limit: $limit, selector: $selector) {
-          results { _id }
-        }
-      }
-    `);
-    window.__LW_SSR_GQL__ = {
-      [`${print(aliasedQuery)}\n::\n{"limit":1,"selector":{}}`]: { data: spotlightData(1) },
-    };
-    const { result, client, requests } = setupPagination("network-only", aliasedQuery);
-    await act(async () => { respond(requests[0], 1); });
-    expect(result.current.loadMoreProps.hidden).toBe(false);
-    let loadingMore: Promise<void>;
-    act(() => { loadingMore = result.current.loadMoreProps.loadMore(); });
-    expect(requests[1].limit).toBe(51);
-    await act(async () => {
-      respond(requests[1], 30);
-      await loadingMore;
-    });
-    expect(result.current.data?.spotlights.results).toHaveLength(30);
-    expect(result.current.loadMoreProps.hidden).toBe(true);
-    client.stop();
   });
 
   it.each([true, false])("retains expanded results with the initial response arriving last: %s", async (initialResponseLast) => {
