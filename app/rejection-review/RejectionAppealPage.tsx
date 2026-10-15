@@ -18,8 +18,8 @@ import { useLocation } from "@/lib/routeUtil";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { conversationGetPageUrl } from "@/lib/collections/conversations/helpers";
-import uniq from "lodash/uniq";
-import { APPEAL_REASONS, type AppealReason } from "@/lib/collections/rejectionAppeals/appealReasons";
+import uniqBy from "lodash/uniqBy";
+import { APPEAL_REASONS, type AppealReason, type CommonMisunderstanding } from "@/lib/collections/rejectionAppeals/appealReasons";
 
 const RejectionReviewQuery = gql(`
   query RejectionAppealPageQuery($postId: String, $commentId: String) {
@@ -71,39 +71,72 @@ const styles = defineStyles("RejectionAppealPage", (theme: ThemeType) => ({
       padding: "20px 16px 24px",
     },
   },
-  section: {
+  step: {
     marginTop: 28,
-    paddingTop: 24,
+    paddingTop: 28,
     borderTop: theme.palette.border.faint,
   },
-  sectionHeading: {
-    fontSize: 12,
-    fontWeight: 600,
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
-    color: theme.palette.text.dim,
-    marginBottom: 10,
+  stepHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: 14,
+    marginBottom: 14,
   },
-  misunderstandings: {
-    marginTop: 0,
-    marginBottom: 16,
-    paddingLeft: 20,
-    lineHeight: 1.6,
-    "& li": {
-      marginBottom: 6,
+  stepNumber: {
+    flex: "0 0 32px",
+    height: 32,
+    borderRadius: 16,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: 600,
+    color: theme.palette.primary.dark,
+    background: theme.palette.background.primaryTranslucent,
+  },
+  stepTitle: {
+    margin: 0,
+    fontSize: 19,
+    fontWeight: 600,
+    lineHeight: 1.3,
+  },
+  stepBody: {
+    marginLeft: 46,
+    [theme.breakpoints.down("xs")]: {
+      marginLeft: 0,
     },
   },
-  clarificationNote: {
-    marginTop: 16,
-    marginBottom: 0,
+  misunderstandings: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+    marginBottom: 16,
+  },
+  misunderstanding: {
+    padding: "14px 16px",
+    borderRadius: 6,
+    border: theme.palette.border.faint,
     lineHeight: 1.6,
+  },
+  clarificationNote: {
+    marginTop: 20,
+    marginBottom: 0,
+    fontSize: 13,
+    lineHeight: 1.6,
+    color: theme.palette.text.dim,
   },
   submitRow: {
     display: "flex",
-    justifyContent: "flex-end",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
     alignItems: "center",
-    gap: 16,
-    marginTop: 28,
+    gap: "12px 24px",
+    marginTop: 20,
+  },
+  submitNote: {
+    flex: "1 1 240px",
+    fontSize: 14,
+    lineHeight: 1.5,
+    color: theme.palette.text.dim,
   },
   contentTitleBlock: {
     marginBottom: 14,
@@ -142,41 +175,25 @@ const styles = defineStyles("RejectionAppealPage", (theme: ThemeType) => ({
     marginBottom: 16,
     lineHeight: 1.6,
   },
+  leadParagraph: {
+    fontSize: 17,
+    lineHeight: 1.55,
+  },
   inlineLink: {
-    color: theme.palette.primary.main,
+    color: theme.palette.link.color ?? theme.palette.primary.dark,
   },
   prompt: {
-    fontWeight: 600,
+    display: "block",
     marginTop: 0,
     marginBottom: 12,
-  },
-  options: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-  },
-  option: {
-    borderRadius: 4,
-    border: theme.palette.border.faint,
-    transition: "background-color 0.1s ease, border-color 0.1s ease",
-    "&:hover": {
-      background: theme.palette.greyAlpha(0.03),
-    },
   },
   optionLabel: {
     display: "flex",
     alignItems: "flex-start",
     gap: 6,
-    padding: "10px 12px 10px 6px",
     cursor: "pointer",
     lineHeight: 1.5,
-  },
-  optionChecked: {
-    background: theme.palette.background.primaryTranslucent,
-    borderColor: theme.palette.primary.main,
-    "&:hover": {
-      background: theme.palette.background.primaryTranslucent,
-    },
+    fontWeight: 600,
   },
   checkbox: {
     padding: 0,
@@ -224,10 +241,8 @@ const styles = defineStyles("RejectionAppealPage", (theme: ThemeType) => ({
       color: theme.palette.buttons.primaryDarkText,
     },
     "&:disabled": {
-      background: theme.palette.greyAlpha(0.1),
-      color: theme.palette.text.dim,
       cursor: "default",
-      opacity: 1,
+      opacity: 0.5,
     },
   },
   error: {
@@ -249,17 +264,9 @@ const styles = defineStyles("RejectionAppealPage", (theme: ThemeType) => ({
     marginTop: 0,
     marginBottom: 10,
   },
-  callout: {
-    padding: "12px 16px",
-    marginBottom: 16,
-    borderRadius: 4,
-    borderLeft: `3px solid ${theme.palette.primary.main}`,
-    background: theme.palette.background.primaryTranslucent,
-    lineHeight: 1.6,
-  },
   mutedParagraph: {
     marginTop: 0,
-    marginBottom: 16,
+    marginBottom: 0,
     lineHeight: 1.6,
     color: theme.palette.text.dim,
   },
@@ -319,10 +326,10 @@ const AppealedContentHeader = ({ item }: { item: AppealedItem }) => {
   </>;
 };
 
-const IntroSection = ({ contentType, hasMisunderstandings }: { contentType: ContentType, hasMisunderstandings: boolean }) => {
+const IntroSection = ({ contentType }: { contentType: ContentType }) => {
   const classes = useStyles(styles);
   return <div>
-    <p className={classes.paragraph}>
+    <p className={classNames(classes.paragraph, classes.leadParagraph)}>
       Thank you for attempting to contribute to LessWrong. We're sorry your {contentType} was rejected. We know
       that's frustrating, especially when you've put real work into something.
     </p>
@@ -334,31 +341,14 @@ const IntroSection = ({ contentType, hasMisunderstandings }: { contentType: Cont
     <p className={classes.paragraph}>
       A rejection of your content is not necessarily a harsh criticism of your work. LessWrong is a very particular
       place with specific communication norms. Also a number of our rules for first submissions are about reducing
-      the time required for moderators to vet content so we can process new submissions quickly. Overall, users who
-      have been regular readers on the site for a while are much more likely to have their content approved compared
-      to those only discovering LessWrong recently and seeking to post immediately. It takes time to understand
-      LessWrong and often the best response to a rejection is to spend more time reading on the site.
+      the time required for moderators to vet content so we can process new submissions quickly rather than about
+      the content necessarily being bad.
     </p>
     <p className={classes.paragraph}>
-      Our rejections are often nuanced. Please confirm your understanding of the rejection reason before requesting a
-      review. Before requesting a review, please read the{" "}
-      <Link className={classes.inlineLink} to="/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong">
-        New User's Guide
-      </Link> and{" "}
-      <Link
-        className={classes.inlineLink}
-        to="/posts/nQWavk9mnwcv6ScMR/new-lesswrong-editor-also-an-update-to-our-llm-policy#Policy_on_LLM_Use"
-      >
-        our policy on LLM-generated content
-      </Link>.{hasMisunderstandings && " Common misunderstandings of your rejection reasons are listed below."}
+      Overall, users who have been regular readers on the site for a while are much more likely to have their content
+      approved compared to those only discovering LessWrong recently and seeking to post immediately. It takes time to
+      understand LessWrong and often the best response to a rejection is to spend more time reading on the site.
     </p>
-    <p className={classes.paragraph}>
-      If you still wish to request a review, please proceed!
-    </p>
-    <div className={classes.callout}>
-      If you do request a review, a moderator will look at it, usually within 72 hours, and reply in your
-      conversation with us.
-    </div>
     <p className={classes.mutedParagraph}>
       A rejection isn't a ban, and we usually allow for several attempts to submit content before disallowing
       additional tries. If you'd rather not request a review, you're welcome to take the feedback on board and submit something
@@ -367,38 +357,73 @@ const IntroSection = ({ contentType, hasMisunderstandings }: { contentType: Cont
   </div>;
 };
 
-const MisunderstandingsSection = ({ misunderstandings, acknowledged, onToggle }: {
-  misunderstandings: string[],
+const Step = ({ number, title, children }: { number: number, title: string, children: React.ReactNode }) => {
+  const classes = useStyles(styles);
+  return <div className={classes.step}>
+    <div className={classes.stepHeader}>
+      <span className={classes.stepNumber} aria-hidden="true">{number}</span>
+      <h2 className={classes.stepTitle}>{title}</h2>
+    </div>
+    <div className={classes.stepBody}>{children}</div>
+  </div>;
+};
+
+function getReadingLinkSeparator(index: number, count: number): string {
+  if (index === 0) return "";
+  if (index === count - 1) return count > 2 ? ", and " : " and ";
+  return ", ";
+}
+
+const RereadMessageStep = ({ number, item, reasons }: { number: number, item: AppealedItem, reasons: AppealReason[] }) => {
+  const classes = useStyles(styles);
+  const readingLinks = [
+    { title: "New User's Guide", url: "/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong" },
+    ...uniqBy(reasons.flatMap(reason => reason.policyLink ? [reason.policyLink] : []), policyLink => policyLink.url),
+  ];
+  return <Step number={number} title="Reread our message">
+    <p className={classes.paragraph}>
+      Our rejections are often nuanced. Please confirm your understanding of the rejection reason before requesting a
+      review. Before requesting a review, please read the{" "}
+      {readingLinks.map((readingLink, index) => <React.Fragment key={readingLink.url}>
+        {getReadingLinkSeparator(index, readingLinks.length)}
+        <Link className={classes.inlineLink} to={readingLink.url}>{readingLink.title}</Link>
+      </React.Fragment>)}.
+    </p>
+    <AppealedContentHeader item={item} />
+  </Step>;
+};
+
+const MisunderstandingsStep = ({ number, misunderstandings, acknowledged, onToggle }: {
+  number: number,
+  misunderstandings: CommonMisunderstanding[],
   acknowledged: boolean,
   onToggle: () => void,
 }) => {
   const classes = useStyles(styles);
-  return <div className={classes.section}>
-    <div className={classes.sectionHeading}>Policy</div>
+  return <Step number={number} title="Check the common misunderstandings">
     <p className={classes.paragraph}>
       The following are common misunderstandings that cause users to request reviews of valid rejections. Please
       read these over carefully and confirm that these are <em>not</em> the basis of your request.
     </p>
-    <ul className={classes.misunderstandings}>
-      {misunderstandings.map(misunderstanding => <li key={misunderstanding}>{misunderstanding}</li>)}
-    </ul>
-    <div className={classNames(classes.option, { [classes.optionChecked]: acknowledged })}>
-      <label className={classes.optionLabel}>
-        <Checkbox className={classes.checkbox} checked={acknowledged} onChange={onToggle} disableRipple />
-        <span>I've read these, and they aren't the basis of my request.</span>
-      </label>
+    <div className={classes.misunderstandings}>
+      {misunderstandings.map(misunderstanding => <div key={misunderstanding.summary} className={classes.misunderstanding}>
+        <strong>{misunderstanding.summary}</strong> {misunderstanding.detail}
+      </div>)}
     </div>
-    <ClarificationNote />
-  </div>;
+    <label className={classes.optionLabel}>
+      <Checkbox className={classes.checkbox} checked={acknowledged} onChange={onToggle} disableRipple />
+      <span>I've read these, and they aren't the basis of my request.</span>
+    </label>
+  </Step>;
 };
 
 const ClarificationNote = () => {
   const classes = useStyles(styles);
   return <p className={classes.clarificationNote}>
-    We also further apologize that we generally cannot reply to requests for further clarification about why a
-    rejection was made due to the volume of submissions and review requests. We attempt to make the rejection reasons
-    comprehensive. Feel free to leave a specific question or two and we might get back to you. As above, reading more
-    of LessWrong content is the best way to understand site requirements.
+    We apologize that we generally cannot reply to requests for further clarification about why a rejection was made
+    due to the volume of submissions and review requests. We attempt to make the rejection reasons comprehensive. Feel
+    free to leave a specific question or two and we <em>might</em> get back to you. As above, reading more of LessWrong
+    content is the best way to understand site requirements.
   </p>;
 };
 
@@ -503,7 +528,7 @@ const RejectionAppealPage = () => {
   } : null;
   const reasons = APPEAL_REASONS.filter(reason => review?.reasonIds.includes(reason.id));
   const submittedAppeal = submission?.createRejectionAppeal?.data;
-  const misunderstandings = uniq(reasons.flatMap(reason => reason.commonMisunderstandings));
+  const misunderstandings = uniqBy(reasons.flatMap(reason => reason.commonMisunderstandings), misunderstanding => misunderstanding.summary);
   const canSubmit = !!explanation.trim() && !submitting;
 
   const submit = async () => {
@@ -541,33 +566,42 @@ const RejectionAppealPage = () => {
     if (review?.unavailableReason) {
       return <NotAppealableState reason={review.unavailableReason} />;
     }
+    const hasMisunderstandings = misunderstandings.length > 0;
     return <>
-      <IntroSection contentType={item.contentType} hasMisunderstandings={misunderstandings.length > 0} />
-      <div className={classes.section}>
-        <AppealedContentHeader item={item} />
-      </div>
-      {misunderstandings.length > 0
-        ? <MisunderstandingsSection
-          misunderstandings={misunderstandings}
-          acknowledged={acknowledgedMisunderstandings}
-          onToggle={() => setAcknowledgedMisunderstandings(!acknowledgedMisunderstandings)}
+      <IntroSection contentType={item.contentType} />
+      <RereadMessageStep number={1} item={item} reasons={reasons} />
+      {hasMisunderstandings && <MisunderstandingsStep
+        number={2}
+        misunderstandings={misunderstandings}
+        acknowledged={acknowledgedMisunderstandings}
+        onToggle={() => setAcknowledgedMisunderstandings(!acknowledgedMisunderstandings)}
+      />}
+      <Step number={hasMisunderstandings ? 3 : 2} title="Explain why you think it was a mistake">
+        <label htmlFor="rejection-review-explanation" className={classes.prompt}>
+          In your own words, tell us why you think the rejection was a mistake.
+        </label>
+        <textarea
+          id="rejection-review-explanation"
+          className={classes.textarea}
+          value={explanation}
+          onChange={e => setExplanation(e.target.value)}
         />
-        : <div className={classes.section}><ClarificationNote /></div>}
-      <div className={classes.section}>
-        <div className={classes.sectionHeading}>Your explanation</div>
-        <p className={classes.prompt}>In your own words, tell us why you think the rejection was a mistake.</p>
-        <textarea className={classes.textarea} value={explanation} onChange={e => setExplanation(e.target.value)} />
-      </div>
-      {error && <div className={classes.error}>{error}</div>}
-      <div className={classes.submitRow}>
-        <button
-          className={classNames(classes.button, classes.primaryButton)}
-          onClick={() => void submit()}
-          disabled={!canSubmit}
-        >
-          {submitting ? "Submitting..." : "Request review"}
-        </button>
-      </div>
+        {error && <div className={classes.error}>{error}</div>}
+        <div className={classes.submitRow}>
+          <span className={classes.submitNote}>
+            If you do request a review, a moderator will look at it, usually within 72 hours, and reply in your
+            conversation with us.
+          </span>
+          <button
+            className={classNames(classes.button, classes.primaryButton)}
+            onClick={() => void submit()}
+            disabled={!canSubmit}
+          >
+            {submitting ? "Submitting..." : "Request review"}
+          </button>
+        </div>
+        <ClarificationNote />
+      </Step>
     </>;
   };
 
