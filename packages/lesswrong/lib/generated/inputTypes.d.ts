@@ -77,6 +77,7 @@ interface Query {
   supermodQueueSnapshotTime: Date;
   supermodQueueUsers: MultiUserOutput;
   moderationTemplateUsageCounts: Array<ModerationTemplateUsageCount>;
+  rejectionReview: RejectionReview;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
   AdminMetadata: string | null;
@@ -132,6 +133,8 @@ interface Query {
   myHomePageDesignSummaries: Array<HomePageDesignSummary>;
   marketplaceHomePageDesigns: Array<MarketplaceHomePageDesign>;
   adminHomePageDesigns: Array<AdminHomePageDesign>;
+  rejectionAppeal: SingleRejectionAppealOutput | null;
+  rejectionAppeals: MultiRejectionAppealOutput | null;
   typoSuggestion: SingleTypoSuggestionOutput | null;
   typoSuggestions: MultiTypoSuggestionOutput | null;
   iframeWidgetSrcdoc: SingleIframeWidgetSrcdocOutput | null;
@@ -357,6 +360,8 @@ interface Mutation {
   updatePost: PostOutput | null;
   createRSSFeed: RSSFeedOutput | null;
   updateRSSFeed: RSSFeedOutput | null;
+  createRejectionAppeal: RejectionAppealOutput | null;
+  updateRejectionAppeal: RejectionAppealOutput | null;
   createReport: ReportOutput | null;
   updateReport: ReportOutput | null;
   updateResearchConversation: ResearchConversationOutput | null;
@@ -1286,6 +1291,14 @@ interface CompleteUserModerationResult {
   rejectedPosts: Array<Post>;
   rejectedComments: Array<Comment>;
   message: Message | null;
+}
+
+interface RejectionReview {
+  post: Post | null;
+  comment: Comment | null;
+  appeal: RejectionAppeal | null;
+  reasonIds: Array<string>;
+  unavailableReason: string | null;
 }
 
 interface ToggleBookmarkInput {
@@ -2491,9 +2504,11 @@ interface Conversation {
   af: boolean | null;
   messageCount: number;
   moderator: boolean | null;
+  awaitingModeratorReply: boolean | null;
   archivedByIds: Array<string>;
   archivedBy: Array<User>;
   latestMessage: Message | null;
+  rejectionAppeal: RejectionAppeal | null;
   hasUnreadMessages: boolean | null;
 }
 
@@ -2532,6 +2547,8 @@ interface ConversationSelector {
   moderatorConversations: ConversationsModeratorConversationsInput | null;
   userConversations: ConversationsUserConversationsInput | null;
   userConversationsAll: ConversationsUserConversationsAllInput | null;
+  teamInboxAwaitingReply: EmptyViewInput | null;
+  teamInboxDone: EmptyViewInput | null;
   userGroupUntitledConversations: ConversationsUserGroupUntitledConversationsInput | null;
 }
 
@@ -2927,6 +2944,39 @@ interface AdminHomePageDesign {
   commentId: string | null;
   ownerDisplayName: string;
   ownerSlug: string;
+}
+
+interface RejectionAppeal {
+  _id: string;
+  createdAt: Date;
+  userId: string | null;
+  user: User | null;
+  postId: string | null;
+  post: Post | null;
+  commentId: string | null;
+  comment: Comment | null;
+  conversationId: string | null;
+  conversation: Conversation | null;
+  explanation: string | null;
+  reasonIds: Array<string> | null;
+  acknowledgedMisunderstandings: boolean | null;
+  status: RejectionAppealStatus | null;
+  resolvedByUserId: string | null;
+  resolvedAt: Date | null;
+}
+
+interface SingleRejectionAppealOutput {
+  result: RejectionAppeal | null;
+}
+
+interface RejectionAppealSelector {
+  default: EmptyViewInput | null;
+  openAppeals: EmptyViewInput | null;
+}
+
+interface MultiRejectionAppealOutput {
+  results: Array<RejectionAppeal>;
+  totalCount: number | null;
 }
 
 interface TypoSuggestion {
@@ -7749,6 +7799,7 @@ interface UpdateConversationDataInput {
   participantIds?: Array<string> | null;
   af?: boolean | null;
   moderator?: boolean | null;
+  awaitingModeratorReply?: boolean | null;
   archivedByIds?: Array<string> | null;
 }
 
@@ -8392,6 +8443,30 @@ interface UpdateRSSFeedInput {
 
 interface RSSFeedOutput {
   data: RSSFeed | null;
+}
+
+interface CreateRejectionAppealDataInput {
+  postId?: string | null;
+  commentId?: string | null;
+  explanation: string;
+  acknowledgedMisunderstandings: boolean;
+}
+
+interface CreateRejectionAppealInput {
+  data: CreateRejectionAppealDataInput;
+}
+
+interface UpdateRejectionAppealDataInput {
+  status?: RejectionAppealStatus | null;
+}
+
+interface UpdateRejectionAppealInput {
+  selector: SelectorInput;
+  data: UpdateRejectionAppealDataInput;
+}
+
+interface RejectionAppealOutput {
+  data: RejectionAppeal | null;
 }
 
 interface CreateReportDataInput {
@@ -9441,6 +9516,7 @@ interface GraphQLTypeMap {
   ModerationMessageInput: ModerationMessageInput;
   CompleteUserModerationInput: CompleteUserModerationInput;
   CompleteUserModerationResult: CompleteUserModerationResult;
+  RejectionReview: RejectionReview;
   ToggleBookmarkInput: ToggleBookmarkInput;
   SetIsBookmarkedInput: SetIsBookmarkedInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;
@@ -9650,6 +9726,10 @@ interface GraphQLTypeMap {
   HomePageDesignSummary: HomePageDesignSummary;
   MarketplaceHomePageDesign: MarketplaceHomePageDesign;
   AdminHomePageDesign: AdminHomePageDesign;
+  RejectionAppeal: RejectionAppeal;
+  SingleRejectionAppealOutput: SingleRejectionAppealOutput;
+  RejectionAppealSelector: RejectionAppealSelector;
+  MultiRejectionAppealOutput: MultiRejectionAppealOutput;
   TypoSuggestion: TypoSuggestion;
   SingleTypoSuggestionInput: SingleTypoSuggestionInput;
   SingleTypoSuggestionOutput: SingleTypoSuggestionOutput;
@@ -10166,6 +10246,11 @@ interface GraphQLTypeMap {
   UpdateRSSFeedDataInput: UpdateRSSFeedDataInput;
   UpdateRSSFeedInput: UpdateRSSFeedInput;
   RSSFeedOutput: RSSFeedOutput;
+  CreateRejectionAppealDataInput: CreateRejectionAppealDataInput;
+  CreateRejectionAppealInput: CreateRejectionAppealInput;
+  UpdateRejectionAppealDataInput: UpdateRejectionAppealDataInput;
+  UpdateRejectionAppealInput: UpdateRejectionAppealInput;
+  RejectionAppealOutput: RejectionAppealOutput;
   CreateReportDataInput: CreateReportDataInput;
   CreateReportInput: CreateReportInput;
   UpdateReportDataInput: UpdateReportDataInput;
@@ -10263,6 +10348,7 @@ interface CreateInputsByCollectionName {
   PodcastEpisodes: CreatePodcastEpisodeInput;
   Posts: CreatePostInput;
   RSSFeeds: CreateRSSFeedInput;
+  RejectionAppeals: CreateRejectionAppealInput;
   Reports: CreateReportInput;
   ResearchDocuments: CreateResearchDocumentInput;
   ResearchProjects: CreateResearchProjectInput;
@@ -10358,6 +10444,7 @@ interface UpdateInputsByCollectionName {
   Notifications: UpdateNotificationInput;
   Posts: UpdatePostInput;
   RSSFeeds: UpdateRSSFeedInput;
+  RejectionAppeals: UpdateRejectionAppealInput;
   Reports: UpdateReportInput;
   ResearchConversations: UpdateResearchConversationInput;
   ResearchEnvironments: UpdateResearchEnvironmentInput;

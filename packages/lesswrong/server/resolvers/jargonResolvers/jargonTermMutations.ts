@@ -20,8 +20,7 @@ import { sanitize } from "@/lib/utils/sanitize";
 import gql from 'graphql-tag';
 import { createJargonTerm } from "../../collections/jargonTerms/mutations";
 import { PostsPage } from '@/lib/collections/posts/fragments';
-import zodToJsonSchema, { JsonSchema7ObjectType, JsonSchema7Type } from 'zod-to-json-schema';
-import type { MessageParam } from '@anthropic-ai/sdk/resources/messages.mjs';
+import type { MessageParam, Tool } from '@anthropic-ai/sdk/resources/messages.mjs';
 
 interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
@@ -71,24 +70,10 @@ const jargonGlossarySchema = z.object({
   jargonTerms: z.array(jargonTermSchema)
 }).describe('A tool that generates a jargon glossary for a given post.  It should be provided with a list of jargon terms, which include the term (the identifier), altTerms (alternate spellings or forms of the term), and htmlContent (the explanation of the term).');
 
-function isObjectSchema(schema: JsonSchema7Type): schema is JsonSchema7ObjectType {
-  return 'type' in schema && schema.type === 'object';
-}
-
-function convertZodParserToAnthropicTool(zodParser: z.ZodType<any>, name: string) {
-  const jsonSchema = zodToJsonSchema(zodParser, name);
-  const inputSchema = jsonSchema.definitions?.[name];
-  if (!inputSchema) {
-    throw new Error(`Couldn't find tool definition for ${name}!`);
-  }
-
-  if (!isObjectSchema(inputSchema)) {
-    throw new Error(`Missing 'type' field in input schema for ${name}!`);
-  }
-
+function convertZodParserToAnthropicTool(zodParser: z.ZodObject, name: string): Tool {
   return {
     name,
-    input_schema: inputSchema,
+    input_schema: { ...z.toJSONSchema(zodParser), type: "object" },
     description: zodParser.description
   };
 }

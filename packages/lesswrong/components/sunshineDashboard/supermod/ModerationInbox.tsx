@@ -9,7 +9,7 @@ import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
-import type { ModerationInboxQueueQueryQuery, ModerationInboxCurationQueryQuery } from '@/lib/generated/gql-codegen/graphql';
+import type { ModerationInboxQueueQueryQuery, ModerationInboxCurationQueryQuery, ModerationInboxTeamInboxQueryQuery } from '@/lib/generated/gql-codegen/graphql';
 import ErrorMessage from '@/components/common/ErrorMessage';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ModerationInboxList from './ModerationInboxList';
@@ -21,7 +21,7 @@ import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, type TabId } from './groupings';
-import { createInitialInboxState, getOrderedGroups, getVisibleTabsInOrder, inboxStateReducer } from './inboxReducer';
+import { createInitialInboxState, getOrderedGroups, getVisibleTabsInOrder, inboxStateReducer, isUserTab } from './inboxReducer';
 import { getModerationQueueSnapshot, type ModerationQueueSnapshot } from './moderationQueue';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
@@ -32,6 +32,8 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import TeamInboxThreadView from './TeamInboxThreadView';
+import { getTeamInboxThreads, type TeamInboxThread } from './teamInboxThreads';
 import { hideScrollBars } from '@/themes/styleUtils';
 import { ConcurrentModeratorChangesContext, useConcurrentModeratorChanges } from './useConcurrentModeratorChanges';
 
@@ -78,6 +80,33 @@ const ModerationInboxCurationQuery = gql(`
   }
 `);
 
+const ModerationInboxTeamInboxQuery = gql(`
+  query ModerationInboxTeamInboxQuery {
+    teamInboxConversations: conversations(selector: { teamInboxAwaitingReply: {} }, limit: 200) {
+      results {
+        ...TeamInboxConversation
+      }
+    }
+    openAppeals: rejectionAppeals(selector: { openAppeals: {} }, limit: 200) {
+      results {
+        ...RejectionAppealsModerationInfo
+      }
+    }
+  }
+`);
+
+const TeamInboxDoneQuery = gql(`
+  query teamInboxDoneModerationInboxQuery($limit: Int) {
+    conversations(selector: { teamInboxDone: {} }, limit: $limit, enableTotal: true) {
+      results {
+        ...DoneTeamInboxConversation
+      }
+      totalCount
+    }
+  }
+`);
+
+const DONE_THREADS_PAGE_SIZE = 50;
 const REVIEW_QUEUE_LIMIT = 1000;
 const initialQueueLimits = { userLimit: 200, postLimit: 100, reviewQueueLimit: REVIEW_QUEUE_LIMIT };
 const fullQueueLimits = { userLimit: REVIEW_QUEUE_LIMIT, postLimit: REVIEW_QUEUE_LIMIT, reviewQueueLimit: REVIEW_QUEUE_LIMIT };
@@ -95,13 +124,13 @@ const SingleUserSupermodQuery = gql(`
 const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   root: {
     width: '100%',
-    height: '100vh',
+    top: "var(--header-height)",
+    bottom: 0,
     display: 'flex',
     flexDirection: 'column',
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     overflow: 'hidden',
     position: 'fixed',
-    marginTop: -50,
     // Portaled template previews can extend past the viewport. Keep the page
     // scrollable without showing an extra scrollbar alongside the sidebar.
     'html:has(&)': {
@@ -147,9 +176,10 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnapshotTime, initialOpenedUserId, currentUser }: {
+const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCuratedDate, queueSnapshotTime, initialOpenedUserId, currentUser }: {
   queue: ModerationQueueSnapshot;
   curationPosts: SunshineCurationPostsListItem[];
+  teamInboxThreads: TeamInboxThread[];
   lastCuratedDate: string | null;
   queueSnapshotTime: string;
   initialOpenedUserId: string | null;
@@ -161,7 +191,7 @@ const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnap
   const apolloClient = useApolloClient();
   const { flash } = useMessages();
   const [loadingRemaining, setLoadingRemaining] = useState(false);
-  const [state, dispatch] = useReducer(inboxStateReducer, { queue, curationPosts, initialOpenedUserId }, createInitialInboxState);
+  const [state, dispatch] = useReducer(inboxStateReducer, { queue, curationPosts, teamInboxThreads, initialOpenedUserId }, createInitialInboxState);
   const [changesSince] = useState(() => new Date(queueSnapshotTime));
   const concurrentModeratorChanges = useConcurrentModeratorChanges(state.loadedUserIds, state.loadedPostIds, changesSince);
 
@@ -223,8 +253,8 @@ const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnap
   const curationNoticeCount = useMemo(() => sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0), [state.curationPosts]);
 
   const visibleTabs = useMemo(
-    (): TabInfo[] => getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.unloadedCounts),
-    [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.unloadedCounts]
+    (): TabInfo[] => getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length, state.unloadedCounts),
+    [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length, state.unloadedCounts]
   );
 
   const openedUser = useMemo(() => {
@@ -251,6 +281,31 @@ const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnap
     return state.curationPosts.find(p => p._id === state.focusedPostId) ?? null;
   }, [state.focusedPostId, state.activeTab, state.curationPosts]);
 
+  const focusedThread = useMemo(() => {
+    return [...state.teamInboxThreads, ...state.doneTeamInboxThreads]
+      .find(thread => thread.conversation._id === state.focusedThreadId) ?? null;
+  }, [state.focusedThreadId, state.teamInboxThreads, state.doneTeamInboxThreads]);
+
+  const [doneThreadsLimit, setDoneThreadsLimit] = useState(DONE_THREADS_PAGE_SIZE);
+  const { data: doneThreadsData, loading: doneThreadsLoading, error: doneThreadsError } = useQuery(TeamInboxDoneQuery, {
+    variables: { limit: doneThreadsLimit },
+    skip: !state.showDoneTeamInboxThreads,
+    fetchPolicy: 'cache-and-network',
+  });
+  useEffect(() => {
+    const conversations = doneThreadsData?.conversations?.results;
+    if (conversations) {
+      dispatch({ type: 'SET_DONE_THREADS', conversations });
+    }
+  }, [doneThreadsData]);
+  const hasMoreDoneThreads = (doneThreadsData?.conversations?.totalCount ?? 0) > (doneThreadsData?.conversations?.results.length ?? 0);
+
+  const handleToggleShowDoneThreads = useCallback(() => {
+    dispatch({ type: 'SET_SHOW_DONE_THREADS', show: !state.showDoneTeamInboxThreads });
+  }, [state.showDoneTeamInboxThreads]);
+
+  const handleLoadMoreDoneThreads = useCallback(() => setDoneThreadsLimit(limit => limit + DONE_THREADS_PAGE_SIZE), []);
+
   const handleOpenUser = useCallback((userId: string) => dispatch({ type: 'OPEN_USER', userId }), []);
 
   const handleFocusPost = useCallback((postId: string) => dispatch({ type: 'FOCUS_POST', postId }), []);
@@ -264,6 +319,12 @@ const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnap
   const handleNextPost = useCallback(() => dispatch({ type: 'NEXT_POST' }), []);
 
   const handlePrevPost = useCallback(() => dispatch({ type: 'PREV_POST' }), []);
+
+  const handleFocusThread = useCallback((conversationId: string) => dispatch({ type: 'FOCUS_THREAD', conversationId }), []);
+
+  const handleNextThread = useCallback(() => dispatch({ type: 'NEXT_THREAD' }), []);
+
+  const handlePrevThread = useCallback(() => dispatch({ type: 'PREV_THREAD' }), []);
 
   const handleTabChange = useCallback((newTab: TabId) => {
     dispatch({ type: 'CHANGE_TAB', tab: newTab });
@@ -307,7 +368,7 @@ const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnap
 
   const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
   const isCurationTab = state.activeTab === 'curation';
-  const isPostLikeTab = isPostsTab || isCurationTab;
+  const isInboxTab = state.activeTab === 'inbox';
 
   const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
@@ -315,7 +376,14 @@ const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnap
     <ConcurrentModeratorChangesContext.Provider value={concurrentModeratorChanges}>
     <CoreTagsKeyboardProvider>
     <div className={classes.root}>
-      {isCurationTab ? (
+      {isInboxTab ? (
+        <CurationKeyboardHandler
+          onNextPost={handleNextThread}
+          onPrevPost={handlePrevThread}
+          onNextTab={handleNextTab}
+          onPrevTab={handlePrevTab}
+        />
+      ) : isCurationTab ? (
         <CurationKeyboardHandler
           onNextPost={handleNextPost}
           onPrevPost={handlePrevPost}
@@ -381,7 +449,7 @@ const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnap
             />
           ) : (
             <>
-              {!isPostLikeTab && (
+              {isUserTab(state.activeTab) && (
                 <div className={classes.undoQueueSection}>
                   <ModerationUndoHistory
                     undoQueue={state.undoQueue}
@@ -394,11 +462,20 @@ const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnap
                   userGroups={filteredGroups}
                   posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
                   curationPosts={state.curationPosts}
+                  teamInboxThreads={state.teamInboxThreads}
+                  doneTeamInboxThreads={state.showDoneTeamInboxThreads ? state.doneTeamInboxThreads : null}
+                  doneTeamInboxThreadsLoading={doneThreadsLoading}
+                  doneTeamInboxThreadsError={doneThreadsError?.message}
+                  hasMoreDoneTeamInboxThreads={hasMoreDoneThreads}
+                  onToggleShowDoneThreads={handleToggleShowDoneThreads}
+                  onLoadMoreDoneThreads={handleLoadMoreDoneThreads}
                   focusedUserId={state.focusedUserId}
                   focusedPostId={state.focusedPostId}
+                  focusedThreadId={state.focusedThreadId}
                   onFocusUser={handleOpenUser}
                   onOpenUser={handleOpenUser}
                   onFocusPost={handleFocusPost}
+                  onFocusThread={handleFocusThread}
                   activeTab={state.activeTab}
                   unloadedCount={state.unloadedCounts[state.activeTab] ?? 0}
                   onLoadUnloaded={handleLoadRemaining}
@@ -412,6 +489,16 @@ const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnap
           <div className={classes.postDetailPanel}>
             <ModerationPostSidebar
               post={focusedPost}
+              currentUser={currentUser}
+              dispatch={dispatch}
+            />
+          </div>
+        )}
+        {isInboxTab && !openedUser && (
+          <div className={classes.postDetailPanel}>
+            <TeamInboxThreadView
+              key={focusedThread?.conversation._id}
+              thread={focusedThread}
               currentUser={currentUser}
               dispatch={dispatch}
             />
@@ -432,12 +519,13 @@ const ModerationInboxInner = ({ queue, curationPosts, lastCuratedDate, queueSnap
   );
 };
 
-// Mount only once both initial queries have succeeded, so direct-user lookup and
+// Mount only once the initial queries have succeeded, so direct-user lookup and
 // reducer initialization never run against an incomplete queue.
-const ModerationInboxReady = ({ currentUser, data, curationData }: {
+const ModerationInboxReady = ({ currentUser, data, curationData, teamInboxData }: {
   currentUser: UsersCurrent;
   data: ModerationInboxQueueQueryQuery;
   curationData: ModerationInboxCurationQueryQuery;
+  teamInboxData: ModerationInboxTeamInboxQueryQuery;
 }) => {
   const classes = useStyles(styles);
   const { query } = useLocation();
@@ -453,6 +541,10 @@ const ModerationInboxReady = ({ currentUser, data, curationData }: {
   });
   const directUser = queuedDirectUser ?? directUserData?.user?.result ?? null;
   const queue = useMemo(() => getModerationQueueSnapshot(data, directUser), [data, directUser]);
+  const teamInboxThreads = useMemo(() => getTeamInboxThreads(
+    teamInboxData.teamInboxConversations?.results ?? [],
+    teamInboxData.openAppeals?.results ?? [],
+  ), [teamInboxData]);
 
   // Pre-fetch core tags for the posts tab.
   useCoreTags({ ssr: false });
@@ -464,6 +556,7 @@ const ModerationInboxReady = ({ currentUser, data, curationData }: {
   return <ModerationInboxInner
     queue={queue}
     curationPosts={curationData.CurationCandidatePosts?.results ?? []}
+    teamInboxThreads={teamInboxThreads}
     lastCuratedDate={curationData.LastCuratedDate.lastCuratedDate}
     queueSnapshotTime={data.supermodQueueSnapshotTime}
     initialOpenedUserId={initialOpenedUserId}
@@ -475,7 +568,7 @@ const ModerationInboxLoader = ({ currentUser }: { currentUser: UsersCurrent }) =
   const classes = useStyles(styles);
   const { flash } = useMessages();
 
-  // This interactive inbox loads both queries in parallel on the client. Regular
+  // This interactive inbox loads its queries in parallel on the client. Regular
   // queries expose refresh errors without throwing away the mounted inbox.
   const queueResult = useQuery(ModerationInboxQueueQuery, {
     variables: initialQueueLimits,
@@ -486,35 +579,42 @@ const ModerationInboxLoader = ({ currentUser }: { currentUser: UsersCurrent }) =
     fetchPolicy: 'cache-and-network',
     ssr: false,
   });
+  const teamInboxResult = useQuery(ModerationInboxTeamInboxQuery, {
+    fetchPolicy: 'cache-and-network',
+    ssr: false,
+  });
   const data = queueResult.data ?? queueResult.previousData;
   const curationData = curationResult.data ?? curationResult.previousData;
-  const hasData = !!data && !!curationData;
+  const teamInboxData = teamInboxResult.data ?? teamInboxResult.previousData;
+  const hasData = !!data && !!curationData && !!teamInboxData;
   const queueError = queueResult.error;
   const curationError = curationResult.error;
+  const teamInboxError = teamInboxResult.error;
 
   useEffect(() => {
     if (!hasData) return;
-    const errors = [queueError, curationError].filter(error => !!error);
+    const errors = [queueError, curationError, teamInboxError].filter(error => !!error);
     if (errors.length) {
       flash({ messageString: `Failed to refresh moderation inbox: ${errors.map(error => error.message).join('; ')}`, type: 'error' });
     }
-  }, [hasData, queueError, curationError, flash]);
+  }, [hasData, queueError, curationError, teamInboxError, flash]);
 
-  if (!data || !curationData) {
+  if (!data || !curationData || !teamInboxData) {
     return <div className={classes.loading}>
       {queueError && <ErrorMessage message={queueError.message} />}
       {curationError && <ErrorMessage message={curationError.message} />}
-      {queueError || curationError
+      {teamInboxError && <ErrorMessage message={teamInboxError.message} />}
+      {queueError || curationError || teamInboxError
         ? <Button
-            disabled={queueResult.loading || curationResult.loading}
+            disabled={queueResult.loading || curationResult.loading || teamInboxResult.loading}
             // Query results above display failures, including failed retries.
-            onClick={() => Promise.allSettled([queueResult.refetch(), curationResult.refetch()])}
+            onClick={() => Promise.allSettled([queueResult.refetch(), curationResult.refetch(), teamInboxResult.refetch()])}
           >Retry</Button>
         : <Loading />}
     </div>;
   }
 
-  return <ModerationInboxReady currentUser={currentUser} data={data} curationData={curationData} />;
+  return <ModerationInboxReady currentUser={currentUser} data={data} curationData={curationData} teamInboxData={teamInboxData} />;
 };
 
 const ModerationInbox = () => {

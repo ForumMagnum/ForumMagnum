@@ -1115,6 +1115,7 @@ type Conversation = {
   af?: Maybe<Scalars['Boolean']['output']>;
   archivedBy: Array<User>;
   archivedByIds: Array<Scalars['String']['output']>;
+  awaitingModeratorReply?: Maybe<Scalars['Boolean']['output']>;
   createdAt?: Maybe<Scalars['Date']['output']>;
   hasUnreadMessages?: Maybe<Scalars['Boolean']['output']>;
   latestActivity?: Maybe<Scalars['Date']['output']>;
@@ -1124,6 +1125,7 @@ type Conversation = {
   moderator?: Maybe<Scalars['Boolean']['output']>;
   participantIds?: Maybe<Array<Scalars['String']['output']>>;
   participants?: Maybe<Array<User>>;
+  rejectionAppeal?: Maybe<RejectionAppeal>;
   schemaVersion: Scalars['Float']['output'];
   title?: Maybe<Scalars['String']['output']>;
 };
@@ -1136,6 +1138,8 @@ type ConversationOutput = {
 type ConversationSelector = {
   default?: InputMaybe<EmptyViewInput>;
   moderatorConversations?: InputMaybe<ConversationsModeratorConversationsInput>;
+  teamInboxAwaitingReply?: InputMaybe<EmptyViewInput>;
+  teamInboxDone?: InputMaybe<EmptyViewInput>;
   userConversations?: InputMaybe<ConversationsUserConversationsInput>;
   userConversationsAll?: InputMaybe<ConversationsUserConversationsAllInput>;
   userGroupUntitledConversations?: InputMaybe<ConversationsUserGroupUntitledConversationsInput>;
@@ -1572,6 +1576,17 @@ type CreateRSSFeedDataInput = {
 
 type CreateRSSFeedInput = {
   data: CreateRSSFeedDataInput;
+};
+
+type CreateRejectionAppealDataInput = {
+  acknowledgedMisunderstandings: Scalars['Boolean']['input'];
+  commentId?: InputMaybe<Scalars['String']['input']>;
+  explanation: Scalars['String']['input'];
+  postId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type CreateRejectionAppealInput = {
+  data: CreateRejectionAppealDataInput;
 };
 
 type CreateReportDataInput = {
@@ -3584,6 +3599,12 @@ type MultiRSSFeedOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+type MultiRejectionAppealOutput = {
+  __typename?: 'MultiRejectionAppealOutput';
+  results: Array<RejectionAppeal>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 type MultiReportInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3961,6 +3982,7 @@ type Mutation = {
   createPodcastEpisode?: Maybe<PodcastEpisodeOutput>;
   createPost?: Maybe<PostOutput>;
   createRSSFeed?: Maybe<RSSFeedOutput>;
+  createRejectionAppeal?: Maybe<RejectionAppealOutput>;
   createReport?: Maybe<ReportOutput>;
   createResearchDocument?: Maybe<ResearchDocumentOutput>;
   createResearchProject?: Maybe<ResearchProjectOutput>;
@@ -4062,6 +4084,7 @@ type Mutation = {
   updateNotification?: Maybe<NotificationOutput>;
   updatePost?: Maybe<PostOutput>;
   updateRSSFeed?: Maybe<RSSFeedOutput>;
+  updateRejectionAppeal?: Maybe<RejectionAppealOutput>;
   updateReport?: Maybe<ReportOutput>;
   updateResearchConversation?: Maybe<ResearchConversationOutput>;
   updateResearchDocument?: Maybe<ResearchDocumentOutput>;
@@ -4357,6 +4380,11 @@ type MutationcreatePostArgs = {
 
 type MutationcreateRSSFeedArgs = {
   data: CreateRSSFeedDataInput;
+};
+
+
+type MutationcreateRejectionAppealArgs = {
+  data: CreateRejectionAppealDataInput;
 };
 
 
@@ -4947,6 +4975,12 @@ type MutationupdatePostArgs = {
 
 type MutationupdateRSSFeedArgs = {
   data: UpdateRSSFeedDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateRejectionAppealArgs = {
+  data: UpdateRejectionAppealDataInput;
   selector: SelectorInput;
 };
 
@@ -7482,6 +7516,9 @@ type Query = {
   posts?: Maybe<MultiPostOutput>;
   rSSFeed?: Maybe<SingleRSSFeedOutput>;
   rSSFeeds?: Maybe<MultiRSSFeedOutput>;
+  rejectionAppeal?: Maybe<SingleRejectionAppealOutput>;
+  rejectionAppeals?: Maybe<MultiRejectionAppealOutput>;
+  rejectionReview: RejectionReview;
   report?: Maybe<SingleReportOutput>;
   reports?: Maybe<MultiReportOutput>;
   researchConversation?: Maybe<SingleResearchConversationOutput>;
@@ -8442,6 +8479,25 @@ type QueryrSSFeedsArgs = {
 };
 
 
+type QueryrejectionAppealArgs = {
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryrejectionAppealsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<RejectionAppealSelector>;
+};
+
+
+type QueryrejectionReviewArgs = {
+  commentId?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 type QueryreportArgs = {
   input?: InputMaybe<SingleReportInput>;
   selector?: InputMaybe<SelectorInput>;
@@ -9000,6 +9056,50 @@ type RecommendationsCache = {
   source?: Maybe<Scalars['String']['output']>;
   ttlMs?: Maybe<Scalars['Float']['output']>;
   userId?: Maybe<Scalars['String']['output']>;
+};
+
+type RejectionAppeal = {
+  __typename?: 'RejectionAppeal';
+  _id: Scalars['String']['output'];
+  acknowledgedMisunderstandings?: Maybe<Scalars['Boolean']['output']>;
+  comment?: Maybe<Comment>;
+  commentId?: Maybe<Scalars['String']['output']>;
+  conversation?: Maybe<Conversation>;
+  conversationId?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  explanation?: Maybe<Scalars['String']['output']>;
+  post?: Maybe<Post>;
+  postId?: Maybe<Scalars['String']['output']>;
+  reasonIds?: Maybe<Array<Scalars['String']['output']>>;
+  resolvedAt?: Maybe<Scalars['Date']['output']>;
+  resolvedByUserId?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<RejectionAppealStatus>;
+  user?: Maybe<User>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
+type RejectionAppealOutput = {
+  __typename?: 'RejectionAppealOutput';
+  data?: Maybe<RejectionAppeal>;
+};
+
+type RejectionAppealSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  openAppeals?: InputMaybe<EmptyViewInput>;
+};
+
+type RejectionAppealStatus =
+  | 'approved'
+  | 'denied'
+  | 'open';
+
+type RejectionReview = {
+  __typename?: 'RejectionReview';
+  appeal?: Maybe<RejectionAppeal>;
+  comment?: Maybe<Comment>;
+  post?: Maybe<Post>;
+  reasonIds: Array<Scalars['String']['output']>;
+  unavailableReason?: Maybe<Scalars['String']['output']>;
 };
 
 type ReorderResearchDocumentsOutput = {
@@ -9944,6 +10044,11 @@ type SingleRSSFeedInput = {
 type SingleRSSFeedOutput = {
   __typename?: 'SingleRSSFeedOutput';
   result?: Maybe<RSSFeed>;
+};
+
+type SingleRejectionAppealOutput = {
+  __typename?: 'SingleRejectionAppealOutput';
+  result?: Maybe<RejectionAppeal>;
 };
 
 type SingleReportInput = {
@@ -11082,6 +11187,7 @@ type UpdateCommentModeratorActionInput = {
 type UpdateConversationDataInput = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   archivedByIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  awaitingModeratorReply?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   moderator?: InputMaybe<Scalars['Boolean']['input']>;
   participantIds?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -11370,6 +11476,15 @@ type UpdateRSSFeedDataInput = {
 
 type UpdateRSSFeedInput = {
   data: UpdateRSSFeedDataInput;
+  selector: SelectorInput;
+};
+
+type UpdateRejectionAppealDataInput = {
+  status?: InputMaybe<RejectionAppealStatus>;
+};
+
+type UpdateRejectionAppealInput = {
+  data: UpdateRejectionAppealDataInput;
   selector: SelectorInput;
 };
 
@@ -12878,6 +12993,47 @@ type multiModeratorCommentsQueryQueryVariables = Exact<{
 
 
 type multiModeratorCommentsQueryQuery = multiModeratorCommentsQueryQuery_Query;
+
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string, rejectedReason: string | null };
+
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_comment_Comment_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
+
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_comment_Comment = { __typename?: 'Comment', _id: string, rejectedReason: string | null, post: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_comment_Comment_post_Post | null };
+
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_appeal_RejectionAppeal = (
+  { __typename?: 'RejectionAppeal' }
+  & RejectionAppealsUserInfo
+);
+
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview = { __typename?: 'RejectionReview', reasonIds: Array<string>, unavailableReason: string | null, post: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_post_Post | null, comment: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_comment_Comment | null, appeal: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_appeal_RejectionAppeal | null };
+
+type RejectionAppealPageQueryQuery_Query = { __typename?: 'Query', rejectionReview: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview };
+
+
+type RejectionAppealPageQueryQueryVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+  commentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type RejectionAppealPageQueryQuery = RejectionAppealPageQueryQuery_Query;
+
+type createRejectionAppealRejectionAppealPageMutation_createRejectionAppeal_RejectionAppealOutput_data_RejectionAppeal = (
+  { __typename?: 'RejectionAppeal' }
+  & RejectionAppealsUserInfo
+);
+
+type createRejectionAppealRejectionAppealPageMutation_createRejectionAppeal_RejectionAppealOutput = { __typename?: 'RejectionAppealOutput', data: createRejectionAppealRejectionAppealPageMutation_createRejectionAppeal_RejectionAppealOutput_data_RejectionAppeal | null };
+
+type createRejectionAppealRejectionAppealPageMutation_Mutation = { __typename?: 'Mutation', createRejectionAppeal: createRejectionAppealRejectionAppealPageMutation_createRejectionAppeal_RejectionAppealOutput | null };
+
+
+type createRejectionAppealRejectionAppealPageMutationVariables = Exact<{
+  data: CreateRejectionAppealDataInput;
+}>;
+
+
+type createRejectionAppealRejectionAppealPageMutation = createRejectionAppealRejectionAppealPageMutation_Mutation;
 
 type ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult_results_ProfilePostDiamond = { __typename?: 'ProfilePostDiamond', _id: string, slug: string, date: string, karma: number, isReviewWinner: boolean, isCurated: boolean };
 
@@ -21408,6 +21564,45 @@ type ModerationInboxCurationQueryQueryVariables = Exact<{ [key: string]: never; 
 
 type ModerationInboxCurationQueryQuery = ModerationInboxCurationQueryQuery_Query;
 
+type ModerationInboxTeamInboxQueryQuery_teamInboxConversations_MultiConversationOutput_results_Conversation = (
+  { __typename?: 'Conversation' }
+  & TeamInboxConversation
+);
+
+type ModerationInboxTeamInboxQueryQuery_teamInboxConversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', results: Array<ModerationInboxTeamInboxQueryQuery_teamInboxConversations_MultiConversationOutput_results_Conversation> };
+
+type ModerationInboxTeamInboxQueryQuery_openAppeals_MultiRejectionAppealOutput_results_RejectionAppeal = (
+  { __typename?: 'RejectionAppeal' }
+  & RejectionAppealsModerationInfo
+);
+
+type ModerationInboxTeamInboxQueryQuery_openAppeals_MultiRejectionAppealOutput = { __typename?: 'MultiRejectionAppealOutput', results: Array<ModerationInboxTeamInboxQueryQuery_openAppeals_MultiRejectionAppealOutput_results_RejectionAppeal> };
+
+type ModerationInboxTeamInboxQueryQuery_Query = { __typename?: 'Query', teamInboxConversations: ModerationInboxTeamInboxQueryQuery_teamInboxConversations_MultiConversationOutput | null, openAppeals: ModerationInboxTeamInboxQueryQuery_openAppeals_MultiRejectionAppealOutput | null };
+
+
+type ModerationInboxTeamInboxQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type ModerationInboxTeamInboxQueryQuery = ModerationInboxTeamInboxQueryQuery_Query;
+
+type teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
+  { __typename?: 'Conversation' }
+  & DoneTeamInboxConversation
+);
+
+type teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', totalCount: number | null, results: Array<teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput_results_Conversation> };
+
+type teamInboxDoneModerationInboxQueryQuery_Query = { __typename?: 'Query', conversations: teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput | null };
+
+
+type teamInboxDoneModerationInboxQueryQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type teamInboxDoneModerationInboxQueryQuery = teamInboxDoneModerationInboxQueryQuery_Query;
+
 type singleUserSupermodQueryQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -21538,6 +21733,42 @@ type updateModeratorActionSupermodMutationVariables = Exact<{
 
 
 type updateModeratorActionSupermodMutation = updateModeratorActionSupermodMutation_Mutation;
+
+type updateRejectionAppealTeamInboxThreadViewMutation_updateRejectionAppeal_RejectionAppealOutput_data_RejectionAppeal = (
+  { __typename?: 'RejectionAppeal' }
+  & RejectionAppealsModerationInfo
+);
+
+type updateRejectionAppealTeamInboxThreadViewMutation_updateRejectionAppeal_RejectionAppealOutput = { __typename?: 'RejectionAppealOutput', data: updateRejectionAppealTeamInboxThreadViewMutation_updateRejectionAppeal_RejectionAppealOutput_data_RejectionAppeal | null };
+
+type updateRejectionAppealTeamInboxThreadViewMutation_Mutation = { __typename?: 'Mutation', updateRejectionAppeal: updateRejectionAppealTeamInboxThreadViewMutation_updateRejectionAppeal_RejectionAppealOutput | null };
+
+
+type updateRejectionAppealTeamInboxThreadViewMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateRejectionAppealDataInput;
+}>;
+
+
+type updateRejectionAppealTeamInboxThreadViewMutation = updateRejectionAppealTeamInboxThreadViewMutation_Mutation;
+
+type updateConversationTeamInboxThreadViewMutation_updateConversation_ConversationOutput_data_Conversation = (
+  { __typename?: 'Conversation' }
+  & TeamInboxConversation
+);
+
+type updateConversationTeamInboxThreadViewMutation_updateConversation_ConversationOutput = { __typename?: 'ConversationOutput', data: updateConversationTeamInboxThreadViewMutation_updateConversation_ConversationOutput_data_Conversation | null };
+
+type updateConversationTeamInboxThreadViewMutation_Mutation = { __typename?: 'Mutation', updateConversation: updateConversationTeamInboxThreadViewMutation_updateConversation_ConversationOutput | null };
+
+
+type updateConversationTeamInboxThreadViewMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateConversationDataInput;
+}>;
+
+
+type updateConversationTeamInboxThreadViewMutation = updateConversationTeamInboxThreadViewMutation_Mutation;
 
 type CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_user_User = (
   { __typename?: 'User' }
@@ -24322,6 +24553,21 @@ type ConversationsListWithReadStatus = (
   & ConversationsList
 );
 
+type TeamInboxConversation = (
+  { __typename?: 'Conversation', awaitingModeratorReply: boolean | null }
+  & ConversationsList
+);
+
+type DoneTeamInboxConversation_Conversation_rejectionAppeal_RejectionAppeal = (
+  { __typename?: 'RejectionAppeal' }
+  & RejectionAppealsModerationInfo
+);
+
+type DoneTeamInboxConversation = (
+  { __typename?: 'Conversation', rejectionAppeal: DoneTeamInboxConversation_Conversation_rejectionAppeal_RejectionAppeal | null }
+  & TeamInboxConversation
+);
+
 type CurationNoticesFragment_CurationNotice_user_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -25033,6 +25279,28 @@ type SuggestAlignmentPost = (
 );
 
 type ChapterPostSlim = { __typename?: 'Post', _id: string, title: string, slug: string, isRead: boolean | null };
+
+type RejectionAppealsUserInfo = { __typename?: 'RejectionAppeal', _id: string, createdAt: string, postId: string | null, commentId: string | null, conversationId: string | null, status: RejectionAppealStatus | null };
+
+type RejectionAppealsModerationInfo_RejectionAppeal_post_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type RejectionAppealsModerationInfo_RejectionAppeal_comment_Comment = (
+  { __typename?: 'Comment' }
+  & SunshineCommentsList
+);
+
+type RejectionAppealsModerationInfo_RejectionAppeal_conversation_Conversation = (
+  { __typename?: 'Conversation' }
+  & TeamInboxConversation
+);
+
+type RejectionAppealsModerationInfo = (
+  { __typename?: 'RejectionAppeal', explanation: string | null, reasonIds: Array<string> | null, post: RejectionAppealsModerationInfo_RejectionAppeal_post_Post | null, comment: RejectionAppealsModerationInfo_RejectionAppeal_comment_Comment | null, conversation: RejectionAppealsModerationInfo_RejectionAppeal_conversation_Conversation | null }
+  & RejectionAppealsUserInfo
+);
 
 type UnclaimedReportsList_Report_user_User = (
   { __typename?: 'User' }

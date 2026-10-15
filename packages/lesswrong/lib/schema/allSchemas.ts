@@ -64,6 +64,7 @@ import { default as PostViewTimes } from '../collections/postViewTimes/newSchema
 import { default as PostViews } from '../collections/postViews/newSchema';
 import { default as Posts } from '../collections/posts/newSchema';
 import { default as ReadStatuses } from '../collections/readStatus/newSchema';
+import { default as RejectionAppeals } from '../collections/rejectionAppeals/newSchema';
 import { default as ResearchConversationEvents } from '../collections/researchConversationEvents/newSchema';
 import { default as ResearchConversations } from '../collections/researchConversations/newSchema';
 import { default as ResearchDocuments } from '../collections/researchDocuments/newSchema';
@@ -115,9 +116,9 @@ export const allSchemas = {
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
   Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
   PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
-  RecommendationsCaches, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
-  ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
-  TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities,
+  RecommendationsCaches, RejectionAppeals, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes,
+  ReviewWinnerArts, ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions,
+  TagFlags, TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities,
   UserMostValuablePosts, UserRateLimits, UserTagRels, Users, Votes, YjsDocuments, ...testSchemas,
 } satisfies Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>>;
 
