@@ -1275,7 +1275,7 @@ export default function ToolbarPlugin({
                   }}
                   >
                   <FileImageIcon className={classes.dropdownIcon} />
-                  <DropDownItemText>Image</DropDownItemText>
+                  <DropDownItemText>Image/Video</DropDownItemText>
                 </DropDownItem>
                 {/* <DropDownItem
                   onClick={() =>

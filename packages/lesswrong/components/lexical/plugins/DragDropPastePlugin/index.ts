@@ -14,8 +14,10 @@ import {COMMAND_PRIORITY_LOW} from 'lexical';
 import {useEffect, useRef} from 'react';
 
 import {INSERT_IMAGE_COMMAND} from '../ImagesPlugin';
+import {INSERT_VIDEO_FILE_COMMAND} from '../../embeds/VideoFileEmbed/VideoFilePlugin';
 import {
   uploadToCloudinary,
+  isVideoFile,
   ImageUploadError,
 } from '../../utils/cloudinaryUpload';
 
@@ -25,6 +27,7 @@ const ACCEPTABLE_IMAGE_TYPES = [
   'image/heif',
   'image/gif',
   'image/webp',
+  'video/',
 ];
 
 export interface DragDropPasteProps {
@@ -67,12 +70,16 @@ export default function DragDropPaste({
                 signal: controller.signal,
               });
 
-              editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                altText: file.name,
-                src: result.secure_url,
-                width: result.width,
-                height: result.height,
-              });
+              if (isVideoFile(file)) {
+                editor.dispatchCommand(INSERT_VIDEO_FILE_COMMAND, result.secure_url);
+              } else {
+                editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+                  altText: file.name,
+                  src: result.secure_url,
+                  width: result.width,
+                  height: result.height,
+                });
+              }
             } catch (error) {
               if (error instanceof Error && error.name === 'AbortError') {
                 continue;
@@ -80,13 +87,13 @@ export default function DragDropPaste({
 
               const uploadError = error instanceof ImageUploadError
                 ? error
-                : new ImageUploadError('Failed to upload image. Please try again.');
+                : new ImageUploadError(`Failed to upload ${isVideoFile(file) ? 'video' : 'image'}. Please try again.`);
 
               if (onUploadError) {
                 onUploadError(uploadError);
               } else {
                 // eslint-disable-next-line no-console
-                console.error('Image upload failed:', error);
+                console.error('Upload failed:', error);
               }
             } finally {
               activeUploadsRef.current.delete(uploadId);

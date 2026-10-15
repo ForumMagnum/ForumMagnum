@@ -70,8 +70,11 @@ import {
 } from './commands';
 import {
   uploadToCloudinary,
+  isVideoFile,
   ImageUploadError,
 } from '../../utils/cloudinaryUpload';
+import { INSERT_VIDEO_FILE_COMMAND } from '../../embeds/VideoFileEmbed/VideoFilePlugin';
+import { getVideoFileUrl } from '../../embeds/VideoFileEmbed/VideoFileNode';
 import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
 import { useMessages } from '@/components/common/withMessages'
 import { WithMessagesMessage } from '@/components/layout/FlashMessages';
@@ -246,15 +249,17 @@ export function InsertImageDialog({
     return () => abortControllerRef.current?.abort();
   }, []);
 
+  const isVideo = selectedFile ? isVideoFile(selectedFile) : !!getVideoFileUrl(src);
+
   const handleFileSelect = (files: FileList | null) => {
     if (abortControllerRef.current || !files?.length) return;
     if (files.length !== 1) {
-      setError('Please choose one image at a time.');
+      setError('Please choose one file at a time.');
       return;
     }
     const file = files[0];
-    if (!isImageFile(file)) {
-      setError('Please choose an image file.');
+    if (!isImageFile(file) && !isVideoFile(file)) {
+      setError('Please choose an image or video file.');
       return;
     }
     setError(null);
@@ -303,14 +308,19 @@ export function InsertImageDialog({
       try {
         url = new URL(src.trim());
       } catch {
-        setError('Enter a valid image URL starting with https:// or http://.');
+        setError('Enter a valid URL starting with https:// or http://.');
         return;
       }
       if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-        setError('Enter a valid image URL starting with https:// or http://.');
+        setError('Enter a valid URL starting with https:// or http://.');
         return;
       }
-      activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, { src: src.trim(), altText });
+      const videoUrl = getVideoFileUrl(src);
+      if (videoUrl) {
+        activeEditor.dispatchCommand(INSERT_VIDEO_FILE_COMMAND, videoUrl);
+      } else {
+        activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, { src: src.trim(), altText });
+      }
       onClose();
       return;
     }
@@ -323,18 +333,22 @@ export function InsertImageDialog({
         signal: controller.signal,
       });
       if (controller.signal.aborted) return;
-      activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-        altText,
-        src: result.secure_url,
-        width: result.width,
-        height: result.height,
-      });
+      if (isVideoFile(selectedFile)) {
+        activeEditor.dispatchCommand(INSERT_VIDEO_FILE_COMMAND, result.secure_url);
+      } else {
+        activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+          altText,
+          src: result.secure_url,
+          width: result.width,
+          height: result.height,
+        });
+      }
       onClose();
     } catch (uploadError) {
       if (controller.signal.aborted) return;
       setError(uploadError instanceof ImageUploadError && uploadError.isUserFacing
         ? uploadError.message
-        : 'Failed to upload image. Please try again.');
+        : 'Failed to upload file. Please try again.');
       if (uploadError instanceof Error) onError?.(uploadError);
     } finally {
       if (!controller.signal.aborted) setIsUploading(false);
@@ -356,15 +370,15 @@ export function InsertImageDialog({
         onDrop={handleDrop}
       >
         <DialogTitle disableTypography>
-          <h2 id={titleId} className={classes.title}>Insert image</h2>
+          <h2 id={titleId} className={classes.title}>Insert image or video</h2>
         </DialogTitle>
         <DialogContent>
           <div className={classNames(classes.dropZone, { [classes.dragging]: isDragging })}>
-            {previewUrl
-              ? <img src={previewUrl} alt="Selected image preview" className={classes.preview} />
-              : <FileImageIcon className={classes.imageIcon} viewBox="0 0 16 16" aria-hidden="true" />}
+            {previewUrl && selectedFile && isVideoFile(selectedFile) && <video src={previewUrl} muted className={classes.preview} />}
+            {previewUrl && !(selectedFile && isVideoFile(selectedFile)) && <img src={previewUrl} alt="Selected image preview" className={classes.preview} />}
+            {!previewUrl && <FileImageIcon className={classes.imageIcon} viewBox="0 0 16 16" aria-hidden="true" />}
             <div className={classes.dropLabel}>
-              {isDragging ? 'Drop your image here' : selectedFile?.name ?? 'Drag an image here'}
+              {isDragging ? 'Drop your file here' : selectedFile?.name ?? 'Drag an image or video here'}
             </div>
             <Button
               type="button"
@@ -380,9 +394,9 @@ export function InsertImageDialog({
               ref={fileInputRef}
               className={classes.fileInput}
               type="file"
-              accept="image/*"
+              accept="image/*,video/*"
               disabled={isUploading}
-              aria-label="Choose an image file"
+              aria-label="Choose an image or video file"
               onChange={(event) => {
                 handleFileSelect(event.target.files);
                 event.target.value = '';
@@ -393,7 +407,7 @@ export function InsertImageDialog({
           <div className={classes.divider}>or use a link</div>
           <TextField
             id={urlId}
-            label="Image URL"
+            label="Image or video URL"
             placeholder="https://example.com/image.jpg"
             value={src}
             disabled={isUploading}
@@ -406,7 +420,7 @@ export function InsertImageDialog({
             margin="dense"
             data-test-id="image-modal-url-input"
           />
-          <TextField
+          {!isVideo && <TextField
             id={altTextId}
             label="Alt text (optional)"
             placeholder="Describe the image"
@@ -417,7 +431,7 @@ export function InsertImageDialog({
             fullWidth
             margin="dense"
             data-test-id="image-modal-alt-text-input"
-          />
+          />}
           {error && <div className={classes.errorText} role="alert">{error}</div>}
           <DialogActions className={classes.actions}>
             <Button type="button" onClick={onClose}>Cancel</Button>
@@ -428,7 +442,7 @@ export function InsertImageDialog({
               disabled={isUploading || (!selectedFile && !src.trim())}
               data-test-id="image-modal-confirm-btn"
             >
-              {isUploading ? 'Uploading…' : 'Insert image'}
+              {isUploading ? 'Uploading…' : isVideo ? 'Insert video' : 'Insert image'}
             </Button>
           </DialogActions>
         </DialogContent>

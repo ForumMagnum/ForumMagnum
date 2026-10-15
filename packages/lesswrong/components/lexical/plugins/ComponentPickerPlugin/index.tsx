@@ -256,9 +256,9 @@ function useBaseOptions(
       onSelect: () =>
         editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: false }),
     }),
-    new ComponentPickerOption('Image', {
+    new ComponentPickerOption('Image/Video', {
       icon: <FileImageIcon style={iconStyle} />,
-      keywords: ['image', 'photo', 'picture', 'file'],
+      keywords: ['image', 'photo', 'picture', 'file', 'video', 'mp4', 'movie'],
       onSelect: () =>
         openDialog({
           name: 'InsertImageDialog',
