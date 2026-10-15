@@ -1,7 +1,13 @@
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import { cloudinaryCloudName, cloudinaryUploadPresetEditorName } from '@/lib/instanceSettings';
 
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+// Cloudinary's limit for a single (non-chunked) upload request.
+const MAX_VIDEO_SIZE_BYTES = 100 * 1024 * 1024;
+
+export function isVideoFile(payload: Blob): boolean {
+  return payload.type.startsWith('video/');
+}
 
 interface CloudinaryUploadResult {
   secure_url: string;
@@ -40,6 +46,9 @@ export function dataUriToBlob(dataUri: string): Blob {
  * @param options - Optional configuration
  * @param options.signal - AbortSignal for cancellation
  * @returns The Cloudinary upload result with secure_url, dimensions, etc.
+ * Images and videos both go to Cloudinary's `auto` endpoint; videos have a
+ * larger size limit.
+ *
  * @throws ImageUploadError if upload fails or file is too large
  */
 export async function uploadToCloudinary(
@@ -57,10 +66,14 @@ export async function uploadToCloudinary(
     throw new ImageUploadError('Cloudinary upload preset is not configured', false);
   }
 
-  if (file.size > MAX_FILE_SIZE_BYTES) {
+  const isVideo = isVideoFile(file);
+  const fileKind = isVideo ? 'Video' : 'Image';
+  const maxSizeBytes = isVideo ? MAX_VIDEO_SIZE_BYTES : MAX_IMAGE_SIZE_BYTES;
+  if (file.size > maxSizeBytes) {
     const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    const maxSizeMB = maxSizeBytes / (1024 * 1024);
     throw new ImageUploadError(
-      `Image is too large (${sizeMB}MB). Maximum size is 10MB.`
+      `${fileKind} is too large (${sizeMB}MB). Maximum size is ${maxSizeMB}MB.`
     );
   }
 
@@ -81,7 +94,7 @@ export async function uploadToCloudinary(
     const errorText = await response.text().catch(() => 'Unknown error');
     // eslint-disable-next-line no-console
     console.error('Cloudinary upload failed:', response.status, errorText);
-    throw new ImageUploadError('Failed to upload image. Please try again.');
+    throw new ImageUploadError(`Failed to upload ${fileKind.toLowerCase()}. Please try again.`);
   }
 
   return response.json();
