@@ -1267,13 +1267,52 @@ type SupermodQueueChange {
   lastChangedAt: Date!
 }
 
+type ModerationTemplateUsageCount {
+  templateId: String!
+  count: Int!
+}
+
 extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
   supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
   supermodQueueSnapshotTime: Date!
+  supermodQueueUsers(limit: Int!, offset: Int = 0): MultiUserOutput!
+  moderationTemplateUsageCounts: [ModerationTemplateUsageCount!]!
+}
+
+input ModerationContentRejectionInput {
+  documentId: String!
+  collectionName: ContentCollectionName!
+  reason: String!
+  templateIds: [String!]
+}
+
+input ModerationMessageInput {
+  conversationId: String
+  contents: CreateRevisionDataInput!
+  noEmail: Boolean
+}
+
+input CompleteUserModerationInput {
+  operationId: String!
+  userId: String!
+  rejection: ModerationContentRejectionInput
+  message: ModerationMessageInput
+  disablePermissions: Boolean!
+  rateLimits: [CreateUserRateLimitDataInput!]!
+  rejectAll: Boolean!
+  removeFromQueue: Boolean!
+}
+
+type CompleteUserModerationResult {
+  user: User!
+  rejectedPosts: [Post!]!
+  rejectedComments: [Comment!]!
+  message: Message
 }
 
 extend type Mutation {
+  completeUserModeration(input: CompleteUserModerationInput!): CompleteUserModerationResult!
   lockThread(commentId: String!, until: String): Boolean!
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
@@ -1283,6 +1322,7 @@ extend type Mutation {
   runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
   unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
   addModeratorNote(userId: String!, note: String!): User
+  recordModerationTemplatesUsed(templateIds: [String!]!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
 }
 
 type RejectionReview {
@@ -4605,6 +4645,10 @@ input PostsUserPostsInput {
   curatedAfter: String
 }
 
+input PostsCoauthoredPostsInput {
+  userId: String!
+}
+
 input PostsMagicInput {
   postIds: [String!]
   notPostIds: [String!]
@@ -6037,6 +6081,7 @@ input PostsCurrentOpenThreadInput {
 input PostSelector {
   default: PostDefaultViewInput
   userPosts: PostsUserPostsInput
+  coauthoredPosts: PostsCoauthoredPostsInput
   magic: PostsMagicInput
   top: PostsTopInput
   new: PostsNewInput
@@ -7583,7 +7628,9 @@ type UserRateLimit {
   intervalUnit: UserRateLimitIntervalUnit!
   intervalLength: Float!
   actionsPerInterval: Float!
-  endedAt: Date!
+  endedAt: Date
+  liftAtAverageKarma: Float
+  liftAverageKarmaCount: Int
 }
 
 enum UserRateLimitType {
@@ -7953,7 +8000,9 @@ type User {
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
   lastRemovedFromReviewQueueAt: Date
-  hasPendingComments: Boolean
+  pendingPostCount: Int
+  pendingCommentCount: Int
+  oldestPendingContentAt: Date
   rejectedContentCount: Int
   userRateLimits: [UserRateLimit!]
   claudeLinkedAt: Date
@@ -8008,7 +8057,6 @@ enum SubforumPreferredLayout {
 
 enum ReviewGroup {
   newContent
-  offboard
   highContext
   maybeSpam
   automod
@@ -8048,7 +8096,6 @@ input UserSelector {
   LWTrustLevel1List: EmptyViewInput
   LWUsersAdmin: EmptyViewInput
   usersWithBannedUsers: EmptyViewInput
-  sunshineNewUsers: EmptyViewInput
   recentlyActive: EmptyViewInput
   allUsers: EmptyViewInput
   usersMapLocations: EmptyViewInput
@@ -9786,7 +9833,9 @@ input CreateUserRateLimitDataInput {
   intervalUnit: UserRateLimitIntervalUnit!
   intervalLength: Float!
   actionsPerInterval: Float!
-  endedAt: Date!
+  endedAt: Date
+  liftAtAverageKarma: Float
+  liftAverageKarmaCount: Int
 }
 
 input CreateUserRateLimitInput {
@@ -9801,6 +9850,8 @@ input UpdateUserRateLimitDataInput {
   intervalLength: Float
   actionsPerInterval: Float
   endedAt: Date
+  liftAtAverageKarma: Float
+  liftAverageKarmaCount: Int
 }
 
 input UpdateUserRateLimitInput {

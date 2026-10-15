@@ -10,7 +10,7 @@ import { backgroundTask } from "../utils/backgroundTask";
 import { isTeamInboxConversation } from "../utils/teamInbox";
 import { getAdminTeamAccountId } from "../utils/adminTeamAccount";
 
-export function checkIfNewMessageIsEmpty(message: CreateMessageDataInput) {
+export function checkIfNewMessageIsEmpty(message: Pick<CreateMessageDataInput, 'contents'>) {
   const { data } = (message.contents && message.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot send an empty message");

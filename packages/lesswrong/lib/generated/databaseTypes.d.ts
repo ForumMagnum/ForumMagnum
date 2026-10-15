@@ -1648,10 +1648,12 @@ interface DbUserRateLimit extends DbObject {
   __collectionName?: "UserRateLimits"
   actionsPerInterval: number
   createdAt: Date
-  endedAt: Date
+  endedAt: Date | null
   intervalLength: number
   intervalUnit: "minutes" | "hours" | "days" | "weeks"
   legacyData: any | null
+  liftAtAverageKarma: number | null
+  liftAverageKarmaCount: number | null
   type: "allComments" | "allPosts"
   userId: string
 }

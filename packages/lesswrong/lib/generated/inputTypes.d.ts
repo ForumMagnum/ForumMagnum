@@ -75,6 +75,8 @@ interface Query {
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
   supermodQueueChanges: Array<SupermodQueueChange>;
   supermodQueueSnapshotTime: Date;
+  supermodQueueUsers: MultiUserOutput;
+  moderationTemplateUsageCounts: Array<ModerationTemplateUsageCount>;
   rejectionReview: RejectionReview;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
@@ -276,6 +278,7 @@ interface Mutation {
   importUrlAsDraftPost: ExternalPostImportData;
   revertTagToRevision: Tag | null;
   convertDocumentEditorType: any;
+  completeUserModeration: CompleteUserModerationResult;
   lockThread: boolean;
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;
@@ -285,6 +288,7 @@ interface Mutation {
   runPangramOnText: PangramTextEvaluationResult;
   unlistLlmPost: boolean;
   addModeratorNote: User | null;
+  recordModerationTemplatesUsed: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -1251,6 +1255,42 @@ interface SupermodQueueChange {
   documentId: string;
   moderatorName: string;
   lastChangedAt: Date;
+}
+
+interface ModerationTemplateUsageCount {
+  templateId: string;
+  count: number;
+}
+
+interface ModerationContentRejectionInput {
+  documentId: string;
+  collectionName: ContentCollectionName;
+  reason: string;
+  templateIds?: Array<string> | null;
+}
+
+interface ModerationMessageInput {
+  conversationId?: string | null;
+  contents: CreateRevisionDataInput;
+  noEmail?: boolean | null;
+}
+
+interface CompleteUserModerationInput {
+  operationId: string;
+  userId: string;
+  rejection?: ModerationContentRejectionInput | null;
+  message?: ModerationMessageInput | null;
+  disablePermissions: boolean;
+  rateLimits: Array<CreateUserRateLimitDataInput>;
+  rejectAll: boolean;
+  removeFromQueue: boolean;
+}
+
+interface CompleteUserModerationResult {
+  user: User;
+  rejectedPosts: Array<Post>;
+  rejectedComments: Array<Comment>;
+  message: Message | null;
 }
 
 interface RejectionReview {
@@ -4143,6 +4183,10 @@ interface PostsUserPostsInput {
   curatedAfter?: string | null;
 }
 
+interface PostsCoauthoredPostsInput {
+  userId: string;
+}
+
 interface PostsMagicInput {
   postIds?: Array<string> | null;
   notPostIds?: Array<string> | null;
@@ -5575,6 +5619,7 @@ interface PostsCurrentOpenThreadInput {
 interface PostSelector {
   default: PostDefaultViewInput | null;
   userPosts: PostsUserPostsInput | null;
+  coauthoredPosts: PostsCoauthoredPostsInput | null;
   magic: PostsMagicInput | null;
   top: PostsTopInput | null;
   new: PostsNewInput | null;
@@ -7005,7 +7050,9 @@ interface UserRateLimit {
   intervalUnit: UserRateLimitIntervalUnit;
   intervalLength: number;
   actionsPerInterval: number;
-  endedAt: Date;
+  endedAt: Date | null;
+  liftAtAverageKarma: number | null;
+  liftAverageKarmaCount: number | null;
 }
 
 interface SingleUserRateLimitInput {
@@ -7353,7 +7400,9 @@ interface User {
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
   lastRemovedFromReviewQueueAt: Date | null;
-  hasPendingComments: boolean | null;
+  pendingPostCount: number | null;
+  pendingCommentCount: number | null;
+  oldestPendingContentAt: Date | null;
   rejectedContentCount: number | null;
   userRateLimits: Array<UserRateLimit> | null;
   claudeLinkedAt: Date | null;
@@ -7392,7 +7441,6 @@ interface UserSelector {
   LWTrustLevel1List: EmptyViewInput | null;
   LWUsersAdmin: EmptyViewInput | null;
   usersWithBannedUsers: EmptyViewInput | null;
-  sunshineNewUsers: EmptyViewInput | null;
   recentlyActive: EmptyViewInput | null;
   allUsers: EmptyViewInput | null;
   usersMapLocations: EmptyViewInput | null;
@@ -8909,7 +8957,9 @@ interface CreateUserRateLimitDataInput {
   intervalUnit: UserRateLimitIntervalUnit;
   intervalLength: number;
   actionsPerInterval: number;
-  endedAt: Date;
+  endedAt?: Date | null;
+  liftAtAverageKarma?: number | null;
+  liftAverageKarmaCount?: number | null;
 }
 
 interface CreateUserRateLimitInput {
@@ -8924,6 +8974,8 @@ interface UpdateUserRateLimitDataInput {
   intervalLength?: number | null;
   actionsPerInterval?: number | null;
   endedAt?: Date | null;
+  liftAtAverageKarma?: number | null;
+  liftAverageKarmaCount?: number | null;
 }
 
 interface UpdateUserRateLimitInput {
@@ -9459,6 +9511,11 @@ interface GraphQLTypeMap {
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   PangramTextEvaluationResult: PangramTextEvaluationResult;
   SupermodQueueChange: SupermodQueueChange;
+  ModerationTemplateUsageCount: ModerationTemplateUsageCount;
+  ModerationContentRejectionInput: ModerationContentRejectionInput;
+  ModerationMessageInput: ModerationMessageInput;
+  CompleteUserModerationInput: CompleteUserModerationInput;
+  CompleteUserModerationResult: CompleteUserModerationResult;
   RejectionReview: RejectionReview;
   ToggleBookmarkInput: ToggleBookmarkInput;
   SetIsBookmarkedInput: SetIsBookmarkedInput;
@@ -9809,6 +9866,7 @@ interface GraphQLTypeMap {
   SinglePostOutput: SinglePostOutput;
   PostDefaultViewInput: PostDefaultViewInput;
   PostsUserPostsInput: PostsUserPostsInput;
+  PostsCoauthoredPostsInput: PostsCoauthoredPostsInput;
   PostsMagicInput: PostsMagicInput;
   PostsTopInput: PostsTopInput;
   PostsNewInput: PostsNewInput;

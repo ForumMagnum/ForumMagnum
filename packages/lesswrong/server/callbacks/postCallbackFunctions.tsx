@@ -1,3 +1,4 @@
+import { userIsApproved } from "@/lib/collections/users/helpers";
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import React from "react";
 import { usesCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
@@ -182,6 +183,7 @@ const utils = {
     const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user, context);
     if (rateLimit) {
       const {nextEligible} = rateLimit;
+      if (nextEligible === null) throw new Error('Rate limit: You cannot post until your restriction is lifted.');
       if (nextEligible > new Date()) {
         // "fromNow" makes for a more human readable "how long till I can comment/post?".
         // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
@@ -848,7 +850,7 @@ export async function sendRejectionPM({ post, currentUser, context }: {post: DbP
 
   let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
 
-  const noEmail = !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
+  const noEmail = !userIsApproved(postUser)
   const conversation = await startTeamInboxConversation({
     recipientId: post.userId,
     author: currentUser ?? null,
