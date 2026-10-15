@@ -42,6 +42,7 @@ export interface InboxState extends ModerationQueueSnapshot {
   focusedContentIndex: number;
   // Which composer is open in the moderation sidebar, or null for neither
   sidebarTab: SelectedSidebarTab;
+  rejectComposerFocusToken?: number;
   // Undo queue - actions that can be undone (within 30 seconds) - only for users
   undoQueue: UndoHistoryItem[];
   // History - expired actions that can't be undone - only for users
@@ -111,6 +112,7 @@ export type InboxAction =
   | { type: 'NEXT_CONTENT'; contentLength: number; }
   | { type: 'PREV_CONTENT'; contentLength: number; }
   | { type: 'OPEN_CONTENT'; contentIndex: number; sidebarTab?: SelectedSidebarTab; }
+  | { type: 'FOCUS_REJECT_COMPOSER' }
   | { type: 'SET_SIDEBAR_TAB'; tab: SelectedSidebarTab; }
   | { type: 'UPDATE_USER'; userId: string; fields: Partial<SunshineUsersList>; }
   | { type: 'UPDATE_POST'; postId: string; fields: Partial<SunshinePostsList>; }
@@ -175,10 +177,10 @@ const SIDEBAR_TAB_CLEARING_ACTIONS: ReadonlySet<InboxAction['type']> = new Set([
 
 export function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
   const newState = reduceInboxAction(state, action);
-  if (newState.sidebarTab === null || !SIDEBAR_TAB_CLEARING_ACTIONS.has(action.type)) {
+  if (!SIDEBAR_TAB_CLEARING_ACTIONS.has(action.type) || (newState.sidebarTab === null && !newState.rejectComposerFocusToken)) {
     return newState;
   }
-  return { ...newState, sidebarTab: null };
+  return { ...newState, sidebarTab: null, rejectComposerFocusToken: 0 };
 }
 
 function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
@@ -267,13 +269,19 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
         // Closes the composer, unless the caller is opening one — the row's
         // Reject button selects the row and opens the reject tab in one action
         sidebarTab: action.sidebarTab ?? null,
+        rejectComposerFocusToken: 0,
       };
+    }
+
+    case 'FOCUS_REJECT_COMPOSER': {
+      return { ...state, sidebarTab: 'reject', rejectComposerFocusToken: (state.rejectComposerFocusToken ?? 0) + 1 };
     }
 
     case 'SET_SIDEBAR_TAB': {
       return {
         ...state,
         sidebarTab: action.tab,
+        rejectComposerFocusToken: 0,
       };
     }
 

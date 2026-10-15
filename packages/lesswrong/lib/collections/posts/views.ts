@@ -436,6 +436,18 @@ function userPosts(terms: PostsViewTerms) {
   }
 }
 
+function coauthoredPosts(terms: PostsViewTerms) {
+  const { selector: { $or: _authorship, ...selector }, options } = userPosts(terms);
+  return {
+    selector: {
+      ...selector,
+      userId: { $ne: terms.userId },
+      coauthorUserIds: terms.userId,
+    },
+    options,
+  };
+}
+
 const setStickies = (sortOptions: MongoSort<DbPost>, terms: PostsViewTerms): MongoSort<DbPost> => {
   if (terms.af && terms.forum) {
     return { afSticky: -1, stickyPriority: -1, ...sortOptions}
@@ -1368,6 +1380,7 @@ function currentOpenThread(terms: PostsViewTerms, _client: ApolloClient, context
 
 export const PostsViews = new CollectionViewSet('Posts', {
   userPosts,
+  coauthoredPosts,
   magic,
   top,
   new: newest, // Using 'newest' as the function name since 'new' is a keyword

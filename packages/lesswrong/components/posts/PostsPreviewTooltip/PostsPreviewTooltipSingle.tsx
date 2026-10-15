@@ -25,9 +25,10 @@ const CommentsListQuery = gql(`
   }
 `);
 
-export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
+export const PostsPreviewTooltipSingle = ({postId, postsList=false, showLlmScore=false}: {
   postId: string,
-  postsList?: boolean
+  postsList?: boolean,
+  showLlmScore?: boolean,
 }) => {
   const { loading: postLoading, data } = usePostForTooltip(postId);
   const post = data?.post?.result;
@@ -38,12 +39,13 @@ export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
 
   if (!post) {return null;}
 
-  return <PostsPreviewTooltip post={post} postsList={postsList}/>
+  return <PostsPreviewTooltip post={post} showLlmScore={showLlmScore} postsList={postsList}/>
 }
 
-export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogueMessageInfo}: {
+export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogueMessageInfo, showLlmScore=false}: {
   postId: string,
-  postsList?: boolean
+  postsList?: boolean,
+  showLlmScore?: boolean,
   dialogueMessageInfo: DialogueMessageInfo,
 }) => {
   const { loading: postLoading, data } = usePostForTooltip(postId);
@@ -55,12 +57,13 @@ export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogue
 
   if (!post) return null;
 
-  return <PostsPreviewTooltip post={post} postsList={postsList} dialogueMessageInfo={dialogueMessageInfo}/>
+  return <PostsPreviewTooltip post={post} showLlmScore={showLlmScore} postsList={postsList} dialogueMessageInfo={dialogueMessageInfo}/>
 }
 
-export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
+export const PostsPreviewTooltipSingleWithComment = ({postId, commentId, showLlmScore=false}: {
   postId: string,
   commentId: string,
+  showLlmScore?: boolean,
 }) => {
   const { loading: postLoading, data: dataPost } = usePostForTooltip(postId);
   const post = dataPost?.post?.result;
@@ -80,12 +83,13 @@ export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
   return (
     <PostsPreviewTooltip
       post={post}
+      showLlmScore={showLlmScore}
       comment={commentId && comment ? comment : undefined}
     />
   );
 }
 
-export const TaggedPostTooltipSingle = ({tagRelId}: {tagRelId: string}) => {
+export const TaggedPostTooltipSingle = ({tagRelId, showLlmScore=false}: {tagRelId: string, showLlmScore?: boolean}) => {
   const { loading: tagRelLoading, data } = useQuery(TagRelFragmentQuery, {
     variables: { documentId: tagRelId },
     fetchPolicy: 'cache-first',
@@ -98,5 +102,5 @@ export const TaggedPostTooltipSingle = ({tagRelId}: {tagRelId: string}) => {
 
   if (!tagRel?.post) {return null;}
 
-  return <PostsPreviewTooltip post={tagRel.post} />
+  return <PostsPreviewTooltip post={tagRel.post} showLlmScore={showLlmScore} />
 }

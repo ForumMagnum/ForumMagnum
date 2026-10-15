@@ -49,6 +49,15 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   dragHandleIcon: {
     fontSize: 16,
   },
+  shortcutNumber: {
+    position: "absolute",
+    left: 6,
+    top: "50%",
+    transform: "translateY(-50%)",
+    fontSize: 11,
+    fontWeight: 600,
+    color: theme.palette.grey[500],
+  },
   templateName: {
     flex: 1,
     minWidth: 0,
@@ -132,11 +141,12 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   },
 }));
 
-export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted, selected, dragHandleProps, onHide, onUnhide}: {
+export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted, selected, shortcutNumber, dragHandleProps, onHide, onUnhide}: {
   template: ModerationTemplateFragment,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlighted?: boolean,
   selected?: boolean,
+  shortcutNumber?: string,
   dragHandleProps?: DragHandleProps,
   onHide?: (template: ModerationTemplateFragment) => void,
   onUnhide?: (template: ModerationTemplateFragment) => void,
@@ -196,6 +206,7 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
             <ForumIcon icon="DragIndicator" className={classes.dragHandleIcon} />
           </span>
         )}
+        {shortcutNumber !== undefined && <span className={classes.shortcutNumber}>{shortcutNumber}</span>}
         <span className={classes.templateName}>{template.name}</span>
         <span className={classes.actions}>
           {onHide && (

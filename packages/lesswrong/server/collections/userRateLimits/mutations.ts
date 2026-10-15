@@ -1,3 +1,4 @@
+import { validateUserRateLimit } from '@/lib/collections/userRateLimits/helpers';
 import schema from "@/lib/collections/userRateLimits/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
@@ -39,6 +40,7 @@ function editCheck(user: DbUser | null, document: DbUserRateLimit | null, contex
 
 
 export async function createUserRateLimit({ data }: CreateUserRateLimitInput, context: ResolverContext) {
+  validateUserRateLimit(data);
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('UserRateLimits', {
@@ -74,6 +76,7 @@ export async function updateUserRateLimit({ selector, data }: UpdateUserRateLimi
   } = await getLegacyUpdateCallbackProps('UserRateLimits', { selector, context, data, schema });
 
   const { oldDocument } = updateCallbackProperties;
+  validateUserRateLimit({ ...oldDocument, ...data });
 
   data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 

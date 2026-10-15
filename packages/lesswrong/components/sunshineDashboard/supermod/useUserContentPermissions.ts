@@ -166,7 +166,7 @@ export function useUserContentPermissions(
     if (isCurrentlyDisabled) {
       // Find and end the existing VOTING_DISABLED moderator action
       const votingDisabledAction = user.moderatorActions?.find(
-        action => action.type === VOTING_DISABLED && !action.endedAt
+        action => action.type === VOTING_DISABLED && action.active
       );
       
       if (votingDisabledAction && !disableOnly) {
@@ -233,7 +233,7 @@ export function useUserContentPermissions(
         }
       } else {
         const votingDisabledAction = user.moderatorActions?.find(
-          action => action.type === VOTING_DISABLED && !action.endedAt
+          action => action.type === VOTING_DISABLED && action.active
         );
         if (votingDisabledAction) {
           await updateModeratorAction({
@@ -267,4 +267,3 @@ export function useUserContentPermissions(
     toggleAllPermissions,
   };
 }
-

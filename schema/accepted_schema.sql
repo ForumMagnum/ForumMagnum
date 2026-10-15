@@ -3039,7 +3039,9 @@ CREATE TABLE "UserRateLimits" (
   "intervalUnit" TEXT NOT NULL,
   "intervalLength" DOUBLE PRECISION NOT NULL,
   "actionsPerInterval" DOUBLE PRECISION NOT NULL,
-  "endedAt" TIMESTAMPTZ NOT NULL
+  "endedAt" TIMESTAMPTZ,
+  "liftAtAverageKarma" DOUBLE PRECISION,
+  "liftAverageKarmaCount" INTEGER
 );
 
 -- Index "idx_UserRateLimits_userId_createdAt_endedAt"
