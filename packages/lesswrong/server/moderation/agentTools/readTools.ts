@@ -124,7 +124,7 @@ async function getAltAccountsForClientIds(userId: string, clientIds: UserClientI
   return { clientIds, accountsSharingClientIds: accounts };
 }
 
-export const findAltAccountsTool = defineModerationAgentTool({
+const findAltAccountsTool = defineModerationAgentTool({
   name: "find_alt_accounts",
   description: "Look up possible alternate accounts. Given a userId, returns the client IDs (browser identifiers) associated with that user and accounts sharing them. Given an ipAddress (admins only), uses the moderator IP lookup to return associated account IDs.",
   inputSchema: z.object({
@@ -324,7 +324,7 @@ async function getDocumentBody(documentId: string, collectionName: "Posts" | "Co
   return message.contents;
 }
 
-export const readDocumentBodyTool = defineModerationAgentTool({
+const readDocumentBodyTool = defineModerationAgentTool({
   name: "read_document_body",
   description: "Read the canonical body of a post, comment, or moderator DM as markdown. Word offsets count whitespace-separated words and preserve the original formatting between them. Start at offsetWords 0, then pass nextOffsetWords to continue. Pass bodyVersion from an excerpt (or version from this result) to keep reading the same revision.",
   inputSchema: z.object({
@@ -535,7 +535,7 @@ async function getModeratorMessages(conversationId: string, offset: number, limi
   };
 }
 
-export const getModeratorDmsTool = defineModerationAgentTool({
+const getModeratorDmsTool = defineModerationAgentTool({
   name: "get_moderator_dms",
   description: "Fetch moderator conversations with a user, most recently active first, including archived conversations and the latest 10 message excerpts in each. Pass nextOffset to fetch older conversations. Use get_moderator_dm_messages with a conversation's _id and nextOffset to fetch older messages; use read_document_body for any bodyTruncated message.",
   inputSchema: z.object({
@@ -562,7 +562,7 @@ export const getModeratorDmsTool = defineModerationAgentTool({
   },
 });
 
-export const getModeratorDmMessagesTool = defineModerationAgentTool({
+const getModeratorDmMessagesTool = defineModerationAgentTool({
   name: "get_moderator_dm_messages",
   description: "Read a page of messages from a moderator conversation. Pages start with the newest messages and each page is displayed chronologically. Pass nextOffset to read older messages. For a bodyTruncated excerpt, use read_document_body with its _id, collectionName Messages, and bodyVersion.",
   inputSchema: z.object({

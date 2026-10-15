@@ -2,13 +2,7 @@ import { print } from "graphql";
 import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import * as queries from "@/server/vulcan-lib/query";
 import * as sqlClient from "@/server/sql/sqlClient";
-import {
-  findAltAccountsTool,
-  getModeratorDmMessagesTool,
-  getModeratorDmsTool,
-  moderationReadTools,
-  readDocumentBodyTool,
-} from "@/server/moderation/agentTools/readTools";
+import { moderationReadTools } from "@/server/moderation/agentTools/readTools";
 
 jest.mock("@/server/vulcan-lib/query", () => ({ runQuery: jest.fn() }));
 jest.mock("@/server/sql/sqlClient", () => ({ getSqlClientOrThrow: jest.fn() }));
@@ -22,6 +16,17 @@ jest.mock("@/server/sqlConnection", () => ({
 const queryMock = jest.spyOn(queries, "runQuery");
 const sqlClientMock = jest.spyOn(sqlClient, "getSqlClientOrThrow");
 const actualQueries = jest.requireActual<typeof import("@/server/vulcan-lib/query")>("@/server/vulcan-lib/query");
+
+function getTool(name: string) {
+  const tool = moderationReadTools.find(tool => tool.name === name);
+  if (!tool) throw new Error(`Missing moderation tool: ${name}`);
+  return tool;
+}
+
+const findAltAccountsTool = getTool("find_alt_accounts");
+const getModeratorDmMessagesTool = getTool("get_moderator_dm_messages");
+const getModeratorDmsTool = getTool("get_moderator_dms");
+const readDocumentBodyTool = getTool("read_document_body");
 
 function message(_id: string, html = "<p>A message</p>") {
   return {
