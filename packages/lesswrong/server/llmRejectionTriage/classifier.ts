@@ -7,7 +7,7 @@ const LLM_REJECTION_TRIAGE_MODEL = "anthropic/claude-sonnet-5.5";
 
 const LLM_REJECTION_TRIAGE_SYSTEM_PROMPT = `You'll be shown a new LessWrong user's bio and their posts and comments. Some of their content was automatically rejected because Pangram, an AI-writing detector, flagged it as LLM-written.
 
-Anything above 0.3 is a high Pangram score, and 0.58 is very high. An exceptionally good post might be ok at 0.2 which is approximately our threshold for auto-rejection. You can question the Pangram value, it might be fallible, but this is to guide you about its meaning assuming it is valid.
+Anything above 0.3 is a high Pangram score, and 0.5 and above is very high. An exceptionally good post might be ok at 0.2 which is approximately our threshold for auto-rejection. You can question the Pangram value, it might be fallible, but this is to guide you about its meaning assuming it is valid.
 
 Answer keep_for_review only if this really seems like pretty fine, good, useful human content despite what Pangram said. The bar for keep_for_review is high.
 
@@ -82,7 +82,7 @@ function formatItem(item: LlmRejectionTriageItem): string {
   return lines.join("\n");
 }
 
-export function buildLlmRejectionTriagePrompt(input: LlmRejectionTriageInput): string {
+function buildLlmRejectionTriagePrompt(input: LlmRejectionTriageInput): string {
   const newestFirst = [...input.items].sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime());
   const autoRejected = newestFirst.filter(item => item.status === "auto-rejected");
   const other = newestFirst.filter(item => item.status !== "auto-rejected");

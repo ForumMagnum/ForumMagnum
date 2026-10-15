@@ -73,7 +73,7 @@ function getRevisionContent(doc: DbPost | DbComment, revisionContentsById: Map<s
   return revisionContent;
 }
 
-export async function getLlmRejectionTriageInput(user: DbUser, context: ResolverContext): Promise<LlmRejectionTriageInput> {
+async function getLlmRejectionTriageInput(user: DbUser, context: ResolverContext): Promise<LlmRejectionTriageInput> {
   const [posts, comments] = await Promise.all([
     context.Posts.find(
       { userId: user._id, shortform: { $ne: true }, $or: [{ draft: { $ne: true } }, { rejected: true }] },
@@ -131,7 +131,7 @@ async function isInReviewQueueOnlyForContentOrBio(userId: string, context: Resol
   return isReviewTriggeredOnlyByContentOrBio(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
 }
 
-export async function isEligibleForLlmRejectionTriage(user: DbUser, context: ResolverContext): Promise<boolean> {
+async function isEligibleForLlmRejectionTriage(user: DbUser, context: ResolverContext): Promise<boolean> {
   if (!user.needsReview || user.deleted || userIsAdminOrMod(user)) return false;
   if (user.banned && new Date(user.banned) > new Date()) return false;
 
@@ -146,7 +146,7 @@ export async function isEligibleForLlmRejectionTriage(user: DbUser, context: Res
   return await isInReviewQueueOnlyForContentOrBio(user._id, context);
 }
 
-export type LlmRejectionTriageAction = "removeFromQueue" | "keepInQueue" | "keepSpamWithApprovedContentInQueue" | "purge";
+type LlmRejectionTriageAction = "removeFromQueue" | "keepInQueue" | "keepSpamWithApprovedContentInQueue" | "purge";
 
 async function getLlmRejectionTriageAction(userId: string, verdict: LlmRejectionTriageVerdict, context: ResolverContext): Promise<LlmRejectionTriageAction> {
   switch (verdict.verdict) {

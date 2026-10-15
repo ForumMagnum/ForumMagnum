@@ -6,6 +6,7 @@ import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import { getDisplayedReasonForGroupAssignment } from './groupings';
+import { isAwaitingReview } from '@/lib/collections/users/reviewGroups';
 import LWTooltip from '@/components/common/LWTooltip';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
@@ -164,15 +165,15 @@ const ContentPreview = ({ user }: { user: SunshineUsersList }) => {
   
   const firstUnreviewedPost = useMemo(() => (
     posts
+      .filter(post => isAwaitingReview(post, 'Posts'))
       .sort((a, b) => new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime())
-      .filter(post => !post.reviewedByUserId && !post.rejected && !post.draft)
       .at(0)
   ), [posts]);
 
   const firstUnreviewedComment = useMemo(() => (
     comments
+      .filter(comment => isAwaitingReview(comment, 'Comments'))
       .sort((a, b) => new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime())
-      .filter(comment => !comment.reviewedByUserId && !comment.rejected && !comment.deleted)
       .at(0)
   ), [comments]);
 

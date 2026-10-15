@@ -2,8 +2,8 @@
 
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
-import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
-import { compareReviewQueueUsers, REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
+import { getUserReviewGroup, type TabId } from './groupings';
+import { compareReviewQueueUsers, REVIEW_GROUPS_IN_PRIORITY_ORDER } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
 import type { SelectedSidebarTab } from './sidebarTabs';
@@ -123,9 +123,10 @@ export type InboxAction =
   | { type: 'ADD_LOADED_ITEMS'; snapshot: ModerationQueueSnapshot; };
 
 export function getOrderedGroups(groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>): GroupEntry[] {
-  return (Object.entries(groupedUsers) as GroupEntry[])
-    .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a])
-    .map(([group, users]): GroupEntry => [group, [...users].sort(compareReviewQueueUsers)]);
+  return REVIEW_GROUPS_IN_PRIORITY_ORDER.flatMap<GroupEntry>(group => {
+    const users = groupedUsers[group];
+    return users ? [[group, [...users].sort(compareReviewQueueUsers)]] : [];
+  });
 }
 
 export function getFilteredGroups(
@@ -148,11 +149,10 @@ export function getVisibleTabsInOrder(
   totalCurationNotices: number,
   unloadedCounts: UnloadedCounts,
 ): TabInfo[] {
-  const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [{ group: 'curation', count: totalCurationNotices }];
   
   // Always show all tabs, even if empty
-  for (const group of tabsInOrder) {
+  for (const group of REVIEW_GROUPS_IN_PRIORITY_ORDER) {
     const count = groupedUsers[group]?.length ?? 0;
     tabs.push({ group, count });
   }
@@ -692,10 +692,9 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       }
 
       // Current tab is empty, switch to next non-empty tab
-      const tabsInOrder = getTabsInPriorityOrder();
       let nextTab: ReviewGroup | 'all' = 'all';
 
-      for (const group of tabsInOrder) {
+      for (const group of REVIEW_GROUPS_IN_PRIORITY_ORDER) {
         if (groupedUsers[group]?.length > 0) {
           nextTab = group;
           break;

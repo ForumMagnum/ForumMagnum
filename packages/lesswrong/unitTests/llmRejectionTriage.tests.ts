@@ -1,5 +1,5 @@
 import { createAdminContext } from '@/server/vulcan-lib/createContexts';
-import { isEligibleForLlmRejectionTriage, runLlmRejectionTriage } from '@/server/llmRejectionTriage/triage';
+import { runLlmRejectionTriage } from '@/server/llmRejectionTriage/triage';
 import * as classifier from '@/server/llmRejectionTriage/classifier';
 import * as moderation from '@/server/users/moderationUtils';
 import { UNREVIEWED_POST, UNREVIEWED_BIO_UPDATE, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_PROFILE_IMAGE_UPDATE } from '@/lib/collections/moderatorActions/constants';
@@ -60,7 +60,7 @@ function setupTriage() {
 }
 
 describe('LLM rejection triage evidence', () => {
-  afterEach(() => { jest.restoreAllMocks(); });
+  afterEach(() => { jest.restoreAllMocks(); jest.clearAllMocks(); });
 
   it.each(['submission', 'bio'])("does not apply a verdict after the %s changes during classification", async field => {
     const state = setupTriage();
@@ -82,12 +82,15 @@ describe('LLM rejection triage evidence', () => {
   it.each<ModeratorActionType>([UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_PROFILE_IMAGE_UPDATE])('leaves unexamined profile evidence for a moderator: %s', async type => {
     const { context, user, actionTypes } = setupTriage();
     actionTypes.push(type);
-    expect(await isEligibleForLlmRejectionTriage(user, context)).toBe(false);
+    expect(await runLlmRejectionTriage(user._id, context)).toBeNull();
+    expect(classifier.classifyLlmRejectedUser).not.toHaveBeenCalled();
+    expect(moderation.purgeSpamUser).not.toHaveBeenCalled();
   });
 
   it('supports bio review triggers because the classifier reads the bio', async () => {
     const { context, user, actionTypes } = setupTriage();
     actionTypes.push(UNREVIEWED_BIO_UPDATE);
-    expect(await isEligibleForLlmRejectionTriage(user, context)).toBe(true);
+    jest.spyOn(classifier, 'classifyLlmRejectedUser').mockResolvedValue({ verdict: 'spam', reason: 'Spam' });
+    expect(await runLlmRejectionTriage(user._id, context, { dryRun: true })).toMatchObject({ action: 'purge' });
   });
 });
