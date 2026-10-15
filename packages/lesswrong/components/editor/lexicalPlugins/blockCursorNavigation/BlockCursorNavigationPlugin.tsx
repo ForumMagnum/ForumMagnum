@@ -401,6 +401,74 @@ function handleSentinelArrowTraversal(
   return true;
 }
 
+/**
+ * Returns true if a collapsed selection at `anchorNode`/`offset` is at the very
+ * start of `block`. A text-type anchor at offset 0 is only at the start of the
+ * block if nothing precedes its text node (e.g. not right after an inline
+ * equation or link).
+ */
+function $isAtStartOfBlock(
+  anchorNode: LexicalNode,
+  offset: number,
+  block: LexicalNode,
+): boolean {
+  if (offset !== 0) {
+    return false;
+  }
+  return anchorNode.is(block) || anchorNode.getPreviousSibling() === null;
+}
+
+/**
+ * Sentinel-aware backspace handling:
+ * 1. Cursor in a sentinel after a block element → delete the block element
+ * 2. Cursor at start of a paragraph after a sentinel → move cursor to sentinel
+ */
+export function $handleSentinelBackspace(event: KeyboardEvent): boolean {
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+    return false;
+  }
+
+  const anchorNode = selection.anchor.getNode();
+  const sentinel = $isSentinelParagraphNode(anchorNode)
+    ? anchorNode
+    : $isSentinelParagraphNode(anchorNode.getParent())
+      ? anchorNode.getParent()
+      : null;
+
+  // Case 1: cursor is inside a sentinel — delete the preceding block element
+  if (sentinel) {
+    const prevSibling = sentinel.getPreviousSibling();
+    if (prevSibling && $needsBlockCursor(prevSibling)) {
+      event.preventDefault();
+      prevSibling.remove();
+      return true;
+    }
+    return false;
+  }
+
+  // Case 2: cursor at start of a non-sentinel block whose previous
+  // sibling is a sentinel — delete the block if it's an empty
+  // paragraph, otherwise move cursor into the sentinel instead of
+  // merging across it
+  const block = $isElementNode(anchorNode)
+    ? anchorNode
+    : anchorNode.getParent();
+  if (block && $isElementNode(block) && $isAtStartOfBlock(anchorNode, selection.anchor.offset, block)) {
+    const prevSibling = block.getPreviousSibling();
+    if ($isSentinelParagraphNode(prevSibling)) {
+      event.preventDefault();
+      if ($isParagraphNode(block) && block.isEmpty()) {
+        block.remove();
+      }
+      prevSibling.selectEnd();
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export default function BlockCursorNavigationPlugin(): null {
   const [editor] = useLexicalComposerContext();
 
@@ -428,58 +496,9 @@ export default function BlockCursorNavigationPlugin(): null {
         );
       }),
 
-      // Sentinel-aware backspace handling:
-      // 1. Cursor in a sentinel after a block element → delete the block element
-      // 2. Cursor at start of a paragraph after a sentinel → move cursor to sentinel
       editor.registerCommand(
         KEY_BACKSPACE_COMMAND,
-        (event) => {
-          const selection = $getSelection();
-          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
-            return false;
-          }
-
-          const anchorNode = selection.anchor.getNode();
-          const sentinel = $isSentinelParagraphNode(anchorNode)
-            ? anchorNode
-            : $isSentinelParagraphNode(anchorNode.getParent())
-              ? anchorNode.getParent()
-              : null;
-
-          // Case 1: cursor is inside a sentinel — delete the preceding block element
-          if (sentinel) {
-            const prevSibling = sentinel.getPreviousSibling();
-            if (prevSibling && $needsBlockCursor(prevSibling)) {
-              event.preventDefault();
-              prevSibling.remove();
-              return true;
-            }
-            return false;
-          }
-
-          // Case 2: cursor at start of a non-sentinel block whose previous
-          // sibling is a sentinel — delete the block if it's an empty
-          // paragraph, otherwise move cursor into the sentinel instead of
-          // merging across it
-          if (selection.anchor.offset === 0) {
-            const block = $isElementNode(anchorNode)
-              ? anchorNode
-              : anchorNode.getParent();
-            if (block && $isElementNode(block)) {
-              const prevSibling = block.getPreviousSibling();
-              if ($isSentinelParagraphNode(prevSibling)) {
-                event.preventDefault();
-                if ($isParagraphNode(block) && block.isEmpty()) {
-                  block.remove();
-                }
-                prevSibling.selectEnd();
-                return true;
-              }
-            }
-          }
-
-          return false;
-        },
+        $handleSentinelBackspace,
         COMMAND_PRIORITY_LOW,
       ),
 
