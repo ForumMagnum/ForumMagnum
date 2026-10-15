@@ -82,7 +82,7 @@ function formatItem(item: LlmRejectionTriageItem): string {
   return lines.join("\n");
 }
 
-export function buildLlmRejectionTriagePrompt(input: LlmRejectionTriageInput): string {
+function buildLlmRejectionTriagePrompt(input: LlmRejectionTriageInput): string {
   const newestFirst = [...input.items].sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime());
   const autoRejected = newestFirst.filter(item => item.status === "auto-rejected");
   const other = newestFirst.filter(item => item.status !== "auto-rejected");
