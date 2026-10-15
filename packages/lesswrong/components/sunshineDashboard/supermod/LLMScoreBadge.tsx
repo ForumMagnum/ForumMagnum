@@ -7,6 +7,7 @@ import classNames from 'classnames';
 
 const styles = defineStyles('LLMScoreBadge', (theme: ThemeType) => ({
   badge: {
+    ...theme.typography.commentStyle,
     fontSize: 11,
     padding: '2px 6px',
     borderRadius: 3,

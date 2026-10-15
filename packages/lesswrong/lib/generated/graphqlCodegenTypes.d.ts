@@ -17756,6 +17756,27 @@ type CancelRSVPToEventMutationVariables = Exact<{
 
 type CancelRSVPToEventMutation = CancelRSVPToEventMutation_Mutation;
 
+type PostLlmScorePreviewQuery_post_SinglePostOutput_result_Post_automatedContentEvaluations_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AutomatedContentEvaluationsFragment
+);
+
+type PostLlmScorePreviewQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null };
+
+type PostLlmScorePreviewQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, automatedContentEvaluations: PostLlmScorePreviewQuery_post_SinglePostOutput_result_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, contents: PostLlmScorePreviewQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+
+type PostLlmScorePreviewQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostLlmScorePreviewQuery_post_SinglePostOutput_result_Post | null };
+
+type PostLlmScorePreviewQuery_Query = { __typename?: 'Query', post: PostLlmScorePreviewQuery_post_SinglePostOutput | null };
+
+
+type PostLlmScorePreviewQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostLlmScorePreviewQuery = PostLlmScorePreviewQuery_Query;
+
 type LWPostsPreviewTooltip1Query_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostWithDialogueMessage
@@ -20476,6 +20497,25 @@ type AllReactedCommentsQueryVariables = Exact<{
 
 
 type AllReactedCommentsQuery = AllReactedCommentsQuery_Query;
+
+type CommentLlmScorePreviewQuery_comment_SingleCommentOutput_result_Comment_automatedContentEvaluations_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AutomatedContentEvaluationsFragment
+);
+
+type CommentLlmScorePreviewQuery_comment_SingleCommentOutput_result_Comment = { __typename?: 'Comment', _id: string, automatedContentEvaluations: CommentLlmScorePreviewQuery_comment_SingleCommentOutput_result_Comment_automatedContentEvaluations_AutomatedContentEvaluation | null };
+
+type CommentLlmScorePreviewQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: CommentLlmScorePreviewQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type CommentLlmScorePreviewQuery_Query = { __typename?: 'Query', comment: CommentLlmScorePreviewQuery_comment_SingleCommentOutput | null };
+
+
+type CommentLlmScorePreviewQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type CommentLlmScorePreviewQuery = CommentLlmScorePreviewQuery_Query;
 
 type multiLWEventEmailHistoryQueryQuery_lWEvents_MultiLWEventOutput_results_LWEvent = (
   { __typename?: 'LWEvent' }

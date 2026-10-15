@@ -5,7 +5,6 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message';
-import LLMScoreBadge from './LLMScoreBadge';
 import PostKarmaWithPreview from '../PostKarmaWithPreview';
 import CommentKarmaWithPreview from '../CommentKarmaWithPreview';
 import { getAverageContentKarma } from '@/lib/collections/moderatorActions/helpers';
@@ -141,14 +140,6 @@ const styles = defineStyles('ModerationKarmaSummary', (theme: ThemeType) => ({
   awaiting: {
     boxShadow: `inset 0 0 0 1.5px ${theme.palette.primary.dark}`,
   },
-  llmScoreCorner: {
-    ...theme.typography.commentStyle,
-    position: 'absolute',
-    top: 10,
-    right: 12,
-    zIndex: 1,
-  },
-
 }));
 
 const Karma = ({ item }: { item: ContentItem }) => {
@@ -167,19 +158,6 @@ const Karma = ({ item }: { item: ContentItem }) => {
   })}>
     {karma}
   </span>;
-};
-
-const LlmScoreCorner = ({ item }: { item: ContentItem }) => {
-  const classes = useStyles(styles);
-  return <div className={classes.llmScoreCorner}>
-    <LLMScoreBadge
-      documentId={item._id}
-      automatedContentEvaluations={item.automatedContentEvaluations}
-      contentHtml={item.contents?.html ?? ''}
-      contentType={isPost(item) ? 'Post' : 'Comment'}
-      showWhenEmpty
-    />
-  </div>;
 };
 
 function formatSigned(value: number) {
@@ -233,8 +211,8 @@ const ContentTypeStrip = ({ icon, noun, items, hiddenCount, now }: {
         {index > 0 && <span className={classes.periodDivider} />}
         <span className={classes.periodLabel}>{period.shortLabel}</span>
         {period.items.map(item => isPost(item)
-          ? <PostKarmaWithPreview key={item._id} post={item} previewOverlay={<LlmScoreCorner item={item} />}><Karma item={item} /></PostKarmaWithPreview>
-          : <CommentKarmaWithPreview key={item._id} comment={item} previewOverlay={<LlmScoreCorner item={item} />}><Karma item={item} /></CommentKarmaWithPreview>)}
+          ? <PostKarmaWithPreview key={item._id} post={item} showLlmScore><Karma item={item} /></PostKarmaWithPreview>
+          : <CommentKarmaWithPreview key={item._id} comment={item} showLlmScore><Karma item={item} /></CommentKarmaWithPreview>)}
       </React.Fragment>)}
     </div>
   </div>;

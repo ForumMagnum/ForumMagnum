@@ -17588,6 +17588,16 @@ export type CancelRSVPToEventMutation = { __typename?: 'Mutation', CancelRSVPToE
     & PostsDetails
   ) | null };
 
+export type PostLlmScorePreviewQueryVariables = Exact<{
+  documentId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type PostLlmScorePreviewQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: { __typename?: 'Post', _id: string, automatedContentEvaluations: (
+        { __typename?: 'AutomatedContentEvaluation' }
+        & AutomatedContentEvaluationsFragment
+      ) | null, contents: { __typename?: 'Revision', _id: string, html: string | null } | null } | null } | null };
+
 export type LWPostsPreviewTooltip1QueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
   dialogueMessageId?: InputMaybe<Scalars['String']['input']>;
@@ -19210,6 +19220,16 @@ export type AllReactedCommentsQuery = { __typename?: 'Query', CommentsWithReacts
       { __typename?: 'Comment' }
       & CommentsListWithParentMetadata
     )> } | null };
+
+export type CommentLlmScorePreviewQueryVariables = Exact<{
+  documentId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type CommentLlmScorePreviewQuery = { __typename?: 'Query', comment: { __typename?: 'SingleCommentOutput', result: { __typename?: 'Comment', _id: string, automatedContentEvaluations: (
+        { __typename?: 'AutomatedContentEvaluation' }
+        & AutomatedContentEvaluationsFragment
+      ) | null } | null } | null };
 
 export type multiLWEventEmailHistoryQueryQueryVariables = Exact<{
   selector?: InputMaybe<LWEventSelector>;
@@ -23423,6 +23443,7 @@ export const PostsPageWrapperDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"PostsPage
 export const PostsRevisionsListDocument = _o1(_1,[_o11(_987,_996,_602,_1180,_o5(_7,[_o7(_8,_210,_1008,_o5(_7,[_o6(_8,_1009,_o5(_7,[_o4(_25,_602)]))]))])),_550,_603]) as unknown as DocumentNode<PostsRevisionsListQuery, PostsRevisionsListQueryVariables>;
 export const RegisterRSVPDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"RegisterRSVP"),[_1176,_1567,_1569,_o12(_989,_1571,_1019),_o12(_989,_1573,_992)],_o5(_7,[_o7(_8,_o3(_3,"RSVPToEvent"),[_853,_1574,_1575,_o8(_536,_1570,_1571),_o8(_536,_1572,_1573)],_1323)])),_23,_127,_61,_136,_146,_158,_184,_192,_499,_198,_203,_207,_506]) as unknown as DocumentNode<RegisterRSVPMutation, RegisterRSVPMutationVariables>;
 export const CancelRSVPToEventDocument = _o1(_1,[_o11(_987,_988,_1576,[_1176,_1567,_1381],_o5(_7,[_o7(_8,_1576,[_853,_1574,_1111],_1323)])),_23,_127,_61,_136,_146,_158,_184,_192,_499,_198,_203,_207,_506]) as unknown as DocumentNode<CancelRSVPToEventMutation, CancelRSVPToEventMutationVariables>;
+export const PostLlmScorePreviewDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"PostLlmScorePreview"),_1180,_o5(_7,[_o7(_8,_210,_1220,_o5(_7,[_o6(_8,_1009,_o5(_7,[_10,_339,_1338]))]))])),_335]) as unknown as DocumentNode<PostLlmScorePreviewQuery, PostLlmScorePreviewQueryVariables>;
 export const LWPostsPreviewTooltip1Document = _o1(_1,[_o11(_987,_996,_o3(_3,"LWPostsPreviewTooltip1"),[_1089,_o12(_989,_650,_992)],_o5(_7,[_o7(_8,_210,_1008,_o5(_7,[_o6(_8,_1009,_o5(_7,[_o4(_25,_648)]))]))])),_651]) as unknown as DocumentNode<LWPostsPreviewTooltip1Query, LWPostsPreviewTooltip1QueryVariables>;
 export const LWPostsPreviewTooltipDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"LWPostsPreviewTooltip"),_1266,_1267),_647]) as unknown as DocumentNode<LWPostsPreviewTooltipQuery, LWPostsPreviewTooltipQueryVariables>;
 export const PostsPreviewTooltipSingle4Document = _o1(_1,[_o11(_987,_996,_o3(_3,"PostsPreviewTooltipSingle4"),_1180,_1523),_624,_146,_158,_23,_127,_61,_136,_184,_192,_198,_961]) as unknown as DocumentNode<PostsPreviewTooltipSingle4Query, PostsPreviewTooltipSingle4QueryVariables>;
@@ -23587,6 +23608,7 @@ export const multiPostAFSuggestPostsListQueryDocument = _o1(_1,[_o11(_987,_996,_
 export const updateUserAFSuggestUsersItemDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"updateUserAFSuggestUsersItem"),_1195,_1767),_61,_622,_661,_681]) as unknown as DocumentNode<updateUserAFSuggestUsersItemMutation, updateUserAFSuggestUsersItemMutationVariables>;
 export const multiUserAFSuggestUsersListQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiUserAFSuggestUsersListQuery"),_1117,_o5(_7,[_o7(_8,_288,_1118,_o5(_7,[_o6(_8,_1026,_o5(_7,[_o4(_25,_948)])),_796]))])),_61,_949]) as unknown as DocumentNode<multiUserAFSuggestUsersListQueryQuery, multiUserAFSuggestUsersListQueryQueryVariables>;
 export const AllReactedCommentsDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"AllReactedComments"),_1238,_o5(_7,[_o7(_8,_o3(_3,"CommentsWithReacts"),_1239,_1240)])),_146,_158,_61,_184,_23,_322]) as unknown as DocumentNode<AllReactedCommentsQuery, AllReactedCommentsQueryVariables>;
+export const CommentLlmScorePreviewDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"CommentLlmScorePreview"),_1180,_o5(_7,[_o7(_8,_221,_1220,_o5(_7,[_o6(_8,_1009,_o5(_7,[_10,_339]))]))])),_335]) as unknown as DocumentNode<CommentLlmScorePreviewQuery, CommentLlmScorePreviewQueryVariables>;
 export const multiLWEventEmailHistoryQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiLWEventEmailHistoryQuery"),_1218,_o5(_7,[_o7(_8,_1219,_1118,_o5(_7,[_o6(_8,_1026,_o5(_7,[_o4(_25,_431)])),_796]))])),_432]) as unknown as DocumentNode<multiLWEventEmailHistoryQueryQuery, multiLWEventEmailHistoryQueryQueryVariables>;
 export const multiModerationTemplateGroupedTemplateListQueryDocument = _o1(_1,[_o11(_987,_996,_o3(_3,"multiModerationTemplateGroupedTemplateListQuery"),_1436,_1437),_226,_270,_438]) as unknown as DocumentNode<multiModerationTemplateGroupedTemplateListQueryQuery, multiModerationTemplateGroupedTemplateListQueryQueryVariables>;
 export const updateModerationTemplateGroupedTemplateListDocument = _o1(_1,[_o11(_987,_988,_o3(_3,"updateModerationTemplateGroupedTemplateList"),_1517,_1519),_226,_270,_438]) as unknown as DocumentNode<updateModerationTemplateGroupedTemplateListMutation, updateModerationTemplateGroupedTemplateListMutationVariables>;

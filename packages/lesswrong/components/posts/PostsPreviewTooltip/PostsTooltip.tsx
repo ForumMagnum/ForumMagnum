@@ -12,7 +12,6 @@ import { usePostForTooltip } from "@/components/hooks/usePostForTooltip";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
 const styles = defineStyles("PostsTooltip", (_theme: ThemeType) => ({
-  preview: { position: "relative" },
   sentinel: {
     height: 0,
     width: 0,
@@ -34,8 +33,8 @@ interface PostsTooltipPropsBase {
   flip?: boolean,
   placement?: PopperPlacementType,
   children?: ReactNode,
-  /** Content displayed over the preview, independent of the hover trigger. */
-  previewOverlay?: ReactNode,
+  /** Show the automated writing evaluation in the preview header. */
+  showLlmScore?: boolean,
   pageElementContext?: string,
   pageElementSubContext?: string,
   //bypasses the component and just returns the children
@@ -76,7 +75,7 @@ const PostsTooltip = ({
   flip,
   placement,
   children,
-  previewOverlay,
+  showLlmScore = false,
   pageElementContext,
   pageElementSubContext,
   disabled,
@@ -110,7 +109,7 @@ const PostsTooltip = ({
   const renderTitle = useCallback(() => {
     if (tagRelId) {
       return (
-        <TaggedPostTooltipSingle tagRelId={tagRelId} />
+        <TaggedPostTooltipSingle tagRelId={tagRelId} showLlmScore={showLlmScore} />
       );
     }
     if (post) {
@@ -120,13 +119,14 @@ const PostsTooltip = ({
           postsList={postsList}
           comment={comment}
           hash={hash}
+          showLlmScore={showLlmScore}
         />
       );
     }
 
     if (postId) {
       if (dialogueMessageInfo) {
-        return <DialogueMessagePreviewTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo}/>
+        return <DialogueMessagePreviewTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo} showLlmScore={showLlmScore}/>
       }
 
       const actualCommentId = commentId ?? comment?._id;
@@ -135,17 +135,19 @@ const PostsTooltip = ({
           <PostsPreviewTooltipSingleWithComment
             postId={postId}
             commentId={actualCommentId}
+            showLlmScore={showLlmScore}
           />
         )
         : (
           <PostsPreviewTooltipSingle
             postId={postId}
             postsList={postsList}
+            showLlmScore={showLlmScore}
           />
         );
     }
     return null;
-  }, [tagRelId, post, postId, postsList, comment, commentId, dialogueMessageInfo, hash]);
+  }, [tagRelId, post, postId, postsList, comment, commentId, dialogueMessageInfo, hash, showLlmScore]);
 
   if (disabled) {
     return <>
@@ -154,7 +156,7 @@ const PostsTooltip = ({
   };
   return (
     <HoverOver
-      title={previewOverlay ? <div className={classes.preview}>{previewOverlay}{renderTitle()}</div> : renderTitle()}
+      title={renderTitle()}
       placement={placement}
       tooltip={false}
       hideOnTouchScreens
