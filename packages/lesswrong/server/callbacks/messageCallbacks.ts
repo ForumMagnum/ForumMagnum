@@ -1,5 +1,5 @@
 import { SENT_MODERATOR_MESSAGE } from "@/lib/collections/moderatorActions/constants";
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { loadByIds } from '../../lib/loaders';
 import type { AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { createNotifications } from '../notificationCallbacksHelpers';
@@ -7,6 +7,8 @@ import { createModeratorAction } from '../collections/moderatorActions/mutations
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { updateConversation } from '../collections/conversations/mutations';
 import { backgroundTask } from "../utils/backgroundTask";
+import { isTeamInboxConversation } from "../utils/teamInbox";
+import { getAdminTeamAccountId } from "../utils/adminTeamAccount";
 
 export function checkIfNewMessageIsEmpty(message: Pick<CreateMessageDataInput, 'contents'>) {
   const { data } = (message.contents && message.contents.originalContents) || {}
@@ -57,7 +59,8 @@ export async function updateUserNotesOnModMessage({ document, context }: AfterCr
 /**
  * If the current user is not part of the conversation then add them to make
  * sure they get notified about future messages (only mods have permission to
- * add themselves to conversations).
+ * add themselves to conversations). Team inbox conversations are the exception,
+ * since they're meant to stay out of individual moderators' inboxes.
  */
 export async function addParticipantIfNew({ document, currentUser, context }: AfterCreateCallbackProperties<'Messages'>) {
   const { Conversations, loaders } = context;
@@ -71,7 +74,8 @@ export async function addParticipantIfNew({ document, currentUser, context }: Af
   if (
     currentUser &&
     conversation &&
-    !conversation.participantIds.includes(currentUser._id)
+    !conversation.participantIds.includes(currentUser._id) &&
+    !await isTeamInboxConversation(conversation, context)
   ) {
     await updateConversation({
       data: { participantIds: [...conversation.participantIds, currentUser._id] },
@@ -88,8 +92,16 @@ export async function updateConversationActivity(message: DbMessage, context: Re
   const conversation = await Conversations.findOne(message.conversationId);
   if (!conversation) throw Error(`Can't find conversation for message ${message}`)
     
+  // In moderator conversations, a message from the user puts the conversation in the
+  // moderator inbox and a moderator's reply marks it done. Messages from the team
+  // account itself (e.g. the automated appeal-link reply) leave the flag alone, so
+  // the user's message stays in the queue.
+  const teamInboxFields = conversation.moderator && message.userId !== await getAdminTeamAccountId(context)
+    ? { awaitingModeratorReply: !userIsAdminOrMod(user) }
+    : {};
+
   const userContext = await computeContextFromUser({ user: user, isSSR: false, forumType: context.forumType });
-  await updateConversation({ data: {latestActivity: message.createdAt}, selector: { _id: conversation._id } }, userContext);
+  await updateConversation({ data: {latestActivity: message.createdAt, ...teamInboxFields}, selector: { _id: conversation._id } }, userContext);
 }
 
 export async function sendMessageNotifications(message: DbMessage, context: ResolverContext) {

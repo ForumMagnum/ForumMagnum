@@ -15,6 +15,7 @@ import { createModeratorAction } from '../collections/moderatorActions/mutations
 import { createLWEvent } from '../collections/lwevents/mutations';
 import { appendToSunshineNotes } from '../users/sunshineNotes';
 import { checkIfNewMessageIsEmpty } from '../callbacks/messageCallbacks';
+import { getAdminTeamAccountId } from '../utils/adminTeamAccount';
 
 const REJECTED_ALONGSIDE_REASON = '<p>This content was rejected alongside another submission. Please see the rejection message for that submission for the explanation.</p>';
 const SEE_MODERATOR_MESSAGE_REASON = '<p>Look for a separate message from a moderator explaining why your content was rejected.</p>';
@@ -120,7 +121,9 @@ export async function completeUserModeration(options: UserModerationOptions, con
   if (options.message) {
     const conversationId = options.message.conversationId ?? moderationDocumentId(options, currentUser._id, 'conversation');
     if (!options.message.conversationId && !await Conversations.findOne(conversationId)) {
-      const data = { _id: conversationId, participantIds: [user._id, currentUser._id], title: 'Content rejected and permissions restricted', moderator: true };
+      const teamAccountId = await getAdminTeamAccountId(context);
+      if (!teamAccountId) throw new Error("Couldn't find the admin team account for a team inbox conversation");
+      const data = { _id: conversationId, participantIds: [user._id, teamAccountId], title: 'Content rejected and permissions restricted', moderator: true };
       await createConversation({ data }, context);
     }
     const messageData = { ...options.message, conversationId, userId: currentUser._id, _id: moderationDocumentId(options, currentUser._id, 'message') };

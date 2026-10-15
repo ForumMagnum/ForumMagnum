@@ -1325,6 +1325,18 @@ extend type Mutation {
   recordModerationTemplatesUsed(templateIds: [String!]!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
 }
 
+type RejectionReview {
+  post: Post
+  comment: Comment
+  appeal: RejectionAppeal
+  reasonIds: [String!]!
+  unavailableReason: String
+}
+
+extend type Query {
+  rejectionReview(postId: String, commentId: String): RejectionReview!
+}
+
 extend type Mutation {
   reorderSummaries(parentDocumentId: String!, parentDocumentCollectionName: String!, summaryIds: [String!]!): Boolean
 }
@@ -2758,9 +2770,11 @@ type Conversation {
   af: Boolean
   messageCount: Float!
   moderator: Boolean
+  awaitingModeratorReply: Boolean
   archivedByIds: [String!]!
   archivedBy: [User!]!
   latestMessage: Message
+  rejectionAppeal: RejectionAppeal
   hasUnreadMessages: Boolean
 }
 
@@ -2799,6 +2813,8 @@ input ConversationSelector {
   moderatorConversations: ConversationsModeratorConversationsInput
   userConversations: ConversationsUserConversationsInput
   userConversationsAll: ConversationsUserConversationsAllInput
+  teamInboxAwaitingReply: EmptyViewInput
+  teamInboxDone: EmptyViewInput
   userGroupUntitledConversations: ConversationsUserGroupUntitledConversationsInput
 }
 
@@ -3242,6 +3258,50 @@ extend type Query {
   myHomePageDesignSummaries: [HomePageDesignSummary!]!
   marketplaceHomePageDesigns: [MarketplaceHomePageDesign!]!
   adminHomePageDesigns: [AdminHomePageDesign!]!
+}
+
+type RejectionAppeal {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  user: User
+  postId: String
+  post: Post
+  commentId: String
+  comment: Comment
+  conversationId: String
+  conversation: Conversation
+  explanation: String
+  reasonIds: [String!]
+  acknowledgedMisunderstandings: Boolean
+  status: RejectionAppealStatus
+  resolvedByUserId: String
+  resolvedAt: Date
+}
+
+enum RejectionAppealStatus {
+  open
+  approved
+  denied
+}
+
+type SingleRejectionAppealOutput {
+  result: RejectionAppeal
+}
+
+input RejectionAppealSelector {
+  default: EmptyViewInput
+  openAppeals: EmptyViewInput
+}
+
+type MultiRejectionAppealOutput {
+  results: [RejectionAppeal!]!
+  totalCount: Int
+}
+
+extend type Query {
+  rejectionAppeal(selector: SelectorInput): SingleRejectionAppealOutput
+  rejectionAppeals(selector: RejectionAppealSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiRejectionAppealOutput
 }
 
 type TypoSuggestion {
@@ -8437,6 +8497,7 @@ input UpdateConversationDataInput {
   participantIds: [String!]
   af: Boolean
   moderator: Boolean
+  awaitingModeratorReply: Boolean
   archivedByIds: [String!]
 }
 
@@ -9170,6 +9231,35 @@ type RSSFeedOutput {
 extend type Mutation {
   createRSSFeed(data: CreateRSSFeedDataInput!): RSSFeedOutput
   updateRSSFeed(selector: SelectorInput!, data: UpdateRSSFeedDataInput!): RSSFeedOutput
+}
+
+input CreateRejectionAppealDataInput {
+  postId: String
+  commentId: String
+  explanation: String!
+  acknowledgedMisunderstandings: Boolean!
+}
+
+input CreateRejectionAppealInput {
+  data: CreateRejectionAppealDataInput!
+}
+
+input UpdateRejectionAppealDataInput {
+  status: RejectionAppealStatus
+}
+
+input UpdateRejectionAppealInput {
+  selector: SelectorInput!
+  data: UpdateRejectionAppealDataInput!
+}
+
+type RejectionAppealOutput {
+  data: RejectionAppeal
+}
+
+extend type Mutation {
+  createRejectionAppeal(data: CreateRejectionAppealDataInput!): RejectionAppealOutput
+  updateRejectionAppeal(selector: SelectorInput!, data: UpdateRejectionAppealDataInput!): RejectionAppealOutput
 }
 
 input CreateReportDataInput {

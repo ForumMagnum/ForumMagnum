@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ContentItemBody } from "../../contents/ContentItemBody";
 import ContentStyles from "../../common/ContentStyles";
@@ -28,6 +29,9 @@ const styles = defineStyles('RejectionNotice', (theme: ThemeType) => ({
       ...theme.typography.body2,
       marginBottom: 0,
     },
+  },
+  singleSummary: {
+    marginBottom: 16,
   },
   expandedReason: {
     '& ul, & ol': { paddingLeft: 20 },
@@ -60,7 +64,7 @@ const RejectionNotice = ({rejectedReason}: {rejectedReason?: string | null}) => 
             {summarySentences.map((sentence, i) => <li key={i}><strong>{sentence}</strong></li>)}
           </ul>
         ) : (
-          <div className={classes.summaryContent}><strong>{summarySentences[0]}</strong></div>
+          <div className={classNames(classes.summaryContent, classes.singleSummary)}><strong>{summarySentences[0]}</strong></div>
         )
       )}
       {expanded && (

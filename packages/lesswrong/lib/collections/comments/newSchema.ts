@@ -1151,6 +1151,13 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "rejectedByUserId" }),
     },
   },
+  rejectionConversationId: {
+    database: {
+      type: "VARCHAR(27)",
+      foreignKey: "Conversations",
+      nullable: true,
+    },
+  },
   af: {
     database: {
       type: "BOOL",
