@@ -1,6 +1,7 @@
 import type { ApolloClient } from '@apollo/client';
 import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 
 declare global {
   interface ConversationsViewTerms extends ViewTermsBase {
@@ -36,7 +37,12 @@ function moderatorConversations(terms: ConversationsViewTerms) {
 // notifications for a specific user (what you see in the notifications menu)
 function userConversations(terms: ConversationsViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
   const showArchivedFilter = terms.showArchive ? {} : {archivedByIds: {$ne: terms.userId}}
-  const moderatorSelector = context.forumType === 'LessWrong' ? {moderator: {$ne: true}} : {}
+  // Moderator conversations (such as rejection messages) belong in the moderation inbox
+  // for moderators, but should still appear in the normal inbox of the users they were sent to.
+  const isModeratorViewingOwnInbox = !!context.currentUser
+    && context.currentUser._id === terms.userId
+    && userIsAdminOrMod(context.currentUser);
+  const moderatorSelector = (context.forumType === 'LessWrong' && isModeratorViewingOwnInbox) ? {moderator: {$ne: true}} : {}
   return {
     selector: {participantIds: terms.userId, messageCount: {$gt: 0}, ...showArchivedFilter, ...moderatorSelector},
     options: {sort: {latestActivity: -1}}
