@@ -6,16 +6,22 @@ import { usersFindAllByEmail } from '../commonQueries';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
-import { ConflictingAccountsError, assertNoOtherUserHasEmail } from './conflictingAccountsError';
+import { ConflictingAccountsError, OAuthLoginResult, otherUserHasEmail } from './conflictingAccountsError';
 
-export async function getOrCreateGoogleUser(profile: GoogleUserProfile, forumType: ForumTypeString): Promise<DbUser> {
+export async function getOrCreateGoogleUser(profile: GoogleUserProfile, forumType: ForumTypeString): Promise<OAuthLoginResult> {
   // First, try to find user by Google ID
   const user = await Users.findOne({ 'services.google.id': profile.id });
 
   if (user) {
     // Sync email if changed
     if (profile.email && user.email !== profile.email) {
-      await assertNoOtherUserHasEmail(profile.email, user._id);
+      if (await otherUserHasEmail(profile.email, user._id)) {
+        // Another account already has this email, so we can't sync it. Let
+        // the login go through without changing the email, and warn the user.
+        // eslint-disable-next-line no-console
+        console.warn(`Not syncing Google email ${profile.email} to user ${user._id}: another user already has that email`);
+        return { user, conflictingAccounts: true };
+      }
       const updatedUser = await updateUser({
         selector: { _id: user._id },
         data: {
@@ -27,10 +33,10 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile, forumTyp
         }
       }, createAnonymousContext({ forumType }));
       
-      return updatedUser;
+      return { user: updatedUser, conflictingAccounts: false };
     }
     
-    return user;
+    return { user, conflictingAccounts: false };
   }
   
   // If we didn't find them by their Google Id, check if there exists a user with this email
@@ -51,7 +57,7 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile, forumTyp
         selector: { _id: matchingUser._id },
       }, createAnonymousContext({ forumType }));
       
-      return updatedUser;
+      return { user: updatedUser, conflictingAccounts: false };
     }
 
     // If there's no matching user by email, continue on to create a new user
@@ -78,5 +84,5 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile, forumTyp
     }
   }, createAnonymousContext({ forumType }));
   
-  return newUser;
+  return { user: newUser, conflictingAccounts: false };
 }

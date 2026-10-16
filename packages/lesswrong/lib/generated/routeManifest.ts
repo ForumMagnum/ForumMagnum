@@ -988,7 +988,7 @@ export const routeTrie = {
     "login": {
       "hasPage": true
     },
-    "loginError": {
+    "loginNotice": {
       "hasPage": true
     },
     "logout": {
@@ -1494,7 +1494,7 @@ export const routeTrie = {
     "leaderboard": "leaderboard",
     "library": "library",
     "login": "login",
-    "loginerror": "loginError",
+    "loginnotice": "loginNotice",
     "logout": "logout",
     "lw": "lw",
     "meetups": "meetups",

@@ -8,7 +8,7 @@ import { createAndSetToken } from '@/server/vulcan-lib/apollo-server/authenticat
 import { captureException } from '@/lib/sentryWrapper';
 import { getSiteUrlFromReq } from '@/server/utils/getSiteUrl';
 import { ConflictingAccountsError } from '@/server/authentication/conflictingAccountsError';
-import { getLoginErrorUrl, loginErrorCodes } from '@/lib/auth/loginErrors';
+import { getLoginErrorUrl, getLoginWarningUrl, loginErrorCodes, loginWarningCodes, sanitizeLoginReturnTo } from '@/lib/auth/loginNotices';
 
 
 export async function GET(request: NextRequest) {
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Create or update user
-    const user = await getOrCreateGitHubUser(profile, getForumTypeForRequest(request));
+    const { user, conflictingAccounts } = await getOrCreateGitHubUser(profile, getForumTypeForRequest(request));
 
     if (user.banned && new Date(user.banned) > new Date()) {
       return NextResponse.redirect(new URL('/banNotice', siteUrl));
@@ -64,6 +64,10 @@ export async function GET(request: NextRequest) {
     // Get return URL
     const returnTo = cookieStore.get('github_oauth_return')?.value ?? '/';
     cookieStore.delete('github_oauth_return');
+
+    if (conflictingAccounts) {
+      return NextResponse.redirect(new URL(getLoginWarningUrl(loginWarningCodes.conflictingAccounts, sanitizeLoginReturnTo(returnTo)), siteUrl));
+    }
     
     return NextResponse.redirect(new URL(returnTo, siteUrl));
   } catch (error) {

@@ -1,5 +1,5 @@
 import React from "react";
-import LoginErrorNotice from '@/components/users/LoginErrorNotice';
+import LoginNotice from '@/components/users/LoginNotice';
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
@@ -7,10 +7,10 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), await getPageTitleFields('Login Error'));
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('Login'));
 }
 
-assertRouteAttributes("/loginError", {
+assertRouteAttributes("/loginNotice", {
   whiteBackground: false,
   hasLinkPreview: false,
   hasPingbacks: false,
@@ -19,10 +19,10 @@ assertRouteAttributes("/loginError", {
 });
 
 export default async function Page({ searchParams }: {
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string, warning?: string, returnTo?: string }>
 }) {
-  const { error } = await searchParams;
+  const { error, warning, returnTo } = await searchParams;
   return <RouteRoot>
-    <LoginErrorNotice error={error} />
+    <LoginNotice error={error} warning={warning} returnTo={returnTo} />
   </RouteRoot>;
 }
