@@ -99,6 +99,7 @@ import ToolbarStatePlugin from './plugins/ToolbarPlugin/ToolbarStatePlugin';
 import {VersionsPlugin} from './plugins/VersionsPlugin';
 import YjsUndoCursorPlugin from './plugins/YjsUndoCursorPlugin';
 import YouTubePlugin from './embeds/YouTubeEmbed/YouTubePlugin';
+import VideoFilePlugin from './embeds/VideoFileEmbed/VideoFilePlugin';
 import MetaculusPlugin from './embeds/MetaculusEmbed/MetaculusPlugin';
 import ThoughtsaverPlugin from './embeds/ThoughtsaverEmbed/ThoughtsaverPlugin';
 import ManifoldPlugin from './embeds/ManifoldEmbed/ManifoldPlugin';
@@ -983,6 +984,7 @@ export default function Editor({
             <PollPlugin />
             {/* <TwitterPlugin /> */}
             <YouTubePlugin />
+            <VideoFilePlugin />
             <MetaculusPlugin />
             <ThoughtsaverPlugin />
             <ManifoldPlugin />

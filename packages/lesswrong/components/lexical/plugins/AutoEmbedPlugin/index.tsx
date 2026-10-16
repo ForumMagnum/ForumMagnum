@@ -26,6 +26,8 @@ import Button from '../../ui/Button';
 import {DialogActions} from '../../ui/Dialog';
 // import {INSERT_TWEET_COMMAND} from '../../embeds/TwitterEmbed/TwitterPlugin';
 import {INSERT_YOUTUBE_COMMAND} from '../../embeds/YouTubeEmbed/YouTubePlugin';
+import {INSERT_VIDEO_FILE_COMMAND} from '../../embeds/VideoFileEmbed/VideoFilePlugin';
+import {getVideoFileUrl} from '../../embeds/VideoFileEmbed/VideoFileNode';
 import {INSERT_METACULUS_COMMAND} from '../../embeds/MetaculusEmbed/MetaculusPlugin';
 import {INSERT_THOUGHTSAVER_COMMAND} from '../../embeds/ThoughtsaverEmbed/ThoughtsaverPlugin';
 import {INSERT_MANIFOLD_COMMAND} from '../../embeds/ManifoldEmbed/ManifoldPlugin';
@@ -108,6 +110,35 @@ export const YoutubeEmbedConfig: PlaygroundEmbedConfig = {
   },
 
   type: 'youtube-video',
+};
+
+export const VideoFileEmbedConfig: PlaygroundEmbedConfig = {
+  contentName: 'Video file',
+
+  exampleUrl: 'https://example.com/video.mp4',
+
+  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+    editor.dispatchCommand(INSERT_VIDEO_FILE_COMMAND, result.id);
+  },
+
+  keywords: ['video', 'mp4', 'webm', 'mov'],
+
+  // Matches direct links to video files (.mp4, .webm, etc.), which are
+  // played in a <video> element rather than an iframe.
+  parseUrl: (text: string) => {
+    const url = getVideoFileUrl(text);
+
+    if (url != null) {
+      return {
+        id: url,
+        url,
+      };
+    }
+
+    return null;
+  },
+
+  type: 'video-file',
 };
 
 /*
@@ -496,6 +527,7 @@ export const LWArtifactsEmbedConfig: PlaygroundEmbedConfig = {
 export const EmbedConfigs = [
   // TwitterEmbedConfig,
   YoutubeEmbedConfig,
+  VideoFileEmbedConfig,
   MetaculusEmbedConfig,
   ThoughtsaverEmbedConfig,
   ManifoldEmbedConfig,
