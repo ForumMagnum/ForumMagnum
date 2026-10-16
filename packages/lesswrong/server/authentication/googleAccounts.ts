@@ -6,6 +6,7 @@ import { usersFindAllByEmail } from '../commonQueries';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { ConflictingAccountsError, assertNoOtherUserHasEmail } from './conflictingAccountsError';
 
 export async function getOrCreateGoogleUser(profile: GoogleUserProfile, forumType: ForumTypeString): Promise<DbUser> {
   // First, try to find user by Google ID
@@ -14,6 +15,7 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile, forumTyp
   if (user) {
     // Sync email if changed
     if (profile.email && user.email !== profile.email) {
+      await assertNoOtherUserHasEmail(profile.email, user._id);
       const updatedUser = await updateUser({
         selector: { _id: user._id },
         data: {
@@ -36,7 +38,7 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile, forumTyp
     const matchingUsers = await usersFindAllByEmail(profile.email);
     
     if (matchingUsers.length > 1) {
-      throw new Error(`Multiple existing users found with email ${profile.email}`);
+      throw new ConflictingAccountsError(`Multiple existing users found with email ${profile.email}`);
     }
     
     if (matchingUsers.length === 1) {

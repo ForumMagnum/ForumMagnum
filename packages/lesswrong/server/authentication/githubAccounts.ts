@@ -6,6 +6,7 @@ import { usersFindAllByEmail } from '../commonQueries';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { ConflictingAccountsError, assertNoOtherUserHasEmail } from './conflictingAccountsError';
 
 export async function getOrCreateGitHubUser(profile: GitHubUserProfile, forumType: ForumTypeString): Promise<DbUser> {
   // GitHub IDs are stored as strings in the database (even though they're numbers)
@@ -17,6 +18,7 @@ export async function getOrCreateGitHubUser(profile: GitHubUserProfile, forumTyp
   if (user) {
     // Sync email if changed
     if (profile.email && user.email !== profile.email) {
+      await assertNoOtherUserHasEmail(profile.email, user._id);
       const updatedUser = await updateUser({
         selector: { _id: user._id },
         data: {
@@ -39,7 +41,7 @@ export async function getOrCreateGitHubUser(profile: GitHubUserProfile, forumTyp
     const matchingUsers = await usersFindAllByEmail(profile.email);
     
     if (matchingUsers.length > 1) {
-      throw new Error(`Multiple existing users found with email ${profile.email}`);
+      throw new ConflictingAccountsError(`Multiple existing users found with email ${profile.email}`);
     }
     
     if (matchingUsers.length === 1) {

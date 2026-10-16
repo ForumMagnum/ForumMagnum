@@ -6,6 +6,8 @@ import { getOrCreateGoogleUser } from '@/server/authentication/googleAccounts';
 import { createAndSetToken } from '@/server/vulcan-lib/apollo-server/authentication';
 import { captureException } from '@/lib/sentryWrapper';
 import { getSiteUrlFromReq } from '@/server/utils/getSiteUrl';
+import { ConflictingAccountsError } from '@/server/authentication/conflictingAccountsError';
+import { getLoginErrorUrl, loginErrorCodes } from '@/lib/auth/loginErrors';
 
 
 export async function GET(request: NextRequest) {
@@ -61,7 +63,10 @@ export async function GET(request: NextRequest) {
     // eslint-disable-next-line no-console
     console.error('Error retrieving Google OAuth access token', error);
     captureException(error);
-    return NextResponse.redirect(new URL('/?error=authentication_failed', siteUrl));
+    const errorCode = error instanceof ConflictingAccountsError
+      ? loginErrorCodes.conflictingAccounts
+      : loginErrorCodes.authenticationFailed;
+    return NextResponse.redirect(new URL(getLoginErrorUrl(errorCode), siteUrl));
   } finally {
     cookieStore.delete('google_oauth_state');
     cookieStore.delete('google_oauth_return');
