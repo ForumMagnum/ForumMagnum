@@ -10,7 +10,7 @@ import { createContext, useCallback, useContext } from 'react';
 import {Provider} from '@lexical/yjs';
 import {HocuspocusProvider} from '@hocuspocus/provider';
 import {Doc, encodeStateAsUpdate} from 'yjs';
-import {IndexeddbPersistence} from 'y-indexeddb';
+import {IndexeddbPersistence, clearDocument} from 'y-indexeddb';
 import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { captureException } from '@/lib/sentryWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -403,6 +403,33 @@ export async function disconnectCollaborationForPost(postId: string): Promise<vo
       await persistence.destroy();
       persistenceInstances.delete(indexedDbKey);
     }
+  }
+
+  // The loop above only covers documents with a persistence instance on this
+  // page. If no Lexical editor is mounted (e.g. the post is currently in the
+  // markdown editor), an earlier Lexical session's state can still be in
+  // IndexedDB, and would be merged back into the reset server document on the
+  // next load. Delete it directly too. The delete stays blocked while another
+  // tab has the database open, so don't wait on it indefinitely.
+  await clearIndexedDbDocumentWithTimeout(getIndexedDbKey(baseDocumentName));
+}
+
+async function clearIndexedDbDocumentWithTimeout(indexedDbKey: string): Promise<void> {
+  let timeoutId: number | undefined;
+  const timeout = new Promise<void>((resolve) => {
+    timeoutId = window.setTimeout(() => {
+      // eslint-disable-next-line no-console
+      console.warn('[Collaboration] Timed out clearing IndexedDB state; it may be open in another tab.');
+      resolve();
+    }, INDEXEDDB_READY_TIMEOUT_MS);
+  });
+  try {
+    await Promise.race([clearDocument(indexedDbKey), timeout]);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('[Collaboration] Failed to clear IndexedDB state:', e);
+  } finally {
+    window.clearTimeout(timeoutId);
   }
 }
 
