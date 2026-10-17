@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useMessages } from '@/components/common/withMessages';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
-import { useLocation } from '@/lib/routeUtil';
-import { useModerationUserUrl } from './useModerationUserUrl';
+import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import type { ModerationInboxQueueQueryQuery, ModerationInboxCurationQueryQuery, ModerationInboxTeamInboxQueryQuery } from '@/lib/generated/gql-codegen/graphql';
@@ -216,7 +215,26 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
     }
   }, [apolloClient, flash, loadingRemaining]);
 
-  useModerationUserUrl(state.openedUserId);
+  const navigate = useNavigate();
+  const previousOpenedUserId = useRef(state.openedUserId);
+
+  useEffect(() => {
+    // Incoming navigation can update the location before the old inbox unmounts.
+    // Only a selection change inside this inbox should write back to the URL.
+    if (previousOpenedUserId.current === state.openedUserId) return;
+    previousOpenedUserId.current = state.openedUserId;
+
+    navigate(currentLocation => {
+      if (currentLocation.pathname !== '/admin/supermod') return currentLocation.location;
+      const search = new URLSearchParams(currentLocation.location.search);
+      if (state.openedUserId) {
+        search.set('user', state.openedUserId);
+      } else {
+        search.delete('user');
+      }
+      return { ...currentLocation.location, search: search.toString() ? `?${search}` : '' };
+    }, { replace: true, skipRouter: true });
+  }, [state.openedUserId, navigate]);
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
