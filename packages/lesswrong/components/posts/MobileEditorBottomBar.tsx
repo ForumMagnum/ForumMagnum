@@ -6,7 +6,7 @@ import EditorSettingsSidebar from "./EditorSettingsSidebar";
 import UnanchoredCommentsBadge from "./UnanchoredCommentsBadge";
 import { getDraftLabel, type EditablePost, type PostSubmitMeta } from "@/lib/collections/posts/helpers";
 import type { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm";
-import type { AddOnSubmitCallback, AddOnSuccessCallback } from "../editor/EditorFormComponent";
+import type { AddOnSubmitCallback, AddOnSuccessCallback, EditorGetContentsCallback } from "../editor/EditorFormComponent";
 import { InlineCommentsPanelContext, EditorUserModeContext } from "../common/sharedContexts";
 import { getAvailableEditorModes, editorModeLabels } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
 
@@ -302,6 +302,7 @@ interface MobileEditorBottomBarProps {
   editorType?: string;
   sidebarPanel: SidebarMode | null;
   setSidebarPanel: React.Dispatch<React.SetStateAction<SidebarMode | null>>;
+  getContentsCallback: React.RefObject<EditorGetContentsCallback | null>;
   addOnSubmitCallbackCustom: AddOnSubmitCallback<PostsEditMutationFragment>;
   addOnSuccessCallbackCustom: AddOnSuccessCallback<PostsEditMutationFragment>;
   addOnSubmitCallbackModerationGuidelines: AddOnSubmitCallback<PostsEditMutationFragment>;
@@ -317,6 +318,7 @@ const MobileEditorBottomBar = ({
   editorType,
   sidebarPanel,
   setSidebarPanel,
+  getContentsCallback,
   addOnSubmitCallbackCustom,
   addOnSuccessCallbackCustom,
   addOnSubmitCallbackModerationGuidelines,
@@ -523,6 +525,7 @@ const MobileEditorBottomBar = ({
             mode={activeTab}
             currentUser={currentUser}
             isSaving={isSaving}
+            getContentsCallback={getContentsCallback}
             addOnSubmitCallbackCustom={addOnSubmitCallbackCustom}
             addOnSuccessCallbackCustom={addOnSuccessCallbackCustom}
             addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
