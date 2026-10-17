@@ -6,7 +6,8 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useMessages } from '@/components/common/withMessages';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
-import { useLocation, useNavigate } from '@/lib/routeUtil';
+import { useLocation } from '@/lib/routeUtil';
+import { useModerationUserUrl } from './useModerationUserUrl';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import type { ModerationInboxQueueQueryQuery, ModerationInboxCurationQueryQuery, ModerationInboxTeamInboxQueryQuery } from '@/lib/generated/gql-codegen/graphql';
@@ -186,8 +187,6 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
-  const navigate = useNavigate();
-  const { query, location } = useLocation();
   const apolloClient = useApolloClient();
   const { flash } = useMessages();
   const [loadingRemaining, setLoadingRemaining] = useState(false);
@@ -217,23 +216,7 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
     }
   }, [apolloClient, flash, loadingRemaining]);
 
-  // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
-  useEffect(() => {
-    const currentUrlUser = query.user;
-    const stateUser = state.openedUserId;
-    
-    if (stateUser && stateUser !== currentUrlUser) {
-      navigate({
-        ...location,
-        search: `?user=${stateUser}`,
-      }, { replace: true, skipRouter: true });
-    } else if (!stateUser && currentUrlUser) {
-      navigate({
-        ...location,
-        search: '',
-      }, { replace: true, skipRouter: true });
-    }
-  }, [state.openedUserId, query.user, location, navigate]);
+  useModerationUserUrl(state.openedUserId);
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
