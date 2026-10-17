@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
@@ -186,8 +186,6 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
-  const navigate = useNavigate();
-  const { query, location } = useLocation();
   const apolloClient = useApolloClient();
   const { flash } = useMessages();
   const [loadingRemaining, setLoadingRemaining] = useState(false);
@@ -217,23 +215,26 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
     }
   }, [apolloClient, flash, loadingRemaining]);
 
-  // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
+  const navigate = useNavigate();
+  const previousOpenedUserId = useRef(state.openedUserId);
+
   useEffect(() => {
-    const currentUrlUser = query.user;
-    const stateUser = state.openedUserId;
-    
-    if (stateUser && stateUser !== currentUrlUser) {
-      navigate({
-        ...location,
-        search: `?user=${stateUser}`,
-      }, { replace: true, skipRouter: true });
-    } else if (!stateUser && currentUrlUser) {
-      navigate({
-        ...location,
-        search: '',
-      }, { replace: true, skipRouter: true });
-    }
-  }, [state.openedUserId, query.user, location, navigate]);
+    // Incoming navigation can update the location before the old inbox unmounts.
+    // Only a selection change inside this inbox should write back to the URL.
+    if (previousOpenedUserId.current === state.openedUserId) return;
+    previousOpenedUserId.current = state.openedUserId;
+
+    navigate(currentLocation => {
+      if (currentLocation.pathname !== '/admin/supermod') return currentLocation.location;
+      const search = new URLSearchParams(currentLocation.location.search);
+      if (state.openedUserId) {
+        search.set('user', state.openedUserId);
+      } else {
+        search.delete('user');
+      }
+      return { ...currentLocation.location, search: search.toString() ? `?${search}` : '' };
+    }, { replace: true, skipRouter: true });
+  }, [state.openedUserId, navigate]);
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
