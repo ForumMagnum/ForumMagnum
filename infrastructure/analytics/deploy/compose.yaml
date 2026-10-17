@@ -1,0 +1,15 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:26.3.38.2@sha256:e6b2c8a8146ad052062ca38bee3b29f9c20b2bfab7aa0720b10b201b202bf83a
+    network_mode: host
+    restart: unless-stopped
+    stop_grace_period: 5m
+    env_file: /etc/lw-analytics/clickhouse.env
+    volumes:
+      - /srv/analytics/clickhouse:/var/lib/clickhouse
+      - /etc/lw-analytics/tls:/run/secrets:ro
+      - ./clickhouse.xml:/etc/clickhouse-server/config.d/zz-analytics.xml:ro
+      - ./users.xml:/etc/clickhouse-server/users.d/analytics.xml:ro
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
