@@ -223,21 +223,27 @@ function getHocuspocusHttpUrl(): string | null {
   return wsUrl.replace(/^ws(s?):\/\//, 'http$1://');
 }
 
+export type HocuspocusResetResult = "ok" | "notConfigured" | "failed";
+
 /**
  * Sends a reset-document request to the Hocuspocus admin endpoint.
  * The endpoint does a destructive replacement: it closes all connections,
  * unloads the in-memory Y.Doc, then writes the new Yjs state to the
  * database. When clients auto-reconnect, Hocuspocus loads the new state
  * from the database.
+ *
+ * Returns "failed" if the Hocuspocus server didn't accept the reset, in which
+ * case it may still be serving the old document. Returns "notConfigured" if
+ * there is no Hocuspocus server to reset.
  */
-export async function resetHocuspocusDocument(documentName: string, newState: Uint8Array): Promise<void> {
+export async function resetHocuspocusDocument(documentName: string, newState: Uint8Array): Promise<HocuspocusResetResult> {
   const httpUrl = getHocuspocusHttpUrl();
   const secret = process.env.HOCUSPOCUS_WEBHOOK_SECRET;
   if (!httpUrl || !secret) {
     // eslint-disable-next-line no-console
     console.error('[Hocuspocus] Skipping document reset: Hocuspocus not configured');
     captureException(new Error('[Hocuspocus] Skipping document reset: Hocuspocus not configured'));
-    return;
+    return "notConfigured";
   }
 
   const base64State = Buffer.from(newState).toString('base64');
@@ -257,11 +263,14 @@ export async function resetHocuspocusDocument(documentName: string, newState: Ui
       // eslint-disable-next-line no-console
       console.error(`[Hocuspocus] Document reset failed: ${response.status} ${response.statusText}`);
       captureException(new Error(`[Hocuspocus] Document reset failed: ${response.status} ${response.statusText}`));
+      return "failed";
     }
+    return "ok";
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('[Hocuspocus] Error calling reset-document endpoint:', err);
     captureException(new Error(`[Hocuspocus] Error calling reset-document endpoint: ${err}`));
+    return "failed";
   }
 }
 

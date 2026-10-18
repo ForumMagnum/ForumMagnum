@@ -409,8 +409,9 @@ export async function disconnectCollaborationForPost(postId: string): Promise<vo
   // page. If no Lexical editor is mounted (e.g. the post is currently in the
   // markdown editor), an earlier Lexical session's state can still be in
   // IndexedDB, and would be merged back into the reset server document on the
-  // next load. Delete it directly too. The delete stays blocked while another
-  // tab has the database open, so don't wait on it indefinitely.
+  // next load. Delete it directly too. Other tabs close the database when it's
+  // deleted, so this shouldn't hang, but don't wait on it indefinitely in case
+  // it does.
   await clearIndexedDbDocumentWithTimeout(getIndexedDbKey(baseDocumentName));
 }
 
@@ -419,7 +420,8 @@ async function clearIndexedDbDocumentWithTimeout(indexedDbKey: string): Promise<
   const timeout = new Promise<void>((resolve) => {
     timeoutId = window.setTimeout(() => {
       // eslint-disable-next-line no-console
-      console.warn('[Collaboration] Timed out clearing IndexedDB state; it may be open in another tab.');
+      console.warn('[Collaboration] Timed out clearing IndexedDB state');
+      captureException(new Error('[Collaboration] Timed out clearing IndexedDB state'));
       resolve();
     }, INDEXEDDB_READY_TIMEOUT_MS);
   });
@@ -428,6 +430,7 @@ async function clearIndexedDbDocumentWithTimeout(indexedDbKey: string): Promise<
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error('[Collaboration] Failed to clear IndexedDB state:', e);
+    captureException(e);
   } finally {
     window.clearTimeout(timeoutId);
   }

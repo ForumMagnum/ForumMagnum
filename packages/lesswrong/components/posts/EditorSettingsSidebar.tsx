@@ -1253,10 +1253,16 @@ function MarkdownEditorToggle({ form, getContentsCallback }: {
   const isMarkdown = currentType === "markdown";
   const postId = form.state.values._id;
 
+  const { flash } = useMessages();
   const [convertEditorType, { loading }] = useMutation(convertDocumentEditorTypeMutation, {
     onCompleted: () => {
       // Reload to remount the editor with the new revision
       window.location.reload();
+    },
+    onError: (error) => {
+      // Collaboration was already disconnected before the mutation, so further
+      // edits on this page won't sync; tell the user rather than failing silently.
+      flash(`Failed to switch editors. Reload the page before making further edits. (${error.message})`);
     },
   });
 
