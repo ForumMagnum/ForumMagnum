@@ -31,3 +31,19 @@ export const ConversationsListWithReadStatus = gql(`
     hasUnreadMessages
   }
 `)
+
+export const TeamInboxConversation = gql(`
+  fragment TeamInboxConversation on Conversation {
+    ...ConversationsList
+    awaitingModeratorReply
+  }
+`)
+
+export const DoneTeamInboxConversation = gql(`
+  fragment DoneTeamInboxConversation on Conversation {
+    ...TeamInboxConversation
+    rejectionAppeal {
+      ...RejectionAppealsModerationInfo
+    }
+  }
+`)

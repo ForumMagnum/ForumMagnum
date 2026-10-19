@@ -12,8 +12,19 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineUsersListMultiQuery = gql(`
-  query multiUserSunshineNewUsersListQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
-    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+  query multiUserSunshineNewUsersListQuery($limit: Int!) {
+    users(selector: { allUsers: {} }, limit: $limit, enableTotal: true) {
+      results {
+        ...SunshineUsersList
+      }
+      totalCount
+    }
+  }
+`);
+
+const SunshineQueueUsersQuery = gql(`
+  query SunshineQueueUsersQuery($limit: Int!) {
+    users: supermodQueueUsers(limit: $limit) {
       results {
         ...SunshineUsersList
       }
@@ -36,11 +47,11 @@ const SunshineNewUsersList = ({terms, currentUser}: {
   currentUser: UsersCurrent,
 }) => {
   const classes = useStyles(styles);
-  const { view, limit, ...selectorTerms } = terms;
-  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(SunshineUsersListMultiQuery, {
+  const { view, limit } = terms;
+  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(view === 'sunshineNewUsers' ? SunshineQueueUsersQuery : SunshineUsersListMultiQuery, {
     variables: {
-      selector: { [view]: selectorTerms },
       limit: limit ?? 10,
+      // The pagination hook uses this even though both queries always return a total.
       enableTotal: true,
     },
     itemsPerPage: 60,

@@ -1267,13 +1267,52 @@ type SupermodQueueChange {
   lastChangedAt: Date!
 }
 
+type ModerationTemplateUsageCount {
+  templateId: String!
+  count: Int!
+}
+
 extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
   supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
   supermodQueueSnapshotTime: Date!
+  supermodQueueUsers(limit: Int!, offset: Int = 0): MultiUserOutput!
+  moderationTemplateUsageCounts: [ModerationTemplateUsageCount!]!
+}
+
+input ModerationContentRejectionInput {
+  documentId: String!
+  collectionName: ContentCollectionName!
+  reason: String!
+  templateIds: [String!]
+}
+
+input ModerationMessageInput {
+  conversationId: String
+  contents: CreateRevisionDataInput!
+  noEmail: Boolean
+}
+
+input CompleteUserModerationInput {
+  operationId: String!
+  userId: String!
+  rejection: ModerationContentRejectionInput
+  message: ModerationMessageInput
+  disablePermissions: Boolean!
+  rateLimits: [CreateUserRateLimitDataInput!]!
+  rejectAll: Boolean!
+  removeFromQueue: Boolean!
+}
+
+type CompleteUserModerationResult {
+  user: User!
+  rejectedPosts: [Post!]!
+  rejectedComments: [Comment!]!
+  message: Message
 }
 
 extend type Mutation {
+  completeUserModeration(input: CompleteUserModerationInput!): CompleteUserModerationResult!
   lockThread(commentId: String!, until: String): Boolean!
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
@@ -1283,6 +1322,19 @@ extend type Mutation {
   runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
   unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
   addModeratorNote(userId: String!, note: String!): User
+  recordModerationTemplatesUsed(templateIds: [String!]!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
+}
+
+type RejectionReview {
+  post: Post
+  comment: Comment
+  appeal: RejectionAppeal
+  reasonIds: [String!]!
+  unavailableReason: String
+}
+
+extend type Query {
+  rejectionReview(postId: String, commentId: String): RejectionReview!
 }
 
 extend type Mutation {
@@ -2718,9 +2770,11 @@ type Conversation {
   af: Boolean
   messageCount: Float!
   moderator: Boolean
+  awaitingModeratorReply: Boolean
   archivedByIds: [String!]!
   archivedBy: [User!]!
   latestMessage: Message
+  rejectionAppeal: RejectionAppeal
   hasUnreadMessages: Boolean
 }
 
@@ -2759,6 +2813,8 @@ input ConversationSelector {
   moderatorConversations: ConversationsModeratorConversationsInput
   userConversations: ConversationsUserConversationsInput
   userConversationsAll: ConversationsUserConversationsAllInput
+  teamInboxAwaitingReply: EmptyViewInput
+  teamInboxDone: EmptyViewInput
   userGroupUntitledConversations: ConversationsUserGroupUntitledConversationsInput
 }
 
@@ -3202,6 +3258,50 @@ extend type Query {
   myHomePageDesignSummaries: [HomePageDesignSummary!]!
   marketplaceHomePageDesigns: [MarketplaceHomePageDesign!]!
   adminHomePageDesigns: [AdminHomePageDesign!]!
+}
+
+type RejectionAppeal {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  user: User
+  postId: String
+  post: Post
+  commentId: String
+  comment: Comment
+  conversationId: String
+  conversation: Conversation
+  explanation: String
+  reasonIds: [String!]
+  acknowledgedMisunderstandings: Boolean
+  status: RejectionAppealStatus
+  resolvedByUserId: String
+  resolvedAt: Date
+}
+
+enum RejectionAppealStatus {
+  open
+  approved
+  denied
+}
+
+type SingleRejectionAppealOutput {
+  result: RejectionAppeal
+}
+
+input RejectionAppealSelector {
+  default: EmptyViewInput
+  openAppeals: EmptyViewInput
+}
+
+type MultiRejectionAppealOutput {
+  results: [RejectionAppeal!]!
+  totalCount: Int
+}
+
+extend type Query {
+  rejectionAppeal(selector: SelectorInput): SingleRejectionAppealOutput
+  rejectionAppeals(selector: RejectionAppealSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiRejectionAppealOutput
 }
 
 type TypoSuggestion {
@@ -4543,6 +4643,10 @@ input PostsUserPostsInput {
   before: String
   timeField: String
   curatedAfter: String
+}
+
+input PostsCoauthoredPostsInput {
+  userId: String!
 }
 
 input PostsMagicInput {
@@ -5977,6 +6081,7 @@ input PostsCurrentOpenThreadInput {
 input PostSelector {
   default: PostDefaultViewInput
   userPosts: PostsUserPostsInput
+  coauthoredPosts: PostsCoauthoredPostsInput
   magic: PostsMagicInput
   top: PostsTopInput
   new: PostsNewInput
@@ -7523,7 +7628,9 @@ type UserRateLimit {
   intervalUnit: UserRateLimitIntervalUnit!
   intervalLength: Float!
   actionsPerInterval: Float!
-  endedAt: Date!
+  endedAt: Date
+  liftAtAverageKarma: Float
+  liftAverageKarmaCount: Int
 }
 
 enum UserRateLimitType {
@@ -7893,7 +8000,9 @@ type User {
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
   lastRemovedFromReviewQueueAt: Date
-  hasPendingComments: Boolean
+  pendingPostCount: Int
+  pendingCommentCount: Int
+  oldestPendingContentAt: Date
   rejectedContentCount: Int
   userRateLimits: [UserRateLimit!]
   claudeLinkedAt: Date
@@ -7948,7 +8057,6 @@ enum SubforumPreferredLayout {
 
 enum ReviewGroup {
   newContent
-  offboard
   highContext
   maybeSpam
   automod
@@ -7988,7 +8096,6 @@ input UserSelector {
   LWTrustLevel1List: EmptyViewInput
   LWUsersAdmin: EmptyViewInput
   usersWithBannedUsers: EmptyViewInput
-  sunshineNewUsers: EmptyViewInput
   recentlyActive: EmptyViewInput
   allUsers: EmptyViewInput
   usersMapLocations: EmptyViewInput
@@ -8390,6 +8497,7 @@ input UpdateConversationDataInput {
   participantIds: [String!]
   af: Boolean
   moderator: Boolean
+  awaitingModeratorReply: Boolean
   archivedByIds: [String!]
 }
 
@@ -9125,6 +9233,35 @@ extend type Mutation {
   updateRSSFeed(selector: SelectorInput!, data: UpdateRSSFeedDataInput!): RSSFeedOutput
 }
 
+input CreateRejectionAppealDataInput {
+  postId: String
+  commentId: String
+  explanation: String!
+  acknowledgedMisunderstandings: Boolean!
+}
+
+input CreateRejectionAppealInput {
+  data: CreateRejectionAppealDataInput!
+}
+
+input UpdateRejectionAppealDataInput {
+  status: RejectionAppealStatus
+}
+
+input UpdateRejectionAppealInput {
+  selector: SelectorInput!
+  data: UpdateRejectionAppealDataInput!
+}
+
+type RejectionAppealOutput {
+  data: RejectionAppeal
+}
+
+extend type Mutation {
+  createRejectionAppeal(data: CreateRejectionAppealDataInput!): RejectionAppealOutput
+  updateRejectionAppeal(selector: SelectorInput!, data: UpdateRejectionAppealDataInput!): RejectionAppealOutput
+}
+
 input CreateReportDataInput {
   legacyData: JSON
   reportedUserId: String
@@ -9696,7 +9833,9 @@ input CreateUserRateLimitDataInput {
   intervalUnit: UserRateLimitIntervalUnit!
   intervalLength: Float!
   actionsPerInterval: Float!
-  endedAt: Date!
+  endedAt: Date
+  liftAtAverageKarma: Float
+  liftAverageKarmaCount: Int
 }
 
 input CreateUserRateLimitInput {
@@ -9711,6 +9850,8 @@ input UpdateUserRateLimitDataInput {
   intervalLength: Float
   actionsPerInterval: Float
   endedAt: Date
+  liftAtAverageKarma: Float
+  liftAverageKarmaCount: Int
 }
 
 input UpdateUserRateLimitInput {

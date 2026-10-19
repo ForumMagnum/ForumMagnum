@@ -10,8 +10,6 @@ import {
 
 const moderatorActionTypes: Record<ReviewGroup, ModeratorActionType> = {
   newContent: UNREVIEWED_FIRST_POST,
-  // `offboard` has no moderator action; mocks just need a plausible one.
-  offboard: UNREVIEWED_FIRST_POST,
   highContext: MANUAL_FLAG_ALERT,
   maybeSpam: UNREVIEWED_BIO_UPDATE,
   automod: STRICTER_COMMENT_AUTOMOD_RATE_LIMIT,
@@ -37,6 +35,9 @@ function createMockUser(
     karma: 0,
     postCount: 0,
     commentCount: 0,
+    pendingPostCount: 1,
+    pendingCommentCount: 0,
+    oldestPendingContentAt: '2026-01-01T00:00:00.000Z',
     usersContactedBeforeReview: [],
     rejectedContentCount: 0,
     htmlBio: '',
@@ -77,31 +78,43 @@ function createUndoItem(
   };
 }
 
+function createState(state: Omit<InboxState, 'loadedUserIds' | 'loadedPostIds'>): InboxState {
+  return {
+    ...state,
+    loadedUserIds: [...new Set([...state.users, ...state.undoQueue.map(item => item.user), ...state.history.map(item => item.user)].map(user => user._id))],
+    loadedPostIds: [...new Set([...state.posts, ...state.classifiedPosts].map(post => post._id))],
+  };
+}
+
 describe('Moderation Inbox Reducer', () => {
   describe('CLOSE_DETAIL', () => {
     test('preserves focused user and active tab when exiting detail view via ESC', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
-        createMockUser('user2', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
         createMockUser('user3', 'highContext'),
       ];
 
-      const state: InboxState = {
+      const state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       const newState = inboxStateReducer(state, { type: 'CLOSE_DETAIL' });
 
@@ -114,27 +127,31 @@ describe('Moderation Inbox Reducer', () => {
   describe('NEXT_USER and PREV_USER', () => {
     test('down arrow cycles through end of list back to start', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
-        createMockUser('user2', 'newContent'),
-        createMockUser('user3', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
+        createMockUser('user3', 'newContent', { oldestPendingContentAt: '2026-01-03T00:00:00.000Z' }),
       ];
 
-      let state: InboxState = {
+      let state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user3',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       // Next from last user should wrap to first
       state = inboxStateReducer(state, { type: 'NEXT_USER' });
@@ -143,27 +160,31 @@ describe('Moderation Inbox Reducer', () => {
 
     test('up arrow cycles through start of list back to end', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
-        createMockUser('user2', 'newContent'),
-        createMockUser('user3', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
+        createMockUser('user3', 'newContent', { oldestPendingContentAt: '2026-01-03T00:00:00.000Z' }),
       ];
 
-      let state: InboxState = {
+      let state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       // Prev from first user should wrap to last
       state = inboxStateReducer(state, { type: 'PREV_USER' });
@@ -175,26 +196,30 @@ describe('Moderation Inbox Reducer', () => {
     test('right arrow cycles through end of tabs back to start', () => {
       const users = [
         createMockUser('user1', 'automod'),
-        createMockUser('user2', 'newContent'),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
         createMockUser('user3', 'highContext'),
       ];
 
-      let state: InboxState = {
+      let state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       // Start at newContent (highest priority)
       expect(state.activeTab).toBe('newContent');
@@ -218,26 +243,30 @@ describe('Moderation Inbox Reducer', () => {
     test('left arrow cycles through start of tabs back to end', () => {
       const users = [
         createMockUser('user1', 'automod'),
-        createMockUser('user2', 'newContent'),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
         createMockUser('user3', 'highContext'),
       ];
 
-      let state: InboxState = {
+      let state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       // Start at newContent (highest priority)
       expect(state.activeTab).toBe('newContent');
@@ -256,27 +285,31 @@ describe('Moderation Inbox Reducer', () => {
   describe('REMOVE_USER in inbox view', () => {
     test('removing a user focuses the next user in same group', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
-        createMockUser('user2', 'newContent'),
-        createMockUser('user3', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
+        createMockUser('user3', 'newContent', { oldestPendingContentAt: '2026-01-03T00:00:00.000Z' }),
       ];
 
-      let state: InboxState = {
+      let state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
 
@@ -288,27 +321,31 @@ describe('Moderation Inbox Reducer', () => {
 
     test('removing last user in tab switches to next tab and focuses first user', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
         createMockUser('user2', 'highContext'),
         createMockUser('user3', 'automod'),
       ];
 
-      let state: InboxState = {
+      let state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
 
@@ -320,25 +357,29 @@ describe('Moderation Inbox Reducer', () => {
 
     test('removing last user overall shows empty "all" tab', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
       ];
 
-      let state: InboxState = {
+      let state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
 
@@ -352,27 +393,31 @@ describe('Moderation Inbox Reducer', () => {
   describe('REMOVE_USER in detail view', () => {
     test('removing a user opens next user in same group (stays in detail view)', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
-        createMockUser('user2', 'newContent'),
-        createMockUser('user3', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
+        createMockUser('user3', 'newContent', { oldestPendingContentAt: '2026-01-03T00:00:00.000Z' }),
       ];
 
-      let state: InboxState = {
+      let state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
 
@@ -384,27 +429,31 @@ describe('Moderation Inbox Reducer', () => {
 
     test('removing last user in tab from detail view goes back to inbox view for next tab', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
         createMockUser('user2', 'highContext'),
         createMockUser('user3', 'automod'),
       ];
 
-      let state: InboxState = {
+      let state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
 
@@ -417,25 +466,29 @@ describe('Moderation Inbox Reducer', () => {
 
     test('removing last user in last tab from detail view closes to empty inbox', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
       ];
 
-      let state: InboxState = {
+      let state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
 
@@ -448,28 +501,32 @@ describe('Moderation Inbox Reducer', () => {
 
   describe('UNDO_ACTION', () => {
     test('reopens the user detail view when the action was done there', () => {
-      const undoneUser = createMockUser('user1', 'newContent');
+      const undoneUser = createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' });
       const users = [
-        createMockUser('user2', 'newContent'),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
         createMockUser('user3', 'highContext'),
       ];
 
-      const state: InboxState = {
+      const state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'all',
         focusedUserId: null,
         openedUserId: 'user2',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 3,
         sidebarTab: null,
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: true })],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
 
@@ -482,28 +539,32 @@ describe('Moderation Inbox Reducer', () => {
     });
 
     test('refocuses the user in the inbox when the action was done from the inbox', () => {
-      const undoneUser = createMockUser('user1', 'newContent');
+      const undoneUser = createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' });
       const users = [
-        createMockUser('user2', 'newContent'),
+        createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' }),
         createMockUser('user3', 'highContext'),
       ];
 
-      const state: InboxState = {
+      const state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'highContext',
         focusedUserId: null,
         openedUserId: 'user3',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 1,
         sidebarTab: null,
         undoQueue: [createUndoItem(undoneUser, { sourceTab: 'newContent', wasDetailView: false })],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
 
@@ -515,22 +576,26 @@ describe('Moderation Inbox Reducer', () => {
     });
 
     test('does nothing when the user is not in the undo queue', () => {
-      const state: InboxState = {
-        users: [createMockUser('user2', 'newContent')],
+      const state: InboxState = createState({
+        users: [createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' })],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       const newState = inboxStateReducer(state, { type: 'UNDO_ACTION', userId: 'user1' });
 
@@ -541,26 +606,30 @@ describe('Moderation Inbox Reducer', () => {
   describe('Edge cases', () => {
     test('tab navigation is blocked when in detail view', () => {
       const users = [
-        createMockUser('user1', 'newContent'),
+        createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }),
         createMockUser('user2', 'highContext'),
       ];
 
-      let state: InboxState = {
+      let state: InboxState = createState({
         users,
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab: null,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
 
       // Try to change tabs
       const newState = inboxStateReducer(state, { type: 'NEXT_TAB' });
@@ -572,22 +641,26 @@ describe('Moderation Inbox Reducer', () => {
 
   describe('sidebarTab', () => {
     function stateWithSidebarTab(sidebarTab: InboxState['sidebarTab']): InboxState {
-      return {
-        users: [createMockUser('user1', 'newContent'), createMockUser('user2', 'newContent')],
+      return createState({
+        users: [createMockUser('user1', 'newContent', { oldestPendingContentAt: '2026-01-01T00:00:00.000Z' }), createMockUser('user2', 'newContent', { oldestPendingContentAt: '2026-01-02T00:00:00.000Z' })],
         posts: [],
         classifiedPosts: [],
         curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
         focusedPostId: null,
+        focusedThreadId: null,
         focusedContentIndex: 0,
         sidebarTab,
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
         unloadedCounts: {},
-      };
+      });
     }
 
     test('no composer is open by default', () => {

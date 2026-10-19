@@ -1,3 +1,9 @@
+import { createHash } from 'crypto';
+import { completeUserModeration, recordModerationTemplateUsage, type UserModerationOptions } from './moderationActions';
+import { getReviewQueueUsers } from "@/server/users/reviewQueue";
+import { loadByIds } from "@/lib/loaders";
+import { maxDocumentsPerRequestSetting } from "@/lib/instanceSettings";
+import { MODERATION_TEMPLATE_USED_EVENT } from '@/lib/collections/moderationTemplates/constants';
 import { LWEvents } from '../../server/collections/lwevents/collection';
 import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { getCommentSubtree } from '../utils/commentTreeUtils';
@@ -6,6 +12,7 @@ import { Users } from '../../server/collections/users/collection';
 import { Posts } from '../../server/collections/posts/collection';
 import moment from 'moment';
 import uniq from 'lodash/uniq';
+import countBy from 'lodash/countBy';
 import groupBy from 'lodash/groupBy';
 import gql from 'graphql-tag';
 import { createComment, updateComment } from '../collections/comments/mutations';
@@ -13,14 +20,12 @@ import { updatePost } from '../collections/posts/mutations';
 import { updateUser } from '../collections/users/mutations';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { appendToSunshineNotes } from '../users/sunshineNotes';
-import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { approveUnreviewedSubmissions } from '../callbacks/userCallbackFunctions';
-import { createConversation } from '../collections/conversations/mutations';
-import { createMessage } from '../collections/messages/mutations';
-import { createModeratorAction } from '../collections/moderatorActions/mutations';
-import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
 import { createAutomatedContentEvaluation, getPangramEvaluationForText, rerunLlmCheck } from '../collections/automatedContentEvaluations/helpers';
 import type { PangramModel } from '../../lib/collections/automatedContentEvaluations/constants';
+
+const MODERATION_TEMPLATE_USAGE_WINDOW_DAYS = 90;
 
 export const moderationGqlTypeDefs = gql`
   type ModeratorIPAddressInfo {
@@ -53,13 +58,52 @@ export const moderationGqlTypeDefs = gql`
     lastChangedAt: Date!
   }
 
+  type ModerationTemplateUsageCount {
+    templateId: String!
+    count: Int!
+  }
+
   extend type Query {
     moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
     supermodQueueChanges(userIds: [String!]!, postIds: [String!]!, since: Date!): [SupermodQueueChange!]!
     supermodQueueSnapshotTime: Date!
+    supermodQueueUsers(limit: Int!, offset: Int = 0): MultiUserOutput!
+    moderationTemplateUsageCounts: [ModerationTemplateUsageCount!]!
+  }
+
+  input ModerationContentRejectionInput {
+    documentId: String!
+    collectionName: ContentCollectionName!
+    reason: String!
+    templateIds: [String!]
+  }
+
+  input ModerationMessageInput {
+    conversationId: String
+    contents: CreateRevisionDataInput!
+    noEmail: Boolean
+  }
+
+  input CompleteUserModerationInput {
+    operationId: String!
+    userId: String!
+    rejection: ModerationContentRejectionInput
+    message: ModerationMessageInput
+    disablePermissions: Boolean!
+    rateLimits: [CreateUserRateLimitDataInput!]!
+    rejectAll: Boolean!
+    removeFromQueue: Boolean!
+  }
+
+  type CompleteUserModerationResult {
+    user: User!
+    rejectedPosts: [Post!]!
+    rejectedComments: [Comment!]!
+    message: Message
   }
 
   extend type Mutation {
+    completeUserModeration(input: CompleteUserModerationInput!): CompleteUserModerationResult!
     lockThread(commentId: String!, until: String): Boolean!
     unlockThread(commentId: String!): Boolean!
     rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
@@ -69,6 +113,7 @@ export const moderationGqlTypeDefs = gql`
     runPangramOnText(text: String!, model: PangramModel): PangramTextEvaluationResult!
     unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
     addModeratorNote(userId: String!, note: String!): User
+    recordModerationTemplatesUsed(templateIds: [String!]!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
   }
 `
 
@@ -140,117 +185,29 @@ export const moderationGqlMutations = {
 
     return true;
   },
+  async completeUserModeration(_root: void, { input }: { input: UserModerationOptions }, context: ResolverContext) {
+    const result = await completeUserModeration(input, context);
+    return {
+      user: await accessFilterSingle(context.currentUser, 'Users', result.user, context),
+      rejectedPosts: await accessFilterMultiple(context.currentUser, 'Posts', result.rejectedPosts, context),
+      rejectedComments: await accessFilterMultiple(context.currentUser, 'Comments', result.rejectedComments, context),
+      message: result.message ? await accessFilterSingle(context.currentUser, 'Messages', result.message, context) : null,
+    };
+  },
   async rejectContentAndRemoveUserFromQueue(_root: void, args: {userId: string, documentId: string, collectionName: ContentCollectionName, rejectedReason: string, messageContent?: string}, context: ResolverContext) {
     const { currentUser } = context;
-    if (!currentUser || !userIsAdminOrMod(currentUser)) {
-      throw new Error("Only admins and moderators can reject content and remove users from queue");
-    }
-
-    const { userId, documentId, collectionName, rejectedReason, messageContent } = args;
-
-    const user = await Users.findOne(userId);
-    if (!user) {
-      throw new Error("Invalid user ID");
-    }
-
-    if (collectionName === 'Posts') {
-      const post = await Posts.findOne(documentId);
-      if (!post) {
-        throw new Error("Invalid post ID");
-      }
-      if (post.userId !== user._id) {
-        throw new Error("Post does not belong to user");
-      }
-
-      await updatePost({
-        data: { rejected: true, rejectedReason },
-        selector: { _id: documentId }
-      }, context);
-    } else {
-      const comment = await Comments.findOne(documentId);
-      if (!comment) {
-        throw new Error("Invalid comment ID");
-      }
-      if (comment.userId !== user._id) {
-        throw new Error("Comment does not belong to user");
-      }
-      
-      await updateComment({
-        data: { rejected: true, rejectedReason },
-        selector: { _id: documentId }
-      }, context);
-    }
-
-    // If messageContent is provided, we restrict all of the user's permissions and send them an offboarding message
-    if (messageContent) {
-      await updateUser({
-        data: {
-          postingDisabled: true,
-          allCommentingDisabled: true,
-          conversationsDisabled: true,
-          needsReview: false,
-          reviewedByUserId: null,
-          reviewedAt: user.reviewedAt ? new Date() : null,
-        },
-        selector: { _id: userId }
-      }, context);
-      await appendToSunshineNotes({
-        moderatedUserId: userId,
-        adminName: currentUser.displayName,
-        text: 'Restricted & notified (rejected content, disabled all permissions)',
-        context,
-      });
-
-      await createModeratorAction({
-        data: {
-          userId: userId,
-          type: VOTING_DISABLED,
-          endedAt: null,
-        }
-      }, context);
-
-      const conversationData: CreateConversationDataInput = {
-        participantIds: [userId, currentUser._id],
-        title: `Content rejected and permissions restricted`,
-        moderator: true,
-      };
-
-      const conversation = await createConversation({
-        data: conversationData,
-      }, context);
-
-      const messageData = {
-        userId: currentUser._id,
-        contents: {
-          originalContents: {
-            type: "html",
-            data: messageContent
-          }
-        },
-        conversationId: conversation._id,
-        noEmail: false,
-      };
-
-      await createMessage({
-        data: messageData,
-      }, context);
-    } else {
-      await updateUser({
-        data: {
-          needsReview: false,
-          reviewedByUserId: null,
-          reviewedAt: user.reviewedAt ? new Date() : null,
-        },
-        selector: { _id: userId }
-      }, context);
-      await appendToSunshineNotes({
-        moderatedUserId: userId,
-        adminName: currentUser.displayName,
-        text: 'removed from review queue (content rejected)',
-        context,
-      });
-    }
-
+    if (!currentUser || !userIsAdminOrMod(currentUser)) throw new Error('Only moderators can reject content');
+    const operationId = createHash('sha256').update(JSON.stringify([currentUser._id, args])).digest('hex').slice(0, 27);
+    await completeUserModeration({
+      operationId,
+      userId: args.userId,
+      rejection: { documentId: args.documentId, collectionName: args.collectionName, reason: args.rejectedReason },
+      message: args.messageContent ? { contents: { originalContents: { type: 'html', data: args.messageContent } }, noEmail: false } : undefined,
+      disablePermissions: !!args.messageContent,
+      rateLimits: [],
+      rejectAll: false,
+      removeFromQueue: true,
+    }, context);
     return true;
   },
   async approveUserCurrentContentOnly(_root: void, args: {userId: string}, context: ResolverContext) {
@@ -435,11 +392,35 @@ export const moderationGqlMutations = {
     });
     return accessFilterSingle(currentUser, 'Users', updatedUser, context);
   },
+  async recordModerationTemplatesUsed(_root: void, args: { templateIds: string[], documentId: string, collectionName: ContentCollectionName }, context: ResolverContext) {
+    const { currentUser, ModerationTemplates } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can record moderation template usage");
+    }
+
+    const { templateIds, documentId, collectionName } = args;
+    const templates = await ModerationTemplates.find({ _id: { $in: uniq(templateIds) } }, {}, { _id: 1 }).fetch();
+
+    await Promise.all(templates.map(template => recordModerationTemplateUsage({ templateId: template._id, documentId, collectionName }, context)));
+
+    return true;
+  },
 }
 
 const MAX_QUEUE_CHANGE_DOCUMENT_IDS = 1000;
 
 export const moderationGqlQueries = {
+  async supermodQueueUsers(_root: void, { limit, offset = 0 }: { limit: number, offset?: number }, context: ResolverContext) {
+    if (!userIsAdminOrMod(context.currentUser)) throw new Error("Only admins and moderators can read the moderation queue");
+    if (limit < 1 || offset < 0) throw new Error("Queue limit must be positive and offset must not be negative");
+    const queue = await getReviewQueueUsers(context);
+    const page = queue.slice(offset, offset + Math.min(limit, maxDocumentsPerRequestSetting.get(context)));
+    const users = await loadByIds(context, "Users", page.map(user => user._id));
+    return {
+      results: await accessFilterMultiple(context.currentUser, "Users", users, context),
+      totalCount: queue.length,
+    };
+  },
   async moderatorViewIPAddress(_root: void, args: {ipAddress: string}, context: ResolverContext) {
     const { currentUser } = context;
     const { ipAddress } = args;
@@ -492,5 +473,20 @@ export const moderationGqlQueries = {
   },
   supermodQueueSnapshotTime() {
     return new Date();
+  },
+  async moderationTemplateUsageCounts(_root: void, _args: {}, context: ResolverContext) {
+    const { currentUser, LWEvents } = context;
+    if (!userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can see moderation template usage");
+    }
+
+    const since = moment().subtract(MODERATION_TEMPLATE_USAGE_WINDOW_DAYS, 'days').toDate();
+    const events = await LWEvents.find({
+      name: MODERATION_TEMPLATE_USED_EVENT,
+      createdAt: { $gt: since },
+      documentId: { $ne: null },
+    }, {}, { _id: 0, documentId: 1 }).fetch();
+
+    return Object.entries(countBy(events, event => event.documentId)).map(([templateId, count]) => ({ templateId, count }));
   },
 }

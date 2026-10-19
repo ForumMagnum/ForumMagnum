@@ -1,3 +1,4 @@
+import { userIsApproved } from "@/lib/collections/users/helpers";
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import React from "react";
 import { usesCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
@@ -32,7 +33,6 @@ import { updatePostDenormalizedTags } from "../tagging/helpers";
 import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
 import { cheerioParse } from "../utils/htmlUtil";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
-import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { captureException } from "@/lib/sentryWrapper";
 import moment from "moment";
@@ -40,9 +40,7 @@ import difference from 'lodash/difference';
 import union from 'lodash/union';
 import isEqual from 'lodash/isEqual';
 import { getRejectionMessage, generateLinkSharingKey } from "./helpers";
-import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
-import { createConversation } from "../collections/conversations/mutations";
-import { createMessage } from "../collections/messages/mutations";
+import { startTeamInboxConversation } from "../utils/teamInbox";
 import { createModeratorAction } from "../collections/moderatorActions/mutations";
 import { createPostRelation } from "../collections/postRelations/mutations";
 import { updatePost } from "../collections/posts/mutations";
@@ -162,13 +160,17 @@ const onPublishUtils = {
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
 // moderator approval because they're a user's first post (but does fire when
 // they're approved).
-export async function onPostPublished(post: DbPost, context: ResolverContext) {
+export async function onPostPublished(post: DbPost, context: ResolverContext, oldPost?: DbPost) {
   onPublishUtils.updateRecombeeWithPublishedPost(post, context);
   await sendNewPostNotifications(post, context.forumType);
   const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
-  await triggerReviewIfNeeded(post.userId, 'publishedPost', context);
+  // Publishing after a rejection is approved should not request another review.
+  const approvedRejection = oldPost?.rejected && !post.rejected && post.reviewedByUserId;
+  if (!approvedRejection) {
+    await triggerReviewIfNeeded(post.userId, 'publishedPost', context);
+  }
   await maybeAutoFrontpagePost(post._id, context);
 }
 
@@ -181,6 +183,7 @@ const utils = {
     const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user, context);
     if (rateLimit) {
       const {nextEligible} = rateLimit;
+      if (nextEligible === null) throw new Error('Rate limit: You cannot post until your restriction is lifted.');
       if (nextEligible > new Date()) {
         // "fromNow" makes for a more human readable "how long till I can comment/post?".
         // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
@@ -360,46 +363,6 @@ const utils = {
     return false;
   },
 
-  sendPostRejectionPM: async ({ messageContents, lwAccount, post, noEmail, context }: {
-    messageContents: string,
-    lwAccount: DbUser,
-    post: DbPost,
-    noEmail: boolean,
-    context: ResolverContext,
-  }) => {
-    const conversationData: CreateConversationDataInput = {
-      participantIds: [post.userId, lwAccount._id],
-      title: `Your post ${post.title} was rejected`,
-      moderator: true
-    };
-
-    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
-
-    const conversation = await createConversation({
-      data: conversationData,
-    }, lwAccountContext);
-  
-    const messageData = {
-      userId: lwAccount._id,
-      contents: {
-        originalContents: {
-          type: "html",
-          data: messageContents
-        }
-      },
-      conversationId: conversation._id,
-      noEmail: noEmail
-    };
-  
-    await createMessage({
-      data: messageData,
-    }, lwAccountContext);
-  
-    if (!isAnyTest) {
-      // eslint-disable-next-line no-console
-      console.log("Sent moderation message for post", post._id);
-    }
-  },
 };
 
 
@@ -873,30 +836,30 @@ export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, c
   // or the post author is getting approved,
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !newDocument.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !newDocument.authorIsUnreviewed)) {
-    await onPostPublished(newDocument, context);
+    await onPostPublished(newDocument, context, oldDocument);
   } else if (oldDocument.draft && !newDocument.draft) {
     await triggerReviewIfNeeded(newDocument.userId, 'publishedPost', context);
   }
 }
 
 export async function sendRejectionPM({ post, currentUser, context }: {post: DbPost, currentUser?: DbUser|null, context: ResolverContext}) {
-  const { Users } = context;
+  const { Users, Posts } = context;
   const postUser = await Users.findOne({_id: post.userId});
 
   const rejectedContentLink = `<span>post, <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a></span>`
 
   let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
 
-  const noEmail = !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
-  const adminAccount = currentUser ?? await getAdminTeamAccount(context);
-  if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
-  await utils.sendPostRejectionPM({
-    post,
-    messageContents: messageContents,
-    lwAccount: adminAccount,
+  const noEmail = !userIsApproved(postUser)
+  const conversation = await startTeamInboxConversation({
+    recipientId: post.userId,
+    author: currentUser ?? null,
+    title: `Your post ${post.title} was rejected`,
+    html: messageContents,
     noEmail,
     context,
-  }); 
+  });
+  await Posts.rawUpdateOne({ _id: post._id }, { $set: { rejectionConversationId: conversation._id } });
 }
 
 export async function maybeSendRejectionPM({ newDocument: post, oldDocument: oldPost, currentUser, context }: UpdateCallbackProperties<'Posts'>) {

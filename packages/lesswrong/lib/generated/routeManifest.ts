@@ -988,6 +988,9 @@ export const routeTrie = {
     "login": {
       "hasPage": true
     },
+    "loginNotice": {
+      "hasPage": true
+    },
     "logout": {
       "hasRoute": true
     },
@@ -1207,6 +1210,9 @@ export const routeTrie = {
       "hasPage": true
     },
     "recommendations": {
+      "hasPage": true
+    },
+    "rejection-review": {
       "hasPage": true
     },
     "research": {
@@ -1488,6 +1494,7 @@ export const routeTrie = {
     "leaderboard": "leaderboard",
     "library": "library",
     "login": "login",
+    "loginnotice": "loginNotice",
     "logout": "logout",
     "lw": "lw",
     "meetups": "meetups",
@@ -1515,6 +1522,7 @@ export const routeTrie = {
     "quicktakes": "quicktakes",
     "rationality": "rationality",
     "recommendations": "recommendations",
+    "rejection-review": "rejection-review",
     "research": "research",
     "resendverificationemail": "resendVerificationEmail",
     "resetpassword": "resetPassword",

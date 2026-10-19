@@ -1,15 +1,13 @@
 import React, { useCallback } from 'react';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
-import { useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import PostsPage from './PostsPage';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
-import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
-import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
 import { StatusCodeSetter } from '@/components/next/StatusCodeSetter';
+import { usePostPreload } from './usePostPreload';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
   query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
@@ -37,26 +35,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId, embedded }: {
   documentId: string,
   embedded?: boolean,
 }) => {
-  // Check the cache for a copy of the post with the PostsListWithVotes fragment, so that when you click through
-  // a PostsItem, you can see the start of the post (the part of the text that was in the hover-preview) while
-  // it loads the rest.
-  const apolloClient = useApolloClient();
-  const postPreload = apolloClient.cache.readFragment<PostsListWithVotes>({
-    fragment: PostsListWithVotes,
-    fragmentName: "PostsListWithVotes",
-    id: 'Post:'+documentId,
-  });
-
-  const sequencePreload = apolloClient.cache.readFragment<SequencesPageFragment>({
-    fragment: SequencesPageFragment,
-    fragmentName: "SequencesPageFragment",
-    id: 'Sequence:'+sequenceId,
-  });
-
-  const postPreloadWithSequence = (sequencePreload && postPreload) ? {
-    ...postPreload,
-    sequence: sequencePreload,
-  } : postPreload;
+  const postPreloadWithSequence = usePostPreload(documentId, sequenceId);
 
   const { loading: postWithoutRevisionLoading, error: postWithoutRevisionError, refetch: refetchPostWithoutRevision, data: postWithoutRevisionData } = useQuery(PostsWithNavigationQuery, {
     variables: { documentId: documentId, sequenceId },

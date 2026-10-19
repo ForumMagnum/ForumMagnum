@@ -284,8 +284,7 @@
     "warning": "^4.0.3",
     "y-indexeddb": "^9.0.12",
     "yjs": "^13.6.30",
-    "zod": "^4.3.6",
-    "zod-to-json-schema": "^3.23.5"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@babel/core": "7.12.3",
