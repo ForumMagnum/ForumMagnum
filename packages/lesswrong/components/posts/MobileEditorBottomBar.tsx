@@ -9,6 +9,7 @@ import type { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm"
 import type { AddOnSubmitCallback, AddOnSuccessCallback } from "../editor/EditorFormComponent";
 import { InlineCommentsPanelContext, EditorUserModeContext } from "../common/sharedContexts";
 import { getAvailableEditorModes, editorModeLabels } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
+import { useRapidPostingConfirmation } from "./useRapidPostingConfirmation";
 
 type SidebarMode = "publish" | "settings" | "sharing";
 
@@ -341,6 +342,7 @@ const MobileEditorBottomBar = ({
   const showModeSelector = editorType === "lexical" && editorModeContext && availableModes.length > 1;
 
   const { showComments, setShowComments, commentCount } = useContext(InlineCommentsPanelContext);
+  const { confirmRapidPosting, isCheckingRapidPosting } = useRapidPostingConfirmation();
 
   useEffect(() => {
     if (!modeExpanded) return;
@@ -386,7 +388,7 @@ const MobileEditorBottomBar = ({
         draft: s.values.draft,
       })}>
         {({ canSubmit, isSubmitting, draft }) => {
-          const disabled = !canSubmit || isSubmitting || isSaving;
+          const disabled = !canSubmit || isSubmitting || isSaving || isCheckingRapidPosting;
           return (
             <div className={classes.bottomBar}>
               <button
@@ -471,7 +473,14 @@ const MobileEditorBottomBar = ({
                   type="submit"
                   className={classes.publishButton}
                   disabled={disabled}
-                  onClick={() => form.setFieldValue("draft", false)}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!await confirmRapidPosting(form.state.values)) {
+                      return;
+                    }
+                    form.setFieldValue("draft", false);
+                    await form.handleSubmit();
+                  }}
                 >
                   {draft ? "Publish" : "Publish Changes"}
                 </button>

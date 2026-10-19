@@ -18193,6 +18193,20 @@ type postsListTagWithVotesQueryVariables = Exact<{
 
 type postsListTagWithVotesQuery = postsListTagWithVotesQuery_Query;
 
+type RapidPostingConfirmationRecentPostsQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, postedAt: string, shortform: boolean, isEvent: boolean };
+
+type RapidPostingConfirmationRecentPostsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<RapidPostingConfirmationRecentPostsQuery_posts_MultiPostOutput_results_Post> };
+
+type RapidPostingConfirmationRecentPostsQuery_Query = { __typename?: 'Query', posts: RapidPostingConfirmationRecentPostsQuery_posts_MultiPostOutput | null };
+
+
+type RapidPostingConfirmationRecentPostsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+type RapidPostingConfirmationRecentPostsQuery = RapidPostingConfirmationRecentPostsQuery_Query;
+
 type multiCommentQuickTakesSectionQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
   & FrontpageShortformComments
