@@ -1,6 +1,6 @@
 import { aboutPostIdSetting, allowTypeIIIPlayerSetting, type ForumTypeString, siteUrlSetting, cloudinaryCloudName, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userOverNKarmaFunc } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdmin } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn, type SharableDocument } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import maxBy from "lodash/maxBy";
@@ -362,6 +362,17 @@ export const canUserEditPostMetadataWithoutModeratorPowers = (currentUser: Users
   if (post.shareWithUsers?.includes(currentUser._id) && post.sharingSettings?.explicitlySharedUsersCan === "edit") return true 
 
   return false
+}
+
+/**
+ * Whether the user can change a post's sharing settings (eg "Anyone with the
+ * link can"). Coauthors and users the post is shared with can edit other
+ * metadata, but not this. Must match the canUpdate permissions on the
+ * sharingSettings field in the posts schema.
+ */
+export const userCanEditPostSharingSettings = (currentUser: UsersCurrent|DbUser|null, post: HasUserIdType): boolean => {
+  if (!currentUser) return false;
+  return userOwns(currentUser, post) || userIsAdmin(currentUser);
 }
 
 export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): boolean => {
