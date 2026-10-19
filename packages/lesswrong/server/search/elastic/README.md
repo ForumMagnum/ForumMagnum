@@ -200,7 +200,7 @@ refresh affected sequence documents.
 The development Users index was rebuilt on 2026-09-10 with
 `rebuildUserSearchIndex()` from `server/scripts/elastic.ts` after
 `previewUserSearchAliases(userIds)` verified public aliases in PostgreSQL.
-The exporter verified 206,916 records before switching the alias. Older Users
+Older Users
 indexes with no `fullName` values need the same backfill; mapping changes alone
 do not populate aliases.
 
@@ -214,8 +214,8 @@ yarn repl dev lw packages/lesswrong/server/scripts/elastic.ts
 
 Then invoke `await rebuildRelationshipSearchIndexes()` in the REPL. Confirm the
 selected database and Elasticsearch environment before doing a production rebuild.
-The helper rebuilds Posts and Sequences from the selected database, preserves
-synonyms, and atomically switches each index alias once its export is complete.
+The helper rebuilds Posts and Sequences from the selected database and switches
+each index alias once its export is complete.
 `configureIndexes()` alone copies existing Elasticsearch documents and does not
 backfill the new relationship fields.
 
@@ -242,14 +242,7 @@ Bulk exports update or insert current records but do not remove documents whose
 IDs have disappeared from PostgreSQL. To remove them, use
 `await new ElasticExporter().recreateIndex("Tags")` from the exporter module in
 the development REPL. This exports current database records into a new backing
-index, preserves synonyms, refreshes the new index, and verifies its document
-count against the database before atomically switching the alias. Export errors,
-failed shards, or a count mismatch abort the switch and leave the old index
-serving searches. The old backing index is retained for rollback.
-
-The export is not a database snapshot: concurrent collection writes can cause a
-count mismatch, and the count check cannot detect updates or a delete/insert pair
-that preserves the count.
+index and then switches the alias to it.
 Deleted records still present in PostgreSQL are exported with their deletion flag;
 normal search filters exclude them.
 
