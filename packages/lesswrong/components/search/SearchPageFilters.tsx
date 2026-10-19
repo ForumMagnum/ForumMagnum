@@ -17,6 +17,7 @@ interface SearchPageFiltersProps {
   toggleFilter: (key: string) => void;
   clearFilters: () => void;
   filtersId: string;
+  children?: React.ReactNode;
 }
 
 export function summarizeSearchFilters(state: SearchPageState) {
@@ -28,7 +29,7 @@ export function summarizeSearchFilters(state: SearchPageState) {
   return {hasDateFilter, hasPostFilter, hasFilters, dateSummary};
 }
 
-export default function SearchPageFilters({state, setFilters, toggleFilter, clearFilters, filtersId}: SearchPageFiltersProps) {
+export default function SearchPageFilters({state, setFilters, toggleFilter, clearFilters, filtersId, children}: SearchPageFiltersProps) {
   const classes = useStyles(searchPageStyles);
   const {expandedFilters, mobileFiltersOpen: filtersOpen} = state;
   const {hasDateFilter, hasPostFilter, hasFilters, dateSummary} = summarizeSearchFilters(state);
@@ -53,6 +54,7 @@ export default function SearchPageFilters({state, setFilters, toggleFilter, clea
         </SearchFilterRow>
         {hasFilters && <button type="button" className={classNames(classes.clearFilters, classes.clearFiltersButton)} onClick={clearFilters}>Clear filters</button>}
       </div>
+      {children}
     </aside>
   );
 }
