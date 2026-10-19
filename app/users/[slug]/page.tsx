@@ -6,8 +6,6 @@ import UsersSingle from "./UsersSingle";
 
 export const generateMetadata = generateUserPageMetadata;
 
-export const instant = false;
-
 assertRouteAttributes("/users/[slug]", {
   whiteBackground: false,
   hasLinkPreview: false,
