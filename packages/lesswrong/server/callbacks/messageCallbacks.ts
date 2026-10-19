@@ -104,6 +104,15 @@ export async function updateConversationActivity(message: DbMessage, context: Re
   await updateConversation({ data: {latestActivity: message.createdAt, ...teamInboxFields}, selector: { _id: conversation._id } }, userContext);
 }
 
+/**
+ * Moderators handle moderator conversations through the moderation inbox, so
+ * they aren't notified about new messages in them.
+ */
+async function getNonModeratorUserIds(userIds: string[], context: ResolverContext): Promise<string[]> {
+  const users = await loadByIds(context, "Users", userIds);
+  return users.flatMap(user => (user && !userIsAdminOrMod(user)) ? [user._id] : []);
+}
+
 export async function sendMessageNotifications(message: DbMessage, context: ResolverContext) {
   const { Conversations } = context;
 
@@ -115,7 +124,10 @@ export async function sendMessageNotifications(message: DbMessage, context: Reso
   // message. For email notifications, notify everyone including the sender
   // (since if there's a back-and-forth in the grouped notifications, you want
   // to see your own messages.)
-  const recipientIds = conversation.participantIds.filter((id) => (id !== message.userId));
+  const otherParticipantIds = conversation.participantIds.filter((id) => (id !== message.userId));
+  const recipientIds = conversation.moderator
+    ? await getNonModeratorUserIds(otherParticipantIds, context)
+    : otherParticipantIds;
 
   // Create notification
   await createNotifications({ context, userIds: recipientIds, notificationType: 'newMessage', documentType: 'message', documentId: message._id, noEmail: message.noEmail});

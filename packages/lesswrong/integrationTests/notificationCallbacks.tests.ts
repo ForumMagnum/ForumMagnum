@@ -1,5 +1,5 @@
 import "./integrationTestSetup";
-import { createDummyPost, createDummyLocalgroup, createDummyUser } from "./utils";
+import { createDummyPost, createDummyLocalgroup, createDummyUser, createDummyConversation, createDummyMessage } from "./utils";
 
 // TODO: this is a temporary hack to resolve an import order issue with callback hooks on ReviewVotes.  Do not remove this or the stringify, or move it below the import of `notificationCallbacks`!
 import ReviewVotes from "../server/collections/reviewVotes/collection";
@@ -188,3 +188,50 @@ describe("test postsNewNotifications", () => {
     })
   })
 })
+
+describe("new message notifications", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  function expectNewMessageNotificationFor(userIds: string[]) {
+    expect(createNotifications).toHaveBeenCalledWith(expect.objectContaining({ notificationType: 'newMessage', userIds }));
+  }
+
+  async function sendMessage(sender: DbUser, conversationId: string) {
+    await createDummyMessage(sender, {
+      conversationId,
+      contents: { originalContents: { type: 'html', data: '<p>Hello</p>' } },
+    });
+  }
+
+  it("doesn't notify moderators about messages in moderator conversations", async () => {
+    const moderator = await createDummyUser({ isAdmin: true });
+    const user = await createDummyUser();
+    const conversation = await createDummyConversation(moderator, { participantIds: [moderator._id, user._id], moderator: true });
+
+    await sendMessage(user, conversation._id);
+
+    expectNewMessageNotificationFor([]);
+  });
+
+  it("still notifies the user about moderators' messages in moderator conversations", async () => {
+    const moderator = await createDummyUser({ isAdmin: true });
+    const user = await createDummyUser();
+    const conversation = await createDummyConversation(moderator, { participantIds: [moderator._id, user._id], moderator: true });
+
+    await sendMessage(moderator, conversation._id);
+
+    expectNewMessageNotificationFor([user._id]);
+  });
+
+  it("notifies moderators about messages in ordinary conversations", async () => {
+    const moderator = await createDummyUser({ isAdmin: true });
+    const user = await createDummyUser();
+    const conversation = await createDummyConversation(user, { participantIds: [user._id, moderator._id] });
+
+    await sendMessage(user, conversation._id);
+
+    expectNewMessageNotificationFor([moderator._id]);
+  });
+});
