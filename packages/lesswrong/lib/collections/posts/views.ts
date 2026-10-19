@@ -659,7 +659,21 @@ function drafts(terms: PostsViewTerms) {
         {shareWithUsers: terms.userId},
         {coauthorUserIds: terms.userId},
       ],
-      draft: true,
+      // Besides actual drafts, include the user's other posts that aren't
+      // publicly visible and wouldn't otherwise show up in any list: rejected
+      // posts (whether or not they've been moved back to drafts) and scheduled
+      // posts. Drafts can also have isFuture set if they were scheduled and
+      // then moved back to drafts.
+      draft: viewFieldAllowAny,
+      rejected: null, // Not viewFieldAllowAny, which would get deep-merged with the default view's {$ne: true}
+      isFuture: viewFieldAllowAny,
+      $and: [
+        {$or: [
+          {draft: true},
+          {rejected: true},
+          {isFuture: true},
+        ]},
+      ],
       hideAuthor: false,
       unlisted: null,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny

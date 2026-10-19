@@ -557,6 +557,18 @@ export const defaultVotingSystem = "namesAttachedReactions";
 
 export const dateStr = (startDate?: Date) => startDate ? moment(startDate).format('YYYY-MM-DD') : '';
 
+export function postGetRejectionReviewUrl(postId: string) {
+  return `/rejection-review?postId=${postId}`;
+}
+
+/**
+ * Authors can't republish a rejected post themselves, so in the post editor
+ * the publish button takes them to the rejection review (appeal) form instead.
+ */
+export function shouldPublishGoToRejectionReview(currentUser: UsersCurrent | null, post: { userId?: string | null, rejected?: boolean | null }) {
+  return !!post.rejected && !!post.userId && post.userId === currentUser?._id;
+}
+
 export function getDraftLabel(post: { draft?: boolean | null } | null) {
   if (!post) return "Save Draft";
   if (!post.draft) return "Move to Drafts";
