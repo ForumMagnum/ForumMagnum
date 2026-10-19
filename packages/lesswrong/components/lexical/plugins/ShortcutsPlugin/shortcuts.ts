@@ -292,3 +292,7 @@ export function isAddComment(event: KeyboardEvent): boolean {
 export function isInsertFootnote(event: KeyboardEvent): boolean {
   return isExactShortcutMatch(event, 'f', {...CONTROL_OR_META, altKey: true});
 }
+
+export function isInsertClaim(event: KeyboardEvent): boolean {
+  return isExactShortcutMatch(event, 'v', {...CONTROL_OR_META, altKey: true});
+}

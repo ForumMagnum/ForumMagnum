@@ -15,7 +15,6 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { DraggableBlockMenuIcon } from '../../icons/DraggableBlockMenuIcon';
 import { PlusIcon } from '../../icons/PlusIcon';
-import { useInsertClaim } from '../../embeds/ElicitEmbed/ClaimsPlugin';
 import BlockInsertToolbarPlugin from './BlockInsertToolbar';
 
 const styles = defineStyles('LexicalDraggableBlockPlugin', (theme: ThemeType) => ({
@@ -106,8 +105,6 @@ export default function DraggableBlockPlugin({
   );
   const [isToolbarOpen, setIsToolbarOpen] = useState(false);
 
-  const insertClaim = useInsertClaim();
-
   const handleClose = useCallback(() => {
     setIsToolbarOpen(false);
   }, []);
@@ -163,7 +160,6 @@ export default function DraggableBlockPlugin({
           anchorElem={anchorElem}
           buttonElem={addButtonRef.current}
           onClose={handleClose}
-          insertClaim={insertClaim}
         />
       )}
     </>

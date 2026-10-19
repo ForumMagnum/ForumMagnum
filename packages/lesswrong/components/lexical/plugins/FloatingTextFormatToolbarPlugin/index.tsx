@@ -26,6 +26,7 @@ import { ListUlIcon } from '../../icons/ListUlIcon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
 import { CkMathIcon } from '../../icons/CkMathIcon';
+import { InsertClaimIcon } from '../../icons/InsertClaimIcon';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {mergeRegister} from '@lexical/utils';
 import {
@@ -57,6 +58,7 @@ import {
 } from '../ToolbarPlugin/utils';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
+import { OPEN_CREATE_CLAIM_DIALOG_COMMAND } from '../../embeds/ElicitEmbed/ClaimsPlugin';
 import {
   $isSelectionInCollapsibleSection,
   WRAP_SELECTION_IN_COLLAPSIBLE_SECTION_COMMAND,
@@ -519,6 +521,20 @@ function TextFormatFloatingToolbar({
     </button>
   );
 
+  const claimButton = (
+    <button
+      key="claim"
+      type="button"
+      onClick={() => {
+        editor.dispatchCommand(OPEN_CREATE_CLAIM_DIALOG_COMMAND, undefined);
+      }}
+      className={classNames(classes.popupItem, classes.spaced)}
+      title="Insert claim"
+      aria-label="Insert claim">
+      <InsertClaimIcon className={classes.format} />
+    </button>
+  );
+
   const commentButton = (
     <button
       key="comment"
@@ -570,7 +586,7 @@ function TextFormatFloatingToolbar({
     [linkButton],
     [quoteButton, bulletListButton, numberedListButton],
     ...(variant === 'post' ? [[codeButton]] : []),
-    [mathButton, footnoteButton, collapsibleSectionButton],
+    [mathButton, footnoteButton, collapsibleSectionButton, claimButton],
   ];
 
   const visibleGroups = groups.filter((group) => group.length > 0);
