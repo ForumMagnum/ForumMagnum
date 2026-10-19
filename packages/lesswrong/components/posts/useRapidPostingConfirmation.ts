@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useApolloClient } from "@apollo/client/react";
 import type { ApolloClient } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -59,24 +59,52 @@ async function confirmIfPostingRapidly(client: ApolloClient, userId: string, cur
   return window.confirm(RAPID_POSTING_CONFIRMATION_MESSAGE);
 }
 
+interface RapidPostingConfirmation {
+  /**
+   * Call with the post's current form values and await before publishing.
+   * Resolves to false if the user chose not to publish, or if another check
+   * is already in progress.
+   */
+  confirmRapidPosting: (document: EditablePost) => Promise<boolean>,
+  /**
+   * True while waiting for the recent-posts query. The form isn't submitting
+   * yet during this time, so callers should disable their submit buttons.
+   */
+  isCheckingRapidPosting: boolean,
+}
+
 /**
  * Soft rate limit: if the author published another (non-event) post within the
- * last few minutes, ask them to confirm before publishing this one. Returns a
- * function that should be called with the post's current form values and
- * awaited before publishing; it resolves to false if the user chose not to
- * publish.
+ * last few minutes, ask them to confirm before publishing this one.
  */
-export function useRapidPostingConfirmation(): (document: EditablePost) => Promise<boolean> {
+export function useRapidPostingConfirmation(): RapidPostingConfirmation {
   const currentUser = useCurrentUser();
   const client = useApolloClient();
   const userId = currentUser?._id;
+  // The check needs a network round trip before the form starts submitting,
+  // so guard against a double click starting a second check (and then a
+  // second submit) in the meantime.
+  const checkInProgress = useRef(false);
+  const [isCheckingRapidPosting, setIsCheckingRapidPosting] = useState(false);
 
-  return useCallback(async (document: EditablePost) => {
+  const confirmRapidPosting = useCallback(async (document: EditablePost) => {
+    if (checkInProgress.current) {
+      return false;
+    }
     // Only relevant when this submit would publish a post that isn't already
     // published. Events are exempt.
     if (!userId || document.draft === false || document.isEvent) {
       return true;
     }
-    return confirmIfPostingRapidly(client, userId, document._id);
+    checkInProgress.current = true;
+    setIsCheckingRapidPosting(true);
+    try {
+      return await confirmIfPostingRapidly(client, userId, document._id);
+    } finally {
+      checkInProgress.current = false;
+      setIsCheckingRapidPosting(false);
+    }
   }, [client, userId]);
+
+  return { confirmRapidPosting, isCheckingRapidPosting };
 }

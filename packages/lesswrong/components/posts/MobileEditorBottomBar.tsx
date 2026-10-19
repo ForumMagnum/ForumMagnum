@@ -342,7 +342,7 @@ const MobileEditorBottomBar = ({
   const showModeSelector = editorType === "lexical" && editorModeContext && availableModes.length > 1;
 
   const { showComments, setShowComments, commentCount } = useContext(InlineCommentsPanelContext);
-  const confirmRapidPosting = useRapidPostingConfirmation();
+  const { confirmRapidPosting, isCheckingRapidPosting } = useRapidPostingConfirmation();
 
   useEffect(() => {
     if (!modeExpanded) return;
@@ -388,7 +388,7 @@ const MobileEditorBottomBar = ({
         draft: s.values.draft,
       })}>
         {({ canSubmit, isSubmitting, draft }) => {
-          const disabled = !canSubmit || isSubmitting || isSaving;
+          const disabled = !canSubmit || isSubmitting || isSaving || isCheckingRapidPosting;
           return (
             <div className={classes.bottomBar}>
               <button

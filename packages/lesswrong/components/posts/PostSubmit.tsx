@@ -73,7 +73,8 @@ export const PostSubmit = ({
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post");
   const document = formApi.state.values;
-  const confirmRapidPosting = useRapidPostingConfirmation();
+  const { confirmRapidPosting, isCheckingRapidPosting } = useRapidPostingConfirmation();
+  const buttonsDisabled = disabled || isCheckingRapidPosting;
 
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -118,7 +119,7 @@ export const PostSubmit = ({
         <Button
           type="submit"
           onClick={onSubmitClick}
-          disabled={disabled}
+          disabled={buttonsDisabled}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
         >
           {submitLabel}
@@ -129,7 +130,7 @@ export const PostSubmit = ({
               <LWTooltip title={feedbackTitle}>
                 <Button type="submit"
                   className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
-                  disabled={disabled}
+                  disabled={buttonsDisabled}
                   onClick={async () => {
                     captureEvent("feedbackRequestButtonClicked")
                     if (!!document.title) {
@@ -167,7 +168,7 @@ export const PostSubmit = ({
             formApi.setFieldValue('draft', true);
             await formApi.handleSubmit();
           }}
-          disabled={disabled}
+          disabled={buttonsDisabled}
         >
           {saveDraftLabel}
         </Button>
