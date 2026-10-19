@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Yes, an old-timey configure script! Well, not fully old-timey, this isn't
 # generated with autoconf or anything.

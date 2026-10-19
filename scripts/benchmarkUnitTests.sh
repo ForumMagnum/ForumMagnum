@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Run unit tests twice: the first time in a clean working directory (so things
 # that would be cached are included), then again in the directory left behind
 # by the first (so caches are populated).

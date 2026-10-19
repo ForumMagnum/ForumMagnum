@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Configuration - Change this to your desired target branch
 TARGET_BRANCH="master"

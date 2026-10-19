@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Spins up everything needed to exercise the research-sandbox feature locally:
 #   1. A Tailscale Funnel pointing at the Next.js dev server so the
