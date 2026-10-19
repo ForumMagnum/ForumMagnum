@@ -26,6 +26,22 @@ const HTML_FIELDS = [
 ];
 
 /**
+ * Patterns for splitting camel-cased words like "MessageBoardAuditBench" into
+ * runs of 1-4 adjacent parts ("message", "messageboard", "auditbench", etc.)
+ * at index time, so that searching for "MessageBoard AuditBench" or
+ * "message board auditbench" still finds them. Each pattern is a zero-width
+ * match at a part boundary with a lookahead that captures k parts, so that
+ * overlapping runs are all emitted.
+ */
+const CAMEL_CASE_PART = String.raw`(?:\p{Lu}+(?!\p{Ll})|\p{Lu}?\p{Ll}+)`;
+const CAMEL_CASE_BOUNDARY = String.raw`(?:^|(?<=\p{Ll})(?=\p{Lu})|(?<=\p{Lu})(?=\p{Lu}\p{Ll})|(?<=\p{N})(?=\p{L}))`;
+const CAMEL_CASE_MAX_RUN_LENGTH = 4;
+const camelCasePatterns = Array.from(
+  {length: CAMEL_CASE_MAX_RUN_LENGTH},
+  (_, i) => `${CAMEL_CASE_BOUNDARY}(?=(${CAMEL_CASE_PART}{${i + 1}}))`,
+);
+
+/**
  * Class containing functions for exporting to the ElasticSearch index. Most
  * methods are suitable for calling with "yarn repl"; some are also called
  * automatically. To invoke manually, your invocation will look something like:
@@ -307,6 +323,15 @@ export class ElasticExporter {
                   type: "synonym",
                   synonyms: [],
                 },
+                // Synonym rules are parsed with the filters before them in the
+                // analyzer, and fm_camel_case_filter makes rules containing
+                // camel-cased words (eg; "LessWrong") invalid, so this copy
+                // skips those rules. Search-time synonyms still handle them.
+                fm_camel_case_synonym_filter: {
+                  type: "synonym",
+                  synonyms: [],
+                  lenient: true,
+                },
                 fm_shingle_filter: {
                   type: "shingle",
                   min_shingle_size: 2,
@@ -322,6 +347,17 @@ export class ElasticExporter {
                   type: "ngram",
                   min_gram: 4,
                   max_gram: 20,
+                },
+                fm_camel_case_filter: {
+                  type: "pattern_capture",
+                  preserve_original: true,
+                  patterns: camelCasePatterns,
+                },
+                // The overlapping camel case patterns can emit the same token
+                // more than once, which would inflate term frequencies
+                fm_unique_same_position_filter: {
+                  type: "unique",
+                  only_on_same_position: true,
                 },
               },
               char_filter: {
@@ -363,6 +399,26 @@ export class ElasticExporter {
                     "fm_synonym_filter",
                     "fm_english_stopwords",
                     "fm_english_stemmer",
+                  ],
+                  char_filter: [
+                    "fm_punctuation_filter",
+                  ],
+                },
+                // Index-time only: if this were also used for searching then
+                // searching for "AuditBench" would match anything containing
+                // "audit" or "bench" as strongly as exact matches.
+                fm_camel_case_synonym_analyzer: {
+                  type: "custom",
+                  tokenizer: "standard",
+                  filter: [
+                    "fm_camel_case_filter",
+                    "lowercase",
+                    "apostrophe",
+                    "decimal_digit",
+                    "fm_camel_case_synonym_filter",
+                    "fm_english_stopwords",
+                    "fm_english_stemmer",
+                    "fm_unique_same_position_filter",
                   ],
                   char_filter: [
                     "fm_punctuation_filter",
@@ -552,6 +608,11 @@ export class ElasticExporter {
                 fm_synonym_filter: {
                   type: "synonym",
                   synonyms,
+                },
+                fm_camel_case_synonym_filter: {
+                  type: "synonym",
+                  synonyms,
+                  lenient: true,
                 },
               },
             },

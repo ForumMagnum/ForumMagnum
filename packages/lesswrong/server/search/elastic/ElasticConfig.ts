@@ -95,11 +95,13 @@ export type IndexConfig = {
  * listed in the `field` array) should use this mapping. This allows us to use
  * our normal full text analyzer with stemming and synonyms for normal searches,
  * but to fall back to the exact analyzer which has no stemming for advanced
- * searches using quotes.
+ * searches using quotes. Camel-cased words are additionally split into their
+ * parts at index time (but not at search time).
  */
 const fullTextMapping: MappingProperty = {
   type: "text",
-  analyzer: "fm_synonym_analyzer",
+  analyzer: "fm_camel_case_synonym_analyzer",
+  search_analyzer: "fm_synonym_analyzer",
   fields: {
     exact: {
       type: "text",
