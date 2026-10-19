@@ -692,18 +692,6 @@ const schema = {
       },
     },
   },
-  searchHistory: {
-    database: {
-      type: "TEXT[]",
-      defaultValue: [],
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "[String!]",
-      canRead: [userOwns],
-    },
-  },
   lastUsedTimezone: {
     database: {
       type: "TEXT",

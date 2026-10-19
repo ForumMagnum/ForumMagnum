@@ -53,7 +53,6 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
     '& $kinds': {margin: 0, padding: '2px 0', gap: 0},
     '& $resultCount': {padding: '4px 8px', marginBottom: 0, gap: '4px 8px'},
     '& $resultIcon': {left: 8, top: 8},
-    '& $historyHint': {marginTop: 0, marginBottom: 4},
     '& $layout': {
       flex: 1,
       gap: 4,
@@ -88,7 +87,6 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
       '& $searchBoxRow': {gap: 4, marginBottom: 4},
       '& $kinds': {margin: 0, padding: '2px 0'},
       '& $resultCount': {marginBottom: 0},
-      '& $historyHint': {marginTop: 0, marginBottom: 4},
     },
   },
   filterTab: {
@@ -377,12 +375,5 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
     ...theme.typography.body2,
     padding: 12,
     textAlign: "center",
-  },
-  historyHint: {
-    ...theme.typography.body2,
-    fontSize: 12,
-    color: theme.palette.text.dim,
-    marginTop: -12,
-    marginBottom: 12,
   },
 }));

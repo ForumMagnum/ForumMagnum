@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import ChevronDoubleRightIcon from '@heroicons/react/20/solid/ChevronDoubleRightIcon';
@@ -16,12 +16,10 @@ import { useSearchPageState } from './useSearchPageState';
 import { searchPageStyles } from './searchPageStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
-import { useCurrentUser } from '../common/withUser';
 import SearchPageResults from './SearchPageResults';
 import SearchQueryInput from './SearchQueryInput';
 import ForumIcon from '../common/ForumIcon';
 import { useSearchAnalytics, useCaptureSearchResultSelected } from './useSearchAnalytics';
-import { useSearchHistory } from './useSearchHistory';
 import { useSearchPageNavigation } from './useSearchPageNavigation';
 import { SearchBarHit, useSearchResults } from './useSearchResults';
 import { defaultSearchPageState, searchPageStateToQuery } from './searchPageUrl';
@@ -46,10 +44,8 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
   // HACK: workaround for cacheComponents' background use of <Activity> breaking search in a lot of situations after navigation.
   const pathname = usePathname();
   const classes = useStyles(searchPageStyles);
-  const currentUser = useCurrentUser();
   const captureSearch = useSearchAnalytics();
   const captureResultSelected = useCaptureSearchResultSelected();
-  const hintId = useId();
   const filtersId = useId();
   const isDesktop = useIsAboveBreakpoint('md');
   const filterTabSlot = isDesktop ? providedFilterTabSlot : null;
@@ -60,8 +56,6 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
   const resultsRef = useRef<HTMLDivElement>(null);
   const {state, setState} = useSearchPageState(presentation);
   const filtersOpen = state.mobileFiltersOpen;
-  const [inputFocused, setInputFocused] = useState(false);
-  const {recallSearch, recordSearch, resetNavigation, clearHistory, retryHistory, hasHistory, error: historyError, readError: historyReadError} = useSearchHistory(currentUser?._id, true);
 
   const request = {
     indexName: indexNameForKinds(state.kinds),
@@ -98,16 +92,6 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
     inputRef.current?.focus();
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.nativeEvent.isComposing) return;
-    if (currentUser && event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey
-      && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
-      event.preventDefault();
-      const query = recallSearch(event.currentTarget.value, event.key);
-      setState(previous => ({...previous, query}));
-    }
-  };
-
   const selectHit = (type: SearchIndexCollectionName, hit: SearchBarHit, position: number) => {
     captureResultSelected({
       query: state.query,
@@ -117,7 +101,6 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
       indexName: getSearchIndexName(type),
       context: "searchPage",
     });
-    recordSearch(state.query);
   };
 
   if (!isSearchEnabled()) {
@@ -134,7 +117,6 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
   }));
   const clearFilters = () => setState(previous => ({...previous, kinds: [], filters: {...defaultSearchPageState.filters}}));
   const {hasDateFilter, hasFilters} = summarizeSearchFilters(state);
-  const showHistoryHint = !!currentUser && inputFocused && !state.query;
   const filterTab = (
     <button type="button" className={classNames(classes.filterTab, {[classes.filterTabModal]: !!filterTabSlot})} aria-label="Filter results"
       aria-expanded={filtersOpen} aria-controls={filtersId}
@@ -153,14 +135,11 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
       {filterTabSlot && createPortal(filterTab, filterTabSlot)}
       <div ref={layoutRef} className={classes.layout}>
         <SearchPageFilters state={state} setFilters={setFilters} toggleFilter={toggleFilter} clearFilters={clearFilters}
-          filtersId={filtersId}>
-          {hasHistory && <button type="button" className={classes.clearFilters} onClick={() => { void clearHistory(); }}>Clear search history</button>}
-        </SearchPageFilters>
+          filtersId={filtersId} />
         <div className={classes.results} onKeyDown={handleResultKeyDown}>
           <div className={classes.topBar}>
             <form className={classes.searchBoxRow} role="search" onSubmit={(event) => {
               event.preventDefault();
-              recordSearch(inputRef.current?.value ?? state.query);
               inputRef.current?.blur();
             }}>
               {isDesktop && !filterTabSlot && filterTab}
@@ -176,14 +155,7 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
                   autoComplete="off"
                   autoFocus={presentation === 'page'}
                   value={state.query}
-                  aria-describedby={showHistoryHint ? hintId : undefined}
-                  onFocus={() => setInputFocused(true)}
-                  onBlur={() => setInputFocused(false)}
-                  onKeyDown={handleKeyDown}
-                  onChange={(query) => {
-                    resetNavigation();
-                    setState(previous => ({...previous, query}));
-                  }}
+                  onChange={(query) => setState(previous => ({...previous, query}))}
                 />
                 {!!state.filters.authorIds.length && <div className={classes.authorPills} role="group" aria-label="Selected authors">
                   {state.filters.authorIds.map(userId => <SingleUsersItem variant="search" key={userId} userId={userId} removeItem={removeAuthor} />)}
@@ -191,12 +163,6 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
               </div>
               {onClose && <button type="button" className={classes.closeButton} aria-label="Close search" onClick={onClose}>✕</button>}
             </form>
-            {showHistoryHint && <div id={hintId} className={classes.historyHint}>Shift+↑ / Shift+↓: search history</div>}
-
-            {historyReadError && <div role="status">
-              Could not load search history. <button type="button" onClick={() => { void retryHistory(); }}>Retry history</button>
-            </div>}
-            {historyError && <div role="status">Could not update search history.</div>}
             <SearchKindBar
               className={classes.kinds}
               enabled={state.kinds}

@@ -295,8 +295,6 @@ interface Mutation {
   addTags: boolean | null;
   analyticsEvent: boolean | null;
   UpdateSearchSynonyms: Array<string>;
-  recordSearch: Array<string>;
-  clearSearchHistory: boolean;
   useEmailToken: any;
   getClaudeAccessLink: string | null;
   connectCrossposter: string | null;
@@ -7059,7 +7057,6 @@ interface User {
   editUrl: string | null;
   lwWikiImport: boolean | null;
   theme: any;
-  searchHistory: Array<string> | null;
   lastUsedTimezone: string | null;
   whenConfirmationEmailSent: Date | null;
   legacy: boolean | null;
