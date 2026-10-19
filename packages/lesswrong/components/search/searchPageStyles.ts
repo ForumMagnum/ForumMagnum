@@ -327,7 +327,7 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
       height: 16,
       cursor: "pointer",
       backgroundColor: theme.palette.text.dim,
-      mask: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M4 4l8 8M12 4l-8 8\' stroke=\'black\' stroke-width=\'1.5\' stroke-linecap=\'round\'/%3E%3C/svg%3E") center / contain no-repeat',
+      mask: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M4 4l8 8M12 4l-8 8\' stroke=\'currentColor\' stroke-width=\'1.5\' stroke-linecap=\'round\'/%3E%3C/svg%3E") center / contain no-repeat',
     },
     "-webkit-appearance": "none",
   },
