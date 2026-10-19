@@ -659,18 +659,16 @@ function drafts(terms: PostsViewTerms) {
         {shareWithUsers: terms.userId},
         {coauthorUserIds: terms.userId},
       ],
-      // Besides actual drafts, include the user's other posts that aren't
-      // publicly visible and wouldn't otherwise show up in any list: rejected
-      // posts (whether or not they've been moved back to drafts) and scheduled
-      // posts. Drafts can also have isFuture set if they were scheduled and
-      // then moved back to drafts.
+      // Include rejected drafts, and scheduled posts (which wouldn't otherwise
+      // show up in any list). Drafts can also have isFuture set if they were
+      // scheduled and then moved back to drafts. Rejected non-draft posts
+      // aren't included; they show up in the author's lists of published posts.
       draft: viewFieldAllowAny,
       rejected: null, // Not viewFieldAllowAny, which would get deep-merged with the default view's {$ne: true}
       isFuture: viewFieldAllowAny,
       $and: [
         {$or: [
           {draft: true},
-          {rejected: true},
           {isFuture: true},
         ]},
       ],
