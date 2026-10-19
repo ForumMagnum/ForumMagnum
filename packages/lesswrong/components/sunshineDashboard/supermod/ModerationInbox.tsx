@@ -6,11 +6,12 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useMessages } from '@/components/common/withMessages';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
-import { useLocation, useNavigate } from '@/lib/routeUtil';
+import { useSubscribedLocation, useNavigate } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import type { ModerationInboxQueueQueryQuery, ModerationInboxCurationQueryQuery, ModerationInboxTeamInboxQueryQuery } from '@/lib/generated/gql-codegen/graphql';
 import ErrorMessage from '@/components/common/ErrorMessage';
+import { isMissingDocumentError } from '@/lib/utils/errorUtil';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ModerationInboxList from './ModerationInboxList';
 import ModerationUserDetailView from './ModerationUserDetailView';
@@ -176,20 +177,22 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCuratedDate, queueSnapshotTime, initialOpenedUserId, currentUser }: {
+const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCuratedDate, queueSnapshotTime, reviewQueueUsers, currentUser }: {
   queue: ModerationQueueSnapshot;
   curationPosts: SunshineCurationPostsListItem[];
   teamInboxThreads: TeamInboxThread[];
   lastCuratedDate: string | null;
   queueSnapshotTime: string;
-  initialOpenedUserId: string | null;
+  reviewQueueUsers: { _id: string; reviewGroup?: ReviewGroup | null }[];
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
   const apolloClient = useApolloClient();
   const { flash } = useMessages();
   const [loadingRemaining, setLoadingRemaining] = useState(false);
-  const [state, dispatch] = useReducer(inboxStateReducer, { queue, curationPosts, teamInboxThreads, initialOpenedUserId }, createInitialInboxState);
+  const { query, pathname } = useSubscribedLocation();
+  const urlUserId = typeof query.user === 'string' && query.user ? query.user : null;
+  const [state, dispatch] = useReducer(inboxStateReducer, { queue, curationPosts, teamInboxThreads, initialOpenedUserId: urlUserId }, createInitialInboxState);
   const [changesSince] = useState(() => new Date(queueSnapshotTime));
   const concurrentModeratorChanges = useConcurrentModeratorChanges(state.loadedUserIds, state.loadedPostIds, changesSince);
 
@@ -216,14 +219,30 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
   }, [apolloClient, flash, loadingRemaining]);
 
   const navigate = useNavigate();
-  const previousOpenedUserId = useRef(state.openedUserId);
+  const syncedSelection = useRef<{
+    urlUserId: string | null;
+    openedUserId: string | null;
+    writtenUserId?: string | null;
+  }>({ urlUserId, openedUserId: state.openedUserId });
 
   useEffect(() => {
-    // Incoming navigation can update the location before the old inbox unmounts.
-    // Only a selection change inside this inbox should write back to the URL.
-    if (previousOpenedUserId.current === state.openedUserId) return;
-    previousOpenedUserId.current = state.openedUserId;
+    if (pathname !== '/admin/supermod') return;
+    const previous = syncedSelection.current;
+    syncedSelection.current = { ...previous, urlUserId, openedUserId: state.openedUserId };
 
+    // Next can restore a cached inbox. Incoming navigation takes precedence over
+    // its old selection, without resetting the queue or pending undo actions.
+    if (urlUserId !== previous.urlUserId) {
+      syncedSelection.current.writtenUserId = undefined;
+      if (urlUserId !== previous.writtenUserId) {
+        dispatch(urlUserId ? { type: 'OPEN_USER', userId: urlUserId, fromUrl: true } : { type: 'CLOSE_DETAIL' });
+        return;
+      }
+    }
+    if (state.openedUserId === previous.openedUserId || state.openedUserId === urlUserId) return;
+
+    // Remember our own URL update so it isn't treated as incoming navigation.
+    syncedSelection.current.writtenUserId = state.openedUserId;
     navigate(currentLocation => {
       if (currentLocation.pathname !== '/admin/supermod') return currentLocation.location;
       const search = new URLSearchParams(currentLocation.location.search);
@@ -234,7 +253,20 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
       }
       return { ...currentLocation.location, search: search.toString() ? `?${search}` : '' };
     }, { replace: true, skipRouter: true });
-  }, [state.openedUserId, navigate]);
+  }, [urlUserId, pathname, state.openedUserId, navigate]);
+
+  const needsDirectUser = !!state.openedUserId && !state.users.some(user => user._id === state.openedUserId);
+  const directUserResult = useQuery(SingleUserSupermodQuery, {
+    variables: { documentId: state.openedUserId },
+    skip: !needsDirectUser,
+    ssr: false,
+  });
+  const directUser = directUserResult.data?.user?.result;
+  useEffect(() => {
+    if (!needsDirectUser || !directUser || directUser._id !== state.openedUserId) return;
+    const queuedUser = reviewQueueUsers.find(user => user._id === directUser._id);
+    dispatch({ type: 'LOAD_LINKED_USER', user: directUser, unloadedGroup: queuedUser ? queuedUser.reviewGroup ?? 'unknown' : null });
+  }, [needsDirectUser, directUser, state.openedUserId, reviewQueueUsers]);
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
@@ -264,12 +296,12 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
   }, [state.openedUserId, allOrderedUsers]);
 
   const sidebarUser = useMemo(() => {
-    if (openedUser) return openedUser;
+    if (state.openedUserId) return openedUser;
     if (state.focusedUserId) {
       return allOrderedUsers.find(u => u._id === state.focusedUserId) ?? null;
     }
     return null;
-  }, [openedUser, state.focusedUserId, allOrderedUsers]);
+  }, [openedUser, state.openedUserId, state.focusedUserId, allOrderedUsers]);
 
   const focusedPost = useMemo(() => {
     if (!state.focusedPostId) return null;
@@ -425,7 +457,7 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
           dispatch={dispatch}
         />
       )}
-      {!openedUser && (
+      {!state.openedUserId && (
         <ModerationTabs
           tabs={visibleTabs}
           activeTab={state.activeTab}
@@ -435,7 +467,20 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
       )}
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
-          {openedUser ? (
+          {needsDirectUser ? (
+            <div className={classes.loading}>
+              {directUserResult.loading || (directUser?._id === state.openedUserId) ? <Loading /> : <>
+                <ErrorMessage message={directUserResult.error && !isMissingDocumentError(directUserResult.error)
+                  ? directUserResult.error.message
+                  : "This user could not be found."} />
+                <Button onClick={() => {
+                  // The query result above displays failed retries.
+                  void directUserResult.refetch().catch(() => {});
+                }}>Retry</Button>
+                <Button onClick={handleCloseDetail}>Back to queue</Button>
+              </>}
+            </div>
+          ) : openedUser ? (
             <ModerationUserDetailView 
               currentUser={currentUser}
               user={openedUser}
@@ -520,28 +565,15 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, lastCura
   );
 };
 
-// Mount only once the initial queries have succeeded, so direct-user lookup and
-// reducer initialization never run against an incomplete queue.
+// Mount only once the initial queries have succeeded, so reducer initialization
+// never runs against an incomplete queue.
 const ModerationInboxReady = ({ currentUser, data, curationData, teamInboxData }: {
   currentUser: UsersCurrent;
   data: ModerationInboxQueueQueryQuery;
   curationData: ModerationInboxCurationQueryQuery;
   teamInboxData: ModerationInboxTeamInboxQueryQuery;
 }) => {
-  const classes = useStyles(styles);
-  const { query } = useLocation();
-  const [initialOpenedUserId] = useState(() => query.user || null);
-
-  // This lookup gates initialization only; a later queue refresh must not unmount the inbox.
-  const [queuedDirectUser] = useState(() => data.users?.results.find(user => user._id === initialOpenedUserId));
-  const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !queuedDirectUser;
-  const { data: directUserData, loading: directUserLoading } = useQuery(SingleUserSupermodQuery, {
-    variables: { documentId: initialOpenedUserId },
-    skip: !shouldFetchDirectUser,
-    fetchPolicy: 'cache-and-network',
-  });
-  const directUser = queuedDirectUser ?? directUserData?.user?.result ?? null;
-  const queue = useMemo(() => getModerationQueueSnapshot(data, directUser), [data, directUser]);
+  const queue = useMemo(() => getModerationQueueSnapshot(data), [data]);
   const teamInboxThreads = useMemo(() => getTeamInboxThreads(
     teamInboxData.teamInboxConversations?.results ?? [],
     teamInboxData.openAppeals?.results ?? [],
@@ -550,17 +582,13 @@ const ModerationInboxReady = ({ currentUser, data, curationData, teamInboxData }
   // Pre-fetch core tags for the posts tab.
   useCoreTags({ ssr: false });
 
-  if (shouldFetchDirectUser && directUserLoading && !directUserData) {
-    return <div className={classes.loading}><Loading /></div>;
-  }
-
   return <ModerationInboxInner
     queue={queue}
     curationPosts={curationData.CurationCandidatePosts?.results ?? []}
     teamInboxThreads={teamInboxThreads}
     lastCuratedDate={curationData.LastCuratedDate.lastCuratedDate}
     queueSnapshotTime={data.supermodQueueSnapshotTime}
-    initialOpenedUserId={initialOpenedUserId}
+    reviewQueueUsers={data.reviewQueueUsers?.results ?? []}
     currentUser={currentUser}
   />;
 };

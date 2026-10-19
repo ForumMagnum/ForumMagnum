@@ -85,11 +85,11 @@ export function createInitialInboxState({ queue, curationPosts, teamInboxThreads
     history: [],
     runningLlmCheckId: null,
   };
-  if (!queue.users.length && !queue.posts.length && !queue.classifiedPosts.length && !curationPosts.length && !teamInboxThreads.length) {
-    return state;
-  }
   if (initialOpenedUserId) {
     return { ...state, activeTab: 'all', focusedUserId: initialOpenedUserId, openedUserId: initialOpenedUserId };
+  }
+  if (!queue.users.length && !queue.posts.length && !queue.classifiedPosts.length && !curationPosts.length && !teamInboxThreads.length) {
+    return state;
   }
 
   const groupedUsers = groupBy(queue.users, user => getUserReviewGroup(user));
@@ -103,7 +103,8 @@ export function createInitialInboxState({ queue, curationPosts, teamInboxThreads
 }
 
 export type InboxAction =
-  | { type: 'OPEN_USER'; userId: string; }
+  | { type: 'OPEN_USER'; userId: string; fromUrl?: boolean; }
+  | { type: 'LOAD_LINKED_USER'; user: SunshineUsersList; unloadedGroup: ReviewGroup | null; }
   | { type: 'CLOSE_DETAIL'; }
   | { type: 'CHANGE_TAB'; tab: TabId; }
   | { type: 'NEXT_USER'; }
@@ -254,7 +255,8 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
 
       return {
         ...state,
-        users: [...state.users, item.user],
+        // A direct link may have loaded this user again while the action was pending.
+        users: [...state.users.filter(user => user._id !== item.user._id), item.user],
         undoQueue: state.undoQueue.filter(item => item.user._id !== action.userId),
         activeTab: item.sourceTab,
         focusedUserId: item.user._id,
@@ -280,7 +282,25 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       return {
         ...state,
         openedUserId: action.userId,
+        activeTab: action.fromUrl ? 'all' : state.activeTab,
+        focusedUserId: action.fromUrl ? action.userId : state.focusedUserId,
         focusedContentIndex: 0, // Start at first content item
+      };
+    }
+
+    case 'LOAD_LINKED_USER': {
+      const { user, unloadedGroup } = action;
+      if (state.openedUserId !== user._id || state.users.some(existing => existing._id === user._id)) return state;
+      const wasUnloaded = unloadedGroup && !state.loadedUserIds.includes(user._id);
+      return {
+        ...state,
+        users: [user, ...state.users],
+        loadedUserIds: [...new Set([...state.loadedUserIds, user._id])],
+        unloadedCounts: wasUnloaded ? {
+          ...state.unloadedCounts,
+          all: Math.max(0, (state.unloadedCounts.all ?? 0) - 1),
+          [unloadedGroup]: Math.max(0, (state.unloadedCounts[unloadedGroup] ?? 0) - 1),
+        } : state.unloadedCounts,
       };
     }
 
