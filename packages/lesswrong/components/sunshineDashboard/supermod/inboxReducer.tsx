@@ -65,9 +65,10 @@ interface InitialInboxData {
   curationPosts: SunshineCurationPostsListItem[];
   teamInboxThreads: TeamInboxThread[];
   initialOpenedUserId: string | null;
+  initialTab: TabId | null;
 }
 
-export function createInitialInboxState({ queue, curationPosts, teamInboxThreads, initialOpenedUserId }: InitialInboxData): InboxState {
+export function createInitialInboxState({ queue, curationPosts, teamInboxThreads, initialOpenedUserId, initialTab }: InitialInboxData): InboxState {
   const state: InboxState = {
     ...queue,
     curationPosts,
@@ -86,7 +87,10 @@ export function createInitialInboxState({ queue, curationPosts, teamInboxThreads
     runningLlmCheckId: null,
   };
   if (initialOpenedUserId) {
-    return { ...state, activeTab: 'all', focusedUserId: initialOpenedUserId, openedUserId: initialOpenedUserId };
+    return { ...state, activeTab: getLinkedUserTab(initialTab), focusedUserId: initialOpenedUserId, openedUserId: initialOpenedUserId };
+  }
+  if (initialTab) {
+    return enterTab(state, initialTab);
   }
   if (!queue.users.length && !queue.posts.length && !queue.classifiedPosts.length && !curationPosts.length && !teamInboxThreads.length) {
     return state;
@@ -103,7 +107,7 @@ export function createInitialInboxState({ queue, curationPosts, teamInboxThreads
 }
 
 export type InboxAction =
-  | { type: 'OPEN_USER'; userId: string; fromUrl?: boolean; }
+  | { type: 'OPEN_USER'; userId: string; fromUrl?: { tab: TabId | null }; }
   | { type: 'LOAD_LINKED_USER'; user: SunshineUsersList; unloadedGroup: ReviewGroup | null; }
   | { type: 'CLOSE_DETAIL'; }
   | { type: 'CHANGE_TAB'; tab: TabId; }
@@ -188,6 +192,14 @@ export function getVisibleTeamInboxThreads(state: InboxState): TeamInboxThread[]
 
 export function isUserTab(tab: TabId): boolean {
   return !NON_USER_TABS.has(tab);
+}
+
+/**
+ * A link to a user keeps its user tab, so reloading restores the queue being
+ * worked through. Other tabs can't show a user, so those fall back to 'all'.
+ */
+export function getLinkedUserTab(tab: TabId | null): TabId {
+  return tab && isUserTab(tab) ? tab : 'all';
 }
 
 export function enterTab(state: InboxState, tab: TabId): InboxState {
@@ -282,7 +294,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       return {
         ...state,
         openedUserId: action.userId,
-        activeTab: action.fromUrl ? 'all' : state.activeTab,
+        activeTab: action.fromUrl ? getLinkedUserTab(action.fromUrl.tab) : state.activeTab,
         focusedUserId: action.fromUrl ? action.userId : state.focusedUserId,
         focusedContentIndex: 0, // Start at first content item
       };
