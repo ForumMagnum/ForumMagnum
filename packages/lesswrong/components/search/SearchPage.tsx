@@ -27,7 +27,6 @@ import { SearchBarHit, useSearchResults } from './useSearchResults';
 import { defaultSearchPageState, searchPageStateToQuery } from './searchPageUrl';
 import SearchKindBar, { searchKinds, toggleSearchKind } from './SearchKindBar';
 import SearchPageFilters, { summarizeSearchFilters } from './SearchPageFilters';
-import SearchTimeframeBar from './SearchTimeframeBar';
 import SingleUsersItem from '../form-components/SingleUsersItem';
 
 function indexNameForKinds(kinds: SearchIndexCollectionName[]): string {
@@ -40,11 +39,10 @@ function indexNameForKinds(kinds: SearchIndexCollectionName[]): string {
 interface SearchPageProps {
   presentation?: 'page' | 'modal',
   onClose?: () => void,
-  timeframeSlot?: HTMLElement | null,
   filterTabSlot?: HTMLElement | null,
 }
 
-const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTimeframeSlot, filterTabSlot: providedFilterTabSlot}: SearchPageProps) => {
+const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilterTabSlot}: SearchPageProps) => {
   // HACK: workaround for cacheComponents' background use of <Activity> breaking search in a lot of situations after navigation.
   const pathname = usePathname();
   const classes = useStyles(searchPageStyles);
@@ -53,10 +51,7 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   const captureResultSelected = useCaptureSearchResultSelected();
   const hintId = useId();
   const filtersId = useId();
-  const timeframeId = useId();
-  const timeframeRef = useRef<HTMLElement>(null);
   const isDesktop = useIsAboveBreakpoint('md');
-  const timeframeSlot = isDesktop ? providedTimeframeSlot : null;
   const filterTabSlot = isDesktop ? providedFilterTabSlot : null;
   const layoutRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -64,14 +59,8 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const {state, setState} = useSearchPageState(presentation);
-  const {expandedFilters, mobileFiltersOpen: filtersOpen} = state;
-  const timeframeOpen = filtersOpen && expandedFilters.includes('time');
-  useEffect(() => {
-    if (timeframeOpen && presentation === 'page') timeframeRef.current?.scrollIntoView?.({block: 'start'});
-  }, [timeframeOpen, presentation]);
+  const filtersOpen = state.mobileFiltersOpen;
   const [inputFocused, setInputFocused] = useState(false);
-  const [nowMs] = useState(() => Date.now());
-  const scale = {originMs: Date.UTC(2003, 0, 1), nowMs};
   const {recallSearch, recordSearch, resetNavigation, clearHistory, retryHistory, hasHistory, error: historyError, readError: historyReadError} = useSearchHistory(currentUser?._id, true);
 
   const request = {
@@ -143,26 +132,12 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
       ? previous.expandedFilters.filter(item => item !== key)
       : [...previous.expandedFilters, key],
   }));
-  const closeTimeframe = () => {
-    toggleFilter('time');
-    scrollRef.current?.querySelector<HTMLButtonElement>(`button[aria-controls="${timeframeId}"]`)?.focus({preventScroll: true});
-  };
   const clearFilters = () => setState(previous => ({...previous, kinds: [], filters: {...defaultSearchPageState.filters}}));
   const {hasDateFilter, hasFilters} = summarizeSearchFilters(state);
   const showHistoryHint = !!currentUser && inputFocused && !state.query;
-  const timeframePanel = (timeframeOpen || !!timeframeSlot) && <section
-    ref={timeframeRef} data-search-timeframe-open={timeframeOpen} id={timeframeId} aria-label="Timeframe"
-    className={classNames(classes.timeframePanel, {[classes.timeframePanelModal]: !!timeframeSlot, [classes.timeframePanelCollapsed]: !timeframeOpen})}
-    inert={!timeframeOpen} aria-hidden={!timeframeOpen}
-  >
-    <SearchTimeframeBar value={state.filters.dateRange} onChange={(dateRange) => setFilters({dateRange})} scale={scale}>
-      <button type="button" className={classes.clearFilters} aria-label="Done with timeframe" onClick={closeTimeframe}>Done</button>
-    </SearchTimeframeBar>
-  </section>;
-
   const filterTab = (
     <button type="button" className={classNames(classes.filterTab, {[classes.filterTabModal]: !!filterTabSlot})} aria-label="Filter results"
-      aria-expanded={filtersOpen} aria-controls={`${filtersId} ${timeframeId}`}
+      aria-expanded={filtersOpen} aria-controls={filtersId}
       onClick={() => setState(previous => ({
         ...previous,
         mobileFiltersOpen: !previous.mobileFiltersOpen,
@@ -176,10 +151,9 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   return <div key={pathname} ref={scrollRef} data-search-filters-open={filtersOpen} className={classNames(classes.root, {[classes.modal]: presentation === 'modal', [classes.filtersClosed]: !filtersOpen})}>
     <InstantSearch indexName={getSearchIndexName("Posts")} searchClient={getSearchClient({emptyStringSearchResults: "empty"})}>
       {filterTabSlot && createPortal(filterTab, filterTabSlot)}
-      {isDesktop && timeframePanel && (timeframeSlot ? createPortal(timeframePanel, timeframeSlot) : timeframePanel)}
       <div ref={layoutRef} className={classes.layout}>
         <SearchPageFilters state={state} setFilters={setFilters} toggleFilter={toggleFilter} clearFilters={clearFilters}
-          filtersId={filtersId} timeframeId={timeframeId} isDesktop={isDesktop} timeframePanel={timeframePanel}>
+          filtersId={filtersId}>
           {hasHistory && <button type="button" className={classes.clearFilters} onClick={() => { void clearHistory(); }}>Clear search history</button>}
         </SearchPageFilters>
         <div className={classes.results} onKeyDown={handleResultKeyDown}>
@@ -226,11 +200,6 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
             <SearchKindBar
               className={classes.kinds}
               enabled={state.kinds}
-              onSelect={presentation === "modal" ? type => setState(previous => ({...previous, kinds: [type]})) : undefined}
-              onAdd={presentation === "modal" ? type => setState(previous => ({
-                ...previous,
-                kinds: previous.kinds.includes(type) ? previous.kinds : [...previous.kinds, type],
-              })) : undefined}
               onClear={() => setState(previous => ({...previous, kinds: []}))}
               onToggle={(type) => setState(previous => ({...previous, kinds: toggleSearchKind(previous.kinds, type)}))}
             />

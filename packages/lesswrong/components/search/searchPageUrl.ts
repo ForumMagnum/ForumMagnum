@@ -1,10 +1,8 @@
 import qs from "qs";
-import { parseIsoDay } from "./timeframeSlider";
 import { SearchIndexCollectionName, collectionIsSearchIndexed } from "@/lib/search/searchUtil";
 import {
   SearchDateRange,
   SearchFilterState,
-  SearchKarmaRange,
   SearchPostType,
   defaultSearchPostTypes,
   emptySearchFilters,
@@ -21,14 +19,14 @@ export interface SearchPageState {
 
 export const defaultSearchPageState: SearchPageState = {
   query: "",
-  expandedFilters: ["time", "authors", "tags", "events", "types", "karma"],
+  expandedFilters: ["time", "authors", "tags", "events", "types"],
   mobileFiltersOpen: false,
   kinds: [],
   filters: {...emptySearchFilters, postTypes: defaultSearchPostTypes, events: "exclude"},
 };
 
-const searchFilterPanels = new Set(["time", "authors", "tags", "events", "types", "karma"]);
-const searchParameterNames = ["query", "kinds", "contentType", "tags", "tagMatch", "events", "authors", "types", "from", "to", "karma", "expanded", "mobileFilters"];
+const searchFilterPanels = new Set(["time", "authors", "tags", "events", "types"]);
+const searchParameterNames = ["query", "kinds", "contentType", "tags", "tagMatch", "events", "authors", "types", "from", "to", "expanded", "mobileFilters"];
 
 export function mergeSearchPageParams(search: string, state: SearchPageState, presentation: "page" | "modal" = "page"): string {
   const prefix = presentation === "modal" ? "search." : "";
@@ -44,7 +42,6 @@ export function mergeSearchPageParams(search: string, state: SearchPageState, pr
 }
 
 const dayMs = 24 * 60 * 60 * 1000;
-const karmaPattern = /^(-?\d+)?-(-?\d+)?$/;
 
 export function searchPageStateFromSearch(search: string, presentation: "page" | "modal"): SearchPageState {
   const prefix = presentation === "modal" ? "search." : "";
@@ -67,6 +64,12 @@ function splitList(value: string | undefined): string[] {
   return value ? value.split(",").filter(item => item.length > 0) : [];
 }
 
+function parseIsoDay(value: string | undefined): number | undefined {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
+  const ms = Date.parse(`${value}T00:00:00.000Z`);
+  return Number.isFinite(ms) && new Date(ms).toISOString().slice(0, 10) === value ? ms : undefined;
+}
+
 function parseDateBound(value: string | undefined, end: boolean): number | undefined {
   const day = parseIsoDay(value);
   if (day !== undefined) return day + (end ? dayMs - 1 : 0);
@@ -85,22 +88,6 @@ function parseDateRange(from: string | undefined, to: string | undefined): Searc
   const end = parseDateBound(to, true);
   if (start !== undefined && end !== undefined && start > end) return {};
   return {...(start !== undefined ? {start} : {}), ...(end !== undefined ? {end} : {})};
-}
-
-function parseKarmaRange(value: string | undefined): SearchKarmaRange {
-  const match = value ? karmaPattern.exec(value) : null;
-  if (!match) return {};
-  const range: SearchKarmaRange = {};
-  if (match[1] !== undefined) range.min = Number(match[1]);
-  if (match[2] !== undefined) range.max = Number(match[2]);
-  if (Object.values(range).some(bound => !Number.isSafeInteger(bound))) return {};
-  if (range.min !== undefined && range.max !== undefined && range.min > range.max) return {};
-  return range;
-}
-
-function formatKarmaRange(range: SearchKarmaRange): string | undefined {
-  if (range.min === undefined && range.max === undefined) return undefined;
-  return `${range.min ?? ""}-${range.max ?? ""}`;
 }
 
 function samePostTypes(a: SearchPostType[], b: SearchPostType[]): boolean {
@@ -124,7 +111,6 @@ export function searchPageStateFromQuery(query: Record<string, string | undefine
       authorIds: readList(query, "authors"),
       postTypes: postTypes.some(type => type !== "event") ? postTypes.filter(type => type !== "event") : defaultSearchPostTypes,
       dateRange: parseDateRange(query.from, query.to),
-      karmaRange: parseKarmaRange(query.karma),
     },
   };
 }
@@ -143,7 +129,6 @@ export function searchPageStateToQuery(state: SearchPageState): Record<string, s
     ["types", samePostTypes(filters.postTypes, defaultSearchPostTypes) ? undefined : filters.postTypes.join(",")],
     ["from", filters.dateRange.start !== undefined ? formatDateBound(filters.dateRange.start, false) : undefined],
     ["to", filters.dateRange.end !== undefined ? formatDateBound(filters.dateRange.end, true) : undefined],
-    ["karma", formatKarmaRange(filters.karmaRange)],
   ];
   const result: Record<string, string> = {};
   for (const [key, value] of entries) {

@@ -47,11 +47,9 @@ const styles = defineStyles("SearchKindBar", (theme: ThemeType) => ({
   },
 }));
 
-const SearchKindBar = ({enabled, onToggle, onSelect, onAdd, onClear, className}: {
+const SearchKindBar = ({enabled, onToggle, onClear, className}: {
   enabled: SearchIndexCollectionName[],
   onClear?: () => void,
-  onSelect?: (type: SearchIndexCollectionName) => void,
-  onAdd?: (type: SearchIndexCollectionName) => void,
   onToggle: (type: SearchIndexCollectionName) => void,
   className?: string,
 }) => {
@@ -62,8 +60,7 @@ const SearchKindBar = ({enabled, onToggle, onSelect, onAdd, onClear, className}:
       key={type}
       Icon={Icon}
       selected={enabled.includes(type)}
-      onToggle={() => (onSelect ?? onToggle)(type)}
-      onHold={onAdd ? () => onAdd(type) : undefined}
+      onToggle={() => onToggle(type)}
     >
       {label}
     </SearchChip>)}

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -51,66 +51,20 @@ const styles = defineStyles("SearchChip", (theme: ThemeType) => ({
   },
 }));
 
-const SearchChip = ({selected, onToggle, onHold, Icon, children, className}: {
+const SearchChip = ({selected, onToggle, Icon, children, className}: {
   selected: boolean,
   onToggle: () => void,
-  onHold?: () => void,
   Icon?: React.ComponentType<{className?: string}>,
   children: React.ReactNode,
   className?: string,
 }) => {
   const classes = useStyles(styles);
-  const timer = useRef<number | undefined>(undefined);
-  const held = useRef(false);
-
-  const cancelHold = () => {
-    window.clearTimeout(timer.current);
-    timer.current = undefined;
-  };
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  const startHold = () => {
-    cancelHold();
-    held.current = false;
-    if (onHold) {
-      timer.current = window.setTimeout(() => {
-        timer.current = undefined;
-        held.current = true;
-        onHold();
-      }, 500);
-    }
-  };
-  const activate = () => {
-    cancelHold();
-    if (!held.current) onToggle();
-    held.current = false;
-  };
-
   return <button
     type="button"
     role="checkbox"
     aria-checked={selected}
     className={classNames(classes.chip, {[classes.selected]: selected}, className)}
-    title={onHold ? "Click to select only this type. Hold to add it to your selection." : undefined}
-    onClick={activate}
-    onPointerDown={event => {
-      if (event.button === 0) startHold();
-    }}
-    onPointerUp={cancelHold}
-    onPointerLeave={cancelHold}
-    onPointerCancel={cancelHold}
-    onBlur={cancelHold}
-    onContextMenu={onHold ? event => event.preventDefault() : undefined}
-    onKeyDown={event => {
-      if (!onHold || (event.key !== ' ' && event.key !== 'Enter')) return;
-      event.preventDefault();
-      if (!event.repeat) startHold();
-    }}
-    onKeyUp={event => {
-      if (!onHold || (event.key !== ' ' && event.key !== 'Enter')) return;
-      event.preventDefault();
-      activate();
-    }}
+    onClick={onToggle}
   >
     {Icon && <Icon className={classes.icon} />}
     {children}

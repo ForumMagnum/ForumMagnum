@@ -21,11 +21,6 @@ export interface SearchDateRange {
   end?: number;
 }
 
-export interface SearchKarmaRange {
-  min?: number;
-  max?: number;
-}
-
 export interface SearchFilterState {
   tagIds: string[];
   tagMatch: SearchTagMatch;
@@ -33,7 +28,6 @@ export interface SearchFilterState {
   authorIds: string[];
   postTypes: SearchPostType[];
   dateRange: SearchDateRange;
-  karmaRange: SearchKarmaRange;
 }
 
 export const emptySearchFilters: SearchFilterState = {
@@ -43,7 +37,6 @@ export const emptySearchFilters: SearchFilterState = {
   authorIds: [],
   postTypes: [],
   dateRange: {},
-  karmaRange: {},
 };
 
 export interface SearchFilterParams {
@@ -61,7 +54,7 @@ function sameTypes(a: SearchPostType[], b: SearchPostType[]): boolean {
 
 export function searchFiltersToParams(filters: SearchFilterState): SearchFilterParams {
   const params: SearchFilterParams = {};
-  const {tagIds, tagMatch, events, authorIds, postTypes, dateRange, karmaRange} = filters;
+  const {tagIds, tagMatch, events, authorIds, postTypes, dateRange} = filters;
   if (tagIds.length) {
     params.tagIds = tagIds;
     params.tagMatch = tagMatch;
@@ -72,8 +65,6 @@ export function searchFiltersToParams(filters: SearchFilterState): SearchFilterP
   const numericFilters: string[] = [];
   if (dateRange.start !== undefined) numericFilters.push(`publicDateMs>=${dateRange.start}`);
   if (dateRange.end !== undefined) numericFilters.push(`publicDateMs<=${dateRange.end}`);
-  if (karmaRange.min !== undefined) numericFilters.push(`karma>=${karmaRange.min}`);
-  if (karmaRange.max !== undefined) numericFilters.push(`karma<=${karmaRange.max}`);
   if (numericFilters.length) params.numericFilters = numericFilters;
   return params;
 }
