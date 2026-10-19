@@ -16,7 +16,7 @@ import ClickAwayListener from "../../lib/vendor/react-click-away-listener";
 import { defaultSharingSettings, type SharingSettings, type CollaborativeEditingAccessLevel } from "@/lib/collections/posts/collabEditingPermissions";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { TypedReactFormApi, TypedFieldApi } from "../tanstack-form-components/BaseAppForm";
-import { AddOnSubmitCallback, AddOnSuccessCallback, EditorFormComponent } from "../editor/EditorFormComponent";
+import { AddOnSubmitCallback, AddOnSuccessCallback, EditorFormComponent, type EditorGetContentsCallback } from "../editor/EditorFormComponent";
 import { CoauthorsListEditor } from "../form-components/CoauthorsListEditor";
 import { SocialPreviewUpload } from "../form-components/SocialPreviewUpload";
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
@@ -1243,8 +1243,9 @@ const convertDocumentEditorTypeMutation = gql(`
   }
 `);
 
-function MarkdownEditorToggle({ form }: {
+function MarkdownEditorToggle({ form, getContentsCallback }: {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
+  getContentsCallback: React.RefObject<EditorGetContentsCallback | null>;
 }) {
   const classes = useStyles(styles);
   const contents = form.state.values.contents;
@@ -1252,16 +1253,30 @@ function MarkdownEditorToggle({ form }: {
   const isMarkdown = currentType === "markdown";
   const postId = form.state.values._id;
 
+  const { flash } = useMessages();
   const [convertEditorType, { loading }] = useMutation(convertDocumentEditorTypeMutation, {
     onCompleted: () => {
       // Reload to remount the editor with the new revision
       window.location.reload();
+    },
+    onError: (error) => {
+      // Collaboration was already disconnected before the mutation, so further
+      // edits on this page won't sync; tell the user rather than failing silently.
+      flash(`Failed to switch editors. Reload the page before making further edits. (${error.message})`);
     },
   });
 
   const handleToggle = useCallback(async () => {
     if (loading || !postId || !contents?.originalContents) return;
     const targetFormat: EditorTypeString = isMarkdown ? "lexical" : "markdown";
+
+    // The form's contents value is only updated on a throttle, so it can be
+    // missing the last few seconds of edits. Read the editor directly instead.
+    const latestContents = await getContentsCallback.current?.();
+    const sourceContents = latestContents ?? {
+      type: contents.originalContents.type,
+      data: contents.originalContents.data,
+    };
 
     // Disconnect local Hocuspocus providers before converting, same as
     // PostVersionHistory does before restoring a revision. Prevents stale
@@ -1274,13 +1289,13 @@ function MarkdownEditorToggle({ form }: {
         collectionName: "Posts",
         fieldName: "contents",
         document: {
-          type: contents.originalContents.type,
-          value: contents.originalContents.data,
+          type: sourceContents.type,
+          value: sourceContents.data,
         },
         targetFormat,
       },
     });
-  }, [loading, postId, contents, isMarkdown, convertEditorType]);
+  }, [loading, postId, contents, isMarkdown, convertEditorType, getContentsCallback]);
 
   return (
     <div className={classes.toggleRow} onClick={handleToggle}>
@@ -1302,6 +1317,7 @@ interface EditorSettingsSidebarProps {
   currentUser: UsersCurrent | null;
   isSaving?: boolean;
   onClose?: () => void;
+  getContentsCallback: React.RefObject<EditorGetContentsCallback | null>;
   addOnSubmitCallbackCustom: AddOnSubmitCallback<PostsEditMutationFragment>;
   addOnSuccessCallbackCustom: AddOnSuccessCallback<PostsEditMutationFragment>;
   addOnSubmitCallbackModerationGuidelines: AddOnSubmitCallback<PostsEditMutationFragment>;
@@ -1316,6 +1332,7 @@ const EditorSettingsSidebar = ({
   currentUser,
   isSaving = false,
   onClose,
+  getContentsCallback,
   addOnSubmitCallbackCustom,
   addOnSuccessCallbackCustom,
   addOnSubmitCallbackModerationGuidelines,
@@ -1454,7 +1471,7 @@ const EditorSettingsSidebar = ({
 
         {canSeeMarkdownToggle && (
           <div className={classes.accordionSection}>
-            <MarkdownEditorToggle form={form} />
+            <MarkdownEditorToggle form={form} getContentsCallback={getContentsCallback} />
           </div>
         )}
 

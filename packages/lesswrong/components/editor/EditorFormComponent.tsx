@@ -36,7 +36,7 @@ interface EditorCurrentContents {
   type: EditorTypeString;
   data: string | null;
 }
-type EditorGetContentsCallback = () => Promise<EditorCurrentContents | null>;
+export type EditorGetContentsCallback = () => Promise<EditorCurrentContents | null>;
 
 export type AddOnSuccessCallback<R> = (fn: EditorSuccessCallback<R>) => () => void;
 export type AddOnSubmitCallback<Fragment> = (cb: EditorSubmitCallback) => () => void;

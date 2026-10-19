@@ -134,7 +134,13 @@ export const revisionResolversGraphQLMutations = {
     // Hocuspocus so any existing collaborative session is replaced with
     // the converted content (same as restoring a previous revision).
     if (collectionName === 'Posts' && fieldName === 'contents' && targetFormat === 'lexical' && yjsBinary) {
-      await resetHocuspocusDocument(`post-${documentId}`, yjsBinary);
+      const resetResult = await resetHocuspocusDocument(`post-${documentId}`, yjsBinary);
+      // If the reset didn't go through, the collaboration server still has the
+      // old document, and the editor would load that instead of the converted
+      // contents. Report it rather than silently reloading into the old draft.
+      if (resetResult === "failed") {
+        throw new Error("Your post was converted, but the collaborative editor couldn't be updated, so it may still show an older version. Please try again, or contact support if this keeps happening.");
+      }
     }
 
     return true;
