@@ -24,6 +24,7 @@ const styles = defineStyles("SearchFilterRow", (theme: ThemeType) => ({
     "@media (prefers-reduced-motion: reduce)": {transition: "none"},
   },
   expanded: {transform: "rotate(90deg)"},
+  expandedUp: {transform: "rotate(-90deg)"},
   label: {minWidth: 82, fontWeight: 500, fontSize: 13},
   summary: {fontSize: 13, color: theme.palette.text.dim, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"},
   active: {color: theme.palette.primary.main},
@@ -41,18 +42,20 @@ interface SearchFilterRowProps {
   summary: string;
   active: boolean;
   expanded: boolean;
+  expandDirection?: "up" | "down";
   onToggle: () => void;
   onReset: () => void;
+  controlsId?: string;
   children?: React.ReactNode;
 }
 
-export default function SearchFilterRow({label, summary, active, expanded, onToggle, onReset, children}: SearchFilterRowProps) {
+export default function SearchFilterRow({label, summary, active, expanded, expandDirection = "down", onToggle, onReset, controlsId, children}: SearchFilterRowProps) {
   const classes = useStyles(styles);
   const id = useId();
   return <div className={classes.root}>
     <div className={classes.header}>
-      <button type="button" className={classes.toggle} aria-expanded={expanded} aria-controls={id} onClick={onToggle}>
-        <ChevronRightIcon aria-hidden="true" className={classNames(classes.chevron, {[classes.expanded]: expanded})} />
+      <button type="button" className={classes.toggle} aria-expanded={expanded} aria-controls={controlsId ?? id} onClick={onToggle}>
+        <ChevronRightIcon aria-hidden="true" className={classNames(classes.chevron, {[classes.expanded]: expanded && expandDirection === "down", [classes.expandedUp]: expanded && expandDirection === "up"})} />
         <span className={classes.label}>{label}</span>
         <span className={classNames(classes.summary, {[classes.active]: active})}>{summary}</span>
       </button>

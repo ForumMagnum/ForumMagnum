@@ -35,10 +35,33 @@ const styles = defineStyles('SearchModal', (theme: ThemeType) => ({
     transition: 'max-width 320ms cubic-bezier(0.2, 0, 0, 1)',
     '&:has([data-search-filters-open="true"])': {maxWidth: 1200},
     '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
-    height: '100%',
+    marginTop: 128,
+    height: 'calc(100% - 128px)',
+    [theme.breakpoints.down('sm')]: {marginTop: 0, height: '100%'},
     minHeight: 0,
     display: 'flex',
     flexDirection: 'column',
+    '& $timeframe:has([data-search-timeframe-open="true"]) + $dialogFrame $dialog': {
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0,
+    },
+  },
+  timeframe: {
+    position: 'absolute',
+    bottom: '100%', left: 0, right: 0,
+    maxHeight: 128,
+    display: 'grid',
+    gridTemplateRows: '0fr',
+    flexShrink: 0,
+    opacity: 0,
+    transition: 'grid-template-rows 320ms cubic-bezier(0.2, 0, 0, 1), opacity 200ms ease-out',
+    '&:has([data-search-timeframe-open="true"])': {gridTemplateRows: '1fr', opacity: 1},
+
+    '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
+  },
+  timeframeContent: {
+    minHeight: 0, overflow: 'hidden',
+    '& > section': {maxHeight: 128, boxSizing: 'border-box'},
   },
   filterTabSlot: {
     position: 'absolute', left: 0, right: 0, top: 0, zIndex: -1,
@@ -94,6 +117,7 @@ const SearchModal = ({onClose}: {onClose: () => void}) => {
   const viewportRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const [filterTabSlot, setFilterTabSlot] = useState<HTMLDivElement | null>(null);
+  const [timeframeSlot, setTimeframeSlot] = useState<HTMLDivElement | null>(null);
   const [previousFocus] = useState(() => document.activeElement);
 
   useEffect(() => {
@@ -139,10 +163,13 @@ const SearchModal = ({onClose}: {onClose: () => void}) => {
   }}>
     <div ref={viewportRef} className={classes.viewport}>
       <div ref={frameRef} className={classes.frame} role="dialog" aria-modal="true" aria-label="Search" onKeyDown={containSearchFocus}>
+        <div className={classes.timeframe}>
+          <div ref={setTimeframeSlot} className={classes.timeframeContent} />
+        </div>
         <div className={classes.dialogFrame}>
           <div ref={setFilterTabSlot} className={classes.filterTabSlot} />
           <div className={classes.dialog}>
-            <SearchPage presentation="modal" onClose={onClose} filterTabSlot={filterTabSlot} />
+            <SearchPage presentation="modal" onClose={onClose} timeframeSlot={timeframeSlot} filterTabSlot={filterTabSlot} />
           </div>
         </div>
       </div>
