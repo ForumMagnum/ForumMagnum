@@ -21600,6 +21600,28 @@ type ModerationInboxTeamInboxQueryQueryVariables = Exact<{ [key: string]: never;
 
 type ModerationInboxTeamInboxQueryQuery = ModerationInboxTeamInboxQueryQuery_Query;
 
+type ModerationInboxReportsAndTagsQueryQuery_reports_MultiReportOutput_results_Report = (
+  { __typename?: 'Report' }
+  & UnclaimedReportsList
+);
+
+type ModerationInboxReportsAndTagsQueryQuery_reports_MultiReportOutput = { __typename?: 'MultiReportOutput', results: Array<ModerationInboxReportsAndTagsQueryQuery_reports_MultiReportOutput_results_Report> };
+
+type ModerationInboxReportsAndTagsQueryQuery_unreviewedTags_MultiTagOutput_results_Tag = (
+  { __typename?: 'Tag' }
+  & SunshineTagFragment
+);
+
+type ModerationInboxReportsAndTagsQueryQuery_unreviewedTags_MultiTagOutput = { __typename?: 'MultiTagOutput', results: Array<ModerationInboxReportsAndTagsQueryQuery_unreviewedTags_MultiTagOutput_results_Tag> };
+
+type ModerationInboxReportsAndTagsQueryQuery_Query = { __typename?: 'Query', reports: ModerationInboxReportsAndTagsQueryQuery_reports_MultiReportOutput | null, unreviewedTags: ModerationInboxReportsAndTagsQueryQuery_unreviewedTags_MultiTagOutput | null };
+
+
+type ModerationInboxReportsAndTagsQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type ModerationInboxReportsAndTagsQueryQuery = ModerationInboxReportsAndTagsQueryQuery_Query;
+
 type teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
   { __typename?: 'Conversation' }
   & DoneTeamInboxConversation
@@ -21633,6 +21655,24 @@ type singleUserSupermodQueryQueryVariables = Exact<{
 
 
 type singleUserSupermodQueryQuery = singleUserSupermodQueryQuery_Query;
+
+type multiTagRelModerationTagViewQueryQuery_tagRels_MultiTagRelOutput_results_TagRel = (
+  { __typename?: 'TagRel' }
+  & TagRelFragment
+);
+
+type multiTagRelModerationTagViewQueryQuery_tagRels_MultiTagRelOutput = { __typename?: 'MultiTagRelOutput', results: Array<multiTagRelModerationTagViewQueryQuery_tagRels_MultiTagRelOutput_results_TagRel> };
+
+type multiTagRelModerationTagViewQueryQuery_Query = { __typename?: 'Query', tagRels: multiTagRelModerationTagViewQueryQuery_tagRels_MultiTagRelOutput | null };
+
+
+type multiTagRelModerationTagViewQueryQueryVariables = Exact<{
+  selector: InputMaybe<TagRelSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type multiTagRelModerationTagViewQueryQuery = multiTagRelModerationTagViewQueryQuery_Query;
 
 type multiPostModerationUserFeedCoauthoredQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
@@ -21903,6 +21943,57 @@ type createModeratorActionPostReviewActionsMutationVariables = Exact<{
 
 type createModeratorActionPostReviewActionsMutation = createModeratorActionPostReviewActionsMutation_Mutation;
 
+type updateReportReportActionsMutation_updateReport_ReportOutput_data_Report = { __typename?: 'Report', _id: string, closedAt: string | null, claimedUserId: string | null, markedAsSpam: boolean | null };
+
+type updateReportReportActionsMutation_updateReport_ReportOutput = { __typename?: 'ReportOutput', data: updateReportReportActionsMutation_updateReport_ReportOutput_data_Report | null };
+
+type updateReportReportActionsMutation_Mutation = { __typename?: 'Mutation', updateReport: updateReportReportActionsMutation_updateReport_ReportOutput | null };
+
+
+type updateReportReportActionsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateReportDataInput;
+}>;
+
+
+type updateReportReportActionsMutation = updateReportReportActionsMutation_Mutation;
+
+type updateCommentReportActionsMutation_updateComment_CommentOutput_data_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type updateCommentReportActionsMutation_updateComment_CommentOutput = { __typename?: 'CommentOutput', data: updateCommentReportActionsMutation_updateComment_CommentOutput_data_Comment | null };
+
+type updateCommentReportActionsMutation_Mutation = { __typename?: 'Mutation', updateComment: updateCommentReportActionsMutation_updateComment_CommentOutput | null };
+
+
+type updateCommentReportActionsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateCommentDataInput;
+}>;
+
+
+type updateCommentReportActionsMutation = updateCommentReportActionsMutation_Mutation;
+
+type updatePostReportActionsMutation_updatePost_PostOutput_data_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type updatePostReportActionsMutation_updatePost_PostOutput = { __typename?: 'PostOutput', data: updatePostReportActionsMutation_updatePost_PostOutput_data_Post | null };
+
+type updatePostReportActionsMutation_Mutation = { __typename?: 'Mutation', updatePost: updatePostReportActionsMutation_updatePost_PostOutput | null };
+
+
+type updatePostReportActionsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdatePostDataInput;
+}>;
+
+
+type updatePostReportActionsMutation = updatePostReportActionsMutation_Mutation;
+
 type RerunLlmCheckHookMutation_rerunLlmCheck_AutomatedContentEvaluation = (
   { __typename?: 'AutomatedContentEvaluation' }
   & AutomatedContentEvaluationsFragment
@@ -21918,6 +22009,24 @@ type RerunLlmCheckHookMutationVariables = Exact<{
 
 
 type RerunLlmCheckHookMutation = RerunLlmCheckHookMutation_Mutation;
+
+type updateTagTagReviewActionsMutation_updateTag_TagOutput_data_Tag = (
+  { __typename?: 'Tag' }
+  & SunshineTagFragment
+);
+
+type updateTagTagReviewActionsMutation_updateTag_TagOutput = { __typename?: 'TagOutput', data: updateTagTagReviewActionsMutation_updateTag_TagOutput_data_Tag | null };
+
+type updateTagTagReviewActionsMutation_Mutation = { __typename?: 'Mutation', updateTag: updateTagTagReviewActionsMutation_updateTag_TagOutput | null };
+
+
+type updateTagTagReviewActionsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateTagDataInput;
+}>;
+
+
+type updateTagTagReviewActionsMutation = updateTagTagReviewActionsMutation_Mutation;
 
 type updateUserContentPermissionsMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
