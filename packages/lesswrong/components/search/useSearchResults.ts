@@ -16,7 +16,6 @@ export interface SearchBarHit extends SearchDocument {
 export interface SearchResultsRequest {
   indexName: string;
   query: string;
-  sort?: string[];
   filters?: SearchFilterParams;
 }
 
@@ -38,7 +37,7 @@ export function useSearchResults(request: SearchResultsRequest, open: boolean) {
 
   const loadMore = useCallback(async () => {
     const current = pager.current;
-    const {indexName, query, sort, filters} = latestRequest.current;
+    const {indexName, query, filters} = latestRequest.current;
     if (!open || !indexName || current.loading || !current.hasMore) return;
     current.loading = true;
     setLoading(true);
@@ -55,7 +54,6 @@ export function useSearchResults(request: SearchResultsRequest, open: boolean) {
             hitsPerPage: pageSize,
             highlightPreTag: "<ais-highlight-0000000000>",
             highlightPostTag: "</ais-highlight-0000000000>",
-            ...(sort && {sort}),
             ...(facetFilters && {facetFilters}),
             ...(filters?.numericFilters && {numericFilters: filters.numericFilters}),
             ...(filters?.tagMatch && {tagMatch: filters.tagMatch}),

@@ -20,7 +20,6 @@ export const querySchema = z.object({
     numericFilters: z.optional(z.array(z.string())),
     existsFilters: z.optional(z.array(z.string())),
     aroundLatLng: z.optional(z.string()),
-    sort: z.optional(z.array(z.string())),
     tagMatch: z.optional(z.enum(["any", "all"])),
     tagIds: z.optional(z.array(z.string())),
     authorIds: z.optional(z.array(z.string())),

@@ -1,5 +1,6 @@
 import { compileSearchQuery } from "../../server/search/elastic/ElasticAdditiveRanking";
 import { compilePersonLookup, resolvePersonSearch } from "../../server/search/elastic/ElasticPersonSearch";
+import { compileSearchSort } from "../../server/search/elastic/ElasticSearchSort";
 
 const eliezer = {objectID: "ey", displayName: "Eliezer Yudkowsky", slug: "eliezer-yudkowsky", karma: 10000};
 
@@ -7,7 +8,7 @@ it("puts curated sequences first before pagination", () => {
   const now = jest.spyOn(Date, "now").mockReturnValue(1789160075892);
   const data = {indexes: ["sequences"], search: "alignment", curatedSequenceIds: ["curated"]};
   const regular = compileSearchQuery({...data, curatedSequenceIds: []});
-  const request = compileSearchQuery({...data, offset: 10, limit: 5, sort: [{key: "date", direction: "asc"}]});
+  const request = compileSearchQuery({...data, offset: 10, limit: 5});
   now.mockRestore();
   expect(request.query).toEqual(regular.query);
   expect(request).toMatchObject({from: 10, size: 5});
@@ -16,14 +17,17 @@ it("puts curated sequences first before pagination", () => {
       source: expect.stringContaining("params.ids.contains(doc['objectID'].value)"),
       params: {ids: ["curated"]},
     }}},
-    {publicDateMs: {order: "asc", missing: "_last", unmapped_type: "long"}},
+    {_score: {order: "desc"}},
+    {publicDateMs: {order: "desc", missing: "_last", unmapped_type: "long"}},
+    {_script: {type: "number", order: "desc", script: {source: expect.stringContaining("'karma'")}}},
+    {_script: {type: "number", order: "desc", script: {source: expect.stringContaining("'commentCount'")}}},
     {objectID: "asc"}, {_index: "asc"},
   ]);
 });
 
 it("does not promote curated sequences in mixed results", () => {
   const request = compileSearchQuery({indexes: ["posts", "sequences"], search: "alignment", curatedSequenceIds: ["curated"]});
-  expect(request.sort).toEqual([{_score: {order: "desc"}}, {objectID: "asc"}, {_index: "asc"}]);
+  expect(request.sort).toEqual(compileSearchSort());
 });
 
 it("recognizes exact and prominent first names, retains ambiguity, and extracts topics", () => {
@@ -39,13 +43,15 @@ it("recognizes exact and prominent first names, retains ambiguity, and extracts 
 
 it("keeps the same ranked query and deterministic tie-breakers across pages", () => {
   const data = {indexes: ["users", "posts", "sequences", "comments"], search: "Eliezer", person: {userIds: ["ey"], topic: "", confidence: "strong" as const}};
+  const now = jest.spyOn(Date, "now").mockReturnValue(1789160075892);
   const request = compileSearchQuery(data);
   const secondPage = compileSearchQuery({...data, offset: 3, limit: 3});
+  now.mockRestore();
   expect(secondPage.query).toEqual(request.query);
   expect(secondPage.from).toBe(3);
   expect(secondPage.size).toBe(3);
   expect(secondPage.track_total_hits).toBe(true);
-  expect(secondPage.sort).toEqual([{_score: {order: "desc"}}, {objectID: "asc"}, {_index: "asc"}]);
+  expect(secondPage.sort).toEqual(compileSearchSort());
 });
 
 it("preserves advanced filters and disables inferred authorship", () => {
@@ -96,14 +102,6 @@ describe("person resolution confidence", () => {
     expect(resolvePersonSearch("evan hubinger", [evhub])).toMatchObject({userIds: ["evhub"], topic: "", confidence: "exact"});
     expect(resolvePersonSearch("evan", [evhub])).toMatchObject({userIds: ["evhub"], topic: "", confidence: "strong"});
   });
-});
-
-it("sorts by the requested exact keys before the stable tiebreakers", () => {
-  const request = compileSearchQuery({indexes: ["posts", "users"], search: "alignment", sort: [{key: "date", direction: "desc"}]});
-  expect(request.sort).toEqual([
-    {publicDateMs: {order: "desc", missing: "_last", unmapped_type: "long"}},
-    {objectID: "asc"}, {_index: "asc"},
-  ]);
 });
 
 

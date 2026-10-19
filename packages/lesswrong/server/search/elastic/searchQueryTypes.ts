@@ -1,6 +1,5 @@
 import type { QueryFilter } from "./ElasticQuery";
 import type { PersonSearch } from "./ElasticPersonSearch";
-import type { SearchSortSpec } from "@/lib/search/searchSorting";
 
 export interface SearchQueryData {
   indexes: string[];
@@ -12,5 +11,4 @@ export interface SearchQueryData {
   postTag?: string;
   person?: PersonSearch;
   curatedSequenceIds?: string[];
-  sort?: SearchSortSpec[];
 }

@@ -1,7 +1,6 @@
 import qs from "qs";
 import { parseIsoDay } from "./timeframeSlider";
 import { SearchIndexCollectionName, collectionIsSearchIndexed } from "@/lib/search/searchUtil";
-import { SearchSortSpec, searchSortFromUrlParam, searchSortToUrlParam } from "@/lib/search/searchSorting";
 import {
   SearchDateRange,
   SearchFilterState,
@@ -15,7 +14,6 @@ import {
 export interface SearchPageState {
   query: string;
   kinds: SearchIndexCollectionName[];
-  sort: SearchSortSpec[];
   filters: SearchFilterState;
   expandedFilters: string[];
   mobileFiltersOpen: boolean;
@@ -26,12 +24,11 @@ export const defaultSearchPageState: SearchPageState = {
   expandedFilters: ["time", "authors", "tags", "events", "types", "karma"],
   mobileFiltersOpen: false,
   kinds: [],
-  sort: searchSortFromUrlParam(undefined),
   filters: {...emptySearchFilters, postTypes: defaultSearchPostTypes, events: "exclude"},
 };
 
 const searchFilterPanels = new Set(["time", "authors", "tags", "events", "types", "karma"]);
-const searchParameterNames = ["query", "kinds", "contentType", "sort", "tags", "tagMatch", "events", "authors", "types", "from", "to", "karma", "expanded", "mobileFilters"];
+const searchParameterNames = ["query", "kinds", "contentType", "tags", "tagMatch", "events", "authors", "types", "from", "to", "karma", "expanded", "mobileFilters"];
 
 export function mergeSearchPageParams(search: string, state: SearchPageState, presentation: "page" | "modal" = "page"): string {
   const prefix = presentation === "modal" ? "search." : "";
@@ -118,7 +115,6 @@ export function searchPageStateFromQuery(query: Record<string, string | undefine
     expandedFilters: query.expanded === undefined ? [...defaultSearchPageState.expandedFilters] : [...new Set(splitList(query.expanded).filter(key => searchFilterPanels.has(key)))],
     mobileFiltersOpen: query.mobileFilters === "1",
     kinds,
-    sort: searchSortFromUrlParam(query.sort),
     filters: {
       tagIds: readList(query, "tags"),
       tagMatch: query.tagMatch === "all" ? "all" : "any",
@@ -140,7 +136,6 @@ export function searchPageStateToQuery(state: SearchPageState): Record<string, s
     ["expanded", state.expandedFilters.length === searchFilterPanels.size && state.expandedFilters.every(key => searchFilterPanels.has(key)) ? undefined : state.expandedFilters.join(",")],
     ["mobileFilters", state.mobileFiltersOpen ? "1" : undefined],
     ["kinds", state.kinds.length ? state.kinds.join(",") : undefined],
-    ["sort", searchSortToUrlParam(state.sort)],
     ["tags", filters.tagIds.length ? filters.tagIds.join(",") : undefined],
     ["tagMatch", filters.tagMatch === "all" ? "all" : undefined],
     ["events", filters.events === "exclude" ? undefined : filters.events],

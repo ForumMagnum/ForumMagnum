@@ -232,9 +232,8 @@ zero indexing errors. One empty-ID database fixture was excluded because
 Elasticsearch cannot index it. Live question and shortform searches were verified
 after the refresh. Other environments still require this explicit backfill.
 
-Search-page sorters use exact values in the displayed priority order; later keys
-only break ties. Post types refine posts without removing other selected content
-kinds. Events are controlled independently, and numeric range bounds both apply.
+Results sort by relevance; date, karma, and comment count break ties. Post
+types refine posts without removing other selected content kinds. Events are controlled independently, and numeric range bounds both apply.
 
 ### Removing stale documents
 

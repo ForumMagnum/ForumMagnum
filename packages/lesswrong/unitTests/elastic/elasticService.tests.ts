@@ -82,16 +82,15 @@ describe("ElasticService ranked requests", () => {
     expect(search).toHaveBeenCalledWith(expect.objectContaining({curatedSequenceIds: []}));
   });
 
-  it("parses the sort and forwards it with the new filters to ordinary search", async () => {
+  it("forwards the new filters to ordinary search", async () => {
     const client = new ElasticClient();
     jest.spyOn(client, "search").mockResolvedValue({hits: {total: 0, hits: []}});
     const service = new ElasticService(client);
     await service.runQuery({indexName: "posts,users", params: {
-      query: "alignment", sort: ["karma:desc", "date:asc"], tagIds: ["t1"], tagMatch: "all", authorIds: ["u1"], postTypes: ["question"],
+      query: "alignment", tagIds: ["t1"], tagMatch: "all", authorIds: ["u1"], postTypes: ["question"],
     }}, {emptyStringSearchResults: "default"});
     expect(client.search).toHaveBeenCalledWith(expect.objectContaining({
       indexes: ["posts", "users"],
-      sort: [{key: "karma", direction: "desc"}, {key: "date", direction: "asc"}],
       filters: [
         {type: "tag", field: "tags", value: ["t1"], match: "all"},
         {type: "author", field: "author", value: ["u1"]},
@@ -101,10 +100,8 @@ describe("ElasticService ranked requests", () => {
     expect(Sequences.find).not.toHaveBeenCalled();
   });
 
-  it("rejects invalid sorts and post types", async () => {
+  it("rejects invalid post types", () => {
     const service = new ElasticService();
-    await expect(service.runQuery({indexName: "posts", params: {query: "x", sort: ["views:desc"]}}, {emptyStringSearchResults: "default"}))
-      .rejects.toThrow("Invalid search sort");
     expect(() => service.parseFilters(undefined, undefined, undefined, {postTypes: ["poem"]})).toThrow("Invalid post type: poem");
   });
 });
@@ -113,11 +110,10 @@ it("uses ordinary additive search for a single index without an opt-in", async (
   const client = new ElasticClient();
   jest.spyOn(client, "lookup").mockResolvedValue({hits: {total: 0, hits: []}});
   const search = jest.spyOn(client, "search").mockResolvedValue({hits: {total: 0, hits: []}});
-  await new ElasticService(client).runQuery({indexName: "posts", params: {query: "alignment", authorIds: ["alice"], sort: ["date:asc"]}}, {emptyStringSearchResults: "default"});
+  await new ElasticService(client).runQuery({indexName: "posts", params: {query: "alignment", authorIds: ["alice"]}}, {emptyStringSearchResults: "default"});
   expect(search).toHaveBeenCalledWith(expect.objectContaining({
     indexes: ["posts"],
     filters: [{type: "author", field: "author", value: ["alice"]}],
-    sort: [{key: "date", direction: "asc"}],
   }));
 });
 

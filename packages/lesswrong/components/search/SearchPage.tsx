@@ -11,7 +11,6 @@ import {
   getSearchIndexName,
   isSearchEnabled,
 } from '@/lib/search/searchUtil';
-import { formatSearchSort } from '@/lib/search/searchSorting';
 import { searchFiltersToParams, SearchFilterState } from '@/lib/search/searchFilters';
 import { useSearchPageState } from './useSearchPageState';
 import { searchPageStyles } from './searchPageStyles';
@@ -75,11 +74,9 @@ const SearchPage = ({presentation = 'page', onClose, timeframeSlot: providedTime
   const scale = {originMs: Date.UTC(2003, 0, 1), nowMs};
   const {recallSearch, recordSearch, resetNavigation, clearHistory, retryHistory, hasHistory, error: historyError, readError: historyReadError} = useSearchHistory(currentUser?._id, true);
 
-  const sortParam = formatSearchSort(state.sort);
   const request = {
     indexName: indexNameForKinds(state.kinds),
     query: state.query,
-    sort: sortParam,
     filters: searchFiltersToParams(state.filters),
   };
   const {hits, loading, error, hasMore, total, loadMore} = useSearchResults(request, true);

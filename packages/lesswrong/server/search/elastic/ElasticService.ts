@@ -9,7 +9,6 @@ import {
 } from "./ElasticQuery";
 import moment from "moment";
 import type { SearchOptions, SearchQuery } from "@/lib/search/NativeSearchClient";
-import { parseSearchSort } from "@/lib/search/searchSorting";
 import { searchPostTypes, SearchPostType } from "@/lib/search/searchFilters";
 import Sequences from "@/server/collections/sequences/collection";
 
@@ -74,7 +73,6 @@ class ElasticService {
             indexes,
             curatedSequenceIds: curatedSequences.map(sequence => sequence._id),
             filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters, params),
-            sort: params.sort ? parseSearchSort(params.sort) : undefined,
             preTag: params.highlightPreTag,
             postTag: params.highlightPostTag,
             search,
