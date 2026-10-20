@@ -10,6 +10,26 @@ import { type ExtractRenderers, type FeedPaginationResultVariables, type FeedQue
 
 const defaultLoadMoreDistance = 500;
 
+interface FeedResult {
+  type: string,
+}
+
+// Time markers ("feedMarker" results) are separators between groups of content
+// items, and they have random IDs, so deduplication never removes them. When
+// deduplication removes the content between markers (which happens when the
+// server-side ordering shifted between page loads, eg because new items were
+// added at the top), this leaves runs of markers with nothing between them.
+// Collapse each run to its first marker (markers label the time bucket of the
+// content above them, so the first one in a run matches the visible content
+// before it), and drop markers that have no content after them.
+function removeEmptyFeedMarkers<T extends FeedResult>(results: T[]): T[] {
+  const lastContentIndex = results.findLastIndex(result => result.type !== 'feedMarker');
+  return results.filter((result, i) => {
+    if (result.type !== 'feedMarker') return true;
+    return i < lastContentIndex && results[i - 1]?.type !== 'feedMarker';
+  });
+}
+
 // An infinitely scrolling feed of elements, which may be of multiple types.
 // This should have a corresponding server-side resolver created using
 // `defineFeedResolver`.
@@ -165,7 +185,7 @@ export const MixedTypeFeed = <
                 __typename: fetchMoreResult[resolverName].__typename,
                 cutoff: newCutoff,
                 endOffset: fetchMoreResult[resolverName].endOffset,
-                results: [...prev[resolverName].results ?? [], ...deduplicatedResults],
+                results: removeEmptyFeedMarkers([...prev[resolverName].results ?? [], ...deduplicatedResults]),
               }
             };
           }
