@@ -1,5 +1,7 @@
 import { $getRoot, $isElementNode, $isRootNode, type LexicalNode } from "lexical";
 import { $isListItemNode } from "@lexical/list";
+import { $isCollapsibleSectionContentNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode";
+import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { foldPunctuation } from "./editorAgentUtil";
 import { findMathSpansInMarkdown, formatMathToken, type MathSpan } from "@/lib/utils/mathTokens";
 import {
@@ -486,9 +488,10 @@ export interface BlockPrefixResult {
 /**
  * The block a character position belongs to, for block-level operations: the
  * nearest ancestor that is a list item, or failing that the node's top-level
- * element. Matching a list item (at any nesting depth) lets deleteBlock
+ * element (or, inside a collapsible section, its child of the section's
+ * content). Matching a list item (at any nesting depth) lets deleteBlock
  * remove one item rather than the whole list; everything else (paragraphs,
- * headings, tables, blockquotes, …) resolves to the top-level block.
+ * headings, tables, blockquotes, …) resolves to the enclosing block.
  */
 interface BlockCandidate {
   node: LexicalNode
@@ -497,10 +500,10 @@ interface BlockCandidate {
 }
 
 /**
- * Enumerate the prefix-addressable blocks — top-level children plus list
- * items at any nesting depth — keyed by the raw projection offset of each
- * block's first content character (its span start plus any leading
- * whitespace, which normalization skips). When an outer block's first
+ * Enumerate the prefix-addressable blocks — top-level children, children of
+ * collapsible-section content, and list items at any nesting depth — keyed
+ * by the raw projection offset of each block's first content character (its
+ * span start plus any leading whitespace, which normalization skips). When an outer block's first
  * content coincides with a nested item's (an item that opens with a
  * sub-list), the innermost block wins, matching deleteBlock's most-specific
  * targeting.
@@ -517,7 +520,7 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
     if (isBlock) addBlock(node);
     if ($isElementNode(node)) {
       for (const child of node.getChildren()) {
-        visit(child, $isListItemNode(child) || $isRootNode(node));
+        visit(child, $isListItemNode(child) || $isRootNode(node) || $isCollapsibleSectionContentNode(node));
       }
     }
   };
@@ -536,6 +539,18 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
  * Must be called inside a Lexical read/update context.
  */
 export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
+  // Widgets project to zero width, so they can't be matched by text; a prefix
+  // that opens with a widget fence (as in the editPost markdown) is resolved
+  // by the widget's ID instead.
+  const widgetFenceMatch = /^\s*```widget\[([^\]]*)\]/.exec(prefix);
+  if (widgetFenceMatch) {
+    const widgetId = widgetFenceMatch[1].trim();
+    const widgetNode = widgetId ? $findWidgetNodeById($getRoot(), widgetId) : null;
+    return widgetNode
+      ? { node: widgetNode }
+      : { node: null, reason: `No widget with ID ${JSON.stringify(widgetId)}.` };
+  }
+
   const { projection, normalizedDocument } = $buildNormalizedDocument();
   const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix)).text;
   if (!normalizedPrefix) {
@@ -573,4 +588,20 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
     reason: `Ambiguous prefix: ${matchedBlocks.length} blocks start with it. `
       + `Provide a longer prefix to disambiguate.`,
   };
+}
+
+export function $findWidgetNodeById(rootNode: LexicalNode, widgetId: string): IframeWidgetNode | null {
+  if ($isIframeWidgetNode(rootNode) && rootNode.getWidgetId() === widgetId) {
+    return rootNode;
+  }
+  if (!$isElementNode(rootNode)) {
+    return null;
+  }
+  for (const child of rootNode.getChildren()) {
+    const match = $findWidgetNodeById(child, widgetId);
+    if (match) {
+      return match;
+    }
+  }
+  return null;
 }

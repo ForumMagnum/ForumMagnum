@@ -1,7 +1,8 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createRangeSelection, $getRoot, $nodesOfType, $setSelection, type LexicalNode } from "lexical";
+import { $createParagraphNode, $createRangeSelection, $isRootNode, $nodesOfType, $setSelection, type ElementNode, type LexicalNode } from "lexical";
+import { $isListNode } from "@lexical/list";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
@@ -43,6 +44,23 @@ export function $wrapBlockAsDeletionSuggestion(blockNode: LexicalNode, suggestio
   return $nodesOfType(ProtonNode).some((node) => node.getSuggestionIdOrThrow() === suggestionId);
 }
 
+/**
+ * Clean up the parent of a just-removed block. If it was the last item of a
+ * list, drop the (now-empty) list too — leaving an empty list behind looks
+ * like a rendering glitch in the editor. Any other emptied container (e.g. a
+ * collapsible section's body) gets an empty paragraph, so it stays editable.
+ * Exported for the research-document route. Must be called inside a Lexical
+ * update context.
+ */
+export function $tidyParentAfterBlockRemoval(parent: ElementNode): void {
+  if ($isRootNode(parent) || parent.getChildrenSize() > 0) return;
+  if ($isListNode(parent)) {
+    parent.remove();
+  } else {
+    parent.append($createParagraphNode());
+  }
+}
+
 export async function deleteMarkdownBlock({
   postId,
   token,
@@ -67,7 +85,6 @@ export async function deleteMarkdownBlock({
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
-          const root = $getRoot();
           const blockResult = $locateBlockByPrefix(prefix);
           const nodeToDelete = blockResult.node;
 
@@ -91,12 +108,7 @@ export async function deleteMarkdownBlock({
 
           if (mode === "edit") {
             nodeToDelete.remove();
-            // If we just removed the last list item from a list, drop the
-            // (now-empty) list too — leaving an empty list behind looks like
-            // a rendering glitch in the editor.
-            if (parent !== root && parent.getChildrenSize() === 0) {
-              parent.remove();
-            }
+            $tidyParentAfterBlockRemoval(parent);
             result = {
               deleted: true,
               note: "Deleted markdown block from collaborative draft.",

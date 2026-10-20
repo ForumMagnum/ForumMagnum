@@ -2,7 +2,6 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
 import {
-  $getRoot,
   $createParagraphNode,
   type LexicalEditor,
   type LexicalNode,
@@ -12,7 +11,7 @@ import { $createLLMContentBlockContentNode } from "@/components/editor/lexicalPl
 import { $createLLMContentBlockHeaderNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode";
 import { waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { $postMarkdownToNodes, resolveInsertionIndex } from "../insertBlock/route";
+import { $postMarkdownToNodes, $resolveInsertionPoint } from "../insertBlock/route";
 import { insertLLMBlockToolSchema, type InsertLocation } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -72,13 +71,13 @@ export function $insertLLMBlockInEditor({
 }): InsertLLMBlockResult {
   const blockNode = $createLLMContentBlockFromMarkdown(editor, modelName, markdown, markdownToNodes);
 
-  const root = $getRoot();
-  const { index: insertionIndex, reason } = resolveInsertionIndex(location, root.getChildren());
-  if (insertionIndex === null) {
+  const { point, reason } = $resolveInsertionPoint(location);
+  if (!point) {
     return { inserted: false, note: reason ?? `No block starts with locator text: ${JSON.stringify(location)}` };
   }
 
-  root.splice(insertionIndex, 0, [blockNode]);
+  const { parent, index: insertionIndex } = point;
+  parent.splice(insertionIndex, 0, [blockNode]);
   return {
     inserted: true,
     note: `Inserted LLM content block (model: ${modelName}) at index ${insertionIndex}.`,

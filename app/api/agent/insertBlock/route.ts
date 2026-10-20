@@ -11,12 +11,17 @@ import {
   $createRangeSelection,
   $createTextNode,
   $isElementNode,
+  $isParagraphNode,
+  $isRootNode,
   $isTextNode,
+  type ElementNode,
   type LexicalEditor,
   type LexicalNode,
 } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
-import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
+import { $createIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
+import { $isCollapsibleSectionContainerNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode";
+import { $isCollapsibleSectionContentNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
@@ -35,34 +40,58 @@ interface InsertBlockResult {
   threadCreationFailed?: boolean
 }
 
-function getInsertionIndexByLocation(location: InsertLocation): { mode: "fixed", index: number } | { mode: "prefix", relation: "before" | "after", prefix: string } {
-  if (location === "start") {
-    return { mode: "fixed", index: 0 };
-  } else if (location === "end") {
-    return { mode: "fixed", index: Number.MAX_SAFE_INTEGER };
-  } else if ("before" in location) {
-    return { mode: "prefix", relation: "before", prefix: location.before };
-  } else if ("after" in location) {
-    return { mode: "prefix", relation: "after", prefix: location.after };
-  } else {
-    throw new Error(`Invalid location: ${JSON.stringify(location)}`);
+interface WidgetFence {
+  widgetId: string
+  widgetMarkup: string
+}
+
+/**
+ * Swap each widget fence for a placeholder paragraph, so the fence survives
+ * markdown rendering wherever it appears (including inside collapsible
+ * sections); the placeholders are turned into widget nodes after import.
+ */
+function replaceWidgetFencesWithPlaceholders(markdown: string): { markdown: string, widgetsByPlaceholder: Map<string, WidgetFence> } {
+  const widgetsByPlaceholder = new Map<string, WidgetFence>();
+  const widgetFenceRegex = /```widget\[(.*?)\]\n([\s\S]*?)\n```/g;
+  const replaced = markdown.replace(widgetFenceRegex, (_match, rawWidgetId: string, rawWidgetMarkup: string) => {
+    const placeholder = `widgetplaceholder${randomId()}`;
+    widgetsByPlaceholder.set(placeholder, {
+      widgetId: (rawWidgetId ?? "").trim() || randomId(),
+      widgetMarkup: rawWidgetMarkup ?? "",
+    });
+    return `\n\n${placeholder}\n\n`;
+  });
+  return { markdown: replaced, widgetsByPlaceholder };
+}
+
+function $createWidgetNodeFromFence({ widgetId, widgetMarkup }: WidgetFence): IframeWidgetNode {
+  const widgetNode = $createIframeWidgetNode(widgetId);
+  widgetNode.append($createTextNode(widgetMarkup));
+  return widgetNode;
+}
+
+function $getPlaceholderWidget(node: LexicalNode, widgetsByPlaceholder: Map<string, WidgetFence>): WidgetFence | undefined {
+  return $isParagraphNode(node) ? widgetsByPlaceholder.get(node.getTextContent().trim()) : undefined;
+}
+
+function $replaceNestedWidgetPlaceholders(parent: ElementNode, widgetsByPlaceholder: Map<string, WidgetFence>): void {
+  for (const child of parent.getChildren()) {
+    const widget = $getPlaceholderWidget(child, widgetsByPlaceholder);
+    if (widget) {
+      child.replace($createWidgetNodeFromFence(widget));
+    } else if ($isElementNode(child)) {
+      $replaceNestedWidgetPlaceholders(child, widgetsByPlaceholder);
+    }
   }
 }
 
-function escapeHtmlAttribute(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
-function transformWidgetFencesToInlineIframeHtml(markdown: string): string {
-  const widgetFenceRegex = /```widget\[(.*?)\]\n([\s\S]*?)\n```/g;
-  return markdown.replace(widgetFenceRegex, (_match, rawWidgetId: string, rawWidgetMarkup: string) => {
-    const widgetId = (rawWidgetId ?? "").trim() || randomId();
-    const widgetMarkup = rawWidgetMarkup ?? "";
-    return `<iframe data-lexical-iframe-widget="true" data-widget-id="${escapeHtmlAttribute(widgetId)}" srcdoc="${escapeHtmlAttribute(widgetMarkup)}"></iframe>`;
+function $replaceWidgetPlaceholders(nodes: LexicalNode[], widgetsByPlaceholder: Map<string, WidgetFence>): LexicalNode[] {
+  if (widgetsByPlaceholder.size === 0) return nodes;
+  return nodes.map((node) => {
+    const widget = $getPlaceholderWidget(node, widgetsByPlaceholder);
+    if (widget) return $createWidgetNodeFromFence(widget);
+    if ($isElementNode(node)) $replaceNestedWidgetPlaceholders(node, widgetsByPlaceholder);
+    return node;
   });
 }
 
@@ -78,11 +107,11 @@ function parseWholeWidgetFence(markdown: string): { widgetId: string, widgetMark
 }
 
 /**
- * Wraps already-inserted top-level nodes in suggestion markup. Must be called
+ * Wraps already-inserted sibling nodes in suggestion markup. Must be called
  * inside a Lexical editor.update() callback, after the nodes have been spliced
- * into the root at insertionIndex.
+ * into the parent at insertionIndex.
  */
-function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], insertionIndex: number, suggestionId: string): void {
+function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], parent: ElementNode, insertionIndex: number, suggestionId: string): void {
   if (nodesToInsert.length === 0) return;
 
   const firstInserted = nodesToInsert[0];
@@ -98,18 +127,17 @@ function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], insertionI
   // Use text-level selection on the first/last text descendants when possible,
   // which avoids a bug where root-level element selection clips the first
   // character. For non-element, non-text nodes (e.g. decorator nodes like
-  // horizontal rules), fall back to root-level element selection.
-  const root = $getRoot();
+  // horizontal rules), fall back to element selection on the parent.
   const selection = $createRangeSelection();
   if (firstDescendant && $isTextNode(firstDescendant)) {
     selection.anchor.set(firstDescendant.getKey(), 0, "text");
   } else {
-    selection.anchor.set(root.getKey(), insertionIndex, "element");
+    selection.anchor.set(parent.getKey(), insertionIndex, "element");
   }
   if (lastDescendant && $isTextNode(lastDescendant)) {
     selection.focus.set(lastDescendant.getKey(), lastDescendant.getTextContentSize(), "text");
   } else {
-    selection.focus.set(root.getKey(), insertionIndex + nodesToInsert.length, "element");
+    selection.focus.set(parent.getKey(), insertionIndex + nodesToInsert.length, "element");
   }
   $wrapSelectionInSuggestionNode(selection, false, suggestionId, "insert");
 }
@@ -129,43 +157,78 @@ export function $markdownToNodes(
 export function $postMarkdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
   const wholeFence = parseWholeWidgetFence(markdown);
   if (wholeFence) {
-    const widgetNode = $createIframeWidgetNode(wholeFence.widgetId);
-    widgetNode.append($createTextNode(wholeFence.widgetMarkup));
-    return [widgetNode];
+    return [$createWidgetNodeFromFence(wholeFence)];
   }
 
-  const markdownWithWidgetIframes = transformWidgetFencesToInlineIframeHtml(markdown);
-  return $markdownToNodes(editor, markdownWithWidgetIframes, { markdownIt: getMarkdownItForAgentPosts() });
+  const { markdown: markdownWithPlaceholders, widgetsByPlaceholder } = replaceWidgetFencesWithPlaceholders(markdown);
+  const nodes = $markdownToNodes(editor, markdownWithPlaceholders, { markdownIt: getMarkdownItForAgentPosts() });
+  return $replaceWidgetPlaceholders(nodes, widgetsByPlaceholder);
 }
 
-export interface InsertionIndexResult {
-  index: number | null
-  /** Why no index could be resolved (e.g. an ambiguous prefix). */
+export interface InsertionPoint {
+  parent: ElementNode
+  index: number
+}
+
+export interface InsertionPointResult {
+  point: InsertionPoint | null
+  /** Why no insertion point could be resolved (e.g. an ambiguous prefix). */
   reason?: string
 }
 
-function findInsertionIndexByPrefix(
-  prefix: string,
-  relation: "before" | "after",
-): InsertionIndexResult {
-  const blockResult = $locateBlockByPrefix(prefix);
-  const matched = blockResult.node;
-  if (!matched) return { index: null, reason: blockResult.reason };
-  // The locator may descend into list items (at any nesting depth), but
-  // insertion always happens at the top level — translate the match back to
-  // its top-level ancestor's index, so the caller inserts before/after the
-  // whole list rather than splitting the list open.
-  const topLevel = matched.getTopLevelElement() ?? matched;
-  const topLevelIndex = topLevel.getIndexWithinParent();
-  return { index: relation === "before" ? topLevelIndex : topLevelIndex + 1 };
+/**
+ * The ancestor-or-self of a located block that new blocks are inserted next
+ * to: its child of the root, or of the collapsible-section body it sits in.
+ * The locator may descend into list items (at any nesting depth), but
+ * insertion never splits a list open — it goes before/after the whole list.
+ */
+function $getInsertionSibling(node: LexicalNode): LexicalNode {
+  let current = node;
+  let parent = current.getParent();
+  while (parent && !$isRootNode(parent) && !$isCollapsibleSectionContentNode(parent)) {
+    current = parent;
+    parent = current.getParent();
+  }
+  return current;
 }
 
-export function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): InsertionIndexResult {
-  const target = getInsertionIndexByLocation(location);
-  if (target.mode === "fixed") {
-    return { index: target.index === Number.MAX_SAFE_INTEGER ? rootChildren.length : target.index };
+function $resolveInsidePoint(prefix: string, position: "start" | "end"): InsertionPointResult {
+  const { node, reason } = $locateBlockByPrefix(prefix);
+  if (!node) return { point: null, reason };
+  if (!$isCollapsibleSectionContainerNode(node)) {
+    return { point: null, reason: "The \"inside\" locator must match a collapsible section's \"+++ Title\" line." };
   }
-  return findInsertionIndexByPrefix(target.prefix, target.relation);
+  const content = node.getChildren().find($isCollapsibleSectionContentNode);
+  if (!content) {
+    return { point: null, reason: "The matched collapsible section has no body to insert into." };
+  }
+  return { point: { parent: content, index: position === "start" ? 0 : content.getChildrenSize() } };
+}
+
+/**
+ * Resolve an insert location to a parent node and child index. Must be called
+ * inside a Lexical read/update context.
+ */
+export function $resolveInsertionPoint(location: InsertLocation): InsertionPointResult {
+  const root = $getRoot();
+  if (location === "start") {
+    return { point: { parent: root, index: 0 } };
+  } else if (location === "end") {
+    return { point: { parent: root, index: root.getChildrenSize() } };
+  } else if ("inside" in location) {
+    return $resolveInsidePoint(location.inside, location.position);
+  }
+
+  const relation = "before" in location ? "before" : "after";
+  const { node, reason } = $locateBlockByPrefix("before" in location ? location.before : location.after);
+  if (!node) return { point: null, reason };
+  const sibling = $getInsertionSibling(node);
+  const parent = sibling.getParent();
+  if (!parent) {
+    return { point: null, reason: "Matched block has no parent to insert into." };
+  }
+  const siblingIndex = sibling.getIndexWithinParent();
+  return { point: { parent, index: relation === "before" ? siblingIndex : siblingIndex + 1 } };
 }
 
 /**
@@ -191,17 +254,17 @@ export function $insertMarkdownBlockInEditor({
     return { inserted: false, note: "No insertable nodes were generated from markdown." };
   }
 
-  const root = $getRoot();
-  const { index: insertionIndex, reason } = resolveInsertionIndex(location, root.getChildren());
-  if (insertionIndex === null) {
+  const { point, reason } = $resolveInsertionPoint(location);
+  if (!point) {
     return { inserted: false, note: reason ?? `No block starts with locator text: ${JSON.stringify(location)}` };
   }
 
-  root.splice(insertionIndex, 0, nodesToInsert);
+  const { parent, index: insertionIndex } = point;
+  parent.splice(insertionIndex, 0, nodesToInsert);
   let suggestionId: string | undefined = undefined;
   if (mode === "suggest") {
     suggestionId = randomId();
-    $wrapInsertedNodesAsSuggestion(nodesToInsert, insertionIndex, suggestionId);
+    $wrapInsertedNodesAsSuggestion(nodesToInsert, parent, insertionIndex, suggestionId);
   }
   return {
     inserted: true,
