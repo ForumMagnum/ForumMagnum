@@ -1,0 +1,1467 @@
+{
+  "time": "2026-09-10T18:31:19.572Z",
+  "environment": "localLwDevDb",
+  "weights": {
+    "match": {
+      "bm25": 3,
+      "allTerms": 1,
+      "titleAll": 1,
+      "phrase": 1,
+      "max": 6,
+      "topicalMax": 5,
+      "pivots": {
+        "posts": 8.1,
+        "comments": 7.6,
+        "users": 12.9,
+        "tags": 5.9,
+        "sequences": 3.8
+      }
+    },
+    "navigation": {
+      "identifier": 8,
+      "exactTitle": [
+        0,
+        2.5,
+        4.5
+      ]
+    },
+    "relationship": {
+      "profile": {
+        "exact": 6,
+        "strong": 5,
+        "weak": 4
+      },
+      "authored": {
+        "exact": 3,
+        "strong": 3,
+        "weak": 2
+      },
+      "authoredComment": {
+        "exact": 2,
+        "strong": 2,
+        "weak": 1.5
+      },
+      "minorShare": 0.5,
+      "prominentKarma": 1000
+    },
+    "popularity": {
+      "slope": 0.8,
+      "cap": 4,
+      "gateFloor": 0.1,
+      "pivots": {
+        "posts": 15,
+        "comments": 4,
+        "tags": 5,
+        "sequences": 15,
+        "users": 100
+      }
+    },
+    "context": {
+      "comment": 0,
+      "unresolvedUser": -0.5,
+      "curated": 0.5,
+      "event": 1,
+      "baseline": 2
+    }
+  },
+  "results": [
+    {
+      "search": "infrabayesiansism",
+      "repetition": 1,
+      "elapsedMs": 1096,
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "zB4f7QqKhBHa5b37a",
+          "title": "Introduction To The Infra-Bayesianism Sequence",
+          "karma": 110,
+          "score": 6.520857
+        },
+        {
+          "index": "posts",
+          "objectID": "Zi7nmuSmBFbQWgFBa",
+          "title": "Infra-Bayesianism Unwrapped",
+          "karma": 58,
+          "score": 6.515637
+        },
+        {
+          "index": "tags",
+          "objectID": "wdLqQnzdgiYpDXEWH",
+          "title": "Infra-Bayesianism",
+          "karma": 9,
+          "score": 6.4397426
+        },
+        {
+          "index": "posts",
+          "objectID": "DMoiZDYZzqknfvoHh",
+          "title": "Infra-Bayesianism Distillation: Realizability and Decision Theory",
+          "karma": 40,
+          "score": 5.956309
+        },
+        {
+          "index": "posts",
+          "objectID": "FkMPXiomjGBjMfosg",
+          "title": "AXRP Episode 5 - Infra-Bayesianism with Vanessa Kosoy",
+          "karma": 35,
+          "score": 5.810229
+        },
+        {
+          "index": "posts",
+          "objectID": "NdJsWDS7Aq4xqoumk",
+          "title": "A very non-technical explanation of the basics of infra-Bayesianism",
+          "karma": 62,
+          "score": 5.7449
+        },
+        {
+          "index": "posts",
+          "objectID": "Een2oqjZe6Gtx6hrj",
+          "title": "An Elementary Introduction to Infra-Bayesianism",
+          "karma": 16,
+          "score": 5.724971
+        },
+        {
+          "index": "posts",
+          "objectID": "wzCtwYtojMabyEg2L",
+          "title": "What is Inadequate about Bayesianism for AI Alignment: Motivating Infra-Bayesianism",
+          "karma": 48,
+          "score": 5.648665
+        },
+        {
+          "index": "posts",
+          "objectID": "gd4ALPL9nSyTgzccz",
+          "title": "An Introduction to Reinforcement Learning for Understanding Infra-Bayesianism",
+          "karma": 21,
+          "score": 5.5488377
+        },
+        {
+          "index": "posts",
+          "objectID": "yykNvq257zBLDNmJo",
+          "title": "Infra-Bayesianism naturally leads to the monotonicity principle, and I think this is a problem",
+          "karma": 22,
+          "score": 5.0791183
+        }
+      ]
+    },
+    {
+      "search": "infrabayesiansism",
+      "repetition": 2,
+      "elapsedMs": 866,
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "zB4f7QqKhBHa5b37a",
+          "title": "Introduction To The Infra-Bayesianism Sequence",
+          "karma": 110,
+          "score": 6.520857
+        },
+        {
+          "index": "posts",
+          "objectID": "Zi7nmuSmBFbQWgFBa",
+          "title": "Infra-Bayesianism Unwrapped",
+          "karma": 58,
+          "score": 6.515637
+        },
+        {
+          "index": "tags",
+          "objectID": "wdLqQnzdgiYpDXEWH",
+          "title": "Infra-Bayesianism",
+          "karma": 9,
+          "score": 6.4397426
+        },
+        {
+          "index": "posts",
+          "objectID": "DMoiZDYZzqknfvoHh",
+          "title": "Infra-Bayesianism Distillation: Realizability and Decision Theory",
+          "karma": 40,
+          "score": 5.956309
+        },
+        {
+          "index": "posts",
+          "objectID": "FkMPXiomjGBjMfosg",
+          "title": "AXRP Episode 5 - Infra-Bayesianism with Vanessa Kosoy",
+          "karma": 35,
+          "score": 5.810229
+        },
+        {
+          "index": "posts",
+          "objectID": "NdJsWDS7Aq4xqoumk",
+          "title": "A very non-technical explanation of the basics of infra-Bayesianism",
+          "karma": 62,
+          "score": 5.7449
+        },
+        {
+          "index": "posts",
+          "objectID": "Een2oqjZe6Gtx6hrj",
+          "title": "An Elementary Introduction to Infra-Bayesianism",
+          "karma": 16,
+          "score": 5.724971
+        },
+        {
+          "index": "posts",
+          "objectID": "wzCtwYtojMabyEg2L",
+          "title": "What is Inadequate about Bayesianism for AI Alignment: Motivating Infra-Bayesianism",
+          "karma": 48,
+          "score": 5.648665
+        },
+        {
+          "index": "posts",
+          "objectID": "gd4ALPL9nSyTgzccz",
+          "title": "An Introduction to Reinforcement Learning for Understanding Infra-Bayesianism",
+          "karma": 21,
+          "score": 5.5488377
+        },
+        {
+          "index": "posts",
+          "objectID": "yykNvq257zBLDNmJo",
+          "title": "Infra-Bayesianism naturally leads to the monotonicity principle, and I think this is a problem",
+          "karma": 22,
+          "score": 5.0791183
+        }
+      ]
+    },
+    {
+      "search": "chemicalenginering",
+      "repetition": 1,
+      "elapsedMs": 272,
+      "hits": []
+    },
+    {
+      "search": "chemicalenginering",
+      "repetition": 2,
+      "elapsedMs": 253,
+      "hits": []
+    },
+    {
+      "search": "interpretability",
+      "repetition": 1,
+      "elapsedMs": 426,
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "PwnadG4BFjaER3MGf",
+          "title": "Interpretability Will Not Reliably Find Deceptive AI",
+          "karma": 327,
+          "score": 5.941827
+        },
+        {
+          "index": "tags",
+          "objectID": "pue3RStmMEwSbJkvd",
+          "title": "Interpretations of \"probability\"",
+          "karma": 14,
+          "score": 5.7919984
+        },
+        {
+          "index": "posts",
+          "objectID": "N6WM6hs7RQMKDhYjB",
+          "title": "A Mechanistic Interpretability Analysis of Grokking",
+          "karma": 373,
+          "score": 5.7537494
+        },
+        {
+          "index": "sequences",
+          "objectID": "3fknGqkujhGrnRodA",
+          "title": "Renormalizing interpretability ",
+          "karma": 0,
+          "score": 5.720804
+        },
+        {
+          "index": "sequences",
+          "objectID": "DNGjFBTxEJCpceyGn",
+          "title": "Developing interpretability",
+          "karma": 0,
+          "score": 5.720804
+        },
+        {
+          "index": "sequences",
+          "objectID": "SfFQE8DXbgkjk62JK",
+          "title": "Developmental Interpretability",
+          "karma": 0,
+          "score": 5.720804
+        },
+        {
+          "index": "tags",
+          "objectID": "56yXXrcxRjrQs6z9R",
+          "title": "Interpretability (ML & AI)",
+          "karma": 28,
+          "score": 5.685398
+        },
+        {
+          "index": "sequences",
+          "objectID": "a6ne2ve5uturEEQK7",
+          "title": "The Engineer’s Interpretability Sequence",
+          "karma": 0,
+          "score": 5.6649837
+        },
+        {
+          "index": "posts",
+          "objectID": "uK6sQCNMw8WKzJeCQ",
+          "title": "A Longlist of Theories of Impact for Interpretability",
+          "karma": 127,
+          "score": 5.597695
+        },
+        {
+          "index": "sequences",
+          "objectID": "6njwz6XdSYwNhtsCJ",
+          "title": "Mechanistic Interpretability Puzzles",
+          "karma": 0,
+          "score": 5.5968466
+        }
+      ]
+    },
+    {
+      "search": "interpretability",
+      "repetition": 2,
+      "elapsedMs": 393,
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "PwnadG4BFjaER3MGf",
+          "title": "Interpretability Will Not Reliably Find Deceptive AI",
+          "karma": 327,
+          "score": 5.941827
+        },
+        {
+          "index": "tags",
+          "objectID": "pue3RStmMEwSbJkvd",
+          "title": "Interpretations of \"probability\"",
+          "karma": 14,
+          "score": 5.7919984
+        },
+        {
+          "index": "posts",
+          "objectID": "N6WM6hs7RQMKDhYjB",
+          "title": "A Mechanistic Interpretability Analysis of Grokking",
+          "karma": 373,
+          "score": 5.7537494
+        },
+        {
+          "index": "sequences",
+          "objectID": "3fknGqkujhGrnRodA",
+          "title": "Renormalizing interpretability ",
+          "karma": 0,
+          "score": 5.720804
+        },
+        {
+          "index": "sequences",
+          "objectID": "DNGjFBTxEJCpceyGn",
+          "title": "Developing interpretability",
+          "karma": 0,
+          "score": 5.720804
+        },
+        {
+          "index": "sequences",
+          "objectID": "SfFQE8DXbgkjk62JK",
+          "title": "Developmental Interpretability",
+          "karma": 0,
+          "score": 5.720804
+        },
+        {
+          "index": "tags",
+          "objectID": "56yXXrcxRjrQs6z9R",
+          "title": "Interpretability (ML & AI)",
+          "karma": 28,
+          "score": 5.685398
+        },
+        {
+          "index": "sequences",
+          "objectID": "a6ne2ve5uturEEQK7",
+          "title": "The Engineer’s Interpretability Sequence",
+          "karma": 0,
+          "score": 5.6649837
+        },
+        {
+          "index": "posts",
+          "objectID": "uK6sQCNMw8WKzJeCQ",
+          "title": "A Longlist of Theories of Impact for Interpretability",
+          "karma": 127,
+          "score": 5.597695
+        },
+        {
+          "index": "sequences",
+          "objectID": "6njwz6XdSYwNhtsCJ",
+          "title": "Mechanistic Interpretability Puzzles",
+          "karma": 0,
+          "score": 5.5968466
+        }
+      ]
+    },
+    {
+      "search": "american coll",
+      "repetition": 1,
+      "elapsedMs": 262,
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "vptDgKbiEwsKAFuco",
+          "title": "American College Admissions Doesn't Need to Be So Competitive\n",
+          "karma": 48,
+          "score": 6.6656313
+        },
+        {
+          "index": "posts",
+          "objectID": "e6FxbeBE2DKnzvSQ7",
+          "title": "American College Admissions Doesn't Need to Be So Competitive",
+          "karma": 7,
+          "score": 6.5442033
+        },
+        {
+          "index": "comments",
+          "objectID": "8M4CKMu5Tckm3cZkt",
+          "title": "Comment on: Elizabeth's Shortform",
+          "karma": 10,
+          "score": 4.6383357
+        },
+        {
+          "index": "comments",
+          "objectID": "GcuBQS7kv8hHp8vT2",
+          "title": "Comment on: Shallow Water is Dangerous Too",
+          "karma": 37,
+          "score": 4.4582
+        },
+        {
+          "index": "posts",
+          "objectID": "jnDibtfvWNHLucf4D",
+          "title": "Actually, All Nuclear Famine Papers are Bunk",
+          "karma": 113,
+          "score": 4.2723417
+        },
+        {
+          "index": "posts",
+          "objectID": "QALLMLemaE4wAczZw",
+          "title": "French Non-Profit Law: Associations are as cool as American churches",
+          "karma": 40,
+          "score": 4.267217
+        },
+        {
+          "index": "tags",
+          "objectID": "FdoP2PJhMz6x3gdDh",
+          "title": "Nootropics & Other Cognitive Enhancement",
+          "karma": 9,
+          "score": 4.2439795
+        },
+        {
+          "index": "posts",
+          "objectID": "Kx3BsHdFWp9EovMws",
+          "title": "The price is right",
+          "karma": 42,
+          "score": 4.112458
+        },
+        {
+          "index": "posts",
+          "objectID": "rfCEWuid7fXxz4Hpa",
+          "title": "Making a conservative case for alignment",
+          "karma": 208,
+          "score": 3.9424136
+        },
+        {
+          "index": "posts",
+          "objectID": "m7THsgXyxxiEXgyHv",
+          "title": "How The West Was Won",
+          "karma": 40,
+          "score": 3.86761
+        }
+      ]
+    },
+    {
+      "search": "american coll",
+      "repetition": 2,
+      "elapsedMs": 261,
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "vptDgKbiEwsKAFuco",
+          "title": "American College Admissions Doesn't Need to Be So Competitive\n",
+          "karma": 48,
+          "score": 6.6656313
+        },
+        {
+          "index": "posts",
+          "objectID": "e6FxbeBE2DKnzvSQ7",
+          "title": "American College Admissions Doesn't Need to Be So Competitive",
+          "karma": 7,
+          "score": 6.5442033
+        },
+        {
+          "index": "comments",
+          "objectID": "8M4CKMu5Tckm3cZkt",
+          "title": "Comment on: Elizabeth's Shortform",
+          "karma": 10,
+          "score": 4.6383357
+        },
+        {
+          "index": "comments",
+          "objectID": "GcuBQS7kv8hHp8vT2",
+          "title": "Comment on: Shallow Water is Dangerous Too",
+          "karma": 37,
+          "score": 4.4582
+        },
+        {
+          "index": "posts",
+          "objectID": "jnDibtfvWNHLucf4D",
+          "title": "Actually, All Nuclear Famine Papers are Bunk",
+          "karma": 113,
+          "score": 4.2723417
+        },
+        {
+          "index": "posts",
+          "objectID": "QALLMLemaE4wAczZw",
+          "title": "French Non-Profit Law: Associations are as cool as American churches",
+          "karma": 40,
+          "score": 4.267217
+        },
+        {
+          "index": "tags",
+          "objectID": "FdoP2PJhMz6x3gdDh",
+          "title": "Nootropics & Other Cognitive Enhancement",
+          "karma": 9,
+          "score": 4.2439795
+        },
+        {
+          "index": "posts",
+          "objectID": "Kx3BsHdFWp9EovMws",
+          "title": "The price is right",
+          "karma": 42,
+          "score": 4.112458
+        },
+        {
+          "index": "posts",
+          "objectID": "rfCEWuid7fXxz4Hpa",
+          "title": "Making a conservative case for alignment",
+          "karma": 208,
+          "score": 3.9424136
+        },
+        {
+          "index": "posts",
+          "objectID": "m7THsgXyxxiEXgyHv",
+          "title": "How The West Was Won",
+          "karma": 40,
+          "score": 3.86761
+        }
+      ]
+    },
+    {
+      "search": "computation in",
+      "repetition": 1,
+      "elapsedMs": 388,
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "ZxFchCFJFcgysYsT9",
+          "title": "Compressed Computation is (probably) not Computation in Superposition",
+          "karma": 56,
+          "score": 6.7314854
+        },
+        {
+          "index": "posts",
+          "objectID": "APP8cbeDaqhGjqH8X",
+          "title": "Paradigms for computation",
+          "karma": 65,
+          "score": 6.720357
+        },
+        {
+          "index": "posts",
+          "objectID": "2roZtSr5TGmLjXMnT",
+          "title": "Toward A Mathematical Framework for Computation in Superposition",
+          "karma": 206,
+          "score": 6.6397085
+        },
+        {
+          "index": "posts",
+          "objectID": "Qz6w4GYZpgeDp6ATB",
+          "title": "Beyond Astronomical Waste",
+          "karma": 139,
+          "score": 6.6316123
+        },
+        {
+          "index": "posts",
+          "objectID": "vfRpzyGsikujm9ujj",
+          "title": "A brief history of computers",
+          "karma": 73,
+          "score": 6.5566053
+        },
+        {
+          "index": "comments",
+          "objectID": "QGBpvaeqWPnLbxpJf",
+          "title": "Comment on: METR's Evaluation of GPT-5",
+          "karma": 16,
+          "score": 6.4365277
+        },
+        {
+          "index": "posts",
+          "objectID": "cTRKj3giaZN5Ysyx2",
+          "title": "Compressed Computation under L⁴ Loss is likely Computation in Superposition",
+          "karma": 34,
+          "score": 6.2216954
+        },
+        {
+          "index": "posts",
+          "objectID": "rEDjo94iPvXWkkt4L",
+          "title": "Apparently, of the 195 Million the DoD allocated in University Research Funding Awards in 2022, more than half of them concerned AI or compute hardware research",
+          "karma": 41,
+          "score": 6.2175226
+        },
+        {
+          "index": "posts",
+          "objectID": "CvhPTwSMPqNju7hhw",
+          "title": "Book Review: Computability and Logic",
+          "karma": 44,
+          "score": 6.175175
+        },
+        {
+          "index": "posts",
+          "objectID": "nLRKKCTtwQgvozLTN",
+          "title": "Gradient Routing: Masking Gradients to Localize Computation in Neural Networks",
+          "karma": 169,
+          "score": 6.162727
+        }
+      ]
+    },
+    {
+      "search": "computation in",
+      "repetition": 2,
+      "elapsedMs": 319,
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "ZxFchCFJFcgysYsT9",
+          "title": "Compressed Computation is (probably) not Computation in Superposition",
+          "karma": 56,
+          "score": 6.7314854
+        },
+        {
+          "index": "posts",
+          "objectID": "APP8cbeDaqhGjqH8X",
+          "title": "Paradigms for computation",
+          "karma": 65,
+          "score": 6.720357
+        },
+        {
+          "index": "posts",
+          "objectID": "2roZtSr5TGmLjXMnT",
+          "title": "Toward A Mathematical Framework for Computation in Superposition",
+          "karma": 206,
+          "score": 6.6397085
+        },
+        {
+          "index": "posts",
+          "objectID": "Qz6w4GYZpgeDp6ATB",
+          "title": "Beyond Astronomical Waste",
+          "karma": 139,
+          "score": 6.6316123
+        },
+        {
+          "index": "posts",
+          "objectID": "vfRpzyGsikujm9ujj",
+          "title": "A brief history of computers",
+          "karma": 73,
+          "score": 6.5566053
+        },
+        {
+          "index": "comments",
+          "objectID": "QGBpvaeqWPnLbxpJf",
+          "title": "Comment on: METR's Evaluation of GPT-5",
+          "karma": 16,
+          "score": 6.4365277
+        },
+        {
+          "index": "posts",
+          "objectID": "cTRKj3giaZN5Ysyx2",
+          "title": "Compressed Computation under L⁴ Loss is likely Computation in Superposition",
+          "karma": 34,
+          "score": 6.2216954
+        },
+        {
+          "index": "posts",
+          "objectID": "rEDjo94iPvXWkkt4L",
+          "title": "Apparently, of the 195 Million the DoD allocated in University Research Funding Awards in 2022, more than half of them concerned AI or compute hardware research",
+          "karma": 41,
+          "score": 6.2175226
+        },
+        {
+          "index": "posts",
+          "objectID": "CvhPTwSMPqNju7hhw",
+          "title": "Book Review: Computability and Logic",
+          "karma": 44,
+          "score": 6.175175
+        },
+        {
+          "index": "posts",
+          "objectID": "nLRKKCTtwQgvozLTN",
+          "title": "Gradient Routing: Masking Gradients to Localize Computation in Neural Networks",
+          "karma": 169,
+          "score": 6.162727
+        }
+      ]
+    },
+    {
+      "search": "evan hubinger",
+      "repetition": 1,
+      "elapsedMs": 282,
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "AThTtkDufXp3rmMDa",
+          "title": "evhub",
+          "karma": 16374,
+          "score": 13
+        },
+        {
+          "index": "posts",
+          "objectID": "J76LZCC55RdHeqEhz",
+          "title": "Training a Misaligned Reward Seeker",
+          "karma": 145,
+          "score": 10.932033
+        },
+        {
+          "index": "posts",
+          "objectID": "jotZXEixzToEHnrfr",
+          "title": "The Hubinger lectures on AGI safety: an introductory lecture series",
+          "karma": 126,
+          "score": 9.907734
+        },
+        {
+          "index": "posts",
+          "objectID": "yRAo2KEGWenKYZG9K",
+          "title": "Discovering Language Model Behaviors with Model-Written Evaluations",
+          "karma": 100,
+          "score": 8.840426
+        },
+        {
+          "index": "posts",
+          "objectID": "FkgsxrGf3QxhfLWHG",
+          "title": "Risks from Learned Optimization: Introduction",
+          "karma": 187,
+          "score": 8.691317
+        },
+        {
+          "index": "users",
+          "objectID": "fKBDBuskLcenvvRaE",
+          "title": "Evan Hubinger",
+          "karma": 0,
+          "score": 8.581701
+        },
+        {
+          "index": "users",
+          "objectID": "wsHA3uLEPrf7cJRCE",
+          "title": "Evan Hubinger",
+          "karma": 0,
+          "score": 8.581701
+        },
+        {
+          "index": "posts",
+          "objectID": "sookiqxkzzLmPYB3r",
+          "title": "AXRP Episode 39 - Evan Hubinger on Model Organisms of Misalignment",
+          "karma": 41,
+          "score": 8.226273
+        },
+        {
+          "index": "posts",
+          "objectID": "pL56xPoniLvtMDQ4J",
+          "title": "The Inner Alignment Problem",
+          "karma": 104,
+          "score": 8.143906
+        },
+        {
+          "index": "posts",
+          "objectID": "zthDPAjh9w6Ytbeks",
+          "title": "Deceptive Alignment",
+          "karma": 118,
+          "score": 8.007506
+        }
+      ]
+    },
+    {
+      "search": "evan hubinger",
+      "repetition": 2,
+      "elapsedMs": 310,
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "AThTtkDufXp3rmMDa",
+          "title": "evhub",
+          "karma": 16374,
+          "score": 13
+        },
+        {
+          "index": "posts",
+          "objectID": "J76LZCC55RdHeqEhz",
+          "title": "Training a Misaligned Reward Seeker",
+          "karma": 145,
+          "score": 10.932033
+        },
+        {
+          "index": "posts",
+          "objectID": "jotZXEixzToEHnrfr",
+          "title": "The Hubinger lectures on AGI safety: an introductory lecture series",
+          "karma": 126,
+          "score": 9.907734
+        },
+        {
+          "index": "posts",
+          "objectID": "yRAo2KEGWenKYZG9K",
+          "title": "Discovering Language Model Behaviors with Model-Written Evaluations",
+          "karma": 100,
+          "score": 8.840426
+        },
+        {
+          "index": "posts",
+          "objectID": "FkgsxrGf3QxhfLWHG",
+          "title": "Risks from Learned Optimization: Introduction",
+          "karma": 187,
+          "score": 8.691317
+        },
+        {
+          "index": "users",
+          "objectID": "fKBDBuskLcenvvRaE",
+          "title": "Evan Hubinger",
+          "karma": 0,
+          "score": 8.581701
+        },
+        {
+          "index": "users",
+          "objectID": "wsHA3uLEPrf7cJRCE",
+          "title": "Evan Hubinger",
+          "karma": 0,
+          "score": 8.581701
+        },
+        {
+          "index": "posts",
+          "objectID": "sookiqxkzzLmPYB3r",
+          "title": "AXRP Episode 39 - Evan Hubinger on Model Organisms of Misalignment",
+          "karma": 41,
+          "score": 8.226273
+        },
+        {
+          "index": "posts",
+          "objectID": "pL56xPoniLvtMDQ4J",
+          "title": "The Inner Alignment Problem",
+          "karma": 104,
+          "score": 8.143906
+        },
+        {
+          "index": "posts",
+          "objectID": "zthDPAjh9w6Ytbeks",
+          "title": "Deceptive Alignment",
+          "karma": 118,
+          "score": 8.007506
+        }
+      ]
+    },
+    {
+      "search": "kwa",
+      "repetition": 1,
+      "elapsedMs": 249,
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "x5S2Kuj6TfQTGuo63",
+          "title": "Thomas Kwa",
+          "karma": 10495,
+          "score": 11.869724
+        },
+        {
+          "index": "posts",
+          "objectID": "qbcuk8WwFnTZcXTd6",
+          "title": "Thomas Kwa's MIRI research experience",
+          "karma": 174,
+          "score": 8.605917
+        },
+        {
+          "index": "posts",
+          "objectID": "bf3vciB36dnd75ZKJ",
+          "title": "Thomas Kwa's research journal",
+          "karma": 79,
+          "score": 8.107862
+        },
+        {
+          "index": "posts",
+          "objectID": "Zr37dY5YPRT6s56jY",
+          "title": "Thomas Kwa's Shortform",
+          "karma": 2,
+          "score": 7.4173584
+        },
+        {
+          "index": "comments",
+          "objectID": "hQxuY3zvMEyhyg688",
+          "title": "Comment on: Annapurna's Shortform",
+          "karma": 22,
+          "score": 6.1279755
+        },
+        {
+          "index": "posts",
+          "objectID": "BGLu3iCGjjcSaeeBG",
+          "title": "Related Discussion from Thomas Kwa's MIRI Research Experience",
+          "karma": 72,
+          "score": 6.021822
+        },
+        {
+          "index": "posts",
+          "objectID": "6KcP7tEe5hgvHbrSF",
+          "title": "METR: How Does Time Horizon Vary Across Domains?",
+          "karma": 84,
+          "score": 5.704502
+        },
+        {
+          "index": "comments",
+          "objectID": "TnNTttg8fTnoFpxhn",
+          "title": "Comment on: Kajus's Shortform",
+          "karma": 3,
+          "score": 5.6791277
+        },
+        {
+          "index": "comments",
+          "objectID": "p3AJgaZ7oqfDsjPEN",
+          "title": "Comment on: What do you Want out of Literature Reviews?",
+          "karma": 2,
+          "score": 5.528423
+        },
+        {
+          "index": "posts",
+          "objectID": "SieLowPgNgRSPGhFw",
+          "title": "Estimating No-CoT Task-Completion Time Horizons of Frontier AI Models",
+          "karma": 280,
+          "score": 5.497968
+        }
+      ]
+    },
+    {
+      "search": "kwa",
+      "repetition": 2,
+      "elapsedMs": 180,
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "x5S2Kuj6TfQTGuo63",
+          "title": "Thomas Kwa",
+          "karma": 10495,
+          "score": 11.869724
+        },
+        {
+          "index": "posts",
+          "objectID": "qbcuk8WwFnTZcXTd6",
+          "title": "Thomas Kwa's MIRI research experience",
+          "karma": 174,
+          "score": 8.605917
+        },
+        {
+          "index": "posts",
+          "objectID": "bf3vciB36dnd75ZKJ",
+          "title": "Thomas Kwa's research journal",
+          "karma": 79,
+          "score": 8.107862
+        },
+        {
+          "index": "posts",
+          "objectID": "Zr37dY5YPRT6s56jY",
+          "title": "Thomas Kwa's Shortform",
+          "karma": 2,
+          "score": 7.4173584
+        },
+        {
+          "index": "comments",
+          "objectID": "hQxuY3zvMEyhyg688",
+          "title": "Comment on: Annapurna's Shortform",
+          "karma": 22,
+          "score": 6.1279755
+        },
+        {
+          "index": "posts",
+          "objectID": "BGLu3iCGjjcSaeeBG",
+          "title": "Related Discussion from Thomas Kwa's MIRI Research Experience",
+          "karma": 72,
+          "score": 6.021822
+        },
+        {
+          "index": "posts",
+          "objectID": "6KcP7tEe5hgvHbrSF",
+          "title": "METR: How Does Time Horizon Vary Across Domains?",
+          "karma": 84,
+          "score": 5.704502
+        },
+        {
+          "index": "comments",
+          "objectID": "TnNTttg8fTnoFpxhn",
+          "title": "Comment on: Kajus's Shortform",
+          "karma": 3,
+          "score": 5.6791277
+        },
+        {
+          "index": "comments",
+          "objectID": "p3AJgaZ7oqfDsjPEN",
+          "title": "Comment on: What do you Want out of Literature Reviews?",
+          "karma": 2,
+          "score": 5.528423
+        },
+        {
+          "index": "posts",
+          "objectID": "SieLowPgNgRSPGhFw",
+          "title": "Estimating No-CoT Task-Completion Time Horizons of Frontier AI Models",
+          "karma": 280,
+          "score": 5.497968
+        }
+      ]
+    },
+    {
+      "search": "paulf",
+      "repetition": 1,
+      "elapsedMs": 220,
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "gb44edJjXhte8DA3A",
+          "title": "paulfchristiano",
+          "karma": 29826,
+          "score": 11.532912
+        },
+        {
+          "index": "posts",
+          "objectID": "7qhtuQLCCvmwCPfXK",
+          "title": "AMA: Paul Christiano, alignment researcher",
+          "karma": 117,
+          "score": 5.743087
+        },
+        {
+          "index": "posts",
+          "objectID": "ZRrYsZ626KSEgHv8s",
+          "title": "Self-driving car bets",
+          "karma": 236,
+          "score": 5.2419252
+        },
+        {
+          "index": "posts",
+          "objectID": "CoZhXrhpQxpy9xw9y",
+          "title": "Where I agree and disagree with Eliezer",
+          "karma": 890,
+          "score": 4.9
+        },
+        {
+          "index": "posts",
+          "objectID": "HBxe6wdjxK239zajf",
+          "title": "What failure looks like",
+          "karma": 419,
+          "score": 4.888373
+        },
+        {
+          "index": "posts",
+          "objectID": "9W4TQvixiQjpZmzrx",
+          "title": "Decision theory and dynamic inconsistency",
+          "karma": 80,
+          "score": 4.8837233
+        },
+        {
+          "index": "posts",
+          "objectID": "AyNHoTWWAJ5eb99ji",
+          "title": "Another (outer) alignment failure story",
+          "karma": 247,
+          "score": 4.830123
+        },
+        {
+          "index": "posts",
+          "objectID": "qHCDysDnvhteW7kRd",
+          "title": "ARC's first technical report: Eliciting Latent Knowledge",
+          "karma": 228,
+          "score": 4.821434
+        },
+        {
+          "index": "posts",
+          "objectID": "fRSj2W4Fjje8rQWm9",
+          "title": "Thoughts on sharing information about language model capabilities",
+          "karma": 211,
+          "score": 4.813063
+        },
+        {
+          "index": "posts",
+          "objectID": "nRAMpjnb6Z4Qv3imF",
+          "title": "The strategy-stealing assumption",
+          "karma": 86,
+          "score": 4.807773
+        }
+      ]
+    },
+    {
+      "search": "paulf",
+      "repetition": 2,
+      "elapsedMs": 212,
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "gb44edJjXhte8DA3A",
+          "title": "paulfchristiano",
+          "karma": 29826,
+          "score": 11.532912
+        },
+        {
+          "index": "posts",
+          "objectID": "7qhtuQLCCvmwCPfXK",
+          "title": "AMA: Paul Christiano, alignment researcher",
+          "karma": 117,
+          "score": 5.743087
+        },
+        {
+          "index": "posts",
+          "objectID": "ZRrYsZ626KSEgHv8s",
+          "title": "Self-driving car bets",
+          "karma": 236,
+          "score": 5.2419252
+        },
+        {
+          "index": "posts",
+          "objectID": "CoZhXrhpQxpy9xw9y",
+          "title": "Where I agree and disagree with Eliezer",
+          "karma": 890,
+          "score": 4.9
+        },
+        {
+          "index": "posts",
+          "objectID": "HBxe6wdjxK239zajf",
+          "title": "What failure looks like",
+          "karma": 419,
+          "score": 4.888373
+        },
+        {
+          "index": "posts",
+          "objectID": "9W4TQvixiQjpZmzrx",
+          "title": "Decision theory and dynamic inconsistency",
+          "karma": 80,
+          "score": 4.8837233
+        },
+        {
+          "index": "posts",
+          "objectID": "AyNHoTWWAJ5eb99ji",
+          "title": "Another (outer) alignment failure story",
+          "karma": 247,
+          "score": 4.830123
+        },
+        {
+          "index": "posts",
+          "objectID": "qHCDysDnvhteW7kRd",
+          "title": "ARC's first technical report: Eliciting Latent Knowledge",
+          "karma": 228,
+          "score": 4.821434
+        },
+        {
+          "index": "posts",
+          "objectID": "fRSj2W4Fjje8rQWm9",
+          "title": "Thoughts on sharing information about language model capabilities",
+          "karma": 211,
+          "score": 4.813063
+        },
+        {
+          "index": "posts",
+          "objectID": "nRAMpjnb6Z4Qv3imF",
+          "title": "The strategy-stealing assumption",
+          "karma": 86,
+          "score": 4.807773
+        }
+      ]
+    },
+    {
+      "search": "johnswentwroth",
+      "repetition": 1,
+      "elapsedMs": 556,
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "MEu8MdhruX5jfGsFQ",
+          "title": "johnswentworth",
+          "karma": 64994,
+          "score": 11.421826
+        },
+        {
+          "index": "posts",
+          "objectID": "CJjT8GMitsnKc2wgG",
+          "title": "Natural abstractions are observer-dependent: a conversation with John Wentworth",
+          "karma": 40,
+          "score": 6.720706
+        },
+        {
+          "index": "posts",
+          "objectID": "puv8fRDCH9jx5yhbX",
+          "title": "johnswentworth's Shortform",
+          "karma": 10,
+          "score": 6.310945
+        },
+        {
+          "index": "posts",
+          "objectID": "7fq3r4n5CCgYLfsJb",
+          "title": "Trying to understand John Wentworth's research agenda",
+          "karma": 96,
+          "score": 6.305515
+        },
+        {
+          "index": "posts",
+          "objectID": "ahNcJGNtTX8JvMy93",
+          "title": "Dialogue on the Claim: \"OpenAI's Firing of Sam Altman (And Shortly-Subsequent Events) On Net Reduced Existential Risk From AGI\"",
+          "karma": 73,
+          "score": 6.2716928
+        },
+        {
+          "index": "posts",
+          "objectID": "T8qhPyiFPFcSZ2swC",
+          "title": "Mazes and Duality",
+          "karma": 62,
+          "score": 5.9476185
+        },
+        {
+          "index": "posts",
+          "objectID": "Wg6ptgi2DupFuAnXG",
+          "title": "Orienting Toward Wizard Power",
+          "karma": 563,
+          "score": 4.9
+        },
+        {
+          "index": "posts",
+          "objectID": "XvN2QQpKTuEzgkZHY",
+          "title": "Being the (Pareto) Best in the World",
+          "karma": 471,
+          "score": 4.9
+        },
+        {
+          "index": "posts",
+          "objectID": "Psr9tnQFuEXiuqGcR",
+          "title": "How To Write Quickly While Maintaining Epistemic Rigor",
+          "karma": 456,
+          "score": 4.8978157
+        },
+        {
+          "index": "posts",
+          "objectID": "fJvjin8ETkzhFdadC",
+          "title": "Accounting For College Costs",
+          "karma": 366,
+          "score": 4.8733406
+        }
+      ]
+    },
+    {
+      "search": "johnswentwroth",
+      "repetition": 2,
+      "elapsedMs": 528,
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "MEu8MdhruX5jfGsFQ",
+          "title": "johnswentworth",
+          "karma": 64994,
+          "score": 11.421826
+        },
+        {
+          "index": "posts",
+          "objectID": "CJjT8GMitsnKc2wgG",
+          "title": "Natural abstractions are observer-dependent: a conversation with John Wentworth",
+          "karma": 40,
+          "score": 6.720706
+        },
+        {
+          "index": "posts",
+          "objectID": "puv8fRDCH9jx5yhbX",
+          "title": "johnswentworth's Shortform",
+          "karma": 10,
+          "score": 6.310945
+        },
+        {
+          "index": "posts",
+          "objectID": "7fq3r4n5CCgYLfsJb",
+          "title": "Trying to understand John Wentworth's research agenda",
+          "karma": 96,
+          "score": 6.305515
+        },
+        {
+          "index": "posts",
+          "objectID": "ahNcJGNtTX8JvMy93",
+          "title": "Dialogue on the Claim: \"OpenAI's Firing of Sam Altman (And Shortly-Subsequent Events) On Net Reduced Existential Risk From AGI\"",
+          "karma": 73,
+          "score": 6.2716928
+        },
+        {
+          "index": "posts",
+          "objectID": "T8qhPyiFPFcSZ2swC",
+          "title": "Mazes and Duality",
+          "karma": 62,
+          "score": 5.9476185
+        },
+        {
+          "index": "posts",
+          "objectID": "Wg6ptgi2DupFuAnXG",
+          "title": "Orienting Toward Wizard Power",
+          "karma": 563,
+          "score": 4.9
+        },
+        {
+          "index": "posts",
+          "objectID": "XvN2QQpKTuEzgkZHY",
+          "title": "Being the (Pareto) Best in the World",
+          "karma": 471,
+          "score": 4.9
+        },
+        {
+          "index": "posts",
+          "objectID": "Psr9tnQFuEXiuqGcR",
+          "title": "How To Write Quickly While Maintaining Epistemic Rigor",
+          "karma": 456,
+          "score": 4.8978157
+        },
+        {
+          "index": "posts",
+          "objectID": "fJvjin8ETkzhFdadC",
+          "title": "Accounting For College Costs",
+          "karma": 366,
+          "score": 4.8733406
+        }
+      ]
+    },
+    {
+      "search": "roko",
+      "repetition": 1,
+      "elapsedMs": 193,
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "73WJbnX59kE4afuuY",
+          "title": "Roko",
+          "karma": 6389,
+          "score": 14.32425
+        },
+        {
+          "index": "users",
+          "objectID": "Qfbjhx5CFtjENZ9sq",
+          "title": "FormallyknownasRoko",
+          "karma": 715,
+          "score": 7.42144
+        },
+        {
+          "index": "comments",
+          "objectID": "kkLPNkmv4kGWTGD3T",
+          "title": "Comment on: The Problem",
+          "karma": 2,
+          "score": 7.188218
+        },
+        {
+          "index": "comments",
+          "objectID": "GYtJuagKBcbjboEKq",
+          "title": "Comment on: The Problem",
+          "karma": 4,
+          "score": 7.182592
+        },
+        {
+          "index": "posts",
+          "objectID": "WBJZoeJypcNRmsdHx",
+          "title": "A few misconceptions surrounding Roko's basilisk",
+          "karma": 90,
+          "score": 6.649409
+        },
+        {
+          "index": "tags",
+          "objectID": "5f5c37ee1b5cdee568cfb326",
+          "title": "Roko's Basilisk",
+          "karma": 5,
+          "score": 6.254286
+        },
+        {
+          "index": "posts",
+          "objectID": "bAEPBD7JBsf9XKCuT",
+          "title": "Everything Wrong with Roko's Claims about an Engineered Pandemic",
+          "karma": 96,
+          "score": 5.7464232
+        },
+        {
+          "index": "comments",
+          "objectID": "B4hBJWAmzAfyzjzDy",
+          "title": "Comment on: The Problem",
+          "karma": 17,
+          "score": 5.7434864
+        },
+        {
+          "index": "posts",
+          "objectID": "sCs48JtMnQwQsZwyN",
+          "title": "Invisible Frameworks",
+          "karma": 27,
+          "score": 5.5864134
+        },
+        {
+          "index": "posts",
+          "objectID": "bHHrdXwrCj2LRa2sW",
+          "title": "Architects of Our Own Demise: We Should Stop Developing AI Carelessly",
+          "karma": 170,
+          "score": 5.4853163
+        }
+      ]
+    },
+    {
+      "search": "roko",
+      "repetition": 2,
+      "elapsedMs": 206,
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "73WJbnX59kE4afuuY",
+          "title": "Roko",
+          "karma": 6389,
+          "score": 14.32425
+        },
+        {
+          "index": "users",
+          "objectID": "Qfbjhx5CFtjENZ9sq",
+          "title": "FormallyknownasRoko",
+          "karma": 715,
+          "score": 7.42144
+        },
+        {
+          "index": "comments",
+          "objectID": "kkLPNkmv4kGWTGD3T",
+          "title": "Comment on: The Problem",
+          "karma": 2,
+          "score": 7.188218
+        },
+        {
+          "index": "comments",
+          "objectID": "GYtJuagKBcbjboEKq",
+          "title": "Comment on: The Problem",
+          "karma": 4,
+          "score": 7.182592
+        },
+        {
+          "index": "posts",
+          "objectID": "WBJZoeJypcNRmsdHx",
+          "title": "A few misconceptions surrounding Roko's basilisk",
+          "karma": 90,
+          "score": 6.649409
+        },
+        {
+          "index": "tags",
+          "objectID": "5f5c37ee1b5cdee568cfb326",
+          "title": "Roko's Basilisk",
+          "karma": 5,
+          "score": 6.254286
+        },
+        {
+          "index": "posts",
+          "objectID": "bAEPBD7JBsf9XKCuT",
+          "title": "Everything Wrong with Roko's Claims about an Engineered Pandemic",
+          "karma": 96,
+          "score": 5.7464232
+        },
+        {
+          "index": "comments",
+          "objectID": "B4hBJWAmzAfyzjzDy",
+          "title": "Comment on: The Problem",
+          "karma": 17,
+          "score": 5.7434864
+        },
+        {
+          "index": "posts",
+          "objectID": "sCs48JtMnQwQsZwyN",
+          "title": "Invisible Frameworks",
+          "karma": 27,
+          "score": 5.5864134
+        },
+        {
+          "index": "posts",
+          "objectID": "bHHrdXwrCj2LRa2sW",
+          "title": "Architects of Our Own Demise: We Should Stop Developing AI Carelessly",
+          "karma": 170,
+          "score": 5.4853163
+        }
+      ]
+    }
+  ]
+}

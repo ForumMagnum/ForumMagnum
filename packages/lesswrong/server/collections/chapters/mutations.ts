@@ -1,3 +1,4 @@
+import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import schema from "@/lib/collections/chapters/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -72,6 +73,7 @@ export async function createChapter({ data }: CreateChapterInput, context: Resol
     props: asyncProperties,
   });
 
+  if (documentWithId.sequenceId) backgroundTask(elasticSyncDocument("Sequences", documentWithId.sequenceId));
   await invalidatePostPageCache(documentWithId.postIds ?? []);
 
   return documentWithId;
@@ -118,6 +120,11 @@ export async function updateChapter({ selector, data }: UpdateChapterInput, cont
   });
 
   backgroundTask(logFieldChanges({ currentUser, collection: Chapters, oldDocument, data: origData }));
+
+  if (updatedDocument.sequenceId) backgroundTask(elasticSyncDocument("Sequences", updatedDocument.sequenceId));
+  if (oldDocument.sequenceId && oldDocument.sequenceId !== updatedDocument.sequenceId) {
+    backgroundTask(elasticSyncDocument("Sequences", oldDocument.sequenceId));
+  }
 
   // Changing which posts the chapter has, their order, or the chapter's
   // position can change the previous/next links of posts in other chapters

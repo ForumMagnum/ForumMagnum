@@ -1,3 +1,4 @@
+import SearchHighlight from "./SearchHighlight";
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import React from 'react';
@@ -58,7 +59,7 @@ const CommentsSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponen
     </LWTooltip>}
     <Link to={url} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div>
-        <MetaInfo>{comment.authorDisplayName}</MetaInfo>
+        <MetaInfo><SearchHighlight hit={hit} attribute="authorDisplayName">{comment.authorDisplayName}</SearchHighlight></MetaInfo>
         <MetaInfo>{comment.baseScore} karma </MetaInfo>
         <MetaInfo>
           <FormatDate date={comment.postedAt}/>

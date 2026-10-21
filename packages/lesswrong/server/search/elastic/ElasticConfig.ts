@@ -38,10 +38,7 @@ export type IndexConfig = {
    * The name of the field to create a match snippet from.
    */
   snippet: string,
-  /**
-   * The name of the field to create a match highlight from.
-   */
-  highlight?: string,
+  highlight?: string[],
   /**
    * An array of ranking specifications to manually tune the relevancy of results.
    * Ordering does not matter.
@@ -161,6 +158,10 @@ const keywordMapping: MappingProperty = {
   type: "keyword",
 };
 
+const dateMapping: MappingProperty = {
+  type: "date",
+};
+
 const objectMapping = (
   properties: Record<string, MappingProperty>,
 ): MappingProperty => ({properties});
@@ -172,7 +173,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "authorDisplayName^11",
     ],
     snippet: "body",
-    highlight: "authorDisplayName",
+    highlight: ["authorDisplayName"],
     ranking: [
       {
         field: "baseScore",
@@ -227,7 +228,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "body",
     ],
     snippet: "body",
-    highlight: "title",
+    highlight: ["title", "authorDisplayName"],
     ranking: [
       {
         field: "baseScore",
@@ -247,6 +248,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       {range: {baseScore: {gte: 0}}},
     ],
     mappings: {
+      coauthorIds: keywordMapping,
       title: fullTextMapping,
       authorDisplayName: shingleTextMapping,
       authorFullName: shingleTextMapping,
@@ -254,6 +256,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       body: fullTextMapping,
       feedLink: keywordMapping,
       slug: keywordMapping,
+      startTime: dateMapping,
       tags: objectMapping({
         _id: keywordMapping,
         slug: keywordMapping,
@@ -271,6 +274,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "rejected",
       "status",
       "viewCount",
+      "coauthorIds",
     ],
   },
   Users: {
@@ -284,6 +288,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "howOthersCanHelpMe",
     ],
     snippet: "bio",
+    highlight: ["displayName"],
     ranking: [
       {
         field: "karma",
@@ -319,6 +324,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
     ],
     mappings: {
       displayName: nameTextMapping,
+      fullName: shingleTextMapping,
       bio: fullTextMapping,
       mapLocationAddress: fullTextMapping,
       jobTitle: fullTextMapping,
@@ -358,6 +364,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "authorDisplayName",
     ],
     snippet: "plaintextDescription",
+    highlight: ["title", "authorDisplayName"],
     tiebreaker: "publicDateMs",
     filters: [
       {term: {isDeleted: false}},
@@ -366,6 +373,9 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
     ],
     mappings: {
       body: fullTextMapping,
+      title: fullTextMapping,
+      collectedAuthorIds: keywordMapping,
+      baseScore: {type: "double"},
       plaintextDescription: fullTextMapping,
       authorDisplayName: shingleTextMapping,
       userId: keywordMapping,
@@ -376,6 +386,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "draft",
       "hidden",
       "isDeleted",
+      "collectedAuthorIds",
     ],
   },
   Tags: {
@@ -384,6 +395,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "description",
     ],
     snippet: "description",
+    highlight: ["name"],
     ranking: [
       {
         field: "core",

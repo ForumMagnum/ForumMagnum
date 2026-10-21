@@ -92,3 +92,6 @@ export const getSearchClient = (options?: SearchOptions): Client => {
   }
   return client;
 }
+
+export const getLookupSearchClient = (options?: SearchOptions): Client =>
+  getSearchClient({...options, emptyStringSearchResults: options?.emptyStringSearchResults ?? "default", mode: "lookup"});
