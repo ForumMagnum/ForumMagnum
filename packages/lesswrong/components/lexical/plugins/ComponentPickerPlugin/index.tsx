@@ -25,6 +25,7 @@ import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/
 import {
   $getSelection,
   $isRangeSelection,
+  $onUpdate,
   LexicalEditor,
   TextNode,
 } from 'lexical';
@@ -330,12 +331,16 @@ function useBaseOptions(
           flash({ messageString: 'Pasting as markdown is not supported in suggestion mode', type: 'error' });
           return;
         }
-        openDialog({
+        // onSelect runs inside the update that removes the slash-command text.
+        // Committing that update moves the DOM selection (and thus focus) back
+        // into the editor, so open the dialog only afterwards; otherwise it
+        // steals focus from the dialog's textarea.
+        $onUpdate(() => openDialog({
           name: 'PasteMarkdownDialog',
           contents: ({ onClose }) => (
             <PasteMarkdownDialog activeEditor={editor} onClose={onClose} />
           ),
-        });
+        }));
       },
     }),
     new ComponentPickerOption('Paragraph', {

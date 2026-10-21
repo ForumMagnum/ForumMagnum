@@ -1,7 +1,9 @@
 'use client';
 
-import React, { type JSX, useEffect, useRef } from 'react';
-import { $getRoot, $getSelection, PASTE_COMMAND, type LexicalEditor } from 'lexical';
+import React, { type JSX } from 'react';
+import { $getRoot, $getSelection, PASTE_TAG, type LexicalEditor } from 'lexical';
+import { $generateNodesFromDOM } from '@lexical/html';
+import { $insertGeneratedNodes } from '@lexical/clipboard';
 import LWDialog from '@/components/common/LWDialog';
 import { DialogTitle } from '@/components/widgets/DialogTitle';
 import { DialogContent } from '@/components/widgets/DialogContent';
@@ -50,22 +52,21 @@ function markdownToHtml(markdown: string): string {
 
 /**
  * Insert markdown at the editor's current selection by converting it to HTML
- * and running it through the editor's normal paste pipeline.
+ * and importing that the same way the rich-text paste handler imports pasted
+ * HTML. This doesn't dispatch PASTE_COMMAND with a synthetic ClipboardEvent,
+ * because Firefox ignores the `clipboardData` passed to the ClipboardEvent
+ * constructor, so the paste handler would see an empty clipboard.
  */
 function insertMarkdownIntoEditor(editor: LexicalEditor, markdown: string) {
-  const dataTransfer = new DataTransfer();
-  dataTransfer.setData('text/html', markdownToHtml(markdown));
-  dataTransfer.setData('text/plain', markdown);
-
+  const dom = new DOMParser().parseFromString(markdownToHtml(markdown), 'text/html');
   editor.update(() => {
-    // The paste handler is a no-op without a selection, so if the selection
-    // got lost while the dialog was open, fall back to the end of the document.
-    if (!$getSelection()) {
-      $getRoot().selectEnd();
-    }
-  }, { discrete: true });
+    const nodes = $generateNodesFromDOM(editor, dom);
+    // If the selection got lost while the dialog was open, fall back to the
+    // end of the document.
+    const selection = $getSelection() ?? $getRoot().selectEnd();
+    $insertGeneratedNodes(editor, nodes, selection);
+  }, { tag: PASTE_TAG });
   editor.focus();
-  editor.dispatchCommand(PASTE_COMMAND, new ClipboardEvent('paste', { clipboardData: dataTransfer }));
 }
 
 export function PasteMarkdownDialog({ activeEditor, onClose }: {
@@ -73,11 +74,6 @@ export function PasteMarkdownDialog({ activeEditor, onClose }: {
   onClose: () => void;
 }): JSX.Element {
   const classes = useStyles(styles);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, []);
 
   const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const markdown = event.clipboardData.getData('text/plain');
@@ -94,8 +90,11 @@ export function PasteMarkdownDialog({ activeEditor, onClose }: {
         <div className={classes.instructions}>
           Paste markdown below. It will be converted and inserted into your document.
         </div>
+        {/* LWDialog only mounts its children after its first render, so this
+            has to be autoFocus rather than a focus() call in a mount effect,
+            which would run before the textarea exists. */}
         <textarea
-          ref={textareaRef}
+          autoFocus
           className={classes.textarea}
           onPaste={handlePaste}
           placeholder="Paste markdown here"
