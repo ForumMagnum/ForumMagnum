@@ -9,6 +9,7 @@ import {
 } from "@/lib/collections/moderatorActions/constants";
 import { areAllContentPermissionsDisabled, isPost, type ContentItem } from "./helpers";
 import { getNonEnglishProseRatio } from "./contentLanguage";
+import { contentHasOffsiteLink } from "./contentLinks";
 import {
   getFirstParagraphLength,
   getFormattingParagraphPlaintextsFromHtml,
@@ -387,6 +388,12 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
     type: 'number', scope: 'focusedContent', group: 'Selected content',
     label: "Links in the selected content",
     compute: ctx => focusedNumber(ctx, content => (content.contents?.html?.match(/<a\s[^>]*href/gi) ?? []).length),
+  },
+  focusedHasOffsiteLink: {
+    type: 'boolean', scope: 'focusedContent', group: 'Selected content',
+    label: "Selected content contains an external link",
+    description: "Checks body links and the linkpost URL, excluding onsite domains and recognized mirrors",
+    compute: ctx => !!ctx.focusedContent && contentHasOffsiteLink(ctx.focusedContent),
   },
   focusedHasLinkpostUrl: {
     type: 'boolean', scope: 'focusedContent', group: 'Selected content',

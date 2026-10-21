@@ -559,11 +559,6 @@
       "groups": [
         [
           {
-            "signal": "focusedTextLength",
-            "operator": "lt",
-            "value": 600
-          },
-          {
             "signal": "focusedLinkCount",
             "operator": "eq",
             "value": 1
@@ -571,12 +566,7 @@
         ],
         [
           {
-            "signal": "focusedTextLength",
-            "operator": "lt",
-            "value": 600
-          },
-          {
-            "signal": "focusedHasLinkpostUrl",
+            "signal": "focusedHasOffsiteLink",
             "operator": "isTrue",
             "value": null
           }
