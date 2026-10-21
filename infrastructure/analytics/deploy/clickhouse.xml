@@ -1,0 +1,19 @@
+<clickhouse>
+  <listen_host replace="replace">127.0.0.1</listen_host>
+  <http_port remove="remove"/>
+  <tcp_port remove="remove"/>
+  <mysql_port remove="remove"/>
+  <postgresql_port remove="remove"/>
+  <interserver_http_port remove="remove"/>
+  <https_port>8443</https_port>
+  <openSSL><server>
+    <certificateFile>/run/secrets/analytics.crt</certificateFile>
+    <privateKeyFile>/run/secrets/analytics.key</privateKeyFile>
+  </server></openSSL>
+  <max_server_memory_usage>51539607552</max_server_memory_usage>
+  <max_concurrent_queries>4</max_concurrent_queries>
+  <s3><use_environment_credentials>true</use_environment_credentials></s3>
+  <backups><allowed_disk>backups</allowed_disk></backups>
+  <logger><level>warning</level></logger>
+  <query_log><ttl>event_date + INTERVAL 7 DAY DELETE</ttl></query_log>
+</clickhouse>

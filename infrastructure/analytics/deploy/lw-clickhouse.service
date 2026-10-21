@@ -1,0 +1,16 @@
+[Unit]
+Description=LessWrong ClickHouse database
+After=network-online.target docker.service
+Requires=docker.service
+RequiresMountsFor=/srv/analytics
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/lw-analytics/deploy
+ExecStart=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose stop -t 300 clickhouse
+TimeoutStopSec=330
+
+[Install]
+WantedBy=multi-user.target
