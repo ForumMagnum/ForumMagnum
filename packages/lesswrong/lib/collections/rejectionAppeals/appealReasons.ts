@@ -20,24 +20,24 @@ export interface AppealReason {
 export const APPEAL_REASONS: AppealReason[] = [
   {
     id: "llmWritten",
-    label: "LLM-written or LLM-edited content",
-    moderationTemplateNames: ["No LLM", "No LLM (autoreject)", "Potentially / Partially LLM"],
+    label: "LLM-assisted content or restricted AI topics",
+    moderationTemplateNames: ["No LLM", "No LLM (autoreject)", "Potentially / Partially LLM", "Insufficient Quality for AI Content"],
     policyLink: {
       title: "our policy on LLM-generated content",
       url: "/posts/nQWavk9mnwcv6ScMR/new-lesswrong-editor-also-an-update-to-our-llm-policy#Policy_on_LLM_Use",
     },
     commonMisunderstandings: [
       {
-        summary: "The No LLM policy does not make exceptions for translation, cognitive diversity (e.g. ADHD) or any other reasons for using AI assistance.",
-        detail: "The problem is that AI outputs reliably do not meet our quality standards regardless of the reason for use, and even AI editing tends to change the output rather a lot.",
+        summary: "You wrote this yourself, without using LLMs to help you write or edit your content.",
+        detail: "We can reconsider this rejection only if all three criteria listed here are true. There are no exceptions for translation, cognitive diversity (e.g. ADHD), or other reasons for using AI to write or edit your content.",
       },
       {
-        summary: "The No LLM policy also excludes using the AI to flesh out or write up your own reasoning or ideas.",
-        detail: "As in the above point, the AI will tend to change the content, and the quality bar is typically not met.",
+        summary: "You did not chat extensively with LLMs to help you generate the ideas.",
+        detail: "Using an LLM briefly the way you'd use a search engine is fine. But if you're treating it more like a coauthor or test subject, we will not reconsider your content.",
       },
       {
-        summary: "The No LLM policy covers both using AI to write your content and also content regarding AI by new users.",
-        detail: "In particular, the policy does not allow new users to post about AI consciousness, welfare, self-awareness, and similar AI-centric topics. Unfortunately we get too many low quality submissions on these topics and therefore require new users to prove their quality and understanding of LessWrong norms on other topics.",
+        summary: "Your content is not about AI consciousness, recursion, emergence, or novel interpretations of physics.",
+        detail: "Examples of work we don't evaluate because it's too time costly include case studies of LLM sentience, emergence, recursion, novel physics interpretations, or AI alignment strategies developed in tandem with an AI coauthor. AIs may seem quite smart but they aren't actually a good judge of the quality of novel ideas. If any of these three criteria are false, sorry, we will not accept your content.",
       },
     ],
   },
