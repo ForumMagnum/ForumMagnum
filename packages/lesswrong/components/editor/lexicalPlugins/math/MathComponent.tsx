@@ -8,7 +8,6 @@ import { renderEquation } from "./loadMathJax";
 const styles = defineStyles('MathComponent', (theme: ThemeType) => ({
   preview: {
     userSelect: 'none',
-    minWidth: '1em',
     minHeight: '1em',
     '& mjx-merror': {
       color: theme.palette.error.light,
@@ -34,6 +33,10 @@ const styles = defineStyles('MathComponent', (theme: ThemeType) => ({
     marginBottom: '0 !important',
     paddingTop: '0 !important',
     paddingBottom: '0 !important',
+  },
+  emptyInline: {
+    // Keep empty equations clickable without widening rendered single letters.
+    minWidth: '1em',
   },
   placeholder: {
     color: theme.palette.text.dim,
@@ -71,6 +74,7 @@ export function MathComponent({ equation, inline }: {
       ref={containerRef}
       className={classNames('math-preview', inline ? 'math-inline' : 'math-display', classes.preview, inline ? classes.inline : classes.display, {
         [classes.placeholder]: !inline && !equation.trim(),
+        [classes.emptyInline]: inline && !equation.trim(),
       })}
     />
   );
