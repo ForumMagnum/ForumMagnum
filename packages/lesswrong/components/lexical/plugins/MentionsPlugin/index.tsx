@@ -48,7 +48,7 @@ const styles = defineStyles('LexicalMentions', (theme: ThemeType) => ({
   list: {
     listStyle: 'none',
     margin: 0,
-    padding: '4px 0',
+    padding: 0,
     maxHeight: 340,
     overflowY: 'auto',
   },
