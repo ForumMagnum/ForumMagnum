@@ -1,5 +1,5 @@
 import type { ForumTypeString } from "@/lib/instanceSettings";
-import { AddDetailView, AddRating, ApiClient, SetViewPortion, TimeoutError } from 'recombee-js-api-client';
+import { AddDetailView, AddRating, ApiClient, SetViewPortion, TimeoutError, type Request as RecombeeRequest } from 'recombee-js-api-client';
 import { captureException } from '@/lib/sentryWrapper';
 import { recombeeDatabaseIdSetting, recombeePublicApiTokenSetting } from '../instanceSettings';
 
@@ -74,11 +74,14 @@ const recombeeRequestHelpers = {
     });
   },
 
-  shouldLogRecombeeError(error: AnyBecauseIsInput) {
+  shouldLogRecombeeError(error: AnyBecauseIsInput, isLoggedIn: boolean) {
     const isTimeoutError = error instanceof TimeoutError;
     const hasStatusCode = 'statusCode' in error;
     const statusCode = hasStatusCode ? error.statusCode : undefined;
     const isNotFoundOrConflict = statusCode === 404 || statusCode === 409;
+    const isLoggedOutBotRejection = !isLoggedIn
+      && statusCode === 403
+      && !!error.message?.includes('user is considered a bot');
 
     // If there isn't a statusCode, then it's not a standard recombee error and we should definitely log it to Sentry
     // 404 generally indicates a missing userId or itemId with cascadeCreate not set to true
@@ -86,35 +89,33 @@ const recombeeRequestHelpers = {
     // 409 generally indicates we're trying to create/set something which already exists in recombee, i.e. a detail view for a given post by a given user
     // See https://docs.recombee.com/api for more specific details
     // Timeout errors are just noisy and we should skip logging them
-    return !(isTimeoutError || isNotFoundOrConflict);
+    // 403 "user is considered a bot" is Recombee rejecting the client as a bot. For logged-out clients it's
+    // usually right and we skip logging it, but if it happens to a logged-in user we want to know
+    return !(isTimeoutError || isNotFoundOrConflict || isLoggedOutBotRejection);
   },
 }
 
+async function sendRecombeeRequest(client: ApiClient, request: RecombeeRequest, isLoggedIn: boolean) {
+  try {
+    await client.send(request);
+  } catch (error) {
+    if (recombeeRequestHelpers.shouldLogRecombeeError(error, isLoggedIn)) {
+      captureException(error);
+    }
+  }
+}
+
 const recombeeApi = {
-  async createViewPortion(viewPortionProps: RecombeeViewPortionProps, forumType: ForumTypeString) {
+  async createViewPortion(viewPortionProps: RecombeeViewPortionProps, isLoggedIn: boolean, forumType: ForumTypeString) {
     const client = getRecombeeClientOrThrow(forumType);
     const request = recombeeRequestHelpers.createViewPortionRequest(viewPortionProps);
-
-    try {
-      await client.send(request);
-    } catch (error) {
-      if (recombeeRequestHelpers.shouldLogRecombeeError(error)) {
-        captureException(error);
-      }
-    }
+    await sendRecombeeRequest(client, request, isLoggedIn);
   },
 
-  async createDetailView(postId: string, userId: string, forumType: ForumTypeString, recommId?: string) {
+  async createDetailView(postId: string, userId: string, isLoggedIn: boolean, forumType: ForumTypeString, recommId?: string) {
     const client = getRecombeeClientOrThrow(forumType);
     const request = recombeeRequestHelpers.createDetailViewRequest(postId, userId, recommId);
-
-    try {
-      await client.send(request);
-    } catch (error) {
-      if (recombeeRequestHelpers.shouldLogRecombeeError(error)) {
-        captureException(error);
-      }
-    }
+    await sendRecombeeRequest(client, request, isLoggedIn);
   },
 
   async createRating(postId: string, userId: string, voteType: string, forumType: ForumTypeString, recommId?: string) {
@@ -123,14 +124,8 @@ const recombeeApi = {
     if (!request) {
       return;
     }
-
-    try {
-      await client.send(request);
-    } catch (error) {
-      if (recombeeRequestHelpers.shouldLogRecombeeError(error)) {
-        captureException(error);
-      }
-    }
+    // Ratings come from votes and feed feedback, which require being logged in
+    await sendRecombeeRequest(client, request, true);
   },
 }
 

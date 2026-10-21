@@ -201,6 +201,10 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       marginRight: 0,
     },
     transition: 'color 0.5s',
+    // ContentStyles gives headings an explicit dark grey, which is unreadable once the story turns black
+    '& h1, & h2, & h3': {
+      color: 'inherit',
+    },
     '& h1': {
       fontSize: 60,
       textTransform: 'uppercase',

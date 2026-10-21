@@ -1,3 +1,5 @@
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import schema from "@/lib/collections/comments/newSchema";
 import { getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
@@ -174,6 +176,10 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   }
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(documentWithId, null, context));
 
+  if (documentWithId.postId) {
+    await invalidatePostPageCache(documentWithId.postId);
+  }
+
   return documentWithId;
 }
 
@@ -247,7 +253,20 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   backgroundTask(logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData }));
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(updatedDocument, oldDocument, context));
 
+  await invalidatePostPageCache(
+    filterNonnull([updatedDocument.postId, oldDocument.postId]),
+    { hardDelete: commentVisibilityChanged(oldDocument, updatedDocument) },
+  );
+
   return updatedDocument;
+}
+
+function commentVisibilityChanged(oldComment: DbComment, newComment: DbComment): boolean {
+  return oldComment.deleted !== newComment.deleted
+    || oldComment.deletedPublic !== newComment.deletedPublic
+    || oldComment.rejected !== newComment.rejected
+    || oldComment.authorIsUnreviewed !== newComment.authorIsUnreviewed
+    || oldComment.draft !== newComment.draft;
 }
 
 export const createCommentGqlMutation = makeGqlCreateMutation('Comments', createComment, {

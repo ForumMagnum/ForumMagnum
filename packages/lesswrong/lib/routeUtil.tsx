@@ -126,6 +126,20 @@ export const useNavigate = () => {
   }, [history]);
 }
 
+/**
+ * React Hook which returns a function that prefetches a route's static shell
+ * (its layouts and loading states, but not its dynamic data), so that
+ * navigating to it can show something immediately instead of waiting for the
+ * server. Next caches prefetches, so calling this repeatedly for the same URL
+ * is cheap.
+ */
+export const usePrefetchRoute = () => {
+  const { history } = useContext(NavigationContext)!;
+  return useCallback((to: string) => {
+    history.prefetch(to);
+  }, [history]);
+}
+
 // HoC which adds a `location` property to an object, which contains the page
 // location (parsed URL and route). See `useLocation`.
 export const withLocation = (WrappedComponent: any) => {

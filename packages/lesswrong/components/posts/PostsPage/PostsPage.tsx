@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { isEAForum, maxDocumentsPerRequestSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { useDialog } from '../../common/withDialog';
 import { PostsPageContext } from './PostsPageContext';
@@ -25,10 +25,9 @@ import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
-import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
 import PostsBottomBar from '../PostsBottomBar';
-import LWPostsPageHeader, { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
+import LWPostsPageHeader from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
@@ -40,7 +39,6 @@ import MultiToCLayout from "../TableOfContents/MultiToCLayout";
 import PostsPagePostFooter from "./PostsPagePostFooter";
 import PostBodyPrefix from "./PostBodyPrefix";
 import CommentPermalink from "../../comments/CommentPermalink";
-import WelcomeBox from "./WelcomeBox";
 import TableOfContents from "../TableOfContents/TableOfContents";
 import RSVPs from "./RSVPs";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
@@ -173,13 +171,6 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   hideEmbeddedPlayer: {
     display: "none"
   },
-  welcomeBox: {
-    marginTop: LW_POST_PAGE_PADDING,
-    maxWidth: 220,
-    [theme.breakpoints.down('md')]: {
-      display: 'none'
-    }
-  },
   bottomOfPostSubscribe: {
     marginBottom: 40,
     marginTop: 40,
@@ -260,10 +251,19 @@ function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurr
 }
 
 
-const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}: {
+const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded, recordView = true, preview=false}: {
   sequenceIdFromUrl: string|null,
   refetch: () => void,
   embedded?: boolean,
+  /** Whether mounting the page counts as the reader viewing the post (read status, view count, recommendations). */
+  recordView?: boolean,
+  /**
+   * Render only the post header and body, without side effects (recording a
+   * view, consuming query params) or the queries and analytics of the
+   * sections below the post. Used by PostsPageLoadingPreview, which is
+   * replaced by a regular PostsPage once the route finishes loading.
+   */
+  preview?: boolean,
 } & (
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
@@ -323,7 +323,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   const showSplashPageHeader = hasReviewWinnerArt && !params.sequenceId;
 
   useEffect(() => {
-    if (!query[SHARE_POPUP_QUERY_PARAM]) return;
+    if (preview || !query[SHARE_POPUP_QUERY_PARAM]) return;
 
     if (fullPost) {
       openDialog({
@@ -341,7 +341,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     const currentQuery = isEmpty(query) ? {} : query
     const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
-  }, [navigate, location.location, openDialog, fullPost, query]);
+  }, [navigate, location.location, openDialog, fullPost, query, preview]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
   const { data: answersAndRepliesData } = useQuery(CommentsListMultiQuery, {
@@ -350,7 +350,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
       limit: MAX_ANSWERS_AND_REPLIES_QUERIED,
       enableTotal: false,
     },
-    skip: !post.question,
+    skip: !post.question || preview,
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
@@ -367,14 +367,17 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
       limit: 1000,
       enableTotal: false,
     },
-    skip: !post.debate,
+    skip: !post.debate || preview,
     notifyOnNetworkStatusChange: true,
   });
 
   const debateResponses = dataDebateResponses?.comments?.results ?? emptyArray;
 
   const defaultView = commentGetDefaultView(post, currentUser, forumType);
-  const defaultTerms = { view: defaultView, limit: 1000 };
+  // Shortform posts accumulate so many comments that paging through them is
+  // impractical, so load all of them by default.
+  const defaultLimit = post.shortform ? maxDocumentsPerRequestSetting.get(forumType) : 1000;
+  const defaultTerms = { view: defaultView, limit: defaultLimit };
   const { view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
 
   // these are the replies to the debate responses (see earlier comment about deprecated feature)
@@ -392,17 +395,25 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   const debateReplies = dataDebateResponseReplies?.comments?.results;
 
   useEffect(() => {
+    if (preview) return;
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
 
-    void recordPostView({
-      post: post,
-      extraEventProperties: {
-        sequenceId: getSequenceId()
-      },
-      recommendationOptions: {
-        recombeeOptions: { recommId },
-      }
-    });
+    if (recordView) {
+      void recordPostView({
+        post: post,
+        extraEventProperties: {
+          sequenceId: getSequenceId(),
+          // Lets features attribute a visit to the email link that led to it
+          ...(query.utm_campaign ? {
+            utmCampaign: query.utm_campaign,
+            utmContent: query.utm_content,
+          } : {}),
+        },
+        recommendationOptions: {
+          recombeeOptions: { recommId },
+        }
+      });
+    }
 
     if (!recombeeEnabledSetting.get(forumType)) return;
     setRecommId(recommId);
@@ -469,9 +480,10 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     itemsPerPage: 200,
     fetchPolicy: 'cache-and-network' as const,
     ssr: !isCommentPermalink,
+    skip: preview,
   });
 
-  const { loading, data: rawData, networkStatus, loadMoreProps: { loadMore } } = lazyResults;
+  const { loading, data: rawData, networkStatus, loadMoreProps: { loadAll } } = lazyResults;
   const rawComments = rawData?.comments?.results;
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
 
@@ -571,11 +583,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   </>;
 
   const rightColumnChildren = <>
-    <DeferRender ssr={false}>
-      <div className={classes.welcomeBox}>
-        <WelcomeBox />
-      </div>
-    </DeferRender>
     <div className={classes.reserveSpaceForSidenotes}/>
     <SideItemsSidebar/>
   </>;
@@ -695,7 +702,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
           <Suspense>
             {fullPost && <CommentsListSection
               comments={comments ?? []}
-              loadMoreComments={loadMore}
+              loadAllComments={loadAll}
               totalComments={totalComments}
               commentCount={displayedPublicCommentCount}
               loadingMoreComments={loadingMore}
@@ -735,14 +742,16 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
           centralColumn: postBodySection,
           rightColumn: rightColumnChildren
         },
-        {centralColumn: betweenPostAndCommentsSection},
+        // In preview mode, keep the same segments (so the layout matches the
+        // non-preview version) but leave out everything below the post body.
+        {centralColumn: !preview && betweenPostAndCommentsSection},
         {
           toc: commentsToC,
-          centralColumn: commentsSection,
+          centralColumn: !preview && commentsSection,
           isCommentToC: true
         },
         {
-          centralColumn: <Suspense>
+          centralColumn: !preview && <Suspense>
             <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
           </Suspense>
         }

@@ -1,8 +1,8 @@
 import React from "react";
-import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
+import { commentIsHiddenPendingReview, commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetAbsoluteDiscussionUrl } from "@/lib/collections/tags/helpers";
-import { userShortformPostTitle } from "@/lib/collections/users/helpers";
+import { userIsApproved, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
@@ -33,6 +33,7 @@ import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createMessage } from "../collections/messages/mutations";
 import { createPost, updatePost } from "../collections/posts/mutations";
 import { getRejectionMessage } from "./helpers";
+import { startTeamInboxConversation } from "../utils/teamInbox";
 import { createModeratorAction } from "../collections/moderatorActions/mutations";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
@@ -42,7 +43,6 @@ import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "@/server/collections/automatedContentEvaluations/helpers";
 
 interface SendModerationPMParams {
-  action: 'deleted' | 'rejected',
   messageContents: string,
   lwAccount: DbUser,
   comment: DbComment,
@@ -91,6 +91,7 @@ const utils = {
     const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId ?? null, context);
     if (rateLimit) {
       const {nextEligible, rateLimitType:_} = rateLimit;
+      if (nextEligible === null) throw new Error('Rate limit: You cannot comment until your restriction is lifted.');
       if (nextEligible > new Date()) {
         // "fromNow" makes for a more human readable "how long till I can comment/post?".
         // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
@@ -329,13 +330,12 @@ const utils = {
   },
 
   // TODO: I don't think this function makes sense anymore, I think should be refactored in some way.
-  sendModerationPM: async ({ messageContents, lwAccount, comment, noEmail, contentTitle, action, context }: SendModerationPMParams) => {
+  sendModerationPM: async ({ messageContents, lwAccount, comment, noEmail, contentTitle, context }: SendModerationPMParams) => {
     const { Conversations, Messages } = context;
 
     const conversationData: CreateConversationDataInput = {
       participantIds: [comment.userId, lwAccount._id],
-      title: `Comment ${action} on ${contentTitle}`,
-      ...(action === 'rejected' ? { moderator: true } : {})
+      title: `Comment deleted on ${contentTitle}`,
     };
 
     const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
@@ -404,10 +404,9 @@ const utils = {
       }
   
       // Only email approved users who are not snoozed, to avoid drawing unapproved users back to the site.
-      const noEmail = !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+      const noEmail = !userIsApproved(commentUser)
   
       await utils.sendModerationPM({
-        action: 'deleted',
         comment,
         messageContents,
         lwAccount,
@@ -420,7 +419,7 @@ const utils = {
   },
 
   commentsRejectSendPMAsync: async (comment: DbComment, currentUser: DbUser, context: ResolverContext) => {
-    const { loaders } = context;
+    const { Comments, loaders } = context;
   
     let rejectedContentLink = "[Error: content not found]"
     let contentTitle: string|null = null
@@ -444,17 +443,17 @@ const utils = {
     let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
     
     // Only email approved users who are not snoozed, to avoid drawing unapproved users back to the site.
-    const noEmail = !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+    const noEmail = !userIsApproved(commentUser)
   
-    await utils.sendModerationPM({
-      action: 'rejected',
-      comment,
-      messageContents,
-      lwAccount: currentUser,
+    const conversation = await startTeamInboxConversation({
+      recipientId: comment.userId,
+      author: currentUser,
+      title: `Comment rejected on ${contentTitle}`,
+      html: messageContents,
       noEmail,
-      contentTitle,
       context,
     });
+    await Comments.rawUpdateOne({ _id: comment._id }, { $set: { rejectionConversationId: conversation._id } });
   },
 
   moderateCommentsPostUpdate: async (comment: DbComment, currentUser: DbUser, action: 'deleted' | 'rejected', context: ResolverContext) => {
@@ -939,6 +938,9 @@ export async function commentsEditSoftDeleteCallback(comment: DbComment, oldComm
 }
 
 export async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment, context: ResolverContext) {
+  // Preserve notification suppression for ordinary unrejections, but notify when
+  // a comment hidden pending review is being approved and published together.
+  if (oldComment.rejected && !comment.rejected && !commentIsHiddenPendingReview(oldComment, context.forumType)) return;
   if (commentIsNotPublicForAnyReason(oldComment, context.forumType) && !commentIsNotPublicForAnyReason(comment, context.forumType)) {
     backgroundTask(utils.sendNewCommentNotifications(comment, context))
   }
@@ -946,17 +948,16 @@ export async function commentsPublishedNotifications(comment: DbComment, oldComm
 
 /**
  * Create an automated content evaluation for a comment when it transitions from draft to published.
- * Only runs on LessWrong for unreviewed users.
+ * Only runs on LessWrong for unreviewed and snoozed users.
  */
 export async function maybeCreateAutomatedContentEvaluationForComment(
   comment: DbComment,
   oldComment: DbComment | null,
   context: ResolverContext
 ) {
-  // Skip running this by default for reviewed users for now,
-  // since comments are much higher volume than posts and there
-  // isn't any UI for looking at the results yet anyways.
-  if (context.forumType !== 'LessWrong' || context.currentUser?.reviewedByUserId) {
+  // Skip running this by default for approved users for now,
+  // since comments are much higher volume than posts.
+  if (context.forumType !== 'LessWrong' || userIsApproved(context.currentUser)) {
     return;
   }
 

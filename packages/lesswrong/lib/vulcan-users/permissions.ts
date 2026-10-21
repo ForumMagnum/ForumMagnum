@@ -162,7 +162,7 @@ export const userOverNKarmaFunc = (n: number) => {
 export const userOverNKarmaOrApproved = (n: number) => {
   return (user: UsersMinimumInfo|DbUser|null): boolean => {
     if (!user) return false
-    return ((user.karma) > n || !!user.reviewedByUserId)
+    return (user.karma >= n || !!user.reviewedByUserId)
   }
 }
 

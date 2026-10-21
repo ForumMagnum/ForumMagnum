@@ -16,6 +16,11 @@ const serverExternalPackages = [
   // rendering). This has a somewhat high risk of causing problems related to there
   // being multiple different versions of React present.
   'react-dom/static',
+  // yjs warns ("Yjs was already imported") and breaks its instanceof checks if
+  // it's evaluated more than once per process. If bundled, it gets a separate
+  // module instance in each server layer (app-rsc, app-ssr, app-route), so it
+  // needs to be external so that they all share a single copy.
+  'yjs',
 ];
 
 const webpackExternalPackages = [
@@ -66,6 +71,9 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    // LW/AF metadata intentionally reads request headers and cookies. Only
+    // validate instant navigations for routes that explicitly opt in.
+    instantInsights: { validationLevel: 'manual-warning' },
     serverSourceMaps: true,
     turbopackFileSystemCacheForDev: true,
   },
@@ -154,7 +162,9 @@ const nextConfig: NextConfig = {
       // We need to prevent sentry externalization because the Webpack build breaks
       // in mysterious ways otherwise, and we really only use webpack for deployments
       // so it doesn't matter as much.
-      ].filter(pkg => pkg !== '@sentry/nextjs').flatMap(pkg => [pkg, `commonjs ${pkg}`])
+      // yjs is also used client-side, and these externals apply to the client
+      // build too, so we leave it to Next's own serverExternalPackages handling.
+      ].filter(pkg => pkg !== '@sentry/nextjs' && pkg !== 'yjs').flatMap(pkg => [pkg, `commonjs ${pkg}`])
     ];
 
     // What follows is the result of absolutely deranged behavior by NextJS.
