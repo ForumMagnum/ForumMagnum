@@ -871,7 +871,7 @@ export default function Editor({
         <CodeBlockPlugin editor={editor} />
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
         <ClearEditorPlugin />
-        {!disableComponentPicker && <ComponentPickerPlugin />}
+        {!disableComponentPicker && <ComponentPickerPlugin isSuggestionMode={isSuggestionMode} />}
         {/* <EmojiPickerPlugin /> */}
         <AutoEmbedPlugin />
         <HashtagPlugin />
