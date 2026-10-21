@@ -273,6 +273,7 @@ interface DbComment extends DbObject {
   rejected: boolean
   rejectedByUserId: string | null
   rejectedReason: string | null
+  rejectionConversationId: string | null
   relevantTagIds: Array<string>
   repliesBlockedUntil: Date | null
   retracted: boolean
@@ -300,6 +301,7 @@ interface DbConversation extends DbObject {
   __collectionName?: "Conversations"
   af: boolean | null
   archivedByIds: Array<string>
+  awaitingModeratorReply: boolean
   createdAt: Date
   latestActivity: Date
   legacyData: any | null
@@ -728,7 +730,7 @@ interface DbModeratorAction extends DbObject {
   createdAt: Date
   endedAt: Date | null
   legacyData: any | null
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert" | "manualNeedsReview" | "unreviewedBioUpdate" | "unreviewedMapLocationUpdate" | "unreviewedProfileImageUpdate" | "unreviewedFirstPost" | "unreviewedFirstComment" | "unreviewedPost" | "unreviewedComment" | "snoozeExpired" | "stricterCommentAutomodRateLimit" | "stricterPostAutomodRateLimit" | "manualRateLimitExpired" | "votingDisabled"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert" | "manualNeedsReview" | "unreviewedBioUpdate" | "unreviewedMapLocationUpdate" | "unreviewedProfileImageUpdate" | "unreviewedFirstPost" | "unreviewedFirstComment" | "unreviewedPost" | "unreviewedComment" | "snoozeExpired" | "stricterCommentAutomodRateLimit" | "stricterPostAutomodRateLimit" | "manualRateLimitExpired" | "votingDisabled" | "autoPurgedProfileSpam" | "autoRemovedLlmRejectedUser" | "autoPurgedLlmRejectedSpam"
   userId: string
 }
 
@@ -1086,6 +1088,7 @@ interface DbPost extends DbObject {
   rejected: boolean
   rejectedByUserId: string | null
   rejectedReason: string | null
+  rejectionConversationId: string | null
   reviewCount: number
   reviewCount2018: number
   reviewCount2019: number
@@ -1188,6 +1191,23 @@ interface DbRecommendationsCache extends DbObject {
   scenario: string
   source: "recombee" | "vertex"
   ttlMs: number
+  userId: string
+}
+
+type RejectionAppealsCollection = PgCollection<"RejectionAppeals">;
+
+interface DbRejectionAppeal extends DbObject {
+  __collectionName?: "RejectionAppeals"
+  acknowledgedMisunderstandings: boolean
+  commentId: string | null
+  conversationId: string
+  createdAt: Date
+  explanation: string
+  postId: string | null
+  reasonIds: Array<string>
+  resolvedAt: Date | null
+  resolvedByUserId: string | null
+  status: 'open' | 'approved' | 'denied'
   userId: string
 }
 
@@ -1685,10 +1705,12 @@ interface DbUserRateLimit extends DbObject {
   __collectionName?: "UserRateLimits"
   actionsPerInterval: number
   createdAt: Date
-  endedAt: Date
+  endedAt: Date | null
   intervalLength: number
   intervalUnit: "minutes" | "hours" | "days" | "weeks"
   legacyData: any | null
+  liftAtAverageKarma: number | null
+  liftAverageKarmaCount: number | null
   type: "allComments" | "allPosts"
   userId: string
 }
@@ -2437,6 +2459,7 @@ interface CollectionsByName {
   RSSFeeds: RSSFeedsCollection
   ReadStatuses: ReadStatusesCollection
   RecommendationsCaches: RecommendationsCachesCollection
+  RejectionAppeals: RejectionAppealsCollection
   Reports: ReportsCollection
   ResearchConversationEvents: ResearchConversationEventsCollection
   ResearchConversations: ResearchConversationsCollection
@@ -2538,6 +2561,7 @@ interface ObjectsByCollectionName {
   RSSFeeds: DbRSSFeed
   ReadStatuses: DbReadStatus
   RecommendationsCaches: DbRecommendationsCache
+  RejectionAppeals: DbRejectionAppeal
   Reports: DbReport
   ResearchConversationEvents: DbResearchConversationEvent
   ResearchConversations: DbResearchConversation
@@ -2639,6 +2663,7 @@ interface ObjectsByTypeName {
   RSSFeed: DbRSSFeed
   ReadStatus: DbReadStatus
   RecommendationsCache: DbRecommendationsCache
+  RejectionAppeal: DbRejectionAppeal
   Report: DbReport
   ResearchConversationEvent: DbResearchConversationEvent
   ResearchConversation: DbResearchConversation

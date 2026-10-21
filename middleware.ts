@@ -333,12 +333,18 @@ function addClientIdToResponseHeaders(nextResponse: NextResponse, clientId: stri
   return nextResponse;
 }
 
+// RSC requests (client-side navigations and prefetches) are excluded because
+// none of the middleware's handling applies to them, and because Next strips
+// their `_rsc` param and flight headers before running the middleware, which
+// makes them indistinguishable from page loads; the status-code proxying and
+// the cached post route would respond to them with HTML.
 export const config: MiddlewareConfig = {
   matcher: [
     {
       source: "/",
       missing: [
         { type: 'header', key: 'next-router-state-tree' },
+        { type: 'header', key: 'rsc' },
       ],
     },
     /*
@@ -356,6 +362,7 @@ export const config: MiddlewareConfig = {
       source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|cache/posts|_next/static|_next/image|favicon.ico|sitemap.xml|.well-known|oauth|logout|admin/debugHeaders|robots.txt).*)",
       missing: [
         { type: 'header', key: 'next-router-state-tree' },
+        { type: 'header', key: 'rsc' },
       ],
     }
   ]

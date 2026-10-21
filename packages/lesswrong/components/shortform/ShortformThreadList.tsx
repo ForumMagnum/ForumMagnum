@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
-import LoadMore from "../common/LoadMore";
 import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
 import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
+import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -23,8 +23,15 @@ const CommentWithRepliesFragmentMultiQuery = gql(`
 const styles = defineStyles('ShortformThreadList', (theme: ThemeType) => ({
   shortformItem: {
     marginTop: 32,
-  }
+  },
+  loading: {
+    marginTop: 16,
+  },
 }))
+
+// Start loading the next page when the bottom of the list is within this many
+// pixels of the viewport.
+const loadMoreDistance = 1000;
 
 const ShortformThreadList = ({userId, showQuickTakeEntry = true, showPostTitle = true, limit = 20, sortBy = 'recentComments'}: {
   userId?: string,
@@ -37,7 +44,7 @@ const ShortformThreadList = ({userId, showQuickTakeEntry = true, showPostTitle =
   const currentUser = useCurrentUser();
   const shortformSelector = { topShortform: { userId, sortBy } };
   
-  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
+  const { data, error, refetch, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
     variables: {
       selector: shortformSelector,
       limit,
@@ -47,6 +54,27 @@ const ShortformThreadList = ({userId, showQuickTakeEntry = true, showPostTitle =
   });
 
   const results = data?.comments?.results;
+  const { loadMore, loading, hidden: reachedEnd, count } = loadMoreProps;
+  const bottomRef = useRef<HTMLDivElement|null>(null);
+
+  // Infinite scroll. The observer is recreated whenever a page finishes
+  // loading, so that if the bottom of the list is still near the viewport (eg
+  // on a tall screen), the next page is requested immediately.
+  useEffect(() => {
+    const bottom = bottomRef.current;
+    if (!bottom || loading || reachedEnd || error) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          void loadMore();
+        }
+      },
+      { rootMargin: `0px 0px ${loadMoreDistance}px 0px` },
+    );
+    observer.observe(bottom);
+    return () => observer.disconnect();
+  }, [loadMore, loading, reachedEnd, error, count]);
 
   return (
     <div>
@@ -67,7 +95,9 @@ const ShortformThreadList = ({userId, showQuickTakeEntry = true, showPostTitle =
           }}/>
         </div>
       })}
-      <LoadMore {...loadMoreProps} />
+      {((!reachedEnd && !error) || loading) && <div ref={bottomRef} className={classes.loading}>
+        <Loading />
+      </div>}
     </div>
   )
 }

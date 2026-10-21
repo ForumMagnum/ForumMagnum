@@ -476,6 +476,22 @@ describe('Voting', function() {
         end: new Date("1980-03-03T05:00:00Z"),
       });
     });
+    it('ignores a last-opened date in the future', async () => {
+      const updateAt5AMSettings = {
+        updateFrequency: "daily",
+        timeOfDayGMT: 5,
+      };
+      const range = getKarmaChangeDateRange({
+        settings: updateAt5AMSettings,
+        now: new Date("1980-03-03T08:00:00Z"),
+        lastOpened: new Date("1980-03-10T05:00:00Z"),
+        lastBatchStart: new Date("1980-02-25T05:00:00Z"),
+      });
+      range!.should.deep.equal({
+        start: new Date("1980-03-02T05:00:00Z"),
+        end: new Date("1980-03-03T05:00:00Z"),
+      });
+    });
     it('computes weekly update times correctly', async () => {
       const updateSaturdayAt5AMSettings = {
         updateFrequency: "weekly",

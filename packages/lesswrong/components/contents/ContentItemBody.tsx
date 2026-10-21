@@ -26,6 +26,7 @@ import { getHighlights, highlightCodeElement, updateHighlightContext, removeHigh
 import dynamic from 'next/dynamic';
 import SpoilerBlock, { containsSpoilerClassName, removeSpoilerClassNames } from './SpoilerBlock';
 import { ContentItemBodyContext } from './ContentItemBodyContext';
+import { handleMathCopy } from './mathCopyHandler';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
 
@@ -192,6 +193,16 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
     }
   }, [onContentReady]);
 
+  // Put the TeX source of rendered equations into copied plaintext
+  useEffect(() => {
+    const container = bodyRef.current;
+    if (!container) return;
+    container.addEventListener('copy', handleMathCopy);
+    return () => {
+      container.removeEventListener('copy', handleMathCopy);
+    };
+  }, []);
+
   // Apply CSS Custom Highlights API syntax highlighting to code blocks
   useEffect(() => {
     const container = bodyRef.current;
@@ -241,11 +252,17 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   );
 }
 
-const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, insertedAtStart, insideSpoiler=false}: {
+const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, insertedAtStart, insideSpoiler=false, insideSvg=false}: {
   parsedHtml: DomHandlerChildNode,
   passedThroughProps: PassedThroughContentItemBodyProps,
   root?: boolean,
   insideSpoiler?: boolean,
+
+  /**
+   * Whether this element is inside an <svg> (eg a diagram), in which case
+   * it's an SVG element rather than an HTML element, and gets rendered as-is.
+   */
+  insideSvg?: boolean,
 
   /**
    * An id-insertion which was targeted at an ancestor of this element, but which
@@ -285,6 +302,9 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
       let TagName = parsedHtml.tagName.toLowerCase() as any;
       if (TagName === 'html' || TagName === 'body' || TagName === 'head') {
         TagName = 'div';
+      }
+      if (TagName in mapTagNames) {
+        TagName = mapTagNames[TagName];
       }
       const attribs = translateAttribs(parsedHtml.attribs);
       const id = attribs.id;
@@ -328,6 +348,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
               passedThroughProps={passedThroughProps}
               insertedAtStart={i===descendIndex ? idInsertion : undefined}
               insideSpoiler={insideSpoiler || isSpoilerElement}
+              insideSvg={insideSvg || TagName === 'svg'}
             />
       ))
 
@@ -463,7 +484,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
         return <MaybeScrollableBlock TagName={TagName} attribs={attribs} bodyRef={passedThroughProps.bodyRef}>
           {result}
         </MaybeScrollableBlock>
-      } else if (TagName === 'a') {
+      } else if (TagName === 'a' && !insideSvg) {
         return <HoverPreviewLink
           href={attribs.href}
           {...passedThroughProps}
@@ -551,6 +572,39 @@ const mapAttributeNames: Record<string,string> = {
   "rowspan": "rowSpan",
   "allowfullscreen": "allowFullScreen",
   "for": "htmlFor",
+
+  // SVG attributes (see svgAllowedAttributes in @/lib/utils/sanitize). Unlike
+  // the browser's HTML parser, React doesn't fix the capitalization of SVG
+  // attributes, and lowercased ones like "viewbox" don't work.
+  "viewbox": "viewBox",
+  "preserveaspectratio": "preserveAspectRatio",
+  "maskunits": "maskUnits",
+  "clippathunits": "clipPathUnits",
+  "clip-path": "clipPath",
+  "fill-opacity": "fillOpacity",
+  "fill-rule": "fillRule",
+  "stroke-width": "strokeWidth",
+  "stroke-opacity": "strokeOpacity",
+  "stroke-linecap": "strokeLinecap",
+  "stroke-linejoin": "strokeLinejoin",
+  "stroke-dasharray": "strokeDasharray",
+  "stroke-dashoffset": "strokeDashoffset",
+  "stroke-miterlimit": "strokeMiterlimit",
+  "font-family": "fontFamily",
+  "font-size": "fontSize",
+  "font-weight": "fontWeight",
+  "font-style": "fontStyle",
+  "text-anchor": "textAnchor",
+  "dominant-baseline": "dominantBaseline",
+}
+
+/**
+ * Mapping from tag names as they appear in HTML (lowercased by the parser) to
+ * tag names as React wants them, for SVG elements whose names aren't
+ * lowercase.
+ */
+const mapTagNames: Record<string,string> = {
+  "clippath": "clipPath",
 }
 
 function camelCaseCssAttribute(input: string) {
@@ -604,6 +658,16 @@ function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstri
         }
       case htmlparser2.ElementType.Root:
       case htmlparser2.ElementType.Tag: {
+        // Text inside SVGs (eg the labels in diagrams) can't have HTML elements
+        // inserted into it, so it's excluded
+        if (node.type === htmlparser2.ElementType.Tag && node.tagName.toLowerCase() === 'svg') {
+          return {
+            textNodes: [],
+            separationAbove: 0,
+            separationBelow: 0,
+          };
+        }
+
         // Recurse
         const annotatedChildNodes = node.childNodes.map(n => traverse(n));
 

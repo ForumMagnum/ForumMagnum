@@ -144,6 +144,7 @@ function getPageNotificationIcon(notificationName: string) {
     case 'newReplyToYou': return <CommentsIcon style={iconStyle}/>;
     case 'newUser': return <ForumIcon icon="Bell" style={iconStyle} />;
     case 'newMessage': return <MailIcon style={iconStyle}/>;
+    case 'newMessageReaction': return <MailIcon style={iconStyle}/>;
     case 'wrapped': return <GiftIcon style={flatIconStyle}/>;
     case 'emailVerificationRequired': return <ForumIcon icon="Bell" style={iconStyle} />;
     case 'postSharedWithUser': return <ForumIcon icon="Bell" style={iconStyle} />;

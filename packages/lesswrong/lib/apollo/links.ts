@@ -71,10 +71,14 @@ export const headerLink = new ApolloLink((operation, forward) => {
   if (!isServer) {
     const url = new URL(window.location.href)
     const path = url.pathname + url.search
+    const linkSharingKey = url.searchParams.get('key');
 
     const headers = {
       'request-origin-path': path,
       'x-apollo-operation-name': operation.operationName,
+      // GraphQL requests don't go to the page URL, so forward the page's
+      // link-sharing key for permission checks (see getSharingKeyFromContext).
+      ...(linkSharingKey ? { 'link-sharing-key': linkSharingKey } : {}),
     };
 
     operation.setContext({

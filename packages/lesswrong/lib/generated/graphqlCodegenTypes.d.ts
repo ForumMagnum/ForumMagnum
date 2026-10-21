@@ -1128,6 +1128,25 @@ type CommentsWithReactsResult = {
   results: Array<Comment>;
 };
 
+type CompleteUserModerationInput = {
+  disablePermissions: Scalars['Boolean']['input'];
+  message?: InputMaybe<ModerationMessageInput>;
+  operationId: Scalars['String']['input'];
+  rateLimits: Array<CreateUserRateLimitDataInput>;
+  rejectAll: Scalars['Boolean']['input'];
+  rejection?: InputMaybe<ModerationContentRejectionInput>;
+  removeFromQueue: Scalars['Boolean']['input'];
+  userId: Scalars['String']['input'];
+};
+
+type CompleteUserModerationResult = {
+  __typename?: 'CompleteUserModerationResult';
+  message?: Maybe<Message>;
+  rejectedComments: Array<Comment>;
+  rejectedPosts: Array<Post>;
+  user: User;
+};
+
 type ContentCollectionName =
   | 'Comments'
   | 'Posts';
@@ -1151,6 +1170,7 @@ type Conversation = {
   af?: Maybe<Scalars['Boolean']['output']>;
   archivedBy: Array<User>;
   archivedByIds: Array<Scalars['String']['output']>;
+  awaitingModeratorReply?: Maybe<Scalars['Boolean']['output']>;
   createdAt?: Maybe<Scalars['Date']['output']>;
   hasUnreadMessages?: Maybe<Scalars['Boolean']['output']>;
   latestActivity?: Maybe<Scalars['Date']['output']>;
@@ -1160,6 +1180,7 @@ type Conversation = {
   moderator?: Maybe<Scalars['Boolean']['output']>;
   participantIds?: Maybe<Array<Scalars['String']['output']>>;
   participants?: Maybe<Array<User>>;
+  rejectionAppeal?: Maybe<RejectionAppeal>;
   schemaVersion: Scalars['Float']['output'];
   title?: Maybe<Scalars['String']['output']>;
 };
@@ -1172,6 +1193,8 @@ type ConversationOutput = {
 type ConversationSelector = {
   default?: InputMaybe<EmptyViewInput>;
   moderatorConversations?: InputMaybe<ConversationsModeratorConversationsInput>;
+  teamInboxAwaitingReply?: InputMaybe<EmptyViewInput>;
+  teamInboxDone?: InputMaybe<EmptyViewInput>;
   userConversations?: InputMaybe<ConversationsUserConversationsInput>;
   userConversationsAll?: InputMaybe<ConversationsUserConversationsAllInput>;
   userGroupUntitledConversations?: InputMaybe<ConversationsUserGroupUntitledConversationsInput>;
@@ -1610,6 +1633,17 @@ type CreateRSSFeedInput = {
   data: CreateRSSFeedDataInput;
 };
 
+type CreateRejectionAppealDataInput = {
+  acknowledgedMisunderstandings: Scalars['Boolean']['input'];
+  commentId?: InputMaybe<Scalars['String']['input']>;
+  explanation: Scalars['String']['input'];
+  postId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type CreateRejectionAppealInput = {
+  data: CreateRejectionAppealDataInput;
+};
+
 type CreateReportDataInput = {
   claimedUserId?: InputMaybe<Scalars['String']['input']>;
   commentId?: InputMaybe<Scalars['String']['input']>;
@@ -1981,10 +2015,12 @@ type CreateUserMostValuablePostInput = {
 
 type CreateUserRateLimitDataInput = {
   actionsPerInterval: Scalars['Float']['input'];
-  endedAt: Scalars['Date']['input'];
+  endedAt?: InputMaybe<Scalars['Date']['input']>;
   intervalLength: Scalars['Float']['input'];
   intervalUnit: UserRateLimitIntervalUnit;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  liftAtAverageKarma?: InputMaybe<Scalars['Float']['input']>;
+  liftAverageKarmaCount?: InputMaybe<Scalars['Int']['input']>;
   type: UserRateLimitType;
   userId: Scalars['String']['input'];
 };
@@ -2946,6 +2982,19 @@ type MigrationsDashboardData = {
   migrations?: Maybe<Array<MigrationStatus>>;
 };
 
+type ModerationContentRejectionInput = {
+  collectionName: ContentCollectionName;
+  documentId: Scalars['String']['input'];
+  reason: Scalars['String']['input'];
+  templateIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+type ModerationMessageInput = {
+  contents: CreateRevisionDataInput;
+  conversationId?: InputMaybe<Scalars['String']['input']>;
+  noEmail?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 type ModerationTemplate = {
   __typename?: 'ModerationTemplate';
   _id: Scalars['String']['output'];
@@ -2982,6 +3031,12 @@ type ModerationTemplateType =
   | 'Messages'
   | 'Rejections';
 
+type ModerationTemplateUsageCount = {
+  __typename?: 'ModerationTemplateUsageCount';
+  count: Scalars['Int']['output'];
+  templateId: Scalars['String']['output'];
+};
+
 type ModerationTemplatesModerationTemplatesListInput = {
   collectionName?: InputMaybe<Scalars['String']['input']>;
 };
@@ -3012,6 +3067,9 @@ type ModeratorActionSelector = {
 
 type ModeratorActionType =
   | 'autoBlockedFromSendingDMs'
+  | 'autoPurgedLlmRejectedSpam'
+  | 'autoPurgedProfileSpam'
+  | 'autoRemovedLlmRejectedUser'
   | 'exemptFromRateLimits'
   | 'flaggedForNDMs'
   | 'lowAverageKarmaCommentAlert'
@@ -3603,6 +3661,12 @@ type MultiRSSFeedOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+type MultiRejectionAppealOutput = {
+  __typename?: 'MultiRejectionAppealOutput';
+  results: Array<RejectionAppeal>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 type MultiReportInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3947,6 +4011,7 @@ type Mutation = {
   UserExpandFrontpageSection?: Maybe<Scalars['Boolean']['output']>;
   UserUpdateSubforumMembership?: Maybe<User>;
   acceptTypoSuggestion: TypoSuggestion;
+  addModeratorNote?: Maybe<User>;
   addOrUpvoteTag?: Maybe<TagRel>;
   addTags?: Maybe<Scalars['Boolean']['output']>;
   adminSendBulkEmail: AdminSendBulkEmailResult;
@@ -3958,6 +4023,7 @@ type Mutation = {
   approveUserCurrentContentOnly: Scalars['Boolean']['output'];
   cancelResearchConversation?: Maybe<ResearchConversationOutput>;
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
+  completeUserModeration: CompleteUserModerationResult;
   connectCrossposter?: Maybe<Scalars['String']['output']>;
   continueResearchConversation?: Maybe<ResearchConversationOutput>;
   convertDocumentEditorType?: Maybe<Scalars['JSON']['output']>;
@@ -3980,6 +4046,7 @@ type Mutation = {
   createPodcastEpisode?: Maybe<PodcastEpisodeOutput>;
   createPost?: Maybe<PostOutput>;
   createRSSFeed?: Maybe<RSSFeedOutput>;
+  createRejectionAppeal?: Maybe<RejectionAppealOutput>;
   createReport?: Maybe<ReportOutput>;
   createResearchDocument?: Maybe<ResearchDocumentOutput>;
   createResearchProject?: Maybe<ResearchProjectOutput>;
@@ -3994,6 +4061,7 @@ type Mutation = {
   createUserMostValuablePost?: Maybe<UserMostValuablePostOutput>;
   createUserRateLimit?: Maybe<UserRateLimitOutput>;
   createUserTagRel?: Maybe<UserTagRelOutput>;
+  deleteChapter: Scalars['Boolean']['output'];
   dismissRecommendation?: Maybe<Scalars['Boolean']['output']>;
   ensureResearchScratchDocument?: Maybe<EnsureResearchScratchDocumentOutput>;
   fireResearchConversation?: Maybe<ResearchConversationOutput>;
@@ -4015,6 +4083,7 @@ type Mutation = {
   mergeTags?: Maybe<Scalars['Boolean']['output']>;
   mintDevPreviewUrl?: Maybe<DevPreviewUrlOutput>;
   moderateComment?: Maybe<Comment>;
+  moveSequencePost: Scalars['Boolean']['output'];
   observeRecommendation?: Maybe<Scalars['Boolean']['output']>;
   performVoteComment?: Maybe<VoteResultComment>;
   performVoteMessage?: Maybe<VoteResultMessage>;
@@ -4026,6 +4095,7 @@ type Mutation = {
   promoteLensToMain?: Maybe<Scalars['Boolean']['output']>;
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
   publishHomePageDesign?: Maybe<HomePageDesignMutationOutput>;
+  recordModerationTemplatesUsed: Scalars['Boolean']['output'];
   rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
   rejectTypoSuggestion: TypoSuggestion;
   reorderResearchDocuments?: Maybe<ReorderResearchDocumentsOutput>;
@@ -4078,6 +4148,7 @@ type Mutation = {
   updateNotification?: Maybe<NotificationOutput>;
   updatePost?: Maybe<PostOutput>;
   updateRSSFeed?: Maybe<RSSFeedOutput>;
+  updateRejectionAppeal?: Maybe<RejectionAppealOutput>;
   updateReport?: Maybe<ReportOutput>;
   updateResearchConversation?: Maybe<ResearchConversationOutput>;
   updateResearchDocument?: Maybe<ResearchDocumentOutput>;
@@ -4200,6 +4271,12 @@ type MutationacceptTypoSuggestionArgs = {
 };
 
 
+type MutationaddModeratorNoteArgs = {
+  note: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+};
+
+
 type MutationaddOrUpvoteTagArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
   tagId?: InputMaybe<Scalars['String']['input']>;
@@ -4259,6 +4336,11 @@ type MutationcancelResearchConversationArgs = {
 
 type MutationclickRecommendationArgs = {
   postId: Scalars['String']['input'];
+};
+
+
+type MutationcompleteUserModerationArgs = {
+  input: CompleteUserModerationInput;
 };
 
 
@@ -4378,6 +4460,11 @@ type MutationcreateRSSFeedArgs = {
 };
 
 
+type MutationcreateRejectionAppealArgs = {
+  data: CreateRejectionAppealDataInput;
+};
+
+
 type MutationcreateReportArgs = {
   data: CreateReportDataInput;
 };
@@ -4445,6 +4532,11 @@ type MutationcreateUserRateLimitArgs = {
 
 type MutationcreateUserTagRelArgs = {
   data: CreateUserTagRelDataInput;
+};
+
+
+type MutationdeleteChapterArgs = {
+  chapterId: Scalars['String']['input'];
 };
 
 
@@ -4561,6 +4653,14 @@ type MutationmoderateCommentArgs = {
 };
 
 
+type MutationmoveSequencePostArgs = {
+  fromChapterId: Scalars['String']['input'];
+  postId: Scalars['String']['input'];
+  toChapterId: Scalars['String']['input'];
+  toIndex: Scalars['Int']['input'];
+};
+
+
 type MutationobserveRecommendationArgs = {
   postId: Scalars['String']['input'];
 };
@@ -4627,6 +4727,13 @@ type MutationpublishAndDeDuplicateSpotlightArgs = {
 
 type MutationpublishHomePageDesignArgs = {
   input: PublishHomePageDesignInput;
+};
+
+
+type MutationrecordModerationTemplatesUsedArgs = {
+  collectionName: ContentCollectionName;
+  documentId: Scalars['String']['input'];
+  templateIds: Array<Scalars['String']['input']>;
 };
 
 
@@ -4945,6 +5052,12 @@ type MutationupdatePostArgs = {
 
 type MutationupdateRSSFeedArgs = {
   data: UpdateRSSFeedDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateRejectionAppealArgs = {
+  data: UpdateRejectionAppealDataInput;
   selector: SelectorInput;
 };
 
@@ -5744,6 +5857,7 @@ type PostSelector = {
   afRecentDiscussionThreadsList?: InputMaybe<PostsAfRecentDiscussionThreadsListInput>;
   alignmentSuggestedPosts?: InputMaybe<PostsAlignmentSuggestedPostsInput>;
   all_drafts?: InputMaybe<PostsAll_draftsInput>;
+  coauthoredPosts?: InputMaybe<PostsCoauthoredPostsInput>;
   community?: InputMaybe<PostsCommunityInput>;
   communityResourcePosts?: InputMaybe<PostsCommunityResourcePostsInput>;
   communityRss?: InputMaybe<PostsCommunityRssInput>;
@@ -5884,6 +5998,10 @@ type PostsAll_draftsInput = {
 type PostsBySubscribedAuthorsResult = {
   __typename?: 'PostsBySubscribedAuthorsResult';
   results: Array<Post>;
+};
+
+type PostsCoauthoredPostsInput = {
+  userId: Scalars['String']['input'];
 };
 
 type PostsCommunityInput = {
@@ -7454,6 +7572,7 @@ type Query = {
   message?: Maybe<SingleMessageOutput>;
   messages?: Maybe<MultiMessageOutput>;
   moderationTemplate?: Maybe<SingleModerationTemplateOutput>;
+  moderationTemplateUsageCounts: Array<ModerationTemplateUsageCount>;
   moderationTemplates?: Maybe<MultiModerationTemplateOutput>;
   moderatorAction?: Maybe<SingleModeratorActionOutput>;
   moderatorActions?: Maybe<MultiModeratorActionOutput>;
@@ -7477,6 +7596,9 @@ type Query = {
   posts?: Maybe<MultiPostOutput>;
   rSSFeed?: Maybe<SingleRSSFeedOutput>;
   rSSFeeds?: Maybe<MultiRSSFeedOutput>;
+  rejectionAppeal?: Maybe<SingleRejectionAppealOutput>;
+  rejectionAppeals?: Maybe<MultiRejectionAppealOutput>;
+  rejectionReview: RejectionReview;
   report?: Maybe<SingleReportOutput>;
   reports?: Maybe<MultiReportOutput>;
   researchConversation?: Maybe<SingleResearchConversationOutput>;
@@ -7512,6 +7634,9 @@ type Query = {
   spotlights?: Maybe<MultiSpotlightOutput>;
   subscription?: Maybe<SingleSubscriptionOutput>;
   subscriptions?: Maybe<MultiSubscriptionOutput>;
+  supermodQueueChanges: Array<SupermodQueueChange>;
+  supermodQueueSnapshotTime: Scalars['Date']['output'];
+  supermodQueueUsers: MultiUserOutput;
   tag?: Maybe<SingleTagOutput>;
   tagFlag?: Maybe<SingleTagFlagOutput>;
   tagFlags?: Maybe<MultiTagFlagOutput>;
@@ -8452,6 +8577,25 @@ type QueryrSSFeedsArgs = {
 };
 
 
+type QueryrejectionAppealArgs = {
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryrejectionAppealsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<RejectionAppealSelector>;
+};
+
+
+type QueryrejectionReviewArgs = {
+  commentId?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 type QueryreportArgs = {
   input?: InputMaybe<SingleReportInput>;
   selector?: InputMaybe<SelectorInput>;
@@ -8690,6 +8834,19 @@ type QuerysubscriptionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<SubscriptionSelector>;
+};
+
+
+type QuerysupermodQueueChangesArgs = {
+  postIds: Array<Scalars['String']['input']>;
+  since: Scalars['Date']['input'];
+  userIds: Array<Scalars['String']['input']>;
+};
+
+
+type QuerysupermodQueueUsersArgs = {
+  limit: Scalars['Int']['input'];
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -8999,6 +9156,50 @@ type RecommendationsCache = {
   userId?: Maybe<Scalars['String']['output']>;
 };
 
+type RejectionAppeal = {
+  __typename?: 'RejectionAppeal';
+  _id: Scalars['String']['output'];
+  acknowledgedMisunderstandings?: Maybe<Scalars['Boolean']['output']>;
+  comment?: Maybe<Comment>;
+  commentId?: Maybe<Scalars['String']['output']>;
+  conversation?: Maybe<Conversation>;
+  conversationId?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  explanation?: Maybe<Scalars['String']['output']>;
+  post?: Maybe<Post>;
+  postId?: Maybe<Scalars['String']['output']>;
+  reasonIds?: Maybe<Array<Scalars['String']['output']>>;
+  resolvedAt?: Maybe<Scalars['Date']['output']>;
+  resolvedByUserId?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<RejectionAppealStatus>;
+  user?: Maybe<User>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
+type RejectionAppealOutput = {
+  __typename?: 'RejectionAppealOutput';
+  data?: Maybe<RejectionAppeal>;
+};
+
+type RejectionAppealSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  openAppeals?: InputMaybe<EmptyViewInput>;
+};
+
+type RejectionAppealStatus =
+  | 'approved'
+  | 'denied'
+  | 'open';
+
+type RejectionReview = {
+  __typename?: 'RejectionReview';
+  appeal?: Maybe<RejectionAppeal>;
+  comment?: Maybe<Comment>;
+  post?: Maybe<Post>;
+  reasonIds: Array<Scalars['String']['output']>;
+  unavailableReason?: Maybe<Scalars['String']['output']>;
+};
+
 type ReorderResearchDocumentsOutput = {
   __typename?: 'ReorderResearchDocumentsOutput';
   success: Scalars['Boolean']['output'];
@@ -9255,7 +9456,6 @@ type ReviewGroup =
   | 'highContext'
   | 'maybeSpam'
   | 'newContent'
-  | 'offboard'
   | 'snoozeExpired'
   | 'unknown';
 
@@ -9949,6 +10149,11 @@ type SingleRSSFeedOutput = {
   result?: Maybe<RSSFeed>;
 };
 
+type SingleRejectionAppealOutput = {
+  __typename?: 'SingleRejectionAppealOutput';
+  result?: Maybe<RejectionAppeal>;
+};
+
 type SingleReportInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
@@ -10394,6 +10599,13 @@ type SuggestedFeedSubscriptionUsersResult = {
 type SuggestedTopActiveUsersResult = {
   __typename?: 'SuggestedTopActiveUsersResult';
   results: Array<User>;
+};
+
+type SupermodQueueChange = {
+  __typename?: 'SupermodQueueChange';
+  documentId: Scalars['String']['output'];
+  lastChangedAt: Scalars['Date']['output'];
+  moderatorName: Scalars['String']['output'];
 };
 
 type Tag = {
@@ -11078,6 +11290,7 @@ type UpdateCommentModeratorActionInput = {
 type UpdateConversationDataInput = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   archivedByIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  awaitingModeratorReply?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   moderator?: InputMaybe<Scalars['Boolean']['input']>;
   participantIds?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -11366,6 +11579,15 @@ type UpdateRSSFeedDataInput = {
 
 type UpdateRSSFeedInput = {
   data: UpdateRSSFeedDataInput;
+  selector: SelectorInput;
+};
+
+type UpdateRejectionAppealDataInput = {
+  status?: InputMaybe<RejectionAppealStatus>;
+};
+
+type UpdateRejectionAppealInput = {
+  data: UpdateRejectionAppealDataInput;
   selector: SelectorInput;
 };
 
@@ -11788,6 +12010,8 @@ type UpdateUserRateLimitDataInput = {
   intervalLength?: InputMaybe<Scalars['Float']['input']>;
   intervalUnit?: InputMaybe<UserRateLimitIntervalUnit>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
+  liftAtAverageKarma?: InputMaybe<Scalars['Float']['input']>;
+  liftAverageKarmaCount?: InputMaybe<Scalars['Int']['input']>;
   type?: InputMaybe<UserRateLimitType>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -12011,6 +12235,7 @@ type User = {
   notificationYourTurnMatchForm?: Maybe<Scalars['JSON']['output']>;
   nullifyVotes?: Maybe<Scalars['Boolean']['output']>;
   oldSlugs: Array<Scalars['String']['output']>;
+  oldestPendingContentAt?: Maybe<Scalars['Date']['output']>;
   optedInToDialogueFacilitation?: Maybe<Scalars['Boolean']['output']>;
   organization?: Maybe<Scalars['String']['output']>;
   organizerOfGroupIds: Array<Scalars['String']['output']>;
@@ -12020,6 +12245,8 @@ type User = {
   partiallyReadSequences?: Maybe<Array<PartiallyReadSequenceItemOutput>>;
   paymentEmail?: Maybe<Scalars['String']['output']>;
   paymentInfo?: Maybe<Scalars['String']['output']>;
+  pendingCommentCount?: Maybe<Scalars['Int']['output']>;
+  pendingPostCount?: Maybe<Scalars['Int']['output']>;
   permanentDeletionRequestedAt?: Maybe<Scalars['Date']['output']>;
   petrovLaunchCodeDate?: Maybe<Scalars['Date']['output']>;
   petrovOptOut: Scalars['Boolean']['output'];
@@ -12073,7 +12300,6 @@ type User = {
   smallUpvoteReceivedCount?: Maybe<Scalars['Float']['output']>;
   snoozedUntilContentCount?: Maybe<Scalars['Float']['output']>;
   sortDraftsBy?: Maybe<Scalars['String']['output']>;
-  spamRiskScore: Scalars['Float']['output'];
   subforumPreferredLayout?: Maybe<SubforumPreferredLayout>;
   sunshineFlagged?: Maybe<Scalars['Boolean']['output']>;
   sunshineNotes?: Maybe<Scalars['String']['output']>;
@@ -12244,10 +12470,12 @@ type UserRateLimit = {
   _id: Scalars['String']['output'];
   actionsPerInterval: Scalars['Float']['output'];
   createdAt: Scalars['Date']['output'];
-  endedAt: Scalars['Date']['output'];
+  endedAt?: Maybe<Scalars['Date']['output']>;
   intervalLength: Scalars['Float']['output'];
   intervalUnit: UserRateLimitIntervalUnit;
   legacyData?: Maybe<Scalars['JSON']['output']>;
+  liftAtAverageKarma?: Maybe<Scalars['Float']['output']>;
+  liftAverageKarmaCount?: Maybe<Scalars['Int']['output']>;
   schemaVersion: Scalars['Float']['output'];
   type: UserRateLimitType;
   user?: Maybe<User>;
@@ -12294,7 +12522,6 @@ type UserSelector = {
   default?: InputMaybe<EmptyViewInput>;
   recentlyActive?: InputMaybe<EmptyViewInput>;
   reviewAdminUsers?: InputMaybe<EmptyViewInput>;
-  sunshineNewUsers?: InputMaybe<EmptyViewInput>;
   usersByUserIds?: InputMaybe<UsersUsersByUserIdsInput>;
   usersMapLocations?: InputMaybe<EmptyViewInput>;
   usersProfile?: InputMaybe<UsersUsersProfileInput>;
@@ -12873,6 +13100,47 @@ type multiModeratorCommentsQueryQueryVariables = Exact<{
 
 
 type multiModeratorCommentsQueryQuery = multiModeratorCommentsQueryQuery_Query;
+
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string, rejectedReason: string | null };
+
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_comment_Comment_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
+
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_comment_Comment = { __typename?: 'Comment', _id: string, rejectedReason: string | null, post: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_comment_Comment_post_Post | null };
+
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_appeal_RejectionAppeal = (
+  { __typename?: 'RejectionAppeal' }
+  & RejectionAppealsUserInfo
+);
+
+type RejectionAppealPageQueryQuery_rejectionReview_RejectionReview = { __typename?: 'RejectionReview', reasonIds: Array<string>, unavailableReason: string | null, post: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_post_Post | null, comment: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_comment_Comment | null, appeal: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview_appeal_RejectionAppeal | null };
+
+type RejectionAppealPageQueryQuery_Query = { __typename?: 'Query', rejectionReview: RejectionAppealPageQueryQuery_rejectionReview_RejectionReview };
+
+
+type RejectionAppealPageQueryQueryVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+  commentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type RejectionAppealPageQueryQuery = RejectionAppealPageQueryQuery_Query;
+
+type createRejectionAppealRejectionAppealPageMutation_createRejectionAppeal_RejectionAppealOutput_data_RejectionAppeal = (
+  { __typename?: 'RejectionAppeal' }
+  & RejectionAppealsUserInfo
+);
+
+type createRejectionAppealRejectionAppealPageMutation_createRejectionAppeal_RejectionAppealOutput = { __typename?: 'RejectionAppealOutput', data: createRejectionAppealRejectionAppealPageMutation_createRejectionAppeal_RejectionAppealOutput_data_RejectionAppeal | null };
+
+type createRejectionAppealRejectionAppealPageMutation_Mutation = { __typename?: 'Mutation', createRejectionAppeal: createRejectionAppealRejectionAppealPageMutation_createRejectionAppeal_RejectionAppealOutput | null };
+
+
+type createRejectionAppealRejectionAppealPageMutationVariables = Exact<{
+  data: CreateRejectionAppealDataInput;
+}>;
+
+
+type createRejectionAppealRejectionAppealPageMutation = createRejectionAppealRejectionAppealPageMutation_Mutation;
 
 type ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult_results_ProfilePostDiamond = { __typename?: 'ProfilePostDiamond', _id: string, slug: string, date: string, karma: number, isReviewWinner: boolean, isCurated: boolean };
 
@@ -15817,6 +16085,18 @@ type rejectCommentMutationMutationVariables = Exact<{
 
 type rejectCommentMutationMutation = rejectCommentMutationMutation_Mutation;
 
+type recordModerationTemplatesUsedRejectContentMutation_Mutation = { __typename?: 'Mutation', recordModerationTemplatesUsed: boolean };
+
+
+type recordModerationTemplatesUsedRejectContentMutationVariables = Exact<{
+  templateIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+}>;
+
+
+type recordModerationTemplatesUsedRejectContentMutation = recordModerationTemplatesUsedRejectContentMutation_Mutation;
+
 type multiMultiDocumentuseTagOrLensQueryQuery_multiDocuments_MultiMultiDocumentOutput_results_MultiDocument = (
   { __typename?: 'MultiDocument' }
   & MultiDocumentParentDocument
@@ -16336,6 +16616,23 @@ type ArbitalPageRequestQueryVariables = Exact<{
 
 
 type ArbitalPageRequestQuery = ArbitalPageRequestQuery_Query;
+
+type UserLinkPreviewQuery_users_MultiUserOutput_results_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type UserLinkPreviewQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<UserLinkPreviewQuery_users_MultiUserOutput_results_User> };
+
+type UserLinkPreviewQuery_Query = { __typename?: 'Query', users: UserLinkPreviewQuery_users_MultiUserOutput | null };
+
+
+type UserLinkPreviewQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+type UserLinkPreviewQuery = UserLinkPreviewQuery_Query;
 
 type multiUserCommunityMapQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
@@ -17894,6 +18191,27 @@ type CancelRSVPToEventMutationVariables = Exact<{
 
 type CancelRSVPToEventMutation = CancelRSVPToEventMutation_Mutation;
 
+type PostLlmScorePreviewQuery_post_SinglePostOutput_result_Post_automatedContentEvaluations_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AutomatedContentEvaluationsFragment
+);
+
+type PostLlmScorePreviewQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null };
+
+type PostLlmScorePreviewQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, automatedContentEvaluations: PostLlmScorePreviewQuery_post_SinglePostOutput_result_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, contents: PostLlmScorePreviewQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+
+type PostLlmScorePreviewQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostLlmScorePreviewQuery_post_SinglePostOutput_result_Post | null };
+
+type PostLlmScorePreviewQuery_Query = { __typename?: 'Query', post: PostLlmScorePreviewQuery_post_SinglePostOutput | null };
+
+
+type PostLlmScorePreviewQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostLlmScorePreviewQuery = PostLlmScorePreviewQuery_Query;
+
 type LWPostsPreviewTooltip1Query_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostWithDialogueMessage
@@ -18153,6 +18471,20 @@ type postsListTagWithVotesQueryVariables = Exact<{
 
 
 type postsListTagWithVotesQuery = postsListTagWithVotesQuery_Query;
+
+type RapidPostingConfirmationRecentPostsQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, postedAt: string, shortform: boolean, isEvent: boolean };
+
+type RapidPostingConfirmationRecentPostsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<RapidPostingConfirmationRecentPostsQuery_posts_MultiPostOutput_results_Post> };
+
+type RapidPostingConfirmationRecentPostsQuery_Query = { __typename?: 'Query', posts: RapidPostingConfirmationRecentPostsQuery_posts_MultiPostOutput | null };
+
+
+type RapidPostingConfirmationRecentPostsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+type RapidPostingConfirmationRecentPostsQuery = RapidPostingConfirmationRecentPostsQuery_Query;
 
 type multiCommentQuickTakesSectionQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
@@ -19743,23 +20075,141 @@ type HomepageCommunityEventPostsQueryQueryVariables = Exact<{
 
 type HomepageCommunityEventPostsQueryQuery = HomepageCommunityEventPostsQueryQuery_Query;
 
-type updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput_data_Chapter = (
-  { __typename?: 'Chapter' }
-  & ChaptersFragment
+type SequenceAddPostRecentPostsQuery_drafts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
 );
 
-type updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput = { __typename?: 'ChapterOutput', data: updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput_data_Chapter | null };
+type SequenceAddPostRecentPostsQuery_drafts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<SequenceAddPostRecentPostsQuery_drafts_MultiPostOutput_results_Post> };
 
-type updateChapterAddDraftPostDialogMutation_Mutation = { __typename?: 'Mutation', updateChapter: updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput | null };
+type SequenceAddPostRecentPostsQuery_published_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type SequenceAddPostRecentPostsQuery_published_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<SequenceAddPostRecentPostsQuery_published_MultiPostOutput_results_Post> };
+
+type SequenceAddPostRecentPostsQuery_Query = { __typename?: 'Query', drafts: SequenceAddPostRecentPostsQuery_drafts_MultiPostOutput | null, published: SequenceAddPostRecentPostsQuery_published_MultiPostOutput | null };
 
 
-type updateChapterAddDraftPostDialogMutationVariables = Exact<{
+type SequenceAddPostRecentPostsQueryVariables = Exact<{
+  draftsSelector: InputMaybe<PostSelector>;
+  publishedSelector: InputMaybe<PostSelector>;
+}>;
+
+
+type SequenceAddPostRecentPostsQuery = SequenceAddPostRecentPostsQuery_Query;
+
+type SequenceEditChaptersQuery_chapters_MultiChapterOutput_results_Chapter = (
+  { __typename?: 'Chapter' }
+  & ChaptersEdit
+);
+
+type SequenceEditChaptersQuery_chapters_MultiChapterOutput = { __typename?: 'MultiChapterOutput', results: Array<SequenceEditChaptersQuery_chapters_MultiChapterOutput_results_Chapter> };
+
+type SequenceEditChaptersQuery_Query = { __typename?: 'Query', chapters: SequenceEditChaptersQuery_chapters_MultiChapterOutput | null };
+
+
+type SequenceEditChaptersQueryVariables = Exact<{
+  selector: InputMaybe<ChapterSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type SequenceEditChaptersQuery = SequenceEditChaptersQuery_Query;
+
+type SequenceEditPostRowQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type SequenceEditPostRowQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: SequenceEditPostRowQuery_post_SinglePostOutput_result_Post | null };
+
+type SequenceEditPostRowQuery_Query = { __typename?: 'Query', post: SequenceEditPostRowQuery_post_SinglePostOutput | null };
+
+
+type SequenceEditPostRowQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type SequenceEditPostRowQuery = SequenceEditPostRowQuery_Query;
+
+type updateSequenceSequenceEditorMutation_updateSequence_SequenceOutput_data_Sequence = (
+  { __typename?: 'Sequence' }
+  & SequencesEdit
+);
+
+type updateSequenceSequenceEditorMutation_updateSequence_SequenceOutput = { __typename?: 'SequenceOutput', data: updateSequenceSequenceEditorMutation_updateSequence_SequenceOutput_data_Sequence | null };
+
+type updateSequenceSequenceEditorMutation_Mutation = { __typename?: 'Mutation', updateSequence: updateSequenceSequenceEditorMutation_updateSequence_SequenceOutput | null };
+
+
+type updateSequenceSequenceEditorMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateSequenceDataInput;
+}>;
+
+
+type updateSequenceSequenceEditorMutation = updateSequenceSequenceEditorMutation_Mutation;
+
+type updateChapterSequenceEditorMutation_updateChapter_ChapterOutput_data_Chapter = (
+  { __typename?: 'Chapter' }
+  & ChaptersEdit
+);
+
+type updateChapterSequenceEditorMutation_updateChapter_ChapterOutput = { __typename?: 'ChapterOutput', data: updateChapterSequenceEditorMutation_updateChapter_ChapterOutput_data_Chapter | null };
+
+type updateChapterSequenceEditorMutation_Mutation = { __typename?: 'Mutation', updateChapter: updateChapterSequenceEditorMutation_updateChapter_ChapterOutput | null };
+
+
+type updateChapterSequenceEditorMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdateChapterDataInput;
 }>;
 
 
-type updateChapterAddDraftPostDialogMutation = updateChapterAddDraftPostDialogMutation_Mutation;
+type updateChapterSequenceEditorMutation = updateChapterSequenceEditorMutation_Mutation;
+
+type createChapterSequenceEditorMutation_createChapter_ChapterOutput_data_Chapter = (
+  { __typename?: 'Chapter' }
+  & ChaptersEdit
+);
+
+type createChapterSequenceEditorMutation_createChapter_ChapterOutput = { __typename?: 'ChapterOutput', data: createChapterSequenceEditorMutation_createChapter_ChapterOutput_data_Chapter | null };
+
+type createChapterSequenceEditorMutation_Mutation = { __typename?: 'Mutation', createChapter: createChapterSequenceEditorMutation_createChapter_ChapterOutput | null };
+
+
+type createChapterSequenceEditorMutationVariables = Exact<{
+  data: CreateChapterDataInput;
+}>;
+
+
+type createChapterSequenceEditorMutation = createChapterSequenceEditorMutation_Mutation;
+
+type deleteChapterSequenceEditorMutation_Mutation = { __typename?: 'Mutation', deleteChapter: boolean };
+
+
+type deleteChapterSequenceEditorMutationVariables = Exact<{
+  chapterId: Scalars['String']['input'];
+}>;
+
+
+type deleteChapterSequenceEditorMutation = deleteChapterSequenceEditorMutation_Mutation;
+
+type moveSequencePostSequenceEditorMutation_Mutation = { __typename?: 'Mutation', moveSequencePost: boolean };
+
+
+type moveSequencePostSequenceEditorMutationVariables = Exact<{
+  postId: Scalars['String']['input'];
+  fromChapterId: Scalars['String']['input'];
+  toChapterId: Scalars['String']['input'];
+  toIndex: Scalars['Int']['input'];
+}>;
+
+
+type moveSequencePostSequenceEditorMutation = moveSequencePostSequenceEditorMutation_Mutation;
 
 type updateBookBooksFormMutation_updateBook_BookOutput_data_Book = (
   { __typename?: 'Book' }
@@ -19822,58 +20272,6 @@ type GetBookWordCountQueryVariables = Exact<{
 
 
 type GetBookWordCountQuery = GetBookWordCountQuery_Query;
-
-type updateChapterChaptersFormMutation_updateChapter_ChapterOutput_data_Chapter = (
-  { __typename?: 'Chapter' }
-  & ChaptersEdit
-);
-
-type updateChapterChaptersFormMutation_updateChapter_ChapterOutput = { __typename?: 'ChapterOutput', data: updateChapterChaptersFormMutation_updateChapter_ChapterOutput_data_Chapter | null };
-
-type updateChapterChaptersFormMutation_Mutation = { __typename?: 'Mutation', updateChapter: updateChapterChaptersFormMutation_updateChapter_ChapterOutput | null };
-
-
-type updateChapterChaptersFormMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateChapterDataInput;
-}>;
-
-
-type updateChapterChaptersFormMutation = updateChapterChaptersFormMutation_Mutation;
-
-type createChapterChaptersFormMutation_createChapter_ChapterOutput_data_Chapter = (
-  { __typename?: 'Chapter' }
-  & ChaptersEdit
-);
-
-type createChapterChaptersFormMutation_createChapter_ChapterOutput = { __typename?: 'ChapterOutput', data: createChapterChaptersFormMutation_createChapter_ChapterOutput_data_Chapter | null };
-
-type createChapterChaptersFormMutation_Mutation = { __typename?: 'Mutation', createChapter: createChapterChaptersFormMutation_createChapter_ChapterOutput | null };
-
-
-type createChapterChaptersFormMutationVariables = Exact<{
-  data: CreateChapterDataInput;
-}>;
-
-
-type createChapterChaptersFormMutation = createChapterChaptersFormMutation_Mutation;
-
-type ChaptersItemQuery_chapter_SingleChapterOutput_result_Chapter = (
-  { __typename?: 'Chapter' }
-  & ChaptersEdit
-);
-
-type ChaptersItemQuery_chapter_SingleChapterOutput = { __typename?: 'SingleChapterOutput', result: ChaptersItemQuery_chapter_SingleChapterOutput_result_Chapter | null };
-
-type ChaptersItemQuery_Query = { __typename?: 'Query', chapter: ChaptersItemQuery_chapter_SingleChapterOutput | null };
-
-
-type ChaptersItemQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type ChaptersItemQuery = ChaptersItemQuery_Query;
 
 type multiChapterChaptersListQueryQuery_chapters_MultiChapterOutput_results_Chapter = (
   { __typename?: 'Chapter' }
@@ -19941,60 +20339,6 @@ type GetSequenceStatsQueryVariables = Exact<{
 
 type GetSequenceStatsQuery = GetSequenceStatsQuery_Query;
 
-type multiPostSequenceDraftsListQueryQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & PostsList
-);
-
-type multiPostSequenceDraftsListQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<multiPostSequenceDraftsListQueryQuery_posts_MultiPostOutput_results_Post> };
-
-type multiPostSequenceDraftsListQueryQuery_Query = { __typename?: 'Query', posts: multiPostSequenceDraftsListQueryQuery_posts_MultiPostOutput | null };
-
-
-type multiPostSequenceDraftsListQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiPostSequenceDraftsListQueryQuery = multiPostSequenceDraftsListQueryQuery_Query;
-
-type updateSequenceSequencesFormMutation_updateSequence_SequenceOutput_data_Sequence = (
-  { __typename?: 'Sequence' }
-  & SequencesEdit
-);
-
-type updateSequenceSequencesFormMutation_updateSequence_SequenceOutput = { __typename?: 'SequenceOutput', data: updateSequenceSequencesFormMutation_updateSequence_SequenceOutput_data_Sequence | null };
-
-type updateSequenceSequencesFormMutation_Mutation = { __typename?: 'Mutation', updateSequence: updateSequenceSequencesFormMutation_updateSequence_SequenceOutput | null };
-
-
-type updateSequenceSequencesFormMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateSequenceDataInput;
-}>;
-
-
-type updateSequenceSequencesFormMutation = updateSequenceSequencesFormMutation_Mutation;
-
-type createSequenceSequencesFormMutation_createSequence_SequenceOutput_data_Sequence = (
-  { __typename?: 'Sequence' }
-  & SequencesEdit
-);
-
-type createSequenceSequencesFormMutation_createSequence_SequenceOutput = { __typename?: 'SequenceOutput', data: createSequenceSequencesFormMutation_createSequence_SequenceOutput_data_Sequence | null };
-
-type createSequenceSequencesFormMutation_Mutation = { __typename?: 'Mutation', createSequence: createSequenceSequencesFormMutation_createSequence_SequenceOutput | null };
-
-
-type createSequenceSequencesFormMutationVariables = Exact<{
-  data: CreateSequenceDataInput;
-}>;
-
-
-type createSequenceSequencesFormMutation = createSequenceSequencesFormMutation_Mutation;
-
 type multiSequenceSequencesGridWrapperQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
   { __typename?: 'Sequence' }
   & SequencesPageFragment
@@ -20013,6 +20357,20 @@ type multiSequenceSequencesGridWrapperQueryQueryVariables = Exact<{
 
 
 type multiSequenceSequencesGridWrapperQueryQuery = multiSequenceSequencesGridWrapperQueryQuery_Query;
+
+type createSequenceSequencesNewFormMutation_createSequence_SequenceOutput_data_Sequence = { __typename?: 'Sequence', _id: string };
+
+type createSequenceSequencesNewFormMutation_createSequence_SequenceOutput = { __typename?: 'SequenceOutput', data: createSequenceSequencesNewFormMutation_createSequence_SequenceOutput_data_Sequence | null };
+
+type createSequenceSequencesNewFormMutation_Mutation = { __typename?: 'Mutation', createSequence: createSequenceSequencesNewFormMutation_createSequence_SequenceOutput | null };
+
+
+type createSequenceSequencesNewFormMutationVariables = Exact<{
+  data: CreateSequenceDataInput;
+}>;
+
+
+type createSequenceSequencesNewFormMutation = createSequenceSequencesNewFormMutation_Mutation;
 
 type SequencesPageQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }
@@ -20589,6 +20947,25 @@ type AllReactedCommentsQueryVariables = Exact<{
 
 type AllReactedCommentsQuery = AllReactedCommentsQuery_Query;
 
+type CommentLlmScorePreviewQuery_comment_SingleCommentOutput_result_Comment_automatedContentEvaluations_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AutomatedContentEvaluationsFragment
+);
+
+type CommentLlmScorePreviewQuery_comment_SingleCommentOutput_result_Comment = { __typename?: 'Comment', _id: string, automatedContentEvaluations: CommentLlmScorePreviewQuery_comment_SingleCommentOutput_result_Comment_automatedContentEvaluations_AutomatedContentEvaluation | null };
+
+type CommentLlmScorePreviewQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: CommentLlmScorePreviewQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type CommentLlmScorePreviewQuery_Query = { __typename?: 'Query', comment: CommentLlmScorePreviewQuery_comment_SingleCommentOutput | null };
+
+
+type CommentLlmScorePreviewQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type CommentLlmScorePreviewQuery = CommentLlmScorePreviewQuery_Query;
+
 type multiLWEventEmailHistoryQueryQuery_lWEvents_MultiLWEventOutput_results_LWEvent = (
   { __typename?: 'LWEvent' }
   & emailHistoryFragment
@@ -21135,13 +21512,28 @@ type multiUserSunshineNewUsersListQueryQuery_Query = { __typename?: 'Query', use
 
 
 type multiUserSunshineNewUsersListQueryQueryVariables = Exact<{
-  selector: InputMaybe<UserSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+  limit: Scalars['Int']['input'];
 }>;
 
 
 type multiUserSunshineNewUsersListQueryQuery = multiUserSunshineNewUsersListQueryQuery_Query;
+
+type SunshineQueueUsersQueryQuery_users_MultiUserOutput_results_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type SunshineQueueUsersQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<SunshineQueueUsersQueryQuery_users_MultiUserOutput_results_User> };
+
+type SunshineQueueUsersQueryQuery_Query = { __typename?: 'Query', users: SunshineQueueUsersQueryQuery_users_MultiUserOutput };
+
+
+type SunshineQueueUsersQueryQueryVariables = Exact<{
+  limit: Scalars['Int']['input'];
+}>;
+
+
+type SunshineQueueUsersQueryQuery = SunshineQueueUsersQueryQuery_Query;
 
 type SunshineNewUsersProfileInfoQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
@@ -21252,25 +21644,6 @@ type multiModerationTemplateSunshineSendMessageWithDefaultsQueryQueryVariables =
 
 type multiModerationTemplateSunshineSendMessageWithDefaultsQueryQuery = multiModerationTemplateSunshineSendMessageWithDefaultsQueryQuery_Query;
 
-type multiConversationSunshineUserMessagesQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
-  { __typename?: 'Conversation' }
-  & ConversationsList
-);
-
-type multiConversationSunshineUserMessagesQueryQuery_conversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', totalCount: number | null, results: Array<multiConversationSunshineUserMessagesQueryQuery_conversations_MultiConversationOutput_results_Conversation> };
-
-type multiConversationSunshineUserMessagesQueryQuery_Query = { __typename?: 'Query', conversations: multiConversationSunshineUserMessagesQueryQuery_conversations_MultiConversationOutput | null };
-
-
-type multiConversationSunshineUserMessagesQueryQueryVariables = Exact<{
-  selector: InputMaybe<ConversationSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiConversationSunshineUserMessagesQueryQuery = multiConversationSunshineUserMessagesQueryQuery_Query;
-
 type multiUserRateLimitUserRateLimitItemQueryQuery_userRateLimits_MultiUserRateLimitOutput_results_UserRateLimit = (
   { __typename?: 'UserRateLimit' }
   & UserRateLimitDisplay
@@ -21377,50 +21750,151 @@ type CurationPostViewQueryQueryVariables = Exact<{
 
 type CurationPostViewQueryQuery = CurationPostViewQueryQuery_Query;
 
-type ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User = (
+type multiConversationModerationActivityFeedQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
+  { __typename?: 'Conversation' }
+  & ConversationsList
+);
+
+type multiConversationModerationActivityFeedQueryQuery_conversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', results: Array<multiConversationModerationActivityFeedQueryQuery_conversations_MultiConversationOutput_results_Conversation> };
+
+type multiConversationModerationActivityFeedQueryQuery_Query = { __typename?: 'Query', conversations: multiConversationModerationActivityFeedQueryQuery_conversations_MultiConversationOutput | null };
+
+
+type multiConversationModerationActivityFeedQueryQueryVariables = Exact<{
+  selector: InputMaybe<ConversationSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type multiConversationModerationActivityFeedQueryQuery = multiConversationModerationActivityFeedQueryQuery_Query;
+
+type firstMessageModerationActivityFeedQueryQuery_messages_MultiMessageOutput_results_Message = (
+  { __typename?: 'Message' }
+  & messageListFragment
+);
+
+type firstMessageModerationActivityFeedQueryQuery_messages_MultiMessageOutput = { __typename?: 'MultiMessageOutput', results: Array<firstMessageModerationActivityFeedQueryQuery_messages_MultiMessageOutput_results_Message> };
+
+type firstMessageModerationActivityFeedQueryQuery_Query = { __typename?: 'Query', messages: firstMessageModerationActivityFeedQueryQuery_messages_MultiMessageOutput | null };
+
+
+type firstMessageModerationActivityFeedQueryQueryVariables = Exact<{
+  selector: InputMaybe<MessageSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type firstMessageModerationActivityFeedQueryQuery = firstMessageModerationActivityFeedQueryQuery_Query;
+
+type ModerationFeedCardParentCommentQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type ModerationFeedCardParentCommentQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: ModerationFeedCardParentCommentQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type ModerationFeedCardParentCommentQuery_Query = { __typename?: 'Query', comment: ModerationFeedCardParentCommentQuery_comment_SingleCommentOutput | null };
+
+
+type ModerationFeedCardParentCommentQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ModerationFeedCardParentCommentQuery = ModerationFeedCardParentCommentQuery_Query;
+
+type ModerationInboxQueueQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
   & SunshineUsersList
 );
 
-type ModerationInboxDataQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User> };
+type ModerationInboxQueueQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<ModerationInboxQueueQueryQuery_users_MultiUserOutput_results_User> };
 
-type ModerationInboxDataQueryQuery_posts_MultiPostOutput_results_Post = (
+type ModerationInboxQueueQueryQuery_reviewQueueUsers_MultiUserOutput_results_User = { __typename?: 'User', _id: string, reviewGroup: ReviewGroup | null };
+
+type ModerationInboxQueueQueryQuery_reviewQueueUsers_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<ModerationInboxQueueQueryQuery_reviewQueueUsers_MultiUserOutput_results_User> };
+
+type ModerationInboxQueueQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & SunshinePostsList
 );
 
-type ModerationInboxDataQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<ModerationInboxDataQueryQuery_posts_MultiPostOutput_results_Post> };
+type ModerationInboxQueueQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<ModerationInboxQueueQueryQuery_posts_MultiPostOutput_results_Post> };
 
-type ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput_results_Post = (
+type ModerationInboxQueueQueryQuery_classifiedPosts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & SunshinePostsList
 );
 
-type ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput_results_Post> };
+type ModerationInboxQueueQueryQuery_classifiedPosts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<ModerationInboxQueueQueryQuery_classifiedPosts_MultiPostOutput_results_Post> };
 
-type ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post = (
+type ModerationInboxQueueQueryQuery_Query = { __typename?: 'Query', supermodQueueSnapshotTime: string, users: ModerationInboxQueueQueryQuery_users_MultiUserOutput, reviewQueueUsers: ModerationInboxQueueQueryQuery_reviewQueueUsers_MultiUserOutput, posts: ModerationInboxQueueQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxQueueQueryQuery_classifiedPosts_MultiPostOutput | null };
+
+
+type ModerationInboxQueueQueryQueryVariables = Exact<{
+  userLimit: Scalars['Int']['input'];
+  reviewQueueLimit: Scalars['Int']['input'];
+  postLimit: Scalars['Int']['input'];
+}>;
+
+
+type ModerationInboxQueueQueryQuery = ModerationInboxQueueQueryQuery_Query;
+
+type ModerationInboxCurationQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post = (
   { __typename?: 'Post' }
   & SunshineCurationPostsListItem
 );
 
-type ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult = { __typename?: 'CurationCandidatePostsResult', results: Array<ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post> };
+type ModerationInboxCurationQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult = { __typename?: 'CurationCandidatePostsResult', results: Array<ModerationInboxCurationQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post> };
 
-type ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult = { __typename?: 'LastCuratedDateResult', lastCuratedDate: string | null };
+type ModerationInboxCurationQueryQuery_LastCuratedDate_LastCuratedDateResult = { __typename?: 'LastCuratedDateResult', lastCuratedDate: string | null };
 
-type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', users: ModerationInboxDataQueryQuery_users_MultiUserOutput | null, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult };
+type ModerationInboxCurationQueryQuery_Query = { __typename?: 'Query', CurationCandidatePosts: ModerationInboxCurationQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxCurationQueryQuery_LastCuratedDate_LastCuratedDateResult };
 
 
-type ModerationInboxDataQueryQueryVariables = Exact<{
-  userSelector: InputMaybe<UserSelector>;
-  postSelector: InputMaybe<PostSelector>;
-  classifiedPostSelector: InputMaybe<PostSelector>;
-  userLimit: InputMaybe<Scalars['Int']['input']>;
-  postLimit: InputMaybe<Scalars['Int']['input']>;
-  curationLimit: InputMaybe<Scalars['Int']['input']>;
+type ModerationInboxCurationQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type ModerationInboxCurationQueryQuery = ModerationInboxCurationQueryQuery_Query;
+
+type ModerationInboxTeamInboxQueryQuery_teamInboxConversations_MultiConversationOutput_results_Conversation = (
+  { __typename?: 'Conversation' }
+  & TeamInboxConversation
+);
+
+type ModerationInboxTeamInboxQueryQuery_teamInboxConversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', results: Array<ModerationInboxTeamInboxQueryQuery_teamInboxConversations_MultiConversationOutput_results_Conversation> };
+
+type ModerationInboxTeamInboxQueryQuery_openAppeals_MultiRejectionAppealOutput_results_RejectionAppeal = (
+  { __typename?: 'RejectionAppeal' }
+  & RejectionAppealsModerationInfo
+);
+
+type ModerationInboxTeamInboxQueryQuery_openAppeals_MultiRejectionAppealOutput = { __typename?: 'MultiRejectionAppealOutput', results: Array<ModerationInboxTeamInboxQueryQuery_openAppeals_MultiRejectionAppealOutput_results_RejectionAppeal> };
+
+type ModerationInboxTeamInboxQueryQuery_Query = { __typename?: 'Query', teamInboxConversations: ModerationInboxTeamInboxQueryQuery_teamInboxConversations_MultiConversationOutput | null, openAppeals: ModerationInboxTeamInboxQueryQuery_openAppeals_MultiRejectionAppealOutput | null };
+
+
+type ModerationInboxTeamInboxQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type ModerationInboxTeamInboxQueryQuery = ModerationInboxTeamInboxQueryQuery_Query;
+
+type teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
+  { __typename?: 'Conversation' }
+  & DoneTeamInboxConversation
+);
+
+type teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', totalCount: number | null, results: Array<teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput_results_Conversation> };
+
+type teamInboxDoneModerationInboxQueryQuery_Query = { __typename?: 'Query', conversations: teamInboxDoneModerationInboxQueryQuery_conversations_MultiConversationOutput | null };
+
+
+type teamInboxDoneModerationInboxQueryQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-type ModerationInboxDataQueryQuery = ModerationInboxDataQueryQuery_Query;
+type teamInboxDoneModerationInboxQueryQuery = teamInboxDoneModerationInboxQueryQuery_Query;
 
 type singleUserSupermodQueryQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
@@ -21438,6 +21912,24 @@ type singleUserSupermodQueryQueryVariables = Exact<{
 
 
 type singleUserSupermodQueryQuery = singleUserSupermodQueryQuery_Query;
+
+type multiPostModerationUserFeedCoauthoredQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type multiPostModerationUserFeedCoauthoredQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<multiPostModerationUserFeedCoauthoredQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type multiPostModerationUserFeedCoauthoredQueryQuery_Query = { __typename?: 'Query', posts: multiPostModerationUserFeedCoauthoredQueryQuery_posts_MultiPostOutput | null };
+
+
+type multiPostModerationUserFeedCoauthoredQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type multiPostModerationUserFeedCoauthoredQueryQuery = multiPostModerationUserFeedCoauthoredQueryQuery_Query;
 
 type addOrUpvoteTagModeratorCoreTagsChecklistMutation_addOrUpvoteTag_TagRel = (
   { __typename?: 'TagRel' }
@@ -21474,23 +21966,15 @@ type performVoteTagRelModeratorCoreTagsChecklistMutationVariables = Exact<{
 
 type performVoteTagRelModeratorCoreTagsChecklistMutation = performVoteTagRelModeratorCoreTagsChecklistMutation_Mutation;
 
-type updateUserModeratorNotesMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & SunshineUsersList
-);
+type moderationTemplateUsageCountsRejectContentPanelQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount = { __typename?: 'ModerationTemplateUsageCount', templateId: string, count: number };
 
-type updateUserModeratorNotesMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserModeratorNotesMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserModeratorNotesMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserModeratorNotesMutation_updateUser_UserOutput | null };
+type moderationTemplateUsageCountsRejectContentPanelQueryQuery_Query = { __typename?: 'Query', moderationTemplateUsageCounts: Array<moderationTemplateUsageCountsRejectContentPanelQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount> };
 
 
-type updateUserModeratorNotesMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
+type moderationTemplateUsageCountsRejectContentPanelQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-type updateUserModeratorNotesMutation = updateUserModeratorNotesMutation_Mutation;
+type moderationTemplateUsageCountsRejectContentPanelQueryQuery = moderationTemplateUsageCountsRejectContentPanelQueryQuery_Query;
 
 type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }
@@ -21542,6 +22026,88 @@ type updateModeratorActionSupermodMutationVariables = Exact<{
 
 
 type updateModeratorActionSupermodMutation = updateModeratorActionSupermodMutation_Mutation;
+
+type updateRejectionAppealTeamInboxThreadViewMutation_updateRejectionAppeal_RejectionAppealOutput_data_RejectionAppeal = (
+  { __typename?: 'RejectionAppeal' }
+  & RejectionAppealsModerationInfo
+);
+
+type updateRejectionAppealTeamInboxThreadViewMutation_updateRejectionAppeal_RejectionAppealOutput = { __typename?: 'RejectionAppealOutput', data: updateRejectionAppealTeamInboxThreadViewMutation_updateRejectionAppeal_RejectionAppealOutput_data_RejectionAppeal | null };
+
+type updateRejectionAppealTeamInboxThreadViewMutation_Mutation = { __typename?: 'Mutation', updateRejectionAppeal: updateRejectionAppealTeamInboxThreadViewMutation_updateRejectionAppeal_RejectionAppealOutput | null };
+
+
+type updateRejectionAppealTeamInboxThreadViewMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateRejectionAppealDataInput;
+}>;
+
+
+type updateRejectionAppealTeamInboxThreadViewMutation = updateRejectionAppealTeamInboxThreadViewMutation_Mutation;
+
+type updateConversationTeamInboxThreadViewMutation_updateConversation_ConversationOutput_data_Conversation = (
+  { __typename?: 'Conversation' }
+  & TeamInboxConversation
+);
+
+type updateConversationTeamInboxThreadViewMutation_updateConversation_ConversationOutput = { __typename?: 'ConversationOutput', data: updateConversationTeamInboxThreadViewMutation_updateConversation_ConversationOutput_data_Conversation | null };
+
+type updateConversationTeamInboxThreadViewMutation_Mutation = { __typename?: 'Mutation', updateConversation: updateConversationTeamInboxThreadViewMutation_updateConversation_ConversationOutput | null };
+
+
+type updateConversationTeamInboxThreadViewMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateConversationDataInput;
+}>;
+
+
+type updateConversationTeamInboxThreadViewMutation = updateConversationTeamInboxThreadViewMutation_Mutation;
+
+type CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_user_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_rejectedPosts_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_rejectedComments_Comment = (
+  { __typename?: 'Comment' }
+  & SunshineCommentsList
+);
+
+type CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_message_Message = (
+  { __typename?: 'Message' }
+  & messageListFragment
+);
+
+type CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult = { __typename?: 'CompleteUserModerationResult', user: CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_user_User, rejectedPosts: Array<CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_rejectedPosts_Post>, rejectedComments: Array<CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_rejectedComments_Comment>, message: CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult_message_Message | null };
+
+type CompleteUserModerationMutation_Mutation = { __typename?: 'Mutation', completeUserModeration: CompleteUserModerationMutation_completeUserModeration_CompleteUserModerationResult };
+
+
+type CompleteUserModerationMutationVariables = Exact<{
+  input: CompleteUserModerationInput;
+}>;
+
+
+type CompleteUserModerationMutation = CompleteUserModerationMutation_Mutation;
+
+type SupermodQueueChangesQueryQuery_supermodQueueChanges_SupermodQueueChange = { __typename?: 'SupermodQueueChange', documentId: string, moderatorName: string, lastChangedAt: string };
+
+type SupermodQueueChangesQueryQuery_Query = { __typename?: 'Query', supermodQueueChanges: Array<SupermodQueueChangesQueryQuery_supermodQueueChanges_SupermodQueueChange> };
+
+
+type SupermodQueueChangesQueryQueryVariables = Exact<{
+  userIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  postIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  since: Scalars['Date']['input'];
+}>;
+
+
+type SupermodQueueChangesQueryQuery = SupermodQueueChangesQueryQuery_Query;
 
 type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
@@ -21678,6 +22244,22 @@ type updateModeratorActionContentPermissionsMutationVariables = Exact<{
 
 
 type updateModeratorActionContentPermissionsMutation = updateModeratorActionContentPermissionsMutation_Mutation;
+
+type addModeratorNoteMutation_addModeratorNote_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type addModeratorNoteMutation_Mutation = { __typename?: 'Mutation', addModeratorNote: addModeratorNoteMutation_addModeratorNote_User | null };
+
+
+type addModeratorNoteMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+  note: Scalars['String']['input'];
+}>;
+
+
+type addModeratorNoteMutation = addModeratorNoteMutation_Mutation;
 
 type addPostsToTagMutation_addOrUpvoteTag_TagRel = (
   { __typename?: 'TagRel' }
@@ -24281,6 +24863,21 @@ type ConversationsListWithReadStatus = (
   & ConversationsList
 );
 
+type TeamInboxConversation = (
+  { __typename?: 'Conversation', awaitingModeratorReply: boolean | null }
+  & ConversationsList
+);
+
+type DoneTeamInboxConversation_Conversation_rejectionAppeal_RejectionAppeal = (
+  { __typename?: 'RejectionAppeal' }
+  & RejectionAppealsModerationInfo
+);
+
+type DoneTeamInboxConversation = (
+  { __typename?: 'Conversation', rejectionAppeal: DoneTeamInboxConversation_Conversation_rejectionAppeal_RejectionAppeal | null }
+  & TeamInboxConversation
+);
+
 type CurationNoticesFragment_CurationNotice_user_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -25003,6 +25600,28 @@ type AiDigestEmailPost_Post_contents_Revision = { __typename?: 'Revision', plain
 
 type AiDigestEmailPost = { __typename?: 'Post', _id: string, slug: string, title: string, postedAt: string, user: AiDigestEmailPost_Post_user_User | null, coauthors: Array<AiDigestEmailPost_Post_coauthors_User> | null, socialPreviewData: AiDigestEmailPost_Post_socialPreviewData_SocialPreviewType, contents: AiDigestEmailPost_Post_contents_Revision | null };
 
+type RejectionAppealsUserInfo = { __typename?: 'RejectionAppeal', _id: string, createdAt: string, postId: string | null, commentId: string | null, conversationId: string | null, status: RejectionAppealStatus | null };
+
+type RejectionAppealsModerationInfo_RejectionAppeal_post_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type RejectionAppealsModerationInfo_RejectionAppeal_comment_Comment = (
+  { __typename?: 'Comment' }
+  & SunshineCommentsList
+);
+
+type RejectionAppealsModerationInfo_RejectionAppeal_conversation_Conversation = (
+  { __typename?: 'Conversation' }
+  & TeamInboxConversation
+);
+
+type RejectionAppealsModerationInfo = (
+  { __typename?: 'RejectionAppeal', explanation: string | null, reasonIds: Array<string> | null, post: RejectionAppealsModerationInfo_RejectionAppeal_post_Post | null, comment: RejectionAppealsModerationInfo_RejectionAppeal_comment_Comment | null, conversation: RejectionAppealsModerationInfo_RejectionAppeal_conversation_Conversation | null }
+  & RejectionAppealsUserInfo
+);
+
 type UnclaimedReportsList_Report_user_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -25679,16 +26298,16 @@ type TypoSuggestionsDefaultFragment = { __typename?: 'TypoSuggestion', _id: stri
 
 type UserMostValuablePostInfo = { __typename?: 'UserMostValuablePost', _id: string, userId: string | null, postId: string | null, deleted: boolean | null };
 
-type UserRateLimitMutationFragment = { __typename?: 'UserRateLimit', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string, type: UserRateLimitType, intervalUnit: UserRateLimitIntervalUnit, intervalLength: number, actionsPerInterval: number, endedAt: string };
+type UserRateLimitMutationFragment = { __typename?: 'UserRateLimit', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string, type: UserRateLimitType, intervalUnit: UserRateLimitIntervalUnit, intervalLength: number, actionsPerInterval: number, endedAt: string | null };
 
 type UserRateLimitDisplay_UserRateLimit_user_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
 );
 
-type UserRateLimitDisplay = { __typename?: 'UserRateLimit', _id: string, userId: string, type: UserRateLimitType, actionsPerInterval: number, intervalUnit: UserRateLimitIntervalUnit, intervalLength: number, createdAt: string, endedAt: string, user: UserRateLimitDisplay_UserRateLimit_user_User | null };
+type UserRateLimitDisplay = { __typename?: 'UserRateLimit', _id: string, userId: string, type: UserRateLimitType, actionsPerInterval: number, intervalUnit: UserRateLimitIntervalUnit, intervalLength: number, createdAt: string, endedAt: string | null, liftAtAverageKarma: number | null, liftAverageKarmaCount: number | null, user: UserRateLimitDisplay_UserRateLimit_user_User | null };
 
-type UsersMinimumInfo = { __typename?: 'User', _id: string, slug: string, createdAt: string, username: string | null, displayName: string, profileImageId: string | null, karma: number, afKarma: number, deleted: boolean, isAdmin: boolean, htmlBio: string, postCount: number, commentCount: number, sequenceCount: number, afPostCount: number, afCommentCount: number, spamRiskScore: number, tagRevisionCount: number, reviewedByUserId: string | null };
+type UsersMinimumInfo = { __typename?: 'User', _id: string, slug: string, createdAt: string, username: string | null, displayName: string, profileImageId: string | null, karma: number, afKarma: number, deleted: boolean, isAdmin: boolean, htmlBio: string, postCount: number, commentCount: number, sequenceCount: number, afPostCount: number, afCommentCount: number, tagRevisionCount: number, reviewedByUserId: string | null };
 
 type UsersProfile_User_biography_Revision = (
   { __typename?: 'Revision' }
@@ -25701,7 +26320,7 @@ type UsersProfile_User_moderationGuidelines_Revision = (
 );
 
 type UsersProfile = (
-  { __typename?: 'User', coauthoredPostCount: number, fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, voteReceivedCount: number | null, biography: UsersProfile_User_biography_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', coauthoredPostCount: number, fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, deleteContent: boolean | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, voteReceivedCount: number | null, biography: UsersProfile_User_biography_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
   & UsersMinimumInfo
 );
 
@@ -25715,7 +26334,7 @@ type UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettin
 type UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput = { __typename?: 'PostMetadataOutput', postId: string };
 
 type UsersCurrent = (
-  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, ultraFeedSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, emailSubscribedToAiDigest: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, notificationRepliesToMyComments: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, claudeLinkedAt: string | null, moderationGuidelines: UsersCurrent_User_moderationGuidelines_Revision | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
+  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, deleteContent: boolean | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, ultraFeedSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, emailSubscribedToAiDigest: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, notificationRepliesToMyComments: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, claudeLinkedAt: string | null, moderationGuidelines: UsersCurrent_User_moderationGuidelines_Revision | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
   & UsersMinimumInfo
 );
 
@@ -25752,7 +26371,7 @@ type SunshineUsersList_User_userRateLimits_UserRateLimit = (
 );
 
 type SunshineUsersList = (
-  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, reviewGroup: ReviewGroup | null, usersContactedBeforeReview: Array<string> | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
+  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, reviewGroup: ReviewGroup | null, pendingPostCount: number | null, pendingCommentCount: number | null, oldestPendingContentAt: string | null, usersContactedBeforeReview: Array<string> | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
   & UsersMinimumInfo
 );
 

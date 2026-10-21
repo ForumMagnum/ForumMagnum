@@ -1,6 +1,6 @@
 import { aboutPostIdSetting, allowTypeIIIPlayerSetting, type ForumTypeString, siteUrlSetting, cloudinaryCloudName, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdmin } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn, type SharableDocument } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import maxBy from "lodash/maxBy";
@@ -325,12 +325,26 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
+interface PostWithEditPermissionFields extends SharableDocument, HasUserIdType {
+  group?: { organizerIds: string[] } | null;
+}
+
 /**
  * Whether the user can make updates to the post document (including both the main post body and most other post fields)
  */
-export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: SharableDocument & HasUserIdType & {
-  group?: { organizerIds: string[] } | null;
-}): boolean => {
+export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: PostWithEditPermissionFields): boolean => {
+  if (!currentUser) return false;
+  if (userCanDo(currentUser, 'posts.edit.all')) return true
+  return canUserEditPostMetadataWithoutModeratorPowers(currentUser, post);
+}
+
+/**
+ * Like canUserEditPostMetadata, but ignoring permissions that come from being
+ * a moderator or admin; ie, whether the user would be able to edit the post if
+ * they were a regular user. Used to decide whether edit-related post actions
+ * should be grouped with moderator-only actions.
+ */
+export const canUserEditPostMetadataWithoutModeratorPowers = (currentUser: UsersCurrent|DbUser|null, post: PostWithEditPermissionFields): boolean => {
   if (!currentUser) return false;
 
   const organizerIds = post.group?.organizerIds;
@@ -338,7 +352,6 @@ export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, p
   if (isPostGroupOrganizer) return true
 
   if (userOwns(currentUser, post)) return true
-  if (userCanDo(currentUser, 'posts.edit.all')) return true
   // Shared as a coauthor? Always give access
   if ((post.coauthorUserIds ?? []).includes(currentUser._id)) {
     return true;
@@ -349,6 +362,17 @@ export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, p
   if (post.shareWithUsers?.includes(currentUser._id) && post.sharingSettings?.explicitlySharedUsersCan === "edit") return true 
 
   return false
+}
+
+/**
+ * Whether the user can change a post's sharing settings (eg "Anyone with the
+ * link can"). Coauthors and users the post is shared with can edit other
+ * metadata, but not this. Must match the canUpdate permissions on the
+ * sharingSettings field in the posts schema.
+ */
+export const userCanEditPostSharingSettings = (currentUser: UsersCurrent|DbUser|null, post: HasUserIdType): boolean => {
+  if (!currentUser) return false;
+  return userOwns(currentUser, post) || userIsAdmin(currentUser);
 }
 
 export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): boolean => {
@@ -529,10 +553,6 @@ export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimum
     userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
 };
 
-export function userCanEditCoauthors(user: UsersCurrent | null) {
-  return userIsAdminOrMod(user) || userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(user);
-}
-
 export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
@@ -547,6 +567,18 @@ export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWit
 export const defaultVotingSystem = "namesAttachedReactions";
 
 export const dateStr = (startDate?: Date) => startDate ? moment(startDate).format('YYYY-MM-DD') : '';
+
+export function postGetRejectionReviewUrl(postId: string) {
+  return `/rejection-review?postId=${postId}`;
+}
+
+/**
+ * Authors can't republish a rejected post themselves, so in the post editor
+ * the publish button takes them to the rejection review (appeal) form instead.
+ */
+export function shouldPublishGoToRejectionReview(currentUser: UsersCurrent | null, post: { userId?: string | null, rejected?: boolean | null }) {
+  return !!post.rejected && !!post.userId && post.userId === currentUser?._id;
+}
 
 export function getDraftLabel(post: { draft?: boolean | null } | null) {
   if (!post) return "Save Draft";

@@ -38,7 +38,7 @@ import { bothChannelsEnabledNotificationTypeSettings, defaultNotificationTypeSet
 import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
-import { getReviewGroupFromActions } from "./reviewGroups";
+import { getModeratorActionsForUser, getPendingContentStats, getLastRemovedFromReviewQueueAt, getRejectedContentCount, getReviewGroupForUser } from "@/server/users/reviewQueue";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
@@ -56,43 +56,6 @@ const getCoauthoredPostCount = async (user: DbUser) => {
   });
 
   return Number(result.count);
-};
-
-const getModeratorActionsForUser = (context: ResolverContext, userId: string) => {
-  return getWithLoader(
-    context,
-    context.ModeratorActions,
-    "moderatorActionsByUserId",
-    {},
-    "userId",
-    userId,
-  );
-};
-
-// Karma is checked first, to skip the batched content query when it can.
-const getIsOffboardCandidate = async (context: ResolverContext, user: DbUser): Promise<boolean> => {
-  if (user.karma < 0) {
-    return true;
-  }
-  return getWithCustomLoader(context, "offboardCandidates", user._id, async (userIds) => {
-    const candidateIds = new Set(await context.repos.users.getOffboardCandidateUserIds(userIds));
-    return userIds.map((id) => candidateIds.has(id));
-  });
-};
-
-// Get last time user's `needsReview` flag was set to false (or null if never).
-const getLastRemovedFromReviewQueueAt = async (context: ResolverContext, userId: string): Promise<Date | null> => {
-  const fieldChanges = await getWithLoader(
-    context,
-    context.FieldChanges,
-    "needsReviewFieldChanges",
-    { documentId: userId, fieldName: "needsReview", newValue: 'false' },
-    "documentId",
-    userId,
-    { sort: { createdAt: -1 }, limit: 1 },
-  );
-
-  return fieldChanges[0]?.createdAt ?? null;
 };
 
 ///////////////////////////////////////
@@ -2860,36 +2823,6 @@ const schema = {
       },
     },
   },
-  // A number from 0 to 1, where 0 is almost certainly spam, and 1 is almost
-  // certainly not-spam. This is the same scale as ReCaptcha, except that it
-  // also includes post-signup activity like moderator approval, upvotes, etc.
-  // Scale:
-  //   0    Banned and purged user
-  //   0-0.8: Unreviewed user, based on ReCaptcha rating on signup (times 0.8)
-  //   0.9: Reviewed user
-  //   1.0: Reviewed user with 20+ karma
-  spamRiskScore: {
-    graphql: {
-      outputType: "Float!",
-      canRead: ["guests"],
-      resolver: (user, args, context) => {
-        const isReviewed = !!user.reviewedByUserId;
-        const { karma, signUpReCaptchaRating } = user;
-        if (user.deleteContent && user.banned) return 0.0;
-        else if (userIsAdmin(user)) return 1.0;
-        else if (isReviewed && karma >= 20) return 1.0;
-        else if (isReviewed && karma >= 0) return 0.9;
-        else if (isReviewed) return 0.8;
-        else if (signUpReCaptchaRating !== null && signUpReCaptchaRating !== undefined && signUpReCaptchaRating >= 0) {
-          // Rescale recaptcha ratings to [0,.8]
-          return signUpReCaptchaRating * 0.8;
-        } else {
-          // No recaptcha rating present; score it .8
-          return 0.8;
-        }
-      },
-    },
-  },
   afKarma: {
     database: {
       type: "DOUBLE PRECISION",
@@ -3996,23 +3929,7 @@ const schema = {
       outputType: "ReviewGroup",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (doc, args, context) => {
-        const [moderatorActions, lastRemovedFromReviewQueueAt] = await Promise.all([
-          getModeratorActionsForUser(context, doc._id),
-          getLastRemovedFromReviewQueueAt(context, doc._id),
-        ]);
-
-        const actionsWithActiveStatus = moderatorActions.map(action => ({
-          type: action.type,
-          active: isActionActive(action),
-          createdAt: action.createdAt,
-        }));
-        const baseGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
-
-        if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc)) {
-          return 'offboard';
-        }
-
-        return baseGroup;
+        return await getReviewGroupForUser(context, doc._id);
       },
     },
   },
@@ -4407,14 +4324,39 @@ const schema = {
       },
     },
   },
+  pendingPostCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).pendingPostCount;
+      },
+    },
+  },
+  pendingCommentCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).pendingCommentCount;
+      },
+    },
+  },
+  oldestPendingContentAt: {
+    graphql: {
+      outputType: "Date",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).oldestPendingContentAt;
+      },
+    },
+  },
   rejectedContentCount: {
     graphql: {
       outputType: "Int",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        return await getWithCustomLoader(context, "rejectedContentCount", user._id, (userIds) =>
-          context.repos.users.getRejectedContentCounts(userIds)
-        );
+        return await getRejectedContentCount(context, user._id);
       },
     }
   },

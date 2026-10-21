@@ -1,4 +1,9 @@
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
+import {
+  EXCALIDRAW_DARK_MODE_FILTER,
+  EXCALIDRAW_DIAGRAM_CLASS,
+  EXCALIDRAW_DIAGRAM_RESIZED_CLASS,
+} from '@/lib/lexical/excalidrawDiagrams';
 
 export const hideSpoilers = (theme: ThemeType) => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -505,6 +510,25 @@ const ctaButtonStyles = (theme: ThemeType) => ({
   }
 });
 
+// Diagrams drawn with Excalidraw; see @/lib/lexical/excalidrawDiagrams. Without
+// a width set by the user, they're displayed at their natural size (scaled
+// down if they don't fit). They're stored in light mode, and inverted in dark
+// mode the same way Excalidraw itself does it.
+const excalidrawDiagramStyles = (theme: ThemeType) => ({
+  [`& figure.${EXCALIDRAW_DIAGRAM_CLASS} svg`]: {
+    display: 'inline-block',
+    verticalAlign: 'top',
+    maxWidth: '100%',
+    height: 'auto',
+    ...(theme.dark && {
+      filter: EXCALIDRAW_DARK_MODE_FILTER,
+    }),
+  },
+  [`& figure.${EXCALIDRAW_DIAGRAM_RESIZED_CLASS} svg`]: {
+    width: '100%',
+  },
+});
+
 const baseBodyStyles = (theme: ThemeType) => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
@@ -686,6 +710,7 @@ const baseBodyStyles = (theme: ThemeType) => ({
     ...theme.typography.caption,
     ...theme.typography.postStyle
   },
+  ...excalidrawDiagramStyles(theme),
   '& ol > li > ol': {
     listStyle: 'lower-alpha',
   },

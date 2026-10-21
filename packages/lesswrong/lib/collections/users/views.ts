@@ -1,4 +1,3 @@
-import { spamRiskScoreThreshold } from './helpers';
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
@@ -90,28 +89,6 @@ function usersWithBannedUsers() {
     },
   }
 }
-
-function sunshineNewUsers(terms: UsersViewTerms) {
-  return {
-    selector: {
-      needsReview: true,
-      banned: viewFieldNullOrMissing,
-      reviewedByUserId: null,
-      $or: [{signUpReCaptchaRating: {$gt: spamRiskScoreThreshold*1.25}}, {signUpReCaptchaRating: {$exists: false}}, {signUpReCaptchaRating:null}]
-    },
-    options: {
-      sort: {
-        sunshineFlagged: -1,
-        reviewedByUserId: 1,
-        postCount: -1,
-        commentCount: -1,
-        signUpReCaptchaRating: -1,
-        createdAt: -1
-      }
-    }
-  }
-}
-
 function recentlyActive(terms: UsersViewTerms) {
   return {
     selector: {
@@ -251,7 +228,6 @@ export const UsersViews = new CollectionViewSet('Users', {
   LWTrustLevel1List,
   LWUsersAdmin,
   usersWithBannedUsers,
-  sunshineNewUsers,
   recentlyActive,
   allUsers,
   usersMapLocations,
