@@ -1,6 +1,7 @@
 import { SENT_MODERATOR_MESSAGE } from "@/lib/collections/moderatorActions/constants";
 import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { loadByIds } from '../../lib/loaders';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import type { AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
@@ -110,7 +111,9 @@ export async function updateConversationActivity(message: DbMessage, context: Re
  */
 async function getNonModeratorUserIds(userIds: string[], context: ResolverContext): Promise<string[]> {
   const users = await loadByIds(context, "Users", userIds);
-  return users.flatMap(user => (user && !userIsAdminOrMod(user)) ? [user._id] : []);
+  return filterNonnull(users)
+    .filter(user => !userIsAdminOrMod(user))
+    .map(user => user._id);
 }
 
 export async function sendMessageNotifications(message: DbMessage, context: ResolverContext) {
