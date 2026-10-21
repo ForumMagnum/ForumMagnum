@@ -1,3 +1,6 @@
+type AiDigestIssueGenerationsViewName = never
+type AiDigestIssuesViewName = "recipientIssues";
+type AiDigestSchedulesViewName = never
 type ArbitalCachesViewName = never
 type ArbitalTagContentRelsViewName = never
 type AutomatedContentEvaluationsViewName = never
@@ -51,8 +54,10 @@ type PetrovDayLaunchsViewName = never
 type PodcastEpisodesViewName = "episodeByExternalId";
 type PodcastsViewName = never
 type PostEmbeddingsViewName = never
+type PostPreviewsViewName = never
 type PostRecommendationsViewName = never
 type PostRelationsViewName = "allPostRelations";
+type PostSummariesViewName = never
 type PostViewTimesViewName = never
 type PostViewsViewName = never
 type PostsViewName = "afRecentDiscussionThreadsList"|"alignmentSuggestedPosts"|"all_drafts"|"coauthoredPosts"|"community"|"communityResourcePosts"|"communityRss"|"curated"|"curatedRss"|"currentOpenThread"|"daily"|"drafts"|"events"|"eventsInTimeRange"|"frontpage"|"frontpageReviewWidget"|"frontpageRss"|"globalEvents"|"hasEverDialogued"|"legacyIdPost"|"magic"|"metaRss"|"nearbyEvents"|"new"|"nominatablePostsByVote"|"nominations2018"|"nominations2019"|"nonEventGroupPosts"|"old"|"pastEvents"|"pingbackPosts"|"postsWithBannedUsers"|"recentComments"|"recentDiscussionThreadsList"|"recentQuestionActivity"|"rejected"|"reviewFinalVoting"|"reviewQuickPage"|"reviewRecentDiscussionThreadsList2018"|"reviewRecentDiscussionThreadsList2019"|"reviewVoting"|"reviews2018"|"reviews2019"|"rss"|"scheduled"|"slugPost"|"stickied"|"sunshineAutoClassifiedPosts"|"sunshineCuratedSuggestions"|"sunshineNewPosts"|"sunshineNewUsersPosts"|"tagRelevance"|"tbdEvents"|"timeframe"|"top"|"topQuestions"|"unlisted"|"upcomingEvents"|"userAFSubmissions"|"userPosts"|"voting2019";
@@ -94,6 +99,9 @@ type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
 type YjsDocumentsViewName = never
 
 interface ViewTermsByCollectionName {
+  AiDigestIssueGenerations: ViewTermsBase
+  AiDigestIssues: AiDigestIssuesViewTerms
+  AiDigestSchedules: ViewTermsBase
   ArbitalCaches: ViewTermsBase
   ArbitalTagContentRels: ViewTermsBase
   AutomatedContentEvaluations: ViewTermsBase
@@ -147,8 +155,10 @@ interface ViewTermsByCollectionName {
   PodcastEpisodes: PodcastEpisodesViewTerms
   Podcasts: ViewTermsBase
   PostEmbeddings: ViewTermsBase
+  PostPreviews: ViewTermsBase
   PostRecommendations: ViewTermsBase
   PostRelations: PostRelationsViewTerms
+  PostSummaries: ViewTermsBase
   PostViewTimes: ViewTermsBase
   PostViews: ViewTermsBase
   Posts: PostsViewTerms
@@ -191,4 +201,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"RejectionAppeals"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AiDigestIssues"|"Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"RejectionAppeals"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
