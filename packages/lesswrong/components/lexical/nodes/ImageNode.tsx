@@ -247,7 +247,6 @@ export class ImageRenderNode extends DecoratorNode<JSX.Element> {
         showCaption={parent.getShowCaption()}
         captionsEnabled={parent.getCaptionsEnabled()}
         srcSet={parent.getSrcset()}
-        widthPercent={parent.getWidthPercent()}
         resizable={true}
       />
     );
@@ -489,10 +488,16 @@ export class ImageNode extends ElementNode {
       figure.className = className;
     }
     figure.setAttribute('contenteditable', 'false');
+    // The figure exists before the image finishes loading. Apply its saved
+    // size here so a suspended ImageComponent cannot miss the initial width.
+    figure.style.width = this.__widthPercent === null ? '' : `${this.__widthPercent}%`;
     return figure;
   }
 
-  updateDOM(): false {
+  updateDOM(prevNode: ImageNode, dom: HTMLElement): false {
+    if (prevNode.__widthPercent !== this.__widthPercent) {
+      dom.style.width = this.__widthPercent === null ? '' : `${this.__widthPercent}%`;
+    }
     return false;
   }
 
