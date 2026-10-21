@@ -204,3 +204,29 @@ describe('sanitize text span whitespace', () => {
     expect(result).not.toContain('white-space');
   });
 });
+
+describe('sanitize video elements', () => {
+  const src = 'https://example.com/video.mp4';
+
+  it('preserves a video player with controls', () => {
+    const input = `<div class="video-file-preview"><video src="${src}" controls preload="metadata" playsinline></video></div>`;
+    const result = sanitize(input);
+    expect(result).toContain('<div class="video-file-preview">');
+    expect(result).toContain(`src="${src}"`);
+    expect(result).toContain('controls');
+    expect(result).toContain('preload="metadata"');
+    expect(result).toContain('playsinline');
+  });
+
+  it('strips autoplay and event handlers', () => {
+    const input = `<video src="${src}" controls autoplay onplay="evil()"></video>`;
+    const result = sanitize(input);
+    expect(result).not.toContain('autoplay');
+    expect(result).not.toContain('onplay');
+  });
+
+  it('strips javascript: sources', () => {
+    const result = sanitize('<video src="javascript:evil()" controls></video>');
+    expect(result).not.toContain('javascript');
+  });
+});

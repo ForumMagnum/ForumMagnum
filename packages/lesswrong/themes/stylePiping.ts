@@ -183,6 +183,15 @@ const youtubePreviewStyles = (_theme: ThemeType) => ({
   }
 })
 
+const videoFilePreviewStyles = (_theme: ThemeType) => ({
+  '& div.video-file-preview video': {
+    display: 'block',
+    width: '100%',
+    maxWidth: '100%',
+    height: 'auto',
+  }
+})
+
 const lwartifactsPreviewStyles = (_theme: ThemeType) => ({
   '& figure.media div[data-oembed-url*="lwartifacts.vercel.app"]': {
     '& iframe': {
@@ -743,6 +752,7 @@ export const postBodyStyles = (theme: ThemeType) => {
     ...estimakerPreviewStyles(theme),
     ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
+    ...videoFilePreviewStyles(theme),
     ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
     ...collapsibleSectionStyles(theme),
