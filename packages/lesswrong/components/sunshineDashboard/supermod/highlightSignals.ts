@@ -19,25 +19,11 @@ import {
   getTitleAndText,
 } from "./contentTextHelpers";
 
-/**
- * The vocabulary that editable highlight rules are written against: named properties of a
- * user, of their content, or (for rejection templates) of the content the moderator has
- * selected.
- *
- * A signal can be computed by arbitrary code. Text signals can be matched with editable regular
- * expressions, and text-list signals test every content item independently. Specialized
- * operations such as duplicate detection are exposed as named signals.
- *
- * A numeric signal returning null means "no value here", and any condition on it fails. That's
- * what keeps the LLM-score rules from firing on content that was never scored.
- */
-
 export interface HighlightSignalContext {
   user: SunshineUsersList;
   moderatorActions: ModeratorActionDisplay[];
   posts: SunshinePostsList[];
   comments: SunshineCommentsList[];
-  /** Only set when evaluating rejection-template rules */
   focusedContent: ContentItem | null;
 }
 
@@ -49,7 +35,6 @@ interface HighlightSignalBase {
   label: string;
   description?: string;
   group: HighlightSignalGroup;
-  /** 'focusedContent' signals are only meaningful for rejection templates */
   scope: 'user' | 'focusedContent';
 }
 
@@ -70,13 +55,12 @@ export interface StringHighlightSignal extends HighlightSignalBase {
 
 export interface StringListHighlightSignal extends HighlightSignalBase {
   type: 'stringList';
-  /** Regex conditions match when any string in this list matches independently. */
   compute: (ctx: HighlightSignalContext) => string[];
 }
 
 export type HighlightSignal = NumericHighlightSignal | BooleanHighlightSignal | StringHighlightSignal | StringListHighlightSignal;
 
-/** Pangram scores at or above this count as "looks LLM-written" for the counting signals */
+// From master's inline `>= .2`. Rejection rules use their own cutoffs.
 export const HIGH_PANGRAM_SCORE = 0.2;
 
 const allContents = (ctx: HighlightSignalContext): ContentItem[] => [...ctx.posts, ...ctx.comments];
@@ -107,7 +91,6 @@ const normalizeForComparison = (text: string) => text.toLowerCase().replace(/\s+
 const isDuplicateFocusedContent = (ctx: HighlightSignalContext): boolean => {
   const focusedContent = ctx.focusedContent;
   if (!focusedContent) return false;
-
   const others = allContents(ctx).filter(content => content._id !== focusedContent._id);
   if (isPost(focusedContent)) {
     const title = normalizeForComparison(focusedContent.title ?? '');
@@ -265,6 +248,7 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
     type: 'number', scope: 'user', group: 'LLM detection',
     label: "Highest LLM score among unapproved content",
     description: "No value (so any condition on it fails) when there is no unapproved content",
+    // Unscored counts as 0 here; level 2 gates on nothing being unscored.
     compute: ctx => maxOrNull(allContents(ctx).filter(isUnapproved).map(content => getPangramScore(content) ?? 0)),
   },
   unapprovedContentMissingPangramScoreCount: {
@@ -404,7 +388,6 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
   },
 } satisfies Record<string, HighlightSignal>;
 
-/** Signal names, as a union, so that the rule defaults are checked against the registry */
 export type HighlightSignalName = keyof typeof HIGHLIGHT_SIGNAL_DEFINITIONS;
 
 export const HIGHLIGHT_SIGNALS: Record<string, HighlightSignal> = HIGHLIGHT_SIGNAL_DEFINITIONS;

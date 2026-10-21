@@ -9,10 +9,6 @@ export const SupermodHighlightRuleOverridesQuery = gql(`
   }
 `);
 
-/**
- * The moderator-edited highlight rules, which shadow the defaults in the code. Apollo dedupes
- * this across the several inbox components that evaluate highlights, so it's one request.
- */
 export function useHighlightRuleOverrides(): { overrides: HighlightRuleOverrides | null, loading: boolean } {
   const { data, loading } = useQuery(SupermodHighlightRuleOverridesQuery, { ssr: false });
   const overrides = useMemo(() => {

@@ -27,10 +27,6 @@ import {
   moderatorActionHighlightColors,
   moderatorActionHighlightLabels,
 } from './actionHighlightRules';
-import {
-  DEFAULT_MESSAGE_TEMPLATE_RULES,
-  DEFAULT_REJECTION_TEMPLATE_RULES,
-} from './templateHighlightRules';
 import HighlightRuleEditor, { type SignalScope } from './HighlightRuleEditor';
 import { SupermodHighlightRuleOverridesQuery } from './useHighlightRuleOverrides';
 
@@ -125,18 +121,15 @@ function getActionEntries(): RuleSectionEntry[] {
   }));
 }
 
-/** Every current template, plus stale default or customized rules whose template was deleted */
 function getTemplateEntries(
-  defaults: Record<string, HighlightRule>,
-  categoryOverrides: Record<string, HighlightRule>,
+  categoryRules: Record<string, HighlightRule>,
   templates: HighlightRuleTemplate[],
   templatesLoaded: boolean,
 ): RuleSectionEntry[] {
   const templatesById = new Map(templates.map(template => [template._id, template]));
   const templateIds = [...new Set([
     ...templates.map(template => template._id),
-    ...Object.keys(defaults),
-    ...Object.keys(categoryOverrides),
+    ...Object.keys(categoryRules),
   ])];
   return templateIds.map(templateId => {
     const template = templatesById.get(templateId);
@@ -172,6 +165,14 @@ function emptyRule(): HighlightRule {
   return { enabled: true, groups: [] };
 }
 
+// Templates with no rule are the long tail of each list, so they sort last.
+function withRulesFirst(
+  entries: RuleSectionEntry[],
+  hasRule: (key: string) => boolean,
+): RuleSectionEntry[] {
+  return [...entries.filter(entry => hasRule(entry.key)), ...entries.filter(entry => !hasRule(entry.key))];
+}
+
 function parseOverridesOrEmpty(value: unknown): HighlightRuleOverrides {
   if (!value) return emptyHighlightRuleOverrides();
   try {
@@ -192,7 +193,7 @@ const RuleSection = ({category, defaults, entries, scope, supportsLevel2, collap
   overrides: HighlightRuleOverrides,
   onChange: (overrides: HighlightRuleOverrides) => void,
 }) => <>
-  {entries.map(entry => {
+  {withRulesFirst(entries, key => !!(overrides[category][key] ?? defaults[key])).map(entry => {
     const rule = overrides[category][entry.key] ?? defaults[entry.key] ?? emptyRule();
     return <div key={entry.key} id={entry.anchor}>
       <HighlightRuleEditor
@@ -232,7 +233,6 @@ const HighlightRuleEditorPage = () => {
   });
   const [saveOverrides, { loading: saving, error: saveError }] = useMutation(SetSupermodHighlightRuleOverridesMutation);
 
-  // `draft` is null until something is edited, so a save elsewhere shows up until then
   const [draft, setDraft] = useState<HighlightRuleOverrides | null>(null);
   const savedOverrides = useMemo(() => parseOverridesOrEmpty(data?.supermodHighlightRuleOverrides), [data]);
   const overrides = draft ?? savedOverrides;
@@ -297,8 +297,8 @@ const HighlightRuleEditorPage = () => {
     <SectionTitle title="Message Templates" />
     <RuleSection
       category="messageTemplates"
-      defaults={DEFAULT_MESSAGE_TEMPLATE_RULES}
-      entries={getTemplateEntries(DEFAULT_MESSAGE_TEMPLATE_RULES, overrides.messageTemplates, messageTemplates, !!messageTemplateData)}
+      defaults={{}}
+      entries={getTemplateEntries(overrides.messageTemplates, messageTemplates, !!messageTemplateData)}
       scope="user"
       collapsible
       expandedAnchor={targetTemplateId}
@@ -309,8 +309,8 @@ const HighlightRuleEditorPage = () => {
     <SectionTitle title="Rejection Templates" />
     <RuleSection
       category="rejectionTemplates"
-      defaults={DEFAULT_REJECTION_TEMPLATE_RULES}
-      entries={getTemplateEntries(DEFAULT_REJECTION_TEMPLATE_RULES, overrides.rejectionTemplates, rejectionTemplates, !!rejectionTemplateData)}
+      defaults={{}}
+      entries={getTemplateEntries(overrides.rejectionTemplates, rejectionTemplates, !!rejectionTemplateData)}
       scope="all"
       collapsible
       expandedAnchor={targetTemplateId}

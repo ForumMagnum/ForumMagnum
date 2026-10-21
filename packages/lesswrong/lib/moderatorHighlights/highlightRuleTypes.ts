@@ -1,15 +1,4 @@
-/**
- * Serializable representation of the supermod highlight rules (which moderator actions,
- * message templates and rejection templates get called out for a given user).
- *
- * Rules are expressed as comparisons against named signals, including regular-expression
- * matches against text signals, so they can be edited from /admin/supermodHighlights without
- * a deploy. Signals may encapsulate specialized computations such as duplicate detection while
- * keeping the rule itself comprehensible.
- *
- * The defaults live in code; this format is only used for the sparse set of overrides
- * stored in the DatabaseMetadata row named by HIGHLIGHT_RULE_OVERRIDES_METADATA_NAME.
- */
+
 
 export const HIGHLIGHT_RULE_OVERRIDES_METADATA_NAME = 'supermodHighlightRuleOverrides';
 
@@ -58,26 +47,18 @@ export const highlightOperatorLabels: Record<HighlightConditionOperator, string>
 export interface HighlightCondition {
   signal: string;
   operator: HighlightConditionOperator;
-  /** A threshold for numeric operators, a pattern for regex operators, and null for booleans. */
   value: number | string | null;
-  /** Only meaningful for the operators that count distinct regex matches or matching items. */
   minimumMatches?: number;
-  /** Optional plain-English description of what the condition detects. */
+  /** Plain-English description shown in highlight tooltips. */
   explanation?: string;
 }
 
 export interface HighlightRule {
   enabled: boolean;
-  /** The rule matches if any group matches. A group matches if all of its conditions pass. */
   groups: HighlightCondition[][];
-  /**
-   * Moderator actions only. A matching action is highlighted at level 1 unless one of these
-   * groups also matches, which promotes it to level 2 (see actionHighlightRules.ts).
-   */
   level2Groups?: HighlightCondition[][];
 }
 
-/** Sparse: only edited rules appear here, keyed by action name or moderation-template ID. */
 export type HighlightRuleOverrides = Record<HighlightRuleCategory, Record<string, HighlightRule>>;
 
 export interface HighlightRuleTemplateReference {
@@ -86,11 +67,6 @@ export interface HighlightRuleTemplateReference {
   collectionName: string;
 }
 
-/**
- * A moderator action can be highlighted at either of two levels:
- * - Level 1: it shows up above the fold in the collapsed row, and gets a subtle outline expanded.
- * - Level 2: it also gets a per-action colored outline in both views.
- */
 export type ModeratorActionHighlightLevel = 1 | 2;
 
 export function emptyHighlightRuleOverrides(): HighlightRuleOverrides {
@@ -116,14 +92,14 @@ function migrateLegacyTemplateRuleCategory(
       migrated[templateIdsByLegacyName.get(key) ?? key] = rule;
     }
   }
-  // If both formats exist, the already-ID-keyed rule is authoritative.
+
   for (const [key, rule] of Object.entries(rules)) {
     if (templateIds.has(key)) migrated[key] = rule;
   }
   return migrated;
 }
 
-/** Converts stored overrides from the old name-keyed format while retaining unknown stale keys. */
+/** Only rescues dev rows from the old name-keyed branch; safe to delete. */
 export function migrateLegacyTemplateRuleOverrideKeys(
   overrides: HighlightRuleOverrides,
   templates: HighlightRuleTemplateReference[],
@@ -148,7 +124,6 @@ export function isDistinctRegexHighlightOperator(operator: HighlightConditionOpe
     || operator === 'hasAtLeastDistinctRegexMatchesCaseSensitive';
 }
 
-/** Counts how many strings in a text-list signal match, rather than requiring only one to match. */
 export function isItemCountRegexHighlightOperator(operator: HighlightConditionOperator): operator is RegexHighlightOperator {
   return operator === 'matchesRegexInAtLeastItems'
     || operator === 'matchesRegexInAtLeastItemsCaseSensitive';
@@ -243,7 +218,6 @@ function serializeRule(rule: HighlightRule): JsonRecord {
   };
 }
 
-/** Drops anything not part of the format, so only known fields reach the database */
 export function serializeHighlightRuleOverrides(overrides: HighlightRuleOverrides): JsonRecord {
   const serialized: JsonRecord = {};
   for (const category of highlightRuleCategories) {
@@ -256,7 +230,6 @@ export function serializeHighlightRuleOverrides(overrides: HighlightRuleOverride
   return serialized;
 }
 
-/** Throws on anything malformed; callers reading from the database should catch. */
 export function parseHighlightRuleOverrides(value: unknown): HighlightRuleOverrides {
   if (!isPlainObject(value)) throw new Error("Highlight rule overrides must be an object");
   const parsed = emptyHighlightRuleOverrides();

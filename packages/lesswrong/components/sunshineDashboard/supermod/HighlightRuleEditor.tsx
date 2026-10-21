@@ -438,10 +438,6 @@ const ConditionGroupsEditor = ({groups, scope, emptyNote, onChange}: {
   </div>;
 };
 
-/**
- * Editor for one rule: the conditions that make it highlight, plus (for moderator actions)
- * the conditions that promote it from level 1 to level 2.
- */
 export const HighlightRuleEditor = ({title, description, rule, scope, isCustomized, hasDefault, warning, supportsLevel2, collapsible, initiallyExpanded, onChange, onReset}: {
   title: string,
   description?: string,
@@ -480,7 +476,7 @@ export const HighlightRuleEditor = ({title, description, rule, scope, isCustomiz
         : <span className={classes.cardTitle}>{title}</span>}
       {warning && <span className={classNames(classes.badge, classes.warningBadge)}>{warning}</span>}
       {!hasRule && <span className={classes.badge}>No rule</span>}
-      {isCustomized && <span className={classNames(classes.badge, classes.customizedBadge)}>Customized</span>}
+      {isCustomized && hasDefault && <span className={classNames(classes.badge, classes.customizedBadge)}>Customized</span>}
       {hasRule && <label className={classes.enabledToggle}>
         <input
           type="checkbox"

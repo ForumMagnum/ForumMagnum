@@ -14,8 +14,6 @@ import {
 } from "@/lib/moderatorHighlights/highlightRuleTypes";
 import { HIGHLIGHT_SIGNALS, type HighlightSignalContext, type HighlightSignalName } from "./highlightSignals";
 
-/** Evaluation of the editable (threshold-shaped) highlight rules. */
-
 function compareNumbers(operator: NumericHighlightOperator, signalValue: number, target: number): boolean {
   switch (operator) {
     case 'gte': return signalValue >= target;
@@ -26,6 +24,7 @@ function compareNumbers(operator: NumericHighlightOperator, signalValue: number,
   }
 }
 
+// Built per call: a cached /g regex's lastIndex would break .test() on lists.
 function regexMatchesValue(
   operator: RegexHighlightOperator,
   pattern: string,
@@ -70,13 +69,11 @@ function evaluateCondition(condition: HighlightCondition, ctx: HighlightSignalCo
         condition.minimumMatches,
         signalValue,
       );
-      // Item-count operators ask how many of the strings match; the rest ask whether any does.
       if (isItemCountRegexHighlightOperator(operator)) {
         return signalValues.filter(matchesValue).length >= (condition.minimumMatches ?? 1);
       }
       return signalValues.some(matchesValue);
     } catch (error) {
-      // Invalid saved patterns should fail closed rather than breaking every rule evaluation.
       // eslint-disable-next-line no-console
       console.error(`Highlight rule has an invalid regex: ${condition.value}`, error);
       return false;
@@ -84,17 +81,11 @@ function evaluateCondition(condition: HighlightCondition, ctx: HighlightSignalCo
   }
   if (!isNumericHighlightOperator(condition.operator) || typeof condition.value !== 'number') return false;
   const signalValue = signal.compute(ctx);
-  // A signal with no value never satisfies a condition, so that e.g. unscored content
-  // doesn't count as scoring below an LLM-score threshold
   if (signalValue === null) return false;
   return compareNumbers(condition.operator, signalValue, condition.value);
 }
 
-/**
- * Groups are alternatives: the rule matches if any of them matches, and a group matches when
- * every condition in it passes. An empty list of groups never matches; a group with no
- * conditions always matches.
- */
+// No groups never matches; an empty group always matches (see ALWAYS).
 function anyGroupMatches(groups: HighlightCondition[][], ctx: HighlightSignalContext): boolean {
   return groups.some(group => group.every(condition => evaluateCondition(condition, ctx)));
 }
@@ -111,7 +102,6 @@ export function evaluateActionHighlightRule(
   return anyGroupMatches(rule.level2Groups ?? [], ctx) ? 2 : 1;
 }
 
-/** Overrides shadow defaults wholesale, keyed by moderator action name or template ID */
 export function resolveHighlightRules(
   defaults: Record<string, HighlightRule>,
   overrides: HighlightRuleOverrides | null | undefined,
@@ -141,7 +131,6 @@ export function regexCondition(
   return { signal, operator, value: pattern, ...(explanation ? { explanation } : {}) };
 }
 
-/** Matches when at least `minimumItems` of a text-list signal's strings match the pattern. */
 export function matchingItemsRegexCondition(
   signal: HighlightSignalName,
   pattern: string,
@@ -176,5 +165,5 @@ export function distinctRegexMatchesCondition(
   };
 }
 
-/** For rules that should always reach level 2 once they match at all */
+/** One empty group, i.e. always matches. */
 export const ALWAYS: HighlightCondition[][] = [[]];

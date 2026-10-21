@@ -8,12 +8,6 @@ import {
   type HighlightRuleOverrides,
 } from "@/lib/moderatorHighlights/highlightRuleTypes";
 
-/**
- * Storage for moderator-edited supermod highlight rules. These are a sparse set of overrides
- * on top of the defaults in the code, kept in a single DatabaseMetadata row so that editing
- * them doesn't need a schema change.
- */
-
 export const supermodHighlightRuleGqlTypeDefs = gql`
   extend type Query {
     supermodHighlightRuleOverrides: JSON
@@ -42,7 +36,7 @@ export const supermodHighlightRuleGqlQueries = {
     try {
       parsed = parseHighlightRuleOverrides(row.value);
     } catch {
-      // Preserve the previous behavior: clients ignore malformed stored rules and use defaults.
+      // Client falls back to defaults; the editor's next save overwrites this.
       return row.value;
     }
     const templates = await getModerationTemplateReferences(context);
@@ -55,8 +49,7 @@ export const supermodHighlightRuleGqlMutations = {
     if (!userIsAdminOrMod(context.currentUser)) {
       throw new Error("You must be a moderator to edit the supermod highlight rules");
     }
-    // Validating here (rather than trusting the editor) keeps a malformed write from breaking
-    // highlights for the whole moderation team
+
     const validated: HighlightRuleOverrides = parseHighlightRuleOverrides(overrides);
     const templates = await getModerationTemplateReferences(context);
     const migrated = migrateLegacyTemplateRuleOverrideKeys(validated, templates);
