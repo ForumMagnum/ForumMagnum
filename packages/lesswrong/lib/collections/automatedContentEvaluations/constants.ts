@@ -1,5 +1,5 @@
 // Pangram scores above this get autorejected.
-export const PANGRAM_AUTOREJECT_THRESHOLD = 0.4;
+export const PANGRAM_AUTOREJECT_THRESHOLD = 0.3;
 
 /**
  * Cap on how much text we send to Pangram. Longer texts are truncated to keep
@@ -11,7 +11,7 @@ export type PangramModel = "pangram3" | "pangram4";
 
 export const PANGRAM_MODELS: readonly PangramModel[] = ["pangram3", "pangram4"];
 
-export const DEFAULT_PANGRAM_MODEL: PangramModel = "pangram3";
+export const DEFAULT_PANGRAM_MODEL: PangramModel = "pangram4";
 
 export const pangramModelLabels: Record<PangramModel, string> = {
   pangram3: "Pangram 3 (cheap)",

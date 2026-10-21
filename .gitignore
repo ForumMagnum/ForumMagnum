@@ -82,6 +82,9 @@ public/lesswrong-editor/obj
 ckEditor/obj
 
 packages/lesswrong/server/research/sandbox/dist/
+# Built from the vendored Excalidraw source by scripts/postinstall.sh
+excalidraw/dist/
+public/excalidraw-assets/
 
 # Created by @shelf/jest-mongodb
 globalConfig.json

@@ -98,6 +98,13 @@ export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, ac
   return false
 }
 
+const MINIMUM_TAG_RENAME_KARMA = 1;
+
+export const userCanRenameTag = (user: UsersCurrent | DbUser | null): boolean => {
+  if (!user) return false;
+  return user.karma >= MINIMUM_TAG_RENAME_KARMA;
+}
+
 export const userCanModerateSubforum = (user: UsersCurrent | DbUser | null, tag: { subforumModeratorIds: string[] }) => {
   if (!user) return false
   if (user.isAdmin || user?.groups?.includes("sunshineRegiment")) return true

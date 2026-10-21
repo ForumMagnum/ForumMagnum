@@ -27,6 +27,9 @@ choose which new ReviewWinners should be in the top 12 for each category (probab
 - yarn repl prod packages/lesswrong/server/scripts/generativeModels/autoSpotlight.ts 'createSpotlights()' 
 - go to lesswrong.com/spotlights?drafts=true to review spotlights, pick the best one. When you submit one it'll archive the other ones and undraft it
 
+4. Publish the year on /bestoflesswrong
+- add the year to publishedReviewYearsArray, remove it from predictedReviewYearsArray (adding the next year), and update BEST_OF_LESSWRONG_PUBLISH_YEAR
+
 */
 
 export const reviewWinnerCategories = new TupleSet(['rationality', 'modeling', 'optimization', 'ai strategy', 'ai safety', 'practical'] as const);
@@ -34,10 +37,10 @@ export type ReviewWinnerCategory = UnionOf<typeof reviewWinnerCategories>;
 
 /** Review year is the year under review, not the year in which the review takes place. */
 export const REVIEW_YEAR = 2024
-export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2023
+export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2024
 
-const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022, 2023] as const;
-const predictedReviewYearsArray = [2024, 2025] as const;
+const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022, 2023, 2024] as const;
+const predictedReviewYearsArray = [2025, 2026] as const;
 export const publishedReviewYears = new TupleSet(publishedReviewYearsArray);
 export const reviewYears = new TupleSet([...publishedReviewYears, REVIEW_YEAR] as const);
 export const predictedReviewYears = new TupleSet(predictedReviewYearsArray);

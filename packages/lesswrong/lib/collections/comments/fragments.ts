@@ -304,3 +304,30 @@ export const CommentsMarkdownFragment = gql(`
     contents { agentMarkdown plaintextMainText }
   }
 `)
+
+export const AiDigestEmailComment = gql(`
+fragment AiDigestEmailComment on Comment {
+  _id
+  postedAt
+  parentCommentId
+  shortform
+  tagCommentType
+  contents {
+    plaintextMainText
+  }
+  user {
+    _id
+    displayName
+  }
+  post {
+    _id
+    slug
+    title
+  }
+  tag {
+    _id
+    slug
+    name
+  }
+}
+`);

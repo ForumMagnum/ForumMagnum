@@ -450,6 +450,31 @@ export const NewMessageNotification = createNotificationType({
   causesRedBadge: () => true,
 });
 
+// Someone reacted to a private message you sent. Shares the private-message
+// notification setting, but is only ever delivered on-site (created with
+// noEmail).
+export const NewMessageReactionNotification = createNotificationType({
+  name: "newMessageReaction",
+  userSettingField: "notificationPrivateMessage",
+  async getMessage({documentType, documentId, extraData, context}: GetMessageProps) {
+    const { Users, Conversations } = context;
+
+    const message = await getDocument(documentType, documentId, context) as DbMessage;
+    const conversation = await Conversations.findOne(message.conversationId);
+    const reactor = extraData?.reactorId ? await Users.findOne(extraData.reactorId) : null;
+    const reactorName = reactor ? userGetDisplayName(reactor, context.forumType) : 'Someone';
+    const reactLabel = extraData?.reactLabel ? ` "${extraData.reactLabel}"` : '';
+    return `${reactorName} reacted${reactLabel} to your message` + (conversation?.title ? (' in the conversation ' + conversation.title) : '');
+  },
+  Display: ({notification, LazyUser}) => {
+    const reactorId = notification.extraData?.reactorId;
+    const reactLabel = notification.extraData?.reactLabel;
+    return <>
+      {reactorId ? <LazyUser userId={reactorId} /> : 'Someone'} reacted{reactLabel ? ` "${reactLabel}"` : ''} to your <Link to={notification.link ?? '/inbox'}>message</Link>
+    </>;
+  },
+});
+
 export const WrappedNotification = createNotificationType({
   name: "wrapped",
   userSettingField: null,
@@ -722,6 +747,21 @@ export const NewMentionNotification = createNotificationType({
   },
 })
 
+export const AiDigestReadyNotification = createNotificationType({
+  name: "aiDigestReady",
+  // No user setting: this only fires in response to a generation the user
+  // explicitly requested, so there's nothing to opt out of.
+  userSettingField: null,
+  allowedChannels: ["onsite"],
+  async getMessage({extraData}: GetMessageProps) {
+    const subject = extraData?.subject;
+    return subject
+      ? `Your tailored recommendations are ready: "${subject}"`
+      : "Your tailored recommendations are ready";
+  },
+  getLink: () => "/contentForYou",
+});
+
 const notificationTypesArray = [
   NewPostNotification,
   NewUserCommentNotification,
@@ -746,6 +786,7 @@ const notificationTypesArray = [
   NewReplyToYouNotification,
   NewUserNotification,
   NewMessageNotification,
+  NewMessageReactionNotification,
   WrappedNotification,
   EmailVerificationRequiredNotification,
   PostSharedWithUserNotification,
@@ -763,6 +804,7 @@ const notificationTypesArray = [
   CoauthorAcceptNotification,
   NewMentionNotification,
   TypoSuggestionNotification,
+  AiDigestReadyNotification,
 ];
 
 export type NotificationTypesByName = {

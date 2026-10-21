@@ -22,6 +22,7 @@ import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.
 import { initClientOnce } from '@/client/initClient';
 import { TimeProvider } from '@/lib/utils/TimeProvider';
 import { ForumTypeProvider } from '@/components/hooks/useForumType';
+import { TimezoneWrapper } from '@/components/common/withTimezone';
 import type { ForumTypeString } from '@/lib/instanceSettings';
 
 if (isClient) {
@@ -138,10 +139,11 @@ function useLocationHash() {
   return hash;
 }
 
-const ClientAppGenerator = ({ abTestGroupsUsed, requestId, forumType, children }: {
+const ClientAppGenerator = ({ abTestGroupsUsed, requestId, forumType, ssrTimezone, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
   requestId: string,
   forumType: ForumTypeString,
+  ssrTimezone: string | null,
   children: React.ReactNode,
 }) => {
   return <ForumTypeProvider forumType={forumType}>
@@ -155,9 +157,11 @@ const ClientAppGenerator = ({ abTestGroupsUsed, requestId, forumType, children }
                   <HelmetProvider>
                     <LocationContextProvider>
                       <MessageContextProvider>
-                        <Layout>
-                          {children}
-                        </Layout>
+                        <TimezoneWrapper ssrTimezone={ssrTimezone}>
+                          <Layout>
+                            {children}
+                          </Layout>
+                        </TimezoneWrapper>
                       </MessageContextProvider>
                     </LocationContextProvider>
                   </HelmetProvider>

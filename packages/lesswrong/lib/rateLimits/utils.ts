@@ -31,7 +31,7 @@ export function getMaxAutoLimitHours(rateLimits?: Array<AutoRateLimit>) {
 
 export function getStrictestRateLimitInfo(rateLimits: Array<RateLimitInfo|null>): RateLimitInfo | null {
   const nonNullRateLimits = rateLimits.filter((rateLimit): rateLimit is RateLimitInfo => rateLimit !== null)
-  const sortedRateLimits = nonNullRateLimits.sort((a, b) => b.nextEligible.getTime() - a.nextEligible.getTime());
+  const sortedRateLimits = nonNullRateLimits.sort((a, b) => (b.nextEligible?.getTime() ?? Infinity) - (a.nextEligible?.getTime() ?? Infinity));
   return sortedRateLimits[0] ?? null;
 }
 
@@ -40,7 +40,7 @@ export function getManualRateLimitInfo(userRateLimit: DbUserRateLimit|null, docu
   const nextEligible = userRateLimit.actionsPerInterval === 0
     ? userRateLimit.endedAt
     : getNextAbleToSubmitDate(documents, userRateLimit.intervalUnit, userRateLimit.intervalLength, userRateLimit.actionsPerInterval)
-  if (!nextEligible) return null
+  if (!nextEligible && userRateLimit.actionsPerInterval !== 0) return null
   return {
     nextEligible,
     rateLimitType: "moderator",

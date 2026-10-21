@@ -1,267 +1,232 @@
-// /**
-//  * Copyright (c) Meta Platforms, Inc. and affiliates.
-//  *
-//  * This source code is licensed under the MIT license found in the
-//  * LICENSE file in the root directory of this source tree.
-//  *
-//  */
+// Vendored from: https://github.com/facebook/lexical/commit/2e0f8fa65f7c9a389603008671d120bbd1f71d7a
+"use client";
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
 
-// import type {ExcalidrawInitialElements} from '../../ui/ExcalidrawModal';
-// // @ts-ignore - @excalidraw/excalidraw types not installed yet
-// import type {AppState, BinaryFiles} from '@excalidraw/excalidraw/types';
-// import type {NodeKey} from 'lexical';
-// import React, { type JSX } from 'react';
+// LessWrong modifications from upstream:
+//  * Displays the SVG stored on the node (see ExcalidrawImage), so displaying a
+//    diagram doesn't require loading Excalidraw.
+//  * The modal for editing the diagram is owned by ExcalidrawPlugin, and
+//    opened with EDIT_EXCALIDRAW_COMMAND.
+//  * Uses our (percent-based) ImageResizer, and JSS styles instead of the
+//    playground's global CSS.
+//  * A diagram without scene data (eg one that was imported from sanitized
+//    HTML) is displayed but can't be opened for editing.
 
-// import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-// import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
-// import {useLexicalNodeSelection} from '@lexical/react/useLexicalNodeSelection';
-// import {mergeRegister} from '@lexical/utils';
-// import {
-//   $getNodeByKey,
-//   CLICK_COMMAND,
-//   COMMAND_PRIORITY_LOW,
-//   isDOMNode,
-// } from 'lexical';
-// import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import type {NodeKey} from 'lexical';
+import type {JSX} from 'react';
 
-// import {defineStyles, useStyles} from '@/components/hooks/useStyles';
-// import classNames from 'classnames';
-// import ExcalidrawModal from '../../ui/ExcalidrawModal';
-// import ImageResizer from '../../ui/ImageResizer';
-// import {$isExcalidrawNode} from '.';
-// import ExcalidrawImage from './ExcalidrawImage';
-// import {PencilFillIcon} from '../../icons/PencilFillIcon';
+import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
+import {useLexicalNodeSelection} from '@lexical/react/useLexicalNodeSelection';
+import {mergeRegister} from '@lexical/utils';
+import {
+  $getNodeByKey,
+  CLICK_COMMAND,
+  COMMAND_PRIORITY_LOW,
+  isDOMNode,
+} from 'lexical';
+import * as React from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import classNames from 'classnames';
 
-// const styles = defineStyles('LexicalExcalidrawComponent', (theme: ThemeType) => ({
-//   excalidrawButton: {
-//     border: 0,
-//     padding: 0,
-//     margin: 0,
-//     backgroundColor: 'transparent',
-//   },
-//   selected: {
-//     outline: `2px solid ${theme.palette.primary.main}`,
-//     userSelect: 'none',
-//   },
-//   imageEditButton: {
-//     border: `1px solid ${theme.palette.greyAlpha(0.3)}`,
-//     borderRadius: 5,
-//     backgroundSize: 16,
-//     backgroundPosition: 'center',
-//     backgroundRepeat: 'no-repeat',
-//     width: 35,
-//     height: 35,
-//     verticalAlign: '-0.25em',
-//     position: 'absolute',
-//     right: 4,
-//     top: 4,
-//     cursor: 'pointer',
-//     userSelect: 'none',
-//     display: 'flex',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     '&:hover': {
-//       backgroundColor: theme.palette.lexicalEditor.editButtonHover,
-//     },
-//   },
-// }));
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { EXCALIDRAW_DARK_MODE_FILTER } from '@/lib/lexical/excalidrawDiagrams';
+import ImageResizer from '../../ui/ImageResizer';
+import { PencilFillIcon } from '../../icons/PencilFillIcon';
+import { EDIT_EXCALIDRAW_COMMAND } from '../../plugins/ExcalidrawPlugin/commands';
+import {$isExcalidrawNode} from '.';
+import ExcalidrawImage from './ExcalidrawImage';
 
-// export default function ExcalidrawComponent({
-//   nodeKey,
-//   data,
-//   width,
-//   height,
-// }: {
-//   data: string;
-//   nodeKey: NodeKey;
-//   width: 'inherit' | number;
-//   height: 'inherit' | number;
-// }): JSX.Element {
-//   const classes = useStyles(styles);
-//   const [editor] = useLexicalComposerContext();
-//   const isEditable = useLexicalEditable();
-//   const [isModalOpen, setModalOpen] = useState<boolean>(
-//     data === '[]' && editor.isEditable(),
-//   );
-//   const imageContainerRef = useRef<HTMLDivElement | null>(null);
-//   const buttonRef = useRef<HTMLButtonElement | null>(null);
-//   const [isSelected, setSelected, clearSelection] =
-//     useLexicalNodeSelection(nodeKey);
-//   const [isResizing, setIsResizing] = useState<boolean>(false);
+const styles = defineStyles('LexicalExcalidrawComponent', (theme: ThemeType) => ({
+  // This is the element that ImageResizer resizes (it looks for a <figure>)
+  figure: {
+    position: 'relative',
+    width: 'fit-content',
+    maxWidth: '100%',
+    margin: '1em auto',
+  },
+  button: {
+    display: 'block',
+    width: '100%',
+    border: 0,
+    padding: 0,
+    backgroundColor: 'transparent',
+    cursor: 'default',
+  },
+  selected: {
+    outline: `2px solid ${theme.palette.lexicalEditor.focusRing}`,
+    userSelect: 'none',
+  },
+  image: {
+    '& svg': {
+      display: 'block',
+      maxWidth: '100%',
+      height: 'auto',
+      ...(theme.dark && {
+        filter: EXCALIDRAW_DARK_MODE_FILTER,
+      }),
+    },
+  },
+  resizedImage: {
+    '& svg': {
+      width: '100%',
+    },
+  },
+  editButton: {
+    position: 'absolute',
+    right: 4,
+    top: 4,
+    width: 35,
+    height: 35,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: `1px solid ${theme.palette.greyAlpha(0.3)}`,
+    borderRadius: 5,
+    backgroundColor: theme.palette.panelBackground.default,
+    color: theme.palette.grey[800],
+    cursor: 'pointer',
+    userSelect: 'none',
+    '&:hover': {
+      backgroundColor: theme.palette.lexicalEditor.editButtonHover,
+    },
+  },
+}));
 
-//   useEffect(() => {
-//     if (!isEditable) {
-//       if (isSelected) {
-//         clearSelection();
-//       }
-//       return;
-//     }
-//     return mergeRegister(
-//       editor.registerCommand(
-//         CLICK_COMMAND,
-//         (event: MouseEvent) => {
-//           const buttonElem = buttonRef.current;
-//           const eventTarget = event.target;
+export default function ExcalidrawComponent({
+  nodeKey,
+  data,
+  svg,
+  widthPercent,
+}: {
+  data: string;
+  nodeKey: NodeKey;
+  svg: string;
+  widthPercent: number | null;
+}): JSX.Element | null {
+  const classes = useStyles(styles);
+  const [editor] = useLexicalComposerContext();
+  const isEditable = useLexicalEditable();
+  const imageContainerRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const [isSelected, setSelected, clearSelection] =
+    useLexicalNodeSelection(nodeKey);
+  const [isResizing, setIsResizing] = useState<boolean>(false);
+  // Diagrams imported without their scene data can't be edited
+  const hasSceneData = data !== '[]';
 
-//           if (isResizing) {
-//             return true;
-//           }
+  const openModal = useCallback(() => {
+    editor.dispatchCommand(EDIT_EXCALIDRAW_COMMAND, nodeKey);
+  }, [editor, nodeKey]);
 
-//           if (
-//             buttonElem !== null &&
-//             isDOMNode(eventTarget) &&
-//             buttonElem.contains(eventTarget)
-//           ) {
-//             if (!event.shiftKey) {
-//               clearSelection();
-//             }
-//             setSelected(!isSelected);
-//             if (event.detail > 1) {
-//               setModalOpen(true);
-//             }
-//             return true;
-//           }
+  useEffect(() => {
+    if (!isEditable) {
+      if (isSelected) {
+        clearSelection();
+      }
+      return;
+    }
+    return mergeRegister(
+      editor.registerCommand(
+        CLICK_COMMAND,
+        (event: MouseEvent) => {
+          const buttonElem = buttonRef.current;
+          const eventTarget = event.target;
 
-//           return false;
-//         },
-//         COMMAND_PRIORITY_LOW,
-//       ),
-//     );
-//   }, [clearSelection, editor, isSelected, isResizing, setSelected, isEditable]);
+          if (isResizing) {
+            return true;
+          }
 
-//   const deleteNode = useCallback(() => {
-//     setModalOpen(false);
-//     return editor.update(() => {
-//       const node = $getNodeByKey(nodeKey);
-//       if (node) {
-//         node.remove();
-//       }
-//     });
-//   }, [editor, nodeKey]);
+          if (
+            buttonElem !== null &&
+            isDOMNode(eventTarget) &&
+            buttonElem.contains(eventTarget)
+          ) {
+            if (!event.shiftKey) {
+              clearSelection();
+            }
+            setSelected(!isSelected);
+            if (event.detail > 1 && hasSceneData) {
+              openModal();
+            }
+            return true;
+          }
 
-//   const setData = (
-//     els: ExcalidrawInitialElements,
-//     aps: Partial<AppState>,
-//     fls: BinaryFiles,
-//   ) => {
-//     return editor.update(() => {
-//       const node = $getNodeByKey(nodeKey);
-//       if ($isExcalidrawNode(node)) {
-//         if ((els && els.length > 0) || Object.keys(fls).length > 0) {
-//           node.setData(
-//             JSON.stringify({
-//               appState: aps,
-//               elements: els,
-//               files: fls,
-//             }),
-//           );
-//         } else {
-//           node.remove();
-//         }
-//       }
-//     });
-//   };
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+    );
+  }, [clearSelection, editor, isSelected, isResizing, setSelected, isEditable, hasSceneData, openModal]);
 
-//   const onResizeStart = () => {
-//     setIsResizing(true);
-//   };
+  const onResizeStart = () => {
+    setIsResizing(true);
+  };
 
-//   const onResizeEnd = (_nextWidthPercent: number | null) => {
-//     // Delay hiding the resize bars for click case
-//     setTimeout(() => {
-//       setIsResizing(false);
-//     }, 200);
+  const onResizeEnd = (nextWidthPercent: number | null) => {
+    // Delay hiding the resize bars for click case
+    setTimeout(() => {
+      setIsResizing(false);
+    }, 200);
 
-//     editor.update(() => {
-//       const node = $getNodeByKey(nodeKey);
+    editor.update(() => {
+      const node = $getNodeByKey(nodeKey);
 
-//       if ($isExcalidrawNode(node)) {
-//         const container = imageContainerRef.current;
-//         if (container) {
-//           const {width: nextWidth, height: nextHeight} =
-//             container.getBoundingClientRect();
-//           node.setWidth(Math.round(nextWidth));
-//           node.setHeight(Math.round(nextHeight));
-//         } else {
-//           node.setWidth('inherit');
-//           node.setHeight('inherit');
-//         }
-//       }
-//     });
-//   };
+      if ($isExcalidrawNode(node)) {
+        node.setWidthPercent(nextWidthPercent);
+      }
+    });
+  };
 
-//   const openModal = useCallback(() => {
-//     setModalOpen(true);
-//   }, []);
+  if (svg === '') {
+    return null;
+  }
 
-//   const {
-//     elements = [],
-//     files = {},
-//     appState = {},
-//   } = useMemo(() => JSON.parse(data), [data]);
-
-//   const closeModal = useCallback(() => {
-//     setModalOpen(false);
-//     if (elements.length === 0) {
-//       editor.update(() => {
-//         const node = $getNodeByKey(nodeKey);
-//         if (node) {
-//           node.remove();
-//         }
-//       });
-//     }
-//   }, [editor, nodeKey, elements.length]);
-
-//   return (
-//     <>
-//       {isEditable && isModalOpen && (
-//         <ExcalidrawModal
-//           initialElements={elements}
-//           initialFiles={files}
-//           initialAppState={appState}
-//           isShown={isModalOpen}
-//           onDelete={deleteNode}
-//           onClose={closeModal}
-//           onSave={(els, aps, fls) => {
-//             setData(els, aps, fls);
-//             setModalOpen(false);
-//           }}
-//           closeOnClickOutside={false}
-//         />
-//       )}
-//       {elements.length > 0 && (
-//         <button
-//           ref={buttonRef}
-//           className={classNames(classes.excalidrawButton, isSelected && classes.selected)}>
-//           <ExcalidrawImage
-//             imageContainerRef={imageContainerRef}
-//             className="image"
-//             elements={elements}
-//             files={files}
-//             appState={appState}
-//             width={width}
-//             height={height}
-//           />
-//           {isSelected && isEditable && (
-//             <div
-//               className={classes.imageEditButton}
-//               role="button"
-//               tabIndex={0}
-//               onMouseDown={(event) => event.preventDefault()}
-//               onClick={openModal}>
-//               <PencilFillIcon />
-//             </div>
-//           )}
-//           {(isSelected || isResizing) && isEditable && (
-//             <ImageResizer
-//               imageRef={imageContainerRef}
-//               editor={editor}
-//               onResizeStart={onResizeStart}
-//               onResizeEnd={onResizeEnd}
-//             />
-//           )}
-//         </button>
-//       )}
-//     </>
-//   );
-// }
+  return (
+    <figure
+      className={classes.figure}
+      style={widthPercent !== null ? {width: `${widthPercent}%`} : undefined}>
+      {/* type="button", so that clicking it doesn't submit a form that the
+          editor is inside of */}
+      <button
+        ref={buttonRef}
+        type="button"
+        className={classNames(classes.button, isSelected && classes.selected)}>
+        <ExcalidrawImage
+          imageContainerRef={imageContainerRef}
+          className={classNames(
+            classes.image,
+            widthPercent !== null && classes.resizedImage,
+          )}
+          svg={svg}
+        />
+      </button>
+      {isSelected && isEditable && hasSceneData && (
+        <div
+          className={classes.editButton}
+          role="button"
+          aria-label="Edit diagram"
+          tabIndex={0}
+          onMouseDown={event => event.preventDefault()}
+          onClick={openModal}>
+          <PencilFillIcon />
+        </div>
+      )}
+      {(isSelected || isResizing) && isEditable && (
+        <ImageResizer
+          nodeKey={nodeKey}
+          imageRef={imageContainerRef}
+          editor={editor}
+          onResizeStart={onResizeStart}
+          onResizeEnd={onResizeEnd}
+        />
+      )}
+    </figure>
+  );
+}

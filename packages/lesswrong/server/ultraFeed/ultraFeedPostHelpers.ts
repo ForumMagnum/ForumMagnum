@@ -49,7 +49,7 @@ export async function getRecommendedPostsForUltraFeed(
       const posts = await context.loaders.Posts.loadMany(unviewedRecombeePostIds.slice(0, limit));
       
       return posts
-        .filter((post): post is DbPost => !(post instanceof Error))
+        .filter((post): post is DbPost => !(post instanceof Error) && !!post && !post.rejected)
         .slice(0, limit)
         .map((post): FeedFullPost => ({
           post,

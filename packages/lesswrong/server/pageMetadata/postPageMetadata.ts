@@ -7,7 +7,7 @@ import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadat
 import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import { runQuery } from "../vulcan-lib/query";
+import { runQueryWithAnonymousCache } from "../postPageCache/anonymousQueryCache";
 
 const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {
@@ -89,13 +89,13 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
 
     try {
       const [{ data: postData }, { data: commentData }] = await Promise.all([
-        runQuery(
+        runQueryWithAnonymousCache(
           PostMetadataQuery,
           { postId },
           resolverContext
         ),
         commentId
-          ? runQuery(
+          ? runQueryWithAnonymousCache(
               CommentPermalinkMetadataQuery,
               { commentId },
               resolverContext

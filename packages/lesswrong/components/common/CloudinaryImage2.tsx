@@ -4,7 +4,7 @@ import { useAbstractThemeOptions } from '../themes/useTheme';
 
 const DEFAULT_HEADER_HEIGHT = 300;
 
-// Cloudinary image without using cloudinary-react. Allows SSR.
+// Server-renderable Cloudinary image with dark-mode support.
 const CloudinaryImage2 = ({
   width,
   height,

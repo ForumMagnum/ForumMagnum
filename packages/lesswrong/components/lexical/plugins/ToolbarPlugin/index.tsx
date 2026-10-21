@@ -119,7 +119,7 @@ import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalP
 import {INSERT_DATETIME_COMMAND} from '../DateTimePlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
-// import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin';
+// import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin/commands';
 import {
   INSERT_IMAGE_COMMAND,
   InsertImageDialog,

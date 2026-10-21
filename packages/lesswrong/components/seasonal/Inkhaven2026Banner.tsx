@@ -3,11 +3,11 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 
-// Frontpage campaign: originally 10 days from 2026-08-28; extended through EOD 2026-09-10 PT.
+// Frontpage campaign: originally 10 days from 2026-08-28; currently through EOD 2026-10-10 PT.
 export const INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID = 'SbqCm443KuNuxoZKt';
-export const INKHAVEN_RESIDENCY_3_START = new Date('2026-08-28T00:00:00-07:00');
-export const INKHAVEN_RESIDENCY_3_END = new Date('2026-09-11T00:00:00-07:00');
-export const INKHAVEN_RESIDENCY_3_EARLY_BIRD_LINE = 'Early-Bird Application Deadline is Tonight (Sept 10)';
+export const INKHAVEN_RESIDENCY_3_START = new Date('2026-10-08T00:00:00-07:00');
+export const INKHAVEN_RESIDENCY_3_END = new Date('2026-10-11T00:00:00-07:00');
+export const INKHAVEN_RESIDENCY_3_EARLY_BIRD_LINE = 'Final Application Deadline is Oct 10';
 export const INKHAVEN_RESIDENCY_3_EARLY_BIRD_DESCRIPTION_HTML = '<p>Want to become a great blogger? Join a cohort of ~40 promising writers for an intense month focused on the art and craft of writing, where everyone will publish a blogpost every single day. With 1-1 support from people including Scott Alexander, Max Harms, Scott Sumner, and more. Nov 10–Dec 11, at Lighthaven, CA.</p>';
 const INKHAVEN_RESIDENCY_3_BANNER_PUBLIC_ID = 'ChatGPT_Image_Aug_29_2026_09_46_57_AM_uynuti';
 
@@ -38,7 +38,7 @@ const styles = defineStyles("Inkhaven2026Banner", (theme: ThemeType) => ({
   },
   imageColumn: {
     position: 'absolute',
-    top: 0,
+    top: -10,
     right: 0,
     height: '100vh',
     width: '560px',
@@ -119,18 +119,6 @@ const styles = defineStyles("Inkhaven2026Banner", (theme: ThemeType) => ({
   noWidow: {
     whiteSpace: 'nowrap',
   },
-  earlyBirdWide: {
-    display: 'block',
-    [theme.breakpoints.down(1600)]: {
-      display: 'none',
-    },
-  },
-  earlyBirdMid: {
-    display: 'none',
-    [theme.breakpoints.down(1600)]: {
-      display: 'block',
-    },
-  },
 }));
 
 export const Inkhaven2026Banner = () => {
@@ -149,16 +137,7 @@ export const Inkhaven2026Banner = () => {
         </div>
         <div className={classes.inkhavenBannerText}>
           <h2><a href="https://www.inkhaven.blog">Inkhaven<br /><span className={classes.noWidow}>Residency #3</span></a></h2>
-          <h3>
-            <span className={classes.earlyBirdWide}>
-              Early-Bird Application Deadline<br />
-              is Tonight <span className={classes.noWidow}>(Sept 10)</span>
-            </span>
-            <span className={classes.earlyBirdMid}>
-              Early-Bird Application Deadline<br />
-              is Tonight <span className={classes.noWidow}>(Sept 10)</span>
-            </span>
-          </h3>
+          <h3>Final Application Deadline is Oct 10</h3>
           <div className={classes.inkhavenBannerDateAndLocation}>
             A month-long writing residency. Publish a blogpost every day for 30 days. Nov 10–Dec 11, 2026 in Berkeley, CA. <span className={classes.noWidow}>Scholarships available.</span>
           </div>

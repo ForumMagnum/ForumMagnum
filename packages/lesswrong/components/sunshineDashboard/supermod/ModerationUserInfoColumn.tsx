@@ -3,16 +3,16 @@
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationUserIdentityColumn from './ModerationUserIdentityColumn';
-import ModerationUserStatsColumn from './ModerationUserStatsColumn';
-import ModerationUserBioColumn from './ModerationUserBioColumn';
-import ModeratorNotes from './ModeratorNotes';
+import ModerationActivityFeed from './ModerationActivityFeed';
+import ModerationActiveRateLimits from './ModerationActiveRateLimits';
 import { getPrimaryDisplayedModeratorAction, partitionModeratorActions } from './groupings';
-import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
 import type { InboxAction } from './inboxReducer';
+import ModerationKarmaSummary from './ModerationKarmaSummary';
+import type { ModerationContentItem } from './helpers';
 
 const styles = defineStyles('ModerationUserInfoColumn', (theme: ThemeType) => ({
   header: {
-    padding: '12px 14px',
+    padding: '12px 7px',
     borderBottom: theme.palette.border.normal,
     backgroundColor: theme.palette.grey[50],
     display: 'flex',
@@ -34,14 +34,12 @@ const styles = defineStyles('ModerationUserInfoColumn', (theme: ThemeType) => ({
 
 const ModerationUserInfoColumn = ({
   user,
-  posts,
-  comments,
+  items,
   currentUser,
   dispatch,
 }: {
   user: SunshineUsersList;
-  posts: SunshinePostsList[];
-  comments: CommentsListWithParentMetadata[];
+  items: ModerationContentItem[];
   currentUser: UsersCurrent;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
@@ -52,11 +50,9 @@ const ModerationUserInfoColumn = ({
   return (
     <div className={classes.header}>
       <ModerationUserIdentityColumn user={user} likelyReviewTrigger={likelyReviewTrigger} />
-      <ModeratorNotes user={user} currentUser={currentUser} dispatch={dispatch} />
-
-      <ModerationUserStatsColumn user={user} posts={posts} comments={comments} />
-      <UserAutoRateLimitsDisplay user={user} showKarmaMeta={true} />
-      <ModerationUserBioColumn user={user} />
+      <ModerationKarmaSummary user={user} items={items} />
+      <ModerationActiveRateLimits user={user} />
+      <ModerationActivityFeed key={user._id} user={user} currentUser={currentUser} dispatch={dispatch} />
     </div>
   );
 };

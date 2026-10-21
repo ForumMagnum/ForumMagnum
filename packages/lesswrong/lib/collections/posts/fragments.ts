@@ -893,3 +893,27 @@ export const ChapterPostSlim = gql(`
     isRead
   }
 `)
+
+export const AiDigestEmailPost = gql(`
+fragment AiDigestEmailPost on Post {
+  _id
+  slug
+  title
+  postedAt
+  user {
+    _id
+    displayName
+  }
+  coauthors {
+    _id
+    displayName
+  }
+  socialPreviewData {
+    imageUrl
+  }
+  contents {
+    plaintextDescription
+    wordCount
+  }
+}
+`);

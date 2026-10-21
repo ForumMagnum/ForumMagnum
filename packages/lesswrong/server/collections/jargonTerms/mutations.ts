@@ -1,3 +1,5 @@
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import { userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import schema from "@/lib/collections/jargonTerms/newSchema";
 import { userIsPostCoauthor } from "@/lib/collections/posts/helpers";
@@ -87,6 +89,8 @@ export async function createJargonTerm({ data }: CreateJargonTermInput, context:
     props: asyncProperties,
   });
 
+  await invalidatePostPageCache(documentWithId.postId);
+
   return documentWithId;
 }
 
@@ -128,6 +132,8 @@ export async function updateJargonTerm({ selector, data }: UpdateJargonTermInput
   });
 
   backgroundTask(logFieldChanges({ currentUser, collection: JargonTerms, oldDocument, data: origData }));
+
+  await invalidatePostPageCache(filterNonnull([updatedDocument.postId, oldDocument.postId]));
 
   return updatedDocument;
 }
