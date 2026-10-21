@@ -1435,6 +1435,11 @@ extend type Mutation {
 }
 
 extend type Mutation {
+  recordSearch(query: String!): [String!]!
+  clearSearchHistory: Boolean!
+}
+
+extend type Mutation {
   useEmailToken(token: String, args: JSON): JSON
   getClaudeAccessLink: String
 }
@@ -7841,6 +7846,7 @@ type User {
   editUrl: String
   lwWikiImport: Boolean
   theme: JSON
+  searchHistory: [String!]
   lastUsedTimezone: String
   whenConfirmationEmailSent: Date
   legacy: Boolean
