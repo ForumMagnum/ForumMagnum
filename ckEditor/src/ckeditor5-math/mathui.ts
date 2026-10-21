@@ -14,7 +14,6 @@ import MathEditing from './mathediting';
 import { defaultConfig, getSelectedMathModelWidget, resizeInputElement } from './utils';
 
 import mathIcon from './ckeditor5-math.svg';
-import type MathCommand from './mathcommand';
 
 const mathKeystroke = 'Ctrl+4';
 const mathDisplayKeystroke = 'Ctrl+M';

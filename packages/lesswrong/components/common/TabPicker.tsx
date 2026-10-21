@@ -64,7 +64,7 @@ const styles = defineStyles("TabPicker", (theme: ThemeType) => ({
       // background image or if we add more tabs.
       // This is load-bearing UX because otherwise the fact that the tabs have
       // horizontal scroll might not be detectable.
-      background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
+      background: `linear-gradient(to right, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
       ...isIfAnyoneBuildsItFrontPage({
         background: 'none',
       }),

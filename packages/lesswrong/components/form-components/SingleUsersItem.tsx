@@ -21,13 +21,21 @@ const styles = defineStyles('SingleUsersItem', (theme: ThemeType) => ({
     marginLeft: 4,
     marginRight: 4,
     marginBottom: 4,
+    maxWidth: '100%',
+    height: 'auto',
     backgroundColor: theme.palette.greyAlpha(.05),
+    '& .Chip-label': {
+      whiteSpace: 'normal',
+      overflowWrap: 'anywhere',
+      paddingTop: 3,
+      paddingBottom: 3,
+    },
   },
   wrapper: {
     display: 'flex',
     flexWrap: 'wrap',
   },
-}));
+}), { stylePriority: 1 });
 
 const SingleUsersItem = ({userId, removeItem}: {
   userId: string,

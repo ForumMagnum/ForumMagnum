@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import AbstractRepo from "./AbstractRepo";
 import Notifications from "../../server/collections/notifications/collection";
 import { READ_WORDS_PER_MINUTE } from "@/lib/collections/posts/constants";
@@ -41,7 +42,7 @@ const buildNotificationPost = (
   prefix: string,
   revisionPrefix: string,
   userPrefix: string,
-  localgroupPrefix: string,
+  localgroupPrefix: string, forumType: ForumTypeString,
 ) =>
   `CASE WHEN ${prefix}."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
     '_id', ${prefix}."_id",
@@ -60,7 +61,7 @@ const buildNotificationPost = (
       ${prefix}."readTimeMinutesOverride",
       (${revisionPrefix}."wordCount")::INTEGER / ${READ_WORDS_PER_MINUTE}
     ),
-    'socialPreviewData', ${getSocialPreviewSql(prefix)},
+    'socialPreviewData', ${getSocialPreviewSql(prefix, forumType)},
     'customHighlight', ${prefix}."customHighlight",
     'contents', ${buildNotificationRevision(revisionPrefix)},
     'rsvps', ${prefix}."rsvps",
@@ -75,12 +76,12 @@ const buildNotificationComment = (
   postPrefix: string,
   postRevisionPrefix: string,
   postUserPrefix: string,
-  postLocalgroupPrefix: string,
+  postLocalgroupPrefix: string, forumType: ForumTypeString,
 ) =>
   `CASE WHEN ${prefix}."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
     '_id', ${prefix}."_id",
     'user', ${buildNotificationUser(userPrefix)},
-    'post', ${buildNotificationPost(postPrefix, postRevisionPrefix, postUserPrefix, postLocalgroupPrefix)}
+    'post', ${buildNotificationPost(postPrefix, postRevisionPrefix, postUserPrefix, postLocalgroupPrefix, forumType)}
   ) END`;
 
 // This should return an object of type `NotificationDisplayTag`
@@ -115,7 +116,7 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
     includeMessages?: boolean,
     limit?: number,
     offset?: number,
-  }): Promise<NotificationDisplay[]> {
+  }, forumType: ForumTypeString): Promise<NotificationDisplay[]> {
     return this.getRawDb().any(`
       -- NotificationsRepo.getNotificationDisplays
       SELECT
@@ -128,10 +129,10 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         n."extraData",
         tr."_id" "tagRelId",
         COALESCE(
-          ${buildNotificationPost("p", "pr", "pu", "pl")},
-          ${buildNotificationPost("trp", "trpr", "trpu", "trpl")}
+          ${buildNotificationPost("p", "pr", "pu", "pl", forumType)},
+          ${buildNotificationPost("trp", "trpr", "trpu", "trpl", forumType)}
         ) "post",
-        ${buildNotificationComment("c", "cu", "cp", "cpr", "cpu", "cpl")} "comment",
+        ${buildNotificationComment("c", "cu", "cp", "cpr", "cpu", "cpl", forumType)} "comment",
         ${buildNotificationTag("t")} "tag",
         ${buildNotificationSequence("s")} "sequence",
         COALESCE(

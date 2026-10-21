@@ -218,6 +218,7 @@ export function useModerationUserActions({
                 ),
               });
             }, 0);
+            return true;
           }}
           onClose={closeRejectDialog}
         />
@@ -252,6 +253,7 @@ export function useModerationUserActions({
                 },
               });
             });
+            return true;
           }}
           onClose={onClose}
         />

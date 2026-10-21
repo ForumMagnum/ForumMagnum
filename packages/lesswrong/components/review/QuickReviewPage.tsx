@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { getReviewPhase, REVIEW_YEAR, ReviewYear } from '../../lib/reviewUtils';
-import sortBy from 'lodash/sortBy';
+import { ReviewYear } from '../../lib/reviewUtils';
 import { getVotePower } from '@/lib/voting/vote';
 import { useCurrentUser } from '../common/withUser';
 import PostsItem from "../posts/PostsItem";

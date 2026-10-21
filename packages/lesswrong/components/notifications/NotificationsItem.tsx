@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
@@ -101,6 +102,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck}: {
   notification: NotificationsList,
   lastNotificationsCheck: any,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [clicked,setClicked] = useState(false);
   const { captureEvent } = useTracking();
@@ -238,7 +240,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck}: {
           
           // we also check whether it's a relative link, and if so, scroll to the item
           const UrlClass = getUrlClass()
-          const url = new UrlClass(notificationLink, getSiteUrl())
+          const url = new UrlClass(notificationLink, getSiteUrl(forumType))
           const hash = url.hash
           if (hash) {
             const element = document.getElementById(hash.substr(1))

@@ -1,6 +1,6 @@
 import { getCookiePreferences } from '../lib/cookies/utils';
 import { isAnyTest, isServer } from '../lib/executionEnvironment';
-import { reCaptchaSiteKeySetting } from '@/lib/instanceSettings';
+import { reCaptchaSiteKey } from '@/lib/instanceSettings';
 
 declare global {
   interface Window {
@@ -39,7 +39,7 @@ export async function initReCaptcha() {
 
   // Load and run ReCaptcha script on client
   const script = document.createElement('script');
-  script.src = `https://www.google.com/recaptcha/api.js?onload=onReCaptchaLoaded&render=${reCaptchaSiteKeySetting.get()}`;
+  script.src = `https://www.google.com/recaptcha/api.js?onload=onReCaptchaLoaded&render=${reCaptchaSiteKey}`;
   document.body.appendChild(script);
 
   reCaptchaInitialized = true;

@@ -1,4 +1,4 @@
-import { dropField, dropTable } from "./meta/utils";
+import { dropTable } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
   await dropTable(db, "AdvisorRequests");

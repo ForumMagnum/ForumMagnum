@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${hyperbolicApiKey.get()}`,
+        Authorization: `Bearer ${hyperbolicApiKey.get(context)}`,
       },
       body: JSON.stringify({
         model: 'meta-llama/Meta-Llama-3.1-405B',

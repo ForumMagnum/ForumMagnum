@@ -1,31 +1,36 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useLocation } from '@/lib/routeUtil';
 import { Link, QueryLink } from '@/lib/reactRouterWrapper';
 import { userCanPost } from '@/lib/collections/users/helpers';
-import { POST_SORTING_MODES } from '@/lib/collections/posts/views';
-import { getSortOrderOptions } from '@/lib/collections/posts/dropdownOptions';
 import DraftsList from '../../posts/DraftsList';
 import PostsList2 from '../../posts/PostsList2';
-import SettingsButton from '../../icons/SettingsButton';
 import SectionButton from '../../common/SectionButton';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { dashboardTabStyles } from './dashboardTabStyles';
+import PostsListSortDropdown from '../../posts/PostsListSortDropdown';
+
+/** The dashboard offers a deliberately small subset of the post sort orders */
+const DASHBOARD_SORT_ORDERS = ['new', 'top', 'old'];
 
 const styles = defineStyles('DashboardPostsTab', (theme: ThemeType) => ({
-  sortPanel: {
+  sortControls: {
     display: 'flex',
-    alignItems: 'baseline',
-    flexWrap: 'wrap',
+    alignItems: 'center',
     gap: 12,
-    marginBottom: 12,
+    // Drop the dropdown button's trailing padding so the control lines up with
+    // the right edge of the post rows below it
+    '& button': {
+      paddingRight: 0,
+    },
   },
-  sortOption: {
-    padding: '4px 0',
+  includeEvents: {
+    display: 'flex',
+    alignItems: 'center',
     cursor: 'pointer',
     fontSize: 13,
     fontFamily: theme.typography.fontFamily,
@@ -35,14 +40,8 @@ const styles = defineStyles('DashboardPostsTab', (theme: ThemeType) => ({
       color: theme.palette.grey[900],
     },
   },
-  sortOptionActive: {
+  includeEventsActive: {
     color: theme.palette.grey[900],
-    fontWeight: 600,
-  },
-  includeEvents: {
-    marginLeft: 12,
-    display: 'flex',
-    alignItems: 'center',
   },
   checkbox: {
     padding: '0 6px 0 0',
@@ -54,12 +53,12 @@ const DashboardPostsTab = ({userId, isOwnAccount}: {userId: string, isOwnAccount
   const localClasses = useStyles(styles);
   const currentUser = useCurrentUser();
   const { query } = useLocation();
-  const [showSortSettings, setShowSortSettings] = useState(false);
 
-  const postQueryMode = query.sortedBy || 'new';
-  const currentPostSortingMode = POST_SORTING_MODES.has(postQueryMode) ? postQueryMode : 'new';
+  const sortedByQuery = query.sortedBy;
+  const currentPostSortingMode: PostSortingMode = (sortedByQuery === 'top' || sortedByQuery === 'old')
+    ? sortedByQuery
+    : 'new';
   const includeEvents = query.includeEvents === 'true';
-  const sortOptions = getSortOrderOptions();
 
   const postTerms: PostsViewTerms = useMemo(() => ({
     view: 'userPosts',
@@ -97,33 +96,19 @@ const DashboardPostsTab = ({userId, isOwnAccount}: {userId: string, isOwnAccount
       <div className={classes.section}>
         <div className={classes.sectionHeader}>
           <div className={classes.sectionLabel}>Published</div>
-          <SettingsButton
-            label={`Sorted by ${sortOptions[currentPostSortingMode].label}`}
-            onClick={() => setShowSortSettings(!showSortSettings)}
-          />
-        </div>
-        {showSortSettings && <div className={localClasses.sortPanel}>
-          {Array.from(POST_SORTING_MODES).map((mode) => (
+          <div className={localClasses.sortControls}>
             <QueryLink
-              key={mode}
-              query={{sortedBy: mode}}
+              query={{includeEvents: includeEvents ? undefined : 'true'}}
               merge
               scroll={false}
-              className={classNames(localClasses.sortOption, mode === currentPostSortingMode && localClasses.sortOptionActive)}
+              className={classNames(localClasses.includeEvents, includeEvents && localClasses.includeEventsActive)}
             >
-              {sortOptions[mode].label}
+              <Checkbox classes={{root: localClasses.checkbox}} checked={includeEvents} />
+              Include events
             </QueryLink>
-          ))}
-          <QueryLink
-            query={{includeEvents: includeEvents ? undefined : 'true'}}
-            merge
-            scroll={false}
-            className={classNames(localClasses.sortOption, localClasses.includeEvents, includeEvents && localClasses.sortOptionActive)}
-          >
-            <Checkbox classes={{root: localClasses.checkbox}} checked={includeEvents} />
-            Include events
-          </QueryLink>
-        </div>}
+            <PostsListSortDropdown value={currentPostSortingMode} options={DASHBOARD_SORT_ORDERS} />
+          </div>
+        </div>
         <PostsList2
           terms={postTerms}
           hideAuthor

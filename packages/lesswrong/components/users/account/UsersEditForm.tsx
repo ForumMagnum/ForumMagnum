@@ -54,7 +54,6 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   googleLocation: 'preferences',
   mapLocation: 'preferences',
   hideFromPeopleDirectory: 'preferences',
-  allowDatadogSessionReplay: 'preferences',
   auto_subscribe_to_my_posts: 'notifications',
   auto_subscribe_to_my_comments: 'notifications',
   autoSubscribeAsOrganizer: 'notifications',

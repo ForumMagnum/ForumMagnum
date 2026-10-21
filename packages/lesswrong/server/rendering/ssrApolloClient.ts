@@ -90,7 +90,7 @@ export async function getApolloClientForSSRWithContext(context: ResolverContext)
     link: ApolloLink.from([
       headerLink,
       createErrorLink(),
-      new LoggedOutCacheLink(schema),
+      new LoggedOutCacheLink(schema, context.forumType),
       createSchemaLink(schema, context)
     ]),
   });

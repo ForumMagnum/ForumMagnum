@@ -6,9 +6,8 @@
 // It was originally run from the directory root, might not work from the script directory, I didn't check.
 
 // File: codemod-fragments.mjs
-import { Project, SyntaxKind, VariableDeclarationKind, SourceFile } from 'ts-morph';
+import { Project, SyntaxKind } from 'ts-morph';
 import path from 'path';
-import fs from 'fs/promises';
 import { glob } from 'glob';
 import { fileURLToPath } from 'url';
 

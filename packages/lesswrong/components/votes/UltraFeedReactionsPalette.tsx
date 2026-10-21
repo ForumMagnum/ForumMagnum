@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, { useState} from 'react';
 import { EmojiReactName, QuoteLocator, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';

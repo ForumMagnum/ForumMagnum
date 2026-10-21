@@ -1,7 +1,6 @@
 import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
-import { isEAForum, isLW, isLWorAF } from "./instanceSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
 import { isDevelopment } from './executionEnvironment'; 
@@ -28,6 +27,9 @@ choose which new ReviewWinners should be in the top 12 for each category (probab
 - yarn repl prod packages/lesswrong/server/scripts/generativeModels/autoSpotlight.ts 'createSpotlights()' 
 - go to lesswrong.com/spotlights?drafts=true to review spotlights, pick the best one. When you submit one it'll archive the other ones and undraft it
 
+4. Publish the year on /bestoflesswrong
+- add the year to publishedReviewYearsArray, remove it from predictedReviewYearsArray (adding the next year), and update BEST_OF_LESSWRONG_PUBLISH_YEAR
+
 */
 
 export const reviewWinnerCategories = new TupleSet(['rationality', 'modeling', 'optimization', 'ai strategy', 'ai safety', 'practical'] as const);
@@ -35,10 +37,10 @@ export type ReviewWinnerCategory = UnionOf<typeof reviewWinnerCategories>;
 
 /** Review year is the year under review, not the year in which the review takes place. */
 export const REVIEW_YEAR = 2024
-export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2023
+export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2024
 
-const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022, 2023] as const;
-const predictedReviewYearsArray = [2024, 2025] as const;
+const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022, 2023, 2024] as const;
+const predictedReviewYearsArray = [2025, 2026] as const;
 export const publishedReviewYears = new TupleSet(publishedReviewYearsArray);
 export const reviewYears = new TupleSet([...publishedReviewYears, REVIEW_YEAR] as const);
 export const predictedReviewYears = new TupleSet(predictedReviewYearsArray);
@@ -66,7 +68,7 @@ export function getReviewLink(year: string): string {
 
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
-export const getReviewNameInSitu = () => isEAForum() ? 'Decade Review' : `${REVIEW_YEAR} Review`
+export const getReviewNameInSitu = () => `${REVIEW_YEAR} Review`
 
 export const reviewElectionName = `reviewVoting${REVIEW_YEAR}`
 
@@ -176,13 +178,13 @@ export const VOTING_PHASE_REVIEW_THRESHOLD = 1
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
-  return isLWorAF() && getReviewPhase() !== "COMPLETE" && getReviewPhase() !== "UNSTARTED"
+  return getReviewPhase() !== "COMPLETE" && getReviewPhase() !== "UNSTARTED"
 }
 
 export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
-  if (!currentUser) return false;
-  if (isLWorAF() && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR}-01-01`))) return false
-  if (isEAForum() && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
+  if (!currentUser) return false
+  if (moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR}-01-01`))) return false
+
   return true
 }
 
@@ -219,7 +221,7 @@ export const reviewExcludedPostIds = ['MquvZCGWyYinsN49c', '5n2ZQcbc7r4R8mvqc'];
 export function postEligibleForReview (post: PostsBase) {
   if (reviewExcludedPostIds.includes(post._id)) return false
   if (moment.utc(post.postedAt) > moment.utc(`${REVIEW_YEAR+1}-01-01`)) return false
-  if (isLWorAF() && moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
+  if (moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
   if (post.shortform) return false
   return true
 }
@@ -236,8 +238,8 @@ export function canNominate (currentUser: UsersCurrent|null, post: PostsListBase
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   if (!currentUser) return false
-  if (isLWorAF() && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR+1}-01-01`))) return false
-  if (isEAForum() && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
+  if (moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR+1}-01-01`))) return false
+
   return true
 }
 

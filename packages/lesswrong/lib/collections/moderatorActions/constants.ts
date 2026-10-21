@@ -1,4 +1,3 @@
-import { forumSelect } from "@/lib/forumTypeUtils";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import type { ReasonReviewIsNeeded } from "@/server/callbacks/sunshineCallbackUtils";
 
@@ -37,6 +36,9 @@ export const STRICTER_COMMENT_AUTOMOD_RATE_LIMIT = "stricterCommentAutomodRateLi
 export const STRICTER_POST_AUTOMOD_RATE_LIMIT = "stricterPostAutomodRateLimit";
 export const MANUAL_RATE_LIMIT_EXPIRED = "manualRateLimitExpired";
 export const VOTING_DISABLED = "votingDisabled";
+export const AUTO_PURGED_PROFILE_SPAM = "autoPurgedProfileSpam";
+export const AUTO_REMOVED_LLM_REJECTED_USER = "autoRemovedLlmRejectedUser";
+export const AUTO_PURGED_LLM_REJECTED_SPAM = "autoPurgedLlmRejectedSpam";
 
 
 export const postRateLimits = [] as const;
@@ -124,13 +126,16 @@ export const MODERATOR_ACTION_TYPES = {
   [STRICTER_POST_AUTOMOD_RATE_LIMIT]: "Stricter post automod rate limit",
   [MANUAL_RATE_LIMIT_EXPIRED]: "Manual rate limit expired",
   [VOTING_DISABLED]: "Voting disabled",
+  [AUTO_PURGED_PROFILE_SPAM]: "Auto-purged by the profile spam classifier",
+  [AUTO_REMOVED_LLM_REJECTED_USER]: "Removed from review queue by the LLM-rejection triage classifier",
+  [AUTO_PURGED_LLM_REJECTED_SPAM]: "Auto-purged as spam by the LLM-rejection triage classifier",
 } satisfies Record<ModeratorActionType, string>;
 
 /** The max # of users an unapproved account is allowed to DM before being flagged */
 export const MAX_ALLOWED_CONTACTS_BEFORE_FLAG = 2;
 
 /** The max # of users an unapproved account is allowed to DM */
-export const getMaxAllowedContactsBeforeBlock = () => forumSelect({ EAForum: 4, default: 9 });
+export const MAX_ALLOWED_CONTACTS_BEFORE_BLOCK = 9;
 
 export const REVIEW_REASON_TO_MODERATOR_ACTION = {
   biography: UNREVIEWED_BIO_UPDATE,

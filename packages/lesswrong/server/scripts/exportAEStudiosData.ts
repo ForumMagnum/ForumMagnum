@@ -167,7 +167,7 @@ export async function exportAECommentRecords(offsetDate?: Date) {
           _id,
           user: {
             _id: user?._id,
-            displayName: user ? userGetDisplayName(user) : null,
+            displayName: user ? userGetDisplayName(user, context.forumType) : null,
           },
           htmlBody: contents?.html,
           postId,

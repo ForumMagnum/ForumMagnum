@@ -1,6 +1,6 @@
 import NativeSearchClient, { SearchOptions } from "./NativeSearchClient";
 import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
-import { algoliaPrefixSetting, isElasticEnabled } from '../instanceSettings'
+import { algoliaIndexPrefix, isElasticEnabled } from '../instanceSettings'
 import type { Client } from "algoliasearch/lite";
 import stringify from "json-stringify-deterministic";
 
@@ -11,7 +11,7 @@ export type SearchIndexedDbObject = DbComment | DbPost | DbUser | DbSequence | D
 export interface SearchIndexedCollection extends CollectionBase<SearchIndexCollectionName> {}
 
 export const getSearchIndexName = (collectionName: SearchIndexCollectionName): string => {
-  const prefix = algoliaPrefixSetting.get()
+  const prefix = algoliaIndexPrefix
   switch (collectionName) {
     case "Comments": return prefix + "comments";
     case "Posts": return prefix + "posts";

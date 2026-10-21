@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { createContext, useEffect, useState, useRef, useCallback } from 'react';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
@@ -9,9 +9,16 @@ import dynamic from 'next/dynamic';
 const LWTooltip = dynamic(() => import("../common/LWTooltip"), { ssr: false });
 const ReplyCommentDialog = dynamic(() => import("./ReplyCommentDialog"), { ssr: false });
 
+export const CommentOnSelectionContext = createContext<((html: string) => void) | null>(null);
+
 const selectedTextToolbarStyles = defineStyles("CommentOnSelectionContentWrapper", (theme: ThemeType) => ({
   toolbarWrapper: {
     position: "absolute",
+    // Mobile posts use MobilePostSelectionToolbar. Hide the positioned wrapper
+    // as well as its contents so it cannot expand the horizontal scroll area.
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
   },
   toolbar: {
     display: "flex",
@@ -24,11 +31,6 @@ const selectedTextToolbarStyles = defineStyles("CommentOnSelectionContentWrapper
     
     "&:hover": {
       background: theme.palette.panelBackground.darken08,
-    },
-
-    // Hide on mobile to avoid horizontal scrolling
-    [theme.breakpoints.down('xs')]: {
-      display: "none",
     },
   },
 }));
@@ -55,8 +57,7 @@ type SelectedTextToolbarState =
  * with multiple scrollbars or certain complex positioning. Test each context
  * separately when adding `CommentOnSelectionContentWrapper`s.
  *
- * If there's no space in the right margin (eg on mobile), adding the button
- * might introduce horizontal scrolling.
+ * On mobile, InlineReactSelectionWrapper supplies a combined toolbar instead.
  */
 export const CommentOnSelectionPageWrapper = ({children}: {
   children: React.ReactNode
@@ -145,6 +146,12 @@ export const CommentOnSelectionPageWrapper = ({children}: {
   </>
 }
 
+function preserveSelection(event: React.MouseEvent) {
+  // Safari (macOS) clears the selection on mousedown, which closes this toolbar
+  // and empties the quote before the click can be handled.
+  event.preventDefault();
+}
+
 /**
  * SelectedTextToolbar: The toolbar that pops up when you select content inside
  * a post. Consists of just a comment button, which opens a floating comment
@@ -163,12 +170,16 @@ const SelectedTextToolbar = ({onClickComment, x, y}: {
 
   return <div className={classes.toolbarWrapper} style={{left: x, top: y}}>
     <LWTooltip inlineBlock={false} title={<div><p>Click to comment on the selected text</p></div>}>
-      <div className={classes.toolbar}>
+      <div
+        className={classes.toolbar}
+        onMouseDown={preserveSelection}
+        onClick={(ev: React.MouseEvent) => {
+          captureEvent("commentOnSelectionClicked");
+          onClickComment(ev);
+        }}
+      >
         <AnalyticsContext pageElementContext="selectedTextToolbar">
-          <CommentIcon onClick={(ev: React.MouseEvent) => {
-            captureEvent("commentOnSelectionClicked");
-            onClickComment(ev);
-          }}/>
+          <CommentIcon/>
         </AnalyticsContext>
       </div>
     </LWTooltip>
@@ -216,7 +227,9 @@ export const CommentOnSelectionContentWrapper = ({post, children}: {
   }, [onClickComment]);
   
   return <div className="commentOnSelection" ref={wrapperDivRef}>
-    {children}
+    <CommentOnSelectionContext.Provider value={onClickComment}>
+      {children}
+    </CommentOnSelectionContext.Provider>
   </div>
 }
 

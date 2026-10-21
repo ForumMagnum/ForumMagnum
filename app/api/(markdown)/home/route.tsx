@@ -102,6 +102,7 @@ export async function GET(req: NextRequest) {
       <MarkdownPostsList posts={recentPosts} includeExcerpt={false} />
       <h2>Latest Posts</h2>
       <MarkdownPostsList posts={latestPosts} includeExcerpt={false} />
-    </div>
+    </div>,
+    resolverContext.forumType
   );
 }

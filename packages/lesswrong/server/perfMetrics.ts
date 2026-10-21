@@ -1,3 +1,5 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
+import { forumTypeSetting } from "@/lib/forumTypeUtils";
 import { v4 } from 'uuid';
 import { AsyncLocalStorage } from 'async_hooks';
 import LRU from 'lru-cache';
@@ -8,6 +10,7 @@ import { queuePerfMetric } from './perfMetricsQueue';
 type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'sql_string' | 'ip' | 'user_agent' | 'user_id'>;
 
 interface AsyncLocalStorageContext {
+  forumType?: ForumTypeString;
   requestPerfMetric?: IncompletePerfMetric;
   inDbRepoMethod?: boolean;
   isSSRRequest?: boolean;
@@ -25,6 +28,11 @@ export function setAsyncStoreValue<T extends keyof AsyncLocalStorageContext>(key
     }
   }
 };
+
+/** Request operations inherit their forum; standalone jobs use the deployment forum. */
+export function getForumTypeFromAsyncContext(): ForumTypeString {
+  return asyncLocalStorage.getStore()?.forumType ?? forumTypeSetting.get();
+}
 
 export function generateTraceId() {
   return v4();
@@ -63,11 +71,11 @@ export function closePerfMetric(openPerfMetric: IncompletePerfMetric, endedAtOve
     ended_at: endedAtOverride ?? new Date()
   };
 
-  queuePerfMetric(perfMetric);
+  queuePerfMetric(perfMetric, getForumTypeFromAsyncContext());
 }
 
 export function wrapWithPerfMetric<T extends () => AnyBecauseHard>(operation: T, perfMetricGenerator: () => IncompletePerfMetric): ReturnType<T> {
-  if (!performanceMetricLoggingEnabled.get()) {
+  if (!performanceMetricLoggingEnabled.get(getForumTypeFromAsyncContext())) {
     return operation();
   }
 
@@ -127,7 +135,7 @@ function sampleSqlQueryPerfMetric(parentTraceId: string) {
   const cachedShouldSample = SAMPLE_TRACE_CACHE.get(parentTraceId);
   if (typeof cachedShouldSample === 'boolean') return cachedShouldSample;
 
-  const sampleRate = performanceMetricLoggingSqlSampleRate.get();
+  const sampleRate = performanceMetricLoggingSqlSampleRate;
   const parentTraceHash = cyrb53Rand(parentTraceId);
   const shouldSample = sampleRate > parentTraceHash;
 
@@ -137,7 +145,7 @@ function sampleSqlQueryPerfMetric(parentTraceId: string) {
 }
 
 export function recordSqlQueryPerfMetric(sqlString: string, startTime: number, endTime: number) {
-  if (!performanceMetricLoggingEnabled.get()) {
+  if (!performanceMetricLoggingEnabled.get(getForumTypeFromAsyncContext())) {
     return;
   }
 

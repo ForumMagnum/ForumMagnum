@@ -1,5 +1,5 @@
 import { getAllCollections } from '@/server/collections/allCollections';
-import { generateAllowedValuesTypeString, generatedFileHeader, graphqlTypeToTypescript, isFieldNullable, simplSchemaTypeToTypescript } from './typeGenerationUtils';
+import { generateAllowedValuesTypeString, generatedFileHeader, isFieldNullable, simplSchemaTypeToTypescript } from './typeGenerationUtils';
 import { isUniversalField } from '../../lib/utils/schemaUtils';
 import { getSchema } from '@/lib/schema/allSchemas';
 import { getSimpleSchema } from '@/lib/schema/allSimpleSchemas';

@@ -5,12 +5,19 @@ import { captureException } from "@/lib/sentryWrapper";
 import Posts from "../posts/collection";
 import Comments from "../comments/collection";
 import ModerationTemplates from "../moderationTemplates/collection";
-import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 import { updateComment } from "@/server/collections/comments/mutations";
+import { updatePost } from "@/server/collections/posts/mutations";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { stripExcludedContentForAIDetection } from "./preprocessing";
-import { PANGRAM_AUTOREJECT_THRESHOLD } from "@/lib/collections/automatedContentEvaluations/constants";
+import { maybeRunLlmRejectionTriage } from "@/server/llmRejectionTriage/triage";
+import {
+  DEFAULT_PANGRAM_MODEL,
+  PANGRAM_AUTOREJECT_THRESHOLD,
+  PANGRAM_MAX_CHARS,
+  type PangramModel,
+} from "@/lib/collections/automatedContentEvaluations/constants";
+import { sleep } from "@/lib/utils/asyncUtils";
 
 const saplingResponseSchema = z.object({
   score: z.number(),
@@ -23,6 +30,7 @@ const saplingResponseSchema = z.object({
 });
 
 const pangramResponseSchema = z.object({
+  text: z.string(),
   fraction_human: z.number(),
   fraction_ai: z.number(),
   fraction_ai_assisted: z.number(),
@@ -38,9 +46,29 @@ const pangramResponseSchema = z.object({
   })).optional(),
 });
 
+const pangramTaskSubmissionSchema = z.object({
+  task_id: z.string().min(1),
+});
+
+const pangramTaskStageSchema = z.object({
+  stage: z.string().min(1),
+  error: z.string().optional(),
+  headline: z.string().optional(),
+  detail: z.string().optional(),
+});
+
+const PANGRAM_V3_URL = "https://text.api.pangram.com/v3";
+const PANGRAM_TASK_URL = "https://text.external-api.pangram.com/task";
+const PANGRAM_TASK_POLL_INTERVAL_MS = 2_000;
+const PANGRAM_TASK_REQUEST_TIMEOUT_MS = 10_000;
+
+// Checks normally take 5-15s. This keeps the every-ten-minutes cron, which retries
+// failed checks, under its 60s limit with time left for its other tasks.
+const PANGRAM_TASK_TIMEOUT_MS = 40_000;
 
 export interface PangramEvaluationResult {
-  pangramApiVersion: string | null;
+  analyzedText: string;
+  pangramApiVersion: string;
   pangramScore: number;
   pangramFractionAi: number | null;
   pangramFractionAiAssisted: number | null;
@@ -58,41 +86,53 @@ export interface PangramEvaluationResult {
   }[] | null;
 }
 
-export async function getPangramEvaluationForText(text: string): Promise<PangramEvaluationResult> {
-  const key = process.env.PANGRAM_API_KEY;
-  if (!key) {
-    throw new Error("PANGRAM_API_KEY is not configured");
+async function fetchPangramJson(
+  url: string,
+  key: string,
+  deadline: number | null,
+  body?: unknown,
+): Promise<unknown> {
+  const remainingTime = deadline === null ? null : deadline - Date.now();
+  if (remainingTime !== null && remainingTime <= 0) {
+    throw new Error("Pangram API request timed out");
   }
 
-  // Cap at 30k chars (roughly 4-5k words). Longer texts get truncated; checking
-  // an entire long post in one go isn't usually worth the extra $$$.
-  const textToCheck = text.slice(0, 30_000);
-
-  const response = await fetch('https://text.api.pangram.com/v3', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-    },
-    body: JSON.stringify({ text: textToCheck }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: body === undefined ? "GET" : "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": key,
+      },
+      ...(remainingTime === null
+        ? {}
+        : { signal: AbortSignal.timeout(Math.min(PANGRAM_TASK_REQUEST_TIMEOUT_MS, remainingTime)) }),
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    });
+  } catch (e) {
+    const error = new Error(`Pangram API request failed: ${e instanceof Error ? e.message : "Unknown error"}`);
+    captureException(error);
+    throw error;
+  }
 
   if (!response.ok) {
-    const errorText = await response.text().catch(() => 'Unable to read error response');
+    const errorText = await response.text().catch(() => "Unable to read error response");
     const error = new Error(`Pangram API request failed with status ${response.status}: ${errorText}`);
     captureException(error);
     throw error;
   }
 
-  let pangramResponse;
   try {
-    pangramResponse = await response.json();
+    return await response.json();
   } catch (e) {
-    const error = new Error(`Failed to parse Pangram API response: ${e instanceof Error ? e.message : 'Unknown error'}`);
+    const error = new Error(`Failed to parse Pangram API response: ${e instanceof Error ? e.message : "Unknown error"}`);
     captureException(error);
     throw error;
   }
+}
 
+function parsePangramResponse(pangramResponse: unknown, apiVersion: string): PangramEvaluationResult {
   const validatedResponse = pangramResponseSchema.safeParse(pangramResponse);
   if (!validatedResponse.success) {
     const error = new Error(`Invalid Pangram API response: ${validatedResponse.error.message}`);
@@ -112,7 +152,8 @@ export async function getPangramEvaluationForText(text: string): Promise<Pangram
     ...(w.word_count !== undefined ? { wordCount: w.word_count } : {}),
   })) ?? null;
   return {
-    pangramApiVersion: "v3",
+    analyzedText: validatedResponse.data.text,
+    pangramApiVersion: apiVersion,
     pangramScore: validatedResponse.data.fraction_ai + validatedResponse.data.fraction_ai_assisted,
     pangramFractionAi: validatedResponse.data.fraction_ai,
     pangramFractionAiAssisted: validatedResponse.data.fraction_ai_assisted,
@@ -123,6 +164,82 @@ export async function getPangramEvaluationForText(text: string): Promise<Pangram
     pangramPrediction: validatedResponse.data.prediction_short ?? null,
     pangramWindowScores,
   };
+}
+
+async function pollPangramTask(taskId: string, key: string, deadline: number): Promise<unknown> {
+  while (Date.now() < deadline) {
+    const taskResponse = await fetchPangramJson(
+      `${PANGRAM_TASK_URL}/${encodeURIComponent(taskId)}`,
+      key,
+      deadline,
+    );
+    const validatedStage = pangramTaskStageSchema.safeParse(taskResponse);
+    if (!validatedStage.success) {
+      const error = new Error(`Invalid Pangram task response: ${validatedStage.error.message}`);
+      captureException(error);
+      throw error;
+    }
+
+    if (validatedStage.data.stage === "STAGE_SUCCESS") {
+      return taskResponse;
+    }
+    if (validatedStage.data.stage === "STAGE_FAILED") {
+      const failureMessage = validatedStage.data.error
+        || validatedStage.data.headline
+        || validatedStage.data.detail
+        || "no error message given";
+      const error = new Error(`Pangram task failed: ${failureMessage}`);
+      captureException(error);
+      throw error;
+    }
+
+    const remainingTime = deadline - Date.now();
+    if (remainingTime > 0) {
+      await sleep(Math.min(PANGRAM_TASK_POLL_INTERVAL_MS, remainingTime));
+    }
+  }
+
+  const error = new Error(`Pangram task ${taskId} did not finish within ${PANGRAM_TASK_TIMEOUT_MS / 1000} seconds`);
+  captureException(error);
+  throw error;
+}
+
+export async function getPangramEvaluationForText(
+  text: string,
+  model: PangramModel = DEFAULT_PANGRAM_MODEL,
+): Promise<PangramEvaluationResult> {
+  const key = process.env.PANGRAM_API_KEY;
+  if (!key) {
+    throw new Error("PANGRAM_API_KEY is not configured");
+  }
+
+  const textToCheck = text.slice(0, PANGRAM_MAX_CHARS);
+  if (model === "pangram4") {
+    const deadline = Date.now() + PANGRAM_TASK_TIMEOUT_MS;
+    const submission = await fetchPangramJson(
+      PANGRAM_TASK_URL,
+      key,
+      deadline,
+      { text: textToCheck, model: "pangram-4" },
+    );
+    const validatedSubmission = pangramTaskSubmissionSchema.safeParse(submission);
+    if (!validatedSubmission.success) {
+      const error = new Error(`Invalid Pangram task submission response: ${validatedSubmission.error.message}`);
+      captureException(error);
+      throw error;
+    }
+
+    const result = await pollPangramTask(validatedSubmission.data.task_id, key, deadline);
+    return parsePangramResponse(result, "pangram-4");
+  }
+
+  const result = await fetchPangramJson(
+    PANGRAM_V3_URL,
+    key,
+    null,
+    { text: textToCheck },
+  );
+  return parsePangramResponse(result, "v3");
 }
 
 export async function getPangramEvaluation(revision: DbRevision): Promise<PangramEvaluationResult> {
@@ -194,27 +311,20 @@ async function rejectContentForLLM(
 
   const rejectedReason = moderationTemplate.contents?.html ?? "";
 
+  // Rejections are attributed to the LW account, since we don't want a human account to front auto-llm-rejections
+  const lwAccount = await getAdminTeamAccount(context);
+  if (!lwAccount) throw new Error("Automated rejection requires an admin team account");
+  const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
+
   if (collectionName === "Posts") {
-    const post = await context.loaders["Posts"].load(documentId);
-    await Posts.rawUpdateOne(
-      { _id: documentId },
-      { 
-        $set: { 
-          rejected: true, 
-          rejectedReason,
-        } 
-      }
-    );
-    // We're deliberate not sending auto-llm-rejections from a human account, 
-    // because we wanna blankface in this context.
-    await sendRejectionPM({ post: { ...post, rejectedReason }, currentUser: null, context });
+    await updatePost({
+      selector: { _id: documentId },
+      data: { rejected: true, rejectedReason },
+    }, lwAccountContext);
   } else {
     // For comments, use updateComment which handles sending the rejection PM via callbacks
     // But the comment rejection DM logic is a bit different, so we need to recreate a resolver context
     // with the lwAccount that we want the DM to come from
-    const lwAccount = await getAdminTeamAccount(context);
-    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
-
     await updateComment({
       selector: { _id: documentId },
       data: {
@@ -277,6 +387,12 @@ export async function createAutomatedContentEvaluation(
     const collectionName = revision.collectionName;
     if (collectionName === "Posts" || collectionName === "Comments") {
       await rejectContentForLLM(documentId, collectionName, context);
+      const document = collectionName === "Posts"
+        ? await Posts.findOne({ _id: documentId }, {}, { userId: 1 })
+        : await Comments.findOne({ _id: documentId }, {}, { userId: 1 });
+      if (document?.userId) {
+        await maybeRunLlmRejectionTriage(document.userId, context);
+      }
     }
   }
 

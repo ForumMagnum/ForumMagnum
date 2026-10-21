@@ -1,15 +1,18 @@
 import { localeSetting } from '@/lib/instanceSettings';
+import { forumTypeSetting } from '@/lib/forumTypeUtils';
 import { getAllCollectionsByName } from "../collections/allCollections";
 import { getAllRepos } from "../repos";
 import { generateDataLoaders } from "./apollo-server/context";
 
 export const createAnonymousContext = (options?: Partial<ResolverContext>): ResolverContext => {
+  const forumType = options?.forumType ?? forumTypeSetting.get();
   return {
+    forumType,
     userId: null,
     clientId: null,
     currentUser: null,
     headers: undefined,
-    locale: localeSetting.get(),
+    locale: localeSetting.get(forumType),
     isSSR: false,
     isGreaterWrong: false,
     isIssaRiceReader: false,
@@ -22,7 +25,7 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
 
 export const createAdminContext = (options?: Partial<ResolverContext>): ResolverContext => {
   return {
-    ...createAnonymousContext(),
+    ...createAnonymousContext(options),
     // HACK: Instead of a full user object, this is just a mostly-empty object with isAdmin set to true
     currentUser: {isAdmin: true} as DbUser,
     ...options,

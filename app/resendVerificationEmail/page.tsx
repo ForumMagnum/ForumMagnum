@@ -15,7 +15,7 @@ assertRouteAttributes("/resendVerificationEmail", {
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('Email Verification'));
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('Email Verification'));
 }
 
 export default function Page() {

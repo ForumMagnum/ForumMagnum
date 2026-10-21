@@ -1,8 +1,10 @@
 import { NextRequest } from "next/server";
 import { markdownClasses, renderReactToMarkdown } from "@/server/markdownApi/markdownResponse";
 import { escapeHtml } from "@/lib/utils/sanitize";
+import type { ForumTypeString } from "@/lib/instanceSettings";
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 
-const renderMarkdownNotFound = async (path: string): Promise<Response> => {
+const renderMarkdownNotFound = async (path: string, forumType: ForumTypeString): Promise<Response> => {
   const markdown = await renderReactToMarkdown(
     <div>
       <div className={markdownClasses.title}>404 Not Found</div>
@@ -10,7 +12,8 @@ const renderMarkdownNotFound = async (path: string): Promise<Response> => {
         No API route matches {path}<br/>
         Look at /api/SKILL.md for information about suggested API routes.
       </div>
-    </div>
+    </div>,
+    forumType
   );
 
   return new Response(markdown, {
@@ -66,8 +69,8 @@ export async function GET(req: NextRequest) {
   }
 
   if (wantsMarkdown) {
-    return renderMarkdownNotFound(req.nextUrl.pathname);
+    return renderMarkdownNotFound(req.nextUrl.pathname, getForumTypeForRequest(req));
   }
 
-  return renderMarkdownNotFound(req.nextUrl.pathname);
+  return renderMarkdownNotFound(req.nextUrl.pathname, getForumTypeForRequest(req));
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
@@ -13,7 +13,6 @@ import ConversationTitleEditForm from "./ConversationTitleEditForm";
 import FriendlyInboxNavigation from "./FriendlyInboxNavigation";
 import ConversationContents from "./ConversationContents";
 import ForumIcon from "../common/ForumIcon";
-import ConversationDetails from "./ConversationDetails";
 import EAButton from "../ea-forum/EAButton";
 import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -70,18 +69,6 @@ const styles = defineStyles("FriendlyInbox", (theme: ThemeType) => ({
     padding: "12px 12px 8px 16px",
     fontWeight: 600,
   },
-  backButton: {
-    ...theme.typography.body2,
-    color: theme.palette.lwTertiary.main,
-    width: 'fit-content',
-    padding: "12px 0 0 0",
-    fontWeight: 600,
-    display: "none",
-    // Only show on mobile
-    [theme.breakpoints.down('xs')]: {
-      display: "block",
-    }
-  },
   table: {
     minHeight: 0,
     display: "flex",
@@ -130,15 +117,11 @@ const styles = defineStyles("FriendlyInbox", (theme: ThemeType) => ({
     height: "100%",
   },
   conversation: {
-    overflowY: "auto",
     borderBottom: theme.palette.border.grey200,
-    padding: "0px 16px",
     flex: "1 1 auto",
+    minHeight: 0,
     display: "flex",
     flexDirection: "column",
-    [theme.breakpoints.down('xs')]: {
-      padding: "0px 24px",
-    },
   },
   columnHeader: {
     borderBottom: theme.palette.border.grey200,
@@ -250,8 +233,6 @@ const FriendlyInbox = ({currentUserId, conversationId, view = "userConversations
   isModInbox ||= query.isModInbox === "true";
 
   const userId = query.userId;
-
-  const selectedConversationRef = useRef<HTMLDivElement|null>(null);
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
@@ -443,15 +424,10 @@ const FriendlyInbox = ({currentUserId, conversationId, view = "userConversations
                 )}
                 <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
               </div>
-              <div className={classes.conversation} ref={selectedConversationRef}>
-                <Link to="/inbox" className={classes.backButton}>
-                  Go back to Inbox
-                </Link>
-                <ConversationDetails conversation={selectedConversation} hideOptions />
+              <div className={classes.conversation}>
                 <ConversationContents
                   currentUserId={currentUserId}
                   conversation={selectedConversation}
-                  scrollRef={selectedConversationRef}
                   sendEmail={sendEmail}
                 />
               </div>

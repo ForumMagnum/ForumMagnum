@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import Users from "../../server/collections/users/collection";
 import { ModeratorActions } from "../../server/collections/moderatorActions/collection";
 import { allRateLimits, MANUAL_RATE_LIMIT_EXPIRED } from "@/lib/collections/moderatorActions/constants";
@@ -5,8 +6,8 @@ import { createAdminContext } from "../vulcan-lib/createContexts";
 import moment from 'moment';
 import { createModeratorAction } from "../collections/moderatorActions/mutations";
 
-export async function expiredRateLimitsReturnToReviewQueue() {
-  const context = createAdminContext();
+export async function expiredRateLimitsReturnToReviewQueue(forumType: ForumTypeString) {
+  const context = createAdminContext({ forumType });
   const endOfDay = new Date()
   const startOfDay = moment(endOfDay).subtract(1, 'days').toDate()
   

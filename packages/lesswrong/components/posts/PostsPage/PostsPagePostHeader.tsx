@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useMemo } from 'react';
 import { getResponseCounts, parseUnsafeUrl, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -161,6 +162,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   hideTags?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
   const rssFeedSource = ('feed' in post) ? post.feed : null;
@@ -177,7 +179,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const {
     answerCount,
     commentCount,
-  } = useMemo(() => getResponseCounts({ post, answers }), [post, answers]);
+  } = useMemo(() => getResponseCounts({ post, answers, forumType }), [post, answers, forumType]);
 
   const minimalSecondaryInfo = post.isEvent || (isFriendlyUI() && post.shortform);
 
@@ -213,7 +215,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         {post.isEvent && <GroupLinks document={post} noMargin />}
         {answersNode}
         {!post.shortform &&
-          <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
+          <LWTooltip title={postGetCommentCountStr(post, forumType, commentCount)}>
             <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
               <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
             </CommentsLink>
@@ -271,5 +273,4 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
 }
 
 export default PostsPagePostHeader;
-
 

@@ -1,4 +1,4 @@
-import { getDefaultVotingSystem } from "@/lib/collections/posts/helpers";
+import { defaultVotingSystem } from "@/lib/collections/posts/helpers";
 import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
 
@@ -12,6 +12,6 @@ export default registerMigration({
       UPDATE "Posts"
       SET "votingSystem" = $1
       WHERE "votingSystem" IS NULL
-    `, [getDefaultVotingSystem()]);
+    `, [defaultVotingSystem]);
   }
 });

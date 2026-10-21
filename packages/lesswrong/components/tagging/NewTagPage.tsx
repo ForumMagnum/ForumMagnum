@@ -1,15 +1,15 @@
 "use client";
+import { useForumType } from '@/components/hooks/useForumType';
+
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { isEAForum } from '../../lib/instanceSettings';
 import { slugify } from '@/lib/utils/slugify';
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { useTagBySlug } from './useTag';
 import { TagForm } from './TagForm';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
-import NewTagInfoBox from "./NewTagInfoBox";
 import Loading from "../vulcan-core/Loading";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -29,17 +29,10 @@ export const styles = defineStyles("NewTagPage", (_theme: ThemeType) => ({
   root: {
     position: "relative",
   },
-  guide: {
-    position: "absolute",
-    top: -50,
-    right: -300,
-    "@media (max-width: 1400px)": {
-      right: -240,
-    },
-  },
 }));
 
 const NewTagPage = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
@@ -66,13 +59,13 @@ const NewTagPage = () => {
     );
   }
   
-  if (!tagUserHasSufficientKarma(currentUser, "new")) {
+  if (!tagUserHasSufficientKarma(currentUser, "new", forumType)) {
     return (
       <SingleColumnSection>
         <SectionTitle title={`New Wikitag`}/>
         <div>
           You do not have enough karma to define new wikitags. You must have
-          at least {getTagMinimumKarmaPermissions().new} karma.
+          at least {getTagMinimumKarmaPermissions(forumType).new} karma.
         </div>
       </SingleColumnSection>
     );
@@ -110,11 +103,7 @@ const NewTagPage = () => {
           }}
         />
       )}
-      {isEAForum() &&
-        <div className={classes.guide}>
-          <NewTagInfoBox />
-        </div>
-      }
+
     </SingleColumnSection>
   );
 }

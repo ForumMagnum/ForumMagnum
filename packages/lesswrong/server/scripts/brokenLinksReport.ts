@@ -1,3 +1,4 @@
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import Users from '../../server/collections/users/collection';
 import { urlIsBroken } from './utils'
 import { Parser } from 'htmlparser2';
@@ -146,6 +147,7 @@ export const findBrokenLinks = async (
     }};
   }
   const postsToCheck = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsPage,
     selector: filter,

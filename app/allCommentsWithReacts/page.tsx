@@ -7,7 +7,7 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('All Comments with Reacts'));
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('All Comments with Reacts'));
 }
 
 assertRouteAttributes("/allCommentsWithReacts", {

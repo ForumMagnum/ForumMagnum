@@ -289,7 +289,6 @@ export type GetCrosspostRequest = t.TypeOf<typeof GetCrosspostRequestValidator>;
 //       htmlBio: t.string,
 //       postCount: t.number,
 //       afCommentCount: t.number,
-//       spamRiskScore: t.number,
 //     }),
 //     coauthors: t.array(t.string),
 //     title: t.string,

@@ -1,5 +1,5 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from "../common/withUser";
 import { useItemsRead } from "../hooks/useRecordPostView";
 import moment from "moment";
@@ -23,9 +23,10 @@ const WelcomePostQuery = gql(`
 export default function WelcomePostItem({repeatedPostsPrecedence}: {
   repeatedPostsPrecedence?: number
 }) {
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
-  const welcomePostId = aboutPostIdSetting.get();
+  const welcomePostId = aboutPostIdSetting.get(forumType);
 
   const { data } = useQuery(WelcomePostQuery, {
     variables: { documentId: welcomePostId },

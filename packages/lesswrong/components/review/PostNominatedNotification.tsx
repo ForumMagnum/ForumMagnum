@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { getReviewNameInSitu, REVIEW_YEAR } from '../../lib/reviewUtils';
@@ -38,6 +39,7 @@ const styles = defineStyles("PostNominatedNotification", (theme: ThemeType) => (
 }))
 
 const PostNominatedNotification = ({postId}: {postId: string}) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { loading, data } = useQuery(PostsListQuery, {
     variables: { documentId: postId },
@@ -58,7 +60,7 @@ const PostNominatedNotification = ({postId}: {postId: string}) => {
       <p>Your post has been nominated for the {getReviewNameInSitu()}.</p>
       <p>You're encouraged to write a self-review, exploring how you think about the post today. Do you still endorse it? Have you learned anything new that adds more depth? How might you improve the post? What further work do you think should be done exploring the ideas here?</p>
       <div className={classes.reviewButton}>
-        <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
+        <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get(forumType)} conversation`} placement="bottom">
             <div className={classes.reviewButton}>Write a Review</div>
           </LWTooltip>}/>
       </div>

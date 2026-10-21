@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { routeHasWhiteBackground, routeHasCreamBackground } from '@/lib/routeChecks/routeBackgroundColors';
 

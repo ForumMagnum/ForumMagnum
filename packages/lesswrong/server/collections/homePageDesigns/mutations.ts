@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { createComment, updateComment } from "@/server/collections/comments/mutations";
@@ -112,6 +113,7 @@ async function reviewDesignSecurity(html: string): Promise<{ passed: boolean; me
 }
 
 interface AutoReviewContext {
+  forumType: ForumTypeString;
   userId: string;
   displayName: string;
   slug: string;
@@ -162,11 +164,11 @@ async function notifyModerationOfFailedReview(designId: string, user: AutoReview
 
 async function notifyUserOfRejection(reviewContext: AutoReviewContext) {
   try {
-    const context = createAnonymousContext();
+    const context = createAnonymousContext({ forumType: reviewContext.forumType });
     const adminAccount = await getAdminTeamAccount(context);
     if (!adminAccount) return;
 
-    const adminContext = computeContextFromUser({ user: adminAccount, isSSR: false });
+    const adminContext = computeContextFromUser({ user: adminAccount, isSSR: false, forumType: reviewContext.forumType });
 
     const conversation = await createConversation({
       data: {
@@ -198,10 +200,10 @@ async function notifyUserOfRejection(reviewContext: AutoReviewContext) {
 }
 
 async function handleRejection(designId: string, reviewContext: AutoReviewContext, message: string) {
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({ forumType: reviewContext.forumType });
   const adminAccount = await getAdminTeamAccount(context);
   if (adminAccount) {
-    const adminContext = computeContextFromUser({ user: adminAccount, isSSR: false });
+    const adminContext = computeContextFromUser({ user: adminAccount, isSSR: false, forumType: reviewContext.forumType });
     await updateComment({
       data: { deleted: true, deletedDate: new Date() },
       selector: { _id: reviewContext.commentId },
@@ -321,6 +323,7 @@ export async function publishHomePageDesign({
   } else {
     // Kick off the automated security review in the background
     backgroundTask(runAutoReview(latest._id, latest.html, {
+      forumType: context.forumType,
       userId: currentUser._id,
       displayName: currentUser.displayName,
       slug: currentUser.slug,

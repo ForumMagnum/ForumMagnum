@@ -1,9 +1,11 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
 import { NextRequest, NextResponse } from "next/server";
 
 
-export const setCorsHeaders = (res: Response) => {
-  const foreignBaseUrl = fmCrosspostBaseUrlSetting.get()?.replace(/\/$/, "");
+export const setCorsHeaders = (res: Response, forumType: ForumTypeString) => {
+  const foreignBaseUrl = fmCrosspostBaseUrlSetting.get(forumType)?.replace(/\/$/, "");
   if (foreignBaseUrl) {
     res.headers.set("Access-Control-Allow-Origin", foreignBaseUrl);
     res.headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -30,7 +32,7 @@ export const setSandboxedIframeCorsHeaders = (res: Response) => {
 
 export const crosspostOptionsHandler = (req: NextRequest) => {
   const res = new NextResponse(null, { status: 204 });
-  setCorsHeaders(res);
+  setCorsHeaders(res, getForumTypeForRequest(req));
   res.headers.set("Connection", "Keep-Alive");
   res.headers.set("Keep-Alive", "timeout=2, max=100");
   return res;

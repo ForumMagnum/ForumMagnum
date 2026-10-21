@@ -45,7 +45,7 @@ module.exports = {
     // Commented out because there are immport cycles that haven't been resolved
     // yet.
     "plugin:import/typescript",
-    "plugin:@next/next/recommended"
+    "plugin:@next/next/recommended-legacy"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -335,6 +335,12 @@ module.exports = {
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars": 0,
 
+    // Unused imports are an error (and are auto-fixable with `yarn eslint --fix`).
+    // This is narrower than no-unused-vars: it only looks at import
+    // specifiers, and is type-aware so imports that are only used as types
+    // count as used.
+    "unused-imports/no-unused-imports": "error",
+
     "@typescript-eslint/no-unused-expressions": 0,
     "@typescript-eslint/no-unsafe-function-type": 0,
 
@@ -348,6 +354,9 @@ module.exports = {
     "@next/next/no-img-element": 0,
 
     "@next/next/no-html-link-for-pages": 0,
+    // Full-page navigation is intentional when changing cookie-backed homepage
+    // settings or switching between the editor playground's browsing contexts.
+    "@next/next/no-location-assign-relative-destination": 0,
   },
   "overrides": [
     {
@@ -381,6 +390,17 @@ module.exports = {
       },
     },
     {
+      "files": ["app/api/mcp/**/*.ts"],
+      "settings": {
+        "import/resolver": {
+          typescript: {
+            // The SDK's types export maps .js imports to nonexistent .js.d.ts files.
+            conditionNames: ["import", "node", "default"],
+          },
+        },
+      },
+    },
+    {
       "files": [
         "packages/lesswrong/lib/**/*.ts",
         "packages/lesswrong/lib/**/*.tsx",
@@ -410,6 +430,7 @@ module.exports = {
     "import",
     "no-barrel-files",
     "@stylistic/ts",
+    "unused-imports",
     "local"
   ],
   "settings": {

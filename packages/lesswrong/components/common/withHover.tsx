@@ -1,9 +1,10 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { EventProps, useTracking } from "../../lib/analyticsEvents";
 import { isMobile } from '../../lib/utils/isMobile'
+import { useOnNavigateOrHide } from '../hooks/useOnNavigateOrHide';
 
 function datesDifference(a: Date, b: Date): number {
-  return (a as any)-(b as any);
+  return a.getTime() - b.getTime();
 }
 
 // A popper-compatible anchor. Either a real DOM element (standard case) or a
@@ -84,92 +85,73 @@ export const useHover = (options?: {
   const [hover, setHover] = useState(false)
   const [everHovered, setEverHovered] = useState(false)
   const [anchorEl, setAnchorEl] = useState<HoverAnchor | null>(null)
-  const delayTimer = useRef<any>(null)
+  const delayTimer = useRef<NodeJS.Timeout | null>(null)
   const mouseOverStart = useRef<Date|null>(null)
+  const hoveredRef = useRef(false);
 
   const { captureEvent } = useTracking({eventType:"hoverEventTriggered", eventProps})
   
-  // On unmount, unhover. This is necessary when <Activity> is used (including
-  // implicitly by nextjs) because that breaks the assumption that an element
-  // which has seen a mouseOver event is still hovered so long as it hasn't seen
-  // a mouseLeave event.
-  useEffect(() => {
-    return () => {
-      setHover(false);
-      setAnchorEl(null);
-    }
-  //eslint-disable-next-line
-  }, []);
-
   const captureHoverEvent = useCallback(() => {
     if (!isMobile()) {
       captureEvent("hoverEventTriggered",
         {timeToCapture: new Date()}
       )
     }
-    clearTimeout(delayTimer.current)
+    if (delayTimer.current) clearTimeout(delayTimer.current)
   }, [captureEvent])
 
   const handleMouseOver = useCallback((event: MouseEvent|React.MouseEvent) => {
+    const target = event.currentTarget;
+    if (!(target instanceof HTMLElement)) return;
     if ((disabledOnMobile && isMobile()) || (getIsEnabled && !getIsEnabled())) {
       return;
     }
 
-    setHover((currentValue) => {
-      // Sometimes the event is retriggered by moving the mouse inside the
-      // hovered element, if the hovered element contains children which can
-      // take the mouse focus. We only want to trigger `onEnter` the first time
-      // the mouse enters.
-      if (!currentValue) {
-        onEnter?.();
-      }
-      return true;
-    });
+    // Mouseover also fires when moving between children. Keep callbacks outside
+    // state updaters so React cannot replay them, including during restoration.
+    if (!hoveredRef.current) {
+      hoveredRef.current = true;
+      onEnter?.();
+    }
+    setHover(true);
     setEverHovered(true);
     // If the hovered element is an inline anchor that wraps across multiple
     // lines, anchor the popper to the specific line segment the mouse is over
     // rather than to the overall bounding box. For non-wrapping elements this
     // is a no-op (getClientRects returns a single rect).
-    const target = event.currentTarget as HTMLElement;
     setAnchorEl(getSegmentAnchor(target, event.clientX, event.clientY));
     mouseOverStart.current = new Date()
-    clearTimeout(delayTimer.current)
+    if (delayTimer.current) clearTimeout(delayTimer.current)
     delayTimer.current = setTimeout(captureHoverEvent,500)
   }, [captureHoverEvent, onEnter, disabledOnMobile, getIsEnabled])
-
-  const handleMouseLeave = useCallback(() => {
-    setHover((currentValue) => {
-      if (currentValue) {
-        onLeave?.();
-      }
-      return false;
-    });
-    setAnchorEl(null)
-    clearTimeout(delayTimer.current)
-
-    if (mouseOverStart.current) {
-      const hoverDuration = datesDifference(new Date(), mouseOverStart.current)
-      if (hoverDuration > 2000) {
-        captureEvent("hoverEventTriggered", {hoverEventType: "longHoverEvent", hoverDuration});
-      }
-      mouseOverStart.current = null
-    }
-  },[captureEvent, onLeave])
 
   /**
    * Simulate un-hovering, making this effectively not-hovered until the mouse
    * moves away and reenters. Used to make hover-menus close.
    */
   const forceUnHover = useCallback(() => {
-    setHover((currentValue) => {
-      if (currentValue) {
-        onLeave?.();
-      }
-      return false;
-    });
+    const wasHovered = hoveredRef.current;
+    hoveredRef.current = false;
+    setHover(false);
     setAnchorEl(null)
-    clearTimeout(delayTimer.current)
+    if (delayTimer.current) clearTimeout(delayTimer.current)
+    delayTimer.current = null;
+    mouseOverStart.current = null;
+    if (wasHovered) onLeave?.();
   }, [onLeave]);
+
+  useOnNavigateOrHide(forceUnHover);
+
+  const handleMouseLeave = useCallback(() => {
+    const hoverStart = mouseOverStart.current;
+    forceUnHover();
+    if (hoverStart) {
+      const hoverDuration = datesDifference(new Date(), hoverStart)
+      if (hoverDuration > 2000) {
+        captureEvent("hoverEventTriggered", {hoverEventType: "longHoverEvent", hoverDuration});
+      }
+    }
+  }, [captureEvent, forceUnHover]);
 
   return {
     eventHandlers: {

@@ -1,3 +1,5 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { FC, ReactNode, createContext, useCallback, useContext, useState } from "react";
 import { TupleSet, UnionOf } from "../../lib/utils/typeGuardUtils";
 import { useCookiesWithConsent } from "./useCookiesWithConsent";
@@ -17,21 +19,23 @@ type PostsListViewContext = {
   setView: (view: PostsListViewType) => void,
 }
 
-const getDefaultView: () => PostsListViewType = () => {
-  const defaultViewSetting = postsListViewTypeSetting.get()
+const getDefaultView = (forumType: ForumTypeString): PostsListViewType => {
+  const defaultViewSetting = postsListViewTypeSetting.get(forumType)
   return isPostsListViewType(defaultViewSetting) ? defaultViewSetting : 'list'
 }
 
-const postsListViewContext = createContext<PostsListViewContext>({
-  getView: getDefaultView,
+const postsListViewContext = createContext<PostsListViewContext | null>(null);
+
+function setViewWithoutProvider() {
   // eslint-disable-next-line no-console
-  setView: () => console.error("Can't set view outside of PostsListViewProvider"),
-});
+  console.error("Can't set view outside of PostsListViewProvider");
+}
 
 const useCookieValue = (): {
   cookieValue: PostsListViewType | null,
     setCookieValue: (value: PostsListViewType) => void,
 } => {
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([POSTS_LIST_VIEW_TYPE_COOKIE]);
   const setCookieValue = useCallback((newValue: PostsListViewType) => {
@@ -40,7 +44,7 @@ const useCookieValue = (): {
 
   // TODO: We currently need to disable persisting the card view for logged out
   // users because it plays really badly with the page cache
-  const value = currentUser ? cookies[POSTS_LIST_VIEW_TYPE_COOKIE] : getDefaultView();
+  const value = currentUser ? cookies[POSTS_LIST_VIEW_TYPE_COOKIE] : getDefaultView(forumType);
   return {
     cookieValue: isPostsListViewType(value) ? value : null,
     setCookieValue,
@@ -48,8 +52,9 @@ const useCookieValue = (): {
 }
 
 export const PostsListViewProvider: FC<{children: ReactNode}> = ({children}) => {
+  const { forumType } = useForumType();
   const {cookieValue, setCookieValue} = useCookieValue();
-  const [view, setView_] = useState<PostsListViewType>(cookieValue ?? getDefaultView());
+  const [view, setView_] = useState<PostsListViewType>(cookieValue ?? getDefaultView(forumType));
 
   const getView = useCallback(() => view, [view]);
 
@@ -65,4 +70,9 @@ export const PostsListViewProvider: FC<{children: ReactNode}> = ({children}) => 
   );
 }
 
-export const usePostsListView = () => useContext(postsListViewContext);
+export const usePostsListView = (): PostsListViewContext => {
+  const context = useContext(postsListViewContext);
+  const { forumType } = useForumType();
+  const getDefault = useCallback(() => getDefaultView(forumType), [forumType]);
+  return context ?? {getView: getDefault, setView: setViewWithoutProvider};
+};

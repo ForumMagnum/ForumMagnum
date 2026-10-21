@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { exchangeCodeForTokens, fetchGoogleUserProfile } from '@/lib/auth/googleOAuth';
@@ -5,6 +6,8 @@ import { getOrCreateGoogleUser } from '@/server/authentication/googleAccounts';
 import { createAndSetToken } from '@/server/vulcan-lib/apollo-server/authentication';
 import { captureException } from '@/lib/sentryWrapper';
 import { getSiteUrlFromReq } from '@/server/utils/getSiteUrl';
+import { ConflictingAccountsError } from '@/server/authentication/conflictingAccountsError';
+import { getLoginErrorUrl, getLoginWarningUrl, loginErrorCodes, loginWarningCodes, sanitizeLoginReturnTo } from '@/lib/auth/loginNotices';
 
 
 export async function GET(request: NextRequest) {
@@ -42,25 +45,32 @@ export async function GET(request: NextRequest) {
     const profile = await fetchGoogleUserProfile(tokens.access_token);
     
     // Create or update user
-    const user = await getOrCreateGoogleUser(profile);
+    const { user, conflictingAccounts } = await getOrCreateGoogleUser(profile, getForumTypeForRequest(request));
 
     if (user.banned && new Date(user.banned) > new Date()) {
       return NextResponse.redirect(new URL('/banNotice', siteUrl));
     }
     
     // Set login token
-    await createAndSetToken(request.headers, user);
+    await createAndSetToken(request.headers, user, getForumTypeForRequest(request));
     
     // Get return URL
     const returnTo = cookieStore.get('google_oauth_return')?.value ?? '/';
     cookieStore.delete('google_oauth_return');
+
+    if (conflictingAccounts) {
+      return NextResponse.redirect(new URL(getLoginWarningUrl(loginWarningCodes.conflictingAccounts, sanitizeLoginReturnTo(returnTo)), siteUrl));
+    }
     
     return NextResponse.redirect(new URL(returnTo, siteUrl));
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error retrieving Google OAuth access token', error);
     captureException(error);
-    return NextResponse.redirect(new URL('/?error=authentication_failed', siteUrl));
+    const errorCode = error instanceof ConflictingAccountsError
+      ? loginErrorCodes.conflictingAccounts
+      : loginErrorCodes.authenticationFailed;
+    return NextResponse.redirect(new URL(getLoginErrorUrl(errorCode), siteUrl));
   } finally {
     cookieStore.delete('google_oauth_state');
     cookieStore.delete('google_oauth_return');

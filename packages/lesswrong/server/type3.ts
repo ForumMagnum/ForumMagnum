@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { isPostAllowedType3Audio, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { type3ApiTokenSetting, type3SourceUrlSetting } from "./databaseSettings";
 import { Posts } from "@/server/collections/posts/collection.ts";
@@ -5,14 +6,15 @@ import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAna
 import { isTagAllowedType3Audio, tagGetUrl } from "@/lib/collections/tags/helpers";
 import { Tags } from "@/server/collections/tags/collection";
 
-export const hasType3ApiAccess = () => !!type3ApiTokenSetting.get();
+export const hasType3ApiAccess = (forumType: ForumTypeString) => !!type3ApiTokenSetting.get(forumType);
 
 const type3ApiRequest = async (
   endpoint: string,
   method: "POST" | "DELETE",
   body: Json,
+  forumType: ForumTypeString,
 ) => {
-  const token = type3ApiTokenSetting.get();
+  const token = type3ApiTokenSetting.get(forumType);
   if (!token) {
     // eslint-disable-next-line no-console
     console.warn("No type3 API token - skipping API request");
@@ -32,11 +34,11 @@ const type3ApiRequest = async (
   }
 }
 
-const isDocumentAllowedType3Audio = (document: DbPost | DbTag, collectionName: 'Posts' | 'Tags') => {
+const isDocumentAllowedType3Audio = (document: DbPost | DbTag, collectionName: 'Posts' | 'Tags', forumType: ForumTypeString) => {
   if (collectionName === 'Posts') {
-    return isPostAllowedType3Audio(document as DbPost);
+    return isPostAllowedType3Audio(document as DbPost, forumType);
   } else {
-    return isTagAllowedType3Audio(document as DbTag);
+    return isTagAllowedType3Audio(document as DbTag, forumType);
   }
 } 
 
@@ -45,35 +47,35 @@ type DocumentWithAudio = {
   slug: string;
 };
 
-const getPostUrl = (post: DocumentWithAudio) =>
-  type3SourceUrlSetting.get() + postGetPageUrl(post);
+const getPostUrl = (post: DocumentWithAudio, forumType: ForumTypeString) =>
+  type3SourceUrlSetting.get(forumType) + postGetPageUrl(post);
 
-const getTagUrl = (tag: DocumentWithAudio) =>
-  type3SourceUrlSetting.get() + tagGetUrl(tag);
+const getTagUrl = (tag: DocumentWithAudio, forumType: ForumTypeString) =>
+  type3SourceUrlSetting.get(forumType) + tagGetUrl(tag);
 
-const getDocumentUrl = (document: DocumentWithAudio, collectionName: 'Posts' | 'Tags') => {
+const getDocumentUrl = (document: DocumentWithAudio, collectionName: 'Posts' | 'Tags', forumType: ForumTypeString) => {
   if (collectionName === 'Posts') {
-    return getPostUrl(document);
+    return getPostUrl(document, forumType);
   } else {
-    return getTagUrl(document);
+    return getTagUrl(document, forumType);
   }
 }
 
 
-export const regenerateType3Audio = async (document: DbPost | DbTag, collectionName: 'Posts' | 'Tags') => {
+export const regenerateType3Audio = async (document: DbPost | DbTag, collectionName: 'Posts' | 'Tags', forumType: ForumTypeString) => {
   const body = {
-    source_url: getDocumentUrl(document, collectionName),
+    source_url: getDocumentUrl(document, collectionName, forumType),
     priority: "immediate",
   };
 
-  if (!isDocumentAllowedType3Audio(document, collectionName)) return;
+  if (!isDocumentAllowedType3Audio(document, collectionName, forumType)) return;
 
-  await type3ApiRequest("narration/regenerate", "POST", body);
+  await type3ApiRequest("narration/regenerate", "POST", body, forumType);
   captureEvent("regenerateType3Audio", {documentId: document._id, collectionName, ...body});
 }
 
 // Exported to allow running with "yarn repl"
-export const regenerateType3AudioForDocumentId = async (documentId: string, collectionName: 'Posts' | 'Tags') => {
+export const regenerateType3AudioForDocumentId = async (documentId: string, collectionName: 'Posts' | 'Tags', forumType: ForumTypeString) => {
   const document = await (collectionName === 'Posts' 
     ? Posts.findOne({_id: documentId})
 
@@ -81,37 +83,37 @@ export const regenerateType3AudioForDocumentId = async (documentId: string, coll
   if (!document) {
     throw new Error("Document not found");
   }
-  if (isDocumentAllowedType3Audio(document, collectionName)) {
-    await regenerateType3Audio(document, collectionName);
+  if (isDocumentAllowedType3Audio(document, collectionName, forumType)) {
+    await regenerateType3Audio(document, collectionName, forumType);
   }
 }
 
-const deleteType3Audio = async (document: DocumentWithAudio, collectionName: 'Posts' | 'Tags') => {
+const deleteType3Audio = async (document: DocumentWithAudio, collectionName: 'Posts' | 'Tags', forumType: ForumTypeString) => {
   const body = {
-    source_url: getDocumentUrl(document, collectionName),
+    source_url: getDocumentUrl(document, collectionName, forumType),
   };
-  await type3ApiRequest("narration/delete-by-url", "DELETE", body);
+  await type3ApiRequest("narration/delete-by-url", "DELETE", body, forumType);
   captureEvent("deleteType3Audio", {documentId: document._id, collectionName, ...body});
 }
 
 // Exported to allow running with "yarn repl"
-export const deleteType3AudioForDocumentId = async (documentId: string, collectionName: 'Posts' | 'Tags') => {
+export const deleteType3AudioForDocumentId = async (documentId: string, collectionName: 'Posts' | 'Tags', forumType: ForumTypeString) => {
   const document = await (collectionName === 'Posts' 
     ? Posts.findOne({_id: documentId})
     : Tags.findOne({_id: documentId}));
   if (!document) {
     throw new Error("Document not found");
   }
-  await deleteType3Audio(document, collectionName);
+  await deleteType3Audio(document, collectionName, forumType);
 }
 
 // Exported to allow running with "yarn repl"
-export const regenerateAllType3AudioForUser = async (userId: string) => {
+export const regenerateAllType3AudioForUser = async (userId: string, forumType: ForumTypeString) => {
   const posts = await Posts.find({
     userId
   }).fetch();
 
   for (const post of posts) {
-    await regenerateType3Audio(post, "Posts");
+    await regenerateType3Audio(post, "Posts", forumType);
   }
 }

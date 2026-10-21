@@ -5,10 +5,10 @@ import {
   getUserEmail,
   userOwnsAndInGroup,
   karmaChangeUpdateFrequencies,
+  userGetAbsoluteProfileUrl,
 } from "./helpers";
-import { userGetEditUrl } from "../../vulcan-users/helpers";
+import { userGetAbsoluteEditUrl } from "../../vulcan-users/helpers";
 import { userOwns, userIsAdmin, userIsMemberOf } from "../../vulcan-users/permissions";
-import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
   generateIdResolverSingle,
@@ -28,15 +28,17 @@ import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { sanitize } from "@/lib/utils/sanitize";
+import { AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH } from "@/lib/aiDigest/constants";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from "@/server/rateLimitUtils";
 import { calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import GraphQLJSON from "@/lib/vendor/graphql-type-json";
-import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
+import { bothChannelsEnabledNotificationTypeSettings, defaultNotificationTypeSettings, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
 import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
+import { getModeratorActionsForUser, getPendingContentStats, getLastRemovedFromReviewQueueAt, getRejectedContentCount } from "@/server/users/reviewQueue";
 import { getReviewGroupFromActions } from "./reviewGroups";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 
@@ -57,17 +59,6 @@ const getCoauthoredPostCount = async (user: DbUser) => {
   return Number(result.count);
 };
 
-const getModeratorActionsForUser = (context: ResolverContext, userId: string) => {
-  return getWithLoader(
-    context,
-    context.ModeratorActions,
-    "moderatorActionsByUserId",
-    {},
-    "userId",
-    userId,
-  );
-};
-
 // Karma is checked first, to skip the batched content query when it can.
 const getIsOffboardCandidate = async (context: ResolverContext, user: DbUser): Promise<boolean> => {
   if (user.karma < 0) {
@@ -77,21 +68,6 @@ const getIsOffboardCandidate = async (context: ResolverContext, user: DbUser): P
     const candidateIds = new Set(await context.repos.users.getOffboardCandidateUserIds(userIds));
     return userIds.map((id) => candidateIds.has(id));
   });
-};
-
-// Get last time user's `needsReview` flag was set to false (or null if never).
-const getLastRemovedFromReviewQueueAt = async (context: ResolverContext, userId: string): Promise<Date | null> => {
-  const fieldChanges = await getWithLoader(
-    context,
-    context.FieldChanges,
-    "needsReviewFieldChanges",
-    { documentId: userId, fieldName: "needsReview", newValue: 'false' },
-    "documentId",
-    userId,
-    { sort: { createdAt: -1 }, limit: 1 },
-  );
-
-  return fieldChanges[0]?.createdAt ?? null;
 };
 
 ///////////////////////////////////////
@@ -640,7 +616,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
-        return userGetProfileUrl(user, true);
+        return userGetAbsoluteProfileUrl(user, context.forumType);
       },
     },
   },
@@ -649,7 +625,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
-        return userGetProfileUrl(user, false);
+        return userGetProfileUrl(user);
       },
     },
   },
@@ -658,7 +634,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (user, args, context) => {
-        return userGetEditUrl(user, true);
+        return userGetAbsoluteEditUrl(user, context.forumType);
       },
     },
   },
@@ -1800,7 +1776,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationShortformContent: {
@@ -1812,7 +1787,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationRepliesToMyComments: {
@@ -1824,7 +1798,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationRepliesToSubscribedComments: {
@@ -1836,7 +1809,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationSubscribedUserPost: {
@@ -1848,7 +1820,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationSubscribedUserComment: {
@@ -1860,7 +1831,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationPostsInGroups: {
@@ -1935,7 +1905,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationRSVPs: {
@@ -1995,7 +1964,6 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationDialogueMessages: {
@@ -2269,6 +2237,20 @@ const schema = {
     graphql: {
       outputType: "Boolean",
       canRead: ["members"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  emailSubscribedToAiDigest: {
+    database: {
+      type: "BOOL",
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
@@ -2850,36 +2832,6 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       validation: {
         optional: true,
-      },
-    },
-  },
-  // A number from 0 to 1, where 0 is almost certainly spam, and 1 is almost
-  // certainly not-spam. This is the same scale as ReCaptcha, except that it
-  // also includes post-signup activity like moderator approval, upvotes, etc.
-  // Scale:
-  //   0    Banned and purged user
-  //   0-0.8: Unreviewed user, based on ReCaptcha rating on signup (times 0.8)
-  //   0.9: Reviewed user
-  //   1.0: Reviewed user with 20+ karma
-  spamRiskScore: {
-    graphql: {
-      outputType: "Float!",
-      canRead: ["guests"],
-      resolver: (user, args, context) => {
-        const isReviewed = !!user.reviewedByUserId;
-        const { karma, signUpReCaptchaRating } = user;
-        if (user.deleteContent && user.banned) return 0.0;
-        else if (userIsAdmin(user)) return 1.0;
-        else if (isReviewed && karma >= 20) return 1.0;
-        else if (isReviewed && karma >= 0) return 0.9;
-        else if (isReviewed) return 0.8;
-        else if (signUpReCaptchaRating !== null && signUpReCaptchaRating !== undefined && signUpReCaptchaRating >= 0) {
-          // Rescale recaptcha ratings to [0,.8]
-          return signUpReCaptchaRating * 0.8;
-        } else {
-          // No recaptcha rating present; score it .8
-          return 0.8;
-        }
       },
     },
   },
@@ -4063,24 +4015,6 @@ const schema = {
       },
     },
   },
-  allowDatadogSessionReplay: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Boolean!",
-      inputType: "Boolean",
-      canRead: ["guests"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
   afPostCount: {
     database: {
       type: "DOUBLE PRECISION",
@@ -4374,7 +4308,7 @@ const schema = {
           startDate,
           endDate,
           nextBatchDate,
-          af: isAF(),
+          af: context.forumType === 'AlignmentForum',
           context,
         });
       },
@@ -4393,6 +4327,22 @@ const schema = {
       canUpdate: [userOwns],
     },
   },
+  aiDigestPersonalInstructions: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      inputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+        regEx: new RegExp(`^[\\s\\S]{0,${AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH}}$`),
+      },
+    },
+  },
   lastRemovedFromReviewQueueAt: {
     graphql: {
       outputType: "Date",
@@ -4402,14 +4352,39 @@ const schema = {
       },
     },
   },
+  pendingPostCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).pendingPostCount;
+      },
+    },
+  },
+  pendingCommentCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).pendingCommentCount;
+      },
+    },
+  },
+  oldestPendingContentAt: {
+    graphql: {
+      outputType: "Date",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).oldestPendingContentAt;
+      },
+    },
+  },
   rejectedContentCount: {
     graphql: {
       outputType: "Int",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        return await getWithCustomLoader(context, "rejectedContentCount", user._id, (userIds) =>
-          context.repos.users.getRejectedContentCounts(userIds)
-        );
+        return await getRejectedContentCount(context, user._id);
       },
     }
   },

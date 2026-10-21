@@ -1,5 +1,4 @@
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
-import { REJECTION_TEMPLATE_IDS } from "@/components/sunshineDashboard/supermod/templateHighlightRules";
 import { stripHtml } from "@/components/sunshineDashboard/supermod/contentTextHelpers";
 
 interface RejectedItem {
@@ -16,17 +15,19 @@ interface RejectedItem {
 const plaintextLength = (html: string | null) =>
   stripHtml(html ?? '').replace(/\s+/g, ' ').trim().length;
 
-async function getTemplateHtml(templateId: string): Promise<string> {
+async function getTemplateHtml(templateName: string): Promise<string> {
   const db = getSqlClientOrThrow();
   const row = await db.oneOrNone(`
     -- insufficientQualityLengthBacktest.getTemplateHtml
     SELECT t.name, r."html"
     FROM "ModerationTemplates" t
     LEFT JOIN "Revisions" r ON r."_id" = t."contents_latest"
-    WHERE t."_id" = $(templateId)
-  `, { templateId });
+    WHERE t."name" = $(templateName)
+      AND t."collectionName" = 'Rejections'
+      AND t."deleted" IS NOT TRUE
+  `, { templateName });
   // eslint-disable-next-line no-console
-  console.log(`Template ${templateId}: ${row?.name}\n${row?.html}\n`);
+  console.log(`Template ${templateName}: ${row?.name}\n${row?.html}\n`);
   return row?.html ?? '';
 }
 
@@ -134,7 +135,7 @@ function sweep(label: string, positives: number[], negatives: number[], threshol
 const THRESHOLDS = [100, 200, 300, 500, 750, 1000, 1250, 1500, 2000, 2500, 3000, 4000, 5000];
 
 export async function insufficientQualityLengthBacktest() {
-  const templateHtml = await getTemplateHtml(REJECTION_TEMPLATE_IDS.insufficientQuality);
+  const templateHtml = await getTemplateHtml('Insufficient quality');
   const templateText = stripHtml(templateHtml).replace(/\s+/g, ' ').trim();
   if (templateText.length < 40) throw new Error('Template text too short to match against rejection reasons');
   // Match on a distinctive middle chunk, so that reasons that combined several templates still match.

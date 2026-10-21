@@ -11,12 +11,12 @@ export async function dumpModerationTemplates() {
 
   const templates = await db.any(`
     -- dumpModerationTemplates.templates
-    SELECT _id, name, "collectionName", "order", deleted,
-           "contents"->'originalContents'->>'data' AS raw_contents,
-           length("contents"->'originalContents'->>'data') AS contents_len
-    FROM "ModerationTemplates"
-    WHERE deleted IS NOT TRUE
-    ORDER BY "collectionName", "order" NULLS LAST, name
+    SELECT t._id, t.name, t."collectionName", t."order", t.deleted,
+           r.html AS raw_contents, length(r.html) AS contents_len
+    FROM "ModerationTemplates" t
+    LEFT JOIN "Revisions" r ON r."_id" = t."contents_latest"
+    WHERE t.deleted IS NOT TRUE
+    ORDER BY t."collectionName", t."order" NULLS LAST, t.name
   `);
 
   for (const t of templates) {

@@ -1,9 +1,20 @@
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
+import {
+  EXCALIDRAW_DARK_MODE_FILTER,
+  EXCALIDRAW_DIAGRAM_CLASS,
+  EXCALIDRAW_DIAGRAM_RESIZED_CLASS,
+} from '@/lib/lexical/excalidrawDiagrams';
 
-const hideSpoilers = (theme: ThemeType) => ({
+export const hideSpoilers = (theme: ThemeType) => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
   color: theme.palette.panelBackground.spoilerBlock,
-  '& a, & a:hover, & a:focus, & a::after, & li': {
+  // Keep the insertion cursor visible while the spoiler text is hidden.
+  caretColor: theme.palette.text.spoilerBlockNotice,
+  // Headings, blockquotes, links, etc. set their own text color rather than
+  // inheriting it, so the color has to be forced on every descendant, not just
+  // the container. (In light mode those colors happened to be near-black on the
+  // black block; in dark mode they're white on dark grey.)
+  '& *, & a::after': {
     color: theme.palette.panelBackground.spoilerBlock
   },
   '& code': {
@@ -499,6 +510,25 @@ const ctaButtonStyles = (theme: ThemeType) => ({
   }
 });
 
+// Diagrams drawn with Excalidraw; see @/lib/lexical/excalidrawDiagrams. Without
+// a width set by the user, they're displayed at their natural size (scaled
+// down if they don't fit). They're stored in light mode, and inverted in dark
+// mode the same way Excalidraw itself does it.
+const excalidrawDiagramStyles = (theme: ThemeType) => ({
+  [`& figure.${EXCALIDRAW_DIAGRAM_CLASS} svg`]: {
+    display: 'inline-block',
+    verticalAlign: 'top',
+    maxWidth: '100%',
+    height: 'auto',
+    ...(theme.dark && {
+      filter: EXCALIDRAW_DARK_MODE_FILTER,
+    }),
+  },
+  [`& figure.${EXCALIDRAW_DIAGRAM_RESIZED_CLASS} svg`]: {
+    width: '100%',
+  },
+});
+
 const baseBodyStyles = (theme: ThemeType) => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
@@ -680,6 +710,7 @@ const baseBodyStyles = (theme: ThemeType) => ({
     ...theme.typography.caption,
     ...theme.typography.postStyle
   },
+  ...excalidrawDiagramStyles(theme),
   '& ol > li > ol': {
     listStyle: 'lower-alpha',
   },
@@ -806,7 +837,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
     // HACK FIXME: Playing with pointer events is a horrible idea in general, and probably also in this context
     // but it's the only way I was able to make this weird stuff work.
     ...pointerEvents,
-    '& > *:hover ~ .spoiler': {
+    '& > *:hover ~ .spoiler, & > *:hover ~ .spoiler *': {
       color: theme.palette.panelBackground.spoilerBlock,
     },
     '& > *:hover ~ .spoiler:before': {

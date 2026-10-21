@@ -16,7 +16,6 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { DraggableBlockMenuIcon } from '../../icons/DraggableBlockMenuIcon';
 import { PlusIcon } from '../../icons/PlusIcon';
 import { useInsertClaim } from '../../embeds/ElicitEmbed/ClaimsPlugin';
-import { isLWorAF } from '@/lib/instanceSettings';
 import BlockInsertToolbarPlugin from './BlockInsertToolbar';
 
 const styles = defineStyles('LexicalDraggableBlockPlugin', (theme: ThemeType) => ({

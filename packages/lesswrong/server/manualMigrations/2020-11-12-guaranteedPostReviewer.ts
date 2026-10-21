@@ -13,7 +13,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import Posts from '../../server/collections/posts/collection';
 import { postStatuses } from '../../lib/collections/posts/constants';
-import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import { ForumOptions, forumSelect, forumTypeSetting } from '../../lib/forumTypeUtils';
 
 // TODO: LessWrong, you'll want to set this
 // lw-look-here
@@ -23,7 +23,7 @@ const defaultReviewerByForum: ForumOptions<string | null> = {
   EAForum: '9qZsZAzbC2zxsPHzN',    // JP
   default: null,
 }
-const defaultReviewer = () => forumSelect(defaultReviewerByForum)
+const defaultReviewer = () => forumSelect(defaultReviewerByForum, forumTypeSetting.get())
 
 export default registerMigration({
   name: "guaranteedPostReviewer",

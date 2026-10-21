@@ -1,7 +1,8 @@
 "use client";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import React from 'react';
 import { useLocation } from '@/lib/routeUtil';
-import { userGetProfileUrl, userGetProfileUrlFromSlug } from "@/lib/collections/users/helpers";
+import { userGetProfileUrlFromSlug, userGetAbsoluteProfileUrl } from "@/lib/collections/users/helpers";
 import { slugify } from '@/lib/utils/slugify';
 import PermanentRedirect from "@/components/common/PermanentRedirect";
 import ProfilePage from './ProfilePage';
@@ -9,12 +10,12 @@ import ProfilePage from './ProfilePage';
 /**
  * Build structured data for a user to help with SEO.
  */
-export const getUserStructuredData = (user: UsersProfile) => {
+export const getUserStructuredData = (user: UsersProfile, forumType: ForumTypeString) => {
   return {
     "@context": "http://schema.org",
     "@type": "Person",
     "name": user.displayName,
-    "url": userGetProfileUrl(user, true),
+    "url": userGetAbsoluteProfileUrl(user, forumType),
     ...((user.biography?.plaintextDescription) && { "description": user.biography.plaintextDescription }),
     "interactionStatistic": [
       {

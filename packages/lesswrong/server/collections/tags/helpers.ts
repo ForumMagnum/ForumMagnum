@@ -1,16 +1,17 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { tagUserHasSufficientKarma } from "@/lib/collections/tags/helpers";
 
-export function newCheck(user: DbUser | null, tag: OmitBySubtype<CreateTagDataInput, CreateRevisionDataInput> | null): tag is CreateTagDataInput {
+export function newCheck(user: DbUser | null, tag: OmitBySubtype<CreateTagDataInput, CreateRevisionDataInput> | null, forumType: ForumTypeString): tag is CreateTagDataInput {
   if (!user || !tag) return false;
   if (user.deleted) return false;
 
   if (!user.isAdmin) {  // skip further checks for admins
-    if (!tagUserHasSufficientKarma(user, "new")) return false
+    if (!tagUserHasSufficientKarma(user, "new", forumType)) return false
   }
   return true;
 }
 
-export function editCheck(user: DbUser | null, tag: DbTag) {
+export function editCheck(user: DbUser | null, tag: DbTag, forumType: ForumTypeString) {
   if (!user) return false;
   if (user.deleted) return false;
 
@@ -18,7 +19,7 @@ export function editCheck(user: DbUser | null, tag: DbTag) {
     // If canEditUserIds is set only those users can edit the tag
     const restricted = tag && tag.canEditUserIds
     if (restricted && !tag.canEditUserIds?.includes(user._id)) return false;
-    if (!restricted && !tagUserHasSufficientKarma(user, "edit")) return false
+    if (!restricted && !tagUserHasSufficientKarma(user, "edit", forumType)) return false
   }
   return true;
 }

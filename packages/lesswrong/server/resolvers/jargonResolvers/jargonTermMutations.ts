@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { jargonBotClaudeKey } from '@/lib/instanceSettings';
 import { getAnthropicClientOrThrow } from '../../languageModels/anthropicClient';
 import JargonTerms from '@/server/collections/jargonTerms/collection';
@@ -19,8 +20,7 @@ import { sanitize } from "@/lib/utils/sanitize";
 import gql from 'graphql-tag';
 import { createJargonTerm } from "../../collections/jargonTerms/mutations";
 import { PostsPage } from '@/lib/collections/posts/fragments';
-import zodToJsonSchema, { JsonSchema7ObjectType, JsonSchema7Type } from 'zod-to-json-schema';
-import type { MessageParam } from '@anthropic-ai/sdk/resources/messages.mjs';
+import type { MessageParam, Tool } from '@anthropic-ai/sdk/resources/messages.mjs';
 
 interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
@@ -70,24 +70,10 @@ const jargonGlossarySchema = z.object({
   jargonTerms: z.array(jargonTermSchema)
 }).describe('A tool that generates a jargon glossary for a given post.  It should be provided with a list of jargon terms, which include the term (the identifier), altTerms (alternate spellings or forms of the term), and htmlContent (the explanation of the term).');
 
-function isObjectSchema(schema: JsonSchema7Type): schema is JsonSchema7ObjectType {
-  return 'type' in schema && schema.type === 'object';
-}
-
-function convertZodParserToAnthropicTool(zodParser: z.ZodType<any>, name: string) {
-  const jsonSchema = zodToJsonSchema(zodParser, name);
-  const inputSchema = jsonSchema.definitions?.[name];
-  if (!inputSchema) {
-    throw new Error(`Couldn't find tool definition for ${name}!`);
-  }
-
-  if (!isObjectSchema(inputSchema)) {
-    throw new Error(`Missing 'type' field in input schema for ${name}!`);
-  }
-
+function convertZodParserToAnthropicTool(zodParser: z.ZodObject, name: string): Tool {
   return {
     name,
-    input_schema: inputSchema,
+    input_schema: { ...z.toJSONSchema(zodParser), type: "object" },
     description: zodParser.description
   };
 }
@@ -160,8 +146,8 @@ function sanitizeJargonTerms(jargonTerms: LLMGeneratedJargonTerm[]) {
   }));
 }
 
-export const queryClaudeForTerms = async (markdown: string): Promise<JargonTermListResponse> => {
-  const client = getAnthropicClientOrThrow(jargonBotClaudeKey.get());
+export const queryClaudeForTerms = async (markdown: string, forumType: ForumTypeString): Promise<JargonTermListResponse> => {
+  const client = getAnthropicClientOrThrow(jargonBotClaudeKey.get(forumType));
   const messages = [{
     role: "user" as const, 
     content: [{
@@ -253,8 +239,8 @@ function createJargonGlossaryMessageWithExample({ markdown, terms, ...examplePar
   }];
 }
 
-const queryClaudeForJargonGlossary = async ({ markdown, terms, ...exampleParams }: JargonGlossaryQueryParams): Promise<LLMGeneratedJargonTerm[]> => {
-  const client = getAnthropicClientOrThrow(jargonBotClaudeKey.get());
+const queryClaudeForJargonGlossary = async ({ markdown, terms, ...exampleParams }: JargonGlossaryQueryParams, forumType: ForumTypeString): Promise<LLMGeneratedJargonTerm[]> => {
+  const client = getAnthropicClientOrThrow(jargonBotClaudeKey.get(forumType));
   const messages: MessageParam[] = createJargonGlossaryMessageWithExample({ markdown, terms, ...exampleParams });
 
   const response = await client.messages.create({
@@ -282,13 +268,13 @@ const queryClaudeForJargonGlossary = async ({ markdown, terms, ...exampleParams 
   return sanitizeJargonTerms(parsedResponse.data.jargonTerms);
 }
 
-export async function createEnglishExplanations({ post, excludeTerms, ...exampleParams }: ExplanationsGenerationQueryParams): Promise<CategorizedJargonTerm[]> {
+export async function createEnglishExplanations({ post, excludeTerms, ...exampleParams }: ExplanationsGenerationQueryParams, forumType: ForumTypeString): Promise<CategorizedJargonTerm[]> {
   const originalHtml = post.contents?.html ?? "";
   const originalMarkdown = htmlToMarkdown(originalHtml);
   // Conservatively limit the markdown to 500k characters, since Claude has a context window of 200k tokens.  (Real limit is probably closer to 3.5 characters per token.)
   const markdown = (originalMarkdown.length < 500_000) ? originalMarkdown : originalMarkdown.slice(0, 500_000);
 
-  const terms = await queryClaudeForTerms(markdown);
+  const terms = await queryClaudeForTerms(markdown, forumType);
   if (!terms.jargonTerms.length) {
     return [];
   }
@@ -300,7 +286,7 @@ export async function createEnglishExplanations({ post, excludeTerms, ...example
     return !excludeTerms.includes(lowerCaseTerm) && post.contents?.html?.toLowerCase().includes(lowerCaseTerm);
   });
 
-  const generatedTermDefinitions = await queryClaudeForJargonGlossary({ markdown, terms: newTerms, ...exampleParams });
+  const generatedTermDefinitions = await queryClaudeForJargonGlossary({ markdown, terms: newTerms, ...exampleParams }, forumType);
 
   return generatedTermDefinitions.map(term => ({
     ...term,
@@ -315,6 +301,7 @@ const processedTerms = (jargonTerms: DbJargonTerm[]) => {
 
 export const createNewJargonTerms = async ({ postId, currentUser, context, ...exampleParams }: CreateJargonTermsQueryParams) => {
   const post = await fetchFragmentSingle({
+    context,
     collectionName: 'Posts',
     fragmentDoc: PostsPage,
     currentUser,
@@ -345,10 +332,10 @@ export const createNewJargonTerms = async ({ postId, currentUser, context, ...ex
     // Test lock by sleeping for 10 seconds
 
     newJargonTerms = await executeWithLock(rawLockId, async () => {
-      const newEnglishJargon = await createEnglishExplanations({ post, excludeTerms: termsToExclude, ...exampleParams });
+      const newEnglishJargon = await createEnglishExplanations({ post, excludeTerms: termsToExclude, ...exampleParams }, context.forumType);
 
       const botAccount = await getAdminTeamAccount(context);
-      const botContext = await computeContextFromUser({ user: botAccount, isSSR: false });
+      const botContext = await computeContextFromUser({ user: botAccount, isSSR: false, forumType: context.forumType });
       
       const createdTerms = await Promise.all([
         ...newEnglishJargon.map((term) =>
@@ -407,7 +394,7 @@ export const jargonTermsGraphQLMutations = {
     if (!currentUser) {
       throw new Error('You need to be logged in to generate jargon terms');
     }
-    if (!userCanCreateAndEditJargonTerms(currentUser)) {
+    if (!userCanCreateAndEditJargonTerms(currentUser, context.forumType)) {
       throw new Error('This is a prototype feature that is not yet available to all users');
     }
     return await createNewJargonTerms({ postId, currentUser, ...exampleParams, context });

@@ -523,7 +523,7 @@ async function buildLaunchEnv(args: {
   // (RESEARCH_BACKEND_PUBLIC_URL, set by runDevWithResearchSandbox.sh, since the
   // configured siteUrl is localhost). Otherwise derive it from the firing
   // request's forwarded headers.
-  const backendBaseUrl = process.env.RESEARCH_BACKEND_PUBLIC_URL ?? getSiteUrlFromHeaders(context.headers);
+  const backendBaseUrl = process.env.RESEARCH_BACKEND_PUBLIC_URL ?? getSiteUrlFromHeaders(context.headers, context.forumType);
   const claudeToken = await resolveClaudeCodeToken(conversation.userId, context);
   const callbackToken = mintSupervisorCallbackToken({
     sandboxId: sandboxName,

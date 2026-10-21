@@ -1,5 +1,5 @@
 import { isServer } from "../../../lib/executionEnvironment";
-import { hasCookieConsentSetting, ipApiKeySetting } from '@/lib/instanceSettings';
+import { hasCookieConsent, ipApiKey } from '@/lib/instanceSettings';
 import { getBrowserLocalStorage, safeStorageGetItem, safeStorageRemoveItem, safeStorageSetItem } from "../../editor/localStorageHandlers";
 
 const GDPR_COUNTRY_CODES: string[] = [
@@ -91,7 +91,7 @@ async function getUserCountryCode({ signal }: { signal?: AbortSignal } = {}): Pr
     return countryCode;
   }
 
-  const apiKey = ipApiKeySetting.get();
+  const apiKey = ipApiKey;
   const ipapiUrl = apiKey ? `https://ipapi.co/json/?key=${apiKey}` : 'https://ipapi.co/json/';
 
   inFlightRequest = (async () => {
@@ -117,7 +117,7 @@ async function getUserCountryCode({ signal }: { signal?: AbortSignal } = {}): Pr
 }
 
 export function getExplicitConsentRequiredSync(): boolean | "unknown" {
-  if (!hasCookieConsentSetting.get()) return false;
+  if (!hasCookieConsent) return false;
   if (isServer) return "unknown";
 
   const cachedCountryCode = getCachedUserCountryCode();
@@ -128,7 +128,7 @@ export function getExplicitConsentRequiredSync(): boolean | "unknown" {
 }
 
 export async function getExplicitConsentRequiredAsync(): Promise<boolean | "unknown"> {
-  if (!hasCookieConsentSetting.get()) return false;
+  if (!hasCookieConsent) return false;
   if (isServer) return "unknown";
 
   const controller = new AbortController();

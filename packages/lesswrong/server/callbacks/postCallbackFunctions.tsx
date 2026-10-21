@@ -1,3 +1,5 @@
+import { userIsApproved } from "@/lib/collections/users/helpers";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import React from "react";
 import { usesCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/constants";
@@ -8,7 +10,7 @@ import { isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
-import { isEAForum, recombeeEnabledSetting, isLW } from '@/lib/instanceSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
@@ -31,7 +33,6 @@ import { updatePostDenormalizedTags } from "../tagging/helpers";
 import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
 import { cheerioParse } from "../utils/htmlUtil";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
-import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { captureException } from "@/lib/sentryWrapper";
 import moment from "moment";
@@ -39,9 +40,7 @@ import difference from 'lodash/difference';
 import union from 'lodash/union';
 import isEqual from 'lodash/isEqual';
 import { getRejectionMessage, generateLinkSharingKey } from "./helpers";
-import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
-import { createConversation } from "../collections/conversations/mutations";
-import { createMessage } from "../collections/messages/mutations";
+import { startTeamInboxConversation } from "../utils/teamInbox";
 import { createModeratorAction } from "../collections/moderatorActions/mutations";
 import { createPostRelation } from "../collections/postRelations/mutations";
 import { updatePost } from "../collections/posts/mutations";
@@ -83,8 +82,8 @@ function isWeekend(): boolean {
 }
 
 /** Create notifications for a new post being published */
-export async function sendNewPostNotifications(post: DbPost) {
-  const context = createAnonymousContext();
+export async function sendNewPostNotifications(post: DbPost, forumType: ForumTypeString) {
+  const context = createAnonymousContext({ forumType });
   const { Localgroups } = context;
 
   if (postIsPublic(post)) {
@@ -108,9 +107,9 @@ export async function sendNewPostNotifications(post: DbPost) {
         
         const userIdsToNotify = difference(groupSubscribedUsers.map(user => user._id), userIdsNotified)
         if (post.isEvent) {
-          await createNotifications({userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
+          await createNotifications({ context, userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
         } else {
-          await createNotifications({userIds: userIdsToNotify, notificationType: 'newGroupPost', documentType: 'post', documentId: post._id});
+          await createNotifications({ context, userIds: userIdsToNotify, notificationType: 'newGroupPost', documentType: 'post', documentId: post._id});
         }
         // don't notify these users again
         userIdsNotified = union(userIdsNotified, userIdsToNotify)
@@ -121,7 +120,7 @@ export async function sendNewPostNotifications(post: DbPost) {
     if (post.isEvent && post.mongoLocation) {
       const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(post.mongoLocation)
       const userIdsToNotify = difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
-      await createNotifications({userIds: userIdsToNotify, notificationType: "newEventInRadius", documentType: "post", documentId: post._id})
+      await createNotifications({ context, userIds: userIdsToNotify, notificationType: "newEventInRadius", documentType: "post", documentId: post._id})
       // don't notify these users again
       userIdsNotified = union(userIdsNotified, userIdsToNotify)
     }
@@ -133,15 +132,15 @@ export async function sendNewPostNotifications(post: DbPost) {
       type: subscriptionTypes.newPosts
     })
     const userIdsToNotify = difference(authorSubscribedUsers.map(user => user._id), userIdsNotified)
-    await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
+    await createNotifications({ context, userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
   }
 }
 
 const onPublishUtils = {
   updateRecombeeWithPublishedPost: (post: DbPost, context: ResolverContext) => {
-    if (!isRecombeeRecommendablePost(post)) return;
+    if (!isRecombeeRecommendablePost(post, context.forumType)) return;
   
-    if (recombeeEnabledSetting.get()) {
+    if (recombeeEnabledSetting.get(context)) {
       backgroundTask(recombeeApi.upsertPost(post, context)
         // eslint-disable-next-line no-console
         .catch(e => console.log('Error when sending published post to recombee', { e }))
@@ -161,13 +160,17 @@ const onPublishUtils = {
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
 // moderator approval because they're a user's first post (but does fire when
 // they're approved).
-export async function onPostPublished(post: DbPost, context: ResolverContext) {
+export async function onPostPublished(post: DbPost, context: ResolverContext, oldPost?: DbPost) {
   onPublishUtils.updateRecombeeWithPublishedPost(post, context);
-  await sendNewPostNotifications(post);
+  await sendNewPostNotifications(post, context.forumType);
   const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
-  await triggerReviewIfNeeded(post.userId, 'publishedPost', context);
+  // Publishing after a rejection is approved should not request another review.
+  const approvedRejection = oldPost?.rejected && !post.rejected && post.reviewedByUserId;
+  if (!approvedRejection) {
+    await triggerReviewIfNeeded(post.userId, 'publishedPost', context);
+  }
   await maybeAutoFrontpagePost(post._id, context);
 }
 
@@ -180,6 +183,7 @@ const utils = {
     const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user, context);
     if (rateLimit) {
       const {nextEligible} = rateLimit;
+      if (nextEligible === null) throw new Error('Rate limit: You cannot post until your restriction is lifted.');
       if (nextEligible > new Date()) {
         // "fromNow" makes for a more human readable "how long till I can comment/post?".
         // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
@@ -236,7 +240,7 @@ const utils = {
       return;
     }
     const tagBot = await getTagBotAccount(context);
-    const tagBotActiveTime = tagBotActiveTimeSetting.get();
+    const tagBotActiveTime = tagBotActiveTimeSetting.get(context);
   
     if (!tagBot || (tagBotActiveTime === "weekends" && !isWeekend())) {
       //eslint-disable-next-line no-console
@@ -272,7 +276,7 @@ const utils = {
       }
     }
   
-    const autoFrontpageEnabled = autoFrontpageSetting.get()
+    const autoFrontpageEnabled = autoFrontpageSetting.get(context)
     if (!autoFrontpageEnabled) {
       return;
     }
@@ -359,46 +363,6 @@ const utils = {
     return false;
   },
 
-  sendPostRejectionPM: async ({ messageContents, lwAccount, post, noEmail, context }: {
-    messageContents: string,
-    lwAccount: DbUser,
-    post: DbPost,
-    noEmail: boolean,
-    context: ResolverContext,
-  }) => {
-    const conversationData: CreateConversationDataInput = {
-      participantIds: [post.userId, lwAccount._id],
-      title: `Your post ${post.title} was rejected`,
-      moderator: true
-    };
-
-    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
-
-    const conversation = await createConversation({
-      data: conversationData,
-    }, lwAccountContext);
-  
-    const messageData = {
-      userId: lwAccount._id,
-      contents: {
-        originalContents: {
-          type: "html",
-          data: messageContents
-        }
-      },
-      conversationId: conversation._id,
-      noEmail: noEmail
-    };
-  
-    await createMessage({
-      data: messageData,
-    }, lwAccountContext);
-  
-    if (!isAnyTest) {
-      // eslint-disable-next-line no-console
-      console.log("Sent moderation message for post", post._id);
-    }
-  },
 };
 
 
@@ -556,7 +520,7 @@ export async function createNewJargonTermsCallback<T extends Pick<DbPost, '_id' 
   if (!post.draft && !currentUser.generateJargonForPublishedPosts) return post;
   if (oldPost?.contents_latest === post.contents_latest) return post;
 
-  if (!userCanPassivelyGenerateJargonTerms(currentUser)) return post;
+  if (!userCanPassivelyGenerateJargonTerms(currentUser, context.forumType)) return post;
   // TODO: refactor this so that createNewJargonTerms handles the case where we might be creating duplicate terms
   const [existingJargon, newContents] = await Promise.all([
     JargonTerms.find({postId: post._id}).fetch(),
@@ -581,12 +545,14 @@ export async function createNewJargonTermsCallback<T extends Pick<DbPost, '_id' 
 
 /* NEW AFTER */
 export async function lwPostsNewUpvoteOwnPost(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>): Promise<DbPost> {
+  const { context } = callbackProperties;
   const { context: { Users, Posts } } = callbackProperties;
 
   const postAuthor = await Users.findOne(post.userId);
   if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
   const { performVoteServer } = await import("../voteServer");
   const {modifiedDocument: votedPost} = await performVoteServer({
+    context,
     document: post,
     voteType: 'bigUpvote',
     collection: Posts,
@@ -648,8 +614,9 @@ export async function extractSocialPreviewImage(post: DbPost, callbackProperties
 }
 
 /* CREATE ASYNC */
-export async function notifyUsersAddedAsPostCoauthors({ document: post }: AfterCreateCallbackProperties<'Posts'>) {
-  await createNotifications({ userIds: post.coauthorUserIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
+export async function notifyUsersAddedAsPostCoauthors({ document: post, context }: AfterCreateCallbackProperties<'Posts'>) {
+  if (post.authorIsUnreviewed) return;
+  await createNotifications({ context, userIds: post.coauthorUserIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
 }
 
 export async function triggerReviewForNewPostIfNeeded({ document, context }: AfterCreateCallbackProperties<'Posts'>) {
@@ -666,10 +633,10 @@ export async function autoTagNewPost({ document, context }: AfterCreateCallbackP
 }
 
 /* NEW ASYNC */
-export async function sendUsersSharedOnPostNotifications(post: DbPost) {
+export async function sendUsersSharedOnPostNotifications(post: DbPost, context: ResolverContext) {
   const { _id, shareWithUsers = [], coauthorUserIds } = post;
   const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthorUserIds.includes(user)) || [];
-  await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
+  await createNotifications({ context, userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 }
 
 /* UPDATE VALIDATE */
@@ -769,7 +736,7 @@ export async function syncTagRelevance<T extends Pick<DbPost, '_id' | 'tagReleva
 export async function resetDialogueMatches<T extends Pick<DbPost, '_id' | 'collabEditorDialogue' | 'draft'>>(post: T, props: UpdateCallbackProperties<'Posts'>) {
   const { oldDocument: oldPost } = props;
 
-  const adminContext = createAdminContext();
+  const adminContext = createAdminContext({ forumType: props.context.forumType });
   const { DialogueMatchPreferences } = adminContext;
 
   if (post.collabEditorDialogue && post.draft === false && oldPost.draft) {
@@ -802,6 +769,7 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
       }
       
       await wrapAndSendEmail({
+        forumType: context.forumType,
         user: user,
         to: email,
         subject: `Event updated: ${newPost.title}`,
@@ -813,18 +781,20 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
     if (newPost.mongoLocation) {
       const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
       const userIdsToNotify = difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
-      await createNotifications({userIds: userIdsToNotify, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
+      await createNotifications({ context, userIds: userIdsToNotify, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
     }
   }
 }
 
-export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDocument: newPost }: UpdateCallbackProperties<'Posts'>) {
-  const newCoauthorIds = newPost.coauthorUserIds;
-  const oldCoauthorIds = oldPost.coauthorUserIds;
-  const addedCoauthorIds = difference(newCoauthorIds, oldCoauthorIds);
+export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDocument: newPost, context }: UpdateCallbackProperties<'Posts'>) {
+  if (newPost.authorIsUnreviewed || newPost.deletedDraft) return;
 
-  if (addedCoauthorIds.length) {
-    await createNotifications({ userIds: addedCoauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: newPost._id });
+  const coauthorIdsToNotify = (oldPost.authorIsUnreviewed || oldPost.deletedDraft)
+    ? newPost.coauthorUserIds
+    : difference(newPost.coauthorUserIds, oldPost.coauthorUserIds);
+
+  if (coauthorIdsToNotify.length) {
+    await createNotifications({ context, userIds: coauthorIdsToNotify, notificationType: "addedAsCoauthor", documentType: "post", documentId: newPost._id });
   }
 }
 
@@ -836,7 +806,7 @@ export async function autoTagUndraftedPost({oldDocument, newDocument, context}: 
   }
 }
 
-export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' | 'contents_latest' | 'draft' | 'status'>, oldPost?: DbPost) {
+export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' | 'contents_latest' | 'draft' | 'status'>, context: ResolverContext, oldPost?: DbPost) {
   const hasChanged = !oldPost || oldPost.contents_latest !== newPost.contents_latest;
   if (hasChanged &&
     !newPost.draft &&
@@ -844,7 +814,7 @@ export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' |
     !isAnyTest
   ) {
     try {
-      await updatePostEmbeddings(newPost._id);
+      await updatePostEmbeddings(newPost._id, context.forumType);
     } catch (e) {
       // We never want to prevent a post from being created/edited just
       // because we fail to create embeddings, but we do want to log it
@@ -866,33 +836,30 @@ export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, c
   // or the post author is getting approved,
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !newDocument.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !newDocument.authorIsUnreviewed)) {
-    await onPostPublished(newDocument, context);
+    await onPostPublished(newDocument, context, oldDocument);
   } else if (oldDocument.draft && !newDocument.draft) {
     await triggerReviewIfNeeded(newDocument.userId, 'publishedPost', context);
   }
 }
 
 export async function sendRejectionPM({ post, currentUser, context }: {post: DbPost, currentUser?: DbUser|null, context: ResolverContext}) {
-  const { Users } = context;
+  const { Users, Posts } = context;
   const postUser = await Users.findOne({_id: post.userId});
 
   const rejectedContentLink = `<span>post, <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a></span>`
 
   let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
 
-  // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
-  const noEmail = isEAForum()
-  ? false 
-  : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
-  const adminAccount = currentUser ?? await getAdminTeamAccount(context);
-  if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
-  await utils.sendPostRejectionPM({
-    post,
-    messageContents: messageContents,
-    lwAccount: adminAccount,
+  const noEmail = !userIsApproved(postUser)
+  const conversation = await startTeamInboxConversation({
+    recipientId: post.userId,
+    author: currentUser ?? null,
+    title: `Your post ${post.title} was rejected`,
+    html: messageContents,
     noEmail,
     context,
-  }); 
+  });
+  await Posts.rawUpdateOne({ _id: post._id }, { $set: { rejectionConversationId: conversation._id } });
 }
 
 export async function maybeSendRejectionPM({ newDocument: post, oldDocument: oldPost, currentUser, context }: UpdateCallbackProperties<'Posts'>) {
@@ -935,9 +902,9 @@ export async function updateRecombeePost({ newDocument, oldDocument, context }: 
   // This does seem likely to be a bug in a the mutator logic
   const post = await context.loaders.Posts.load(newDocument._id);
   const redrafted = post.draft && !oldDocument.draft
-  if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post)) return;
+  if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post, context.forumType)) return;
 
-  if (recombeeEnabledSetting.get()) {
+  if (recombeeEnabledSetting.get(context)) {
     backgroundTask(recombeeApi.upsertPost(post, context)
       // eslint-disable-next-line no-console
       .catch(e => console.log('Error when sending updated post to recombee', { e }))
@@ -946,9 +913,9 @@ export async function updateRecombeePost({ newDocument, oldDocument, context }: 
 }
 
 /* EDIT ASYNC */
-export function sendPostApprovalNotifications(post: Pick<DbPost, '_id' | 'userId' | 'status'>, oldPost: DbPost) {
+export function sendPostApprovalNotifications(post: Pick<DbPost, '_id' | 'userId' | 'status'>, oldPost: DbPost, context: ResolverContext) {
   if (postIsApproved(post) && !postIsApproved(oldPost)) {
-    backgroundTask(createNotifications({userIds: [post.userId], notificationType: 'postApproved', documentType: 'post', documentId: post._id}));
+    backgroundTask(createNotifications({ context, userIds: [post.userId], notificationType: 'postApproved', documentType: 'post', documentId: post._id}));
   }
 }
 
@@ -971,6 +938,7 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
       const dialogueSubscriberIds = dialogueSubscribers.map(sub => sub._id);
       const dialogueSubscriberIdsToNotify = difference(dialogueSubscriberIds, dialogueParticipantIds);
       await createNotifications({
+        context,
         userIds: dialogueSubscriberIdsToNotify,
         notificationType: 'newPublishedDialogueMessages',
         documentType: 'post',
@@ -1016,6 +984,7 @@ export async function sendEAFCuratedAuthorsNotification(post: DbPost, oldPost: D
     backgroundTask(Promise.all(
       authors.map(async (author) => {
         return wrapAndSendEmail({
+        forumType: context.forumType,
           user: author,
           subject: "We’ve curated your post",
           body: (emailContext) => <EmailCuratedAuthors user={author} post={post} emailContext={emailContext}/>
@@ -1056,7 +1025,7 @@ export const curationEmailDelayDebouncer = new EventDebouncer({
   }
 });
 
-export async function sendLWAFPostCurationEmails(post: DbPost, oldPost: DbPost) {
+export async function sendLWAFPostCurationEmails(post: DbPost, oldPost: DbPost, context: ResolverContext) {
   if (post.curatedDate && !oldPost.curatedDate) {
     // Email admins immediately, everyone else after a 20-minute delay, so that
     // we get a chance to catch formatting issues with the email. (Admins get
@@ -1070,7 +1039,7 @@ export async function sendLWAFPostCurationEmails(post: DbPost, oldPost: DbPost) 
       subject: `[Admin preview] ${post.title}`,
     });
     
-    if (!usesCurationEmailsCron()) {
+    if (!usesCurationEmailsCron(context.forumType)) {
       await curationEmailDelayDebouncer.recordEvent({
         key: post._id,
         af: false
@@ -1091,13 +1060,13 @@ export async function purgeCurationEmailQueueWhenUncurating(newPost: DbPost, old
   }
 }
 
-export async function sendPostSharedWithUserNotifications(newPost: DbPost, oldPost: DbPost) {
+export async function sendPostSharedWithUserNotifications(newPost: DbPost, oldPost: DbPost, context: ResolverContext) {
   if (!isEqual(newPost.shareWithUsers, oldPost.shareWithUsers)) {
     // Right now this only creates notifications when users are shared (and not when they are "unshared")
     // because currently notifications are hidden from you if you don't have view-access to a post.
     // TODO: probably fix that, such that users can see when they've lost access to post. [but, eh, I'm not sure this matters that much]
     const sharedUsers = difference(newPost.shareWithUsers || [], oldPost.shareWithUsers || [])
-    await createNotifications({userIds: sharedUsers, notificationType: "postSharedWithUser", documentType: "post", documentId: newPost._id})
+    await createNotifications({ context, userIds: sharedUsers, notificationType: "postSharedWithUser", documentType: "post", documentId: newPost._id})
   }
 }
 
@@ -1161,7 +1130,7 @@ function shouldPerformAutomatedContentEvaluationOnPost(post: DbPost, oldPost: Db
   if (post.draft || !oldPost.draft) return false;
 
   // Skip for AF
-  if (!isLW()) return false;
+  if (context.forumType !== 'LessWrong') return false;
 
   // Not for event posts (which can legitimately have trivial bodies)
   if (post.isEvent) return false;

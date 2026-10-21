@@ -1,4 +1,4 @@
-import React, { createContext } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 

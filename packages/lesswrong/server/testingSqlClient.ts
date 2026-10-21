@@ -1,6 +1,5 @@
 import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "@/server/sql/sqlClient";
 import { createSqlConnection } from "./sqlConnection";
-import { testServerSetting } from "../lib/instanceSettings";
 import { readFile } from "fs/promises";
 import { sleep } from "@/lib/utils/asyncUtils";
 

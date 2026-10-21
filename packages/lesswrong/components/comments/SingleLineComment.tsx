@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
@@ -6,7 +7,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { CommentTreeOptions } from './commentTree';
-import CoreTagIcon, { getCoreTagIconMap } from '../tagging/CoreTagIcon';
+import CoreTagIcon, { coreTagIconMap } from '../tagging/CoreTagIcon';
 import { metaNoticeStyles } from "./CommentsItem/metaNoticeStyles";
 import FormatDate from "../common/FormatDate";
 import ShowParentComment from "./ShowParentComment";
@@ -150,6 +151,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   showDescendentCount?: boolean,
   displayTagIcon?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const {anchorEl, hover, eventHandlers} = useHover();
   
@@ -162,7 +164,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
 
   const parentTag = comment.tag;
-  const actuallyDisplayTagIcon = !!(displayTagIcon && parentTag && getCoreTagIconMap()[parentTag.slug])
+  const actuallyDisplayTagIcon = !!(displayTagIcon && parentTag && coreTagIconMap[parentTag.slug])
   
   const effectiveNestingLevel = nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
   
@@ -190,7 +192,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           <ShowParentComment comment={comment} />
         </span>}
         {!hideKarma && !comment.draft && <span className={classes.leadingInfo}>
-          {commentGetKarma(comment)}
+          {commentGetKarma(comment, forumType)}
         </span>}
         {comment.draft && <span className={classes.leadingInfo}>
           [Draft]

@@ -31,7 +31,12 @@
       "shared/useLayoutEffect": ["./packages/lesswrong/lib/vendor/lexical-shared/useLayoutEffect"],
       "shared/canUseDOM": ["./packages/lesswrong/lib/vendor/lexical-shared/canUseDOM"],
       "shared/environment": ["./packages/lesswrong/lib/vendor/lexical-shared/environment"],
-      "shared/devInvariant": ["./packages/lesswrong/lib/vendor/lexical-shared/devInvariant"]
+      "shared/devInvariant": ["./packages/lesswrong/lib/vendor/lexical-shared/devInvariant"],
+      "@excalidraw/excalidraw": ["./excalidraw/dist/index"],
+      "@excalidraw/excalidraw/index.css": ["./excalidraw/dist/index.css"],
+      "@excalidraw/excalidraw/readerFontFaces.json": ["./excalidraw/dist/readerFontFaces.json"],
+      "@excalidraw/excalidraw/element/*": ["./excalidraw/dist/types/element/src/*"],
+      "@excalidraw/excalidraw/*": ["./excalidraw/dist/types/excalidraw/*"]
     },
     "strict": false,
     "incremental": true,

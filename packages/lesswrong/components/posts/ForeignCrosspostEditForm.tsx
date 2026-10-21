@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
 import {
   fmCrosspostSiteNameSetting,
@@ -21,8 +22,9 @@ const styles = defineStyles("ForeignCrosspostEditForm", (theme: ThemeType) => ({
 const ForeignCrosspostEditForm = ({post}: {
   post: PostsPage,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
-  const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `editPost?postId=${post._id}&eventForm=false`);
+  const url = combineUrls(fmCrosspostBaseUrlSetting.get(forumType) ?? "", `editPost?postId=${post._id}&eventForm=false`);
 
   const postWithNavigation: PostsWithNavigation = {
     ...post,
@@ -42,7 +44,7 @@ const ForeignCrosspostEditForm = ({post}: {
       <Typography variant="body2" gutterBottom>
         This post cannot be edited as it is a crosspost.{' '}
         <a href={url} className={classes.link}>Click here</a> to edit on{' '}
-        {fmCrosspostSiteNameSetting.get()}.
+        {fmCrosspostSiteNameSetting.get(forumType)}.
       </Typography>
       {post.draft && <Typography variant="body2">
         This crosspost is a draft. Crosspost drafts cannot be undrafted. You

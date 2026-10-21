@@ -1,6 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
-import classNames from 'classnames';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import CommentsList from "../comments/CommentsList";

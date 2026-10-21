@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
@@ -86,6 +87,15 @@ export const recentKarmaTooltip = (user: SunshineUsersList) => {
     </div>
 }
 
+export const downvoteRatioTooltip = (user: SunshineUsersList) => {
+  return <div><div>Total Downvote Ratio {Math.round(getDownvoteRatio(user) * 100)}</div>
+    <li>{user.smallUpvoteReceivedCount || 0} Small Upvotes</li>
+    <li>{user.bigUpvoteReceivedCount || 0} Big Upvotes</li>
+    <li>{user.smallDownvoteReceivedCount || 0} Small Downvotes</li>
+    <li>{user.bigDownvoteReceivedCount || 0} Big Downvotes</li>
+  </div>
+}
+
 export const downvoterTooltip = (user: SunshineUsersList) => {
   return <div>
     <div>Recent Downvoters</div>
@@ -104,9 +114,10 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta = false, absolute
   absolute?: boolean,
   hideIfNoVotes?: boolean
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
-  const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
+  const allRateLimits = [...forumSelect(autoPostRateLimits, forumType), ...forumSelect(autoCommentRateLimits, forumType)]
   const strictestRateLimits = getStrictestActiveRateLimits(user, allRateLimits);
 
   const totalReceivedVotes = (
@@ -117,6 +128,9 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta = false, absolute
   );
 
   if (totalReceivedVotes === 0 && hideIfNoVotes) {
+    return null;
+  }
+  if (!showKarmaMeta && strictestRateLimits.length === 0) {
     return null;
   }
 
@@ -137,12 +151,7 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta = false, absolute
           <ForumIcon icon="ExpandMore" className={classNames(classes.icon, classes.downvoteIcon)}/> {user.recentKarmaInfo.downvoterCount ?? 0}
         </MetaInfo>
       </LWTooltip>
-      <LWTooltip title={<div><div>Total Downvote Ratio {roundedDownvoteRatio}</div>
-        <li>{user.smallUpvoteReceivedCount || 0} Small Upvotes</li>
-        <li>{user.bigUpvoteReceivedCount || 0} Big Upvotes</li>
-        <li>{user.smallDownvoteReceivedCount || 0} Small Downvotes</li>
-        <li>{user.bigDownvoteReceivedCount || 0} Big Downvotes</li>
-      </div>} className={classes.karmaMetaItem}>
+      <LWTooltip title={downvoteRatioTooltip(user)} className={classes.karmaMetaItem}>
         <MetaInfo className={classes.info}>
           <span className={classes.percentIcon}>%</span> {roundedDownvoteRatio}
         </MetaInfo>

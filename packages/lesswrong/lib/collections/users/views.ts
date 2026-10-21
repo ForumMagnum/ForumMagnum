@@ -1,9 +1,10 @@
-import { spamRiskScoreThreshold } from './helpers';
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "@/lib/utils/viewConstants";
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
+
+const NEW_USER_RECAPTCHA_THRESHOLD = 0.2;
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -97,7 +98,7 @@ function sunshineNewUsers(terms: UsersViewTerms) {
       needsReview: true,
       banned: viewFieldNullOrMissing,
       reviewedByUserId: null,
-      $or: [{signUpReCaptchaRating: {$gt: spamRiskScoreThreshold*1.25}}, {signUpReCaptchaRating: {$exists: false}}, {signUpReCaptchaRating:null}]
+      $or: [{signUpReCaptchaRating: {$gt: NEW_USER_RECAPTCHA_THRESHOLD}}, {signUpReCaptchaRating: {$exists: false}}, {signUpReCaptchaRating:null}]
     },
     options: {
       sort: {

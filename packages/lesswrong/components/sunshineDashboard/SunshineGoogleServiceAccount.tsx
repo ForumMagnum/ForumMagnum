@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -37,6 +38,7 @@ const getExpiryMessage = (estimatedExpiry: string) => {
 }
 
 const SunshineGoogleServiceAccount = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -46,7 +48,7 @@ const SunshineGoogleServiceAccount = () => {
       limit: 10,
       enableTotal: false,
     },
-    skip: !hasGoogleDocImportSetting.get(),
+    skip: !hasGoogleDocImportSetting.get(forumType),
     notifyOnNetworkStatusChange: true,
   });
 
@@ -56,7 +58,7 @@ const SunshineGoogleServiceAccount = () => {
   const now = useCurrentTime();
   const shouldWarn = !estimatedExpiry || (new Date(estimatedExpiry).getTime() - now.getTime()) < WARN_THRESHOLD
 
-  if (loading || !userIsAdmin(currentUser) || !hasGoogleDocImportSetting.get() || !shouldWarn) {
+  if (loading || !userIsAdmin(currentUser) || !hasGoogleDocImportSetting.get(forumType) || !shouldWarn) {
     return null;
   }
 

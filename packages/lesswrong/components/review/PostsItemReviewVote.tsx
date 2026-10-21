@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from '../common/withUser';
@@ -85,6 +86,7 @@ const PostsItemReviewVote = ({post, marginRight=true}: {
   post: PostsListBase,
   marginRight?: boolean
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [anchorEl, setAnchorEl] = useState<any>(null)
 
@@ -121,7 +123,7 @@ const PostsItemReviewVote = ({post, marginRight=true}: {
     <LWPopper placement="right" anchorEl={anchorEl} open={!!anchorEl}>
       <Card className={classes.card}>
         <ReviewVotingWidget post={post} />
-        <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
+        <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get(forumType)} conversation`} placement="bottom">
         <div className={classes.reviewButton}>Write a Review</div>
       </LWTooltip>}/>
       </Card>

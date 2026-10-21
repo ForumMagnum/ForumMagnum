@@ -1,4 +1,5 @@
-import React, { useCallback, useRef } from 'react';
+import { useForumType } from '@/components/hooks/useForumType';
+import React, { useRef } from 'react';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
@@ -46,6 +47,7 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
   numSuggestions?: number,
   showAllTagsAndCreateTags?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
@@ -140,7 +142,7 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
       <Link target="_blank" to={getAllTagsPath()} className={classes.newTag}>
         All Wikitags
       </Link>
-      {tagUserHasSufficientKarma(currentUser, "new") && <Link
+      {tagUserHasSufficientKarma(currentUser, "new", forumType) && <Link
         target="_blank"
         to={getTagCreateUrl()}
         className={classes.newTag}

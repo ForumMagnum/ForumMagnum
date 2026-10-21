@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { useFilteredCurrentUser } from '../common/withUser';
 import { DisableNoKibitzContext } from '../common/sharedContexts';
 

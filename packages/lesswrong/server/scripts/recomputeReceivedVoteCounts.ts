@@ -2,7 +2,6 @@ import { migrateDocuments } from "../manualMigrations/migrationUtils";
 import { Users } from '../../server/collections/users/collection';
 import { Votes } from "../../server/collections/votes/collection";
 import { collectionsThatAffectKarma } from "../callbacks/votingCallbacks";
-import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 
 type UserVoteFields = {
   voteReceivedCount: number;

@@ -1,5 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useRef, useState } from 'react';
-import { reCaptchaSiteKeySetting, isAF, isEAForum } from '../../lib/instanceSettings';
+import { reCaptchaSiteKey } from '../../lib/instanceSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from '../common/withMessages';
@@ -99,13 +100,15 @@ const currentActionToButtonText: Record<possibleActions, string> = {
   pwReset: "Request Password Reset"
 }
 
-const LoginForm = ({ startingState = "login", returnTo }: {
+const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
   startingState?: possibleActions,
-  returnTo?: string
+  returnTo?: string,
+  /** Only enable when the form is opened by a user interaction. */
+  autoFocus?: boolean,
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
-  const hasSubscribeToCuratedCheckbox = !isEAForum() && !isAF();
-  const hasOauthSection = !isEAForum();
+  const hasSubscribeToCuratedCheckbox = !isAF;
 
   const { pathname } = useLocation()
   const reCaptchaToken = useRef<string|null>(null);
@@ -127,7 +130,6 @@ const LoginForm = ({ startingState = "login", returnTo }: {
       path: "/",
     });
   }, [setCookie]);
-
 
   const [loginMutation] = useMutation(gql(`
     mutation login($username: String, $password: String) {
@@ -213,7 +215,7 @@ const LoginForm = ({ startingState = "login", returnTo }: {
   const oauthReturnTo = encodeURIComponent(returnTo ?? pathname);
 
   return <ContentStyles contentType="commentExceptPointerEvents">
-    {reCaptchaSiteKeySetting.get() && <DeferRender ssr={false}>
+    {reCaptchaSiteKey && <DeferRender ssr={false}>
       <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>
     </DeferRender>}
     <form className={classes.root} onSubmit={submitFunction}>
@@ -222,6 +224,7 @@ const LoginForm = ({ startingState = "login", returnTo }: {
         <input
           value={username} type="text" name="username"
           autoComplete="username"
+          autoFocus={autoFocus}
           placeholder={currentAction === "signup" ? "username" : "username or email"}
           className={classes.input}
           onChange={event => setUsername(event.target.value)}
@@ -244,18 +247,17 @@ const LoginForm = ({ startingState = "login", returnTo }: {
         {currentAction !== "signup" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span>}
         {currentAction !== "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("pwReset")}> Reset Password </span>}
       </div>
-      {hasOauthSection && <>
+      <>
         <div className={classes.oAuthComment}>...or continue with</div>
         <div className={classes.oAuthBlock}>
           <a className={classes.oAuthLink} href={`/auth/google?returnTo=${oauthReturnTo}`}>GOOGLE</a>
           <a className={classes.oAuthLink} href={`/auth/github?returnTo=${oauthReturnTo}`}>GITHUB</a>
         </div>
-      </>}
+      </>
       {displayedError && <div className={classes.error}>{displayedError}</div>}
     </form>
   </ContentStyles>;
 }
 
 export default LoginForm;
-
 

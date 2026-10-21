@@ -1,4 +1,6 @@
 'use client';
+import { useForumType } from '@/components/hooks/useForumType';
+
 
 import useCookies from "@/lib/vendor/react-cookie/useCookies";
 import type { CookieSetOptions } from "universal-cookie";
@@ -28,6 +30,7 @@ export function useCookiePreferences(): {
   explicitConsentGiven: boolean;
   explicitConsentRequired: boolean | "unknown";
 } {
+  const { forumType } = useForumType();
   const { captureEvent } = useTracking()
   const [explicitConsentRequired, setExplicitConsentRequired] = useState<boolean | "unknown">(getExplicitConsentRequiredSync());
 
@@ -53,7 +56,7 @@ export function useCookiePreferences(): {
   useEffect(() => {
     // TODO: this was previously causing an infinite loop for an unknown reason, if this happens again, we should
     // turn this setting on. Remove this once the bug is definitely fixed.
-    if (disableCookiePreferenceAutoUpdateSetting.get()) return
+    if (disableCookiePreferenceAutoUpdateSetting.get(forumType)) return
 
     const canAutoUpdate = cookiePreferencesAutoUpdatedTime === null || moment().diff(cookiePreferencesAutoUpdatedTime, 'seconds') > 30
     if (!canAutoUpdate || explicitConsentRequired === "unknown" || explicitConsentGiven) return;

@@ -13,7 +13,7 @@ export interface PingbackDocumentPartial {
   }
 }
 
-export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionName: CollectionNameString, document: PingbackDocumentPartial, oldDocument?: PingbackDocumentPartial) => {
+export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionName: CollectionNameString, document: PingbackDocumentPartial, context: ResolverContext, oldDocument?: PingbackDocumentPartial) => {
   const pingbacksToSend = getPingbacksToSend(currentUser, collectionName, document, oldDocument)
 
   // Todo(PR): this works, but not sure if it's generally a correct conversion. 
@@ -27,6 +27,7 @@ export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionNa
   }
 
   return createNotifications({
+    context,
     notificationType: 'newMention',
     userIds: pingbacksToSend,
     documentId: document._id,

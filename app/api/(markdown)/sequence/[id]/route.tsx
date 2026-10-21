@@ -69,7 +69,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       <div>
         <div className={markdownClasses.title}>Sequence Not Found</div>
         <div>No sequence found with id: {id}</div>
-      </div>
+      </div>,
+      resolverContext.forumType
     );
     return new Response(markdown, {
       status: 404,
@@ -85,7 +86,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       <div>
         <div className={markdownClasses.title}>Sequence Not Found</div>
         <div>No sequence found with id: {id}</div>
-      </div>
+      </div>,
+      resolverContext.forumType
     );
     return new Response(markdown, {
       status: 404,
@@ -133,6 +135,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           ))}
         </div>
       )}
-    </div>
+    </div>,
+    resolverContext.forumType
   );
 }

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, Suspense } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { profileStyles } from "./profileStyles";
@@ -285,6 +286,7 @@ export function ProfilePageMobileBio({user, bioNoFollow}: {
   user: UsersProfile,
   bioNoFollow: boolean
 }) {
+  const { forumType } = useForumType();
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageSidebarUnsharedStyles);
   const currentUser = useCurrentUser();
@@ -303,7 +305,7 @@ export function ProfilePageMobileBio({user, bioNoFollow}: {
 
   return <div className={classes.mobileProfileBio}>
     <div className={classes.mobileProfileHeaderRow}>
-      <h4 className={classes.mobileProfileName}>{userGetDisplayName(user)}</h4>
+      <h4 className={classes.mobileProfileName}>{userGetDisplayName(user, forumType)}</h4>
       <div className={classes.mobileProfileActions}>
         {canSubscribeToUser ? (
           <UserNotifyDropdown

@@ -2,7 +2,6 @@ import React from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { useLocation } from '@/lib/routeUtil';
-import { useTagBySlug } from './useTag';
 import { Link } from '@/lib/reactRouterWrapper';
 import { TagLens } from '@/lib/arbital/useTagLenses';
 import { useTagOrLens } from '../hooks/useTagOrLens';

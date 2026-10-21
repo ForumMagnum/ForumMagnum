@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import type { Profile } from "passport";
 import { captureException } from "@/lib/sentryWrapper";
 import { userFindOneByEmail, usersFindAllByEmail } from "../commonQueries";
@@ -13,7 +14,7 @@ export type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Par
  * If the user's email has been updated by their OAuth provider, change their
  * email to match their OAuth provider's given email
  */
-const syncOAuthUser = async (user: DbUser, profile: Profile): Promise<DbUser> => {
+const syncOAuthUser = async (user: DbUser, profile: Profile, forumType: ForumTypeString): Promise<DbUser> => {
   if (!profile.emails || !profile.emails.length) {
     return user
   }
@@ -39,7 +40,7 @@ const syncOAuthUser = async (user: DbUser, profile: Profile): Promise<DbUser> =>
           emails: [{address: profileEmails[0], verified: true}],
         } as UpdateUserDataInput,
         selector: { _id: user._id }
-      }, createAnonymousContext());
+      }, createAnonymousContext({ forumType }));
       return updatedUserResponse;
     }
   }
@@ -51,6 +52,7 @@ export const getOrCreateForumUserAsync = async <P extends Profile>(
   profile: P,
   getIdFromProfile: IdFromProfile<P>,
   getUserDataFromProfile: UserDataFromProfile<P>,
+  forumType: ForumTypeString,
 ) => {
   try {
     const profileId = getIdFromProfile(profile);
@@ -78,7 +80,7 @@ export const getOrCreateForumUserAsync = async <P extends Profile>(
         }
         const user = matchingUsers[0];
         if (user) {
-          const userUpdated = await updateUser({ data: {[profilePath]: profile}, selector: { _id: user._id } }, createAnonymousContext());
+          const userUpdated = await updateUser({ data: {[profilePath]: profile}, selector: { _id: user._id } }, createAnonymousContext({ forumType }));
           if (user.banned && new Date(user.banned) > new Date()) {
             throw new Error("banned");
           }
@@ -86,10 +88,10 @@ export const getOrCreateForumUserAsync = async <P extends Profile>(
         }
       }
 
-      const userCreated = await createUser({ data: await getUserDataFromProfile(profile) }, createAnonymousContext());
+      const userCreated = await createUser({ data: await getUserDataFromProfile(profile) }, createAnonymousContext({ forumType }));
       return userCreated;
     }
-    user = await syncOAuthUser(user, profile)
+    user = await syncOAuthUser(user, profile, forumType)
     if (user.banned && new Date(user.banned) > new Date()) {
       throw new Error("banned");
     }

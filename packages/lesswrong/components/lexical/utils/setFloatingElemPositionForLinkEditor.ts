@@ -40,7 +40,7 @@ export function setFloatingElemPositionForLinkEditor(
   // in edit mode, so it wasn't accounted for when the editor was first
   // positioned) to be hidden behind the comment form's cancel/submit row.
   // Only flip if there's actually enough space above; otherwise leave it
-  // below and let whatever clipping happens be the least-bad option.
+  // below, overlapping the content after the editor.
   if (top + floatingElemRect.height > editorScrollerRect.bottom) {
     const flippedTop = targetRect.top - floatingElemRect.height - verticalGap;
     if (flippedTop >= editorScrollerRect.top) {

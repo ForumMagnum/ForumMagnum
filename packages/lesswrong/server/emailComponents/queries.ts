@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { gql } from "@/lib/generated/gql-codegen";
 import { createClient } from '@/server/vulcan-lib/apollo-ssr/apolloClient';
 import { computeContextFromUser } from '@/server/vulcan-lib/apollo-server/context';
@@ -17,8 +18,8 @@ export const PostsRevisionMultiQuery = gql(`
 `);
 
 // Data-fetching functions
-export async function fetchPostsForEmail(postIds: string[], user: DbUser | null): Promise<PostsRevision[]> {
-  const context = computeContextFromUser({ user, isSSR: false });
+export async function fetchPostsForEmail(postIds: string[], user: DbUser | null, forumType: ForumTypeString): Promise<PostsRevision[]> {
+  const context = computeContextFromUser({ user, isSSR: false, forumType });
   const apolloClient = await createClient(context);
   
   const { data } = await apolloClient.query({

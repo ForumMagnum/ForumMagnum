@@ -26,7 +26,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   
     const post = data.post.result;
     
-    return merge({}, defaultMetadata, getPageTitleFields(post.title));  
+    return merge({}, defaultMetadata, await getPageTitleFields(post.title));
   } catch (error) {
     return defaultMetadata;
   }

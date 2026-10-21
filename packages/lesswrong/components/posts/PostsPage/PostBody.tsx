@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
@@ -59,6 +60,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   isOldVersion: boolean
   voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>
 }) => {
+  const { forumType } = useForumType();
 
   const { showAllTerms, setShowAllTerms, termsToHighlight, unapprovedTermsCount, approvedTermsCount } = useDisplayGlossary(post);
 
@@ -68,7 +70,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
-  const nofollow = (post.user?.karma || 0) < nofollowKarmaThreshold.get();
+  const nofollow = (post.user?.karma || 0) < nofollowKarmaThreshold.get(forumType);
   const contentRef = useRef<ContentItemBodyImperative|null>(null);
   let content: React.ReactNode
   

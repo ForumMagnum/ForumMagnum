@@ -1,7 +1,8 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState }  from "react";
 import classNames from "classnames";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { isEAForum, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
+import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLinkState } from "./useCommentLink";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
@@ -116,6 +117,16 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
     top: 12,
     display: "flex",
   },
+  // When there are extra right-section elements (eg the participants list on
+  // collapsed quick takes), keep the section in the flex flow so that it wraps
+  // onto its own line rather than overlapping the vote buttons when the row is
+  // too narrow.
+  rightSectionInFlow: {
+    position: "static",
+    marginLeft: "auto",
+    marginRight: -26,
+    alignItems: "center",
+  },
   linkIcon: {
     "--icon-size": "15.6px",
     verticalAlign: "top",
@@ -165,6 +176,7 @@ export const CommentsItemMeta = ({
   setShowEdit: () => void,
   rightSectionElements?: React.ReactNode,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUserIsAdmin = useFilteredCurrentUser(u => userIsAdmin(u));
   const { scrollToCommentId } = useCommentLinkState();
@@ -201,9 +213,7 @@ export const CommentsItemMeta = ({
     ? "Moderator Comment (Invisible)"
     : "Moderator Comment";
 
-  const reviewingForReview = isEAForum() && comment.reviewingForReview === "2020"
-    ? "the Decade"
-    : comment.reviewingForReview;
+  const reviewingForReview = comment.reviewingForReview;
 
   const [showMoreClicked, setShowMoreClicked] = useState(false);
   let relevantTagsTruncated = comment.relevantTags ?? [];
@@ -213,7 +223,7 @@ export const CommentsItemMeta = ({
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
   // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
-  const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
+  const highlightLinkIcon = commentPermalinkStyleSetting.get(forumType) === 'in-context' && scrollToCommentId === comment._id
   const menuVisible = (!isParentComment && !hideActionsMenu);
 
   return (
@@ -310,7 +320,9 @@ export const CommentsItemMeta = ({
         />}
       </span>}
 
-      {(rightSectionElements || menuVisible) && <span className={classes.rightSection}>
+      {(rightSectionElements || menuVisible) && <span className={classNames(classes.rightSection, {
+        [classes.rightSectionInFlow]: !!rightSectionElements,
+      })}>
         {rightSectionElements}
         {menuVisible &&
           <AnalyticsContext pageElementContext="tripleDotMenu">

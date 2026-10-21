@@ -1,5 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { useMemo } from "react";
-import { ToCData, extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents } from "../../lib/tableOfContents";
+import { ToCData, extractTableOfContents, getTocAnswers, getTocComments } from "../../lib/tableOfContents";
 import { PostWithCommentCounts, getResponseCounts } from "../../lib/collections/posts/helpers";
 import { parseDocumentFromString } from "../../lib/domParser";
 
@@ -18,6 +19,7 @@ export const useDynamicTableOfContents = ({
   post: PostMinForToc | null;
   answers: CommentsList[];
 }): ToCData | null => {
+  const { forumType } = useForumType();
   return useMemo(() => {
     const precalcuatedToc = post?.tableOfContentsRevision ?? post?.tableOfContents;
     if (precalcuatedToc) {
@@ -27,27 +29,23 @@ export const useDynamicTableOfContents = ({
     const { sections = [], html: tocHtml = null } =
       extractTableOfContents(parseDocumentFromString(html ?? '')) ?? {};
 
-    if (shouldShowTableOfContents({ sections, post })) {
-      if (!post) {
-        return {
-          html: tocHtml ?? null,
-          sections,
-        };
-      }
-
-      const answerSections = getTocAnswers({ post, answers });
-      sections.push(...answerSections);
-
-      const { commentCount } = getResponseCounts({ post, answers });
-      const commentsSection = getTocComments({ post, commentCount });
-      sections.push(...commentsSection);
-
+    if (!post) {
       return {
         html: tocHtml ?? null,
         sections,
       };
     }
 
-    return null;
-  }, [answers, html, post]);
+    const answerSections = getTocAnswers({ post, answers });
+    sections.push(...answerSections);
+
+    const { commentCount } = getResponseCounts({ post, answers, forumType });
+    const commentsSection = getTocComments({ post, commentCount, forumType });
+    sections.push(...commentsSection);
+
+    return {
+      html: tocHtml ?? null,
+      sections,
+    };
+  }, [answers, html, post, forumType]);
 };

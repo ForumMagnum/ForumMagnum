@@ -1,6 +1,6 @@
-import { userIsSubforumModerator, getTagPostsSortOrderOptions } from "@/lib/collections/tags/helpers";
+import { getTagPostsSortOrderOptions, userCanRenameTag } from "@/lib/collections/tags/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { isEAForum, isLW, isLWorAF } from "@/lib/instanceSettings";
+import { useForumType } from "@/components/hooks/useForumType";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useForm } from "@tanstack/react-form";
@@ -10,7 +10,6 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
-import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
@@ -55,36 +54,13 @@ const formStyles = defineStyles('TagForm', (theme: ThemeType) => ({
   cancelButton: cancelButtonStyles(theme),
 }));
 
-function showWikiOnlyField(currentUser: UsersCurrent | null, formType: 'new' | 'edit') {
-  // LessWrong shows this field on the new tag form, but EA Forum does not
+function showWikiOnlyField(currentUser: UsersCurrent | null, formType: 'new' | 'edit', isLW: boolean) {
+  // On AF, only moderators can set this field when creating a tag.
   if (formType === 'new') {
-    return isLW() || userIsAdminOrMod(currentUser);
+    return isLW || userIsAdminOrMod(currentUser);
   }
 
   return userIsAdminOrMod(currentUser);
-}
-
-type ShowSubforumWelcomeTextFieldProps = {
-  currentUser: UsersCurrent | null;
-} & ({
-  editingTag?: never;
-} | {
-  editingTag: UpdateTagDataInput;
-});
-
-function showSubforumWelcomeTextField({ currentUser, editingTag }: ShowSubforumWelcomeTextFieldProps) {
-  if (!isEAForum()) {
-    return false;
-  }
-
-  if (!editingTag) {
-    return userIsAdminOrMod(currentUser);
-  }
-
-  let { subforumModeratorIds } = editingTag;
-  subforumModeratorIds ??= [];
-
-  return userIsSubforumModerator(currentUser, { subforumModeratorIds }) || userIsAdminOrMod(currentUser);
 }
 
 const wikiGradeDefinitions = {
@@ -117,6 +93,7 @@ export const TagForm = ({
   onCancel?: () => void;
   onChange?: () => void;
 }) => {
+  const { isLW } = useForumType();
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
   
@@ -155,7 +132,7 @@ export const TagForm = ({
 
         if (formType === 'new') {
           const { wikiOnly, ...rest } = formApi.state.values;
-          const createData = showWikiOnlyField(currentUser, formType) ? { ...rest, wikiOnly } : rest;
+          const createData = showWikiOnlyField(currentUser, formType, isLW) ? { ...rest, wikiOnly } : rest;
 
           const { data } = await create({ variables: { data: createData } });
           if (!data?.createTag?.data) {
@@ -190,6 +167,8 @@ export const TagForm = ({
     return <Error404 />;
   }
 
+  const showNameField = formType === 'new' || userIsAdminOrMod(currentUser) || userCanRenameTag(currentUser);
+
   return (
     <form className="vulcan-form" onSubmit={(e) => {
       e.preventDefault();
@@ -197,7 +176,7 @@ export const TagForm = ({
       void form.handleSubmit();
     }}>
       {displayedErrorComponent}
-      <div className={classes.fieldWrapper}>
+      {showNameField && <div className={classes.fieldWrapper}>
         <form.Field name="name">
           {(field) => (
             <MuiTextField
@@ -206,7 +185,7 @@ export const TagForm = ({
             />
           )}
         </form.Field>
-      </div>
+      </div>}
 
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="description" listeners={{ onChange }}>
@@ -242,8 +221,7 @@ export const TagForm = ({
         </form.Field>
       </div>
 
-      {userIsAdminOrMod(currentUser) && (
-        <LegacyFormGroupLayout label="Advanced Options" startCollapsed={true}>
+      {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout label="Advanced Options" startCollapsed={true}>
           <div className={classes.fieldWrapper}>
             <form.Field name="slug">
               {(field) => (
@@ -287,17 +265,6 @@ export const TagForm = ({
               )}
             </form.Field>
           </div>
-
-          {isEAForum() && <div className={classes.fieldWrapper}>
-            <form.Field name="isPostType">
-              {(field) => (
-                <FormComponentCheckbox
-                  field={field}
-                  label="Is post type"
-                />
-              )}
-            </form.Field>
-          </div>}
 
           <div className={classes.fieldWrapper}>
             <form.Field name="suggestedAsFilter">
@@ -420,39 +387,13 @@ export const TagForm = ({
             </form.Field>
           </div>
 
-          {showWikiOnlyField(currentUser, formType) && <div className={classes.fieldWrapper}>
+          {showWikiOnlyField(currentUser, formType, isLW) && <div className={classes.fieldWrapper}>
             <form.Field name="wikiOnly">
               {(field) => (
                 <FormComponentCheckbox
                   field={field}
                   label="Wiki only"
                 />
-              )}
-            </form.Field>
-          </div>}
-
-          {isEAForum() && <div className={classes.fieldWrapper}>
-            <form.Field name="bannerImageId">
-              {(field) => (
-                <LWTooltip title="Minimum 200x600 px" placement="left-start" inlineBlock={false}>
-                  <ImageUpload
-                    field={field}
-                    label="Banner Image"
-                  />
-                </LWTooltip>
-              )}
-            </form.Field>
-          </div>}
-
-          {isEAForum() && <div className={classes.fieldWrapper}>
-            <form.Field name="squareImageId">
-              {(field) => (
-                <LWTooltip title="Minimum 200x200 px" placement="left-start" inlineBlock={false}>
-                  <ImageUpload
-                    field={field}
-                    label="Square Image"
-                  />
-                </LWTooltip>
               )}
             </form.Field>
           </div>}
@@ -598,35 +539,9 @@ export const TagForm = ({
               )}
             </form.Field>
           </div>}
-        </LegacyFormGroupLayout>
-      )}
+        </LegacyFormGroupLayout>}
 
-      {showSubforumWelcomeTextField({ currentUser, editingTag: initialData }) && (
-        <LegacyFormGroupLayout label="Sidebar Welcome Message" startCollapsed={true}>
-          <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
-            <form.Field name="subforumWelcomeText">
-              {(field) => (
-                <EditorFormComponent
-                  field={field}
-                  name="subforumWelcomeText"
-                  formType={formType}
-                  document={form.state.values}
-                  addOnSubmitCallback={addOnSubmitCallback}
-                  addOnSuccessCallback={addOnSuccessCallback}
-                  hintText={getDefaultEditorPlaceholder()}
-                  fieldName="subforumWelcomeText"
-                  collectionName="Tags"
-                  commentEditor={false}
-                  commentStyles={false}
-                  hideControls={false}
-                />
-              )}
-            </form.Field>
-          </div>
-        </LegacyFormGroupLayout>
-      )}
-
-      {initialData && isLWorAF() && <LegacyFormGroupLayout label="Summaries" startCollapsed={true}>
+      {initialData && <LegacyFormGroupLayout label="Summaries" startCollapsed={true}>
         <div className={classes.fieldWrapper}>
           {/* <form.Field name="summaries">
             {() => ( */}

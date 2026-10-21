@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { Posts } from "@/server/collections/posts/collection.ts";
 import { manifoldAPIKeySetting } from "@/lib/instanceSettings";
 import { LiteMarket } from "@/lib/collections/posts/annualReviewMarkets";
@@ -21,7 +22,7 @@ export const getMarketInfoFromManifold = async (marketId: string): Promise<LiteM
   return result.json()
 }
 
-export const resolveReviewMarkets = async (year: number, limit?: number) => {
+export const resolveReviewMarkets = async (year: number, forumType: ForumTypeString, limit?: number) => {
 
   const resolutionLimitOptions = limit ? {limit} : {}
 
@@ -63,7 +64,7 @@ export const resolveReviewMarkets = async (year: number, limit?: number) => {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "Authorization": `Key ${manifoldAPIKeySetting.get()}`
+        "Authorization": `Key ${manifoldAPIKeySetting.get(forumType)}`
       },
       body: JSON.stringify({outcome: isWinner ? "YES" : "NO"})
     })

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useCurrentUserId } from '../withUser';
 import TabNavigationItem, { iconWidth } from './TabNavigationItem'
@@ -54,6 +55,7 @@ const TabNavigationMenu = ({ onClickSection, transparentBackground, iconOnlyNavi
   transparentBackground?: boolean,
   iconOnlyNavigationEnabled?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
   const { captureEvent } = useTracking()
@@ -63,7 +65,7 @@ const TabNavigationMenu = ({ onClickSection, transparentBackground, iconOnlyNavi
     onClickSection && onClickSection(e)
   }
 
-  const tabs = forumSelect(getMenuTabs());
+  const tabs = forumSelect(getMenuTabs(), forumType);
   const filteredTabs = iconOnly
     ? tabs.filter(tab => {
       if ('customComponentName' in tab) return false

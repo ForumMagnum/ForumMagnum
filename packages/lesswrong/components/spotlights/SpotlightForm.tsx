@@ -48,6 +48,9 @@ const formStyles = defineStyles('SpotlightForm', (theme: ThemeType) => ({
     marginTop: 16,
     marginBottom: 16,
   },
+  descriptionField: {
+    width: '100%',
+  },
   submitButton: submitButtonStyles(theme),
 }));
 
@@ -358,7 +361,7 @@ export const SpotlightForm = ({
         </>}
 
 
-        <div className={classNames("form-component-EditorFormComponent", 'input-description', inputFieldClass)}>
+        <div className={classNames("form-component-EditorFormComponent", 'input-description', inputFieldClass, classes.descriptionField)}>
           <form.Field name="description">
             {(field) => (
               <EditorFormComponent
@@ -386,6 +389,7 @@ export const SpotlightForm = ({
                 commentEditor={true}
                 commentStyles={true}
                 hideControls={true}
+                fitToContent={descriptionOnly}
               />
             )}
           </form.Field>

@@ -64,7 +64,7 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
       if (!tag) return defaultMetadata;
   
       const tagPageTitle = options?.historyPage ? `${tag.name} - History` : tag.name;
-      const titleFields = getPageTitleFields(tagPageTitle);
+      const titleFields = await getPageTitleFields(tagPageTitle);
   
       const description = comment
         ? getCommentDescription(comment)
@@ -81,7 +81,7 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
           ? tagGetDiscussionUrl(tag)
           : tagGetUrl(tag);
 
-      const ogUrl = combineUrls(getSiteUrl(), urlBase);
+      const ogUrl = combineUrls(getSiteUrl(resolverContext.forumType), urlBase);
       const canonicalUrl = ogUrl;
 
       const urlFields = {

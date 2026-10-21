@@ -1,4 +1,5 @@
 'use client';
+import { useForumType } from '@/components/hooks/useForumType';
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useChat } from '@ai-sdk/react';
@@ -653,6 +654,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
 }), { allowNonThemeColors: true });
 
 const HomeDesignChatPanel = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { isOpen, setIsOpen, applyDesign, useDefaultDesign, setUseDefaultDesign, publicId, setPublicId } = useHomeDesignChat();
@@ -945,7 +947,7 @@ const HomeDesignChatPanel = () => {
                 <div className={classes.byoaLink}>
                   Or, bring your own agent: give them a link to <a href="/api/homeDesigns/SKILL.md" target="_blank" rel="noopener noreferrer">this skill</a>
                   <CopyToClipboard
-                    text={`${getSiteUrl()}api/homeDesigns/SKILL.md`}
+                    text={`${getSiteUrl(forumType)}api/homeDesigns/SKILL.md`}
                     onCopy={() => flash({ messageString: "Skill URL copied!" })}
                   >
                     <CopyIcon className={classes.copyIcon} />

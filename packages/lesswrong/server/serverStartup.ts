@@ -1,6 +1,4 @@
 /* eslint-disable no-console */
-// TODO: figure out if we can gate this on forum-type
-// import './datadog/tracer';
 import process from 'process';
 import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
 

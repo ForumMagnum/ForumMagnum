@@ -1,9 +1,7 @@
 import compose from 'lodash/flowRight';
 import React from 'react';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
-import { withAddClasses, type RegisterComponentStyles } from '@/components/hooks/useStyles';
 import isEqual from 'lodash/isEqual';
-import type { StyleOptions } from '@/server/styleGeneration';
 
 type ComparisonFn = (prev: any, next: any) => boolean
 type ComparePropsDict = { [propName: string]: "default"|"shallow"|"ignore"|"deep"|ComparisonFn }

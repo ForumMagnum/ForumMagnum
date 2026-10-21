@@ -1,7 +1,7 @@
 import transitions from '@/lib/vendor/@material-ui/core/src/styles/transitions';
 import { defaultComponentPalette, headerStack } from './defaultPalette';
 import { defaultZIndexes } from "./zIndexes";
-import { isAF, isLW } from '@/lib/instanceSettings';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 
 const monoStack = [
   '"Liberation Mono"',
@@ -16,7 +16,7 @@ export const defaultBorderRadius = () => ({
   quickTakesEntry: 3,
 });
 
-export const defaultTypography = (palette: ThemePalette) => ({
+export const defaultTypography = (palette: ThemePalette, forumType: ForumTypeString) => ({
   fontFamily: palette.fonts.sansSerifStack,
   cloudinaryFont: {
     stack: "'Merriweather', serif",
@@ -24,18 +24,18 @@ export const defaultTypography = (palette: ThemePalette) => ({
   },
   postStyle: {
     fontFamily: palette.fonts.serifStack,
-    ...(isAF() && {
+    ...(forumType === 'AlignmentForum' && {
       fontVariantNumeric: "lining-nums",
     })
   },
   commentStyle: {
     fontFamily: palette.fonts.sansSerifStack,
-    ...(!isAF() && {
+    ...(forumType !== 'AlignmentForum' && {
       '& b, & strong': {
         fontWeight: 600
       }
     }),
-    ...(isAF() && {
+    ...(forumType === 'AlignmentForum' && {
       fontVariantNumeric: "lining-nums",
     }),
   },
@@ -118,7 +118,7 @@ export const defaultTypography = (palette: ThemePalette) => ({
     fontSize: 36.4,
     marginTop: '1em',
     fontWeight: 400,
-    ...(isAF() && {
+    ...(forumType === 'AlignmentForum' && {
       fontWeight: 500,
     }),
     fontFamily: palette.fonts.sansSerifStack,
@@ -130,7 +130,7 @@ export const defaultTypography = (palette: ThemePalette) => ({
     marginTop: '1.2em',
     fontSize: 39,
     fontWeight: 400,
-    ...(isAF() && {
+    ...(forumType === 'AlignmentForum' && {
       fontWeight: 500,
     }),
     fontFamily: palette.fonts.sansSerifStack,
@@ -152,7 +152,7 @@ export const defaultTypography = (palette: ThemePalette) => ({
     fontWeight: 500,
     marginBottom: 3,
     fontFamily: headerStack,
-    ...(isAF() && {
+    ...(forumType === 'AlignmentForum' && {
       fontFamily: palette.fonts.sansSerifStack,
       fontWeight: 500,
     }),
@@ -247,8 +247,8 @@ export const defaultTypography = (palette: ThemePalette) => ({
 });
 
 export const baseTheme: BaseThemeSpecification = {
-  componentPalette: (dark: boolean) => defaultComponentPalette(dark, isAF()),
-  make: (palette: ThemePalette): NativeThemeType => ({
+  componentPalette: (dark: boolean, forumType: ForumTypeString) => defaultComponentPalette(dark, forumType === 'AlignmentForum'),
+  make: (palette: ThemePalette, forumType: ForumTypeString): NativeThemeType => ({
       dark: false,
       breakpoints: {
         values: {
@@ -263,7 +263,7 @@ export const baseTheme: BaseThemeSpecification = {
         mainLayoutPaddingTop: 50
       },
       borderRadius: defaultBorderRadius(),
-      typography: defaultTypography(palette),
+      typography: defaultTypography(palette, forumType),
       zIndexes: {
         ...defaultZIndexes
       },
@@ -297,7 +297,7 @@ export const baseTheme: BaseThemeSpecification = {
       ],
       transitions: transitions,
 
-      isLW: isLW(),
-      isAF: isAF(),
+      isLW: forumType === 'LessWrong',
+      isAF: forumType === 'AlignmentForum',
   }),
 };

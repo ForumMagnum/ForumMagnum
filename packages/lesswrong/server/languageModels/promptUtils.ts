@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { userGetDisplayName } from "@/lib/collections/users/helpers"
 import { htmlToMarkdown } from "../editor/conversionUtils";
 import { CommentTreeNode, unflattenComments } from "@/lib/utils/unflatten";
@@ -139,8 +140,8 @@ const formatCommentsForPost = async (post: PostsMinimumInfo, tokenCounter: Token
 <comments>${formattedComments}</comments>`;
 }
 
-const formatPostForPrompt = (post: LlmPost, truncationInTokens?: number): string => {
-  const authorName = userGetDisplayName(post.user)
+const formatPostForPrompt = (post: LlmPost, forumType: ForumTypeString, truncationInTokens?: number): string => {
+  const authorName = userGetDisplayName(post.user, forumType)
   const markdown = documentToMarkdown(post)
   const truncationInChars = truncationInTokens ? truncationInTokens * CHARS_PER_TOKEN : undefined
 
@@ -152,8 +153,8 @@ Score: ${post.baseScore}
 Content: ${markdown?.slice(0, truncationInChars)}`;
 }
 
-const formatAdditionalPostsForPrompt = (posts: LlmPost[], tokenCounter: TokenCounter, limit=120_000, prefix="Supplementary Post", truncationInTokens?: number): string => {
-  const formattedPosts = posts.map(post => formatPostForPrompt(post, truncationInTokens));
+const formatAdditionalPostsForPrompt = (posts: LlmPost[], forumType: ForumTypeString, tokenCounter: TokenCounter, limit=120_000, prefix="Supplementary Post", truncationInTokens?: number): string => {
+  const formattedPosts = posts.map(post => formatPostForPrompt(post, forumType, truncationInTokens));
   const includedPosts: string[] = [];
 
   for (let [idx, formattedPost] of Object.entries(formattedPosts)) {
@@ -274,7 +275,7 @@ export const generateAssistantContextMessage = async ({
   
   const currentPostContentBlock = currentPost
     ? `If relevant to the user's query, the most important context is likely to be the post the user is currently ${userActionVerb}. The full text of the current post is provided below:
-<CurrentPost>\n${formatPostForPrompt(currentPost, CURRENT_POST_TRUNCATION_IN_TOKENS)}\n</CurrentPost>\n\n`
+<CurrentPost>\n${formatPostForPrompt(currentPost, context.forumType, CURRENT_POST_TRUNCATION_IN_TOKENS)}\n</CurrentPost>\n\n`
     : '';
 
   const additionalInstructionContextLine = contextIsProvided
@@ -306,7 +307,7 @@ The postId and commentIds (the _id in each comment) are given in the search resu
   const tokenCounter = { tokenCount: approximateUsedTokens };
 
   const additionalPostsBlock = additionalPosts.length > 0
-    ? `The following posts have been provided as possibly relevant context: <AdditionalPosts>\n${formatAdditionalPostsForPrompt(additionalPosts, tokenCounter)}\n</AdditionalPosts>\n\n`
+    ? `The following posts have been provided as possibly relevant context: <AdditionalPosts>\n${formatAdditionalPostsForPrompt(additionalPosts, context.forumType, tokenCounter)}\n</AdditionalPosts>\n\n`
     : '';
 
   const commentsOnPostBlock = includeComments && currentPost && currentPost.commentCount > 0
@@ -315,7 +316,7 @@ The postId and commentIds (the _id in each comment) are given in the search resu
     : '';
 
   const providedPostsBlock = providedPosts.length > 0
-    ? `The user mentioned the following posts in their query. They are presumed to be EXTREMELY RELEVANT to answering the user's query. Other posts might be relevant too, but these are the ones the user mentioned first, so they are likely very important: <UserProvidedPosts>\n${formatAdditionalPostsForPrompt(providedPosts, tokenCounter)}\n</UserProvidedPosts>\n\n`
+    ? `The user mentioned the following posts in their query. They are presumed to be EXTREMELY RELEVANT to answering the user's query. Other posts might be relevant too, but these are the ones the user mentioned first, so they are likely very important: <UserProvidedPosts>\n${formatAdditionalPostsForPrompt(providedPosts, context.forumType, tokenCounter)}\n</UserProvidedPosts>\n\n`
     : '';
 
   const contextBlock = contextIsProvided
@@ -325,7 +326,7 @@ ${currentPostLine}${additionalPostsBlock}${currentPostContentBlock}${commentsOnP
 </Context>`
     : '';
 
-  const userInfo = `The user's display name is ${userGetDisplayName(context.currentUser)}. Pay attention to whether they are the author of any posts or comments that you are referencing.`;
+  const userInfo = `The user's display name is ${userGetDisplayName(context.currentUser, context.forumType)}. Pay attention to whether they are the author of any posts or comments that you are referencing.`;
 
   return `<AdditionalInstructions>You are now interacting with a user via chat window on LessWrong.com.  ${userInfo}  The user has sent the following query: "${query}".
 ${contextBlock}

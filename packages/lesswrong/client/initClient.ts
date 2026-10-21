@@ -32,6 +32,5 @@ export function initClientOnce() {
   ensureIdentifiers();
   
   googleTagManagerInit();
-  // void initDatadog();
   void initReCaptcha();
 }

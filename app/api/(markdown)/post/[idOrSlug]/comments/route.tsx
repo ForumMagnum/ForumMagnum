@@ -130,6 +130,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ idOr
         markdownRouteBase={`/api/post/${post.slug}/comments`}
         htmlRouteBase={`/posts/${post._id}/${post.slug}/comment`}
       />
-    </div>
+    </div>,
+    resolverContext.forumType
   );
 }

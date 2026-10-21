@@ -1,9 +1,9 @@
-import { mapsAPIKeySetting } from '@/lib/instanceSettings';
+import { mapsAPIKey } from '@/lib/instanceSettings';
 import { Client, LatLng } from '@googlemaps/google-maps-services-js'
 import { captureException } from '@/lib/sentryWrapper';
 
 export async function getLocalTime(time: AnyBecauseTodo, googleLocation: AnyBecauseTodo): Promise<Date|null> {
-  const googleMapsApiKey = mapsAPIKeySetting.get()
+  const googleMapsApiKey = mapsAPIKey
   if (!googleMapsApiKey) {
     // eslint-disable-next-line no-console
     console.log("No Server-side Google Maps API key provided, can't resolve local time")

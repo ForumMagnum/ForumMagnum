@@ -2,7 +2,7 @@ import { viewFieldAllowAny, jsonArrayContainsSelector } from '@/lib/utils/viewCo
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { hasWikiLenses } from '@/lib/betas';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
-import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import type { ApolloClient } from '@apollo/client';
 
 declare global {
   interface TagsViewTerms extends ViewTermsBase {

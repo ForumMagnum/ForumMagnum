@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -59,6 +60,7 @@ const styles = defineStyles("SunshineNewUserPostItem", (theme: ThemeType) => ({
 export const SunshineNewUserPostItem = ({post}: {
   post: SunshinePostsList,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [isCollapsed, setIsCollapsed] = useState(!!post.rejected);
 
@@ -81,7 +83,7 @@ export const SunshineNewUserPostItem = ({post}: {
         </MetaInfo>
         <MetaInfo>
           <Link to={`${postGetPageUrl(post)}#comments`}>
-            {postGetCommentCountStr(post)}
+            {postGetCommentCountStr(post, forumType)}
           </Link>
         </MetaInfo>
         <PostActionsButton post={post} />

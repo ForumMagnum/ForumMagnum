@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { ReactNode } from 'react';
 import { useQuery } from "@/lib/crud/useQuery";
 import { Card } from "@/components/widgets/Paper";
@@ -235,6 +236,7 @@ const PostLinkPreviewVariantCheck = ({ href, originalHref, post, targetLocation,
   className?: string,
   children: ReactNode,
 }) => {
+  const { forumType } = useForumType();
   // If the link is to a ?commentId= or #commentId URL, the preview should show
   // the comment that's been linked to. _But_, if a link is to a hash, then
   // `targetLocation` will be a merged URL, which may inherit a commentId query
@@ -247,7 +249,7 @@ const PostLinkPreviewVariantCheck = ({ href, originalHref, post, targetLocation,
   // it was before any parsing, relative-path resolution etc was done), rather
   // than in href.
   const URLClass = getUrlClass()
-  const originalUrlSiteRelative = new URLClass(originalHref, getSiteUrl());
+  const originalUrlSiteRelative = new URLClass(originalHref, getSiteUrl(forumType));
   const commentIdQuery = originalUrlSiteRelative.searchParams.get('commentId');
 
   if (commentIdQuery) {
@@ -627,6 +629,11 @@ export const ManifoldPreview = ({href, id, className, children}: {
   );
 };
 
+// Neuronpedia pages with a complex UI. They need a taller hover preview.
+const INTERACTIVE_NEURONPEDIA_PAGES = new Set([
+  'assistant-axis', 'gemma-scope', 'gemma-scope-2', 'gemmascope', 'gemmascope-2', 'graph', 'jlens', 'nla', 'steer',
+]);
+
 export const NeuronpediaPreview = ({href, id, className, children}: {
   href: string;
   id?: string;
@@ -636,22 +643,24 @@ export const NeuronpediaPreview = ({href, id, className, children}: {
   const classes = useStyles(linkStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
-  // test if it's already an embed url https://[www.]neuronpedia.org/[model]/[layer]/[index]?embed=true[...]
-  const isEmbed = /https:\/\/(www\.)?neuronpedia\.org\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+\/\d+\?embed=true/.test(href);
-
-  // if it's not an embed link, match it as https://[www.]neuronpedia.org/[model]/[layer]/[index] make the embed url
-  const results = href.match(/^https?:\/\/(www\.)?neuronpedia\.org\/([a-zA-Z0-9-/]+).*/) || [];
-  if (!isEmbed && (!results || results.length === 0)) {
+  let url: URL | null;
+  try {
+    url = new URL(href);
+  } catch {
+    url = null;
+  }
+  if (!url || !/^(www\.)?neuronpedia\.org$/.test(url.hostname)) {
     return (
       <a href={href} className={className}>
         {children}
       </a>
     );
   }
-  const slug = results[results.length - 1]
-  
-  // if it's an embed just use that url, otherwise add the embed query
-  const url = isEmbed ? href : `https://neuronpedia.org/${slug}?embed=true`;
+  // Keep the full path and query: model IDs can have dots (e.g. qwen3.6-27b).
+  url.protocol = 'https:';
+  url.searchParams.set('embed', 'true');
+  // The page is the first path segment (/graph) or the one after the model ID (/[model]/jlens).
+  const isInteractive = url.pathname.split('/').filter(Boolean).slice(0, 2).some((segment) => INTERACTIVE_NEURONPEDIA_PAGES.has(segment));
 
   return (
     <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
@@ -661,7 +670,10 @@ export const NeuronpediaPreview = ({href, id, className, children}: {
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-          <iframe className={classes.neuronpediaIframe} src={url} />
+          <iframe
+            className={classNames(classes.neuronpediaIframe, isInteractive && classes.neuronpediaInteractiveIframe)}
+            src={url.toString()}
+          />
         </LWPopper>
       </span>
     </AnalyticsTracker>

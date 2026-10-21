@@ -418,7 +418,7 @@ const getFalClient = (() => {
   return () => {
     if (!fal) {
       fal = _fal;
-      fal.config({ credentials: () => falApiKey.get() });
+      fal.config({ credentials: () => falApiKey.get("LessWrong") });
     }
     return fal;
   };

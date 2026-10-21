@@ -3,6 +3,9 @@ import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
 import { useSubtitlePortal } from '@/components/layout/SubtitlePortalContext';
+import { useForumType } from '@/components/hooks/useForumType';
+import { Link } from '@/lib/reactRouterWrapper';
+import { useIsPetrovDayRitualActive } from '../seasonal/petrovDay/petrov-day-story/useIsPetrovDayRitualActive';
 
 export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: ThemeType) => ({
   subtitleContainer: {
@@ -20,11 +23,16 @@ export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: Theme
 }));
 
 const HeaderSubtitle = () => {
-  const { containerRef } = useSubtitlePortal();
+  const { containerRef, hasSubtitleContent } = useSubtitlePortal();
   const classes = useStyles(headerSubtitleStyles);
+  const { isLW } = useForumType();
+  const petrovDayRitualActive = useIsPetrovDayRitualActive();
 
   return <div className={classes.subtitleContainer}>
     <span ref={containerRef} />
+    {isLW && petrovDayRitualActive && !hasSubtitleContent && <span className={classes.subtitle}>
+      <Link to="/petrov/ceremony">Petrov Day</Link>
+    </span>}
   </div>
 }
 

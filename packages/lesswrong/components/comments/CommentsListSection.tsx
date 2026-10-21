@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useMemo, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
@@ -10,7 +11,6 @@ import classNames from 'classnames';
 import { postGetCommentCountStr, userIsPostCoauthor } from '../../lib/collections/posts/helpers';
 import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 import CommentsViews from "./CommentsViews";
@@ -23,7 +23,6 @@ import CommentsList from "./CommentsList";
 import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
 import MetaInfo from "../common/MetaInfo";
 import Row from "../common/Row";
-import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 import SimpleDivider from "../widgets/SimpleDivider";
 import CommentsListMeta from "./CommentsListMeta";
 import { Typography } from "../common/Typography";
@@ -69,9 +68,6 @@ const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
       display: "none"
     }
   },
-  newQuickTake: {
-    border: "none",
-  },
   newCommentLabel: {
     paddingLeft: 12,
     ...theme.typography.commentStyle,
@@ -92,9 +88,8 @@ const CommentsListSection = ({
   post,
   tag,
   commentCount,
-  loadMoreCount,
   totalComments,
-  loadMoreComments,
+  loadAllComments,
   loadingMoreComments,
   loading,
   comments,
@@ -110,9 +105,8 @@ const CommentsListSection = ({
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
-  loadMoreCount?: number,
   totalComments: number,
-  loadMoreComments: any,
+  loadAllComments: () => void,
   loadingMoreComments: boolean,
   loading?: boolean,
   comments: CommentsList[],
@@ -164,22 +158,16 @@ const CommentsListSection = ({
       {newForm
         && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor, false))
         && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
-        && (
-        <div
+        && <div
           id="posts-thread-new-comment"
-          className={classNames(classes.newComment, {
-            [classes.newQuickTake]: isEAForum() && post?.shortform,
-          })}
+          className={classes.newComment}
         >
-          {!isEAForum() && <div className={classes.newCommentLabel}>New Comment</div>}
+          <div className={classes.newCommentLabel}>New Comment</div>
           {post?.isEvent && !!post.rsvps?.length && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.
             </div>
           )}
-          {isEAForum() && post?.shortform
-            ? <QuickTakesEntry currentUser={currentUser} />
-            : (
               <CommentsNewForm
                 post={post}
                 tag={tag}
@@ -191,10 +179,7 @@ const CommentsListSection = ({
                 {...newFormProps}
                 {...(userIsDebateParticipant ? { formProps: { post } } : {})}
               />
-            )
-          }
-        </div>
-      )}
+        </div>}
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor, false) &&
         <CantCommentExplanation post={post}/>
       }
@@ -202,9 +187,8 @@ const CommentsListSection = ({
       {totalComments ? <CommentsListSectionTitle
         post={post}
         commentCount={commentCount}
-        loadMoreCount={loadMoreCount}
         totalComments={totalComments}
-        loadMoreComments={loadMoreComments}
+        loadAllComments={loadAllComments}
         loadingMoreComments={loadingMoreComments}
         comments={comments}
         highlightDate={highlightDate}
@@ -221,13 +205,13 @@ const CommentsListSection = ({
         loading={loading}
       />
       <PostsPageCrosspostComments />
-      {!isEAForum() && <Row justifyContent="flex-end">
+      <Row justifyContent="flex-end">
         <LWTooltip title="View deleted comments and banned users">
           <Link to="/moderation">
             <MetaInfo>Moderation Log</MetaInfo>
           </Link>
         </LWTooltip>
-      </Row>}
+      </Row>
     </div>
   );
 }
@@ -235,9 +219,8 @@ const CommentsListSection = ({
 function CommentsListSectionTitle({
   post,
   commentCount,
-  loadMoreCount,
   totalComments,
-  loadMoreComments,
+  loadAllComments,
   loadingMoreComments,
   comments,
   highlightDate,
@@ -247,9 +230,8 @@ function CommentsListSectionTitle({
 }: {
   post?: PostsDetails,
   commentCount: number,
-  loadMoreCount?: number,
   totalComments: number,
-  loadMoreComments: any,
+  loadAllComments: () => void,
   loadingMoreComments: boolean,
   comments: CommentsList[],
   highlightDate: Date|undefined,
@@ -257,6 +239,7 @@ function CommentsListSectionTitle({
   setHighlightDate: (newValue: Date|undefined) => void,
   setRestoreScrollPos: (newValue: number) => void,
 }) {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const newCommentsSinceDate = highlightDate
@@ -281,19 +264,16 @@ function CommentsListSectionTitle({
 
 
   const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
-  const newLimit = commentCount + (loadMoreCount || commentCount)
   let commentSortNode = (commentCount < totalComments) ?
     <span>
       Rendering {commentCount}/{totalComments} comments, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
-      {loadingMoreComments ? <Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
+      {loadingMoreComments ? <Loading /> : <a onClick={() => loadAllComments()}> (show all) </a>}
     </span> :
     <span>
-      {postGetCommentCountStr(post, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
+      {postGetCommentCountStr(post, forumType, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
     </span>
 
-  const contentType = isEAForum() && post?.shortform
-    ? "quick takes"
-    : "comments";
+  const contentType = "comments";
 
   return <CommentsListMeta>
     <Typography

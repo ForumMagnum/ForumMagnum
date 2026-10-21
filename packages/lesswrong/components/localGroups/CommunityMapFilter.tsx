@@ -7,15 +7,10 @@ import classNames from 'classnames'
 import VisibilityIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
-import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
-import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
-import PersonPinIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
 import { DialogContentsFn, OpenDialogContextType, useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
-import { isEAForum } from '../../lib/instanceSettings';
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { TooltipSpan } from '../common/FMTooltip';
 import LoginPopup from "../users/LoginPopup";
@@ -112,10 +107,6 @@ const styles = defineStyles('CommunityMapFilter', (theme: ThemeType) => ({
   buttonIcon: {
     width: '1.2rem',
     height: '1.2rem',
-  },
-  eaButtonIcon: {
-    width: '1.7rem',
-    height: '1.7rem',
   },
   actionIcon: {
     width: '0.7em',
@@ -255,17 +246,10 @@ const CommunityMapFilter = ({setShowMap, showHideMap, toggleGroups, showGroups, 
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }, [currentUser, flash, setShowMap, updateCurrentUser]);
 
-  const groupIcon = isEAForum()
-    ? <StarIcon className={classes.eaButtonIcon}/>
-    : <GroupIconSVG className={classes.buttonIcon}/>;
-  const eventIcon = isEAForum()
-    ? <RoomIcon className={classes.eaButtonIcon}/>
-    : <ArrowSVG className={classes.buttonIcon}/>;
-  const personIcon = isEAForum()
-    ? <PersonPinIcon className={classes.eaButtonIcon}/>
-    : <PersonSVG className={classes.buttonIcon}/>;
+  const groupIcon = <GroupIconSVG className={classes.buttonIcon}/>;
+  const eventIcon = <ArrowSVG className={classes.buttonIcon}/>;
+  const personIcon = <PersonSVG className={classes.buttonIcon}/>;
 
-  const isAdmin = userIsAdmin(currentUser);
 
   return (
     <Paper>
@@ -295,7 +279,9 @@ const CommunityMapFilter = ({setShowMap, showHideMap, toggleGroups, showGroups, 
       </div>
       <SimpleDivider className={classNames(classes.divider, classes.topDivider)} />
       <div className={classes.actions}>
-        <div className={classes.filterSection}>
+        <div
+          className={classes.filterSection}
+        >
           <span className={classes.desktopFilter}>
             {groupIcon}
           </span>
@@ -304,7 +290,7 @@ const CommunityMapFilter = ({setShowMap, showHideMap, toggleGroups, showGroups, 
           </span>
           <span className={classes.buttonText}>Groups</span>
           <span className={classes.actionContainer}>
-            {(!isEAForum() || isAdmin) && <TooltipSpan title="Create New Group">
+            <TooltipSpan title="Create New Group">
               <AddIcon
                 className={classNames(classes.actionIcon, classes.addIcon)}
                 onClick={createFallBackDialogHandler(
@@ -313,7 +299,7 @@ const CommunityMapFilter = ({setShowMap, showHideMap, toggleGroups, showGroups, 
                   currentUser
                 )}
               />
-            </ TooltipSpan>}
+            </ TooltipSpan>
             <TooltipSpan title="Hide groups from map">
               <VisibilityIcon 
                 onClick={toggleGroups}

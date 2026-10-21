@@ -7,7 +7,7 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('LLM Conversations Viewer'), {
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('LLM Conversations Viewer'), {
     robots: { index: false },
   });
 }

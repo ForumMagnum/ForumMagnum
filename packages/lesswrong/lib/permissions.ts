@@ -1,4 +1,3 @@
-import orderBy from 'lodash/orderBy';
 import keyBy from 'lodash/keyBy';
 
 class UserGroup {

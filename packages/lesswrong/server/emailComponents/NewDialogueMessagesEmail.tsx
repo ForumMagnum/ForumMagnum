@@ -60,7 +60,7 @@ export const NewDialogueMessagesEmail = async ({documentId, userId, dialogueMess
     const editUrl = postGetEditUrl(post._id)
 
     if (dialogueMessageEmailInfo && author) {
-      const authorDisplayName = userGetDisplayName(author)
+      const authorDisplayName = userGetDisplayName(author, emailContext.resolverContext.forumType)
 
       return (<React.Fragment>
         <p>{authorDisplayName} left a new reply in your dialogue "<a href={editUrl}>{post.title}</a>".</p>

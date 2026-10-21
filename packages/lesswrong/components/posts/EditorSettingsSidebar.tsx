@@ -1,9 +1,11 @@
+import { useForumType } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { useCallback, useEffect, useState } from "react";
 import classNames from "classnames";
-import { EditablePost, PostSubmitMeta, userCanEditCoauthors, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl, postGetAbsoluteEditUrl, userCanEditPostSharingSettings } from "@/lib/collections/posts/helpers";
 import { postStatusLabels, MODERATION_GUIDELINES_OPTIONS } from "@/lib/collections/posts/constants";
 import { getDefaultEditorPlaceholder } from "@/lib/editor/defaultEditorPlaceholder";
-import { hasGoogleDocImportSetting, isEAForum, isLWorAF } from "@/lib/instanceSettings";
+import { hasGoogleDocImportSetting } from "@/lib/instanceSettings";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { userCanUseSharing } from "@/lib/betas";
@@ -198,7 +200,7 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
       ...theme.typography.commentStyle,
       fontSize: 13,
     },
-    // ClearInput (the × button next to selects / date pickers)
+    // ClearInput (the × button next to selects)
     "& .ClearInput-formComponentClear": {
       display: "inline-flex",
       alignItems: "center",
@@ -255,7 +257,8 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     },
     // User chips
     "& .SingleUsersItem-chip": {
-      height: 24,
+      minHeight: 24,
+      height: "auto",
       ...theme.typography.commentStyle,
       fontSize: 12,
     },
@@ -310,6 +313,19 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: 6,
     marginBottom: 6,
+  },
+  // Puts a select's ClearInput (×) on the same row as the select, rather than
+  // letting the full-width select push it onto its own line
+  selectFieldWrapper: {
+    display: "flex",
+    alignItems: "flex-end",
+    "& .MuiTextField-textField": {
+      flex: 1,
+      minWidth: 0,
+    },
+    "& .ClearInput-formComponentClear": {
+      marginBottom: 6,
+    },
   },
   // Toggle switch styles
   toggleRow: {
@@ -394,7 +410,8 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     },
     // User chips
     "& .SingleUsersItem-chip": {
-      height: 24,
+      minHeight: 24,
+      height: "auto",
       ...theme.typography.commentStyle,
       fontSize: 12,
     },
@@ -404,6 +421,10 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "end",
     justifyContent: "space-between",
+    gap: 8,
+    "& .EditableUsersList-listEditor": {
+      minWidth: 0,
+    },
   },
   sharingDivider: {
     height: 1,
@@ -782,11 +803,11 @@ function getFooterTagListPostInfo(post: EditablePost) {
   };
 }
 
-function getVotingSystemOptions(user: UsersCurrent | null) {
+function getVotingSystemOptions(user: UsersCurrent | null, forumType: ForumTypeString) {
   const votingSystems = getVotingSystems();
   const filteredVotingSystems = user?.isAdmin
     ? votingSystems
-    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.());
+    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.(forumType));
 
   return filteredVotingSystems.map((votingSystem) => ({
     label: votingSystem.description,
@@ -804,8 +825,8 @@ const STICKY_PRIORITIES: Record<number, string> = {
 const CLAUDE_BUTTON_TOOLTIP_ENABLED = "Opens a new conversation in claude.ai with our default feedback prompt.  If you change it, you need to explicitly tell Claude to leave feedback in the editor, or it will respond to you in chat.  (We can't do this for you since it's treated as a prompt injection.)";
 const CLAUDE_BUTTON_TOOLTIP_DISABLED = "Click \"Connect Claude to LW Docs\" below to enable this button.";
 
-function getFeedbackQuery(postId: string, linkSharingKey: string | undefined) {
-  const postUrl = postGetEditUrl(postId, true, linkSharingKey);
+function getFeedbackQuery(postId: string, linkSharingKey: string | undefined, forumType: ForumTypeString) {
+  const postUrl = postGetAbsoluteEditUrl(postId, forumType, linkSharingKey);
   return `I'm writing a post on LessWrong and would appreciate your inline feedback on it.  The post is at ${postUrl} and documentation for interacting with the site's API is at https://www.lesswrong.com/api/SKILL.md.`;
 }
 
@@ -848,10 +869,11 @@ function SidebarToggle({ field, label }: {
   );
 }
 
-function SharingPermissionSelect({ field, settingsKey, label }: {
+function SharingPermissionSelect({ field, settingsKey, label, disabled }: {
   field: TypedFieldApi<SharingSettings | null | undefined>;
   settingsKey: keyof SharingSettings;
   label?: string;
+  disabled?: boolean;
 }) {
   const classes = useStyles(styles);
   const settings = field.state.value ?? defaultSharingSettings;
@@ -861,6 +883,7 @@ function SharingPermissionSelect({ field, settingsKey, label }: {
       <Select
         className={classes.permissionSelect}
         value={settings[settingsKey]}
+        disabled={disabled}
         onChange={(e) => field.handleChange({
           ...settings,
           [settingsKey]: e.target.value as CollaborativeEditingAccessLevel,
@@ -875,18 +898,20 @@ function SharingPermissionSelect({ field, settingsKey, label }: {
   );
 }
 
-function ShareWithClaudeButton({ form, postId, currentUser, panel, className }: {
+function ShareWithClaudeButton({ form, postId, currentUser, canEditSharingSettings, panel, className }: {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   postId: string;
   currentUser: UsersCurrent | null;
+  canEditSharingSettings: boolean;
   panel: "sharing" | "publish";
   className?: string;
 }) {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const isConnected = !!currentUser?.claudeLinkedAt;
   const linkSharingKey = form.state.values.linkSharingKey ?? undefined;
-  const claudeUrl = `https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`;
+  const claudeUrl = `https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey, forumType))}`;
   const tooltip = isConnected ? CLAUDE_BUTTON_TOOLTIP_ENABLED : CLAUDE_BUTTON_TOOLTIP_DISABLED;
 
   const inner = (
@@ -913,7 +938,7 @@ function ShareWithClaudeButton({ form, postId, currentUser, panel, className }: 
       onClick={() => {
         captureEvent("shareWithClaudeClicked", { postId, panel });
         const settings = form.state.values.sharingSettings ?? defaultSharingSettings;
-        if (settings.anyoneWithLinkCan === 'none') {
+        if (canEditSharingSettings && settings.anyoneWithLinkCan === 'none') {
           form.setFieldValue('sharingSettings', {
             ...settings,
             anyoneWithLinkCan: "edit",
@@ -959,13 +984,14 @@ function ClaudeConnectionStatus({ currentUser, postId }: { currentUser: UsersCur
   );
 }
 
-function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: {
+function SharingPanel({ form, canShare, canEditSharingSettings, flash, currentUser }: {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   canShare: boolean;
-  canEditCoauthors: boolean;
+  canEditSharingSettings: boolean;
   flash: (message: string) => void;
   currentUser: UsersCurrent | null;
 }) {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   const postId = form.state.values._id;
@@ -986,13 +1012,15 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
               const linkEnabled = settings.anyoneWithLinkCan !== "none";
 
               if (!postId) {
-                return <div className={classes.disabledMessage}>
+                return (
+                  <div className={classes.disabledMessage}>
                   Save this post first to share a link
-                </div>;
+                </div>
+                );
               }
 
               const shareWithClaudeButton = (
-                <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} panel="sharing" />
+                <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} canEditSharingSettings={canEditSharingSettings} panel="sharing" />
               );
 
               const shareLinkButton = (
@@ -1005,7 +1033,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
                       anyoneWithLinkCan: "edit",
                     });
                     // Copy link after enabling
-                    const url = postGetEditUrl(postId, true, linkSharingKey);
+                    const url = postGetAbsoluteEditUrl(postId, forumType, linkSharingKey);
                     void navigator.clipboard.writeText(url)
                       .then(() => flash("Link sharing enabled & link copied"))
                       .catch(() => flash("Failed to copy link"));
@@ -1016,6 +1044,10 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
                 </button>
               );
 
+              if (!linkEnabled && !canEditSharingSettings) {
+                return <ClaudeConnectionStatus currentUser={currentUser} postId={postId} />;
+              }
+
               if (!linkEnabled) {
                 return <>
                   <div className={classes.shareLinkButtonContainer}>{shareLinkButton}{shareWithClaudeButton}</div>
@@ -1025,7 +1057,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
 
               const copyLinkButton = (
                 <CopyToClipboard
-                  text={postGetEditUrl(postId, true, linkSharingKey)}
+                  text={postGetAbsoluteEditUrl(postId, forumType, linkSharingKey)}
                   onCopy={() => flash("Link copied")}
                 >
                   <button type="button" className={classes.shareLinkButton}>
@@ -1044,7 +1076,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
 
           <form.Field name="sharingSettings">
             {(field) => (
-              <SharingPermissionSelect field={field} settingsKey="anyoneWithLinkCan" label="Anyone with link can" />
+              <SharingPermissionSelect field={field} settingsKey="anyoneWithLinkCan" label="Anyone with link can" disabled={!canEditSharingSettings} />
             )}
           </form.Field>
         </div>
@@ -1068,26 +1100,30 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
 
           <form.Field name="sharingSettings">
             {(field) => (
-              <SharingPermissionSelect field={field} settingsKey="explicitlySharedUsersCan" />
+              <SharingPermissionSelect field={field} settingsKey="explicitlySharedUsersCan" disabled={!canEditSharingSettings} />
             )}
           </form.Field>
         </div>
 
-        {/* Co-Authors */}
-        {canEditCoauthors && <>
-          <div className={classes.sharingDivider} />
-          <div className={classes.sharingSection}>
-            <form.Field name="coauthorUserIds">
-              {(field) => (
-                <CoauthorsListEditor
-                  field={field}
-                  post={form.state.values}
-                  label="Add co-author"
-                />
-              )}
-            </form.Field>
+        {!canEditSharingSettings && (
+          <div className={classes.disabledMessage}>
+            Only the post's author can change sharing permissions
           </div>
-        </>}
+        )}
+
+        {/* Co-Authors */}
+        <div className={classes.sharingDivider} />
+        <div className={classes.sharingSection}>
+          <form.Field name="coauthorUserIds">
+            {(field) => (
+              <CoauthorsListEditor
+                field={field}
+                post={form.state.values}
+                label="Add co-author"
+              />
+            )}
+          </form.Field>
+        </div>
       </> : (
         <div className={classes.disabledMessage}>
           You need to be logged in to use sharing features
@@ -1146,7 +1182,7 @@ function GoogleDocImportSection({ postId }: { postId: string }) {
         const result = data?.ImportGoogleDoc;
         if (!result) return;
 
-        const editPostUrl = postGetEditUrl(result._id, false, result.linkSharingKey ?? undefined);
+        const editPostUrl = postGetEditUrl(result._id, result.linkSharingKey ?? undefined);
 
         captureEvent("googleDocImportSubmitted", {
           success: true,
@@ -1299,6 +1335,7 @@ const EditorSettingsSidebar = ({
   addOnSubmitCallbackModerationGuidelines,
   addOnSuccessCallbackModerationGuidelines,
 }: EditorSettingsSidebarProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const { flash } = useMessages();
@@ -1308,13 +1345,13 @@ const EditorSettingsSidebar = ({
   const isDialogue = !!initialData.collabEditorDialogue;
 
   const isAdminOrMod = userIsAdminOrMod(currentUser);
-  const canEditCoauthors = userCanEditCoauthors(currentUser);
   const canSeeHighlight = isAdminOrMod;
   const canSeeAdmin = isAdminOrMod;
   const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, "podcasters");
-  const canSeeTags = !initialData.isEvent && !(isLWorAF() && !!initialData.collabEditorDialogue);
-  const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent));
+  const canSeeTags = !initialData.isEvent && !initialData.collabEditorDialogue;
+  const canSeeSocialPreview = !initialData.collabEditorDialogue;
   const canShare = userCanUseSharing(currentUser);
+  const canEditSharingSettings = formType === "new" || userCanEditPostSharingSettings(currentUser, { userId: initialData.userId ?? null });
   const contentType = initialData.contents?.originalContents?.type;
   const postId = initialData._id;
   const canSeeMarkdownToggle = contentType === "markdown"
@@ -1342,7 +1379,7 @@ const EditorSettingsSidebar = ({
   }, [captureEvent, initialData, openDialog, postId]);
 
   const publishClaudeButton = postId ? (
-    <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} panel="publish" className={classes.publishClaudeButton} />
+    <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} canEditSharingSettings={canEditSharingSettings} panel="publish" className={classes.publishClaudeButton} />
   ) : undefined;
 
   const content = (
@@ -1404,7 +1441,7 @@ const EditorSettingsSidebar = ({
         <SharingPanel
           form={form}
           canShare={canShare}
-          canEditCoauthors={canEditCoauthors}
+          canEditSharingSettings={canEditSharingSettings}
           flash={flash}
           currentUser={currentUser}
         />
@@ -1427,7 +1464,7 @@ const EditorSettingsSidebar = ({
           </AccordionSection>
         )}
 
-        {hasGoogleDocImportSetting.get() && (
+        {hasGoogleDocImportSetting.get(forumType) && (
           <GoogleDocImportSection postId={initialData._id} />
         )}
 
@@ -1571,8 +1608,7 @@ const EditorSettingsSidebar = ({
         )}
         </AccordionSection>
 
-        {canSeeAdmin && (
-          <AccordionSection title="Admin Controls">
+        {canSeeAdmin && <AccordionSection title="Admin Controls">
           <div className={classes.fieldWrapper}>
             <form.Field name="sticky">
               {(field) => <SidebarToggle field={field} label="Sticky" />}
@@ -1587,15 +1623,13 @@ const EditorSettingsSidebar = ({
             </div>
           )}
 
-          {isLWorAF() && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, "alignmentForumAdmins")) && (
-            <div className={classes.fieldWrapper}>
+          {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, "alignmentForumAdmins")) && <div className={classes.fieldWrapper}>
               <form.Field name="afSticky">
                 {(field) => <SidebarToggle field={field} label="Sticky (Alignment)" />}
               </form.Field>
-            </div>
-          )}
+            </div>}
 
-          <div className={classes.fieldWrapper}>
+          <div className={classNames(classes.fieldWrapper, classes.selectFieldWrapper)}>
             <form.Field name="stickyPriority">
               {(field) => (
                 <FormComponentSelect
@@ -1660,7 +1694,7 @@ const EditorSettingsSidebar = ({
             </div>
           )}
 
-          <div className={classes.fieldWrapper}>
+          <div className={classNames(classes.fieldWrapper, classes.selectFieldWrapper)}>
             <form.Field name="status">
               {(field) => <FormComponentSelect field={field} options={postStatusLabels} label="Status" />}
             </form.Field>
@@ -1704,13 +1738,11 @@ const EditorSettingsSidebar = ({
             </div>
           )}
 
-          {isLWorAF() && userIsAdmin(currentUser) && (
-            <div className={classes.fieldWrapper}>
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
               <form.Field name="manifoldReviewMarketId">
                 {(field) => <MuiTextField field={field} label="Manifold review market ID" updateOnBlur />}
               </form.Field>
-            </div>
-          )}
+            </div>}
 
           <div className={classes.fieldWrapper}>
             <form.Field name="noIndex">
@@ -1736,12 +1768,12 @@ const EditorSettingsSidebar = ({
             </form.Field>
           </div>
 
-          <div className={classes.fieldWrapper}>
+          <div className={classNames(classes.fieldWrapper, classes.selectFieldWrapper)}>
             <form.Field name="votingSystem">
               {(field) => (
                 <FormComponentSelect
                   field={field}
-                  options={getVotingSystemOptions(currentUser)}
+                  options={getVotingSystemOptions(currentUser, forumType)}
                   label="Voting system"
                 />
               )}
@@ -1801,16 +1833,7 @@ const EditorSettingsSidebar = ({
               </form.Field>
             </div>
           )}
-
-          {userIsAdmin(currentUser) && (
-            <div className={classes.fieldWrapper}>
-              <form.Field name="swrCachingEnabled">
-                {(field) => <SidebarToggle field={field} label="stale-while-revalidate caching enabled" />}
-              </form.Field>
-            </div>
-          )}
-          </AccordionSection>
-        )}
+          </AccordionSection>}
 
         {canSeeAudio && (
           <AccordionSection title="Audio">

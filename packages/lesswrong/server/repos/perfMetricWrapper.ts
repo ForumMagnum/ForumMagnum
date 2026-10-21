@@ -1,5 +1,5 @@
 import { performanceMetricLoggingEnabled } from "../../lib/instanceSettings";
-import { asyncLocalStorage, closePerfMetric, getParentTraceId, openPerfMetric } from "../perfMetrics";
+import { asyncLocalStorage, getForumTypeFromAsyncContext, closePerfMetric, getParentTraceId, openPerfMetric } from "../perfMetrics";
 
 type Constructor<TResult, TParams extends any[] = any[]> = new (
   ...params: TParams
@@ -17,7 +17,7 @@ function wrapWithPerfMetrics(method: Function, repoName: string, methodName: str
   const wrappedFn = function (this: AnyBecauseHard, ...args: AnyBecauseHard[]) {
     // Most other places we might try to put this check would cause us to run into the problem that the database settings haven't loaded yet (so .get() would throw an error)
     // But if we're already calling a (wrapped) repo method, presumably we're talking to a database, which means the settings should have loaded by now
-    if (!performanceMetricLoggingEnabled.get()) {
+    if (!performanceMetricLoggingEnabled.get(getForumTypeFromAsyncContext())) {
       return method.apply(this, args);
     }
 

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { Link } from '@/lib/reactRouterWrapper';
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineCuratedSuggestionsItem from "./SunshineCuratedSuggestionsItem";
@@ -13,7 +12,6 @@ import ForumIcon from "../common/ForumIcon";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
-import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -71,11 +69,7 @@ const styles = defineStyles('SunshineCuratedSuggestionsList', (theme: ThemeType)
 }));
 
 const shouldShow = (atBottom: boolean, timeForCuration: boolean, currentUser: UsersCurrent | null, hasCurationDrafts: boolean) => {
-  if (isEAForum()) {
-    return !atBottom && (currentUser?.isAdmin || userIsMemberOf(currentUser, 'canSuggestCuration'));
-  } else {
-    return (atBottom === hasCurationDrafts) || timeForCuration;
-  }
+  return (atBottom === hasCurationDrafts) || timeForCuration;
 }
 
 const hasCurationDrafts = (results: SunshineCurationPostsList[] | undefined): boolean => {

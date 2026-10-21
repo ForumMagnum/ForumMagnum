@@ -1,5 +1,4 @@
 import React from 'react';
-import { isEAForum } from '@/lib/instanceSettings';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { hasAccountDeletionFlow } from '@/lib/betas';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -105,8 +104,7 @@ const AccountSettingsTab = ({
         />
       </SettingsSection>
 
-      {isCurrentUser && !isEAForum() && (
-        <SettingsSection title="Security">
+      {isCurrentUser && <SettingsSection title="Security">
           <div className={classes.resetButtonWrapper}>
             <Button
               className={classes.resetButton}
@@ -116,8 +114,7 @@ const AccountSettingsTab = ({
               Reset Password
             </Button>
           </div>
-        </SettingsSection>
-      )}
+        </SettingsSection>}
 
       {!hasAccountDeletionFlow() && (
         <SettingsSection title="Deactivate Account">

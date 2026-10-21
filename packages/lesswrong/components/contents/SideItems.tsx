@@ -51,10 +51,15 @@ export const styles = defineStyles("SideItems", (theme: ThemeType) => ({
     position: "absolute",
     width: "100%",
     transition: "top 0.25s ease-in-out",
+    pointerEvents: "auto",
   },
   sidebar: {
     position: "relative",
     height: "100%",
+    // The sidebar is mostly empty space, and at some widths it overlaps
+    // things positioned outside the central column (eg the post-page audio
+    // player). Let clicks pass through, except on the side items themselves.
+    pointerEvents: "none",
   },
 }));
 
@@ -338,13 +343,26 @@ export const useSideItemsFocus = (): ((anchorEl: HTMLElement | null) => void) | 
   return ctx?.setFocusedAnchor ?? null;
 }
 
-export const NoSideItems = ({children}: {
+interface SideItemsScopeProps {
   children: React.ReactNode
-}) => {
-  return <SideItemsPlacementContext.Provider value={null}>
-    <SideItemsDisplayContext.Provider value={null}>
+  enabled: boolean
+}
+
+export const SideItemsScope = ({children, enabled}: SideItemsScopeProps) => {
+  const placementContext = useContext(SideItemsPlacementContext);
+  const displayContext = useContext(SideItemsDisplayContext);
+
+  return <SideItemsPlacementContext.Provider value={enabled ? placementContext : null}>
+    <SideItemsDisplayContext.Provider value={enabled ? displayContext : null}>
       {children}
     </SideItemsDisplayContext.Provider>
   </SideItemsPlacementContext.Provider>
+}
+
+export const NoSideItems = ({children, when = true}: {
+  children: React.ReactNode
+  when?: boolean
+}) => {
+  return <SideItemsScope enabled={!when}>{children}</SideItemsScope>
 }
 

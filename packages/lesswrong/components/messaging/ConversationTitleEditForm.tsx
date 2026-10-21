@@ -8,7 +8,6 @@ import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { isLWorAF } from '@/lib/instanceSettings';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { userIsAdmin, userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -116,7 +115,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
           </form.Field>
         </div>
 
-        {isLWorAF() && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="af">
             {(field) => (
               <FormComponentCheckbox

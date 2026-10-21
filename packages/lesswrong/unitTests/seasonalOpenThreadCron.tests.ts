@@ -44,7 +44,7 @@ jest.mock("@/lib/instanceSettings", () => ({
   seasonalOpenThreadAuthorSlugSetting: {
     get: (...args: unknown[]) => mockAuthorSlugGet(...args),
   },
-  isLW: (...args: unknown[]) => mockIsLW(...args),
+  forumTypeSetting: { get: () => mockIsLW() ? "LessWrong" : "AlignmentForum" },
 }));
 
 import { maybeCreateSeasonalOpenThread } from "@/server/posts/seasonalOpenThreadCron";

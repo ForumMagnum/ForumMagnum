@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
+import { cloudinaryCloudName } from '@/lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import UsersName from "../users/UsersName";
 import ContentStyles from "../common/ContentStyles";
@@ -159,9 +159,6 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   const classes = useStyles(styles);
   const [expanded, setExpanded] = useState<boolean>(false)
 
-  const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
-
-
   const { data, loading: statsLoading } = useQuery(GET_SEQUENCE_STATS, {
     variables: { sequenceId: sequence._id },
     fetchPolicy: 'cache-first',
@@ -236,6 +233,4 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
 }
 
 export default LargeSequencesItem;
-
-
 

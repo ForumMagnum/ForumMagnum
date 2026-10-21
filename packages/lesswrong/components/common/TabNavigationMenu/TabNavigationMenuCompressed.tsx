@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 
 // -- See here for all the tab content --
@@ -27,10 +28,11 @@ const styles = defineStyles("TabNavigationMenuCompressed", (theme: ThemeType) =>
 const TabNavigationMenuCompressed = ({onClickSection}: {
   onClickSection: (e?: React.BaseSyntheticEvent) => void,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   return (
     <div className={classes.root}>
-      {forumSelect(getMenuTabs()).map(tab => {
+      {forumSelect(getMenuTabs(), forumType).map(tab => {
         if (!('showOnCompressed' in tab) || !tab.showOnCompressed) {
           return
         }

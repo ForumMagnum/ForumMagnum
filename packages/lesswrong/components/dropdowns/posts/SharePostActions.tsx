@@ -1,5 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
-import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { postGetAbsolutePageUrl } from '../../../lib/collections/posts/helpers';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { useMessages } from '../../common/withMessages';
 
@@ -24,11 +25,12 @@ const SharePostActions = ({post, onClick}: {
   post: PostsBase,
   onClick?: () => void,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
   
-  const postUrl = (source: string) => `${postGetPageUrl(post, true)}?utm_campaign=post_share&utm_source=${source}`
+  const postUrl = (source: string) => `${postGetAbsolutePageUrl(post, forumType)}?utm_campaign=post_share&utm_source=${source}`
   
   const copyLink = () => {
     captureEvent('sharePost', {option: 'copyLink'})
@@ -40,7 +42,7 @@ const SharePostActions = ({post, onClick}: {
     window.open(url, '_blank');
   }
   
-  const siteName = forumTitleSetting.get();
+  const siteName = forumTitleSetting.get(forumType);
   const linkTitle = `${post.title} - ${siteName}`;
   
   const shareToTwitter = () => {

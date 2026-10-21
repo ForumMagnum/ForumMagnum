@@ -1,6 +1,5 @@
 import { splashArtCoordinateCache } from "@/server/review/splashArtCoordinatesCache";
 import { reviewWinnerPostsCache } from "@/server/review/reviewWinnersCache";
-import { isLWorAF } from "../../lib/instanceSettings";
 import gql from "graphql-tag";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { backgroundTask } from "../utils/backgroundTask";
@@ -8,7 +7,7 @@ import { accessFilterMultiple } from '@/lib/utils/schemaUtils';
 
 
 export async function initReviewWinnerCache() {
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({ forumType: "LessWrong" });
   backgroundTask(reviewWinnerPostsCache.get());
   backgroundTask(splashArtCoordinateCache.get(context));
 }

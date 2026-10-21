@@ -34,7 +34,7 @@ async function renderTestEmail({ user=null, subject="Unit test email", bodyCompo
   emailContext?: EmailContextType,
 }) {
   const destinationUser = user || await createDummyUser();
-  emailContext ??= await createEmailContext(destinationUser);
+  emailContext ??= await createEmailContext(destinationUser, "LessWrong");
   const email = getUserEmail(destinationUser)
   if (!email) throw new Error("test email has no email address")
 
@@ -72,7 +72,7 @@ describe('renderEmail', () => {
       }
     }));
 
-    const emailContext = await createEmailContext(null);
+    const emailContext = await createEmailContext(null, "LessWrong");
     const TestComponent = ({children}: {children: any}) => {
       const classes = emailUseStyles(styles, emailContext);
       return <div className={classes.underlined}>{children}</div>
@@ -90,7 +90,7 @@ describe('renderEmail', () => {
     const user = await createDummyUser();
     const post = await createDummyPost(user, { title: "Email unit test post" });
 
-    const emailContext = await createEmailContext(user);
+    const emailContext = await createEmailContext(user, "LessWrong");
     
     const PostTitleComponent= async ({documentId}: {documentId: string}) => {
       const { data } = await emailUseQuery(PostsRevisionQuery, {

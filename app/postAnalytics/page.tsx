@@ -16,9 +16,8 @@ assertRouteAttributes("/postAnalytics", {
 
 export async function generateMetadata(): Promise<Metadata> {
   // ea-forum-look-here TODO Get post ID from search params and get post title
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('Post Analytics'));
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('Post Analytics'));
 }
-
 
 export default function Page() {
   return <RouteRoot>

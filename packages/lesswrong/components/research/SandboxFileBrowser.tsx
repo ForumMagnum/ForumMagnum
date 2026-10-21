@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Tree, type NodeApi, type NodeRendererProps } from 'react-arborist';
+import { Tree, type NodeRendererProps } from 'react-arborist';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useLazyQuery } from '@apollo/client/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';

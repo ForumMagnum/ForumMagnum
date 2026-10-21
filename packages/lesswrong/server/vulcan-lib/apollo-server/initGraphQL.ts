@@ -22,6 +22,7 @@ import { crossSiteLinkPreviewGraphQLQueries, crossSiteLinkPreviewGraphQLTypeDefs
 import { elicitPredictionsGraphQLTypeDefs, elicitPredictionsGraphQLQueries, elicitPredictionsGraphQLFieldResolvers, elicitPredictionsGraphQLMutations } from '@/server/resolvers/elicitPredictions';
 import { notificationResolversGqlTypeDefs, notificationResolversGqlQueries, notificationResolversGqlMutations } from '@/server/resolvers/notificationResolvers'
 import { lightcone2024FundraiserGraphQLTypeDefs, lightcone2024FundraiserGraphQLQueries } from '@/server/resolvers/lightcone2024FundraiserResolvers';
+import { llmModelGraphQLTypeDefs, llmModelGraphQLQueries } from '@/server/resolvers/llmModelResolvers';
 import { petrovDay2024GraphQLQueries, petrovDay2024GraphQLTypeDefs } from '@/server/resolvers/petrovDay2024Resolvers';
 import { petrovDayLaunchGraphQLMutations, petrovDayLaunchGraphQLQueries, petrovDayLaunchGraphQLTypeDefs } from '@/server/resolvers/petrovDayResolvers';
 import { reviewVoteGraphQLMutations, reviewVoteGraphQLTypeDefs, reviewVoteGraphQLQueries } from '@/server/resolvers/reviewVoteResolvers';
@@ -47,6 +48,7 @@ import { importUrlAsDraftPostGqlMutation, importUrlAsDraftPostTypeDefs } from '@
 import { revisionResolversGraphQLQueries, revisionResolversGraphQLMutations, revisionResolversGraphQLTypeDefs } from '@/server/resolvers/revisionResolvers';
 import { moderationGqlMutations, moderationGqlQueries, moderationGqlTypeDefs } from '@/server/resolvers/moderationResolvers';
 import { supermodHighlightRuleGqlMutations, supermodHighlightRuleGqlQueries, supermodHighlightRuleGqlTypeDefs } from '@/server/resolvers/supermodHighlightRuleResolvers';
+import { rejectionReviewTypeDefs, rejectionReviewQueries } from "@/server/resolvers/rejectionReviewResolvers";
 import { multiDocumentMutations, multiDocumentTypeDefs } from '@/server/resolvers/multiDocumentResolvers';
 import { spotlightGqlMutations, spotlightGqlQueries, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
 import { hidePostGqlMutations, hidePostGqlTypeDefs } from '@/server/hidePostMutation';
@@ -69,11 +71,13 @@ import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs }
 import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs, upscaleReviewWinnerArtGraphQLMutations, upscaleReviewWinnerArtGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
 import { elicitQuestionPredictionsGraphQLTypeDefs } from '@/lib/collections/elicitQuestionPredictions/newSchema';
 import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolvers/booksResolvers';
-import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/resolvers/sequencesResolvers';
+import { sequencesResolversTypeDefs, sequencesResolversQueries, sequencesResolversMutations } from '@/server/resolvers/sequencesResolvers';
 import { reviewPredictionGraphQLTypeDefs, reviewPredictionGraphQLQueries } from '@/server/resolvers/reviewPredictionResolvers';
 import { graphqlMutations as adminEmailSenderGraphQLMutations, graphqlQueries as adminEmailSenderGraphQLQueries, graphqlTypeDefs as adminEmailSenderGraphQLTypeDefs } from "@/server/resolvers/adminEmailSenderResolvers";
+import { aiDigestGraphQLMutations, aiDigestGraphQLQueries, aiDigestGraphQLTypeDefs } from "@/server/resolvers/aiDigestResolvers";
 
 // Collection imports
+import { graphqlAiDigestIssueQueryTypeDefs, aiDigestIssueGqlQueryHandlers, aiDigestIssueGqlFieldResolvers } from "@/server/collections/aiDigestIssues/queries";
 import { graphqlArbitalCachesQueryTypeDefs, arbitalCachesGqlFieldResolvers } from "@/server/collections/arbitalCache/queries";
 import { graphqlArbitalTagContentRelQueryTypeDefs, arbitalTagContentRelGqlQueryHandlers, arbitalTagContentRelGqlFieldResolvers } from "@/server/collections/arbitalTagContentRels/queries";
 import { graphqlAutomatedContentEvaluationQueryTypeDefs, automatedContentEvaluationGqlFieldResolvers } from "@/server/collections/automatedContentEvaluations/queries";
@@ -126,6 +130,7 @@ import { graphqlPodcastQueryTypeDefs, podcastGqlQueryHandlers, podcastGqlFieldRe
 import { graphqlPostRecommendationQueryTypeDefs, postRecommendationGqlFieldResolvers } from "@/server/collections/postRecommendations/queries";
 import { graphqlPostRelationQueryTypeDefs, postRelationGqlQueryHandlers, postRelationGqlFieldResolvers } from "@/server/collections/postRelations/queries";
 import { graphqlPostQueryTypeDefs, postGqlQueryHandlers, postGqlFieldResolvers } from "@/server/collections/posts/queries";
+import { graphqlRejectionAppealQueryTypeDefs, rejectionAppealGqlQueryHandlers, rejectionAppealGqlFieldResolvers } from "@/server/collections/rejectionAppeals/queries";
 import { graphqlRssfeedQueryTypeDefs, rssfeedGqlQueryHandlers, rssfeedGqlFieldResolvers } from "@/server/collections/rssfeeds/queries";
 import { graphqlReadStatusQueryTypeDefs, readStatusGqlFieldResolvers } from "@/server/collections/readStatus/queries";
 import { graphqlRecommendationsCacheQueryTypeDefs, recommendationsCacheGqlFieldResolvers } from "@/server/collections/recommendationsCaches/queries";
@@ -183,6 +188,7 @@ import { createPetrovDayActionGqlMutation, graphqlPetrovDayActionTypeDefs } from
 import { createPodcastEpisodeGqlMutation, graphqlPodcastEpisodeTypeDefs } from "@/server/collections/podcastEpisodes/mutations";
 import { createPostGqlMutation, updatePostGqlMutation, graphqlPostTypeDefs } from "@/server/collections/posts/mutations";
 import { createRSSFeedGqlMutation, updateRSSFeedGqlMutation, graphqlRSSFeedTypeDefs } from "@/server/collections/rssfeeds/mutations";
+import { createRejectionAppealGqlMutation, updateRejectionAppealGqlMutation, graphqlRejectionAppealTypeDefs } from "@/server/collections/rejectionAppeals/mutations";
 import { createReportGqlMutation, updateReportGqlMutation, graphqlReportTypeDefs } from "@/server/collections/reports/mutations";
 import { updateResearchConversationGqlMutation, graphqlResearchConversationTypeDefs } from "@/server/collections/researchConversations/mutations";
 import { updateResearchEnvironmentGqlMutation, graphqlResearchEnvironmentTypeDefs } from "@/server/collections/researchEnvironments/mutations";
@@ -266,6 +272,7 @@ export const getTypeDefs = () => gql`
   ${elicitPredictionsGraphQLTypeDefs}
   ${notificationResolversGqlTypeDefs}
   ${lightcone2024FundraiserGraphQLTypeDefs}
+  ${llmModelGraphQLTypeDefs}
   ${petrovDay2024GraphQLTypeDefs}
   ${petrovDayLaunchGraphQLTypeDefs}
   ${reviewVoteGraphQLTypeDefs}
@@ -289,6 +296,7 @@ export const getTypeDefs = () => gql`
   ${revisionResolversGraphQLTypeDefs}
   ${moderationGqlTypeDefs}
   ${supermodHighlightRuleGqlTypeDefs}
+  ${rejectionReviewTypeDefs}
   ${multiDocumentTypeDefs}
   ${spotlightGqlTypeDefs}
   ${bookmarkGqlTypeDefs}
@@ -319,7 +327,9 @@ export const getTypeDefs = () => gql`
   ${sequencesResolversTypeDefs}
   ${reviewPredictionGraphQLTypeDefs}
   ${adminEmailSenderGraphQLTypeDefs}
+  ${aiDigestGraphQLTypeDefs}
   ## CRUD Query typedefs
+  ${graphqlAiDigestIssueQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
   ${graphqlArbitalTagContentRelQueryTypeDefs}
   ${graphqlAutomatedContentEvaluationQueryTypeDefs}
@@ -347,6 +357,7 @@ export const getTypeDefs = () => gql`
   ${graphqlFieldChangeQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
   ${graphqlHomePageDesignQueryTypeDefs}
+  ${graphqlRejectionAppealQueryTypeDefs}
   ${graphqlTypoSuggestionQueryTypeDefs}
   ${graphqlIframeWidgetSrcdocQueryTypeDefs}
   ${graphqlImagesQueryTypeDefs}
@@ -429,6 +440,7 @@ export const getTypeDefs = () => gql`
   ${graphqlPodcastEpisodeTypeDefs}
   ${graphqlPostTypeDefs}
   ${graphqlRSSFeedTypeDefs}
+  ${graphqlRejectionAppealTypeDefs}
   ${graphqlReportTypeDefs}
   ${graphqlResearchConversationTypeDefs}
   ${graphqlResearchEnvironmentTypeDefs}
@@ -464,6 +476,7 @@ const getResolvers = () => ({
     ...notificationResolversGqlQueries,
     ...elicitPredictionsGraphQLQueries,
     ...lightcone2024FundraiserGraphQLQueries,
+    ...llmModelGraphQLQueries,
     ...petrovDay2024GraphQLQueries,
     ...petrovDayLaunchGraphQLQueries,
     ...reviewVoteGraphQLQueries,
@@ -480,6 +493,7 @@ const getResolvers = () => ({
     ...revisionResolversGraphQLQueries,
     ...moderationGqlQueries,
     ...supermodHighlightRuleGqlQueries,
+    ...rejectionReviewQueries,
     ...tagResolversGraphQLQueries,
     ...cronGraphQLQueries,
     ...siteAdminMetadataGraphQLQueries,
@@ -497,8 +511,10 @@ const getResolvers = () => ({
     ...reviewPredictionGraphQLQueries,
     ...researchResolversQueries,
     ...adminEmailSenderGraphQLQueries,
+    ...aiDigestGraphQLQueries,
 
     // CRUD Query Handlers
+    ...aiDigestIssueGqlQueryHandlers,
     ...arbitalTagContentRelGqlQueryHandlers,
     ...banGqlQueryHandlers,
     ...bookGqlQueryHandlers,
@@ -533,6 +549,7 @@ const getResolvers = () => ({
     ...postRelationGqlQueryHandlers,
     ...postGqlQueryHandlers,
     ...rssfeedGqlQueryHandlers,
+    ...rejectionAppealGqlQueryHandlers,
     ...reportGqlQueryHandlers,
     ...researchConversationEventGqlQueryHandlers,
     ...researchConversationGqlQueryHandlers,
@@ -589,6 +606,7 @@ const getResolvers = () => ({
     ...homePageDesignGqlMutations,
     ...typoSuggestionGqlMutations,
     ...hidePostGqlMutations,
+    ...sequencesResolversMutations,
     ...markAsUnreadMutations,
     ...cronGraphQLMutations,
     ...partiallyReadSequencesMutations,
@@ -606,6 +624,7 @@ const getResolvers = () => ({
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
     ...adminEmailSenderGraphQLMutations,
+    ...aiDigestGraphQLMutations,
 
     // CRUD Mutation Handlers
     createBook: createBookGqlMutation,
@@ -645,6 +664,8 @@ const getResolvers = () => ({
     updatePost: updatePostGqlMutation,
     createRSSFeed: createRSSFeedGqlMutation,
     updateRSSFeed: updateRSSFeedGqlMutation,
+    createRejectionAppeal: createRejectionAppealGqlMutation,
+    updateRejectionAppeal: updateRejectionAppealGqlMutation,
     createReport: createReportGqlMutation,
     createResearchDocument: createResearchDocumentGqlMutation,
     createResearchProject: createResearchProjectGqlMutation,
@@ -678,6 +699,7 @@ const getResolvers = () => ({
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,
   // Collection Field Resolvers
+  ...aiDigestIssueGqlFieldResolvers,
   ...arbitalCachesGqlFieldResolvers,
   ...arbitalTagContentRelGqlFieldResolvers,
   ...automatedContentEvaluationGqlFieldResolvers,
@@ -705,6 +727,7 @@ const getResolvers = () => ({
   ...fieldChangeGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
   ...homePageDesignGqlFieldResolvers,
+  ...rejectionAppealGqlFieldResolvers,
   ...typoSuggestionGqlFieldResolvers,
   ...iframeWidgetSrcdocGqlFieldResolvers,
   ...imagesGqlFieldResolvers,

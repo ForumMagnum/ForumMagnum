@@ -10,6 +10,7 @@ import type { DialogueMessageInfo } from '../components/posts/PostsPreviewToolti
 
 
 interface NotifyDialogueParticipantProps {
+  context: ResolverContext,
   participant: DbUser,
   post: DbPost,
   previousNotifications: DbNotification[],
@@ -18,8 +19,9 @@ interface NotifyDialogueParticipantProps {
 }
 
 async function sendSingleDialogueMessageNotification(props: Omit<NotifyDialogueParticipantProps, "previousNotifications">) {
-  const { participant, post, newMessageAuthorId, dialogueMessageInfo } = props
-  return await createNotifications({ 
+  const { participant, post, newMessageAuthorId, dialogueMessageInfo, context } = props
+  return await createNotifications({
+    context,
     userIds: [participant._id], 
     notificationType: 'newDialogueMessages', 
     documentType: 'post', 
@@ -28,9 +30,10 @@ async function sendSingleDialogueMessageNotification(props: Omit<NotifyDialogueP
   })
 }
 
-async function sendBatchDialogueMessageNotification(props: Pick<NotifyDialogueParticipantProps, "participant"|"post">) {
-  const { participant, post } = props
-  return await createNotifications({ 
+async function sendBatchDialogueMessageNotification(props: Pick<NotifyDialogueParticipantProps, "participant"|"post"|"context">) {
+  const { participant, post, context } = props
+  return await createNotifications({
+    context,
     userIds: [participant._id], 
     notificationType: 'newDialogueBatchMessages', 
     documentType: 'post', 
@@ -67,7 +70,7 @@ async function notifyDialogueParticipantNewMessage(props: NotifyDialogueParticip
   }
 }
 
-export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, dialogueMessageInfo: DialogueMessageInfo|undefined, post: DbPost) {
+export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, dialogueMessageInfo: DialogueMessageInfo|undefined, post: DbPost, context: ResolverContext) {
   // Get all the debate participants, but exclude the comment author if they're a debate participant
   const debateParticipantIds = difference([post.userId, ...post.coauthorUserIds], [newMessageAuthorId]);
   const debateParticipants = await Users.find({_id: {$in: debateParticipantIds}}).fetch();
@@ -91,7 +94,7 @@ export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: s
   const notificationPromises = Object.entries(notificationsByUserId).map(async ([userId, previousNotifications]) => {
     const participant = debateParticipants.find(user => user._id === userId)
     if (participant) {
-      return notifyDialogueParticipantNewMessage({participant, post, previousNotifications, newMessageAuthorId, dialogueMessageInfo})
+      return notifyDialogueParticipantNewMessage({participant, post, previousNotifications, newMessageAuthorId, dialogueMessageInfo, context})
     }
   })
 
@@ -132,6 +135,6 @@ export async function getUsersToNotifyAboutEvent(post: DbPost | DbInsertion<DbPo
   );
 }
 
-export async function bellNotifyEmailVerificationRequired (user: DbUser) {
-  await createNotifications({userIds: [user._id], notificationType: 'emailVerificationRequired', documentType: null, documentId: null});
+export async function bellNotifyEmailVerificationRequired (user: DbUser, context: ResolverContext) {
+  await createNotifications({ context, userIds: [user._id], notificationType: 'emailVerificationRequired', documentType: null, documentId: null});
 }

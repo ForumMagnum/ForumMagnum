@@ -25,7 +25,7 @@ const schema = {
       inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
-      canCreate: [userHasLlmChat, "admins"],
+      canCreate: [(user, context) => userHasLlmChat(user, context.forumType), "admins"],
     },
   },
   conversationId: {
@@ -37,7 +37,7 @@ const schema = {
       outputType: "String",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
-      canCreate: [userHasLlmChat, "admins"],
+      canCreate: [(user, context) => userHasLlmChat(user, context.forumType), "admins"],
       validation: {
         optional: true,
       },
@@ -53,7 +53,7 @@ const schema = {
       inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
-      canCreate: [userHasLlmChat, "admins"],
+      canCreate: [(user, context) => userHasLlmChat(user, context.forumType), "admins"],
       validation: {
         allowedValues: ["user", "assistant", "user-context", "assistant-context", "lw-assistant"],
       },
@@ -69,7 +69,7 @@ const schema = {
       inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
-      canCreate: [userHasLlmChat, "admins"],
+      canCreate: [(user, context) => userHasLlmChat(user, context.forumType), "admins"],
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"LlmMessages">>;

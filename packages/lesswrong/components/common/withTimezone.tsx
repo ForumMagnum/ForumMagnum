@@ -29,13 +29,19 @@ export const useTimezone = (): {
  * TimezoneWrapper: Wrapper which provides a timezone context (which makes useTimezone
  * usable). Also responsible for keeping a timezone cookie updated, so that we know
  * what the user's last-known timezone was so we can use it to render SSRs correctly.
+ *
+ * `ssrTimezone` is the timezone the server rendered with (the timezone cookie
+ * it received, or null). The initial state comes from it rather than from the
+ * browser's cookie, so that hydration matches the server's markup even when the
+ * page came from the CDN cache, whose render carried no cookies. The browser's
+ * real timezone takes over after hydration.
  */
-export const TimezoneWrapper = ({children}: {
+export const TimezoneWrapper = ({ssrTimezone, children}: {
+  ssrTimezone: string | null
   children: React.ReactNode
 }) => {
-  const [cookies, setCookie] = useCookiesWithConsent([TIMEZONE_COOKIE]);
-  const savedTimezone = cookies[TIMEZONE_COOKIE];
-  const [timezone,setTimezone] = useState(savedTimezone);
+  const [, setCookie] = useCookiesWithConsent([TIMEZONE_COOKIE]);
+  const [timezone, setTimezone] = useState(ssrTimezone);
   const currentUser = useCurrentUser();
   const updateUser = useUpdateCurrentUser();
   
@@ -59,4 +65,3 @@ export const TimezoneWrapper = ({children}: {
     {children}
   </TimezoneContext.Provider>
 }
-

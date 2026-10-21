@@ -1,7 +1,6 @@
 import React from 'react';
 import { CommentLinkWrapper, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
-import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import FormatDate, { ExpandedDate } from '@/components/common/FormatDate';
@@ -80,7 +79,7 @@ const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: 
       comment.answer && classes.answerDate,
       className,
     )}>
-      <DeferRender ssr={!isLWorAF()} fallback={linkContents}>
+      <DeferRender ssr={false} fallback={linkContents}>
         <CommentLinkWrapper comment={comment} {...rest}>
           {linkContents}
         </CommentLinkWrapper>

@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { type SourceLocation } from "graphql";
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
@@ -19,7 +20,7 @@ import { StreamingGraphqlHttpLink } from "./StreamingGraphqlHttpLink";
 /**
  * Http link is used for client side rendering
  */
-export const createHttpLink = (baseUrl: string, loginToken: string|null) => {
+export const createHttpLink = (baseUrl: string, loginToken: string|null, forumType: ForumTypeString) => {
   const uri = baseUrl + "api/streamGraphql";
 
   const batchKey = (operation: Operation) => {
@@ -41,7 +42,7 @@ export const createHttpLink = (baseUrl: string, loginToken: string|null) => {
     return explicitBatchKey && typeof explicitBatchKey === "string" ? defaultBatchKey : defaultBatchKey + explicitBatchKey;
   };
 
-  const isSameSiteRequest = baseUrl === '/' || baseUrl === getSiteUrl();
+  const isSameSiteRequest = baseUrl === '/' || baseUrl === getSiteUrl(forumType);
 
   const fetch: typeof globalThis.fetch = isServer
     ? (url, options) => globalThis.fetch(url, {
@@ -57,7 +58,7 @@ export const createHttpLink = (baseUrl: string, loginToken: string|null) => {
   return new StreamingGraphqlHttpLink({
     uri,
     credentials: isSameSiteRequest ? 'same-origin' : 'omit',
-    batchMax: isServer ? 1 : graphqlBatchMaxSetting.get(),
+    batchMax: isServer ? 1 : graphqlBatchMaxSetting.get(forumType),
     headers: {
       'accept': 'application/json',
     },
@@ -70,10 +71,14 @@ export const headerLink = new ApolloLink((operation, forward) => {
   if (!isServer) {
     const url = new URL(window.location.href)
     const path = url.pathname + url.search
+    const linkSharingKey = url.searchParams.get('key');
 
     const headers = {
       'request-origin-path': path,
       'x-apollo-operation-name': operation.operationName,
+      // GraphQL requests don't go to the page URL, so forward the page's
+      // link-sharing key for permission checks (see getSharingKeyFromContext).
+      ...(linkSharingKey ? { 'link-sharing-key': linkSharingKey } : {}),
     };
 
     operation.setContext({

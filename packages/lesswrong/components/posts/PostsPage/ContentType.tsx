@@ -1,3 +1,5 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { FC, PropsWithChildren } from 'react'
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
 import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
@@ -5,7 +7,6 @@ import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import SubjectIcon from '@/lib/vendor/@material-ui/icons/src/Subject';
 import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import EventIcon from '@/lib/vendor/@material-ui/icons/src/Event';
-import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { curatedUrl } from '@/components/recommendations/constants';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
@@ -59,7 +60,7 @@ type ContentTypeRecord = {
   event?: ContentTypeSettings,
 }
 
-export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
+export const getContentTypes = (forumType: ForumTypeString): ForumOptions<ContentTypeRecord> => {
   return {
     LessWrong: {
       frontpage: {
@@ -180,7 +181,7 @@ export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
       tags: {
         tooltipTitle: `Wikitag Edits and Discussion`,
         tooltipBody: <div>
-          Wikitag pages, which organize {siteNameWithArticleSetting.get()} posts and concepts in
+          Wikitag pages, which organize {siteNameWithArticleSetting.get(forumType)} posts and concepts in
           a more durable format.
         </div>,
         Icon: TagIcon,
@@ -240,7 +241,7 @@ export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
       tags: {
         tooltipTitle: `Wikitag Edits and Discussion`,
         tooltipBody: <div>
-          Wikitag pages, which organize {forumTitleSetting.get()} posts and concepts in a more
+          Wikitag pages, which organize {forumTitleSetting.get(forumType)} posts and concepts in a more
           durable format.
         </div>,
         Icon: TagIcon,
@@ -271,12 +272,13 @@ const ContentType = ({className, type, label}: {
   type: ContentTypeString,
   label?: string
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   if (!type) {
     throw new Error('ContentType requires type property')
   }
-  const contentData = forumSelect(getContentTypes())[type]
+  const contentData = forumSelect(getContentTypes(forumType), forumType)[type]
   if (!contentData) {
     throw new Error(`Content type ${type} invalid for this forum type`)
   }

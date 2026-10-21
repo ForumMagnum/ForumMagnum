@@ -7,7 +7,6 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TagPreviewDescription, { getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
 import startCase from 'lodash/startCase';
-import { htmlToTextDefault } from '@/lib/htmlToText';
 import TagSmallPostLink from "./TagSmallPostLink";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";

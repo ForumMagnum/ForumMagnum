@@ -5,7 +5,6 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { DisplayFeedCommentThread } from './ultraFeedTypes';
 import Loading from '../vulcan-core/Loading';
 import UltraFeedThreadItem from './UltraFeedThreadItem';
-import FeedItemWrapper from './FeedItemWrapper';
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from './ultraFeedSettingsTypes';
 
 const FEEDBACK_COMMENT_ID = '9tCBbuxcFKveZGbuR';

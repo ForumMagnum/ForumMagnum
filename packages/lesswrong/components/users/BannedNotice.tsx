@@ -1,4 +1,6 @@
 "use client";
+import { useForumType } from '@/components/hooks/useForumType';
+
 
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
@@ -20,13 +22,14 @@ const styles = defineStyles('BannedNotice', (theme: ThemeType) => ({
 }));
 
 const BannedNotice = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
   return <SingleColumnSection>
     <div className={classes.root}>
       <Typography variant='body2' gutterBottom>
         Sorry, but we have banned your account. You can still read{' '}
-        {siteNameWithArticleSetting.get()} in logged-out mode, but you will not be able to post or
+        {siteNameWithArticleSetting.get(forumType)} in logged-out mode, but you will not be able to post or
         comment.
       </Typography>
 

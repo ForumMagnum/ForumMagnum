@@ -1,3 +1,4 @@
+import { forumTypeSetting } from "@/lib/forumTypeUtils";
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import Users from '../../server/collections/users/collection';
 import { getDefaultFilterSettings } from '../../lib/filterSettings';
@@ -17,7 +18,7 @@ export default registerMigration({
         const changes = users.map(user => ({
           updateOne: {
             filter: { _id: user._id },
-            update: {$set: {'frontpageFilterSettings.tags': getDefaultFilterSettings().tags}}
+            update: {$set: {'frontpageFilterSettings.tags': getDefaultFilterSettings(forumTypeSetting.get()).tags}}
           }
         }))
         

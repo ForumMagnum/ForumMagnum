@@ -1,3 +1,5 @@
+import { createAnonymousContext } from "./vulcan-lib/createContexts";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import Posts from "../server/collections/posts/collection";
 import PostEmbeddingsRepo from "./repos/PostEmbeddingsRepo";
 import PostsRepo from "./repos/PostsRepo";
@@ -7,7 +9,6 @@ import { htmlToTextDefault } from "../lib/htmlToText";
 import { inspect } from "util";
 import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";
-import { isEAForum, isLWorAF } from "../lib/instanceSettings";
 // Avoid importing all of js-tiktoken and defer until usage, it's very large and increases bundle size noticeably
 // eslint-disable-next-line no-restricted-imports
 import { type TiktokenModel } from "js-tiktoken/lite";
@@ -15,12 +16,10 @@ import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
 import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/newSchema";
-import { forumSelect } from "@/lib/forumTypeUtils";
 import { PostsPage } from "@/lib/collections/posts/fragments";
 
-export const hasEmbeddingsForRecommendations = () => (isEAForum() || isLWorAF()) && !isE2E;
+export const hasEmbeddingsForRecommendations = () => !isE2E;
 
-const LEGACY_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
 const DEFAULT_EMBEDDINGS_MODEL = "text-embedding-3-large";
 // The NodeJS tokenizer library doesn't (yet) support the `text-embedding-3-large` model prefix:
 // https://github.com/dqbd/tiktoken/blob/a7cce9922b10bca567be8453f1ef0489428fa02f/js/src/core.ts#L211
@@ -30,21 +29,11 @@ const TOKENIZER_MODEL: TiktokenModel = 'text-embedding-ada-002'
 
 const DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS = 8191;
   
-export const getEmbeddingsSettings = () => forumSelect({
-  "EAForum": {
-    "tokenizerModel": TOKENIZER_MODEL,
-    "embeddingModel": LEGACY_EMBEDDINGS_MODEL,
-    "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
-    "dimensions": null,
-    "supportsBatchUpdate": false,
-  },
-  "default": {
-    "tokenizerModel": TOKENIZER_MODEL,
-    "embeddingModel": DEFAULT_EMBEDDINGS_MODEL,
-    "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
-    "dimensions": EMBEDDINGS_VECTOR_SIZE,
-    "supportsBatchUpdate": true,
-  }
+export const getEmbeddingsSettings = () => ({
+  tokenizerModel: TOKENIZER_MODEL,
+  embeddingModel: DEFAULT_EMBEDDINGS_MODEL,
+  maxTokens: DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
+  dimensions: EMBEDDINGS_VECTOR_SIZE,
 })
 
 type EmbeddingsResult = {
@@ -193,8 +182,10 @@ type EmbeddingsWithHash = EmbeddingsResult & { hash: string };
 
 const getEmbeddingsForPost = async (
   postId: string,
+  forumType: ForumTypeString,
 ): Promise<EmbeddingsWithHash> => {
   const post = await fetchFragmentSingle({
+    context: createAnonymousContext({ forumType }),
     collectionName: "Posts",
     fragmentDoc: PostsPage,
     selector: {_id: postId},
@@ -228,18 +219,19 @@ const getEmbeddingsForPosts = async (
 }
 
 // Exported to allow running manually with yarn repl
-export const updatePostEmbeddings = async (postId: string) => {
+export const updatePostEmbeddings = async (postId: string, forumType: ForumTypeString) => {
   if (!isEmbeddingsAPIEnabled()) {
     return;
   }
-  const {hash, embeddings, model} = await getEmbeddingsForPost(postId);
+  const {hash, embeddings, model} = await getEmbeddingsForPost(postId, forumType);
   const repo = new PostEmbeddingsRepo();
   await repo.setPostEmbeddings(postId, hash, model, embeddings);
 }
 
-const batchUpdatePostEmbeddings = async (postIds: string[]) => {
+const batchUpdatePostEmbeddings = async (postIds: string[], forumType: ForumTypeString) => {
   const repo = new PostEmbeddingsRepo();
   const posts = await fetchFragment({
+    context: createAnonymousContext({ forumType }),
     collectionName: "Posts",
     fragmentDoc: PostsPage,
     selector: {_id: {$in: postIds}},
@@ -260,11 +252,7 @@ export const updateAllPostEmbeddings = async () => {
       // eslint-disable-next-line no-console
       console.log("Processing next batch")
       try {
-        if (getEmbeddingsSettings().supportsBatchUpdate) {
-          await batchUpdatePostEmbeddings(posts.map(({_id}) => _id));
-        } else {
-          await Promise.all(posts.map(({_id}) => updatePostEmbeddings(_id)));
-        }
+        await batchUpdatePostEmbeddings(posts.map(({_id}) => _id), "LessWrong");
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error("Error", e);
@@ -277,24 +265,12 @@ export const updateAllPostEmbeddings = async () => {
 export const updateMissingPostEmbeddings = async () => {
   const ids = await new PostsRepo().getPostIdsWithoutEmbeddings();
 
-  if (getEmbeddingsSettings().supportsBatchUpdate) {
-    for (const idBatch of chunk(ids, 50)) {
-      try {
-        await batchUpdatePostEmbeddings(idBatch);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(`Failed to generate or update embeddings`, { error: e.response ?? e, idBatch });
-      }
-    }
-  } else {
-    for (const id of ids) {
-      try {
-        // One at a time to avoid being rate limited by the API
-        await updatePostEmbeddings(id);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(`Failed to generate or update embeddings`, { error: e.response ?? e });
-      }
+  for (const idBatch of chunk(ids, 50)) {
+    try {
+      await batchUpdatePostEmbeddings(idBatch, "LessWrong");
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(`Failed to generate or update embeddings`, { error: e.response ?? e, idBatch });
     }
   }
 }

@@ -1,7 +1,8 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedPostMetaInfo, FeedItemDisplayStatus, FeedItemSourceType } from "./ultraFeedTypes";
+import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import UltraFeedPostItem from "./UltraFeedPostItem";
 import UltraFeedThreadCommentsList from "./UltraFeedThreadCommentsList";
@@ -9,7 +10,6 @@ import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import { useUltraFeedContext } from "./UltraFeedContextProvider";
 
 // Only used as a fallback when post is not preloaded
 const PostsListWithVotesQuery = gql(`
@@ -140,6 +140,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
   forceParentPostCollapsed?: boolean,
   focusedCommentId?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   
   const { comments, commentMetaInfos, postSources, post: preloadedPost, postMetaInfo } = thread;
@@ -201,10 +202,10 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
   const commentAuthorsMap = useMemo(() => {
     const authorsMap: Record<string, string | null> = {};
     comments.forEach(comment => {
-      authorsMap[comment._id] = userGetDisplayName(comment.user) ?? null;
+      authorsMap[comment._id] = userGetDisplayName(comment.user, forumType) ?? null;
     });
     return authorsMap;
-  }, [comments]);
+  }, [comments, forumType]);
   
   const setDisplayStatus = useCallback((commentId: string, newStatus: FeedItemDisplayStatus) => {
     setCommentDisplayStatuses(prev => ({
@@ -437,7 +438,6 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
 }
 
 export default UltraFeedThreadItem;
-
 
 
 

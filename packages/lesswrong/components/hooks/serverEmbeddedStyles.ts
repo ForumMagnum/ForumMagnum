@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import type { StyleDefinition } from "@/server/styleGeneration";
 import type { AbstractThemeOptions } from "@/themes/themeNames";
 import { abstractThemeToConcrete, themeOptionsAreConcrete } from "@/themes/themeNames";
@@ -7,8 +8,8 @@ import { styleNodeToString } from "@/lib/jssStyles";
 // JSON-serialized theme => style name => style script tag
 const serverEmbeddedStylesCache: Record<string, Record<string,string>> = {};
 
-export function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions, styleDefinitions: StyleDefinition[]) {
-  const themeKey = JSON.stringify(abstractThemeOptions);
+export function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions, styleDefinitions: StyleDefinition[], forumType: ForumTypeString) {
+  const themeKey = JSON.stringify([forumType, abstractThemeOptions]);
 
   if (!serverEmbeddedStylesCache[themeKey]) {
     serverEmbeddedStylesCache[themeKey] = {};
@@ -19,7 +20,7 @@ export function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions,
     const styleName = styleDefinition.name;
     if (!serverEmbeddedStylesCache[themeKey][styleName]) {
       const priority = styleDefinition.options?.stylePriority ?? 0;
-      const stylesStr = styleDefinitionToCSS(abstractThemeOptions, styleDefinition);
+      const stylesStr = styleDefinitionToCSS(abstractThemeOptions, styleDefinition, forumType);
       const styleScriptTag = `_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})`;
       serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
     }
@@ -32,8 +33,8 @@ export function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions,
 // JSON-serialized theme => style name => CSS
 const serverEmbeddedStylesCSSCache: Record<string, Record<string,string>> = {};
 
-export function styleDefinitionToCSS(abstractThemeOptions: AbstractThemeOptions, styleDefinition: StyleDefinition): string {
-  const themeKey = JSON.stringify(abstractThemeOptions);
+export function styleDefinitionToCSS(abstractThemeOptions: AbstractThemeOptions, styleDefinition: StyleDefinition, forumType: ForumTypeString): string {
+  const themeKey = JSON.stringify([forumType, abstractThemeOptions]);
 
   if (!serverEmbeddedStylesCSSCache[themeKey]) {
     serverEmbeddedStylesCSSCache[themeKey] = {};
@@ -44,14 +45,14 @@ export function styleDefinitionToCSS(abstractThemeOptions: AbstractThemeOptions,
     const priority = styleDefinition.options?.stylePriority ?? 0;
 
     if (themeOptionsAreConcrete(abstractThemeOptions)) {
-      const theme = getForumTheme(abstractThemeOptions);
+      const theme = getForumTheme(abstractThemeOptions, forumType);
       const stylesStr = styleNodeToString(theme, styleDefinition);
       serverEmbeddedStylesCSSCache[themeKey][styleName] = stylesStr;
     } else {
       const lightThemeOptions = abstractThemeToConcrete(abstractThemeOptions, false);
       const darkThemeOptions = abstractThemeToConcrete(abstractThemeOptions, true);
-      const lightTheme = getForumTheme(lightThemeOptions);
-      const darkTheme = getForumTheme(darkThemeOptions);
+      const lightTheme = getForumTheme(lightThemeOptions, forumType);
+      const darkTheme = getForumTheme(darkThemeOptions, forumType);
       const lightStylesStr = styleNodeToString(lightTheme, styleDefinition);
       const darkStylesStr = styleNodeToString(darkTheme, styleDefinition);
       const stylesStr = (lightStylesStr === darkStylesStr)

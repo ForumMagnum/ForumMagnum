@@ -10,7 +10,7 @@ import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '@/
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import { throwError } from "@/server/vulcan-lib/errors";
 import { captureException } from "@/lib/sentryWrapper";
-import { GraphQLError, Kind, print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
+import { Kind, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
 import isEqual from "lodash/isEqual";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
@@ -151,7 +151,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     // Don't allow API requests with an arbitrarily large offset. This
     // prevents some extremely-slow queries.
-    const maxAllowedSkip = maxAllowedApiSkip.get();
+    const maxAllowedSkip = maxAllowedApiSkip.get(context);
     if (
       terms.offset &&
       maxAllowedSkip !== null &&
@@ -313,9 +313,10 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       } else {
         throwError({
           id: 'app.missing_document',
-          // Don't log not-found errors in Sentry if the request is from GreaterWrong because
-          // it periodically retries deleted IDs it saw in the past
-          noSentryCapture: context.isGreaterWrong,
+          // Don't log not-found errors in Sentry. They're usually caused by
+          // crawlers guessing slugs/IDs, or by GreaterWrong retrying deleted
+          // IDs it saw in the past, and aren't actionable.
+          noSentryCapture: true,
           data: { documentId, selector, collectionName: collection.collectionName },
         });
       }
@@ -336,7 +337,9 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
         } else {
           throwError({
             id: 'app.operation_not_allowed',
-            noSentryCapture: context.isGreaterWrong,
+            // Don't log these in Sentry. They're usually caused by crawlers
+            // revisiting posts that have since been deleted or moved to drafts.
+            noSentryCapture: true,
             data: {documentId, operationName: `${typeName}.read.single`}
           });
         }

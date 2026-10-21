@@ -6,6 +6,7 @@
  *
  */
 
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { type JSX } from 'react';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -264,9 +265,10 @@ function useMentionLookupService(
 }
 
 export default function MentionsPlugin(): JSX.Element | null {
+  const { forumType } = useForumType();
   const [editor] = useLexicalComposerContext();
   const captureResultSelected = useCaptureSearchResultSelected();
-  const feeds = useMemo(() => getLexicalMentionFeeds(), []);
+  const feeds = useMemo(() => getLexicalMentionFeeds(forumType), [forumType]);
 
   const [queryString, setQueryString] = useState<string | null>(null);
   const [activeFeed, setActiveFeed] = useState<MentionFeed | null>(null);
@@ -422,4 +424,3 @@ export default function MentionsPlugin(): JSX.Element | null {
     />
   );
 }
-

@@ -1,14 +1,19 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { isEAForum } from "../../lib/instanceSettings";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
+import { readerFollowedAuthorIds } from "./aiDigestSqlHelpers";
+import { contentReviewPolicy } from "@/lib/collections/users/reviewGroups";
 
-// Pangram score above which a rejected item counts toward offboarding 
-// deliberately higher than the autoreject threshold in
-// `createAutomatedContentEvaluation`;
+export interface PendingContentStats {
+  pendingPostCount: number;
+  pendingCommentCount: number;
+  oldestPendingContentAt: Date | null;
+  approvedContentCount: number;
+}
+
 const OFFBOARD_HIGH_PANGRAM_SCORE_THRESHOLD = 0.6;
 
 const GET_USERS_BY_EMAIL_QUERY = `
@@ -124,6 +129,17 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, { query, limit });
   }
 
+  // A single statement, so concurrent notes from different moderators are all kept
+  async prependToSunshineNotes(userId: string, note: string): Promise<DbUser | null> {
+    return this.oneOrNone(`
+      -- UsersRepo.prependToSunshineNotes
+      UPDATE "Users"
+      SET "sunshineNotes" = $(note) || COALESCE("sunshineNotes", '')
+      WHERE "_id" = $(userId)
+      RETURNING *
+    `, { userId, note });
+  }
+
   async resetPassword(userId: string, hashedPassword: string): Promise<void> {
     await this.none(`
       -- UsersRepo.resetPassword
@@ -172,6 +188,13 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [userId, section, String(expanded)]);
   }
 
+  /**
+   * Record that the user has seen the karma-change batch with the given date
+   * range. These dates only move forward, so that checking an old tab can't
+   * cause a batch to be shown twice. Dates in the future are clamped to now,
+   * and existing values that are in the future get replaced, because a future
+   * karmaChangeLastOpened would otherwise never be moved forward again.
+   */
   markKarmaChangesChecked(userId: string, startDate: Date | null | undefined, endDate: Date | null | undefined): Promise<null> {
     return this.none(`
       -- UsersRepo.markKarmaChangesChecked
@@ -179,12 +202,18 @@ class UsersRepo extends AbstractRepo<"Users"> {
       SET
         "karmaChangeBatchStart" = CASE
           WHEN $2::TIMESTAMPTZ IS NULL THEN "karmaChangeBatchStart"
-          WHEN "karmaChangeBatchStart" IS NULL OR "karmaChangeBatchStart" < $2::TIMESTAMPTZ THEN $2::TIMESTAMPTZ
+          WHEN "karmaChangeBatchStart" IS NULL
+            OR "karmaChangeBatchStart" < $2::TIMESTAMPTZ
+            OR "karmaChangeBatchStart" > NOW()
+          THEN LEAST($2::TIMESTAMPTZ, NOW())
           ELSE "karmaChangeBatchStart"
         END,
         "karmaChangeLastOpened" = CASE
           WHEN $3::TIMESTAMPTZ IS NULL THEN "karmaChangeLastOpened"
-          WHEN "karmaChangeLastOpened" IS NULL OR "karmaChangeLastOpened" < $3::TIMESTAMPTZ THEN $3::TIMESTAMPTZ
+          WHEN "karmaChangeLastOpened" IS NULL
+            OR "karmaChangeLastOpened" < $3::TIMESTAMPTZ
+            OR "karmaChangeLastOpened" > NOW()
+          THEN LEAST($3::TIMESTAMPTZ, NOW())
           ELSE "karmaChangeLastOpened"
         END
       WHERE "_id" = $1
@@ -399,8 +428,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   async getCurationSubscribedUserIds(): Promise<string[]> {
-    const verifiedEmailFilter = !isEAForum() ? 'AND fm_has_verified_email(emails)' : '';
-
     const userIdRecords = await this.getRawDb().any<Record<'_id', string>>(`
       SELECT _id
       FROM "Users"
@@ -408,7 +435,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         AND "deleted" IS NOT TRUE
         AND "email" IS NOT NULL
         AND "unsubscribeFromAll" IS NOT TRUE
-        ${verifiedEmailFilter}
+        AND fm_has_verified_email(emails)
     `);
 
     return userIdRecords.map(({ _id }) => _id);
@@ -499,6 +526,53 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [userIds]);
     const countsByUser = new Map(rows.map((row) => [row.userId, row.count]));
     return userIds.map((userId) => countsByUser.get(userId) ?? 0);
+  }
+
+  async getPendingContentStats(userIds: string[]): Promise<PendingContentStats[]> {
+    const postConditions = contentReviewPolicy.excludedFields.Posts.map(field => `p."${field}" IS NOT TRUE`).join(" AND ");
+    const commentConditions = contentReviewPolicy.excludedFields.Comments.map(field => `c."${field}" IS NOT TRUE`).join(" AND ");
+    const rows = await this.getRawDb().any<{ userId: string } & PendingContentStats>(`
+      -- UsersRepo.getPendingContentStats
+      SELECT
+        "userId",
+        (COUNT(*) FILTER (WHERE "isPending" AND "isPost"))::int AS "pendingPostCount",
+        (COUNT(*) FILTER (WHERE "isPending" AND NOT "isPost"))::int AS "pendingCommentCount",
+        MIN("postedAt") FILTER (WHERE "isPending") AS "oldestPendingContentAt",
+        (COUNT(*) FILTER (WHERE NOT "isPending"))::int AS "approvedContentCount"
+      FROM (
+        SELECT p."userId", TRUE AS "isPost", p."postedAt", p."${contentReviewPolicy.pendingField}" IS TRUE AS "isPending"
+        FROM "Posts" p
+        WHERE p."userId" = ANY($(userIds)::text[])
+          AND ${postConditions}
+        UNION ALL
+        SELECT c."userId", FALSE AS "isPost", c."postedAt", c."${contentReviewPolicy.pendingField}" IS TRUE AS "isPending"
+        FROM "Comments" c
+        WHERE c."userId" = ANY($(userIds)::text[])
+          AND ${commentConditions}
+      ) "liveContent"
+      GROUP BY "userId"
+    `, { userIds });
+    const statsByUser = new Map(rows.map(({ userId, ...stats }) => [userId, stats]));
+    return userIds.map((userId) => statsByUser.get(userId) ?? {
+      pendingPostCount: 0,
+      pendingCommentCount: 0,
+      oldestPendingContentAt: null,
+      approvedContentCount: 0,
+    });
+  }
+
+  async getLastRemovedFromReviewQueueAt(userIds: string[]): Promise<(Date | null)[]> {
+    const rows = await this.getRawDb().any<{ userId: string, createdAt: Date }>(`
+      -- UsersRepo.getLastRemovedFromReviewQueueAt
+      SELECT "documentId" AS "userId", MAX("createdAt") AS "createdAt"
+      FROM "FieldChanges"
+      WHERE "documentId" = ANY($(userIds)::text[])
+        AND "fieldName" = 'needsReview'
+        AND "newValue" = 'false'::jsonb
+      GROUP BY "documentId"
+    `, { userIds });
+    const datesByUserId = new Map(rows.map(row => [row.userId, row.createdAt]));
+    return userIds.map(userId => datesByUserId.get(userId) ?? null);
   }
 
   /**
@@ -609,6 +683,22 @@ class UsersRepo extends AbstractRepo<"Users"> {
         aa.karma_received DESC
       LIMIT $2
     `, [clientId, limit, days]);
+  }
+
+  async getAiDigestFollowedAuthorNames({ userId, limit }: {
+    userId: string;
+    limit: number;
+  }): Promise<string[]> {
+    const rows = await this.getRawDb().manyOrNone<{ displayName: string }>(`
+      -- UsersRepo.getAiDigestFollowedAuthorNames
+      SELECT u."displayName"
+      FROM "Users" u
+      WHERE u."_id" IN (${readerFollowedAuthorIds})
+        AND u."displayName" IS NOT NULL
+      ORDER BY u."displayName", u."_id"
+      LIMIT $(limit)
+    `, { userId, limit });
+    return rows.map((row) => row.displayName);
   }
 }
 

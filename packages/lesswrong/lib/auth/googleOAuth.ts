@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import crypto from 'crypto';
 import { googleClientIdSetting, googleOAuthSecretSetting } from '@/server/databaseSettings';
 import { NextRequest } from 'next/server';
@@ -33,8 +34,9 @@ export function generateOAuthState(): string {
 }
 
 export function getGoogleAuthUrl(request: NextRequest, state: string, returnTo?: string): string {
+  const forumType = getForumTypeForRequest(request);
   const siteUrl = getSiteUrlFromReq(request);
-  const clientId = googleClientIdSetting.get();
+  const clientId = googleClientIdSetting.get(forumType);
   if (!clientId) throw new Error('Google OAuth not configured');
 
   const params = new URLSearchParams({
@@ -55,9 +57,10 @@ export function getGoogleAuthUrl(request: NextRequest, state: string, returnTo?:
 }
 
 export async function exchangeCodeForTokens(request: NextRequest, code: string): Promise<GoogleTokenResponse> {
+  const forumType = getForumTypeForRequest(request);
   const siteUrl = getSiteUrlFromReq(request);
-  const clientId = googleClientIdSetting.get();
-  const clientSecret = googleOAuthSecretSetting.get();
+  const clientId = googleClientIdSetting.get(forumType);
+  const clientSecret = googleOAuthSecretSetting.get(forumType);
   
   if (!clientId || !clientSecret) {
     throw new Error('Google OAuth credentials not configured');

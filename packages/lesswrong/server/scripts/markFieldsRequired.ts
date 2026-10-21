@@ -1,3 +1,4 @@
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 /* eslint-disable no-console */
 import { getSchema } from "@/lib/schema/allSchemas";
 import { getAllCollections } from "../collections/allCollections";
@@ -57,6 +58,7 @@ function fixArrayInputTypeLine(inputTypeLine: string) {
 }
 
 export async function markFieldsRequired() {
+  const context = createAnonymousContext();
   const collections = getAllCollections();
 
   for (const collection of collections) {
@@ -178,7 +180,7 @@ export async function markFieldsRequired() {
         // we need to add a nullable inputType to preserve back-compat for creating new records
         const field = schema[fieldName];
         const canCreate = field.graphql?.canCreate;
-        const fieldCreateableByMembers = userCanCreateField({} as DbUser, canCreate);
+        const fieldCreateableByMembers = userCanCreateField({} as DbUser, canCreate, context);
 
         const isUserId = fieldName === 'userId';
         const isDenormalizedField = !!field.database?.denormalized;

@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 /* See lib/collections/useractivities/collection.ts for a high-level overview */
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
@@ -11,7 +12,7 @@ export interface ActivityWindowData {
 /*
  * When running this script locally we want it to use the real analytics events
  */
-const getLiveEnvDescriptions = () => forumSelect<Record<string, string>>({
+const getLiveEnvDescriptions = (forumType: ForumTypeString) => forumSelect<Record<string, string>>({
   EAForum: {
     "production": 'production',
     "staging": 'staging',
@@ -33,7 +34,7 @@ const getLiveEnvDescriptions = () => forumSelect<Record<string, string>>({
     "local-dev-prod-db": 'production', // prod running locally
     "local-dev-staging-db": 'staging', // staging running locally
   }
-})
+}, forumType)
 
 /**
  * Get an array of ActivityWindowData, one for each user or client that was active between startDate and endDate.
@@ -42,7 +43,8 @@ const getLiveEnvDescriptions = () => forumSelect<Record<string, string>>({
  */
 export async function getUserActivityData(
   startDate: Date,
-  endDate: Date
+  endDate: Date,
+  forumType: ForumTypeString,
 ): Promise<ActivityWindowData[]> {
   const analyticsDb = await getAnalyticsConnection();
   if (!analyticsDb) {
@@ -61,9 +63,9 @@ export async function getUserActivityData(
   if (startDate > endDate) {
     throw new Error('startDate must be before endDate');
   }
-  const liveEnvDescription = getLiveEnvDescriptions()[environmentDescriptionSetting.get()]
+  const liveEnvDescription = getLiveEnvDescriptions(forumType)[environmentDescriptionSetting.get(forumType)]
   if (!liveEnvDescription) {
-    throw new Error(`Unknown environmentDescriptionSetting: ${environmentDescriptionSetting.get()}`);
+    throw new Error(`Unknown environmentDescriptionSetting: ${environmentDescriptionSetting.get(forumType)}`);
   }
   
   const activityAnalyticsSql = `

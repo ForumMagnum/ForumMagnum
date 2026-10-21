@@ -1,3 +1,5 @@
+import { getForumTypeForPage } from "@/server/utils/pageUtil";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import React, { Suspense } from 'react';
 import { headers } from 'next/headers';
 import { captureException } from '@/lib/sentryWrapper';
@@ -20,7 +22,7 @@ type WebhookResult =
  * function converts to JSX — separated out so we can wrap the async work in
  * try/catch without putting JSX inside the catch block.
  */
-async function processWebhookRequest(headersList: Headers): Promise<WebhookResult> {
+async function processWebhookRequest(headersList: Headers, forumType: ForumTypeString): Promise<WebhookResult> {
   const authHeader = headersList.get('authorization');
   const secret = authHeader?.replace('Bearer ', '');
   if (!secret) {
@@ -67,7 +69,7 @@ async function processWebhookRequest(headersList: Headers): Promise<WebhookResul
         content,
         threadId,
         commentersInThread: commentersStr ? commentersStr.split(',') : [],
-      });
+      }, forumType);
 
       return { type: 'ok' };
     }
@@ -106,11 +108,11 @@ assertRouteAttributes("/hocuspocusWebhook", {
  * component handles them directly.
  */
 export default async function HocuspocusWebhookPage() {
-  const headersList = await headers();
+  const [headersList, forumType] = await Promise.all([headers(), getForumTypeForPage()]);
 
   let result: WebhookResult;
   try {
-    result = await processWebhookRequest(headersList);
+    result = await processWebhookRequest(headersList, forumType);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('[HocuspocusWebhook] Error processing webhook:', error);
@@ -129,6 +131,7 @@ export default async function HocuspocusWebhookPage() {
   return (
     <Suspense fallback={<div>processing</div>}>
       <WebhookProcessor
+        forumType={forumType}
         documentName={result.documentName}
         yjsStateBase64={result.yjsStateBase64}
       />

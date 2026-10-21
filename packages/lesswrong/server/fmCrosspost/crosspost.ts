@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import Users from "../../server/collections/users/collection";
 import { randomId } from "../../lib/random";
 import { UpdateCallbackProperties } from "../mutationCallbacks";
@@ -92,6 +93,7 @@ const performCrosspost = async (
     createCrosspostRoute,
     {token},
     "Failed to create crosspost",
+    context.forumType,
   );
 
   post.fmCrosspost.foreignPostId = postId;
@@ -102,6 +104,7 @@ const updateCrosspost = async (
   foreignPostId: string,
   latestRevisionId: string | null,
   denormalizedData: DenormalizedCrosspostData,
+  forumType: ForumTypeString,
 ) => {
   const revision = latestRevisionId
     ? await Revisions.findOne({_id: latestRevisionId})
@@ -118,6 +121,7 @@ const updateCrosspost = async (
     updateCrosspostRoute,
     {token},
     "Failed to update crosspost",
+    forumType,
   );
 }
 
@@ -125,7 +129,7 @@ const updateCrosspost = async (
  * TODO-HACK: We will kick the can down the road on actually removing the
  * crosspost data from the foreign server -- set it as a draft.
  */
-const removeCrosspost = async <T extends Crosspost>(post: T) => {
+const removeCrosspost = async <T extends Crosspost>(post: T, forumType: ForumTypeString) => {
   if (!post.fmCrosspost || !post.fmCrosspost.foreignPostId) {
     // eslint-disable-next-line no-console
     console.warn("Cannot remove crosspost that doesn't exist");
@@ -134,7 +138,7 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
   await updateCrosspost(post.fmCrosspost.foreignPostId, post.contents_latest, {
     ...extractDenormalizedData(post),
     draft: true,
-  });
+  }, forumType);
 }
 
 export const handleCrosspostUpdate = async (
@@ -147,7 +151,7 @@ export const handleCrosspostUpdate = async (
     (oldDocument.fmCrosspost && data.fmCrosspost === null) ||
     (oldDocument.fmCrosspost?.isCrosspost && data.fmCrosspost?.isCrosspost === false)
   if (shouldRemoveCrosspost) {
-    await removeCrosspost(newDocument);
+    await removeCrosspost(newDocument, context.forumType);
   }
   if (!fmCrosspost?.isCrosspost) {
     return data;
@@ -175,7 +179,7 @@ export const handleCrosspostUpdate = async (
       (data as AnyBecauseHard).contents_latest ??
       newDocument.contents_latest ??
       oldDocument.contents_latest;
-    await updateCrosspost(fmCrosspost.foreignPostId, latestRevisionId, denormalizedData);
+    await updateCrosspost(fmCrosspost.foreignPostId, latestRevisionId, denormalizedData, context.forumType);
     // TODO-HACK: Drafts are very bad news for crossposts, so we will unlink in
     // such cases. See sad message to users in ForeignCrosspostEditForm.tsx.
     if (newDocument.draft && !oldDocument.draft) {

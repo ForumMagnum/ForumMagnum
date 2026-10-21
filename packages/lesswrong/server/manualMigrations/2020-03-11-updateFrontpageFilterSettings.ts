@@ -1,3 +1,4 @@
+import { forumTypeSetting } from "@/lib/forumTypeUtils";
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { getDefaultFilterSettings } from '../../lib/filterSettings';
 import Users from '../../server/collections/users/collection';
@@ -22,7 +23,7 @@ export default registerMigration({
               update: {
                 $set: {
                   frontpageFilterSettings: {
-                    ...getDefaultFilterSettings(),
+                    ...getDefaultFilterSettings(forumTypeSetting.get()),
                     personalBlog: (user.currentFrontpageFilter === "frontpage") ? "Hidden" : "Default"
                   }
                 }

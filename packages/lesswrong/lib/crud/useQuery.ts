@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, use, useContext, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { createContext, use, useContext, useMemo, useRef, useSyncExternalStore } from "react";
 // eslint-disable-next-line no-restricted-imports
 import { useQuery as useQueryApollo, useSuspenseQuery as useSuspenseQueryApollo, useReadQuery as useReadQueryApollo, useBackgroundQuery as useBackgroundQueryApollo, useApolloClient, type SuspenseQueryHookFetchPolicy } from "@apollo/client/react";
 import { CombinedGraphQLErrors, NetworkStatus } from "@apollo/client";
@@ -186,7 +186,7 @@ function getOrCreateSsrQueryPromise(
     return existingPromise;
   }
   const queryPromise = (async () => {
-    const { runQueryNonThrowing } = await import("@/server/vulcan-lib/query");
+    const { runQueryNonThrowingWithAnonymousCache } = await import("@/server/postPageCache/anonymousQueryCache");
     // Modify selection sets to add __typename. Because apollo-client will
     // do this transform when the same query is given to useQuery, we need
     // to do it for the injected version, or else there would be a mismatch in
@@ -194,7 +194,7 @@ function getOrCreateSsrQueryPromise(
     // apollo-client to look for fields in the wrong place and return
     //  incorrect empty objects.
     const transformedQuery = addTypenameToDocument(query);
-    const result = await runQueryNonThrowing(transformedQuery, variables, resolverContext);
+    const result = await runQueryNonThrowingWithAnonymousCache(transformedQuery, variables, resolverContext);
 
     if (result.errors?.length) {
       const serializedErrors = serializeGraphQLErrors(result.errors);

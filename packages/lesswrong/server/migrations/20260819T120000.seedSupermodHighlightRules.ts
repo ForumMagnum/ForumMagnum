@@ -76,6 +76,6 @@ export const up = async ({db}: MigrationContext) => {
   `, { _id: randomId(), name: HIGHLIGHT_RULE_OVERRIDES_METADATA_NAME, value: merged });
 };
 
-export const down = async ({}: MigrationContext) => {
+export const down = async () => {
   // Deliberately a no-op: the row also holds rules moderators have since edited.
 };

@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { $getNodeByKey } from 'lexical';
 import { $isLLMContentBlockNode, } from './LLMContentBlockNode';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -7,6 +7,14 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useStopLexicalEventPropagation } from '../useStopLexicalEventPropagation';
 import { isEditorInSuggestionMode } from './LLMContentBlockPlugin';
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from '@/lib/generated/gql-codegen';
+
+const LlmModelOptionsQuery = gql(`
+  query LlmModelOptions {
+    LlmModelOptions
+  }
+`);
 
 const headerStyles = defineStyles('LLMContentBlockHeader', () => ({
   measureSpan: {
@@ -16,29 +24,19 @@ const headerStyles = defineStyles('LLMContentBlockHeader', () => ({
   },
 }));
 
-const LLM_MODEL_OPTIONS = [
-  'Claude Opus 4.7',
-  'Claude Opus 4.6',
-  'Claude Opus 4.5',
-  'Claude Opus 3',
-  'Claude Sonnet 4.6',
-  'Claude Sonnet 4.5',
-  'Claude Sonnet 4',
-  'Claude Haiku 4.5',
-  'Claude Haiku 3.5',
-  'GPT-5.4',
-  'GPT-5.2',
-  'GPT-5.1',
-  'GPT-4.5',
-  'Gemini 3.1 Pro Preview',
-  'Gemini 3.0 Flash Preview',
-  'Gemini 2.5 Pro',
-  'Grok 4.1',
-  'DeepSeek v3.2',
-  'Kimi K2.5'
-] as const;
-
 const PLACEHOLDER = 'Unknown Model';
+
+const MAX_VISIBLE_SUGGESTIONS = 10;
+
+const NO_OPTIONS: string[] = [];
+
+function bestModelOptions(options: readonly string[], query: string): readonly string[] {
+  const trimmedQuery = query.trim().toLowerCase();
+  const matches = trimmedQuery
+    ? options.filter((option) => option.toLowerCase().includes(trimmedQuery))
+    : options;
+  return matches.slice(0, MAX_VISIBLE_SUGGESTIONS);
+}
 
 export function LLMContentBlockHeaderComponent({ modelName, containerNodeKey }: {
   modelName: string;
@@ -49,23 +47,24 @@ export function LLMContentBlockHeaderComponent({ modelName, containerNodeKey }: 
   const inputRef = useRef<HTMLInputElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
   const isSuggestionMode = isEditorInSuggestionMode(editor);
+  const { data } = useQuery(LlmModelOptionsQuery, { ssr: false, skip: isSuggestionMode });
 
-  // Writing to the Lexical node (via editor.update → setModelName) triggers
-  // an async decorate() cycle that re-renders this component with the new
-  // modelName prop. If we used modelName directly as the input value, there
-  // would be a visible flash where the input reverts to the old value before
-  // the re-render arrives. Local state gives the input an immediate update.
+  // Writes to the Lexical node come back as a new modelName prop only after an
+  // async decorate() cycle, so the input needs its own immediate value.
   const [localValue, setLocalValue] = useState(modelName);
   const [inputWidth, setInputWidth] = useState<number | undefined>(undefined);
 
-  // Re-sync when the Lexical node is updated by something other than this
-  // input (e.g. undo/redo, collaboration).
+  const visibleOptions = useMemo(
+    () => bestModelOptions(data?.LlmModelOptions ?? NO_OPTIONS, localValue),
+    [data, localValue],
+  );
+
+  // Re-sync on changes from elsewhere, eg undo/redo or collaboration.
   useEffect(() => {
     setLocalValue(modelName);
   }, [modelName]);
 
-  // Measure the hidden span to size the input to its content, with a small
-  // buffer so editing doesn't clip the final character.
+  // Size the input to its content, with a buffer so the last character isn't clipped.
   useEffect(() => {
     if (measureRef.current) {
       setInputWidth(measureRef.current.offsetWidth + 4);
@@ -108,7 +107,7 @@ export function LLMContentBlockHeaderComponent({ modelName, containerNodeKey }: 
         style={{ width: inputWidth }}
       />
       <datalist id={`llm-model-list-${containerNodeKey}`}>
-        {LLM_MODEL_OPTIONS.map((option) => (
+        {visibleOptions.map((option) => (
           <option key={option} value={option} />
         ))}
       </datalist>
