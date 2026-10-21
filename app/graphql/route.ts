@@ -1,17 +1,17 @@
 import { getExecutableSchema } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/initGraphQL';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
-import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext } from '@apollo/server';
+import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from '@apollo/server';
 import { configureSentryScope, getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import type { NextRequest } from 'next/server';
 import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
 import { captureException, getSentry } from '@/lib/sentryWrapper';
 import { getClientIP } from '@/server/utils/getClientIP';
 import { fmCrosspostBaseUrlSetting, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
-import { GraphQLFormattedError } from 'graphql';
+import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { inspect } from 'util';
 import { formatError } from 'apollo-errors';
 import { crosspostOptionsHandler, setCorsHeaders, setSandboxedIframeCorsHeaders } from "@/server/crossposting/cors";
-import { NOISY_GRAPHQL_ERROR_MESSAGES, shouldCaptureGraphQLErrorInSentry } from '@/server/utils/graphqlErrorUtil';
+import { NOISY_GRAPHQL_ERROR_MESSAGES, captureGraphQLErrorInSentry, type InvalidGraphQLOperation } from '@/server/utils/graphqlErrorUtil';
 import { getForumTypeForRequest } from '@/server/utils/requestUtil';
 
 // The research conversation mutations (`fireResearchConversation` /
@@ -21,8 +21,14 @@ import { getForumTypeForRequest } from '@/server/utils/requestUtil';
 // are not cut off mid-provision.
 export const maxDuration = 120;
 
+// Errors from operations that failed before execution started (eg because they
+// failed to parse or validate), mapped to the operation they came from, so that
+// formatError (which doesn't get the request) can include the query when it
+// sends them to Sentry
+const invalidOperationsByError = new WeakMap<GraphQLError, InvalidGraphQLOperation>();
+
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
-  async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
+  async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>): Promise<GraphQLRequestListener<ResolverContext>> {
     const { operationName = 'unknownGqlOperation', query, variables } = request;
 
     //remove sensitive data from variables such as password
@@ -45,6 +51,17 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
     }
     
     return {
+      async didEncounterErrors(requestContext) {
+        // If no operation was resolved, the request failed before execution
+        // started (eg a syntax error, or a query for fields that don't exist).
+        // This is called before formatError is called on the same errors.
+        if (!requestContext.operation) {
+          const { query, operationName } = requestContext.request;
+          for (const error of requestContext.errors) {
+            invalidOperationsByError.set(error, { query, operationName });
+          }
+        }
+      },
       async willSendResponse() { // hook for transaction finished
         if (performanceMetricLoggingEnabled.get(context)) {
           closePerfMetric(startedRequestMetric);
@@ -62,9 +79,8 @@ const server = new ApolloServer<ResolverContext>({
   includeStacktraceInErrorResponses: true,
   plugins: [new ApolloServerLogging()],
   formatError: (formattedError, error): GraphQLFormattedError => {
-    if (shouldCaptureGraphQLErrorInSentry(error)) {
-      captureException(error);
-    }
+    const invalidOperation = error instanceof GraphQLError ? invalidOperationsByError.get(error) : undefined;
+    captureGraphQLErrorInSentry(error, invalidOperation);
     const {message, ...properties} = formattedError;
     if (!NOISY_GRAPHQL_ERROR_MESSAGES.has(message)) {
       // eslint-disable-next-line no-console

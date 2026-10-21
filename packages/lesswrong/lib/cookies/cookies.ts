@@ -76,12 +76,6 @@ export const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
   description: "Whether to show the podcast player on a posts pages",
 });
 
-export const HIDE_WELCOME_BOX_COOKIE = registerCookie({
-  name: "hide_welcome_box",
-  type: "necessary",
-  description: "Controls whether the welcome box on a post page is hidden",
-});
-
 export const HIDE_MAP_COOKIE = registerCookie({name: `hideMapFromFrontpage`, type: "necessary", description: "Stores whether the user has hidden the map from the frontpage."});
 
 export const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';

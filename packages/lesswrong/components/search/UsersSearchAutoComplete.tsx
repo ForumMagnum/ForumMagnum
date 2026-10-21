@@ -4,10 +4,11 @@ import SearchAutoComplete from "./SearchAutoComplete";
 import UsersAutoCompleteHit from "./UsersAutoCompleteHit";
 import UsersSearchInput from "./UsersSearchInput";
 
-const UsersSearchAutoComplete = ({clickAction, label, disableUnderline}: {
+const UsersSearchAutoComplete = ({clickAction, label, disableUnderline, facetFilters}: {
   clickAction: (id: string, result: SearchUser) => void;
   label?: string;
   disableUnderline?: boolean;
+  facetFilters?: Record<string, boolean>;
 }) => {
   return <SearchAutoComplete
     indexName={getSearchIndexName("Users")}
@@ -17,6 +18,7 @@ const UsersSearchAutoComplete = ({clickAction, label, disableUnderline}: {
     renderInputComponent={({key, ...otherProps}: any) => <UsersSearchInput key={key || "users-search-input"} inputProps={otherProps} disableUnderline={disableUnderline} />}
     placeholder={label || "Search for Users"}
     noSearchPlaceholder='User ID'
+    facetFilters={facetFilters}
   />
 }
 

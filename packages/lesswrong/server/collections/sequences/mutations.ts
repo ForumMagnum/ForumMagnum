@@ -1,3 +1,5 @@
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import schema from "@/lib/collections/sequences/newSchema";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -23,11 +25,18 @@ function newCheck(user: DbUser | null, document: DbSequence | null) {
     userCanDo(user, `sequences.new.all`)
 }
 
-function editCheck(user: DbUser | null, document: DbSequence | null) {
+export function editCheck(user: DbUser | null, document: DbSequence | null) {
   if (!user || !document) return false;
   return userOwns(user, document)
     ? userCanDo(user, 'sequences.edit.own')
     : userCanDo(user, `sequences.edit.all`)
+}
+
+// Post pages show their sequence's title and navigation. `removedPostIds` are
+// posts that have just left the sequence, whose pages still show it.
+export async function invalidateSequencePostPages(sequenceId: string, context: ResolverContext, removedPostIds: readonly string[] = []): Promise<void> {
+  const chapters = await context.Chapters.find({ sequenceId }, {}, { postIds: 1 }).fetch();
+  await invalidatePostPageCache(filterNonnull([...removedPostIds, ...chapters.flatMap((chapter) => chapter.postIds ?? [])]));
 }
 
 export async function createSequence({ data }: CreateSequenceInput, context: ResolverContext) {
@@ -70,12 +79,14 @@ export async function createSequence({ data }: CreateSequenceInput, context: Res
     backgroundTask(elasticSyncDocument('Sequences', documentWithId._id));
   }
 
-  createFirstChapter(documentWithId, context);
+  await createFirstChapter(documentWithId, context);
 
   uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
+
+  await invalidateSequencePostPages(documentWithId._id, context);
 
   return documentWithId;
 }
@@ -120,6 +131,8 @@ export async function updateSequence({ selector, data }: UpdateSequenceInput, co
   }
 
   backgroundTask(logFieldChanges({ currentUser, collection: Sequences, oldDocument, data: origData }));
+
+  await invalidateSequencePostPages(updatedDocument._id, context);
 
   return updatedDocument;
 }

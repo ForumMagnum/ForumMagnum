@@ -1,9 +1,17 @@
 "use client";
 
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
+  $setSelection,
+  $onUpdate,
+  $parseSerializedNode,
+  type SerializedLexicalNode,
+  $addUpdateTag,
+  HISTORY_PUSH_TAG,
+  HISTORY_MERGE_TAG,
+  SKIP_DOM_SELECTION_TAG,
   $isRangeSelection,
   COMMAND_PRIORITY_EDITOR,
   createCommand,
@@ -13,15 +21,18 @@ import {
   $getNearestNodeFromDOMNode,
   $createParagraphNode,
   $isRootNode,
+  $isElementNode,
+  $isParagraphNode,
   RootNode,
   $isTextNode,
   $getRoot,
 } from 'lexical';
 import { $isCodeNode } from '@lexical/code';
 import { $isLinkNode } from '@lexical/link';
-import { mergeRegister } from '@lexical/utils';
+import { mergeRegister, $getNearestBlockElementAncestorOrThrow } from '@lexical/utils';
 import { MathNode, $createMathNode, $isMathNode } from './MathNode';
-import MathEditorPanel, { MathEditorAnchor } from './MathEditorPanel';
+import MathEditorPanel from './MathEditorPanel';
+import { $generateJSONFromSelectedNodes, $insertGeneratedNodes } from '@lexical/clipboard';
 import { loadMathJax } from './loadMathJax';
 
 // Commands for opening the math editor panel
@@ -69,49 +80,20 @@ function extractDelimiters(text: string): { equation: string; display: boolean }
   return null;
 }
 
-/**
- * Convert a viewport-relative rect (from getBoundingClientRect) into the
- * document-relative anchor position used by MathEditorPanel.
- */
-function viewportRectToDocumentAnchor(rect: DOMRect): MathEditorAnchor {
-  return {
-    left: rect.left + window.scrollX,
-    bottom: rect.bottom + window.scrollY,
-    width: rect.width,
-  };
-}
-
-/**
- * Get the DOM rect of the current selection
- */
-function getSelectionRect(): DOMRect | null {
-  const selection = window.getSelection();
-  if (!selection || selection.rangeCount === 0) {
-    return null;
-  }
-  
-  const range = selection.getRangeAt(0);
-  const rect = range.getBoundingClientRect();
-  
-  // If the rect has no dimensions (collapsed selection), use the anchor node
-  if (rect.width === 0 && rect.height === 0) {
-    const node = range.startContainer;
-    if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
-      return node.parentElement.getBoundingClientRect();
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      return (node as Element).getBoundingClientRect();
-    }
-  }
-  
-  return rect;
+interface MathInsertionState {
+  replacedNodes: SerializedLexicalNode[];
+  splitBlockKeys: [string, string] | null;
+  replacedEmptyBlock: SerializedLexicalNode | null;
+  trailingParagraphKey: string | null;
 }
 
 interface MathEditorState {
   isOpen: boolean;
   isInline: boolean;
   initialEquation: string;
-  anchor: MathEditorAnchor | null;
+  anchor: Element | null;
   editingNodeKey: string | null;
+  insertion: MathInsertionState | null;
 }
 
 function shouldAutoConvertMath(textNode: TextNode): boolean {
@@ -167,7 +149,9 @@ export function MathPlugin(): React.ReactElement {
     initialEquation: '',
     anchor: null,
     editingNodeKey: null,
+    insertion: null,
   });
+  const hasPreviewChanges = useRef(false);
 
   useEffect(() => {
     // Check if MathNode is registered
@@ -179,63 +163,123 @@ export function MathPlugin(): React.ReactElement {
     void loadMathJax();
   }, [editor]);
 
-  const openEditor = useCallback((inline: boolean, existingEquation: string = '', nodeKey: string | null = null) => {
-    const rect =
-      getSelectionRect() ??
-      editor.getRootElement()?.getBoundingClientRect() ??
-      null;
-    setEditorState({
-      isOpen: true,
-      isInline: inline,
-      initialEquation: existingEquation,
-      anchor: rect ? viewportRectToDocumentAnchor(rect) : null,
-      editingNodeKey: nodeKey,
+  const openEditor = useCallback((inline: boolean) => {
+    const selection = $getSelection();
+    if (!$isRangeSelection(selection)) return;
+    const replacedNodes = selection.isCollapsed()
+      ? []
+      : $generateJSONFromSelectedNodes(editor, selection).nodes;
+    const block = $isRootNode(selection.anchor.getNode())
+      ? null
+      : $getNearestBlockElementAncestorOrThrow(selection.anchor.getNode());
+    const focusBlock = $isRootNode(selection.focus.getNode())
+      ? null
+      : $getNearestBlockElementAncestorOrThrow(selection.focus.getNode());
+    const emptyBlock = block?.isEmpty() ? block.exportJSON() : null;
+    const nextBlockKey = block?.getNextSibling()?.getKey();
+    const node = $createMathNode('', inline);
+    selection.insertNodes([node]);
+    ensureTrailingParagraphAfterMath($getRoot());
+    const previous = node.getPreviousSibling();
+    const next = node.getNextSibling();
+    // Display insertion can split a paragraph. Remember only the new split,
+    // so canceling can rejoin it without touching unrelated paragraphs.
+    const splitBlockKeys: [string, string] | null = !inline && block?.is(focusBlock) && block.is(previous)
+      && $isElementNode(next) && next.getKey() !== nextBlockKey
+      ? [block.getKey(), next.getKey()]
+      : null;
+    const insertion: MathInsertionState = {
+      replacedNodes,
+      splitBlockKeys,
+      replacedEmptyBlock: block && !block.isAttached() ? emptyBlock : null,
+      trailingParagraphKey: !nextBlockKey && $isParagraphNode(next) && next.isEmpty() ? next.getKey() : null,
+    };
+    $addUpdateTag(HISTORY_PUSH_TAG);
+    hasPreviewChanges.current = true;
+    // The floating input owns focus while editing. Leaving an element
+    // selection in the document lets later block/sentinel reconciliation
+    // restore DOM selection and take focus back from the textarea.
+    $setSelection(null);
+
+    // Wait for reconciliation so the floating input can anchor to the equation
+    // itself, including when opening it from a slash-menu command.
+    $onUpdate(() => {
+      setEditorState({
+        isOpen: true,
+        isInline: inline,
+        initialEquation: '',
+        anchor: editor.getElementByKey(node.getKey()),
+        editingNodeKey: node.getKey(),
+        insertion,
+      });
     });
   }, [editor]);
 
   const closeEditor = useCallback(() => {
+    editor.update(() => {
+      if ($getSelection() || !editorState.editingNodeKey) return;
+      const node = $getNodeByKey(editorState.editingNodeKey);
+      if ($isMathNode(node)) node.selectNext(0, 0);
+    });
     setEditorState(prev => ({
       ...prev,
       isOpen: false,
       editingNodeKey: null,
+      insertion: null,
     }));
     editor.focus();
-  }, [editor]);
+  }, [editor, editorState.editingNodeKey]);
 
-  const handleSubmit = useCallback((equation: string, inline: boolean) => {
-    if (!equation.trim()) {
-      closeEditor();
-      return;
-    }
-
+  const handleChange = useCallback((equation: string) => {
     editor.update(() => {
-      if (editorState.editingNodeKey) {
-        // Editing existing node
-        const node = $getNodeByKey(editorState.editingNodeKey);
-        if ($isMathNode(node)) {
-          node.setEquation(equation);
-          node.setInline(inline);
+      const node = $getNodeByKey(editorState.editingNodeKey ?? '');
+      if ($isMathNode(node)) node.setEquation(equation);
+    }, { tag: [SKIP_DOM_SELECTION_TAG, hasPreviewChanges.current ? HISTORY_MERGE_TAG : HISTORY_PUSH_TAG] });
+    hasPreviewChanges.current = true;
+  }, [editor, editorState.editingNodeKey]);
+
+  const handleCancel = useCallback(() => {
+    editor.update(() => {
+      const node = $getNodeByKey(editorState.editingNodeKey ?? '');
+      if (!$isMathNode(node)) return;
+      const insertion = editorState.insertion;
+      if (insertion?.replacedEmptyBlock) {
+        const restored = $parseSerializedNode(insertion.replacedEmptyBlock);
+        node.replace(restored);
+        restored.selectEnd();
+        const trailing = restored.getNextSibling();
+        if ($isParagraphNode(trailing) && trailing.getKey() === insertion.trailingParagraphKey && trailing.isEmpty()) {
+          trailing.remove();
         }
-      } else {
-        // Inserting new node
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          const mathNode = $createMathNode(equation, inline);
-          selection.insertNodes([mathNode]);
-          if (!inline) {
-            const rootNode = mathNode.getParent();
-            if (rootNode && $isRootNode(rootNode) && !mathNode.getNextSibling()) {
-              const paragraph = $createParagraphNode();
-              rootNode.append(paragraph);
-              paragraph.selectEnd();
-            }
+      } else if (insertion) {
+        const selection = node.selectPrevious();
+        node.remove();
+        if (insertion.replacedNodes.length) {
+          $insertGeneratedNodes(editor, insertion.replacedNodes.map($parseSerializedNode), selection);
+        }
+        if (insertion.splitBlockKeys) {
+          const [beforeKey, afterKey] = insertion.splitBlockKeys;
+          const before = $getNodeByKey(beforeKey);
+          const after = $getNodeByKey(afterKey);
+          if ($isElementNode(before) && $isElementNode(after) && before.getNextSibling()?.is(after)) {
+            before.append(...after.getChildren());
+            after.remove();
           }
         }
+      } else {
+        node.setEquation(editorState.initialEquation);
       }
-    });
-
+    }, { tag: HISTORY_MERGE_TAG });
     closeEditor();
-  }, [editor, editorState.editingNodeKey, closeEditor]);
+  }, [editor, editorState, closeEditor]);
+
+  const handleSubmit = useCallback((equation: string) => {
+    if (!equation.trim()) {
+      handleCancel();
+      return;
+    }
+    closeEditor();
+  }, [handleCancel, closeEditor]);
 
   useEffect(() => {
     return mergeRegister(
@@ -350,7 +394,8 @@ export function MathPlugin(): React.ReactElement {
   // root element changes (e.g. when ContentEditable remounts).
   useEffect(() => {
     const handleClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
+      const target = event.target;
+      if (!(target instanceof Element)) return;
       
       // Check if we clicked on a math preview
       const mathPreview = target.closest('.math-preview');
@@ -361,18 +406,17 @@ export function MathPlugin(): React.ReactElement {
         editor.update(() => {
           const node = $getNearestNodeFromDOMNode(target);
           if ($isMathNode(node)) {
-            // Move the insertion point next to the clicked equation, so that
-            // when the panel closes and the editor regains focus, the user
-            // stays at the equation instead of being scrolled back to
-            // wherever their insertion point was before clicking.
-            node.selectNext(0, 0);
-            const rect = mathPreview.getBoundingClientRect();
+            // Restore the insertion point next to this equation when closing;
+            // until then, let the floating textarea own the selection.
+            $setSelection(null);
+            hasPreviewChanges.current = false;
             setEditorState({
               isOpen: true,
               isInline: !node.isDisplayMode(),
               initialEquation: node.getEquation(),
-              anchor: viewportRectToDocumentAnchor(rect),
+              anchor: mathPreview,
               editingNodeKey: node.getKey(),
+              insertion: null,
             });
           }
         });
@@ -395,9 +439,10 @@ export function MathPlugin(): React.ReactElement {
       initialEquation={editorState.initialEquation}
       isInline={editorState.isInline}
       anchor={editorState.anchor}
+      editorElement={editor.getRootElement()}
+      onChange={handleChange}
       onSubmit={handleSubmit}
-      onCancel={closeEditor}
+      onCancel={handleCancel}
     />
   );
 }
-

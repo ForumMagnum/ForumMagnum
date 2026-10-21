@@ -1,102 +1,174 @@
-// /**
-//  * Copyright (c) Meta Platforms, Inc. and affiliates.
-//  *
-//  * This source code is licensed under the MIT license found in the
-//  * LICENSE file in the root directory of this source tree.
-//  *
-//  */
-// import type {ExcalidrawInitialElements} from '../../ui/ExcalidrawModal';
-// // @ts-ignore - @excalidraw/excalidraw types not installed yet
-// import type {AppState, BinaryFiles} from '@excalidraw/excalidraw/types';
-// import React, { type JSX } from 'react';
+// Vendored from: https://github.com/facebook/lexical/commit/2e0f8fa65f7c9a389603008671d120bbd1f71d7a
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
 
-// // @ts-ignore - @excalidraw/excalidraw not installed yet
-// // eslint-disable-next-line import/no-unresolved
-// import '@excalidraw/excalidraw/index.css';
+// LessWrong modifications from upstream:
+//  * The modal (and with it, Excalidraw and its CSS) is loaded lazily.
+//  * The diagram is inserted as a block rather than inside a paragraph.
+//  * This plugin also handles editing existing diagrams (upstream, that's
+//    handled by ExcalidrawComponent), via EDIT_EXCALIDRAW_COMMAND.
+//  * Diagrams can't be inserted or edited in suggestion mode.
 
-// import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-// import {$wrapNodeInElement} from '@lexical/utils';
-// import {
-//   $createParagraphNode,
-//   $insertNodes,
-//   $isRootOrShadowRoot,
-//   COMMAND_PRIORITY_EDITOR,
-//   createCommand,
-//   LexicalCommand,
-// } from 'lexical';
-// import {useEffect, useState} from 'react';
+import type {AppState, BinaryFiles} from '@excalidraw/excalidraw/types';
+import type {NonDeletedExcalidrawElement} from '@excalidraw/excalidraw/element/types';
+import type {JSX} from 'react';
 
-// import {
-//   $createExcalidrawNode,
-//   ExcalidrawNode,
-// } from '../../nodes/ExcalidrawNode';
-// import ExcalidrawModal from '../../ui/ExcalidrawModal';
+import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import {$insertNodeToNearestRoot, mergeRegister} from '@lexical/utils';
+import {
+  $getNodeByKey,
+  COMMAND_PRIORITY_EDITOR,
+  NodeKey,
+} from 'lexical';
+import * as React from 'react';
+import {Suspense, useEffect, useState} from 'react';
+import { useMessages } from '@/components/common/withMessages';
 
-// export const INSERT_EXCALIDRAW_COMMAND: LexicalCommand<void> = createCommand(
-//   'INSERT_EXCALIDRAW_COMMAND',
-// );
+import {
+  $createExcalidrawNode,
+  $isExcalidrawNode,
+  ExcalidrawNode,
+} from '../../nodes/ExcalidrawNode';
+import type {ExcalidrawInitialElements} from '../../ui/ExcalidrawModal';
+import {EDIT_EXCALIDRAW_COMMAND, INSERT_EXCALIDRAW_COMMAND} from './commands';
 
-// export default function ExcalidrawPlugin(): JSX.Element | null {
-//   const [editor] = useLexicalComposerContext();
-//   const [isModalOpen, setModalOpen] = useState<boolean>(false);
+const ExcalidrawModal = React.lazy(() => import('../../ui/ExcalidrawModal'));
 
-//   useEffect(() => {
-//     if (!editor.hasNodes([ExcalidrawNode])) {
-//       throw new Error(
-//         'ExcalidrawPlugin: ExcalidrawNode not registered on editor',
-//       );
-//     }
+interface ExcalidrawModalState {
+  /** The diagram being edited, or null if this is a new diagram */
+  nodeKey: NodeKey | null;
+  elements: ExcalidrawInitialElements;
+  appState: Partial<AppState>;
+  files: BinaryFiles;
+}
 
-//     return editor.registerCommand(
-//       INSERT_EXCALIDRAW_COMMAND,
-//       () => {
-//         setModalOpen(true);
-//         return true;
-//       },
-//       COMMAND_PRIORITY_EDITOR,
-//     );
-//   }, [editor]);
+const NEW_DIAGRAM_MODAL_STATE: ExcalidrawModalState = {
+  nodeKey: null,
+  elements: [],
+  appState: {},
+  files: {},
+};
 
-//   const onClose = () => {
-//     setModalOpen(false);
-//   };
+export default function ExcalidrawPlugin({
+  isSuggestionMode,
+}: {
+  isSuggestionMode?: boolean;
+}): JSX.Element | null {
+  const [editor] = useLexicalComposerContext();
+  const {flash} = useMessages();
+  const [modalState, setModalState] = useState<ExcalidrawModalState | null>(
+    null,
+  );
 
-//   const onDelete = () => {
-//     setModalOpen(false);
-//   };
+  useEffect(() => {
+    if (!editor.hasNodes([ExcalidrawNode])) {
+      throw new Error(
+        'ExcalidrawPlugin: ExcalidrawNode not registered on editor',
+      );
+    }
 
-//   const onSave = (
-//     elements: ExcalidrawInitialElements,
-//     appState: Partial<AppState>,
-//     files: BinaryFiles,
-//   ) => {
-//     editor.update(() => {
-//       const excalidrawNode = $createExcalidrawNode();
-//       excalidrawNode.setData(
-//         JSON.stringify({
-//           appState,
-//           elements,
-//           files,
-//         }),
-//       );
-//       $insertNodes([excalidrawNode]);
-//       if ($isRootOrShadowRoot(excalidrawNode.getParentOrThrow())) {
-//         $wrapNodeInElement(excalidrawNode, $createParagraphNode).selectEnd();
-//       }
-//     });
-//     setModalOpen(false);
-//   };
+    return mergeRegister(
+      editor.registerCommand(
+        INSERT_EXCALIDRAW_COMMAND,
+        () => {
+          if (isSuggestionMode) {
+            flash({
+              messageString: 'Diagrams are not supported in suggestion mode',
+              type: 'error',
+            });
+            return true;
+          }
+          setModalState(NEW_DIAGRAM_MODAL_STATE);
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
+      editor.registerCommand(
+        EDIT_EXCALIDRAW_COMMAND,
+        (nodeKey) => {
+          if (isSuggestionMode) {
+            flash({
+              messageString: 'Diagrams cannot be edited in suggestion mode',
+              type: 'error',
+            });
+            return true;
+          }
+          const node = $getNodeByKey(nodeKey);
+          if (!$isExcalidrawNode(node)) {
+            return false;
+          }
+          const {
+            elements = [],
+            files = {},
+            appState = {},
+          } = JSON.parse(node.getData());
+          setModalState({nodeKey, elements, appState, files});
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
+    );
+  }, [editor, isSuggestionMode, flash]);
 
-//   return isModalOpen ? (
-//     <ExcalidrawModal
-//       initialElements={[]}
-//       initialAppState={{} as AppState}
-//       initialFiles={{}}
-//       isShown={isModalOpen}
-//       onDelete={onDelete}
-//       onClose={onClose}
-//       onSave={onSave}
-//       closeOnClickOutside={false}
-//     />
-//   ) : null;
-// }
+  const onClose = () => {
+    setModalState(null);
+  };
+
+  const onDelete = () => {
+    // Saving an empty diagram deletes it
+    const nodeKey = modalState?.nodeKey;
+    if (nodeKey) {
+      editor.update(() => {
+        $getNodeByKey(nodeKey)?.remove();
+      });
+    }
+    setModalState(null);
+  };
+
+  const onSave = (
+    elements: readonly NonDeletedExcalidrawElement[],
+    appState: Partial<AppState>,
+    files: BinaryFiles,
+    svg: string,
+  ) => {
+    const nodeKey = modalState?.nodeKey;
+    const data = JSON.stringify({
+      appState,
+      elements,
+      files,
+    });
+    editor.update(() => {
+      if (nodeKey) {
+        const node = $getNodeByKey(nodeKey);
+        if ($isExcalidrawNode(node)) {
+          node.setData(data);
+          node.setSvg(svg);
+        }
+      } else {
+        const excalidrawNode = $createExcalidrawNode(data, svg);
+        $insertNodeToNearestRoot(excalidrawNode);
+      }
+    });
+    setModalState(null);
+  };
+
+  return modalState ? (
+    <Suspense fallback={null}>
+      <ExcalidrawModal
+        initialElements={modalState.elements}
+        initialAppState={modalState.appState}
+        initialFiles={modalState.files}
+        isShown={true}
+        onDelete={onDelete}
+        onClose={onClose}
+        onSave={onSave}
+        closeOnClickOutside={false}
+      />
+    </Suspense>
+  ) : null;
+}

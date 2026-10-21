@@ -3,11 +3,14 @@ import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import ForumIcon from "../common/ForumIcon";
 import EditorSettingsSidebar from "./EditorSettingsSidebar";
-import { getDraftLabel, type EditablePost, type PostSubmitMeta } from "@/lib/collections/posts/helpers";
+import UnanchoredCommentsBadge from "./UnanchoredCommentsBadge";
+import { getDraftLabel, postGetRejectionReviewUrl, shouldPublishGoToRejectionReview, type EditablePost, type PostSubmitMeta } from "@/lib/collections/posts/helpers";
 import type { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm";
 import type { AddOnSubmitCallback, AddOnSuccessCallback } from "../editor/EditorFormComponent";
 import { InlineCommentsPanelContext, EditorUserModeContext } from "../common/sharedContexts";
 import { getAvailableEditorModes, editorModeLabels } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
+import { useRapidPostingConfirmation } from "./useRapidPostingConfirmation";
+import { useNavigate } from "@/lib/routeUtil";
 
 type SidebarMode = "publish" | "settings" | "sharing";
 
@@ -71,6 +74,10 @@ const styles = defineStyles("MobileEditorBottomBar", (theme: ThemeType) => ({
       color: theme.palette.greyAlpha(0.96),
       borderColor: theme.palette.greyAlpha(0.25),
     },
+  },
+  commentsButton: {
+    // Positioning context for UnanchoredCommentsBadge
+    position: "relative",
   },
   settingsButtonActive: {
     color: theme.palette.greyAlpha(0.98),
@@ -321,7 +328,12 @@ const MobileEditorBottomBar = ({
   const [sheetOpen, setSheetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<SidebarMode>("publish");
   const [modeExpanded, setModeExpanded] = useState(false);
-  const [transitionsEnabled, setTransitionsEnabled] = useState(false);
+  // Transitions on the sheet are only enabled while it's open or playing its
+  // close animation. When the sheet is idle and closed, if its closed-state
+  // styles get (re)applied for any reason (hydration, style injection timing,
+  // etc), we want it to snap into place rather than play the close animation.
+  const [sheetClosing, setSheetClosing] = useState(false);
+  const transitionsEnabled = sheetOpen || sheetClosing;
   const modeSelectorRef = useRef<HTMLDivElement>(null);
 
   const editorModeContext = useContext(EditorUserModeContext);
@@ -331,6 +343,8 @@ const MobileEditorBottomBar = ({
   const showModeSelector = editorType === "lexical" && editorModeContext && availableModes.length > 1;
 
   const { showComments, setShowComments, commentCount } = useContext(InlineCommentsPanelContext);
+  const { confirmRapidPosting, isCheckingRapidPosting } = useRapidPostingConfirmation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!modeExpanded) return;
@@ -343,10 +357,6 @@ const MobileEditorBottomBar = ({
     return () => document.removeEventListener('click', handleClickOutside);
   }, [modeExpanded]);
 
-  useEffect(() => {
-    setTransitionsEnabled(true);
-  }, []);
-
   const openSheet = () => {
     setSheetOpen(true);
     // Also open the corresponding sidebar panel so the desktop sidebar stays in sync
@@ -354,7 +364,16 @@ const MobileEditorBottomBar = ({
   };
 
   const closeSheet = () => {
+    if (!sheetOpen) return;
     setSheetOpen(false);
+    setSheetClosing(true);
+  };
+
+  const handleSheetTransitionEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
+    // Ignore transitions bubbling up from elements inside the sheet
+    if (e.target === e.currentTarget && e.propertyName === "transform") {
+      setSheetClosing(false);
+    }
   };
 
   const handleTabChange = (tab: SidebarMode) => {
@@ -369,9 +388,10 @@ const MobileEditorBottomBar = ({
         canSubmit: s.canSubmit,
         isSubmitting: s.isSubmitting,
         draft: s.values.draft,
+        isRejected: shouldPublishGoToRejectionReview(currentUser, s.values),
       })}>
-        {({ canSubmit, isSubmitting, draft }) => {
-          const disabled = !canSubmit || isSubmitting || isSaving;
+        {({ canSubmit, isSubmitting, draft, isRejected }) => {
+          const disabled = !canSubmit || isSubmitting || isSaving || isCheckingRapidPosting;
           return (
             <div className={classes.bottomBar}>
               <button
@@ -429,6 +449,7 @@ const MobileEditorBottomBar = ({
                     type="button"
                     className={classNames(
                       classes.settingsButton,
+                      classes.commentsButton,
                       showComments && classes.settingsButtonActive,
                     )}
                     onClick={() => {
@@ -438,6 +459,7 @@ const MobileEditorBottomBar = ({
                     }}
                   >
                     <ForumIcon icon="Comment" className={classes.settingsIcon} />
+                    <UnanchoredCommentsBadge />
                   </button>
                 )}
                 <button
@@ -450,14 +472,27 @@ const MobileEditorBottomBar = ({
                 >
                   <ForumIcon icon="Settings" className={classes.settingsIcon} />
                 </button>
-                <button
+                {isRejected ? <button
+                  type="button"
+                  className={classes.publishButton}
+                  onClick={() => navigate(postGetRejectionReviewUrl(form.state.values._id))}
+                >
+                  Request Review
+                </button> : <button
                   type="submit"
                   className={classes.publishButton}
                   disabled={disabled}
-                  onClick={() => form.setFieldValue("draft", false)}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!await confirmRapidPosting(form.state.values)) {
+                      return;
+                    }
+                    form.setFieldValue("draft", false);
+                    await form.handleSubmit();
+                  }}
                 >
                   {draft ? "Publish" : "Publish Changes"}
-                </button>
+                </button>}
               </div>
             </div>
           );
@@ -481,6 +516,7 @@ const MobileEditorBottomBar = ({
           !transitionsEnabled && classes.sheetPanelWithoutTransition,
           sheetOpen && classes.sheetPanelOpen,
         )}
+        onTransitionEnd={handleSheetTransitionEnd}
       >
         <div className={classes.sheetTabs}>
           {TABS.map((tab) => (

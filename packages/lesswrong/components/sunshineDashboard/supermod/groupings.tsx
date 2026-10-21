@@ -26,7 +26,7 @@ export function partitionModeratorActions(user: SunshineUsersList): PartitionedM
   return { fresh, stale, nonTriggerActions };
 }
 
-export type TabId = ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation';
+export type TabId = ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation' | 'inbox';
 
 // Computed server-side via the `reviewGroup` resolver on the User schema.
 export function getUserReviewGroup(user: SunshineUsersList): ReviewGroup {
@@ -42,10 +42,6 @@ export function getDisplayedReasonForGroupAssignment(user: SunshineUsersList): R
   }
 
   return getPrimaryDisplayedModeratorAction(actionForGroup.type);
-}
-
-export function getTabsInPriorityOrder(): ReviewGroup[] {
-  return ['newContent', 'offboard', 'highContext', 'maybeSpam', 'automod', 'snoozeExpired', 'unknown'];
 }
 
 const styles = defineStyles('BadgeIcon', (theme: ThemeType) => ({

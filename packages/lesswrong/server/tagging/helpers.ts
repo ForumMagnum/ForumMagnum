@@ -1,3 +1,4 @@
+import { invalidatePostPageCache } from '../postPageCache/invalidatePostPageCache';
 import { TagRels } from '../../server/collections/tagRels/collection';
 import { Posts } from '../../server/collections/posts/collection';
 import { Tags } from '../../server/collections/tags/collection';
@@ -98,6 +99,7 @@ export async function updatePostDenormalizedTags(postId: string) {
   }
 
   await Posts.rawUpdateOne({_id:postId}, {$set: {tagRelevance: tagRelDict}});
+  await invalidatePostPageCache(postId);
   if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument("Posts", postId));
   }

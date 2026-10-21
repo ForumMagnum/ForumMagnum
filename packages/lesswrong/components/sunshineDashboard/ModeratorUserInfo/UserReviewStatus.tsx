@@ -51,7 +51,7 @@ export const UserReviewStatus = ({user}: {
     {firstClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: <a href={firstClientId?.firstSeenReferrer}>{firstClientId?.firstSeenReferrer}</a></div>}
     {firstClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: <Link to={firstClientId?.firstSeenLandingPage}>{firstClientId?.firstSeenLandingPage}</Link></div>}
     {clientIdsInfo?.altAccountsDetected && <AltAccountInfo user={clientIdsInfo}/>}
-    <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
+    <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating ?? "no rating"}</div>
   </div>;
 }
 

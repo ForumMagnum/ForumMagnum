@@ -28,16 +28,22 @@ const styles = defineStyles('WarningBanner', (theme: ThemeType) => ({
       textDecoration: 'underline',
     }
   },
+  action: {
+    alignSelf: 'center',
+    flexShrink: 0,
+  },
 }));
 
-const WarningBanner = ({message}: {
+const WarningBanner = ({message, action}: {
   message: string,
+  action?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
 
   return <div className={classes.root}>
     <ForumIcon icon="Warning" className={classes.icon} />
     <div className={classes.message} dangerouslySetInnerHTML={{__html: message}} />
+    {action && <div className={classes.action}>{action}</div>}
   </div>
 }
 

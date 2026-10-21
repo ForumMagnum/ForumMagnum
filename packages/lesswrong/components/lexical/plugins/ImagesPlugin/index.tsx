@@ -8,6 +8,7 @@
 
 import { useForumType } from "@/components/hooks/useForumType";
 import React, { type JSX } from 'react';
+import classNames from 'classnames';
 
 import {
   $isAutoLinkNode,
@@ -44,7 +45,7 @@ import {
   ParagraphNode,
   TextNode,
 } from 'lexical';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useId, useRef, useState} from 'react';
 
 
 import {
@@ -81,32 +82,83 @@ import { DialogActions } from '@/components/widgets/DialogActions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { FileImageIcon } from '../../icons/FileImageIcon';
 
 const imageDialogStyles = defineStyles('InsertImageDialog', (theme: ThemeType) => ({
   paper: {
-    width: 400,
-  },
-  fileInputWrapper: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  fileInputLabel: {
-    color: theme.palette.grey[600],
-    marginRight: 12,
-    fontSize: 14,
+    width: 480,
+    maxWidth: 'calc(100vw - 32px)',
+    borderRadius: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  title: {
+    margin: 0,
+    fontSize: 22,
+    fontWeight: 600,
+    color: theme.palette.grey[900],
+  },
+  dropZone: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 12,
+    padding: 24,
+    border: `2px dashed ${theme.palette.greyAlpha(0.2)}`,
+    borderRadius: 8,
+    background: theme.palette.greyAlpha(0.025),
+    textAlign: 'center',
+    transition: 'border-color 150ms, background 150ms',
+  },
+  dragging: {
+    borderColor: theme.palette.primary.main,
+    background: theme.palette.greyAlpha(0.07),
+  },
+  imageIcon: {
+    width: 32,
+    height: 32,
+    color: theme.palette.grey[500],
+  },
+  dropLabel: {
+    fontSize: 15,
+    fontWeight: 500,
+    color: theme.palette.grey[800],
+    maxWidth: '100%',
+    overflowWrap: 'anywhere',
+  },
+  hint: {
+    fontSize: 13,
+    color: theme.palette.grey[600],
+  },
+  preview: {
+    display: 'block',
+    maxWidth: '100%',
+    height: 120,
+    objectFit: 'contain',
+    borderRadius: 4,
+  },
+  fileInput: {
+    display: 'none',
+  },
+  divider: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    margin: '20px 0 8px',
+    fontSize: 13,
+    color: theme.palette.grey[600],
+    '&::before, &::after': {
+      content: '""',
+      flex: 1,
+      borderTop: theme.palette.greyBorder('1px', 0.12),
+    },
   },
   errorText: {
     color: theme.palette.error.main,
-    marginTop: 8,
+    marginTop: 12,
     fontSize: 14,
   },
-  modeButtonsContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 12,
+  actions: {
+    margin: '24px 0 0',
   },
 }));
 
@@ -155,162 +207,6 @@ function updateCaptionEmptyFromMutations(
   });
 }
 
-export function InsertImageUriDialogBody({
-  onClick,
-}: {
-  onClick: (payload: InsertImagePayload) => void;
-}) {
-  const [src, setSrc] = useState('');
-  const [altText, setAltText] = useState('');
-
-  const isDisabled = src === '';
-
-  return (
-    <>
-      <TextField
-        label="Image URL"
-        placeholder="i.e. https://source.unsplash.com/random"
-        onChange={(e) => setSrc(e.target.value)}
-        value={src}
-        fullWidth
-        margin="dense"
-        data-test-id="image-modal-url-input"
-      />
-      <TextField
-        label="Alt Text"
-        placeholder="Random unsplash image"
-        onChange={(e) => setAltText(e.target.value)}
-        value={altText}
-        fullWidth
-        margin="dense"
-        data-test-id="image-modal-alt-text-input"
-      />
-      <DialogActions>
-        <Button
-          color="primary"
-          data-test-id="image-modal-confirm-btn"
-          disabled={isDisabled}
-          onClick={() => onClick({altText, src})}>
-          Confirm
-        </Button>
-      </DialogActions>
-    </>
-  );
-}
-
-export function InsertImageUploadedDialogBody({
-  onClick,
-  onError,
-}: {
-  onClick: (payload: InsertImagePayload) => void;
-  onError?: (error: Error) => void;
-}) {
-  const { forumType } = useForumType();
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [altText, setAltText] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  const isDisabled = !selectedFile || isUploading;
-
-  const handleFileSelect = (files: FileList | null) => {
-    setUploadError(null);
-    if (files && files[0]) {
-      setSelectedFile(files[0]);
-      if (!altText) {
-        setAltText(files[0].name);
-      }
-    }
-  };
-
-  const handleConfirm = async () => {
-    if (!selectedFile) return;
-
-    setIsUploading(true);
-    setUploadError(null);
-
-    abortControllerRef.current = new AbortController();
-
-    try {
-      const result = await uploadToCloudinary(selectedFile, forumType, {
-        signal: abortControllerRef.current.signal,
-      });
-
-      onClick({
-        altText,
-        src: result.secure_url,
-        width: result.width,
-        height: result.height,
-      });
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        return;
-      }
-
-      const errorMessage = error instanceof ImageUploadError && error.isUserFacing
-        ? error.message
-        : 'Failed to upload image. Please try again.';
-      
-      setUploadError(errorMessage);
-      
-      if (onError && error instanceof Error) {
-        onError(error);
-      }
-    } finally {
-      setIsUploading(false);
-      abortControllerRef.current = null;
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
-
-  const classes = useStyles(imageDialogStyles);
-
-  return (
-    <>
-      <div className={classes.fileInputWrapper}>
-        <label className={classes.fileInputLabel}>Image Upload</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => handleFileSelect(e.target.files)}
-          data-test-id="image-modal-file-upload"
-        />
-      </div>
-      <TextField
-        label="Alt Text"
-        placeholder="Descriptive alternative text"
-        onChange={(e) => setAltText(e.target.value)}
-        value={altText}
-        fullWidth
-        margin="dense"
-        data-test-id="image-modal-alt-text-input"
-      />
-      {uploadError && (
-        <div className={classes.errorText}>
-          {uploadError}
-        </div>
-      )}
-      <DialogActions>
-        <Button
-          color="primary"
-          data-test-id="image-modal-file-upload-btn"
-          disabled={isDisabled}
-          onClick={handleConfirm}>
-          {isUploading ? 'Uploading...' : 'Confirm'}
-        </Button>
-      </DialogActions>
-    </>
-  );
-}
-
 export function InsertImageDialog({
   activeEditor,
   onClose,
@@ -320,51 +216,223 @@ export function InsertImageDialog({
   onClose: () => void;
   onError?: (error: Error) => void;
 }): JSX.Element {
-  const [mode, setMode] = useState<null | 'url' | 'file'>(null);
+  const { forumType } = useForumType();
   const classes = useStyles(imageDialogStyles);
-  const hasModifier = useRef(false);
+  const titleId = useId();
+  const urlId = useId();
+  const altTextId = useId();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [src, setSrc] = useState('');
+  const [altText, setAltText] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const dragDepthRef = useRef(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    hasModifier.current = false;
-    const handler = (e: KeyboardEvent) => {
-      hasModifier.current = e.altKey;
-    };
-    document.addEventListener('keydown', handler);
-    return () => {
-      document.removeEventListener('keydown', handler);
-    };
-  }, [activeEditor]);
+    if (!selectedFile) {
+      setPreviewUrl(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(selectedFile);
+    setPreviewUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [selectedFile]);
 
-  const onClick = (payload: InsertImagePayload) => {
-    activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
-    onClose();
+  useEffect(() => {
+    return () => abortControllerRef.current?.abort();
+  }, []);
+
+  const handleFileSelect = (files: FileList | null) => {
+    if (abortControllerRef.current || !files?.length) return;
+    if (files.length !== 1) {
+      setError('Please choose one image at a time.');
+      return;
+    }
+    const file = files[0];
+    if (!isImageFile(file)) {
+      setError('Please choose an image file.');
+      return;
+    }
+    setError(null);
+    setSelectedFile(file);
+    setSrc('');
+  };
+
+  const handleDragEnter = (event: React.DragEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dragDepthRef.current += 1;
+    if (!isUploading && event.dataTransfer.types.includes('Files')) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+    if (dragDepthRef.current === 0) setIsDragging(false);
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = isUploading ? 'none' : 'copy';
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dragDepthRef.current = 0;
+    setIsDragging(false);
+    handleFileSelect(event.dataTransfer.files);
+  };
+
+  const handleInsert = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (abortControllerRef.current || (!selectedFile && !src.trim())) return;
+    setError(null);
+
+    if (!selectedFile) {
+      let url: URL;
+      try {
+        url = new URL(src.trim());
+      } catch {
+        setError('Enter a valid image URL starting with https:// or http://.');
+        return;
+      }
+      if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+        setError('Enter a valid image URL starting with https:// or http://.');
+        return;
+      }
+      activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, { src: src.trim(), altText });
+      onClose();
+      return;
+    }
+
+    setIsUploading(true);
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    try {
+      const result = await uploadToCloudinary(selectedFile, forumType, {
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted) return;
+      activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+        altText,
+        src: result.secure_url,
+        width: result.width,
+        height: result.height,
+      });
+      onClose();
+    } catch (uploadError) {
+      if (controller.signal.aborted) return;
+      setError(uploadError instanceof ImageUploadError && uploadError.isUserFacing
+        ? uploadError.message
+        : 'Failed to upload image. Please try again.');
+      if (uploadError instanceof Error) onError?.(uploadError);
+    } finally {
+      if (!controller.signal.aborted) setIsUploading(false);
+      abortControllerRef.current = null;
+    }
   };
 
   return (
     <LWDialog open={true} onClose={onClose} maxWidth={false} paperClassName={classes.paper}>
-      <DialogTitle>Insert Image</DialogTitle>
-      <DialogContent>
-        {!mode && (
-          <div className={classes.modeButtonsContainer}>
+      <form
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-busy={isUploading}
+        onSubmit={handleInsert}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        <DialogTitle disableTypography>
+          <h2 id={titleId} className={classes.title}>Insert image</h2>
+        </DialogTitle>
+        <DialogContent>
+          <div className={classNames(classes.dropZone, { [classes.dragging]: isDragging })}>
+            {previewUrl
+              ? <img src={previewUrl} alt="Selected image preview" className={classes.preview} />
+              : <FileImageIcon className={classes.imageIcon} viewBox="0 0 16 16" aria-hidden="true" />}
+            <div className={classes.dropLabel}>
+              {isDragging ? 'Drop your image here' : selectedFile?.name ?? 'Drag an image here'}
+            </div>
             <Button
+              type="button"
               variant="outlined"
-              data-test-id="image-modal-option-url"
-              onClick={() => setMode('url')}>
-              URL
-            </Button>
-            <Button
-              variant="outlined"
+              autoFocus
+              disabled={isUploading}
+              onClick={() => fileInputRef.current?.click()}
               data-test-id="image-modal-option-file"
-              onClick={() => setMode('file')}>
-              File
+            >
+              {selectedFile ? 'Choose another file' : 'Choose a file'}
             </Button>
+            <input
+              ref={fileInputRef}
+              className={classes.fileInput}
+              type="file"
+              accept="image/*"
+              disabled={isUploading}
+              aria-label="Choose an image file"
+              onChange={(event) => {
+                handleFileSelect(event.target.files);
+                event.target.value = '';
+              }}
+              data-test-id="image-modal-file-upload"
+            />
           </div>
-        )}
-        {mode === 'url' && <InsertImageUriDialogBody onClick={onClick} />}
-        {mode === 'file' && (
-          <InsertImageUploadedDialogBody onClick={onClick} onError={onError} />
-        )}
-      </DialogContent>
+          <div className={classes.divider}>or use a link</div>
+          <TextField
+            id={urlId}
+            label="Image URL"
+            placeholder="https://example.com/image.jpg"
+            value={src}
+            disabled={isUploading}
+            onChange={(event) => {
+              setSrc(event.target.value);
+              setSelectedFile(null);
+              setError(null);
+            }}
+            fullWidth
+            margin="dense"
+            data-test-id="image-modal-url-input"
+          />
+          <TextField
+            id={altTextId}
+            label="Alt text (optional)"
+            placeholder="Describe the image"
+            helperText="A description for people using screen readers."
+            value={altText}
+            disabled={isUploading}
+            onChange={(event) => setAltText(event.target.value)}
+            fullWidth
+            margin="dense"
+            data-test-id="image-modal-alt-text-input"
+          />
+          {error && <div className={classes.errorText} role="alert">{error}</div>}
+          <DialogActions className={classes.actions}>
+            <Button type="button" onClick={onClose}>Cancel</Button>
+            <Button
+              type="submit"
+              color="primary"
+              variant="contained"
+              disabled={isUploading || (!selectedFile && !src.trim())}
+              data-test-id="image-modal-confirm-btn"
+            >
+              {isUploading ? 'Uploading…' : 'Insert image'}
+            </Button>
+          </DialogActions>
+        </DialogContent>
+      </form>
     </LWDialog>
   );
 }

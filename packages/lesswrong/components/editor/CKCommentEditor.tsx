@@ -18,6 +18,7 @@ import { ckEditorPluginStyles } from './ckEditorStyles';
 import { augmentEditor } from './editorAugmentations';
 import { useCommandPalette } from '../hooks/useCommandPalette';
 import { makeEditorConfig } from './editorConfigs';
+import { CkEditorLoadError } from './CkEditorLoadError';
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -71,6 +72,7 @@ const CKCommentEditor = ({
   const { openDialog } = useDialog();
 
   const [editorObject, setEditorObject] = useState<Editor | null>(null);
+  const [loadError, setLoadError] = useState<Error | null>(null);
   const editorRef = useRef<CKEditor<AnyBecauseHard>>(null);
 
   const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder('ckEditorMarkup');
@@ -99,6 +101,10 @@ const CKCommentEditor = ({
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
 
+  if (loadError) {
+    return <CkEditorLoadError error={loadError} />
+  }
+
   return <div className={classes.ckWrapper}>
     <CKEditor
       ref={editorRef}
@@ -116,6 +122,13 @@ const CKCommentEditor = ({
         // CKEditorInspector.attach(editor)
         onReady(editor)
         return editor
+      }}
+      onError={(error, { phase }) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        if (phase === 'initialization') {
+          setLoadError(error);
+        }
       }}
       onChange={onChange}
       onFocus={onFocus}
