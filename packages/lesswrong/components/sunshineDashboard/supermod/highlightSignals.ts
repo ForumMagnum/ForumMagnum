@@ -8,6 +8,7 @@ import {
   LOW_AVERAGE_KARMA_POST_ALERT,
 } from "@/lib/collections/moderatorActions/constants";
 import { areAllContentPermissionsDisabled, isPost, type ContentItem } from "./helpers";
+import { getNonEnglishProseRatio } from "./contentLanguage";
 import {
   getFirstParagraphLength,
   getFormattingParagraphPlaintextsFromHtml,
@@ -373,8 +374,14 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
   focusedNonLatinLetterRatio: {
     type: 'number', scope: 'focusedContent', group: 'Selected content',
     label: "Fraction of letters that aren't Latin script",
-    description: "Between 0 and 1; the basis of the non-English rejection template",
+    description: "Between 0 and 1; measures writing system, not language (many non-English languages use Latin letters)",
     compute: ctx => focusedNumber(ctx, getNonLatinLetterRatio),
+  },
+  focusedNonEnglishProseRatio: {
+    type: 'number', scope: 'focusedContent', group: 'Selected content',
+    label: "Fraction of selected prose confidently detected as non-English",
+    description: "Language detection across the whole body, weighted by letters. Excludes quotes, code, math and URLs; uncertain or short samples do not count as non-English",
+    compute: ctx => focusedNumber(ctx, content => getNonEnglishProseRatio(content.contents?.html ?? '')),
   },
   focusedLinkCount: {
     type: 'number', scope: 'focusedContent', group: 'Selected content',

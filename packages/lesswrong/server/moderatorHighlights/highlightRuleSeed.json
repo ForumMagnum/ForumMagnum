@@ -617,12 +617,7 @@
       "groups": [
         [
           {
-            "signal": "focusedLetterCount",
-            "operator": "gte",
-            "value": 20
-          },
-          {
-            "signal": "focusedNonLatinLetterRatio",
+            "signal": "focusedNonEnglishProseRatio",
             "operator": "gt",
             "value": 0.25
           }
