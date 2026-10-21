@@ -1180,6 +1180,8 @@ type Conversation = {
   moderator?: Maybe<Scalars['Boolean']['output']>;
   participantIds?: Maybe<Array<Scalars['String']['output']>>;
   participants?: Maybe<Array<User>>;
+  rejectedComments?: Maybe<Array<Comment>>;
+  rejectedPosts?: Maybe<Array<Post>>;
   rejectionAppeal?: Maybe<RejectionAppeal>;
   schemaVersion: Scalars['Float']['output'];
   title?: Maybe<Scalars['String']['output']>;
@@ -22026,6 +22028,30 @@ type updateModeratorActionSupermodMutationVariables = Exact<{
 
 
 type updateModeratorActionSupermodMutation = updateModeratorActionSupermodMutation_Mutation;
+
+type TeamInboxRejectedContentQuery_conversation_SingleConversationOutput_result_Conversation_rejectedPosts_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type TeamInboxRejectedContentQuery_conversation_SingleConversationOutput_result_Conversation_rejectedComments_Comment = (
+  { __typename?: 'Comment' }
+  & SunshineCommentsList
+);
+
+type TeamInboxRejectedContentQuery_conversation_SingleConversationOutput_result_Conversation = { __typename?: 'Conversation', _id: string, rejectedPosts: Array<TeamInboxRejectedContentQuery_conversation_SingleConversationOutput_result_Conversation_rejectedPosts_Post> | null, rejectedComments: Array<TeamInboxRejectedContentQuery_conversation_SingleConversationOutput_result_Conversation_rejectedComments_Comment> | null };
+
+type TeamInboxRejectedContentQuery_conversation_SingleConversationOutput = { __typename?: 'SingleConversationOutput', result: TeamInboxRejectedContentQuery_conversation_SingleConversationOutput_result_Conversation | null };
+
+type TeamInboxRejectedContentQuery_Query = { __typename?: 'Query', conversation: TeamInboxRejectedContentQuery_conversation_SingleConversationOutput | null };
+
+
+type TeamInboxRejectedContentQueryVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+}>;
+
+
+type TeamInboxRejectedContentQuery = TeamInboxRejectedContentQuery_Query;
 
 type updateRejectionAppealTeamInboxThreadViewMutation_updateRejectionAppeal_RejectionAppealOutput_data_RejectionAppeal = (
   { __typename?: 'RejectionAppeal' }

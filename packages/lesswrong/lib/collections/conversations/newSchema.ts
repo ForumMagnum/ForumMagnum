@@ -1,6 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import {
-  accessFilterSingle, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
+  accessFilterSingle, accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
   getDenormalizedCountOfReferencesGetValue
 } from "../../utils/schemaUtils";
 import difference from "lodash/difference";
@@ -222,6 +222,27 @@ const schema = {
           },
           resolver: (messagesField) => messagesField("*"),
         }),
+    },
+  },
+  rejectedPosts: {
+    graphql: {
+      outputType: "[Post!]",
+      canRead: ["admins", "sunshineRegiment"],
+      resolver: async (conversation, _args, context) => {
+        // Keep resolved rejections visible when reviewing a completed thread.
+        const posts = await context.Posts.find({ rejectionConversationId: conversation._id }, { sort: { createdAt: -1 } }).fetch();
+        return accessFilterMultiple(context.currentUser, "Posts", posts, context);
+      },
+    },
+  },
+  rejectedComments: {
+    graphql: {
+      outputType: "[Comment!]",
+      canRead: ["admins", "sunshineRegiment"],
+      resolver: async (conversation, _args, context) => {
+        const comments = await context.Comments.find({ rejectionConversationId: conversation._id }, { sort: { createdAt: -1 } }).fetch();
+        return accessFilterMultiple(context.currentUser, "Comments", comments, context);
+      },
     },
   },
   rejectionAppeal: {

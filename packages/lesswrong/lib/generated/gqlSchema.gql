@@ -2849,6 +2849,8 @@ type Conversation {
   archivedByIds: [String!]!
   archivedBy: [User!]!
   latestMessage: Message
+  rejectedPosts: [Post!]
+  rejectedComments: [Comment!]
   rejectionAppeal: RejectionAppeal
   hasUnreadMessages: Boolean
 }

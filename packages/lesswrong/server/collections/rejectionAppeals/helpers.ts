@@ -3,6 +3,7 @@ import { getReasonIdsMatchingRejection } from "@/lib/collections/rejectionAppeal
 import { makeAbsolute } from "@/lib/vulcan-lib/utils";
 import { isTeamInboxConversation, sendMessageAs } from "@/server/utils/teamInbox";
 import { getAdminTeamAccount, getAdminTeamAccountId } from "@/server/utils/adminTeamAccount";
+import { isRejectionReplyAppeal } from "./classifyReply";
 
 export interface AppealTarget {
   postId?: string | null;
@@ -48,8 +49,8 @@ async function getUnappealedRejectedContent(conversationId: string, userId: stri
 }
 
 /**
- * When a user first replies to a rejection message, reply from the team
- * account with a link to the appeal page for the rejected content.
+ * Classify only the first user reply to a rejection. Send the review-form link
+ * only for an appeal; other replies remain for moderators to handle.
  */
 export async function sendAppealLinkReplyIfFirstReply(message: DbMessage, context: ResolverContext) {
   const { Messages, loaders } = context;
@@ -65,6 +66,13 @@ export async function sendAppealLinkReplyIfFirstReply(message: DbMessage, contex
   const target = await getUnappealedRejectedContent(conversation._id, message.userId, context);
   const teamAccount = await getAdminTeamAccount(context);
   if (!target || !teamAccount) return;
+  if (!await isRejectionReplyAppeal(message.contents?.html ?? "")) return;
+
+  // The content may have been approved or appealed while the model was running.
+  const currentTarget = await getUnappealedRejectedContent(conversation._id, message.userId, context);
+  if (!currentTarget || currentTarget.postId !== target.postId || currentTarget.commentId !== target.commentId) return;
+  const latestMessage = await Messages.findOne({ conversationId: conversation._id }, { sort: { createdAt: -1, _id: -1 } });
+  if (latestMessage?._id !== message._id) return;
 
   const appealPath = 'postId' in target ? `/rejection-review?postId=${target.postId}` : `/rejection-review?commentId=${target.commentId}`;
   await sendMessageAs({
