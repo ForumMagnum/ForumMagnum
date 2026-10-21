@@ -49,7 +49,7 @@ const localPostQuery = gql(`
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
-    paddingTop: 12,
+    paddingTop: 16,
     paddingLeft: 20,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
