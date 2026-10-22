@@ -18,7 +18,7 @@ import {
   type MarkdownQuoteSelectionResult,
 } from "../../../app/api/agent/mapMarkdownToLexical";
 import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
-import { resolveInsertionIndex } from "../../../app/api/agent/insertBlock/route";
+import { $resolveInsertionPoint } from "../../../app/api/agent/insertBlock/route";
 import { $isListItemNode, $isListNode } from "@lexical/list";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
@@ -397,19 +397,23 @@ describe("$locateBlockByPrefix", () => {
   });
 });
 
-describe("resolveInsertionIndex with nested structures", () => {
+describe("$resolveInsertionPoint with nested structures", () => {
   it("translates a nested list-item match to its top-level list index", async () => {
     const editor = await setupEditorWithContent(
       "Intro paragraph.\n\n*   outer item\n    *   nested needle item\n*   second outer\n\nClosing paragraph."
     );
-    let result: { index: number | null } = { index: null };
+    let index: number | null = null;
+    let isRootParent = false;
     editor.getEditorState().read(() => {
-      result = resolveInsertionIndex({ after: "nested needle" }, $getRoot().getChildren());
+      const { point } = $resolveInsertionPoint({ after: "nested needle" });
+      index = point?.index ?? null;
+      isRootParent = point?.parent === $getRoot();
     });
     // Document top level: [paragraph, list, paragraph] — "after" the matched
     // nested item must insert after the whole list (index 2), not at a
     // root position derived from inner-list indices.
-    expect(result.index).toBe(2);
+    expect(index).toBe(2);
+    expect(isRootParent).toBe(true);
   });
 });
 

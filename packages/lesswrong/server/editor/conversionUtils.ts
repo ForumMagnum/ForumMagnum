@@ -172,7 +172,7 @@ function stripIframeWidgetSrcdocs(html: string): string {
 }
 
 let _turndownService: TurndownService|null = null;
-const TURNDOWN_BUILD_MARKER = 'widget-markdown-v7-singleline-links';
+const TURNDOWN_BUILD_MARKER = 'widget-markdown-v8-footnote-markdown';
 function getTurndown(): TurndownService {
   const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
   if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
@@ -319,15 +319,14 @@ function getTurndown(): TurndownService {
         // Use the data-footnote-id attribute to get the footnote id
         const id = (node as unknown as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
 
-        // Get the content of the footnote from the footnote-content div.
-        // `textContent` of the div as a whole jams adjacent block children
-        // together ("…bonus post?A fellow Resident…"); join the blocks'
-        // texts with spaces instead.
-        const contentElement = (node as unknown as Element).querySelector('.footnote-content')
-        const blockChildren = contentElement ? Array.from(contentElement.children) : []
-        const text = blockChildren.length > 0
-          ? blockChildren.map((child) => (child.textContent ?? '').trim()).filter(Boolean).join(' ')
-          : (contentElement?.textContent || '')
+        // Convert the footnote-content div with the same rules as the body,
+        // so links and emphasis inside footnotes survive (`textContent` drops
+        // them). A footnote definition is a single line, so block breaks
+        // between its paragraphs collapse to spaces.
+        const contentElement = (node as unknown as Element).querySelector<HTMLElement>('.footnote-content')
+        const text = contentElement
+          ? turndownService.turndown(contentElement).replace(/\s*\n\s*/g, ' ').trim()
+          : ''
         return `[^${id}]: ${text} \n\n`
       }
     })

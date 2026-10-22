@@ -115,6 +115,11 @@ export async function createAndSetToken(headers: Headers|undefined, user: DbUser
   cookieStore.set("loginToken", token, {
     maxAge: 315360000,
     path: "/",
+    // Not readable by client-side JS, so an XSS can't exfiltrate it
+    httpOnly: true,
+    // Dev servers are served over plain HTTP
+    secure: !isDevelopment,
+    sameSite: "lax",
   });
 
   const hashedToken = hashLoginToken(token)
@@ -258,6 +263,9 @@ export const loginDataGraphQLMutations = {
         <p>
           <a href={tokenLink}>{tokenLink}</a>
         </p>
+        <p>
+          This link will expire in 7 days.
+        </p>
       </div>
     });  
     if (emailSucceeded)
@@ -276,10 +284,10 @@ async function insertHashedLoginToken(userId: string, hashedToken: string) {
   });
 };
 
-async function invalidateLoginToken(token: string) {
+export async function invalidateLoginToken(hashedToken: string) {
   const now = new Date();
   await LoginTokens.rawUpdateMany(
-    {hashedToken: token},
+    {hashedToken},
     {$set: {
       loggedOutAt: now
     }}
