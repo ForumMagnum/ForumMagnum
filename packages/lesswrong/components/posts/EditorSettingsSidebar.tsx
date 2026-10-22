@@ -2,7 +2,7 @@ import { useForumType } from '@/components/hooks/useForumType';
 import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { useCallback, useEffect, useState } from "react";
 import classNames from "classnames";
-import { EditablePost, PostSubmitMeta, userCanEditCoauthors, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl, postGetAbsoluteEditUrl } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl, postGetAbsoluteEditUrl, userCanEditPostSharingSettings } from "@/lib/collections/posts/helpers";
 import { postStatusLabels, MODERATION_GUIDELINES_OPTIONS } from "@/lib/collections/posts/constants";
 import { getDefaultEditorPlaceholder } from "@/lib/editor/defaultEditorPlaceholder";
 import { hasGoogleDocImportSetting } from "@/lib/instanceSettings";
@@ -869,10 +869,11 @@ function SidebarToggle({ field, label }: {
   );
 }
 
-function SharingPermissionSelect({ field, settingsKey, label }: {
+function SharingPermissionSelect({ field, settingsKey, label, disabled }: {
   field: TypedFieldApi<SharingSettings | null | undefined>;
   settingsKey: keyof SharingSettings;
   label?: string;
+  disabled?: boolean;
 }) {
   const classes = useStyles(styles);
   const settings = field.state.value ?? defaultSharingSettings;
@@ -882,6 +883,7 @@ function SharingPermissionSelect({ field, settingsKey, label }: {
       <Select
         className={classes.permissionSelect}
         value={settings[settingsKey]}
+        disabled={disabled}
         onChange={(e) => field.handleChange({
           ...settings,
           [settingsKey]: e.target.value as CollaborativeEditingAccessLevel,
@@ -896,10 +898,11 @@ function SharingPermissionSelect({ field, settingsKey, label }: {
   );
 }
 
-function ShareWithClaudeButton({ form, postId, currentUser, panel, className }: {
+function ShareWithClaudeButton({ form, postId, currentUser, canEditSharingSettings, panel, className }: {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   postId: string;
   currentUser: UsersCurrent | null;
+  canEditSharingSettings: boolean;
   panel: "sharing" | "publish";
   className?: string;
 }) {
@@ -935,7 +938,7 @@ function ShareWithClaudeButton({ form, postId, currentUser, panel, className }: 
       onClick={() => {
         captureEvent("shareWithClaudeClicked", { postId, panel });
         const settings = form.state.values.sharingSettings ?? defaultSharingSettings;
-        if (settings.anyoneWithLinkCan === 'none') {
+        if (canEditSharingSettings && settings.anyoneWithLinkCan === 'none') {
           form.setFieldValue('sharingSettings', {
             ...settings,
             anyoneWithLinkCan: "edit",
@@ -981,10 +984,10 @@ function ClaudeConnectionStatus({ currentUser, postId }: { currentUser: UsersCur
   );
 }
 
-function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: {
+function SharingPanel({ form, canShare, canEditSharingSettings, flash, currentUser }: {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   canShare: boolean;
-  canEditCoauthors: boolean;
+  canEditSharingSettings: boolean;
   flash: (message: string) => void;
   currentUser: UsersCurrent | null;
 }) {
@@ -1017,7 +1020,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
               }
 
               const shareWithClaudeButton = (
-                <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} panel="sharing" />
+                <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} canEditSharingSettings={canEditSharingSettings} panel="sharing" />
               );
 
               const shareLinkButton = (
@@ -1040,6 +1043,10 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
                   Share link
                 </button>
               );
+
+              if (!linkEnabled && !canEditSharingSettings) {
+                return <ClaudeConnectionStatus currentUser={currentUser} postId={postId} />;
+              }
 
               if (!linkEnabled) {
                 return <>
@@ -1069,7 +1076,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
 
           <form.Field name="sharingSettings">
             {(field) => (
-              <SharingPermissionSelect field={field} settingsKey="anyoneWithLinkCan" label="Anyone with link can" />
+              <SharingPermissionSelect field={field} settingsKey="anyoneWithLinkCan" label="Anyone with link can" disabled={!canEditSharingSettings} />
             )}
           </form.Field>
         </div>
@@ -1093,26 +1100,30 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
 
           <form.Field name="sharingSettings">
             {(field) => (
-              <SharingPermissionSelect field={field} settingsKey="explicitlySharedUsersCan" />
+              <SharingPermissionSelect field={field} settingsKey="explicitlySharedUsersCan" disabled={!canEditSharingSettings} />
             )}
           </form.Field>
         </div>
 
-        {/* Co-Authors */}
-        {canEditCoauthors && <>
-          <div className={classes.sharingDivider} />
-          <div className={classes.sharingSection}>
-            <form.Field name="coauthorUserIds">
-              {(field) => (
-                <CoauthorsListEditor
-                  field={field}
-                  post={form.state.values}
-                  label="Add co-author"
-                />
-              )}
-            </form.Field>
+        {!canEditSharingSettings && (
+          <div className={classes.disabledMessage}>
+            Only the post's author can change sharing permissions
           </div>
-        </>}
+        )}
+
+        {/* Co-Authors */}
+        <div className={classes.sharingDivider} />
+        <div className={classes.sharingSection}>
+          <form.Field name="coauthorUserIds">
+            {(field) => (
+              <CoauthorsListEditor
+                field={field}
+                post={form.state.values}
+                label="Add co-author"
+              />
+            )}
+          </form.Field>
+        </div>
       </> : (
         <div className={classes.disabledMessage}>
           You need to be logged in to use sharing features
@@ -1334,13 +1345,13 @@ const EditorSettingsSidebar = ({
   const isDialogue = !!initialData.collabEditorDialogue;
 
   const isAdminOrMod = userIsAdminOrMod(currentUser);
-  const canEditCoauthors = userCanEditCoauthors(currentUser);
   const canSeeHighlight = isAdminOrMod;
   const canSeeAdmin = isAdminOrMod;
   const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, "podcasters");
   const canSeeTags = !initialData.isEvent && !initialData.collabEditorDialogue;
   const canSeeSocialPreview = !initialData.collabEditorDialogue;
   const canShare = userCanUseSharing(currentUser);
+  const canEditSharingSettings = formType === "new" || userCanEditPostSharingSettings(currentUser, { userId: initialData.userId ?? null });
   const contentType = initialData.contents?.originalContents?.type;
   const postId = initialData._id;
   const canSeeMarkdownToggle = contentType === "markdown"
@@ -1368,7 +1379,7 @@ const EditorSettingsSidebar = ({
   }, [captureEvent, initialData, openDialog, postId]);
 
   const publishClaudeButton = postId ? (
-    <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} panel="publish" className={classes.publishClaudeButton} />
+    <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} canEditSharingSettings={canEditSharingSettings} panel="publish" className={classes.publishClaudeButton} />
   ) : undefined;
 
   const content = (
@@ -1430,7 +1441,7 @@ const EditorSettingsSidebar = ({
         <SharingPanel
           form={form}
           canShare={canShare}
-          canEditCoauthors={canEditCoauthors}
+          canEditSharingSettings={canEditSharingSettings}
           flash={flash}
           currentUser={currentUser}
         />

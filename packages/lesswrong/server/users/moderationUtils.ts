@@ -1,3 +1,9 @@
+import moment from "moment";
+import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
+import { appendToSunshineNotes } from "@/server/users/sunshineNotes";
+import { updateUser } from "@/server/collections/users/mutations";
+import { createModeratorAction } from "@/server/collections/moderatorActions/mutations";
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import Reports from "@/server/collections/reports/collection";
 import Sequences from "@/server/collections/sequences/collection";
@@ -131,4 +137,36 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
 
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
+}
+
+export async function purgeSpamUser(
+  user: DbUser,
+  sunshineNote: string,
+  moderatorActionType: ModeratorActionType,
+  context: ResolverContext,
+) {
+  const adminTeamAccount = await getAdminTeamAccount(context);
+  if (!adminTeamAccount) throw new Error("Spam purging requires an admin team account");
+  const adminContext = computeContextFromUser({ user: adminTeamAccount, isSSR: false, forumType: context.forumType });
+
+  await updateUser({
+    selector: { _id: user._id },
+    data: {
+      sunshineFlagged: false,
+      reviewedByUserId: adminTeamAccount._id,
+      reviewedAt: new Date(),
+      needsReview: false,
+      nullifyVotes: true,
+      deleteContent: true,
+      banned: moment().add(1000, "years").toDate(),
+    },
+  }, adminContext);
+  await appendToSunshineNotes({
+    moderatedUserId: user._id,
+    adminName: adminTeamAccount.displayName,
+    text: sunshineNote,
+    context: adminContext,
+  });
+
+  await createModeratorAction({ data: { userId: user._id, type: moderatorActionType } }, adminContext);
 }

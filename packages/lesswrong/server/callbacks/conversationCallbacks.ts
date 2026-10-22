@@ -1,3 +1,4 @@
+import { userIsApproved } from "@/lib/collections/users/helpers";
 import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from "@/lib/collections/moderatorActions/constants";
 import { loggerConstructor } from '../../lib/utils/logging';
 import { UpdateCallbackProperties } from '../mutationCallbacks';
@@ -38,7 +39,7 @@ export async function flagOrBlockUserOnManyDMs({
   if (!currentUser) {
     throw new Error("You can't create a conversation without being logged in");
   }
-  if (currentUser.reviewedByUserId && !currentUser.snoozedUntilContentCount) {
+  if (userIsApproved(currentUser)) {
     logger('User has been fully approved, ignoring')
     return;
   }

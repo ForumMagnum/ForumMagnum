@@ -223,13 +223,20 @@ the user hasn't said whether to use edit mode or suggest mode, use suggest mode.
 
 To insert new blocks of text into the draft, make a POST request to:
     POST /api/agent/insertBlock
-    with JSON body: { postId, key, agentName?, location: "start"|"end"|{ before: string }|{ after: string }, markdown, mode?: "edit"|"suggest" }
+    with JSON body: { postId, key, agentName?, location: "start"|"end"|{ before: string }|{ after: string }|{ inside: string, position?: "start"|"end" }, markdown, mode?: "edit"|"suggest" }
 The location should be a markdown string that matches the start of a paragraph
 that already exists in the draft. The location can be one of the following:
     "start": insert at the beginning of the post
     "end": insert at the end of the post
     "before": insert before the paragraph with the given markdown prefix
     "after": insert after the paragraph with the given markdown prefix
+    "inside": insert into the body of the collapsible section whose title line
+        (\`+++ Title\`) is given, at its "start" or "end" (default "end")
+"before" and "after" can match a paragraph inside a collapsible section, in
+which case the new content goes inside that section next to it. Matching a
+section's \`+++ Title\` line with "before"/"after" places the content outside
+the whole section. A widget can be matched by the first line of its fence,
+e.g. \`\`\`widget[abc123] (matched by widget ID).
 This API is only for inserting new blocks of text that can be expressed in
 traditional markdown.  It supports paragraphs, lists, blockquotes,
 bold/italic/strikethrough (no underline), inline and display LaTeX math
@@ -257,7 +264,9 @@ To delete an existing block from the draft, make a POST request to:
     with JSON body: { postId, key, prefix, mode?: "edit"|"suggest" }
 The prefix should be a markdown string that matches the start of a top-level
 block in the draft (paragraph, heading, blockquote, table, spoiler block,
-LLM content block, display equation, …) or any individual list item. The
+LLM content block, display equation, …), a block inside a collapsible
+section, or any individual list item. Match a widget by the first line of its
+fence, e.g. \`\`\`widget[abc123]. The
 prefix must match exactly one block — if several blocks start with it, the
 call fails and asks for a longer prefix — and must end within that block (a
 prefix spanning two blocks never matches). Match a list item by its own
@@ -322,6 +331,12 @@ Deleting a whole table by its first cell:
 
 Inserting a paragraph before an LLM content block:
     { "postId": "...", "key": "...", "location": { "before": "%%% llm-output model=\\"GPT-4o\\"" }, "markdown": "New paragraph text.", "mode": "edit" }
+
+Inserting a paragraph at the end of a collapsible section's body:
+    { "postId": "...", "key": "...", "location": { "inside": "+++ Caveats and edge cases", "position": "end" }, "markdown": "New paragraph text.", "mode": "edit" }
+
+Deleting a widget:
+    { "postId": "...", "key": "...", "prefix": "\`\`\`widget[abc123]", "mode": "edit" }
 
 To insert a new custom widget (sandboxed HTML/JS) into the draft, make a POST
 request to:

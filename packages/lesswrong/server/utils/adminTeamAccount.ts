@@ -1,11 +1,7 @@
 import { adminAccountSetting } from '@/lib/instanceSettings';
 import { createDisplayName } from "@/lib/collections/users/newSchema";
-import { unstable_cache } from 'next/cache';
-import Users from '../collections/users/collection';
 
 let cachedAdminTeamAccount: DbUser | null = null;
-
-const getCachedAccountById = unstable_cache((_id: string) => Users.findOne({ _id }), undefined, { revalidate: 60 * 60 * 24 });
 
 export const getAdminTeamAccount = async (context: ResolverContext) => {
   const adminAccountData = adminAccountSetting.get(context);
@@ -16,7 +12,9 @@ export const getAdminTeamAccount = async (context: ResolverContext) => {
   // We need this dynamic require because the jargonTerms schema actually uses `getAdminTeamAccountId` when declaring the schema.
   const { createUser } = await import("../collections/users/mutations");
 
-  let account = cachedAdminTeamAccount ?? await getCachedAccountById(adminAccountData._id);
+  let account = cachedAdminTeamAccount?._id === adminAccountData._id
+    ? cachedAdminTeamAccount
+    : await context.Users.findOne({ _id: adminAccountData._id });
   if (!account) {
     const newAccount = await createUser({
       data: {
@@ -39,11 +37,7 @@ export const getAdminTeamAccountId = (() => {
   let teamAccountIdPromise: Promise<string|null>|null = null;
   return async (context: ResolverContext) => {
     if (!teamAccountIdPromise) {
-      teamAccountIdPromise = new Promise((resolve) => getAdminTeamAccount(context).then((teamAccount) => {
-          const teamAccountId = teamAccount?._id ?? null;
-          resolve(teamAccountId);
-        })
-      );
+      teamAccountIdPromise = getAdminTeamAccount(context).then(teamAccount => teamAccount?._id ?? null);
     }
     return teamAccountIdPromise;
   };

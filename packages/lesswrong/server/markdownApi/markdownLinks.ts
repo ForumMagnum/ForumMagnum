@@ -32,9 +32,20 @@ export const parseRouteWithErrors = <const T extends string[] | [] = []>(onsiteU
 };
 
 
-export function linkToMarkdownApiLink(link: string, forumType: ForumTypeString): string {
+function tryParseUrl(link: string, base: string) {
   const URLClass = getUrlClass();
-  const linkTargetAbsolute = new URLClass(link, getSiteUrl(forumType));
+  try {
+    return new URLClass(link, base);
+  } catch {
+    return null;
+  }
+}
+
+export function linkToMarkdownApiLink(link: string, forumType: ForumTypeString): string {
+  const linkTargetAbsolute = tryParseUrl(link, getSiteUrl(forumType));
+  // Malformed links (eg an empty `https://` href) can't be rewritten; leave
+  // them as-is rather than failing the whole document.
+  if (!linkTargetAbsolute) return link;
   const hostType = classifyHost(linkTargetAbsolute.host)
   if (hostType!=="onsite") return link;
 
@@ -96,7 +107,7 @@ const replaceMarkdownUrls = (markdown: string, replacements: Map<string, string>
 
 export const rewritePostLinksForAgentMarkdown = async (
   markdown: string,
-  context: ResolverContext
+  context: Pick<ResolverContext, "forumType">
 ): Promise<string> => {
   const urls = Array.from(collectMarkdownUrls(markdown));
   const replacements = new Map<string, string>(urls.map(url => [url, linkToMarkdownApiLink(url, context.forumType)]));

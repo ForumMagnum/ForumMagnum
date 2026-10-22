@@ -24,9 +24,9 @@ import {
   parseLeadingImageToken,
 } from "../../../app/api/agent/textIndexQuoteLocator";
 import { $createImageNode, $isImageNode } from "@/components/lexical/nodes/ImageNode";
-import { resolveInsertionIndex } from "../../../app/api/agent/insertBlock/route";
+import { $resolveInsertionPoint } from "../../../app/api/agent/insertBlock/route";
 import { $isListItemNode, $isListNode } from "@lexical/list";
-import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
+import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
 
@@ -403,19 +403,23 @@ describe("$locateBlockByPrefix", () => {
   });
 });
 
-describe("resolveInsertionIndex with nested structures", () => {
+describe("$resolveInsertionPoint with nested structures", () => {
   it("translates a nested list-item match to its top-level list index", async () => {
     const editor = await setupEditorWithContent(
       "Intro paragraph.\n\n*   outer item\n    *   nested needle item\n*   second outer\n\nClosing paragraph."
     );
-    let result: { index: number | null } = { index: null };
+    let index: number | null = null;
+    let isRootParent = false;
     editor.getEditorState().read(() => {
-      result = resolveInsertionIndex({ after: "nested needle" }, $getRoot().getChildren());
+      const { point } = $resolveInsertionPoint({ after: "nested needle" });
+      index = point?.index ?? null;
+      isRootParent = point?.parent === $getRoot();
     });
     // Document top level: [paragraph, list, paragraph] — "after" the matched
     // nested item must insert after the whole list (index 2), not at a
     // root position derived from inner-list indices.
-    expect(result.index).toBe(2);
+    expect(index).toBe(2);
+    expect(isRootParent).toBe(true);
   });
 });
 
@@ -505,21 +509,35 @@ describe("$locateBlockByPrefix with image prefixes", () => {
     expect(matched?.type).toBe("image");
   });
 
+  it("matches an image block inside a collapsible section", async () => {
+    const editor = await setupEditorWithHtml(
+      `<p>Intro</p>`
+      + `<details class="detailsBlock"><summary class="detailsBlockTitle">Figures</summary>`
+      + `<div class="detailsBlockContent"><p>Inside text</p>`
+      + `<p><img src="https://example.com/inside.png" alt="inside"></p></div></details>`
+    );
+    const matched = locateImageBlock(editor, "![inside](https://example.com/inside.png)");
+    expect(matched?.reason).toBeUndefined();
+    expect(matched?.type).toBe("paragraph");
+    expect(matched?.imageSrc).toBe("https://example.com/inside.png");
+  });
+
   it("does not match an image that follows text in its block", async () => {
     const editor = await setupEditorWithContent("Text before ![inline](https://example.com/c.png) after.");
     expect(locateImageBlock(editor, "![inline](https://example.com/c.png)")?.type).toBe("none");
   });
 
-  it("resolves an insertion index after an image block", async () => {
+  it("resolves an insertion point after an image block", async () => {
     const editor = await setupEditorWithContent(twoImageDocument);
-    let result: { index: number | null } = { index: null };
+    let index: number | null = null;
+    let isRootParent = false;
     editor.getEditorState().read(() => {
-      result = resolveInsertionIndex(
-        { after: "![First figure](https://example.com/figures/one.png)" },
-        $getRoot().getChildren(),
-      );
+      const { point } = $resolveInsertionPoint({ after: "![First figure](https://example.com/figures/one.png)" });
+      index = point?.index ?? null;
+      isRootParent = point?.parent === $getRoot();
     });
-    expect(result.index).toBe(2);
+    expect(index).toBe(2);
+    expect(isRootParent).toBe(true);
   });
 });
 

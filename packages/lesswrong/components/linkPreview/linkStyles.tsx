@@ -93,6 +93,14 @@ export const linkStyles = defineStyles("LinkStyles", (theme: ThemeType) => ({
     borderRadius: 6,
     maxWidth: 639,
   },
+  // Under 640px wide, so Neuronpedia shows its mobile layout.
+  neuronpediaInteractiveIframe: {
+    width: 480,
+    height: 640,
+    maxWidth: "calc(100vw - 32px)",
+    maxHeight: "calc(100vh - 96px)",
+    backgroundColor: theme.palette.panelBackground.default,
+  },
   metaforecastIframe: {
     width: 560,
     height: 405,

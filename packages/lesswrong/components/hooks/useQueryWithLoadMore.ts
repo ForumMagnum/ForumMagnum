@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { type OperationVariables } from "@apollo/client";
+import { NetworkStatus, type OperationVariables } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { Kind } from "graphql";
@@ -106,8 +106,16 @@ export function useQueryWithLoadMore<
       ? previousData.current
       : undefined
   );
+  // When the limit changes, apollo can report the initial-load networkStatus
+  // while the refetch is in flight. Callers treat that as "nothing loaded yet"
+  // and replace the list with a loading placeholder, which collapses the page
+  // and loses the scroll position, so report it as a fetchMore instead.
+  const networkStatus = (data && queryOutput.networkStatus === NetworkStatus.loading && pagination.limit !== pagination.loadedLimit)
+    ? NetworkStatus.fetchMore
+    : queryOutput.networkStatus;
 
-  const queryName = query.definitions.find(d => d.kind === Kind.OPERATION_DEFINITION)?.selectionSet?.selections?.find(s => s.kind === Kind.FIELD)?.name?.value;
+  const queryField = query.definitions.find(d => d.kind === Kind.OPERATION_DEFINITION)?.selectionSet?.selections?.find(s => s.kind === Kind.FIELD);
+  const queryName = queryField?.alias?.value ?? queryField?.name.value;
   const queryResult = queryName ? data?.[queryName] : undefined;
 
   const count = queryResult?.results?.length ?? 0;
@@ -141,6 +149,7 @@ export function useQueryWithLoadMore<
   return {
     ...queryOutput,
     data,
+    networkStatus,
     loadMoreProps: {
       loadMore,
       loadAll,

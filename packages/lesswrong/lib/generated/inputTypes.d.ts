@@ -73,6 +73,11 @@ interface Query {
   convertDocument: any;
   latestGoogleDocMetadata: any;
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
+  supermodQueueChanges: Array<SupermodQueueChange>;
+  supermodQueueSnapshotTime: Date;
+  supermodQueueUsers: MultiUserOutput;
+  moderationTemplateUsageCounts: Array<ModerationTemplateUsageCount>;
+  rejectionReview: RejectionReview;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
   AdminMetadata: string | null;
@@ -87,6 +92,9 @@ interface Query {
   getSequenceStats: SequenceStats | null;
   reviewPredictionPosts: Array<Post>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
+  AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
+  aiDigestIssue: SingleAiDigestIssueOutput | null;
+  aiDigestIssues: MultiAiDigestIssueOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
   arbitalTagContentRels: MultiArbitalTagContentRelOutput | null;
   ban: SingleBanOutput | null;
@@ -128,6 +136,8 @@ interface Query {
   myHomePageDesignSummaries: Array<HomePageDesignSummary>;
   marketplaceHomePageDesigns: Array<MarketplaceHomePageDesign>;
   adminHomePageDesigns: Array<AdminHomePageDesign>;
+  rejectionAppeal: SingleRejectionAppealOutput | null;
+  rejectionAppeals: MultiRejectionAppealOutput | null;
   typoSuggestion: SingleTypoSuggestionOutput | null;
   typoSuggestions: MultiTypoSuggestionOutput | null;
   iframeWidgetSrcdoc: SingleIframeWidgetSrcdocOutput | null;
@@ -271,6 +281,7 @@ interface Mutation {
   importUrlAsDraftPost: ExternalPostImportData;
   revertTagToRevision: Tag | null;
   convertDocumentEditorType: any;
+  completeUserModeration: CompleteUserModerationResult;
   lockThread: boolean;
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;
@@ -279,6 +290,8 @@ interface Mutation {
   runLlmCheckForDocument: AutomatedContentEvaluation;
   runPangramOnText: PangramTextEvaluationResult;
   unlistLlmPost: boolean;
+  addModeratorNote: User | null;
+  recordModerationTemplatesUsed: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -309,6 +322,8 @@ interface Mutation {
   moveSequencePost: boolean;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
+  GenerateAiDigestIssues: Array<string>;
+  ClearAiDigestRecommendationHistory: number;
   createBook: BookOutput | null;
   updateBook: BookOutput | null;
   createChapter: ChapterOutput | null;
@@ -350,6 +365,8 @@ interface Mutation {
   updatePost: PostOutput | null;
   createRSSFeed: RSSFeedOutput | null;
   updateRSSFeed: RSSFeedOutput | null;
+  createRejectionAppeal: RejectionAppealOutput | null;
+  updateRejectionAppeal: RejectionAppealOutput | null;
   createReport: ReportOutput | null;
   updateReport: ReportOutput | null;
   updateResearchConversation: ResearchConversationOutput | null;
@@ -1239,6 +1256,56 @@ interface PangramTextEvaluationResult {
   pangramWindowScores: Array<PangramWindowScore> | null;
 }
 
+interface SupermodQueueChange {
+  documentId: string;
+  moderatorName: string;
+  lastChangedAt: Date;
+}
+
+interface ModerationTemplateUsageCount {
+  templateId: string;
+  count: number;
+}
+
+interface ModerationContentRejectionInput {
+  documentId: string;
+  collectionName: ContentCollectionName;
+  reason: string;
+  templateIds?: Array<string> | null;
+}
+
+interface ModerationMessageInput {
+  conversationId?: string | null;
+  contents: CreateRevisionDataInput;
+  noEmail?: boolean | null;
+}
+
+interface CompleteUserModerationInput {
+  operationId: string;
+  userId: string;
+  rejection?: ModerationContentRejectionInput | null;
+  message?: ModerationMessageInput | null;
+  disablePermissions: boolean;
+  rateLimits: Array<CreateUserRateLimitDataInput>;
+  rejectAll: boolean;
+  removeFromQueue: boolean;
+}
+
+interface CompleteUserModerationResult {
+  user: User;
+  rejectedPosts: Array<Post>;
+  rejectedComments: Array<Comment>;
+  message: Message | null;
+}
+
+interface RejectionReview {
+  post: Post | null;
+  comment: Comment | null;
+  appeal: RejectionAppeal | null;
+  reasonIds: Array<string>;
+  unavailableReason: string | null;
+}
+
 interface ToggleBookmarkInput {
   documentId: string;
   collectionName: string;
@@ -1408,6 +1475,61 @@ interface AdminSendBulkEmailResult {
   batches: number;
   errors: Array<AdminSendBulkEmailError>;
   lastAfterUserId: string | null;
+}
+
+interface AiDigestToolCall {
+  toolName: string;
+  input: string;
+}
+
+interface AiDigestModelCall {
+  purpose: string;
+  modelId: string;
+  promptVersion: string;
+  systemPrompt: string;
+  prompt: string;
+  inputTokenCount: number | null;
+  outputTokenCount: number | null;
+  uncachedInputTokenCount: number | null;
+  cacheReadInputTokenCount: number | null;
+  cacheWriteInputTokenCount: number | null;
+  costUsd: number | null;
+  toolCalls: Array<AiDigestToolCall>;
+}
+
+interface AiDigestEmailSamplePreview {
+  email: EmailPreview;
+  durationMs: number;
+  calls: Array<AiDigestModelCall>;
+}
+
+interface AiDigestIssue {
+  _id: string;
+  createdAt: Date;
+  recipientId: string | null;
+  emailedAt: Date | null;
+  trigger: AiDigestIssueTrigger | null;
+  countsTowardHistory: boolean | null;
+  spec: any;
+  subject: string | null;
+}
+
+interface SingleAiDigestIssueOutput {
+  result: AiDigestIssue | null;
+}
+
+interface AiDigestIssuesRecipientIssuesInput {
+  recipientId?: string | null;
+}
+
+interface AiDigestIssueSelector {
+  default: EmptyViewInput | null;
+  recipientIssues: AiDigestIssuesRecipientIssuesInput | null;
+}
+
+interface MultiAiDigestIssueOutput {
+  results: Array<AiDigestIssue>;
+  totalCount: number | null;
 }
 
 interface ArbitalCaches {
@@ -2442,9 +2564,11 @@ interface Conversation {
   af: boolean | null;
   messageCount: number;
   moderator: boolean | null;
+  awaitingModeratorReply: boolean | null;
   archivedByIds: Array<string>;
   archivedBy: Array<User>;
   latestMessage: Message | null;
+  rejectionAppeal: RejectionAppeal | null;
   hasUnreadMessages: boolean | null;
 }
 
@@ -2483,6 +2607,8 @@ interface ConversationSelector {
   moderatorConversations: ConversationsModeratorConversationsInput | null;
   userConversations: ConversationsUserConversationsInput | null;
   userConversationsAll: ConversationsUserConversationsAllInput | null;
+  teamInboxAwaitingReply: EmptyViewInput | null;
+  teamInboxDone: EmptyViewInput | null;
   userGroupUntitledConversations: ConversationsUserGroupUntitledConversationsInput | null;
 }
 
@@ -2878,6 +3004,39 @@ interface AdminHomePageDesign {
   commentId: string | null;
   ownerDisplayName: string;
   ownerSlug: string;
+}
+
+interface RejectionAppeal {
+  _id: string;
+  createdAt: Date;
+  userId: string | null;
+  user: User | null;
+  postId: string | null;
+  post: Post | null;
+  commentId: string | null;
+  comment: Comment | null;
+  conversationId: string | null;
+  conversation: Conversation | null;
+  explanation: string | null;
+  reasonIds: Array<string> | null;
+  acknowledgedMisunderstandings: boolean | null;
+  status: RejectionAppealStatus | null;
+  resolvedByUserId: string | null;
+  resolvedAt: Date | null;
+}
+
+interface SingleRejectionAppealOutput {
+  result: RejectionAppeal | null;
+}
+
+interface RejectionAppealSelector {
+  default: EmptyViewInput | null;
+  openAppeals: EmptyViewInput | null;
+}
+
+interface MultiRejectionAppealOutput {
+  results: Array<RejectionAppeal>;
+  totalCount: number | null;
 }
 
 interface TypoSuggestion {
@@ -4082,6 +4241,10 @@ interface PostsUserPostsInput {
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
+}
+
+interface PostsCoauthoredPostsInput {
+  userId: string;
 }
 
 interface PostsMagicInput {
@@ -5516,6 +5679,7 @@ interface PostsCurrentOpenThreadInput {
 interface PostSelector {
   default: PostDefaultViewInput | null;
   userPosts: PostsUserPostsInput | null;
+  coauthoredPosts: PostsCoauthoredPostsInput | null;
   magic: PostsMagicInput | null;
   top: PostsTopInput | null;
   new: PostsNewInput | null;
@@ -6946,7 +7110,9 @@ interface UserRateLimit {
   intervalUnit: UserRateLimitIntervalUnit;
   intervalLength: number;
   actionsPerInterval: number;
-  endedAt: Date;
+  endedAt: Date | null;
+  liftAtAverageKarma: number | null;
+  liftAverageKarmaCount: number | null;
 }
 
 interface SingleUserRateLimitInput {
@@ -7168,6 +7334,7 @@ interface User {
   karmaChangeLastOpened: Date | null;
   karmaChangeBatchStart: Date | null;
   emailSubscribedToCurated: boolean | null;
+  emailSubscribedToAiDigest: boolean | null;
   unsubscribeFromAll: boolean | null;
   hideSubscribePoke: boolean | null;
   hideMeetupsPoke: boolean | null;
@@ -7293,8 +7460,11 @@ interface User {
   hideSunshineSidebar: boolean | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
+  aiDigestPersonalInstructions: string | null;
   lastRemovedFromReviewQueueAt: Date | null;
-  hasPendingComments: boolean | null;
+  pendingPostCount: number | null;
+  pendingCommentCount: number | null;
+  oldestPendingContentAt: Date | null;
   rejectedContentCount: number | null;
   userRateLimits: Array<UserRateLimit> | null;
   claudeLinkedAt: Date | null;
@@ -7333,7 +7503,6 @@ interface UserSelector {
   LWTrustLevel1List: EmptyViewInput | null;
   LWUsersAdmin: EmptyViewInput | null;
   usersWithBannedUsers: EmptyViewInput | null;
-  sunshineNewUsers: EmptyViewInput | null;
   recentlyActive: EmptyViewInput | null;
   allUsers: EmptyViewInput | null;
   usersMapLocations: EmptyViewInput | null;
@@ -7692,6 +7861,7 @@ interface UpdateConversationDataInput {
   participantIds?: Array<string> | null;
   af?: boolean | null;
   moderator?: boolean | null;
+  awaitingModeratorReply?: boolean | null;
   archivedByIds?: Array<string> | null;
 }
 
@@ -8337,6 +8507,30 @@ interface RSSFeedOutput {
   data: RSSFeed | null;
 }
 
+interface CreateRejectionAppealDataInput {
+  postId?: string | null;
+  commentId?: string | null;
+  explanation: string;
+  acknowledgedMisunderstandings: boolean;
+}
+
+interface CreateRejectionAppealInput {
+  data: CreateRejectionAppealDataInput;
+}
+
+interface UpdateRejectionAppealDataInput {
+  status?: RejectionAppealStatus | null;
+}
+
+interface UpdateRejectionAppealInput {
+  selector: SelectorInput;
+  data: UpdateRejectionAppealDataInput;
+}
+
+interface RejectionAppealOutput {
+  data: RejectionAppeal | null;
+}
+
 interface CreateReportDataInput {
   legacyData?: any;
   reportedUserId?: string | null;
@@ -8825,7 +9019,9 @@ interface CreateUserRateLimitDataInput {
   intervalUnit: UserRateLimitIntervalUnit;
   intervalLength: number;
   actionsPerInterval: number;
-  endedAt: Date;
+  endedAt?: Date | null;
+  liftAtAverageKarma?: number | null;
+  liftAverageKarmaCount?: number | null;
 }
 
 interface CreateUserRateLimitInput {
@@ -8840,6 +9036,8 @@ interface UpdateUserRateLimitDataInput {
   intervalLength?: number | null;
   actionsPerInterval?: number | null;
   endedAt?: Date | null;
+  liftAtAverageKarma?: number | null;
+  liftAverageKarmaCount?: number | null;
 }
 
 interface UpdateUserRateLimitInput {
@@ -8984,6 +9182,7 @@ interface CreateUserDataInput {
   karmaChangeLastOpened?: Date | null;
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
+  emailSubscribedToAiDigest?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -9154,6 +9353,7 @@ interface UpdateUserDataInput {
   karmaChangeLastOpened?: Date | null;
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
+  emailSubscribedToAiDigest?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -9228,6 +9428,7 @@ interface UpdateUserDataInput {
   afSubmittedApplication?: boolean | null;
   hideSunshineSidebar?: boolean | null;
   recommendationSettings?: RecommendationSettingsInput | null;
+  aiDigestPersonalInstructions?: string | null;
 }
 
 interface UpdateUserInput {
@@ -9374,6 +9575,13 @@ interface GraphQLTypeMap {
   ExternalPostImportData: ExternalPostImportData;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   PangramTextEvaluationResult: PangramTextEvaluationResult;
+  SupermodQueueChange: SupermodQueueChange;
+  ModerationTemplateUsageCount: ModerationTemplateUsageCount;
+  ModerationContentRejectionInput: ModerationContentRejectionInput;
+  ModerationMessageInput: ModerationMessageInput;
+  CompleteUserModerationInput: CompleteUserModerationInput;
+  CompleteUserModerationResult: CompleteUserModerationResult;
+  RejectionReview: RejectionReview;
   ToggleBookmarkInput: ToggleBookmarkInput;
   SetIsBookmarkedInput: SetIsBookmarkedInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;
@@ -9400,6 +9608,14 @@ interface GraphQLTypeMap {
   AdminSendTestEmailResult: AdminSendTestEmailResult;
   AdminSendBulkEmailError: AdminSendBulkEmailError;
   AdminSendBulkEmailResult: AdminSendBulkEmailResult;
+  AiDigestToolCall: AiDigestToolCall;
+  AiDigestModelCall: AiDigestModelCall;
+  AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
+  AiDigestIssue: AiDigestIssue;
+  SingleAiDigestIssueOutput: SingleAiDigestIssueOutput;
+  AiDigestIssuesRecipientIssuesInput: AiDigestIssuesRecipientIssuesInput;
+  AiDigestIssueSelector: AiDigestIssueSelector;
+  MultiAiDigestIssueOutput: MultiAiDigestIssueOutput;
   ArbitalCaches: ArbitalCaches;
   ArbitalTagContentRel: ArbitalTagContentRel;
   SingleArbitalTagContentRelInput: SingleArbitalTagContentRelInput;
@@ -9583,6 +9799,10 @@ interface GraphQLTypeMap {
   HomePageDesignSummary: HomePageDesignSummary;
   MarketplaceHomePageDesign: MarketplaceHomePageDesign;
   AdminHomePageDesign: AdminHomePageDesign;
+  RejectionAppeal: RejectionAppeal;
+  SingleRejectionAppealOutput: SingleRejectionAppealOutput;
+  RejectionAppealSelector: RejectionAppealSelector;
+  MultiRejectionAppealOutput: MultiRejectionAppealOutput;
   TypoSuggestion: TypoSuggestion;
   SingleTypoSuggestionInput: SingleTypoSuggestionInput;
   SingleTypoSuggestionOutput: SingleTypoSuggestionOutput;
@@ -9719,6 +9939,7 @@ interface GraphQLTypeMap {
   SinglePostOutput: SinglePostOutput;
   PostDefaultViewInput: PostDefaultViewInput;
   PostsUserPostsInput: PostsUserPostsInput;
+  PostsCoauthoredPostsInput: PostsCoauthoredPostsInput;
   PostsMagicInput: PostsMagicInput;
   PostsTopInput: PostsTopInput;
   PostsNewInput: PostsNewInput;
@@ -10098,6 +10319,11 @@ interface GraphQLTypeMap {
   UpdateRSSFeedDataInput: UpdateRSSFeedDataInput;
   UpdateRSSFeedInput: UpdateRSSFeedInput;
   RSSFeedOutput: RSSFeedOutput;
+  CreateRejectionAppealDataInput: CreateRejectionAppealDataInput;
+  CreateRejectionAppealInput: CreateRejectionAppealInput;
+  UpdateRejectionAppealDataInput: UpdateRejectionAppealDataInput;
+  UpdateRejectionAppealInput: UpdateRejectionAppealInput;
+  RejectionAppealOutput: RejectionAppealOutput;
   CreateReportDataInput: CreateReportDataInput;
   CreateReportInput: CreateReportInput;
   UpdateReportDataInput: UpdateReportDataInput;
@@ -10195,6 +10421,7 @@ interface CreateInputsByCollectionName {
   PodcastEpisodes: CreatePodcastEpisodeInput;
   Posts: CreatePostInput;
   RSSFeeds: CreateRSSFeedInput;
+  RejectionAppeals: CreateRejectionAppealInput;
   Reports: CreateReportInput;
   ResearchDocuments: CreateResearchDocumentInput;
   ResearchProjects: CreateResearchProjectInput;
@@ -10209,6 +10436,9 @@ interface CreateInputsByCollectionName {
   UserRateLimits: CreateUserRateLimitInput;
   UserTagRels: CreateUserTagRelInput;
   Users: CreateUserInput;
+  AiDigestIssueGenerations: never;
+  AiDigestIssues: never;
+  AiDigestSchedules: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
@@ -10245,8 +10475,10 @@ interface CreateInputsByCollectionName {
   PetrovDayLaunchs: never;
   Podcasts: never;
   PostEmbeddings: never;
+  PostPreviews: never;
   PostRecommendations: never;
   PostRelations: never;
+  PostSummaries: never;
   PostViewTimes: never;
   PostViews: never;
   ReadStatuses: never;
@@ -10290,6 +10522,7 @@ interface UpdateInputsByCollectionName {
   Notifications: UpdateNotificationInput;
   Posts: UpdatePostInput;
   RSSFeeds: UpdateRSSFeedInput;
+  RejectionAppeals: UpdateRejectionAppealInput;
   Reports: UpdateReportInput;
   ResearchConversations: UpdateResearchConversationInput;
   ResearchEnvironments: UpdateResearchEnvironmentInput;
@@ -10304,6 +10537,9 @@ interface UpdateInputsByCollectionName {
   UserRateLimits: UpdateUserRateLimitInput;
   UserTagRels: UpdateUserTagRelInput;
   Users: UpdateUserInput;
+  AiDigestIssueGenerations: never;
+  AiDigestIssues: never;
+  AiDigestSchedules: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
@@ -10341,8 +10577,10 @@ interface UpdateInputsByCollectionName {
   PodcastEpisodes: never;
   Podcasts: never;
   PostEmbeddings: never;
+  PostPreviews: never;
   PostRecommendations: never;
   PostRelations: never;
+  PostSummaries: never;
   PostViewTimes: never;
   PostViews: never;
   ReadStatuses: never;

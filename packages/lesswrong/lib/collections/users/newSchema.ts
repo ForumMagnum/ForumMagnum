@@ -28,6 +28,7 @@ import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { sanitize } from "@/lib/utils/sanitize";
+import { AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH } from "@/lib/aiDigest/constants";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from "@/server/rateLimitUtils";
 import { calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
@@ -37,9 +38,8 @@ import { bothChannelsEnabledNotificationTypeSettings, defaultNotificationTypeSet
 import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
-import { getReviewGroupFromActions } from "./reviewGroups";
+import { getModeratorActionsForUser, getPendingContentStats, getLastRemovedFromReviewQueueAt, getRejectedContentCount, getReviewGroupForUser } from "@/server/users/reviewQueue";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
-import { hideUnreviewedAuthorCommentsSettings } from "@/lib/instanceSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
   const db = getSqlClientOrThrow();
@@ -56,43 +56,6 @@ const getCoauthoredPostCount = async (user: DbUser) => {
   });
 
   return Number(result.count);
-};
-
-const getModeratorActionsForUser = (context: ResolverContext, userId: string) => {
-  return getWithLoader(
-    context,
-    context.ModeratorActions,
-    "moderatorActionsByUserId",
-    {},
-    "userId",
-    userId,
-  );
-};
-
-// Karma is checked first, to skip the batched content query when it can.
-const getIsOffboardCandidate = async (context: ResolverContext, user: DbUser): Promise<boolean> => {
-  if (user.karma < 0) {
-    return true;
-  }
-  return getWithCustomLoader(context, "offboardCandidates", user._id, async (userIds) => {
-    const candidateIds = new Set(await context.repos.users.getOffboardCandidateUserIds(userIds));
-    return userIds.map((id) => candidateIds.has(id));
-  });
-};
-
-// Get last time user's `needsReview` flag was set to false (or null if never).
-const getLastRemovedFromReviewQueueAt = async (context: ResolverContext, userId: string): Promise<Date | null> => {
-  const fieldChanges = await getWithLoader(
-    context,
-    context.FieldChanges,
-    "needsReviewFieldChanges",
-    { documentId: userId, fieldName: "needsReview", newValue: 'false' },
-    "documentId",
-    userId,
-    { sort: { createdAt: -1 }, limit: 1 },
-  );
-
-  return fieldChanges[0]?.createdAt ?? null;
 };
 
 ///////////////////////////////////////
@@ -2269,6 +2232,20 @@ const schema = {
       },
     },
   },
+  emailSubscribedToAiDigest: {
+    database: {
+      type: "BOOL",
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   unsubscribeFromAll: {
     database: {
       type: "BOOL",
@@ -3952,23 +3929,7 @@ const schema = {
       outputType: "ReviewGroup",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (doc, args, context) => {
-        const [moderatorActions, lastRemovedFromReviewQueueAt] = await Promise.all([
-          getModeratorActionsForUser(context, doc._id),
-          getLastRemovedFromReviewQueueAt(context, doc._id),
-        ]);
-
-        const actionsWithActiveStatus = moderatorActions.map(action => ({
-          type: action.type,
-          active: isActionActive(action),
-          createdAt: action.createdAt,
-        }));
-        const baseGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
-
-        if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc)) {
-          return 'offboard';
-        }
-
-        return baseGroup;
+        return await getReviewGroupForUser(context, doc._id);
       },
     },
   },
@@ -4338,6 +4299,22 @@ const schema = {
       canUpdate: [userOwns],
     },
   },
+  aiDigestPersonalInstructions: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      inputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+        regEx: new RegExp(`^[\\s\\S]{0,${AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH}}$`),
+      },
+    },
+  },
   lastRemovedFromReviewQueueAt: {
     graphql: {
       outputType: "Date",
@@ -4347,19 +4324,30 @@ const schema = {
       },
     },
   },
-  hasPendingComments: {
+  pendingPostCount: {
     graphql: {
-      outputType: "Boolean",
+      outputType: "Int",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        const hideSince = hideUnreviewedAuthorCommentsSettings.get(context);
-        if (!hideSince) {
-          return false;
-        }
-        return await getWithCustomLoader(context, "hasPendingComments", user._id, async (userIds) => {
-          const userIdsWithPendingComments = new Set(await context.repos.users.getUserIdsWithPendingComments(userIds, new Date(hideSince)));
-          return userIds.map((id) => userIdsWithPendingComments.has(id));
-        });
+        return (await getPendingContentStats(context, user._id)).pendingPostCount;
+      },
+    },
+  },
+  pendingCommentCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).pendingCommentCount;
+      },
+    },
+  },
+  oldestPendingContentAt: {
+    graphql: {
+      outputType: "Date",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).oldestPendingContentAt;
       },
     },
   },
@@ -4368,9 +4356,7 @@ const schema = {
       outputType: "Int",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        return await getWithCustomLoader(context, "rejectedContentCount", user._id, (userIds) =>
-          context.repos.users.getRejectedContentCounts(userIds)
-        );
+        return await getRejectedContentCount(context, user._id);
       },
     }
   },
