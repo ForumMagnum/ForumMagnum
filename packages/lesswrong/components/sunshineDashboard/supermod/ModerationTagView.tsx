@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
@@ -13,6 +13,7 @@ import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import TagSmallPostLink from '@/components/tagging/TagSmallPostLink';
 import Loading from '@/components/vulcan-core/Loading';
+import ForumIcon from '@/components/common/ForumIcon';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import type { InboxAction } from './inboxReducer';
 import { useTagReviewActions } from './useTagReviewActions';
@@ -96,6 +97,22 @@ const styles = defineStyles('ModerationTagView', (theme: ThemeType) => ({
     marginBottom: 4,
     color: theme.palette.grey[700],
   },
+  rejectedToggle: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 8,
+    fontSize: 13,
+    color: theme.palette.grey[600],
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.7,
+    },
+  },
+  rejectedToggleIcon: {
+    height: 14,
+    width: 14,
+  },
   empty: {
     padding: 40,
     textAlign: 'center',
@@ -104,8 +121,18 @@ const styles = defineStyles('ModerationTagView', (theme: ThemeType) => ({
   },
 }));
 
+const TagPostsList = ({ tagRels }: { tagRels: TagRelFragment[] }) => {
+  const classes = useStyles(styles);
+  return <>
+    {tagRels.map(tagRel => tagRel.post && <div key={tagRel._id} className={classes.post}>
+      <TagSmallPostLink post={tagRel.post} />
+    </div>)}
+  </>;
+};
+
 const TagPosts = ({ tag }: { tag: SunshineTagFragment }) => {
   const classes = useStyles(styles);
+  const [showRejected, setShowRejected] = useState(false);
   const { data, loading } = useQuery(TagPostsQuery, {
     variables: {
       selector: { postsWithTag: { tagId: tag._id } },
@@ -117,10 +144,18 @@ const TagPosts = ({ tag }: { tag: SunshineTagFragment }) => {
   if (!tagRels && loading) return <Loading />;
   if (!tagRels?.length) return <div className={classes.noDescription}>No posts</div>;
 
+  const acceptedTagRels = tagRels.filter(tagRel => !tagRel.post?.rejected);
+  const rejectedTagRels = tagRels.filter(tagRel => tagRel.post?.rejected);
+
   return <>
-    {tagRels.map(tagRel => tagRel.post && <div key={tagRel._id} className={classes.post}>
-      <TagSmallPostLink post={tagRel.post} />
-    </div>)}
+    <TagPostsList tagRels={acceptedTagRels} />
+    {rejectedTagRels.length > 0 && <>
+      <div className={classes.rejectedToggle} onClick={() => setShowRejected(!showRejected)}>
+        {rejectedTagRels.length} rejected
+        <ForumIcon icon={showRejected ? 'ExpandLess' : 'ExpandMore'} className={classes.rejectedToggleIcon} />
+      </div>
+      {showRejected && <TagPostsList tagRels={rejectedTagRels} />}
+    </>}
   </>;
 };
 
