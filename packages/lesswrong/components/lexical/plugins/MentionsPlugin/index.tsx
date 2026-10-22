@@ -24,6 +24,7 @@ import * as ReactDOM from 'react-dom';
 
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
+import { typeaheadPopover, typeaheadList } from '../../styles/typeaheadStyles';
 import {
   getLexicalMentionFeeds,
   type MentionFeed,
@@ -32,27 +33,21 @@ import {
 import { userMentionQuery, userMentionValue } from '@/lib/pingback';
 import { useSearchAnalytics, useCaptureSearchResultSelected } from '@/components/search/useSearchAnalytics';
 
-// Matches the site's other menus (eg the triple-dot menus on posts and comments)
 const styles = defineStyles('LexicalMentions', (theme: ThemeType) => ({
   popover: {
-    position: 'relative',
-    zIndex: theme.zIndexes.commandPalette,
+    ...typeaheadPopover(theme),
     width: 320,
     maxWidth: 'calc(100vw - 32px)',
     background: theme.palette.panelBackground.default,
     borderRadius: 2,
     boxShadow: theme.palette.boxShadow.lwCard,
-    fontFamily: theme.palette.fonts.sansSerifStack,
     overflow: 'hidden',
   },
   list: {
-    listStyle: 'none',
-    margin: 0,
-    padding: 0,
+    ...typeaheadList(theme),
+    borderRadius: 0,
     maxHeight: 340,
-    overflowY: 'auto',
   },
-  // No hover style: hovering an item selects it
   item: {
     margin: 0,
     padding: '6px 12px',
