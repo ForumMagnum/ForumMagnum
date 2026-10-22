@@ -129,6 +129,13 @@ export function getDbIndexesOnComments() {
 
   indexSet.addIndex("Comments", { userId: 1, createdAt: 1 });
 
+  // Fetch rejected content linked to a moderation conversation, newest first.
+  indexSet.addIndex("Comments", { rejectionConversationId: 1, createdAt: -1 }, {
+    name: "comments.rejectionConversationId_createdAt",
+    concurrently: true,
+    partialFilterExpression: { rejectionConversationId: { $exists: true } },
+  });
+
   indexSet.addCustomPgIndex(`
     CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_deletedDate"
     ON "Comments" ("deletedDate" DESC NULLS LAST)
