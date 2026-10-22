@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, content, location } = parseResult.data;
 
   try {
-    const auth = await authorizeAgentDraftAccess({ route: "insertWidget", postId, context, linkSharingKey: key });
+    const auth = await authorizeAgentDraftAccess({ route: "insertWidget", postId, context, linkSharingKey: key, requiredAccess: "edit" });
     if ("errorResponse" in auth) return auth.errorResponse;
     const { token } = auth;
 

@@ -17,7 +17,7 @@ import {
 } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
+import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess, requiredAccessForMode } from "../editorAgentUtil";
 
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
 import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
@@ -290,7 +290,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, mode, location, markdown } = parseResult.data;
 
   try {
-    const auth = await authorizeAgentDraftAccess({ route: "insertBlock", postId, context, linkSharingKey: key, agentName });
+    const auth = await authorizeAgentDraftAccess({ route: "insertBlock", postId, context, linkSharingKey: key, agentName, requiredAccess: requiredAccessForMode(mode) });
     if ("errorResponse" in auth) return auth.errorResponse;
     const { token } = auth;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });

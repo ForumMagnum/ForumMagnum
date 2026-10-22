@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, modelName, location, markdown } = parseResult.data;
 
   try {
-    const auth = await authorizeAgentDraftAccess({ route: "insertLLMBlock", postId, context, linkSharingKey: key, agentName: modelName });
+    const auth = await authorizeAgentDraftAccess({ route: "insertLLMBlock", postId, context, linkSharingKey: key, agentName: modelName, requiredAccess: "edit" });
     if ("errorResponse" in auth) return auth.errorResponse;
     const { token } = auth;
 

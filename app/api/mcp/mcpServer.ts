@@ -1,6 +1,7 @@
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
@@ -12,8 +13,8 @@ import { insertMarkdownBlock } from "../agent/insertBlock/route";
 import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
 import { deleteMarkdownBlock } from "../agent/deleteBlock/route";
 import { getLiveDraftMarkdown } from "../(markdown)/editorMarkdownUtils";
-import { getHocuspocusToken } from "../agent/getHocuspocusToken";
-import { deriveAgentAuthor } from "../agent/editorAgentUtil";
+import { getHocuspocusAuth } from "../agent/getHocuspocusToken";
+import { type AgentWriteAccess, deriveAgentAuthor, insufficientDraftAccessMessage, requiredAccessForMode } from "../agent/editorAgentUtil";
 import { gql } from "@/lib/generated/gql-codegen";
 import {
   commentOnDraftToolSchema,
@@ -74,11 +75,33 @@ async function contextFromAuth(authInfo: AuthInfo | undefined, forumType: ForumT
   return computeContextFromUser({ user: user ?? null, isSSR: false, forumType });
 }
 
-function toolError(message: string) {
+function toolError(message: string): CallToolResult {
   return {
     content: [{ type: "text" as const, text: message }],
     isError: true,
   };
+}
+
+/**
+ * Get a Hocuspocus token for a post's draft, or a tool error if the user can't
+ * access the draft. Write tools pass `requiredAccess`, since the Hocuspocus
+ * server silently discards writes the token doesn't permit.
+ */
+async function getDraftTokenForTool({ context, postId, linkSharingKey, requiredAccess }: {
+  context: ResolverContext
+  postId: string
+  linkSharingKey?: string
+  requiredAccess: AgentWriteAccess | null
+}): Promise<{ token: string } | { error: CallToolResult }> {
+  const auth = await getHocuspocusAuth(context, postId, linkSharingKey);
+  if (!auth) {
+    return { error: toolError("Unauthorized to access this post's draft") };
+  }
+  const accessError = requiredAccess && insufficientDraftAccessMessage(auth.accessLevel, requiredAccess);
+  if (accessError) {
+    return { error: toolError(accessError) };
+  }
+  return { token: auth.token };
 }
 
 /**
@@ -125,10 +148,11 @@ function createMcpServer(forumType: ForumTypeString): McpServer {
           isError: true,
         };
       }
-      const token = await getHocuspocusToken(context, args.postId, args.key);
-      if (!token) {
-        return toolError("Unauthorized to access this post's draft");
+      const draftAccess = await getDraftTokenForTool({ context, postId: args.postId, linkSharingKey: args.key, requiredAccess: null });
+      if ("error" in draftAccess) {
+        return draftAccess.error;
       }
+      const { token } = draftAccess;
 
       const { data: postResultData } = await runQuery(PostMetadataQuery, { _id: args.postId }, context);
 
@@ -161,10 +185,11 @@ function createMcpServer(forumType: ForumTypeString): McpServer {
     async (args, extra) => {
       assertToolScopes("comment_on_draft", extra.authInfo);
       const context = await contextFromAuth(extra.authInfo, forumType);
-      const token = await getHocuspocusToken(context, args.postId, args.key);
-      if (!token) {
-        return toolError("Unauthorized to access this post's draft");
+      const draftAccess = await getDraftTokenForTool({ context, postId: args.postId, linkSharingKey: args.key, requiredAccess: "comment" });
+      if ("error" in draftAccess) {
+        return draftAccess.error;
       }
+      const { token } = draftAccess;
 
       const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
       const threadQuote = args.quote ?? "(No quote provided)";
@@ -196,10 +221,11 @@ function createMcpServer(forumType: ForumTypeString): McpServer {
     async (args, extra) => {
       assertToolScopes("replace_text", extra.authInfo);
       const context = await contextFromAuth(extra.authInfo, forumType);
-      const token = await getHocuspocusToken(context, args.postId, args.key);
-      if (!token) {
-        return toolError("Unauthorized to access this post's draft");
+      const draftAccess = await getDraftTokenForTool({ context, postId: args.postId, linkSharingKey: args.key, requiredAccess: requiredAccessForMode(args.mode ?? "suggest") });
+      if ("error" in draftAccess) {
+        return draftAccess.error;
       }
+      const { token } = draftAccess;
       const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
 
       const result = await replaceTextInMainDoc({
@@ -229,10 +255,11 @@ function createMcpServer(forumType: ForumTypeString): McpServer {
     async (args, extra) => {
       assertToolScopes("replace_widget", extra.authInfo);
       const context = await contextFromAuth(extra.authInfo, forumType);
-      const token = await getHocuspocusToken(context, args.postId, args.key);
-      if (!token) {
-        return toolError("Unauthorized to access this post's draft");
+      const draftAccess = await getDraftTokenForTool({ context, postId: args.postId, linkSharingKey: args.key, requiredAccess: requiredAccessForMode(args.mode ?? "suggest") });
+      if ("error" in draftAccess) {
+        return draftAccess.error;
       }
+      const { token } = draftAccess;
       const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
 
       const exclusivityError = validateReplaceWidgetExclusivity(args);
@@ -268,10 +295,11 @@ function createMcpServer(forumType: ForumTypeString): McpServer {
     async (args, extra) => {
       assertToolScopes("delete_block", extra.authInfo);
       const context = await contextFromAuth(extra.authInfo, forumType);
-      const token = await getHocuspocusToken(context, args.postId, args.key);
-      if (!token) {
-        return toolError("Unauthorized to access this post's draft");
+      const draftAccess = await getDraftTokenForTool({ context, postId: args.postId, linkSharingKey: args.key, requiredAccess: requiredAccessForMode(args.mode ?? "suggest") });
+      if ("error" in draftAccess) {
+        return draftAccess.error;
       }
+      const { token } = draftAccess;
       const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
 
       const result = await deleteMarkdownBlock({
@@ -298,10 +326,11 @@ function createMcpServer(forumType: ForumTypeString): McpServer {
     async (args, extra) => {
       assertToolScopes("insert_block", extra.authInfo);
       const context = await contextFromAuth(extra.authInfo, forumType);
-      const token = await getHocuspocusToken(context, args.postId, args.key);
-      if (!token) {
-        return toolError("Unauthorized to access this post's draft");
+      const draftAccess = await getDraftTokenForTool({ context, postId: args.postId, linkSharingKey: args.key, requiredAccess: requiredAccessForMode(args.mode ?? "suggest") });
+      if ("error" in draftAccess) {
+        return draftAccess.error;
       }
+      const { token } = draftAccess;
       const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
 
       const result = await insertMarkdownBlock({
