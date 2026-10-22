@@ -274,13 +274,19 @@ leading text — the matcher descends into lists at any nesting depth, so
 deleting "second item" removes just that item and leaves the surrounding
 list intact. Match a table by the leading text of its first cell; tables are
 always deleted as a whole (there is no per-cell deletion). Match a display
-equation by its whole \`$$...$$\` token. Match an image block by its
-\`![alt](url)\` markdown as it appears in the editPost output; the image is
-identified by its URL (alt text is ignored), and any text after the image
-token must match the text that follows the image in that block (e.g. a
-caption). To change an image's URL, insert a new image block next to it with
-insertBlock (using the old image's markdown as the location) and then delete
-the old one.
+equation by its whole \`$$...$$\` token. Match a block that starts with an
+image by the image's \`![alt](url)\` markdown as it appears in the editPost
+output, optionally followed by text that comes after the image in the same
+block; the image is identified by its URL (alt text is ignored). An image
+only counts as a block's start when nothing comes before it in that block,
+and deleting by an image's markdown removes that whole block: any text after
+the image in the same paragraph, the whole list item, or the whole table. A
+captioned image appears in the editPost output as its \`![alt](url)\` line
+followed by the caption on its own line, but the image and caption form one
+block: match it by the image's markdown (the caption text alone does not
+match it), and deleting it deletes the caption too. To replace an image,
+insert the new image next to it with insertBlock (using the old image's
+markdown as the location) and then delete the old one.
 In edit mode, the matched block is removed immediately. In suggest mode, the
 matched block is wrapped as a deletion suggestion; a few block types (e.g.
 display equations) cannot be represented as deletion suggestions, and the

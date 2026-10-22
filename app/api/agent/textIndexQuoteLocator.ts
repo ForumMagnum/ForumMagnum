@@ -1,6 +1,5 @@
 import { $getRoot, $isElementNode, $isRootNode, type LexicalNode } from "lexical";
 import { $isListItemNode } from "@lexical/list";
-import { $isImageNode, type ImageNode } from "@/components/lexical/nodes/ImageNode";
 import { $isCollapsibleSectionContainerNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode";
 import { $isCollapsibleSectionContentNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode";
 import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
@@ -14,6 +13,7 @@ import {
 import {
   $projectDocumentText,
   type DocumentProjection,
+  type DocumentProjectionOptions,
   type ProjectionSegment,
 } from "./quoteLocator";
 
@@ -52,7 +52,7 @@ import {
  */
 export function projectQuoteToRenderedText(
   markdownQuote: string,
-  options?: { bracketDisplayMath?: boolean },
+  options?: { bracketDisplayMath?: boolean, imageTokens?: boolean },
 ): string {
   const withoutAgentSyntax = markdownQuote
     // Footnote definition markers (`[^id]: ` at line start) drop their
@@ -76,6 +76,7 @@ export function projectQuoteToRenderedText(
     .replace(/```widget\[[^\]]*\][\s\S]*?```/g, "");
   return markdownQuoteToRenderedPlainText(withoutAgentSyntax, {
     bracketDisplayMath: options?.bracketDisplayMath ?? false,
+    imageTokens: options?.imageTokens,
   });
 }
 
@@ -298,8 +299,8 @@ interface NormalizedDocument {
  * Project and normalize the current document.
  * Must be called inside a Lexical read/update context.
  */
-function $buildNormalizedDocument(): NormalizedDocument {
-  const projection = $projectDocumentText();
+function $buildNormalizedDocument(options?: DocumentProjectionOptions): NormalizedDocument {
+  const projection = $projectDocumentText(options);
   return { projection, normalizedDocument: normalizeTracked(projection.text) };
 }
 
@@ -512,142 +513,22 @@ interface BlockCandidate {
  */
 function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<number, BlockCandidate> {
   const blocks = new Map<number, BlockCandidate>();
-  for (const node of $collectPrefixAddressableBlocks()) {
+  const addBlock = (node: LexicalNode): void => {
     const span = projection.spans.get(node.getKey());
-    if (!span || span.start === span.end) continue;
+    if (!span || span.start === span.end) return;
     const leadingWhitespace = /^\s*/.exec(projection.text.slice(span.start, span.end))![0].length;
     blocks.set(span.start + leadingWhitespace, { node, spanEnd: span.end });
-  }
-  return blocks;
-}
-
-function collectBlocksUnder(node: LexicalNode, isBlock: boolean, blocks: LexicalNode[]): void {
-  if (isBlock) blocks.push(node);
-  if ($isElementNode(node)) {
-    for (const child of node.getChildren()) {
-      collectBlocksUnder(
-        child,
-        $isListItemNode(child) || $isRootNode(node) || $isCollapsibleSectionContentNode(node),
-        blocks,
-      );
-    }
-  }
-}
-
-/**
- * The prefix-addressable blocks (top-level children, children of
- * collapsible-section content, and list items at any nesting depth) in
- * document pre-order, so an outer block always precedes any block nested
- * inside it.
- */
-function $collectPrefixAddressableBlocks(): LexicalNode[] {
-  const blocks: LexicalNode[] = [];
-  collectBlocksUnder($getRoot(), false, blocks);
-  return blocks;
-}
-
-export interface LeadingImageToken {
-  /** The image URL, with markdown destination syntax (`<…>`, escapes) removed. */
-  src: string
-  /** The remainder of the prefix after the image token. */
-  rest: string
-}
-
-// `![alt](destination "optional title")` at the very start of a prefix. The
-// destination is either `<…>` or a run without whitespace that may contain
-// one level of balanced parentheses (as CommonMark allows).
-const LEADING_IMAGE_REGEX =
-  /^\s*!\[(?:\\.|[^\]\\])*\]\(\s*(<[^>\n]*>|(?:[^()\s]|\([^()\s]*\))+)(?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\s*\)/;
-
-/**
- * Parse a markdown image token at the start of a block prefix. Images
- * contribute no text to either side of the text-index comparison (the image
- * node projects to zero width, and markdown-it renders `![alt](url)` to an
- * `<img>` with no text content), so a prefix that starts with an image has
- * to be matched by the image's URL instead. Exported for testing.
- */
-export function parseLeadingImageToken(prefix: string): LeadingImageToken | null {
-  const match = LEADING_IMAGE_REGEX.exec(prefix);
-  if (!match) return null;
-  const destination = match[1].startsWith("<") ? match[1].slice(1, -1) : match[1];
-  return {
-    src: destination.replace(/\\([!-/:-@[-`{-~])/g, "$1"),
-    rest: prefix.slice(match[0].length),
   };
-}
-
-/**
- * Canonical form of an image URL for comparison: the read path and the agent
- * may differ in HTML-entity and percent-encoding of the same URL.
- */
-function canonicalImageSrc(src: string): string {
-  const unescaped = src.trim().replace(/&amp;/g, "&");
-  try {
-    return decodeURI(unescaped);
-  } catch {
-    return unescaped;
-  }
-}
-
-/**
- * The image a block begins with: the first ImageNode reached in document
- * order before any node that projects visible text. Does not descend into
- * an image's own children (its caption belongs to the image).
- */
-function $findLeadingImage(node: LexicalNode, projection: DocumentProjection): ImageNode | null {
-  if ($isImageNode(node)) return node;
-  if (!$isElementNode(node)) return null;
-  for (const child of node.getChildren()) {
-    const found = $findLeadingImage(child, projection);
-    if (found) return found;
-    const span = projection.spans.get(child.getKey());
-    if (span && projection.text.slice(span.start, span.end).trim() !== "") return null;
-  }
-  return null;
-}
-
-/**
- * Locate the block that begins with the image identified by a prefix's
- * leading image token, optionally restricted to the blocks accepted by
- * `isEligible`. Any text after the token must match the start of the block's
- * text following the image (e.g. a caption). When an image leads both a list
- * and its first item, the item (the innermost block) wins.
- */
-function $locateBlockByLeadingImage(
-  image: LeadingImageToken,
-  projection: DocumentProjection,
-  isEligible: ((node: LexicalNode) => boolean) | null,
-): BlockPrefixResult {
-  const wantedSrc = canonicalImageSrc(image.src);
-  const normalizedRest = normalizeTracked(projectQuoteToRenderedText(image.rest)).text;
-  const blocksByImageKey = new Map<string, LexicalNode>();
-  for (const block of $collectPrefixAddressableBlocks()) {
-    if (isEligible && !isEligible(block)) continue;
-    const imageNode = $findLeadingImage(block, projection);
-    if (!imageNode || canonicalImageSrc(imageNode.getSrc()) !== wantedSrc) continue;
-    if (normalizedRest) {
-      const imageSpan = projection.spans.get(imageNode.getKey());
-      const blockSpan = projection.spans.get(block.getKey());
-      if (!imageSpan || !blockSpan) continue;
-      const followingText = normalizeTracked(projection.text.slice(imageSpan.start, blockSpan.end)).text;
-      if (!followingText.startsWith(normalizedRest)) continue;
+  const visit = (node: LexicalNode, isBlock: boolean): void => {
+    if (isBlock) addBlock(node);
+    if ($isElementNode(node)) {
+      for (const child of node.getChildren()) {
+        visit(child, $isListItemNode(child) || $isRootNode(node) || $isCollapsibleSectionContentNode(node));
+      }
     }
-    // Pre-order: a nested block overwrites the outer block that shares its image.
-    blocksByImageKey.set(imageNode.getKey(), block);
-  }
-
-  const matchedBlocks = [...blocksByImageKey.values()];
-  if (matchedBlocks.length === 1) {
-    return { node: matchedBlocks[0] };
-  }
-  if (matchedBlocks.length === 0) {
-    return { node: null, reason: `No block starts with an image whose URL is ${image.src}` };
-  }
-  return {
-    node: null,
-    reason: `Ambiguous prefix: ${matchedBlocks.length} blocks start with an image whose URL is ${image.src}. `
-      + `Include the text that follows the image to disambiguate.`,
   };
+  visit($getRoot(), false);
+  return blocks;
 }
 
 /**
@@ -655,8 +536,9 @@ function $locateBlockByLeadingImage(
  * with the given markdown prefix, via the text index. Replaces the legacy
  * markdown-serialization prefix matcher for deleteBlock/insertBlock: the
  * prefix is treated as a quote that must match at a block start, with the
- * same normalization as quote location. A prefix matching more than one
- * block is an error, never a guess.
+ * same normalization as quote location except that images project to tokens
+ * (see `DocumentProjectionOptions`). A prefix matching more than one block is
+ * an error, never a guess.
  *
  * Must be called inside a Lexical read/update context.
  */
@@ -713,20 +595,10 @@ function $locateBlockByTextPrefix(
   isEligible: ((node: LexicalNode) => boolean) | null,
   noMatchReason: string,
 ): BlockPrefixResult {
-  const { projection, normalizedDocument } = $buildNormalizedDocument();
-  const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix)).text;
-
-  // A prefix starting with an image is matched by the image's URL. If no
-  // block starts with that image, a prefix with text after the image (e.g. a
-  // caption) still gets the plain text match below.
-  const leadingImage = parseLeadingImageToken(prefix);
-  if (leadingImage) {
-    const imageResult = $locateBlockByLeadingImage(leadingImage, projection, isEligible);
-    if (imageResult.node || !normalizedPrefix) {
-      return imageResult;
-    }
-  }
-
+  // Images project to tokens on both sides, so a block that starts with an
+  // image is matched by the image's markdown like any other leading content.
+  const { projection, normalizedDocument } = $buildNormalizedDocument({ imageTokens: true });
+  const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix, { imageTokens: true })).text;
   if (!normalizedPrefix) {
     return { node: null, reason: "Prefix was empty after normalization." };
   }
