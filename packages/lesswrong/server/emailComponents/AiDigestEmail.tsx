@@ -25,6 +25,7 @@ import {
 import { aiDigestPresentation } from "@/lib/aiDigest/aiDigestPresentation";
 import type { JssStyles } from "@/lib/jssStyles";
 import { emailUseQuery } from "@/server/vulcan-lib/query";
+import { emailTokenTypesByName } from "@/server/emails/emailTokens";
 import { aiDigestChromeLinkUrl, aiDigestItemLinkUrl, type AiDigestLinkSlot } from "./aiDigestEmailLinks";
 import { EmailContentItemBody } from "./EmailContentItemBody";
 import { EmailContextType, emailUseStyles } from "./emailContext";
@@ -38,25 +39,12 @@ const emailSerifFont =
 const emailAiBlockFont =
   '"cronos-pro", "Trebuchet MS", Calibri, "Gill Sans", "Gill Sans MT", "Helvetica Neue", Arial, sans-serif';
 const mastheadHomeUrl = "/";
-const mastheadUnsubscribeUrl = "/account?tab=settings-notifications";
+const notificationSettingsUrl = "/account?tab=settings-notifications";
 
-// Tighter spacing for narrow screens, in email clients that support media
-// queries. Juice inlines the base styles onto each element, so every override
+// Tighter spacing and larger text for narrow screens, in email clients that
+// support media queries. Juice inlines the base styles onto each element, so every override
 // here must carry !important to beat the inlined value.
 const emailMobileBreakpoint = "@media screen and (max-width: 600px)";
-
-function CompassRoseIcon({ className }: {
-  className?: string;
-}) {
-  return (
-    <svg className={className} width="26" height="26" viewBox="0 0 100 100" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M29.1,29.2l6.4,11.6l4.3-0.8l0.8-4.3L29.1,29.2z M40.7,64.5l-0.8-4.3l-4.3-0.8L29.2,71L40.7,64.5z M70.9,70.9l-6.4-11.6l-4.3,0.8l-0.8,4.3L70.9,70.9z M64.4,40.8l6.4-11.6l-11.6,6.4l0.8,4.3L64.4,40.8z M67.4,58.8l10.8,19.4L58.8,67.4L50,98.8l-8.8-31.4L21.9,78.2l10.8-19.4L1.2,50.1l31.4-8.8L21.9,21.9l19.4,10.8L50,1.3l8.8,31.4l19.4-10.8L67.4,41.3L98.8,50L67.4,58.8zM57.7,57.8L83.5,50L50,50.1l7.7-7.7L50,16.6v33.5l-7.7-7.7l-25.8,7.7H50l-7.7,7.7L50,83.5V50.1L57.7,57.8z"
-      />
-    </svg>
-  );
-}
 
 function TuneIcon({ className }: {
   className?: string;
@@ -152,6 +140,7 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
   shell: {
     width: "100%",
+    marginBottom: 24,
     backgroundColor: "#f5f0e7",
     color: "#1a1a1a",
     fontFamily: emailSansFont,
@@ -166,24 +155,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     width: "100%",
     borderTop: "4px solid #53633f",
   },
-  mastheadCompassCell: {
-    width: 34,
-    padding: "14px 8px 0 0",
-    verticalAlign: "top",
-  },
   mastheadNameCell: {
     padding: "14px 0 0",
     verticalAlign: "top",
-  },
-  mastheadCompassLink: {
-    display: "block",
-    color: "#1a1a1a",
-    textDecoration: "none",
-  },
-  mastheadCompassIcon: {
-    display: "block",
-    width: 26,
-    height: 26,
   },
   wordmark: {
     color: "#1a1a1a",
@@ -249,7 +223,7 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontSize: aiDigestPresentation.aiNote.paragraphFontSize,
     lineHeight: aiDigestPresentation.aiNote.paragraphLineHeight,
     [emailMobileBreakpoint]: {
-      fontSize: "14px !important",
+      fontSize: "16px !important",
     },
   },
   aiNoteFirstParagraph: {
@@ -291,8 +265,8 @@ const styles = defineStyles("AiDigestEmail", () => ({
   customPrompt: {
     width: "100%",
     marginTop: 14,
-    backgroundColor: "#e9e4d9",
-    borderRadius: 6,
+    border: "1px solid #ded7c8",
+    borderRadius: aiDigestPresentation.card.borderRadius,
   },
   customPromptCell: {
     padding: "15px 20px 16px",
@@ -314,9 +288,11 @@ const styles = defineStyles("AiDigestEmail", () => ({
     color: "#4d4a43",
     fontFamily: emailSansFont,
     fontSize: 13,
-    fontStyle: "italic",
     lineHeight: 1.55,
     whiteSpace: "pre-wrap",
+    [emailMobileBreakpoint]: {
+      fontSize: "15px !important",
+    },
   },
   tuneIconWithLabel: {
     marginRight: 6,
@@ -350,7 +326,7 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
   headlineCard: {
     width: "100%",
-    backgroundColor: "#fffdf9",
+    backgroundColor: "#ffffff",
     borderRadius: aiDigestPresentation.card.borderRadius,
   },
   headlineImage: {
@@ -392,7 +368,7 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontSize: aiDigestPresentation.headline.metadataFontSize,
     lineHeight: aiDigestPresentation.headline.metadataLineHeight,
     [emailMobileBreakpoint]: {
-      fontSize: "12px !important",
+      fontSize: "14px !important",
     },
   },
   metadataLink: {
@@ -410,29 +386,28 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontSize: aiDigestPresentation.headline.excerptFontSize,
     lineHeight: aiDigestPresentation.headline.excerptLineHeight,
     [emailMobileBreakpoint]: {
-      fontSize: "15px !important",
+      fontSize: "17px !important",
     },
   },
   previewBody: previewBodyStyles({
     margin: aiDigestPresentation.headline.excerptMargin,
     fontSize: aiDigestPresentation.headline.excerptFontSize,
-    mobileFontSize: 15,
+    mobileFontSize: 17,
     lineHeight: aiDigestPresentation.headline.excerptLineHeight,
   }),
   readLink: {
     color: "#5f9b65",
-    flexShrink: 0,
     fontFamily: emailSansFont,
     fontSize: aiDigestPresentation.footer.readLinkFontSize,
     textDecoration: "none",
     whiteSpace: "nowrap",
     [emailMobileBreakpoint]: {
-      fontSize: "13px !important",
+      fontSize: "16px !important",
     },
   },
   compactCard: {
     width: "100%",
-    backgroundColor: "#fffdf9",
+    backgroundColor: "#ffffff",
     borderRadius: aiDigestPresentation.card.borderRadius,
   },
   compactTextCell: {
@@ -470,7 +445,7 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontWeight: aiDigestPresentation.compact.titleFontWeight,
     lineHeight: aiDigestPresentation.compact.titleLineHeight,
     [emailMobileBreakpoint]: {
-      fontSize: "16px !important",
+      fontSize: "18px !important",
     },
   },
   compactByline: {
@@ -482,7 +457,7 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontWeight: 400,
     textDecoration: "none",
     [emailMobileBreakpoint]: {
-      fontSize: "12px !important",
+      fontSize: "14px !important",
     },
   },
   compactExcerpt: {
@@ -492,18 +467,18 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontSize: aiDigestPresentation.compact.excerptFontSize,
     lineHeight: aiDigestPresentation.compact.excerptLineHeight,
     [emailMobileBreakpoint]: {
-      fontSize: "13px !important",
+      fontSize: "16px !important",
     },
   },
   compactPreviewBody: previewBodyStyles({
     margin: aiDigestPresentation.compact.excerptMargin,
     fontSize: aiDigestPresentation.compact.excerptFontSize,
-    mobileFontSize: 13,
+    mobileFontSize: 16,
     lineHeight: aiDigestPresentation.compact.excerptLineHeight,
   }),
   quickTakeCard: {
     width: "100%",
-    backgroundColor: "#fffdf9",
+    backgroundColor: "#ffffff",
     borderRadius: aiDigestPresentation.card.borderRadius,
   },
   quickTakeBody: {
@@ -542,6 +517,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontFamily: emailSansFont,
     fontSize: aiDigestPresentation.quickTake.authorFontSize,
     fontWeight: aiDigestPresentation.quickTake.authorFontWeight,
+    [emailMobileBreakpoint]: {
+      fontSize: "15px !important",
+    },
   },
   quickTakeDate: {
     color: "#8a8a8a",
@@ -561,10 +539,13 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontFamily: emailSansFont,
     fontSize: aiDigestPresentation.quickTake.textFontSize,
     lineHeight: aiDigestPresentation.quickTake.textLineHeight,
+    [emailMobileBreakpoint]: {
+      fontSize: "16px !important",
+    },
   },
   discussionCard: {
     width: "100%",
-    backgroundColor: "#fffdf9",
+    backgroundColor: "#ffffff",
     borderRadius: aiDigestPresentation.card.borderRadius,
   },
   discussionBody: {
@@ -578,7 +559,6 @@ const styles = defineStyles("AiDigestEmail", () => ({
     color: "#4d4a43",
     fontFamily: emailSerifFont,
     fontSize: aiDigestPresentation.discussion.threadTitleFontSize,
-    fontStyle: "italic",
     fontWeight: aiDigestPresentation.discussion.threadTitleFontWeight,
     lineHeight: aiDigestPresentation.discussion.titleLineHeight,
   },
@@ -591,14 +571,12 @@ const styles = defineStyles("AiDigestEmail", () => ({
   },
   commentBox: {
     margin: aiDigestPresentation.discussion.commentMargin,
+    backgroundColor: "#ffffff",
     border: "1px solid rgba(72,94,144,0.16)",
     borderRadius: aiDigestPresentation.discussion.commentBorderRadius,
   },
   commentContent: {
     padding: aiDigestPresentation.discussion.commentPadding,
-  },
-  commentBoxRoot: {
-    backgroundColor: "#ffffff",
   },
   commentBoxReply: {
     margin: aiDigestPresentation.discussion.replyMargin,
@@ -609,18 +587,15 @@ const styles = defineStyles("AiDigestEmail", () => ({
       marginBottom: "5px !important",
     },
   },
-  commentBoxOdd: {
-    backgroundColor: "#fcfcfc",
-  },
-  commentBoxEven: {
-    backgroundColor: "#f2f2f2",
-  },
   commentByline: {
     marginBottom: aiDigestPresentation.discussion.bylineMarginBottom,
     color: "#1a1a1a",
     fontFamily: emailSansFont,
     fontSize: aiDigestPresentation.discussion.bylineFontSize,
     fontWeight: aiDigestPresentation.discussion.bylineFontWeight,
+    [emailMobileBreakpoint]: {
+      fontSize: "15px !important",
+    },
   },
   commentBylineDate: {
     color: "#8a8a8a",
@@ -634,6 +609,9 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontFamily: emailSansFont,
     fontSize: aiDigestPresentation.discussion.textFontSize,
     lineHeight: aiDigestPresentation.discussion.textLineHeight,
+    [emailMobileBreakpoint]: {
+      fontSize: "16px !important",
+    },
   },
   commentLink: {
     display: "block",
@@ -644,29 +622,19 @@ const styles = defineStyles("AiDigestEmail", () => ({
     width: "100%",
   },
   footerCell: {
-    borderTop: "1px solid #efe9dc",
     paddingTop: aiDigestPresentation.footer.paddingTop,
   },
-  footerLayout: {
-    alignItems: "baseline",
-    columnGap: aiDigestPresentation.footer.columnGap,
-    display: "flex",
-    flexWrap: "wrap",
-    rowGap: aiDigestPresentation.footer.rowGap,
+  footerCellWithRule: {
+    borderTop: "1px solid #efe9dc",
   },
   footerReason: {
-    color: "#9a958a",
-    flex: `1 1 ${aiDigestPresentation.footer.reasonFlexBasis}px`,
+    marginBottom: aiDigestPresentation.footer.rowGap,
+    color: "#8a8577",
     fontFamily: emailSansFont,
     fontSize: aiDigestPresentation.footer.reasonFontSize,
-    fontStyle: "italic",
     lineHeight: aiDigestPresentation.footer.reasonLineHeight,
-    minWidth: 0,
-    textAlign: "right",
-    textWrap: "balance",
     [emailMobileBreakpoint]: {
-      flexBasis: "100% !important",
-      textAlign: "left !important",
+      fontSize: "14px !important",
     },
   },
   compactFooterCell: {
@@ -718,7 +686,7 @@ const styles = defineStyles("AiDigestEmail", () => ({
     fontWeight: aiDigestPresentation.curated.titleFontWeight,
     textDecoration: "none",
     [emailMobileBreakpoint]: {
-      fontSize: "15px !important",
+      fontSize: "17px !important",
     },
   },
   quietTitleLinkRead: {
@@ -731,8 +699,27 @@ const styles = defineStyles("AiDigestEmail", () => ({
     marginLeft: aiDigestPresentation.curated.bylineMarginLeft,
     textDecoration: "none",
     [emailMobileBreakpoint]: {
-      fontSize: "12px !important",
+      fontSize: "14px !important",
     },
+  },
+  digestFooter: {
+    width: "100%",
+    marginTop: 36,
+  },
+  digestFooterCell: {
+    borderTop: "1px solid #d8d1c0",
+    paddingTop: 14,
+    color: "#8a8577",
+    fontFamily: emailSansFont,
+    fontSize: 13,
+    lineHeight: 1.5,
+    [emailMobileBreakpoint]: {
+      fontSize: "14px !important",
+    },
+  },
+  digestFooterLink: {
+    color: "#5f9b65",
+    textDecoration: "none",
   },
   missingItem: {
     padding: aiDigestPresentation.missingItem.padding,
@@ -790,7 +777,7 @@ function AiNote({ note, issueId, classes }: {
                       className={classes.aiNoteTuneLink}
                     >
                       <TuneIcon className={classNames(classes.tuneIcon, classes.tuneIconWithLabel)} />
-                      tune your AI recommendations
+                      Tune your AI recommendations
                     </a>
                   </td>
                   <td className={classes.aiNoteFooterRightCell}>
@@ -798,7 +785,7 @@ function AiNote({ note, issueId, classes }: {
                       href={aiDigestChromeLinkUrl(digestExplanationUrl, "explainer", issueId)}
                       className={classes.aiNoteExplanationLink}
                     >
-                      what is this?
+                      What is this?
                     </a>
                   </td>
                 </tr>
@@ -835,10 +822,11 @@ function CustomPrompt({ personalInstructions, classes }: {
   );
 }
 
-function ItemFooter({ readMoreUrl, readMoreLabel, reason, classes }: {
+function ItemFooter({ readMoreUrl, readMoreLabel, reason, showRule = true, classes }: {
   readMoreUrl?: string;
   readMoreLabel?: string;
   reason?: string;
+  showRule?: boolean;
   classes: JssStyles;
 }) {
   return (
@@ -851,13 +839,11 @@ function ItemFooter({ readMoreUrl, readMoreLabel, reason, classes }: {
     >
       <tbody>
         <tr>
-          <td className={classes.footerCell}>
-            <div className={classes.footerLayout}>
-              {readMoreUrl && (
-                <a href={readMoreUrl} className={classes.readLink}>{readMoreLabel ?? "Read more"}</a>
-              )}
-              {reason && <div className={classes.footerReason}>{reason}</div>}
-            </div>
+          <td className={classNames(classes.footerCell, showRule && classes.footerCellWithRule)}>
+            {reason && <div className={classes.footerReason}>{reason}</div>}
+            {readMoreUrl && (
+              <a href={readMoreUrl} className={classes.readLink}>{readMoreLabel ?? "Read more"}</a>
+            )}
           </td>
         </tr>
       </tbody>
@@ -1145,11 +1131,7 @@ function CommentBox({
   const commentUrl = getCommentUrl(comment);
   return (
     <div
-      className={classNames(
-        classes.commentBox,
-        nestingLevel === 0 ? classes.commentBoxRoot : classes.commentBoxReply,
-        nestingLevel > 0 && (nestingLevel % 2 === 0 ? classes.commentBoxOdd : classes.commentBoxEven),
-      )}
+      className={classNames(classes.commentBox, nestingLevel > 0 && classes.commentBoxReply)}
     >
       <a
         href={aiDigestItemLinkUrl(commentUrl, "threadComment", slot)}
@@ -1227,6 +1209,7 @@ function DiscussionItem({
               readMoreUrl={aiDigestItemLinkUrl(commentUrl, "readMore", slot)}
               readMoreLabel="View thread"
               reason={item.reason}
+              showRule={false}
               classes={classes}
             />
           </td>
@@ -1285,6 +1268,36 @@ function DigestItem({ item, content, slot, classes }: {
       slot={slot}
       classes={classes}
     />
+  );
+}
+
+function DigestFooter({ unsubscribeUrl, classes }: {
+  unsubscribeUrl: string;
+  classes: JssStyles;
+}) {
+  return (
+    <table
+      role="presentation"
+      width="100%"
+      cellPadding={0}
+      cellSpacing={0}
+      className={classes.digestFooter}
+    >
+      <tbody>
+        <tr>
+          <td className={classes.digestFooterCell}>
+            You're receiving Content for You, an AI-personalized digest from LessWrong.{" "}
+            <a href={unsubscribeUrl} className={classes.digestFooterLink}>
+              Unsubscribe from Content for You
+            </a>
+            {" · "}
+            <a href={notificationSettingsUrl} className={classes.digestFooterLink}>
+              Notification settings
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   );
 }
 
@@ -1360,6 +1373,10 @@ export async function AiDigestEmail({ spec, issueId, emailContext }: {
 }) {
   const classes = emailUseStyles(styles, emailContext);
   const { postIds, commentIds } = aiDigestContentIds(spec);
+  const recipient = emailContext.currentUser;
+  const unsubscribeUrl = recipient
+    ? await emailTokenTypesByName.unsubscribeAiDigest.generateLink(recipient._id, emailContext.resolverContext.forumType)
+    : notificationSettingsUrl;
 
   const [postsResult, commentsResult] = await Promise.all([
     emailUseQuery(AiDigestEmailPostsQuery, {
@@ -1403,15 +1420,6 @@ export async function AiDigestEmail({ spec, issueId, emailContext }: {
               >
                 <tbody>
                   <tr>
-                    <td className={classes.mastheadCompassCell}>
-                      <a
-                        href={aiDigestChromeLinkUrl(mastheadHomeUrl, "masthead", issueId)}
-                        className={classes.mastheadCompassLink}
-                        aria-label="LessWrong"
-                      >
-                        <CompassRoseIcon className={classes.mastheadCompassIcon} />
-                      </a>
-                    </td>
                     <td className={classes.mastheadNameCell}>
                       <a
                         href={aiDigestChromeLinkUrl(mastheadHomeUrl, "masthead", issueId)}
@@ -1423,10 +1431,10 @@ export async function AiDigestEmail({ spec, issueId, emailContext }: {
                     </td>
                     <td className={classes.mastheadUnsubscribeCell}>
                       <a
-                        href={mastheadUnsubscribeUrl}
+                        href={unsubscribeUrl}
                         className={classes.mastheadUnsubscribeLink}
                       >
-                        unsubscribe
+                        Unsubscribe
                       </a>
                     </td>
                   </tr>
@@ -1451,6 +1459,8 @@ export async function AiDigestEmail({ spec, issueId, emailContext }: {
                   classes={classes}
                 />
               ))}
+
+              <DigestFooter unsubscribeUrl={unsubscribeUrl} classes={classes} />
             </td>
           </tr>
         </tbody>

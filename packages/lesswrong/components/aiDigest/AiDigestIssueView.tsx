@@ -116,7 +116,7 @@ const styles = defineStyles("AiDigestIssueView", (theme: ThemeType) => ({
   customPrompt: {
     marginTop: 14,
     padding: "15px 20px 16px",
-    borderRadius: 6,
+    borderRadius: aiDigestPresentation.card.borderRadius,
     background: theme.palette.panelBackground.darken05,
     color: theme.palette.text.dim2,
     fontFamily: theme.palette.fonts.sansSerifStack,

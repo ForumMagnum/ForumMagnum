@@ -188,6 +188,18 @@ export const emailTokenTypesByName = {
     resultComponentName: "EmailTokenResult",
   }),
 
+  unsubscribeAiDigest: new EmailTokenType({
+    name: "unsubscribeAiDigest",
+    onUseAction: async (user: DbUser, _params, _args, context) => {
+      await updateUser({
+        data: { emailSubscribedToAiDigest: false },
+        selector: { _id: user._id }
+      }, context);
+      return {message: `You have been unsubscribed from Content for You emails. You can resubscribe in your notification settings.` };
+    },
+    resultComponentName: "EmailTokenResult",
+  }),
+
   verifyEmail: new EmailTokenType({
     name: "verifyEmail",
     onUseAction: async (user) => {
