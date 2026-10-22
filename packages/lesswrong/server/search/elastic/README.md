@@ -119,6 +119,47 @@ a 30-day half-value distance thereafter. Explicit years or date/time filters
 disable it. Classic essays and past events receive no age penalty. Current
 opportunities without event metadata have no reliable deadline signal yet.
 
+### Baseline comparisons
+
+To tell whether a ranking change is an improvement, compare two *runs* of a
+graded golden query set against one frozen corpus.
+
+- **Golden set** (`server/scripts/searchBaselineData/goldenSet.json`, committed).
+  Each query has a category, an intent, optional "what annoys me" note, 0–3
+  grades keyed by `index:objectID`, and optional expectations: `within` (target
+  in the top N), `absent` (not in the top N), `above` (one result before another).
+  It was seeded from the stress suite and the judged lab-automation query.
+- **Frozen corpus** (`corpus.json`). `freezeSearchCorpus()` clones each live dev
+  index into `searcheval-<tag>-<alias>`. Clones share segments, so they are cheap,
+  but each source index is write-blocked for a few seconds while it is cloned.
+  Runs on different corpora are flagged as not comparable.
+- **Runs** (`runs/<time>-<sha>[-dirty]-<label>.json`). `runGoldenSet(label)` runs
+  every golden query with the code the REPL loaded and records the top 20.
+
+Per query, the comparison computes standard nDCG@10, where unjudged results count
+as irrelevant (so a target slipping from #1 to #2 registers), unjudged results in
+the top 10, and expectation pass/fail. Overall it reports wins, ties and losses,
+the mean delta with a paired-bootstrap 95% interval, and must-pass counts. The
+verdict is "Regression" if fewer expectations pass, and "Better" or "Worse" only
+if the interval excludes zero.
+
+```sh
+yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'freezeSearchCorpus()'   # once per corpus
+yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'runGoldenSet("baseline")'
+# change ranking code, then:
+yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'runGoldenSet("my-change")'
+yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'serveSearchBaseline()'   # http://localhost:4111
+```
+
+The viewer shows the verdict, per-category coverage and movement, a sorted
+per-query delta chart, and side-by-side top-10 lists with rank-movement lines.
+In the viewer you can grade results (keys `0`–`3`), add expectations, compare
+against live results from the loaded code (`l`), add an annoyance (`a`), and
+draw random known-item, person, concept and sequence queries to fill thin
+categories. Every edit is written to `goldenSet.json`. The server uses the
+ranking code it loaded at startup, so restart it after editing ranking code.
+`addSearchAnnoyance(query, note, category)` adds an annoyance from the REPL.
+
 ### Evaluation and release decision
 
 Run these development-only helpers through the REPL:

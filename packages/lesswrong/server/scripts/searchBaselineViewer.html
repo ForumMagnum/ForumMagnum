@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search Baseline</title>
+<style>
+:root {
+  --bg: #f7f7f5; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6b66; --faint: #e7e6e1; --line: #d9d8d2;
+  --accent: #2f5d8a; --win: #2e7d4f; --win-bg: #e3f2e8; --loss: #b3412e; --loss-bg: #f8e4df; --tie: #9a9a92;
+  --warn: #a86b00; --warn-bg: #fbf0d9; --sel: #eef3f8;
+  --g0: #b3412e; --g1: #c98a1a; --g2: #5d8f3c; --g3: #2e7d4f;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161615; --panel: #1f1f1d; --ink: #ecebe6; --muted: #9b9a93; --faint: #2b2b28; --line: #3a3a36;
+    --accent: #7fb0e0; --win: #6cc58f; --win-bg: #1f3327; --loss: #ee8a77; --loss-bg: #3a221d; --tie: #77776f;
+    --warn: #e6b450; --warn-bg: #3a2f17; --sel: #22303d;
+    --g0: #ee8a77; --g1: #e6b450; --g2: #9ccc7a; --g3: #6cc58f;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+button, select, input, textarea { font: inherit; color: inherit; }
+a { color: var(--accent); }
+button { cursor: pointer; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 4px 10px; }
+button:hover { border-color: var(--muted); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+button:disabled { opacity: .5; cursor: progress; }
+select, input, textarea { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 4px 8px; }
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 5; }
+header h1 { font-size: 15px; margin: 0 8px 0 0; }
+header .runs { display: flex; gap: 6px; align-items: center; margin-left: auto; flex-wrap: wrap; min-width: 0; max-width: 100%; }
+header .runs select { min-width: 0; max-width: 100%; flex: 1 1 220px; }
+.meta { color: var(--muted); font-size: 12px; }
+main { padding: 12px 16px 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+.card .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.card .value { font-size: 18px; font-weight: 600; }
+.card .sub { color: var(--muted); font-size: 12px; }
+.verdict { border-radius: 8px; padding: 8px 12px; font-weight: 600; border: 1px solid var(--line); background: var(--panel); }
+.verdict.good { background: var(--win-bg); color: var(--win); border-color: transparent; }
+.verdict.bad { background: var(--loss-bg); color: var(--loss); border-color: transparent; }
+.verdict.warn { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+.verdict .why { font-weight: 400; color: var(--ink); opacity: .8; margin-left: 6px; }
+.cats { display: flex; flex-wrap: wrap; gap: 6px; }
+.cat { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 5px 9px; min-width: 112px; text-align: left; }
+.cat.on { outline: 2px solid var(--accent); outline-offset: -1px; }
+.cat .name { font-weight: 600; }
+.cat .bar { height: 4px; background: var(--faint); border-radius: 2px; margin: 4px 0 2px; overflow: hidden; }
+.cat .bar span { display: block; height: 100%; background: var(--accent); }
+.cat.thin .name::after { content: " thin"; color: var(--warn); font-weight: 400; font-size: 11px; }
+.chart { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+.chart svg { width: 100%; height: 96px; display: block; }
+.chart rect.bar { cursor: pointer; }
+.chart rect.bar:hover { opacity: .7; }
+.chart rect.sel { stroke: var(--ink); stroke-width: 1.5; }
+.split { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 12px; align-items: start; }
+@media (max-width: 860px) {
+  .split { grid-template-columns: minmax(0, 1fr); }
+  .list { position: static; max-height: 45vh; }
+  .cols { grid-template-columns: minmax(0, 1fr) !important; }
+  .cols > div:first-child:not(:only-child), .gutter { display: none; }
+}
+.list { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; position: sticky; top: 64px; max-height: calc(100vh - 80px); display: flex; flex-direction: column; }
+.list .controls { padding: 8px; border-bottom: 1px solid var(--line); display: grid; gap: 6px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; }
+.tabs button { padding: 2px 8px; font-size: 12px; border-radius: 12px; }
+.tabs button.on { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.rows { overflow: auto; }
+.row { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--faint); cursor: pointer; }
+.row:hover { background: var(--faint); }
+.row.on { background: var(--sel); }
+.row .q { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .tags { color: var(--muted); font-size: 11px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tie); }
+.dot.win { background: var(--win); } .dot.loss { background: var(--loss); } .dot.na { background: transparent; border: 1px solid var(--line); }
+.delta.win { color: var(--win); } .delta.loss { color: var(--loss); }
+.flag { font-size: 11px; padding: 0 5px; border-radius: 8px; margin-left: 4px; }
+.flag.fail { background: var(--loss-bg); color: var(--loss); }
+.flag.grade { background: var(--warn-bg); color: var(--warn); }
+.flag.fixed { background: var(--win-bg); color: var(--win); }
+.detail { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; min-height: 300px; }
+.detail h2 { margin: 0; font-size: 17px; }
+.detail .head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.detail .head .actions { margin-left: auto; display: flex; gap: 6px; }
+.note { margin: 8px 0; padding: 6px 10px; border-left: 3px solid var(--warn); background: var(--warn-bg); border-radius: 0 6px 6px 0; }
+.expects { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.expect { border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; font-size: 12px; display: inline-flex; gap: 6px; align-items: center; }
+.expect .r { font-weight: 600; } .expect .pass { color: var(--win); } .expect .fail { color: var(--loss); }
+.expect button { border: none; padding: 0 2px; background: none; color: var(--muted); }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr); margin-top: 10px; }
+.colhead { display: flex; justify-content: space-between; align-items: baseline; padding: 0 0 4px; border-bottom: 1px solid var(--line); height: 30px; }
+.colhead .t { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.colhead .muted { white-space: nowrap; flex-shrink: 0; margin-left: 8px; }
+.hit { height: 46px; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 6px; align-items: center; border-bottom: 1px solid var(--faint); padding: 0 4px; border-left: 3px solid transparent; }
+.hit.ungraded { border-left-color: var(--warn); }
+.hit.focus { background: var(--sel); }
+.hit .rk { color: var(--muted); text-align: right; }
+.hit .ttl { overflow: hidden; }
+.hit .ttl a { color: inherit; text-decoration: none; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hit .ttl a:hover { text-decoration: underline; }
+.hit .sub { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.idx { font-size: 10px; text-transform: uppercase; letter-spacing: .03em; padding: 0 4px; border-radius: 3px; background: var(--faint); color: var(--muted); }
+.grades { display: flex; gap: 2px; align-items: center; }
+.grades button { width: 22px; height: 22px; padding: 0; border-radius: 4px; font-size: 11px; color: var(--muted); }
+.grades button.on[data-g="0"] { background: var(--g0); border-color: var(--g0); color: var(--panel); }
+.grades button.on[data-g="1"] { background: var(--g1); border-color: var(--g1); color: var(--panel); }
+.grades button.on[data-g="2"] { background: var(--g2); border-color: var(--g2); color: var(--panel); }
+.grades button.on[data-g="3"] { background: var(--g3); border-color: var(--g3); color: var(--panel); }
+.grades select { padding: 1px 2px; font-size: 11px; width: 22px; height: 22px; color: var(--muted); }
+.gutter svg { width: 44px; display: block; margin-top: 30px; }
+.empty { color: var(--muted); padding: 20px 0; }
+.kbd { font-family: ui-monospace, monospace; font-size: 11px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; }
+.hints { color: var(--muted); font-size: 11px; margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; }
+dialog { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); width: min(640px, calc(100vw - 32px)); padding: 0; }
+dialog::backdrop { background: rgba(0,0,0,.35); }
+dialog .body { padding: 14px 16px; display: grid; gap: 10px; }
+dialog label { display: grid; gap: 3px; font-size: 12px; color: var(--muted); }
+dialog input, dialog textarea, dialog select { width: 100%; color: var(--ink); }
+dialog .foot { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--line); }
+.sugg { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--faint); }
+.toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--panel); padding: 6px 14px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.toast.show { opacity: 1; }
+.toast.err { background: var(--loss); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Search baseline</h1>
+  <span class="meta" id="meta"></span>
+  <div class="runs">
+    <select id="baseline" aria-label="Baseline run"></select>
+    <span class="muted">→</span>
+    <select id="candidate" aria-label="Candidate run"></select>
+    <button id="run" title="Run every golden query with the code this server loaded">Run current code</button>
+    <button id="add" class="primary" title="Add something that annoys you (a)">+ Annoyance</button>
+  </div>
+</header>
+<main>
+  <div id="verdict"></div>
+  <div class="cards" id="cards"></div>
+  <div class="cats" id="cats"></div>
+  <div class="chart" id="chart"></div>
+  <div class="split">
+    <div class="list">
+      <div class="controls">
+        <div class="tabs" id="tabs"></div>
+        <div style="display:flex; gap:6px">
+          <input id="text" placeholder="Filter queries  /" style="flex:1">
+          <select id="sort" aria-label="Sort">
+            <option value="change">Biggest change</option>
+            <option value="worst">Worst candidate</option>
+            <option value="category">Category</option>
+            <option value="added">Recently added</option>
+          </select>
+        </div>
+      </div>
+      <div class="rows" id="rows"></div>
+    </div>
+    <div class="detail" id="detail"></div>
+  </div>
+</main>
+
+<dialog id="dlg">
+  <div class="body">
+    <div class="tabs" id="dlgTabs">
+      <button data-tab="annoyance" class="on">Annoyance</button>
+      <button data-tab="sample">Sample diverse queries</button>
+    </div>
+    <div id="pane-annoyance" style="display:grid; gap:10px">
+      <label>Query<input id="fQuery" autocomplete="off"></label>
+      <label>What's wrong with the results today?<textarea id="fNote" rows="2" placeholder="e.g. the sequence ranks below three link posts  (Shift+Enter for a newline)"></textarea></label>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px">
+        <label>Category<select id="fCategory"></select></label>
+        <label>What the searcher wants<input id="fIntent" placeholder="Find the Hammertime sequence"></label>
+      </div>
+      <div class="muted" style="font-size:12px">Saving adds it to <code>goldenSet.json</code> and opens it with live results for grading.</div>
+    </div>
+    <div id="pane-sample" style="display:none; gap:10px">
+      <div style="display:flex; gap:6px">
+        <select id="sKind">
+          <option value="known-item">Post by full title</option>
+          <option value="title-fragment">Post by half-typed title</option>
+          <option value="person">Person by display name</option>
+          <option value="concept">Wiki/tag page</option>
+          <option value="sequence">Sequence</option>
+        </select>
+        <button id="sGo">Draw 5</button>
+      </div>
+      <div class="muted" style="font-size:12px">Random documents from the frozen corpus. Adding one grades its source document 3 and expects it in the top 3.</div>
+      <div id="sList"></div>
+    </div>
+  </div>
+  <div class="foot">
+    <button id="dlgCancel">Close</button>
+    <button id="dlgSave" class="primary">Save</button>
+  </div>
+</dialog>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const gradeNames = ["Irrelevant", "Marginal", "Relevant", "Exactly it"];
+const siteBase = "https://www.lesswrong.com";
+const thinCategory = 5;
+const tieThreshold = 0.005;
+
+const S = {
+  state: null, comparison: null, baseline: "", candidate: "",
+  selected: null, tab: "all", category: null, text: "", sort: "change",
+  live: {}, liveMode: false, focus: 0, depth: 10, saving: false,
+};
+
+const $ = id => document.getElementById(id);
+const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[ch]));
+const fmt = (value, digits = 3) => value === null || value === undefined ? "–" : value.toFixed(digits);
+const signed = (value, digits = 3) => value === null || value === undefined ? "–" : (value > 0 ? "+" : "") + value.toFixed(digits);
+
+function toast(message, error = false) {
+  const el = $("toast");
+  el.textContent = message;
+  el.className = "toast show" + (error ? " err" : "");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => { el.className = "toast"; }, error ? 5000 : 1800);
+}
+
+async function api(path, body) {
+  const response = await fetch(path, body === undefined ? {} : {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify(body)});
+  const json = await response.json();
+  if (!response.ok) throw new Error(json.error || response.statusText);
+  return json;
+}
+
+// Mirrors searchBaselineMetrics.ts so grading and live results update without a round trip.
+function rankOf(keys, key) { const i = keys.indexOf(key); return i < 0 ? null : i + 1; }
+function expectationPasses(expectation, keys) {
+  if (expectation.kind === "within") { const r = rankOf(keys, expectation.target); return r !== null && r <= expectation.rank; }
+  if (expectation.kind === "absent") { const r = rankOf(keys, expectation.target); return r === null || r > expectation.rank; }
+  const p = rankOf(keys, expectation.preferred), o = rankOf(keys, expectation.over);
+  return p !== null && (o === null || p < o);
+}
+function ndcg(keys, grades) {
+  const graded = Object.entries(grades).map(([key, value]) => [key, value.grade]);
+  const map = new Map(graded);
+  const observed = keys.slice(0, 10).map(key => map.get(key) ?? 0);
+  const ideal = graded.map(([, grade]) => grade).sort((a, b) => b - a).slice(0, 10);
+  const dcg = list => list.reduce((sum, grade, i) => sum + (2 ** grade - 1) / Math.log2(i + 2), 0);
+  const idealDcg = dcg(ideal);
+  return idealDcg ? dcg(observed) / idealDcg : null;
+}
+
+function golden() { return S.state.golden.queries; }
+function queryById(id) { return golden().find(query => query.id === id); }
+function comparisonFor(id) { return S.comparison?.queries.find(query => query.id === id); }
+function runLabel(run) { return `${run.name}${run.corpusTag !== S.state.corpus?.tag ? " (other corpus)" : ""}`; }
+
+function readHash() {
+  const params = new URLSearchParams(location.hash.slice(1));
+  return {baseline: params.get("b") || "", candidate: params.get("c") || "", selected: params.get("q") || null};
+}
+function writeHash() {
+  const params = new URLSearchParams();
+  if (S.baseline) params.set("b", S.baseline);
+  if (S.candidate) params.set("c", S.candidate);
+  if (S.selected) params.set("q", S.selected);
+  history.replaceState(null, "", "#" + params.toString());
+}
+
+async function loadState() {
+  S.state = await api("/api/state");
+  const names = S.state.runs.map(run => run.name);
+  const hash = readHash();
+  S.candidate = names.includes(S.candidate) ? S.candidate : names.includes(hash.candidate) ? hash.candidate : names[0] || "";
+  S.baseline = names.includes(S.baseline) ? S.baseline : names.includes(hash.baseline) ? hash.baseline : names[1] || names[0] || "";
+  if (!S.selected) S.selected = hash.selected && queryById(hash.selected) ? hash.selected : golden()[0]?.id ?? null;
+  await loadComparison();
+}
+
+async function loadComparison() {
+  S.comparison = S.baseline && S.candidate ? await api(`/api/compare?baseline=${encodeURIComponent(S.baseline)}&candidate=${encodeURIComponent(S.candidate)}`) : null;
+  render();
+}
+
+let refreshTimer;
+function refreshComparisonSoon() {
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(() => { if (S.comparison) loadComparison().catch(error => toast(error.message, true)); }, 400);
+}
+
+function render() {
+  writeHash();
+  renderHeader();
+  renderVerdict();
+  renderCards();
+  renderCategories();
+  renderChart();
+  renderTabs();
+  renderList();
+  renderDetail();
+}
+
+function renderHeader() {
+  const {corpus, code, runs} = S.state;
+  $("meta").innerHTML = corpus
+    ? `corpus <b>${esc(corpus.tag)}</b> · ${golden().length} queries · server code <b>${esc(code.head)}</b>${code.dirty ? " + local changes" : ""}`
+    : `<span style="color:var(--loss)">No frozen corpus. Run <code>freezeSearchCorpus()</code> in the REPL first.</span>`;
+  for (const id of ["baseline", "candidate"]) {
+    $(id).innerHTML = runs.length
+      ? runs.map(run => `<option value="${esc(run.name)}" ${S[id] === run.name ? "selected" : ""}>${esc(runLabel(run))}</option>`).join("")
+      : `<option>no runs yet</option>`;
+    $(id).disabled = !runs.length;
+  }
+}
+
+function renderVerdict() {
+  const c = S.comparison;
+  const el = $("verdict");
+  if (!c) { el.innerHTML = `<div class="verdict warn">No runs yet<span class="why">Click “Run current code” to record the first baseline, then change the ranking, restart the server and run again.</span></div>`; return; }
+  const s = c.summary;
+  const parts = [];
+  let cls = "", text;
+  if (S.baseline === S.candidate) { text = "Single run"; parts.push("pick a different baseline to compare"); }
+  else if (!c.sameCorpus) { cls = "warn"; text = "Not comparable"; parts.push("the two runs used different frozen corpora"); }
+  else if (s.mustPass.candidate.pass < s.mustPass.baseline.pass) { cls = "bad"; text = "Regression"; parts.push(`${s.mustPass.baseline.pass - s.mustPass.candidate.pass} fewer expectations pass`); }
+  else if (s.deltaInterval && s.deltaInterval[0] > 0) { cls = "good"; text = "Better"; parts.push(`mean nDCG@10 ${signed(s.meanDelta)}, 95% CI excludes zero`); }
+  else if (s.deltaInterval && s.deltaInterval[1] < 0) { cls = "bad"; text = "Worse"; parts.push(`mean nDCG@10 ${signed(s.meanDelta)}, 95% CI excludes zero`); }
+  else { text = "No detectable difference"; parts.push(s.compared < 2 ? "too few graded queries to tell" : "the interval includes zero"); }
+  if (s.missing.baseline || s.missing.candidate) parts.push(`${Math.max(s.missing.baseline, s.missing.candidate)} queries missing from a run — rerun to include them`);
+  el.innerHTML = `<div class="verdict ${cls}">${esc(text)}<span class="why">${esc(parts.join(" · "))}</span></div>`;
+}
+
+function renderCards() {
+  const c = S.comparison;
+  if (!c) { $("cards").innerHTML = ""; return; }
+  const s = c.summary;
+  const pass = count => `${count.pass}/${count.total}`;
+  const mustCls = s.mustPass.candidate.pass < s.mustPass.baseline.pass ? "loss" : s.mustPass.candidate.pass > s.mustPass.baseline.pass ? "win" : "";
+  const deltaCls = s.meanDelta > tieThreshold ? "win" : s.meanDelta < -tieThreshold ? "loss" : "";
+  $("cards").innerHTML = [
+    card("Must-pass", `<span class="delta ${mustCls}">${pass(s.mustPass.baseline)} → ${pass(s.mustPass.candidate)}</span>`, "expectations met"),
+    card("nDCG@10", `${fmt(s.meanBaseline)} → ${fmt(s.meanCandidate)}`, `${s.compared} graded queries`),
+    card("Δ mean", `<span class="delta ${deltaCls}">${signed(s.meanDelta)}</span>`, s.deltaInterval ? `95% CI [${signed(s.deltaInterval[0])}, ${signed(s.deltaInterval[1])}]` : "needs ≥2 graded queries"),
+    card("Win · tie · loss", `<span class="delta win">${s.wins}</span> · ${s.ties} · <span class="delta loss">${s.losses}</span>`, "per query"),
+    card("Unjudged in top 10", `${s.unjudgedTop10.baseline} → ${s.unjudgedTop10.candidate}`, `<a href="#" id="toGrading">grade them</a>`),
+  ].join("");
+  $("toGrading").onclick = event => { event.preventDefault(); S.tab = "grading"; render(); };
+}
+function card(label, value, sub) { return `<div class="card"><div class="label">${label}</div><div class="value num">${value}</div><div class="sub">${sub}</div></div>`; }
+
+function renderCategories() {
+  const byCategory = new Map((S.comparison?.categories ?? []).map(category => [category.category, category]));
+  const max = Math.max(thinCategory, ...S.state.categories.map(category => golden().filter(query => query.category === category).length));
+  $("cats").innerHTML = S.state.categories.map(category => {
+    const queries = golden().filter(query => query.category === category);
+    const graded = queries.filter(query => Object.keys(query.grades).length).length;
+    const summary = byCategory.get(category);
+    const delta = summary?.meanDelta;
+    const deltaCls = delta > tieThreshold ? "win" : delta < -tieThreshold ? "loss" : "";
+    return `<button class="cat ${S.category === category ? "on" : ""} ${queries.length < thinCategory ? "thin" : ""}" data-cat="${category}">
+      <div class="name">${esc(category)}</div>
+      <div class="bar"><span style="width:${(queries.length / max) * 100}%"></span></div>
+      <div class="sub num muted">${queries.length} q · ${graded} graded${summary && S.baseline !== S.candidate ? ` · <span class="delta ${deltaCls}">${signed(delta, 2)}</span>` : ""}</div>
+    </button>`;
+  }).join("");
+  for (const el of $("cats").querySelectorAll("[data-cat]")) {
+    el.onclick = () => { S.category = S.category === el.dataset.cat ? null : el.dataset.cat; render(); };
+  }
+}
+
+function renderChart() {
+  const c = S.comparison;
+  if (!c || S.baseline === S.candidate) { $("chart").style.display = "none"; return; }
+  $("chart").style.display = "";
+  const items = c.queries.filter(query => query.delta !== null).sort((a, b) => a.delta - b.delta);
+  if (!items.length) { $("chart").innerHTML = `<div class="empty">No graded queries in both runs yet.</div>`; return; }
+  const width = 1000, height = 96, mid = height / 2;
+  const maxAbs = Math.max(0.05, ...items.map(item => Math.abs(item.delta)));
+  const step = width / items.length;
+  const bars = items.map((item, i) => {
+    const h = Math.max(1, (Math.abs(item.delta) / maxAbs) * (mid - 6));
+    const y = item.delta >= 0 ? mid - h : mid;
+    const color = item.verdict === "win" ? "var(--win)" : item.verdict === "loss" ? "var(--loss)" : "var(--tie)";
+    return `<rect class="bar ${item.id === S.selected ? "sel" : ""}" data-id="${esc(item.id)}" x="${i * step + step * 0.12}" y="${y}" width="${Math.max(1, step * 0.76)}" height="${h}" fill="${color}"><title>${esc(item.query)}  ${signed(item.delta)}</title></rect>`;
+  }).join("");
+  $("chart").innerHTML = `<div class="meta">Per-query Δ nDCG@10, sorted. Click a bar to open the query.</div>
+    <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="Per-query delta chart">
+      <line x1="0" x2="${width}" y1="${mid}" y2="${mid}" stroke="var(--line)" />${bars}
+    </svg>`;
+  for (const el of $("chart").querySelectorAll("rect.bar")) el.onclick = () => select(el.dataset.id);
+}
+
+const tabs = [
+  ["all", "All"], ["losses", "Losses"], ["wins", "Wins"], ["failing", "Failing"], ["grading", "Needs grading"], ["annoyance", "Annoyances"],
+];
+function matchesTab(query, comparison) {
+  switch (S.tab) {
+    case "losses": return comparison && (comparison.verdict === "loss" || comparison.expectationChange === "broke");
+    case "wins": return comparison && (comparison.verdict === "win" || comparison.expectationChange === "fixed");
+    case "failing": return comparison && comparison.candidate.expectations.some(result => !result.pass);
+    case "grading": return !Object.keys(query.grades).length || (comparison && (comparison.candidate.unjudgedTop10 > 0 || comparison.baseline.unjudgedTop10 > 0));
+    case "annoyance": return query.source === "annoyance";
+    default: return true;
+  }
+}
+function renderTabs() {
+  $("tabs").innerHTML = tabs.map(([id, label]) => {
+    return `<button data-tab="${id}" class="${S.tab === id ? "on" : ""}">${label}</button>`;
+  }).join("");
+  for (const el of $("tabs").querySelectorAll("button")) el.onclick = () => { S.tab = el.dataset.tab; render(); };
+}
+
+function visibleQueries() {
+  const text = S.text.toLowerCase();
+  const items = golden().filter(query => {
+    const comparison = comparisonFor(query.id);
+    return (!S.category || query.category === S.category)
+      && (!text || query.query.toLowerCase().includes(text) || (query.note ?? "").toLowerCase().includes(text))
+      && matchesTab(query, comparison);
+  });
+  const change = query => {
+    const comparison = comparisonFor(query.id);
+    if (!comparison) return 0;
+    return (comparison.expectationChange === "broke" ? 10 : comparison.expectationChange === "fixed" ? 5 : 0) + Math.abs(comparison.delta ?? 0);
+  };
+  const sorters = {
+    change: (a, b) => change(b) - change(a),
+    worst: (a, b) => (comparisonFor(a.id)?.candidate.ndcg ?? 2) - (comparisonFor(b.id)?.candidate.ndcg ?? 2),
+    category: (a, b) => a.category.localeCompare(b.category) || a.query.localeCompare(b.query),
+    added: (a, b) => b.addedAt.localeCompare(a.addedAt),
+  };
+  return items.sort(sorters[S.sort]);
+}
+
+function renderList() {
+  const items = visibleQueries();
+  $("rows").innerHTML = items.length ? items.map(query => {
+    const comparison = comparisonFor(query.id);
+    const verdict = comparison?.verdict ?? "n/a";
+    const failing = comparison ? comparison.candidate.expectations.filter(result => !result.pass).length : 0;
+    const unjudged = comparison ? comparison.candidate.unjudgedTop10 : 0;
+    const flags = [
+      comparison?.expectationChange === "broke" ? `<span class="flag fail">broke</span>` : "",
+      comparison?.expectationChange === "fixed" ? `<span class="flag fixed">fixed</span>` : "",
+      failing ? `<span class="flag fail">✗${failing}</span>` : "",
+      !Object.keys(query.grades).length ? `<span class="flag grade">ungraded</span>` : unjudged ? `<span class="flag grade">${unjudged}?</span>` : "",
+    ].join("");
+    const deltaCls = verdict === "win" ? "win" : verdict === "loss" ? "loss" : "";
+    return `<div class="row ${query.id === S.selected ? "on" : ""}" data-id="${esc(query.id)}">
+      <span class="dot ${verdict === "n/a" ? "na" : verdict}"></span>
+      <div><div class="q">${esc(query.query)}</div><div class="tags">${esc(query.category)}${query.source === "annoyance" ? " · annoyance" : ""}${flags}</div></div>
+      <span class="delta num ${deltaCls}">${comparison && S.baseline !== S.candidate ? signed(comparison.delta, 2) : ""}</span>
+    </div>`;
+  }).join("") : `<div class="empty" style="padding:16px">Nothing matches.</div>`;
+  for (const el of $("rows").querySelectorAll(".row")) el.onclick = () => select(el.dataset.id);
+  $("rows").querySelector(".row.on")?.scrollIntoView({block: "nearest"});
+}
+
+function select(id) {
+  S.selected = id;
+  S.focus = 0;
+  S.liveMode = false;
+  render();
+}
+
+function columns(query) {
+  const comparison = comparisonFor(query.id);
+  const fromRun = (side, name) => {
+    const outcome = comparison?.[side];
+    if (!outcome || outcome.missing) return null;
+    return {label: name, sub: side, hits: outcome.hits, error: outcome.error};
+  };
+  const left = S.baseline !== S.candidate ? fromRun("baseline", S.baseline) : null;
+  let right = fromRun("candidate", S.candidate);
+  if (S.liveMode || !right) {
+    const live = S.live[query.query];
+    right = {label: "Live · current code", sub: "not saved to a run", hits: live?.hits ?? null, live: true, elapsedMs: live?.elapsedMs};
+    if (!live) loadLive(query.query);
+  }
+  return [left, right];
+}
+
+async function loadLive(text) {
+  if (S.live[text] === undefined) {
+    S.live[text] = null;
+    try { S.live[text] = await api("/api/search", {query: text}); }
+    catch (error) { delete S.live[text]; toast(error.message, true); return; }
+    renderDetail();
+  }
+}
+
+function hitRow(query, hit, rank, focusable, focused) {
+  const graded = query.grades[hit.key];
+  const buttons = [0, 1, 2, 3].map(grade => `<button data-g="${grade}" class="${graded?.grade === grade ? "on" : ""}" title="${gradeNames[grade]} (${grade})" data-key="${esc(hit.key)}" data-title="${esc(hit.title)}">${grade}</button>`).join("");
+  const expect = `<select data-expect="${esc(hit.key)}" title="Add an expectation"><option value="">⋯</option><option value="within:1">Must be #1</option><option value="within:3">Must be in top 3</option><option value="within:10">Must be in top 10</option><option value="absent:10">Must not be in top 10</option></select>`;
+  return `<div class="hit ${graded ? "" : "ungraded"} ${focused ? "focus" : ""}" ${focusable ? `data-focus="${rank - 1}"` : ""}>
+    <span class="rk num">${rank}</span>
+    <div class="ttl">${hit.path ? `<a href="${esc(siteBase + hit.path)}" target="_blank" rel="noreferrer" title="${esc(hit.title)}">` : `<a title="${esc(hit.title)}">`}${esc(hit.title) || "<span class='muted'>(untitled)</span>"}</a>
+      <div class="sub"><span class="idx">${esc(hit.index)}</span> karma ${hit.karma} · score ${hit.score.toFixed(2)}</div></div>
+    <div class="grades">${buttons}${expect}</div>
+  </div>`;
+}
+
+function connectorSvg(left, right, depth) {
+  const rowH = 46;
+  const height = depth * rowH;
+  const rightKeys = right.map(hit => hit.key);
+  const lines = left.map((hit, i) => {
+    const j = rightKeys.indexOf(hit.key);
+    const y1 = i * rowH + rowH / 2;
+    if (j < 0) return `<circle cx="6" cy="${y1}" r="3" fill="var(--loss)"><title>dropped out of the top ${right.length}</title></circle>`;
+    if (j >= depth) return `<line x1="0" y1="${y1}" x2="44" y2="${height - 2}" stroke="var(--loss)" stroke-dasharray="2 2" />`;
+    const y2 = j * rowH + rowH / 2;
+    const color = j < i ? "var(--win)" : j > i ? "var(--loss)" : "var(--line)";
+    return `<line x1="0" y1="${y1}" x2="44" y2="${y2}" stroke="${color}" stroke-width="${j === i ? 1 : 1.6}" />`;
+  });
+  const fresh = right.map((hit, j) => left.some(other => other.key === hit.key) ? "" : `<circle cx="38" cy="${j * rowH + rowH / 2}" r="3" fill="var(--accent)"><title>new in the candidate</title></circle>`);
+  return `<svg viewBox="0 0 44 ${height}" height="${height}">${lines.join("")}${fresh.join("")}</svg>`;
+}
+
+function expectationText(expectation, query) {
+  const name = key => esc(query.grades[key]?.title || key);
+  if (expectation.kind === "within") return `${name(expectation.target)} in top ${expectation.rank}`;
+  if (expectation.kind === "absent") return `${name(expectation.target)} not in top ${expectation.rank}`;
+  return `${name(expectation.preferred)} above ${name(expectation.over)}`;
+}
+
+function renderDetail() {
+  const query = S.selected && queryById(S.selected);
+  const el = $("detail");
+  if (!query) { el.innerHTML = `<div class="empty">Select a query, or press <span class="kbd">a</span> to add something that annoys you.</div>`; return; }
+  const [left, right] = columns(query);
+  const depth = S.depth;
+  const leftHits = left?.hits?.slice(0, depth) ?? [];
+  const rightHits = right?.hits?.slice(0, depth) ?? [];
+  const keysOf = column => column?.hits?.map(hit => hit.key) ?? [];
+  const expectations = query.expectations.map((expectation, i) => {
+    const status = column => column?.hits ? (expectationPasses(expectation, keysOf(column)) ? `<span class="pass">✓</span>` : `<span class="fail">✗</span>`) : "";
+    return `<span class="expect">${left ? status(left) + " → " : ""}${status(right)} <span>${expectationText(expectation, query)}</span><button data-unexpect="${i}" title="Remove">×</button></span>`;
+  }).join("");
+  const columnHead = column => column ? `<div class="colhead"><span class="t" title="${esc(column.label)}">${esc(column.label)}</span><span class="muted num">nDCG ${fmt(column.hits ? ndcg(keysOf(column), query.grades) : null)}</span></div>` : "";
+  const columnBody = (column, hits, focusable) => {
+    if (!column) return "";
+    if (column.error) return `<div class="empty">Search failed: ${esc(column.error)}</div>`;
+    if (!column.hits) return `<div class="empty">Searching…</div>`;
+    if (!hits.length) return `<div class="empty">No results.</div>`;
+    return hits.map((hit, i) => hitRow(query, hit, i + 1, focusable, focusable && S.focus === i)).join("");
+  };
+  el.innerHTML = `
+    <div class="head">
+      <h2>${esc(query.query)}</h2>
+      <span class="muted">${esc(query.category)} · ${esc(query.source)} · added ${esc(query.addedAt)}</span>
+      <div class="actions">
+        ${right && !right.live ? `<button id="liveBtn" title="Compare against the code this server loaded">Live (l)</button>` : S.liveMode ? `<button id="liveBtn">Back to run</button>` : ""}
+        <button id="depthBtn">${depth === 10 ? "Show 20" : "Show 10"}</button>
+        <button id="editBtn">Edit</button>
+        <button id="delBtn" title="Remove from the golden set">Delete</button>
+      </div>
+    </div>
+    ${query.intent ? `<div class="muted">Wants: ${esc(query.intent)}</div>` : ""}
+    ${query.note ? `<div class="note">${esc(query.note)}</div>` : ""}
+    ${expectations ? `<div class="expects">${expectations}</div>` : `<div class="muted" style="margin:8px 0">No expectations yet. Use ⋯ on a result to add one.</div>`}
+    <div class="cols" style="grid-template-columns:${left ? "minmax(0, 1fr) 44px minmax(0, 1fr)" : "minmax(0, 1fr)"}">
+      ${left ? `<div>${columnHead(left)}${columnBody(left, leftHits, false)}</div><div class="gutter">${leftHits.length && rightHits.length ? connectorSvg(leftHits, right.hits.slice(0, 20), depth) : ""}</div>` : ""}
+      <div>${columnHead(right)}${columnBody(right, rightHits, true)}</div>
+    </div>
+    <div class="hints"><span><span class="kbd">j</span>/<span class="kbd">k</span> query</span><span><span class="kbd">↑</span>/<span class="kbd">↓</span> result</span><span><span class="kbd">0</span>–<span class="kbd">3</span> grade · <span class="kbd">⌫</span> clear</span><span><span class="kbd">l</span> live</span><span><span class="kbd">a</span> add annoyance</span><span>Left border = ungraded</span></div>`;
+  for (const button of el.querySelectorAll(".grades button")) {
+    button.onclick = () => gradeHit(query, button.dataset.key, Number(button.dataset.g), button.dataset.title);
+  }
+  for (const selectEl of el.querySelectorAll("select[data-expect]")) {
+    selectEl.onchange = () => {
+      const [kind, rank] = selectEl.value.split(":");
+      if (kind) addExpectation(query, {kind, target: selectEl.dataset.expect, rank: Number(rank)});
+    };
+  }
+  for (const button of el.querySelectorAll("[data-unexpect]")) {
+    button.onclick = () => saveQuery({...query, expectations: query.expectations.filter((_, i) => i !== Number(button.dataset.unexpect))});
+  }
+  for (const row of el.querySelectorAll("[data-focus]")) row.onmouseenter = () => { S.focus = Number(row.dataset.focus); markFocus(); };
+  if ($("liveBtn")) $("liveBtn").onclick = toggleLive;
+  $("depthBtn").onclick = () => { S.depth = S.depth === 10 ? 20 : 10; renderDetail(); };
+  $("editBtn").onclick = () => openDialog(query);
+  $("delBtn").onclick = () => deleteSelected(query);
+}
+
+function markFocus() {
+  for (const row of $("detail").querySelectorAll("[data-focus]")) row.classList.toggle("focus", Number(row.dataset.focus) === S.focus);
+}
+
+function toggleLive() { S.liveMode = !S.liveMode; renderDetail(); }
+
+async function gradeHit(query, key, grade, title) {
+  const next = query.grades[key]?.grade === grade ? null : grade;
+  const previous = query.grades[key];
+  if (next === null) delete query.grades[key]; else query.grades[key] = {grade: next, title};
+  renderDetail();
+  try {
+    const saved = await api("/api/grade", {queryId: query.id, key, grade: next, title});
+    Object.assign(query, saved);
+    refreshComparisonSoon();
+  } catch (error) {
+    if (previous) query.grades[key] = previous; else delete query.grades[key];
+    renderDetail();
+    toast(error.message, true);
+  }
+}
+
+async function addExpectation(query, expectation) {
+  const exists = query.expectations.some(other => JSON.stringify(other) === JSON.stringify(expectation));
+  if (exists) { renderDetail(); return; }
+  await saveQuery({...query, expectations: [...query.expectations, expectation]});
+}
+
+async function saveQuery(input) {
+  try {
+    const saved = await api("/api/queries", input);
+    const list = S.state.golden.queries;
+    const i = list.findIndex(query => query.id === saved.id);
+    if (i >= 0) list[i] = saved; else list.push(saved);
+    S.selected = saved.id;
+    render();
+    refreshComparisonSoon();
+    return saved;
+  } catch (error) { toast(error.message, true); }
+}
+
+async function deleteSelected(query) {
+  if (!confirmDelete(query)) return;
+  await api("/api/delete", {queryId: query.id});
+  S.state.golden.queries = golden().filter(other => other.id !== query.id);
+  toast("Deleted");
+  select(visibleQueries()[0]?.id ?? null);
+  refreshComparisonSoon();
+}
+// A two-step delete keeps a stray click from discarding grades.
+function confirmDelete(query) {
+  if (confirmDelete.pending === query.id) { confirmDelete.pending = null; return true; }
+  confirmDelete.pending = query.id;
+  toast("Click Delete again to remove this query and its grades");
+  setTimeout(() => { if (confirmDelete.pending === query.id) confirmDelete.pending = null; }, 3000);
+  return false;
+}
+
+async function runCurrentCode() {
+  const button = $("run");
+  button.disabled = true;
+  button.textContent = "Running…";
+  try {
+    const result = await api("/api/runs", {label: ""});
+    toast(`Recorded ${result.name}${result.failed ? ` (${result.failed} failed)` : ""}`);
+    S.baseline = S.candidate || result.name;
+    S.candidate = result.name;
+    await loadState();
+  } catch (error) { toast(error.message, true); }
+  finally { button.disabled = false; button.textContent = "Run current code"; }
+}
+
+let editing = null;
+function openDialog(query = null) {
+  editing = query;
+  $("fCategory").innerHTML = S.state.categories.map(category => `<option ${category === (query?.category ?? S.category ?? "topic") ? "selected" : ""}>${category}</option>`).join("");
+  $("fQuery").value = query?.query ?? "";
+  $("fNote").value = query?.note ?? "";
+  $("fIntent").value = query?.intent ?? "";
+  $("dlgTabs").style.display = query ? "none" : "";
+  setDialogTab("annoyance");
+  $("dlg").showModal();
+  $("fQuery").focus();
+}
+function setDialogTab(tab) {
+  for (const button of $("dlgTabs").querySelectorAll("button")) button.classList.toggle("on", button.dataset.tab === tab);
+  $("pane-annoyance").style.display = tab === "annoyance" ? "grid" : "none";
+  $("pane-sample").style.display = tab === "sample" ? "grid" : "none";
+  $("dlgSave").style.display = tab === "annoyance" ? "" : "none";
+}
+async function saveDialog() {
+  const text = $("fQuery").value.trim();
+  if (!text) { $("fQuery").focus(); return; }
+  const input = editing
+    ? {...editing, query: text, category: $("fCategory").value, note: $("fNote").value.trim() || undefined, intent: $("fIntent").value.trim()}
+    : {query: text, category: $("fCategory").value, note: $("fNote").value.trim() || undefined, intent: $("fIntent").value.trim()};
+  const saved = await saveQuery(input);
+  if (!saved) return;
+  $("dlg").close();
+  S.liveMode = !comparisonFor(saved.id) || comparisonFor(saved.id).candidate.missing;
+  toast(editing ? "Saved" : "Added — grade the live results");
+  renderDetail();
+}
+async function drawSuggestions() {
+  $("sList").innerHTML = `<div class="muted">Drawing…</div>`;
+  try {
+    const suggestions = await api(`/api/suggest?kind=${encodeURIComponent($("sKind").value)}&count=5`);
+    $("sList").innerHTML = suggestions.length ? suggestions.map((suggestion, i) => `<div class="sugg"><div><div>${esc(suggestion.query)}</div><div class="muted" style="font-size:11px">${esc(suggestion.category)} · target: ${esc(suggestion.target.title)}</div></div><button data-sugg="${i}">Add</button></div>`).join("") : `<div class="muted">Nothing new found; draw again.</div>`;
+    for (const button of $("sList").querySelectorAll("[data-sugg]")) {
+      button.onclick = async () => {
+        const suggestion = suggestions[Number(button.dataset.sugg)];
+        button.disabled = true;
+        const saved = await saveQuery({
+          query: suggestion.query, category: suggestion.category, intent: suggestion.intent, source: "suggested",
+          grades: {[suggestion.target.key]: {grade: 3, title: suggestion.target.title}},
+          expectations: [{kind: "within", target: suggestion.target.key, rank: 3}],
+        });
+        button.textContent = saved ? "Added" : "Add";
+        if (saved) S.liveMode = true;
+      };
+    }
+  } catch (error) { $("sList").innerHTML = `<div style="color:var(--loss)">${esc(error.message)}</div>`; }
+}
+
+function moveQuery(step) {
+  const items = visibleQueries();
+  if (!items.length) return;
+  const i = items.findIndex(query => query.id === S.selected);
+  select(items[Math.max(0, Math.min(items.length - 1, i + step))].id);
+}
+
+function focusedHit() {
+  const query = queryById(S.selected);
+  if (!query) return null;
+  const [, right] = columns(query);
+  const hit = right?.hits?.[S.focus];
+  return hit ? {query, hit} : null;
+}
+
+document.addEventListener("keydown", event => {
+  if ($("dlg").open) {
+    if (event.key === "Enter" && !event.shiftKey && $("pane-annoyance").style.display !== "none") { event.preventDefault(); saveDialog(); }
+    return;
+  }
+  if (["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)) {
+    if (event.key === "Escape") event.target.blur();
+    return;
+  }
+  if (event.metaKey || event.ctrlKey || event.altKey) return;
+  const key = event.key;
+  if (key === "j") moveQuery(1);
+  else if (key === "k") moveQuery(-1);
+  else if (key === "ArrowDown" || key === "ArrowUp") {
+    event.preventDefault();
+    S.focus = Math.max(0, Math.min(S.depth - 1, S.focus + (key === "ArrowDown" ? 1 : -1)));
+    markFocus();
+  } else if (/^[0-3]$/.test(key)) {
+    const target = focusedHit();
+    if (target) {
+      gradeHit(target.query, target.hit.key, Number(key), target.hit.title);
+      S.focus = Math.min(S.depth - 1, S.focus + 1);
+    }
+  } else if (key === "Backspace") {
+    const target = focusedHit();
+    if (target && target.query.grades[target.hit.key]) gradeHit(target.query, target.hit.key, target.query.grades[target.hit.key].grade, target.hit.title);
+  } else if (key === "l") toggleLive();
+  else if (key === "a") { event.preventDefault(); openDialog(); }
+  else if (key === "/") { event.preventDefault(); $("text").focus(); }
+});
+
+$("baseline").onchange = event => { S.baseline = event.target.value; loadComparison(); };
+$("candidate").onchange = event => { S.candidate = event.target.value; loadComparison(); };
+$("run").onclick = runCurrentCode;
+$("add").onclick = () => openDialog();
+$("text").oninput = event => { S.text = event.target.value; renderList(); };
+$("sort").onchange = event => { S.sort = event.target.value; renderList(); };
+$("dlgCancel").onclick = () => $("dlg").close();
+$("dlgSave").onclick = saveDialog;
+$("sGo").onclick = drawSuggestions;
+for (const button of $("dlgTabs").querySelectorAll("button")) button.onclick = () => setDialogTab(button.dataset.tab);
+
+loadState().catch(error => { document.body.innerHTML = `<pre style="padding:16px">${esc(error.message)}</pre>`; });
+</script>
+</body>
+</html>

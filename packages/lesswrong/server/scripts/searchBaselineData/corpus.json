@@ -1,0 +1,31 @@
+{
+  "tag": "2026-10-22",
+  "frozenAt": "2026-10-22T00:24:51.837Z",
+  "indexes": {
+    "posts": {
+      "name": "searcheval-2026-10-22-posts",
+      "source": "posts_1759819628039",
+      "docs": 84222
+    },
+    "comments": {
+      "name": "searcheval-2026-10-22-comments",
+      "source": "comments_1759819626461",
+      "docs": 1105683
+    },
+    "users": {
+      "name": "searcheval-2026-10-22-users",
+      "source": "users_1789064138762",
+      "docs": 207386
+    },
+    "tags": {
+      "name": "searcheval-2026-10-22-tags",
+      "source": "tags_1788996015161",
+      "docs": 8735
+    },
+    "sequences": {
+      "name": "searcheval-2026-10-22-sequences",
+      "source": "sequences_1759819630550",
+      "docs": 922
+    }
+  }
+}

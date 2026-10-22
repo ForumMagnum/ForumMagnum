@@ -1,0 +1,825 @@
+{
+  "version": 1,
+  "queries": [
+    {
+      "id": "anna-s",
+      "query": "Anna S",
+      "category": "person",
+      "intent": "prominent author name completion",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:pnFbJAtNHGDK8PHQx": {
+          "grade": 3,
+          "title": "AnnaSalamon"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:pnFbJAtNHGDK8PHQx",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "id": "anna-sa",
+      "query": "Anna Sa",
+      "category": "person",
+      "intent": "prominent author name completion",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:pnFbJAtNHGDK8PHQx": {
+          "grade": 3,
+          "title": "AnnaSalamon"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:pnFbJAtNHGDK8PHQx",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "id": "john",
+      "query": "John",
+      "category": "person",
+      "intent": "prominent author name completion",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:MEu8MdhruX5jfGsFQ": {
+          "grade": 3,
+          "title": "johnswentworth"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:MEu8MdhruX5jfGsFQ",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "id": "john-w",
+      "query": "John W",
+      "category": "person",
+      "intent": "prominent author name completion",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:MEu8MdhruX5jfGsFQ": {
+          "grade": 3,
+          "title": "johnswentworth"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:MEu8MdhruX5jfGsFQ",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "id": "john-we",
+      "query": "John We",
+      "category": "person",
+      "intent": "prominent author name completion",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:MEu8MdhruX5jfGsFQ": {
+          "grade": 3,
+          "title": "johnswentworth"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:MEu8MdhruX5jfGsFQ",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "id": "a-pragmatic-vision-for-interpretability",
+      "query": "A Pragmatic Vision for Interpretability",
+      "category": "known-item",
+      "intent": "distinctive full title",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:StENzDcD3kpfGJssR": {
+          "grade": 3,
+          "title": "A Pragmatic Vision for Interpretability"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:StENzDcD3kpfGJssR",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "id": "a-pragmatic-vision-for-interpretability-lowercase",
+      "query": "a pragmatic vision for interpretability",
+      "category": "known-item",
+      "intent": "case variant",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:StENzDcD3kpfGJssR": {
+          "grade": 3,
+          "title": "A Pragmatic Vision for Interpretability"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:StENzDcD3kpfGJssR",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "id": "navier",
+      "query": "navier",
+      "category": "known-item",
+      "intent": "popular known post fragment",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:yekQKwmQJNk7thDtQ": {
+          "grade": 3,
+          "title": "OpenAI have solved the Navier-Stokes Problem with a substantially more powerful model than Astra."
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:yekQKwmQJNk7thDtQ",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "navier-strokes",
+      "query": "navier-strokes",
+      "category": "typo",
+      "intent": "typo and hyphen",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:yekQKwmQJNk7thDtQ": {
+          "grade": 3,
+          "title": "OpenAI have solved the Navier-Stokes Problem with a substantially more powerful model than Astra."
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:yekQKwmQJNk7thDtQ",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "navier-stokes",
+      "query": "navier stokes",
+      "category": "known-item",
+      "intent": "two words",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:yekQKwmQJNk7thDtQ": {
+          "grade": 3,
+          "title": "OpenAI have solved the Navier-Stokes Problem with a substantially more powerful model than Astra."
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:yekQKwmQJNk7thDtQ",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "dear-god",
+      "query": "dear god",
+      "category": "known-item",
+      "intent": "remembered title fragment",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:6j3kBHdowGLCeqobg": {
+          "grade": 3,
+          "title": "Dear God, Please Do Not Resign In Protest"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:6j3kBHdowGLCeqobg",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "well-kept-gardens-die-by",
+      "query": "Well kept gardens die by",
+      "category": "known-item",
+      "intent": "classic from incomplete title",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:tscc3e5eujrsEeFN4": {
+          "grade": 3,
+          "title": "Well-Kept Gardens Die By Pacifism"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:tscc3e5eujrsEeFN4",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "shut-up-and-do-the-impo",
+      "query": "shut up and do the impo",
+      "category": "known-item",
+      "intent": "classic, unfinished word",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:nCvvhFBaayaXyuBiD": {
+          "grade": 3,
+          "title": "Shut up and do the impossible!"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:nCvvhFBaayaXyuBiD",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "hammertime-day-3",
+      "query": "hammertime day 3",
+      "category": "known-item",
+      "intent": "chapter entry point",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:ESnzpoCJrAfwAzpMB": {
+          "grade": 3,
+          "title": "Hammertime Day 3: TAPs"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:ESnzpoCJrAfwAzpMB",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "open-source-game-theory",
+      "query": "open source game theory",
+      "category": "known-item",
+      "intent": "hyphenated title from spaced query",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:5X8bXKaPNiZsNw2FG": {
+          "grade": 3,
+          "title": "A failed solution to open-source game theory"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:5X8bXKaPNiZsNw2FG",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "j-space",
+      "query": "j-space",
+      "category": "concept",
+      "intent": "hyphenated concept",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:EnxHPxJT4Xin5cTsX": {
+          "grade": 3,
+          "title": "No Space Like J-Space"
+        },
+        "posts:2Ef7zM7eMpAB7nvcR": {
+          "grade": 3,
+          "title": "Trying to grok Anthropic's Global Workspace paper and the J-space"
+        }
+      },
+      "expectations": []
+    },
+    {
+      "id": "infra-bayesiansism",
+      "query": "infra-bayesiansism",
+      "category": "typo",
+      "intent": "misspelled concept",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:zB4f7QqKhBHa5b37a": {
+          "grade": 3,
+          "title": "Introduction To The Infra-Bayesianism Sequence"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:zB4f7QqKhBHa5b37a",
+          "rank": 5
+        }
+      ]
+    },
+    {
+      "id": "kwa",
+      "query": "kwa",
+      "category": "person",
+      "intent": "surname",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:x5S2Kuj6TfQTGuo63": {
+          "grade": 3,
+          "title": "Thomas Kwa"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:x5S2Kuj6TfQTGuo63",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "paulf",
+      "query": "paulf",
+      "category": "person",
+      "intent": "handle prefix",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:gb44edJjXhte8DA3A": {
+          "grade": 3,
+          "title": "paulfchristiano"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:gb44edJjXhte8DA3A",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "johnswentwroth",
+      "query": "johnswentwroth",
+      "category": "typo",
+      "intent": "transposed handle",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:MEu8MdhruX5jfGsFQ": {
+          "grade": 3,
+          "title": "johnswentworth"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:MEu8MdhruX5jfGsFQ",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "elizer-yud",
+      "query": "elizer yud",
+      "category": "typo",
+      "intent": "misspelled name with prefix",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:nmk3nLpQE89dMRzzN": {
+          "grade": 3,
+          "title": "Eliezer Yudkowsky"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:nmk3nLpQE89dMRzzN",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "evan-hubinger",
+      "query": "evan hubinger",
+      "category": "person",
+      "intent": "real name of a handle account",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:AThTtkDufXp3rmMDa": {
+          "grade": 3,
+          "title": "evhub"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:AThTtkDufXp3rmMDa",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "richard-ngo",
+      "query": "richard ngo",
+      "category": "person",
+      "intent": "name with underscore handle",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:BCmzFRdQhqLPREvat": {
+          "grade": 3,
+          "title": "Richard_Ngo"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:BCmzFRdQhqLPREvat",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "zvi",
+      "query": "zvi",
+      "category": "person",
+      "intent": "established author",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:N9zj5qpTfqmbn9dro": {
+          "grade": 3,
+          "title": "Zvi"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:N9zj5qpTfqmbn9dro",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "id": "byrne",
+      "query": "byrne",
+      "category": "person",
+      "intent": "surname fragment",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:vRcer5FTqagjMkcDz": {
+          "grade": 3,
+          "title": "Steven Byrnes"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:vRcer5FTqagjMkcDz",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "ryan",
+      "query": "ryan",
+      "category": "person",
+      "intent": "ambiguous first name",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:dfZAq9eZxs4BB4Ji5": {
+          "grade": 3,
+          "title": "ryan_greenblatt"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "users:dfZAq9eZxs4BB4Ji5",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "roko",
+      "query": "roko",
+      "category": "author-topic",
+      "intent": "author and topic",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "users:73WJbnX59kE4afuuY": {
+          "grade": 3,
+          "title": "Roko"
+        },
+        "posts:WBJZoeJypcNRmsdHx": {
+          "grade": 3,
+          "title": "A few misconceptions surrounding Roko's basilisk"
+        }
+      },
+      "expectations": []
+    },
+    {
+      "id": "neel-nanda-how-to-become-an-interpretabi",
+      "query": "neel nanda how to become an interpretability",
+      "category": "author-topic",
+      "intent": "author plus conversational topic",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:jP9KDyMkchuv6tHwm": {
+          "grade": 3,
+          "title": "How To Become A Mechanistic Interpretability Researcher"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:jP9KDyMkchuv6tHwm",
+          "rank": 5
+        }
+      ]
+    },
+    {
+      "id": "elizabeth-nice-things",
+      "query": "elizabeth nice things",
+      "category": "author-topic",
+      "intent": "author plus topic words",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:rBauzJHPYaanPJ7Br": {
+          "grade": 3,
+          "title": "Why can’t we have nice things? Like, specifically?"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:rBauzJHPYaanPJ7Br",
+          "rank": 5
+        }
+      ]
+    },
+    {
+      "id": "access-past-memories",
+      "query": "access past memories",
+      "category": "comment",
+      "intent": "relevant comments",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "comments:qk3GpncPthuG3FStw": {
+          "grade": 3,
+          "title": "Comment on: Is requires ought"
+        },
+        "comments:An8cqm9y5BkuCTjpj": {
+          "grade": 3,
+          "title": "Comment on: More Cryonics Probability Estimates"
+        },
+        "comments:3r7pbzSH3a9aXPHGZ": {
+          "grade": 3,
+          "title": "Comment on: Spaced Repetition Database for the Mysterious Answers to Mysterious Questions Sequence"
+        }
+      },
+      "expectations": []
+    },
+    {
+      "id": "cal-newport",
+      "query": "cal newport",
+      "category": "comment",
+      "intent": "comments about a person",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "comments:dTBndrkqKTpYCYgpW": {
+          "grade": 3,
+          "title": "Comment on: nikola's Shortform"
+        },
+        "comments:mFEgiqXpjDbKQLDg9": {
+          "grade": 3,
+          "title": "Comment on: Ian McKenzie's Shortform"
+        },
+        "comments:hdbgodzQLwrLPZsWm": {
+          "grade": 3,
+          "title": "Comment on: Praise our Lord and Savior, Glycine: How Opus 4.6 gifted me The Vitamin"
+        }
+      },
+      "expectations": []
+    },
+    {
+      "id": "lab-automation",
+      "query": "lab automation",
+      "category": "topic",
+      "intent": "Useful writing about automating biological laboratory work",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:FLApaycSw7gwf5vo3": {
+          "grade": 3,
+          "title": "There aren't enough smart people in biology doing something boring"
+        },
+        "posts:Zwb2TxaoGv73t9CW4": {
+          "grade": 3,
+          "title": "Heuristics for lab robotics, and where its future may go "
+        },
+        "posts:ygFc4caQ6Nws62dSW": {
+          "grade": 1,
+          "title": "Bioinfohazards"
+        },
+        "posts:CceeaaArnQDjJqxq4": {
+          "grade": 1,
+          "title": "New Foresight Longevity Bio & Molecular Nano Grants Program"
+        },
+        "posts:N2r9EayvsWJmLBZuF": {
+          "grade": 0,
+          "title": "Introducing AI Lab Watch"
+        },
+        "posts:2Gy9tfjmKwkYbF9BY": {
+          "grade": 0,
+          "title": "Automation collapse"
+        },
+        "posts:YTZAmJKydD5hdRSeG": {
+          "grade": 0,
+          "title": "Would catching your AIs trying to escape convince AI developers to slow down or undeploy?"
+        },
+        "posts:HBxe6wdjxK239zajf": {
+          "grade": 0,
+          "title": "What failure looks like"
+        },
+        "posts:uFNgRumrDTpBfQGrs": {
+          "grade": 0,
+          "title": "Let’s think about slowing down AI"
+        },
+        "posts:xLDwCemt5qvchzgHd": {
+          "grade": 0,
+          "title": "Scale Was All We Needed, At First"
+        },
+        "posts:KzXptMbuDsYLrppss": {
+          "grade": 0,
+          "title": "Why Software Automation Is Hard"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "above",
+          "preferred": "posts:FLApaycSw7gwf5vo3",
+          "over": "posts:N2r9EayvsWJmLBZuF"
+        },
+        {
+          "kind": "above",
+          "preferred": "posts:FLApaycSw7gwf5vo3",
+          "over": "posts:2Gy9tfjmKwkYbF9BY"
+        }
+      ]
+    },
+    {
+      "id": "medianworld",
+      "query": "medianworld",
+      "category": "concept",
+      "intent": "wiki entry point",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "tags:RERM5H6RMnaafxMwQ": {
+          "grade": 3,
+          "title": "Medianworld"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "tags:RERM5H6RMnaafxMwQ",
+          "rank": 3
+        }
+      ]
+    },
+    {
+      "id": "productivity",
+      "query": "productivity",
+      "category": "topic",
+      "intent": "topic page and guide",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "tags:udPbn9RthmgTtHMiG": {
+          "grade": 3,
+          "title": "Productivity"
+        },
+        "posts:ArizxGwbqiohBX5y6": {
+          "grade": 3,
+          "title": "My Favorite Productivity Blog Posts"
+        }
+      },
+      "expectations": []
+    },
+    {
+      "id": "governance",
+      "query": "governance",
+      "category": "topic",
+      "intent": "useful overview for a generic word",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:gzJ7QNhd3tCLkbmYC": {
+          "grade": 3,
+          "title": "My favorite AI governance research this year so far"
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:gzJ7QNhd3tCLkbmYC",
+          "rank": 5
+        }
+      ]
+    },
+    {
+      "id": "https-www-lesswrong-com-posts-yekqkwmqjn",
+      "query": "https://www.lesswrong.com/posts/yekQKwmQJNk7thDtQ",
+      "category": "navigation",
+      "intent": "pasted internal URL",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:yekQKwmQJNk7thDtQ": {
+          "grade": 3,
+          "title": "OpenAI have solved the Navier-Stokes Problem with a substantially more powerful model than Astra."
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:yekQKwmQJNk7thDtQ",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "id": "yekqkwmqjnk7thdtq",
+      "query": "yekQKwmQJNk7thDtQ",
+      "category": "navigation",
+      "intent": "document ID",
+      "source": "stress-suite",
+      "addedAt": "2026-09-10",
+      "grades": {
+        "posts:yekQKwmQJNk7thDtQ": {
+          "grade": 3,
+          "title": "OpenAI have solved the Navier-Stokes Problem with a substantially more powerful model than Astra."
+        }
+      },
+      "expectations": [
+        {
+          "kind": "within",
+          "target": "posts:yekQKwmQJNk7thDtQ",
+          "rank": 1
+        }
+      ]
+    }
+  ]
+}
