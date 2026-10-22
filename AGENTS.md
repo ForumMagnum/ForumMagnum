@@ -535,7 +535,7 @@ Use `useNavigate` for performing client-side navigations.  You need to preserve 
 
 ## Editor
 
-The current default editor provided to users is our implementation of lexical.  Other supported editors are ckEditor (the previous default editor, now only supported for existing documents that were written in ckEditor), markdown, and html (admin-only).  We used to support DraftJS and no longer do, but some older documents may still be written in DraftJS (these are autoconverted to lexical when opened).  If working on editor features, assume lexical is the editor in question unless otherwise specified (or strongly suggested by the surrounding context).  We have a separate [AGENTS.md](packages/lesswrong/components/editor/AGENTS.md) with instructions for doing UI testing in the editor; read that if needed.
+The current default editor provided to users is our implementation of lexical.  Other supported editors are ckEditor (the previous default editor, now only supported for existing documents that were written in ckEditor), markdown, and html (admin-only).  We used to support DraftJS and no longer do, but some older documents may still be written in DraftJS (these are autoconverted to lexical when opened).  If working on editor features, assume lexical is the editor in question unless otherwise specified (or strongly suggested by the surrounding context).  We have a separate [CLAUDE.md](packages/lesswrong/components/editor/CLAUDE.md) with instructions for doing UI testing in the editor; read that if needed.
 
 ## Subagent Guidance
 
@@ -560,3 +560,83 @@ When asked to conduct a code review against `master`, ensure any diffs you perfo
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
 
+
+## Working in this codebase
+
+**The developer is ready and eager to help.** Especially where your tools can't
+configure something — a Vercel dashboard setting, a billing toggle, a secret. Do not
+make important choices simply to avoid getting developer help: frame the decision, give
+your recommendation, and ask.
+
+**Work from latest master.** `git fetch` before branching, base branches on
+`origin/master`, and diff against `origin/master` (three-dot merge-base diffs) — a stale
+local `master` produces diffs that silently revert other people's merged work. Update
+branches by merging `origin/master` into them, never by rebasing — merges keep the
+accurate historical record. Do not rewrite published history (no rebase, no
+force-push).
+
+The goal when authoring is a diff that would survive a senior review with zero comments.
+That reviewer asks, in order: (1) should this code exist at all? (2) does the codebase
+already have a way to do this? (3) is the logic in the right layer, implemented exactly
+once? (4) only then — is it correct? Grade your diff against the smaller diff an
+experienced team member would have written.
+
+**Extend, don't add sideways.** A common failure mode of agent-written code is growing
+the codebase sideways: adding a parallel function/mechanism next to an existing one because changing
+the existing one feels riskier. (Classic shapes: a copy-pasted query helper differing in
+one constant; a second client-side cache added beside the first, both left active.)
+Before adding any function, module, or mechanism, name the existing thing it most
+resembles and extend it — or state in one sentence why you can't.
+
+**Protect shared abstractions from local convenience.** A feature can work correctly
+while making the shared code it uses harder to understand and safely reuse. Repeated
+one-off flags, special cases, and escape hatches accumulate into an implicit contract
+that every future caller must learn. Before extending shared code, state its responsibility
+and decide whether the new behavior belongs there or with the caller. Keep domain-specific
+state and policy with their owner; share coherent capabilities with explicit semantics.
+Options must compose predictably: avoid hidden coupling, ambiguous combinations, and
+parameters that silently disable other behavior. When the contract needs to change,
+reshape it deliberately and review all consumers instead of layering on another exception.
+Judge the result by the abstraction left for future callers, not just whether the current
+feature works. The more widely code is shared, the stronger this standard should be.
+
+**Policy predicates exactly once.** Visibility, permission, eligibility, and "does X
+relate to Y" conditions get one implementation — including inside SQL strings. (Failure
+shape: the same visibility condition hand-written into four queries, which then drift.)
+
+**Fail loud and early.** Throw on unexpected or invalid invariants rather than "making
+things work." No fallback values for missing env vars; no backwards-compat shims when
+business logic changes (migrate the data instead); no epicycles added to avoid a `throw`.
+
+**Configure only what the task varies.** Constants stay constants until a second real
+consumer appears; each knob adds schema, UI, and admin burden for as long as it exists.
+(Failure
+shape: "make the copy editable" becoming thirteen per-kind settings.) For each new
+setting ask: who will ever set this to a non-default value, and when? No concrete answer
+→ it's a constant.
+
+**App-level fallbacks: replace, don't accrete.** When a fix adds a second detector,
+listener, or fallback for the same condition, remove the first or comment why both are
+needed. "Can't hurt" is not a reason.
+
+**Fix the trap, not just your instance.** When something in the codebase made you write
+the wrong thing — a shadowing name, a misleading default, two near-identical helpers —
+fix that thing in the same PR or name the follow-up PR. A fix at your own call site warns
+exactly one reader.
+
+**Session hygiene.** The PR presents the final state, not the history: squash migrations
+to final form; delete scratch scripts, debug scaffolding, and analysis files; no drive-by
+changes to unrelated code inside a feature diff. End every session with each changed file
+assigned to a nameable PR or reverted. Small fixes surfaced by the work belong in the
+current PR, not a someday list.
+
+**Correct despite the checks.** For any new code, reflect on how it could fail and be
+incorrect despite passing all existing checks.
+
+**Answer every review comment.** When you act on a reviewer's comment — or decide not
+to — say so on the PR: reply on the thread stating what changed or why you didn't, and
+resolve it. For top-level review comments, post a response comment. Never fix silently.
+
+**Finally: re-review your own diff** end to end — including untracked files — against
+this document before finishing, and fix what you find. Passing typecheck and lint is
+necessary, not sufficient.
