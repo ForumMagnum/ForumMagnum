@@ -17,9 +17,6 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   $getNodeByKey,
   $getSelection,
-  $getRoot,
-  $isElementNode,
-  $isTextNode,
   $onUpdate,
   $isRangeSelection,
   $setSelection,
@@ -30,7 +27,7 @@ import {
   REDO_COMMAND,
   UNDO_COMMAND,
 } from 'lexical';
-import type { LexicalNode, PointType, RangeSelection } from 'lexical';
+import type { RangeSelection } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 
 // Must match the Yjs UndoManager's default captureTimeout
@@ -50,54 +47,6 @@ function $selectionNodesExist(selection: RangeSelection): boolean {
 
 interface SelectionEntry {
   before: RangeSelection;
-  anchorPath: number[];
-  focusPath: number[];
-}
-
-function $getNodePath(node: LexicalNode): number[] {
-  const path: number[] = [];
-  let current = node;
-  for (let parent = current.getParent(); parent; parent = current.getParent()) {
-    path.unshift(current.getIndexWithinParent());
-    current = parent;
-  }
-  return path;
-}
-
-function $saveSelection(selection: RangeSelection): SelectionEntry {
-  return {
-    before: selection.clone(),
-    anchorPath: $getNodePath(selection.anchor.getNode()),
-    focusPath: $getNodePath(selection.focus.getNode()),
-  };
-}
-
-function $restorePoint(point: PointType, path: number[]): boolean {
-  let node = $getNodeByKey(point.key);
-  // Yjs recreates nodes with new Lexical keys on redo. Resolve their location
-  // in the restored tree when the original key no longer exists.
-  if (!node) {
-    node = $getRoot();
-    for (const index of path) {
-      node = $isElementNode(node) ? node.getChildAtIndex(index) : null;
-    }
-  }
-  if (point.type === 'text' && $isTextNode(node)) {
-    point.set(node.getKey(), Math.min(point.offset, node.getTextContentSize()), 'text');
-    return true;
-  }
-  if (point.type === 'element' && $isElementNode(node)) {
-    point.set(node.getKey(), Math.min(point.offset, node.getChildrenSize()), 'element');
-    return true;
-  }
-  return false;
-}
-
-function $restoreSelection(entry: SelectionEntry): void {
-  const selection = entry.before.clone();
-  if ($restorePoint(selection.anchor, entry.anchorPath) && $restorePoint(selection.focus, entry.focusPath)) {
-    $setSelection(selection);
-  }
 }
 
 export default function YjsUndoCursorPlugin(): null {
@@ -178,11 +127,17 @@ export default function YjsUndoCursorPlugin(): null {
               // undoes again, we need to restore the cursor to this position.
               const currentSelection = prevEditorState._selection;
               if ($isRangeSelection(currentSelection)) {
-                redoStackRef.current.push(prevEditorState.read(() => $saveSelection(currentSelection)));
+                redoStackRef.current.push({ before: currentSelection.clone() });
               }
               // Restore cursor to where it was before the undone edit
+              const targetSelection = entry.before;
               editor.update(() => {
-                $restoreSelection(entry);
+                // Validate that the target nodes still exist — undo/redo may
+                // have removed or recreated nodes with different keys (especially
+                // with Yjs, which assigns new keys on redo).
+                if ($selectionNodesExist(targetSelection)) {
+                  $setSelection(targetSelection.clone());
+                }
               }, { tag: HISTORIC_TAG });
             }
           } else if (action === 'redo') {
@@ -192,13 +147,16 @@ export default function YjsUndoCursorPlugin(): null {
               // We save the current (pre-redo) selection as the "before" position.
               const currentSelection = prevEditorState._selection;
               if ($isRangeSelection(currentSelection)) {
-                undoStackRef.current.push(prevEditorState.read(() => $saveSelection(currentSelection)));
+                undoStackRef.current.push({ before: currentSelection.clone() });
               }
               // Restore cursor to where it was before the redo, so that an
               // undo + immediate redo leaves the cursor position net-unchanged
               // (matching non-collaborative editor behavior).
+              const targetSelection = entry.before;
               editor.update(() => {
-                $restoreSelection(entry);
+                if ($selectionNodesExist(targetSelection)) {
+                  $setSelection(targetSelection.clone());
+                }
               }, { tag: HISTORIC_TAG });
             }
           }
@@ -225,7 +183,7 @@ export default function YjsUndoCursorPlugin(): null {
         const isHistoryPush = tags.has(HISTORY_PUSH_TAG);
         if (isHistoryPush || now - lastEditTimeRef.current > CAPTURE_TIMEOUT_MS) {
           if ($isRangeSelection(prevSelection)) {
-            undoStackRef.current.push(prevEditorState.read(() => $saveSelection(prevSelection)));
+            undoStackRef.current.push({ before: prevSelection.clone() });
           }
           // New edit clears redo stack (standard undo behavior)
           redoStackRef.current.length = 0;
