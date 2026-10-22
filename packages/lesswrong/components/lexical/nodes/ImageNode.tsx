@@ -488,8 +488,8 @@ export class ImageNode extends ElementNode {
       figure.className = className;
     }
     figure.setAttribute('contenteditable', 'false');
-    // The figure exists before the image finishes loading. Apply its saved
-    // size here so a suspended ImageComponent cannot miss the initial width.
+    // Apply the saved size here because imageRef is unavailable while
+    // ImageComponent's LazyImage child is suspended.
     figure.style.width = this.__widthPercent === null ? '' : `${this.__widthPercent}%`;
     return figure;
   }
@@ -705,4 +705,3 @@ export function $isImageNode(
 ): node is ImageNode {
   return node instanceof ImageNode;
 }
-
