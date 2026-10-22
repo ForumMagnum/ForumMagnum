@@ -1,5 +1,6 @@
 'use client';
 
+import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -34,6 +35,7 @@ import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import TeamInboxThreadView from './TeamInboxThreadView';
+import TeamInboxContentPane from './TeamInboxContentPane';
 import ModerationReportView from './ModerationReportView';
 import ModerationReportKeyboardHandler from './ModerationReportKeyboardHandler';
 import ModerationTagView from './ModerationTagView';
@@ -162,6 +164,29 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     display: 'flex',
     overflow: 'hidden',
     minHeight: 0,
+  },
+  teamInboxLayout: {
+    '& > $leftPanel': {
+      flex: '0 0 300px',
+    },
+    [theme.breakpoints.down('md')]: {
+      overflowX: 'auto',
+      '& > $leftPanel': {
+        flexBasis: 240,
+      },
+    },
+  },
+  teamInboxThreadPanel: {
+    flex: 1,
+    minWidth: 360,
+    overflow: 'hidden',
+    borderRight: theme.palette.border.normal,
+  },
+  teamInboxContentPanel: {
+    flex: 1,
+    minWidth: 400,
+    display: 'flex',
+    overflow: 'hidden',
   },
   leftPanel: {
     flex: 1,
@@ -528,7 +553,7 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
           lastCuratedDate={lastCuratedDate}
         />
       )}
-      <div className={classes.mainContent}>
+      <div className={classNames(classes.mainContent, { [classes.teamInboxLayout]: isInboxTab && !state.openedUserId })}>
         <div className={classes.leftPanel}>
           {needsDirectUser ? (
             <div className={classes.loading}>
@@ -609,15 +634,20 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
             />
           </div>
         )}
-        {isInboxTab && !openedUser && (
-          <div className={classes.postDetailPanel}>
-            <TeamInboxThreadView
-              key={focusedThread?.conversation._id}
-              thread={focusedThread}
-              currentUser={currentUser}
-              dispatch={dispatch}
-            />
-          </div>
+        {isInboxTab && !state.openedUserId && (
+          <>
+            <div className={classes.teamInboxThreadPanel}>
+              <TeamInboxThreadView
+                key={focusedThread?.conversation._id}
+                thread={focusedThread}
+                currentUser={currentUser}
+                dispatch={dispatch}
+              />
+            </div>
+            <div className={classes.teamInboxContentPanel}>
+              <TeamInboxContentPane key={focusedThread?.conversation._id} thread={focusedThread} />
+            </div>
+          </>
         )}
         {isReportsTab && !openedUser && (
           <div className={classes.postDetailPanel}>

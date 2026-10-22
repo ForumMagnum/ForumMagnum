@@ -2568,6 +2568,8 @@ interface Conversation {
   archivedByIds: Array<string>;
   archivedBy: Array<User>;
   latestMessage: Message | null;
+  rejectedPosts: Array<Post> | null;
+  rejectedComments: Array<Comment> | null;
   rejectionAppeal: RejectionAppeal | null;
   hasUnreadMessages: boolean | null;
 }
