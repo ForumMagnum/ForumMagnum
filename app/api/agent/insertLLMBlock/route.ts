@@ -11,7 +11,7 @@ import { $createLLMContentBlockContentNode } from "@/components/editor/lexicalPl
 import { $createLLMContentBlockHeaderNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode";
 import { waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { $postMarkdownToNodes, $resolveInsertionPoint } from "../insertBlock/route";
+import { $findWidgetInsertionProblem, $postMarkdownToNodes, $resolveInsertionPoint, type MarkdownConversion } from "../insertBlock/route";
 import { insertLLMBlockToolSchema, type InsertLocation } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -23,8 +23,8 @@ interface InsertLLMBlockResult {
 }
 
 /**
- * Build a complete LLM content block node tree from markdown content.
- * Must be called inside an editor.update() callback.
+ * Build a complete LLM content block node tree around content nodes
+ * converted from markdown. Must be called inside an editor.update() callback.
  *
  * Structure:
  *   LLMContentBlockNode (container, shadow root, holds modelName)
@@ -32,17 +32,11 @@ interface InsertLLMBlockResult {
  *     LLMContentBlockContentNode (shadow root, holds editable content)
  *       ...content nodes from markdown...
  */
-function $createLLMContentBlockFromMarkdown(
-  editor: LexicalEditor,
-  modelName: string,
-  markdown: string,
-  markdownToNodes: (editor: LexicalEditor, markdown: string) => LexicalNode[],
-): LexicalNode {
+function $createLLMContentBlock(modelName: string, contentChildren: LexicalNode[]): LexicalNode {
   const containerNode = $createLLMContentBlockNode(modelName);
   const headerNode = $createLLMContentBlockHeaderNode();
   const contentNode = $createLLMContentBlockContentNode();
 
-  const contentChildren = markdownToNodes(editor, markdown);
   if (contentChildren.length === 0) {
     contentNode.append($createParagraphNode());
   } else {
@@ -67,9 +61,14 @@ export function $insertLLMBlockInEditor({
   modelName: string
   location: InsertLocation
   markdown: string
-  markdownToNodes: (editor: LexicalEditor, markdown: string) => LexicalNode[]
+  markdownToNodes: (editor: LexicalEditor, markdown: string) => MarkdownConversion
 }): InsertLLMBlockResult {
-  const blockNode = $createLLMContentBlockFromMarkdown(editor, modelName, markdown, markdownToNodes);
+  const { nodes: contentChildren, error } = markdownToNodes(editor, markdown);
+  const conversionProblem = error ?? $findWidgetInsertionProblem(contentChildren, "edit");
+  if (conversionProblem) {
+    return { inserted: false, note: conversionProblem };
+  }
+  const blockNode = $createLLMContentBlock(modelName, contentChildren);
 
   const { point, reason } = $resolveInsertionPoint(location);
   if (!point) {

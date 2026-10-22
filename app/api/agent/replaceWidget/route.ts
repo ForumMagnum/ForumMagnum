@@ -2,12 +2,12 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
 import { applyPatch } from "diff";
-import { $createTextNode, $getRoot } from "lexical";
+import { $createTextNode } from "lexical";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import type { IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { $findWidgetNodeById } from "../textIndexQuoteLocator";
+import { $findWidgetNodesById } from "../textIndexQuoteLocator";
 import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { replaceWidgetRouteSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -89,15 +89,22 @@ export function $replaceWidgetInEditor({
   unifiedDiff?: string
   mode: ReplaceMode
 }): ReplaceWidgetResult {
-  const root = $getRoot();
-  const widgetNode = $findWidgetNodeById(root, widgetId);
-  if (!widgetNode) {
+  const widgetNodes = $findWidgetNodesById(widgetId);
+  if (widgetNodes.length === 0) {
     return {
       replaced: false,
       widgetFound: false,
       note: `Widget with id ${widgetId} was not found.`,
     };
   }
+  if (widgetNodes.length > 1) {
+    return {
+      replaced: false,
+      widgetFound: true,
+      note: `Ambiguous widget id: ${widgetNodes.length} widgets have id ${widgetId}.`,
+    };
+  }
+  const widgetNode = widgetNodes[0];
 
   const currentContent = widgetNode.getTextContent();
   const replacementResult = computeReplacementContent({

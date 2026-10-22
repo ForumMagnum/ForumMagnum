@@ -1,6 +1,7 @@
 import { sanitize } from "@/lib/utils/sanitize";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import type MarkdownIt from "markdown-it";
+import type { Token } from "markdown-it/index.js";
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
@@ -25,7 +26,7 @@ import { $isCollapsibleSectionContentNode } from "@/components/editor/lexicalPlu
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
-import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
+import { $collectWidgetNodes, $locateBlockByPrefix, $locateCollapsibleSectionByTitle } from "../textIndexQuoteLocator";
 import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -45,23 +46,35 @@ interface WidgetFence {
   widgetMarkup: string
 }
 
+/** The nodes converted from agent markdown, or why it can't be inserted as written. */
+export interface MarkdownConversion {
+  nodes: LexicalNode[]
+  /** Set when the markdown can't be inserted as written, in which case `nodes` is empty. */
+  error?: string
+}
+
 /**
- * Swap each widget fence for a placeholder paragraph, so the fence survives
- * markdown rendering wherever it appears (including inside collapsible
- * sections); the placeholders are turned into widget nodes after import.
+ * Swap each widget fence markdown-it parsed for a placeholder paragraph, so
+ * the fence survives rendering wherever it appears (including inside
+ * collapsible sections and blockquotes); the placeholders are turned into
+ * widget nodes after import. Mutates the tokens.
  */
-function replaceWidgetFencesWithPlaceholders(markdown: string): { markdown: string, widgetsByPlaceholder: Map<string, WidgetFence> } {
+function replaceWidgetFencesWithPlaceholders(tokens: Token[]): Map<string, WidgetFence> {
   const widgetsByPlaceholder = new Map<string, WidgetFence>();
-  const widgetFenceRegex = /```widget\[(.*?)\]\n([\s\S]*?)\n```/g;
-  const replaced = markdown.replace(widgetFenceRegex, (_match, rawWidgetId: string, rawWidgetMarkup: string) => {
+  for (const token of tokens) {
+    const widgetFenceMatch = token.type === "fence" ? /^widget\[(.*)\]$/.exec(token.info.trim()) : null;
+    if (!widgetFenceMatch) continue;
     const placeholder = `widgetplaceholder${randomId()}`;
     widgetsByPlaceholder.set(placeholder, {
-      widgetId: (rawWidgetId ?? "").trim() || randomId(),
-      widgetMarkup: rawWidgetMarkup ?? "",
+      widgetId: widgetFenceMatch[1].trim() || randomId(),
+      // A fence's content includes the newline ending its last line.
+      widgetMarkup: token.content.replace(/\n$/, ""),
     });
-    return `\n\n${placeholder}\n\n`;
-  });
-  return { markdown: replaced, widgetsByPlaceholder };
+    // An html_block token renders its content verbatim.
+    token.type = "html_block";
+    token.content = `<p>${placeholder}</p>\n`;
+  }
+  return widgetsByPlaceholder;
 }
 
 function $createWidgetNodeFromFence({ widgetId, widgetMarkup }: WidgetFence): IframeWidgetNode {
@@ -70,40 +83,62 @@ function $createWidgetNodeFromFence({ widgetId, widgetMarkup }: WidgetFence): If
   return widgetNode;
 }
 
-function $getPlaceholderWidget(node: LexicalNode, widgetsByPlaceholder: Map<string, WidgetFence>): WidgetFence | undefined {
-  return $isParagraphNode(node) ? widgetsByPlaceholder.get(node.getTextContent().trim()) : undefined;
+/**
+ * The widget a placeholder paragraph stands in for, if `node` is one. Each
+ * widget is taken out of `pendingWidgets` as its placeholder is found.
+ */
+function $takePlaceholderWidget(node: LexicalNode, pendingWidgets: Map<string, WidgetFence>): WidgetFence | undefined {
+  if (!$isParagraphNode(node)) return undefined;
+  const placeholder = node.getTextContent().trim();
+  const widget = pendingWidgets.get(placeholder);
+  pendingWidgets.delete(placeholder);
+  return widget;
 }
 
-function $replaceNestedWidgetPlaceholders(parent: ElementNode, widgetsByPlaceholder: Map<string, WidgetFence>): void {
+function $replaceNestedWidgetPlaceholders(parent: ElementNode, pendingWidgets: Map<string, WidgetFence>): void {
   for (const child of parent.getChildren()) {
-    const widget = $getPlaceholderWidget(child, widgetsByPlaceholder);
+    const widget = $takePlaceholderWidget(child, pendingWidgets);
     if (widget) {
       child.replace($createWidgetNodeFromFence(widget));
     } else if ($isElementNode(child)) {
-      $replaceNestedWidgetPlaceholders(child, widgetsByPlaceholder);
+      $replaceNestedWidgetPlaceholders(child, pendingWidgets);
     }
   }
 }
 
-function $replaceWidgetPlaceholders(nodes: LexicalNode[], widgetsByPlaceholder: Map<string, WidgetFence>): LexicalNode[] {
-  if (widgetsByPlaceholder.size === 0) return nodes;
+function $replaceWidgetPlaceholders(nodes: LexicalNode[], pendingWidgets: Map<string, WidgetFence>): LexicalNode[] {
+  if (pendingWidgets.size === 0) return nodes;
   return nodes.map((node) => {
-    const widget = $getPlaceholderWidget(node, widgetsByPlaceholder);
+    const widget = $takePlaceholderWidget(node, pendingWidgets);
     if (widget) return $createWidgetNodeFromFence(widget);
-    if ($isElementNode(node)) $replaceNestedWidgetPlaceholders(node, widgetsByPlaceholder);
+    if ($isElementNode(node)) $replaceNestedWidgetPlaceholders(node, pendingWidgets);
     return node;
   });
 }
 
-function parseWholeWidgetFence(markdown: string): { widgetId: string, widgetMarkup: string } | null {
-  const trimmed = markdown.trim();
-  const match = trimmed.match(/^```widget\[(.*?)\]\n([\s\S]*?)\n```$/);
-  if (!match) {
-    return null;
+/**
+ * Why the widgets among some nodes about to be inserted can't be, if there
+ * are any that can't. Widgets can't be inserted as suggestions, matching the
+ * editor's suggestion mode (wrapping one would only mark its HTML source).
+ * Each widget's ID must also be unused, because later edits address the
+ * widget by it. Must be called inside a Lexical read/update context.
+ */
+export function $findWidgetInsertionProblem(nodesToInsert: LexicalNode[], mode: ReplaceMode): string | null {
+  const insertedWidgetIds = nodesToInsert
+    .flatMap((node) => $collectWidgetNodes(node))
+    .map((widgetNode) => widgetNode.getWidgetId());
+  if (insertedWidgetIds.length === 0) return null;
+  if (mode === "suggest") {
+    return "Widgets can't be inserted as suggestions. Retry with mode \"edit\" to insert them directly.";
   }
-  const widgetId = (match[1] ?? "").trim() || randomId();
-  const widgetMarkup = match[2] ?? "";
-  return { widgetId, widgetMarkup };
+  const usedWidgetIds = new Set($collectWidgetNodes($getRoot()).map((widgetNode) => widgetNode.getWidgetId()));
+  for (const widgetId of insertedWidgetIds) {
+    if (usedWidgetIds.has(widgetId)) {
+      return `Widget ID ${JSON.stringify(widgetId)} is already in use. Give each widget a unique ID.`;
+    }
+    usedWidgetIds.add(widgetId);
+  }
+  return null;
 }
 
 /**
@@ -124,10 +159,9 @@ function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], parent: El
     ? lastInserted.getLastDescendant()
     : null;
 
-  // Use text-level selection on the first/last text descendants when possible,
-  // which avoids a bug where root-level element selection clips the first
-  // character. For non-element, non-text nodes (e.g. decorator nodes like
-  // horizontal rules), fall back to element selection on the parent.
+  // Use text-level selection on the first/last text descendants when possible.
+  // For non-element, non-text nodes (e.g. decorator nodes like horizontal
+  // rules), fall back to element selection on the parent.
   const selection = $createRangeSelection();
   if (firstDescendant && $isTextNode(firstDescendant)) {
     selection.anchor.set(firstDescendant.getKey(), 0, "text");
@@ -142,27 +176,37 @@ function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], parent: El
   $wrapSelectionInSuggestionNode(selection, false, suggestionId, "insert");
 }
 
+function $htmlToNodes(editor: LexicalEditor, html: string): LexicalNode[] {
+  const dom = new JSDOM(sanitize(html));
+  const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
+  return normalizeImportedTopLevelNodes(importedNodes);
+}
+
 export function $markdownToNodes(
   editor: LexicalEditor,
   markdown: string,
   options: { markdownIt: MarkdownIt },
 ): LexicalNode[] {
-  const id = randomId();
-  const html = sanitize(options.markdownIt.render(markdown, { docId: id }));
-  const dom = new JSDOM(html);
-  const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
-  return normalizeImportedTopLevelNodes(importedNodes);
+  return $htmlToNodes(editor, options.markdownIt.render(markdown, { docId: randomId() }));
 }
 
-export function $postMarkdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
-  const wholeFence = parseWholeWidgetFence(markdown);
-  if (wholeFence) {
-    return [$createWidgetNodeFromFence(wholeFence)];
+export function $postMarkdownToNodes(editor: LexicalEditor, markdown: string): MarkdownConversion {
+  const markdownIt = getMarkdownItForAgentPosts();
+  const env = { docId: randomId() };
+  const tokens = markdownIt.parse(markdown, env);
+  const pendingWidgets = replaceWidgetFencesWithPlaceholders(tokens);
+  const html = markdownIt.renderer.render(tokens, markdownIt.options, env);
+  const nodes = $replaceWidgetPlaceholders($htmlToNodes(editor, html), pendingWidgets);
+  // A placeholder that didn't import as a paragraph is somewhere a widget
+  // can't go: a list item, which only holds inline content.
+  const [misplacedWidget] = pendingWidgets.values();
+  if (misplacedWidget) {
+    return {
+      nodes: [],
+      error: `The widget[${misplacedWidget.widgetId}] fence is inside a list item, which can't contain widgets. Move it out of the list.`,
+    };
   }
-
-  const { markdown: markdownWithPlaceholders, widgetsByPlaceholder } = replaceWidgetFencesWithPlaceholders(markdown);
-  const nodes = $markdownToNodes(editor, markdownWithPlaceholders, { markdownIt: getMarkdownItForAgentPosts() });
-  return $replaceWidgetPlaceholders(nodes, widgetsByPlaceholder);
+  return { nodes };
 }
 
 export interface InsertionPoint {
@@ -193,11 +237,8 @@ function $getInsertionSibling(node: LexicalNode): LexicalNode {
 }
 
 function $resolveInsidePoint(prefix: string, position: "start" | "end"): InsertionPointResult {
-  const { node, reason } = $locateBlockByPrefix(prefix);
-  if (!node) return { point: null, reason };
-  if (!$isCollapsibleSectionContainerNode(node)) {
-    return { point: null, reason: "The \"inside\" locator must match a collapsible section's \"+++ Title\" line." };
-  }
+  const { node, reason } = $locateCollapsibleSectionByTitle(prefix);
+  if (!$isCollapsibleSectionContainerNode(node)) return { point: null, reason };
   const content = node.getChildren().find($isCollapsibleSectionContentNode);
   if (!content) {
     return { point: null, reason: "The matched collapsible section has no body to insert into." };
@@ -247,11 +288,18 @@ export function $insertMarkdownBlockInEditor({
   mode: ReplaceMode
   location: InsertLocation
   markdown: string
-  markdownToNodes: (editor: LexicalEditor, markdown: string) => LexicalNode[]
+  markdownToNodes: (editor: LexicalEditor, markdown: string) => MarkdownConversion
 }): InsertBlockResult {
-  const nodesToInsert = markdownToNodes(editor, markdown);
+  const { nodes: nodesToInsert, error } = markdownToNodes(editor, markdown);
+  if (error) {
+    return { inserted: false, note: error };
+  }
   if (nodesToInsert.length === 0) {
     return { inserted: false, note: "No insertable nodes were generated from markdown." };
+  }
+  const widgetProblem = $findWidgetInsertionProblem(nodesToInsert, mode);
+  if (widgetProblem) {
+    return { inserted: false, note: widgetProblem };
   }
 
   const { point, reason } = $resolveInsertionPoint(location);

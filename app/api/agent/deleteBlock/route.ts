@@ -1,13 +1,12 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createParagraphNode, $createRangeSelection, $isRootNode, $nodesOfType, $setSelection, type ElementNode, type LexicalNode } from "lexical";
-import { $isListNode } from "@lexical/list";
+import { $createParagraphNode, $createRangeSelection, $isRootNode, $isRootOrShadowRoot, $nodesOfType, $setSelection, type LexicalNode } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
+import { $collectWidgetNodes, $locateBlockByPrefix } from "../textIndexQuoteLocator";
 import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -29,12 +28,15 @@ interface DeleteBlockResult {
  * silently creates nothing for them; its return value can't be checked
  * directly because the table case creates per-cell suggestion nodes without
  * reporting them — so success is verified by inspecting the tree for nodes
- * carrying this call's suggestionId. Exported for testing. Must be called
- * inside a Lexical update context.
+ * carrying this call's suggestionId. Widgets are refused outright: wrapping
+ * would only mark their HTML source, so accepting would leave an empty
+ * widget behind (the editor doesn't support suggesting widget deletions
+ * either). Exported for testing. Must be called inside a Lexical update
+ * context.
  */
 export function $wrapBlockAsDeletionSuggestion(blockNode: LexicalNode, suggestionId: string): boolean {
   const parent = blockNode.getParent();
-  if (!parent) return false;
+  if (!parent || $collectWidgetNodes(blockNode).length > 0) return false;
   const indexInParent = blockNode.getIndexWithinParent();
   const selection = $createRangeSelection();
   selection.anchor.set(parent.getKey(), indexInParent, "element");
@@ -45,19 +47,18 @@ export function $wrapBlockAsDeletionSuggestion(blockNode: LexicalNode, suggestio
 }
 
 /**
- * Clean up the parent of a just-removed block. If it was the last item of a
- * list, drop the (now-empty) list too — leaving an empty list behind looks
- * like a rendering glitch in the editor. Any other emptied container (e.g. a
- * collapsible section's body) gets an empty paragraph, so it stays editable.
- * Exported for the research-document route. Must be called inside a Lexical
- * update context.
+ * Remove a matched block for an edit-mode delete. Lexical also removes the
+ * ancestors this leaves empty (e.g. a list whose last item this was), up to
+ * the nearest root or shadow root. If that container is a shadow root which
+ * is now empty (e.g. a collapsible section's body), it gets an empty
+ * paragraph so it stays editable. Exported for the research-document route.
+ * Must be called inside a Lexical update context.
  */
-export function $tidyParentAfterBlockRemoval(parent: ElementNode): void {
-  if ($isRootNode(parent) || parent.getChildrenSize() > 0) return;
-  if ($isListNode(parent)) {
-    parent.remove();
-  } else {
-    parent.append($createParagraphNode());
+export function $removeBlock(blockNode: LexicalNode): void {
+  const container = blockNode.getParents().find((ancestor) => $isRootOrShadowRoot(ancestor));
+  blockNode.remove();
+  if (container && !$isRootNode(container) && container.isEmpty()) {
+    container.append($createParagraphNode());
   }
 }
 
@@ -107,8 +108,7 @@ export async function deleteMarkdownBlock({
           const indexInParent = nodeToDelete.getIndexWithinParent();
 
           if (mode === "edit") {
-            nodeToDelete.remove();
-            $tidyParentAfterBlockRemoval(parent);
+            $removeBlock(nodeToDelete);
             result = {
               deleted: true,
               note: "Deleted markdown block from collaborative draft.",

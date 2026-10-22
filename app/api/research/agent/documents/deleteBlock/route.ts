@@ -4,7 +4,7 @@ import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $locateBlockByPrefix } from "../../../../agent/textIndexQuoteLocator";
-import { $tidyParentAfterBlockRemoval, $wrapBlockAsDeletionSuggestion } from "../../../../agent/deleteBlock/route";
+import { $removeBlock, $wrapBlockAsDeletionSuggestion } from "../../../../agent/deleteBlock/route";
 import type { ReplaceMode } from "../../../../agent/toolSchemas";
 import {
   authorizeAgentRequest,
@@ -64,8 +64,7 @@ async function deleteMarkdownBlockInResearchDoc({
             const indexInParent = nodeToDelete.getIndexWithinParent();
 
             if (mode === "edit") {
-              nodeToDelete.remove();
-              $tidyParentAfterBlockRemoval(parent);
+              $removeBlock(nodeToDelete);
               result = {
                 deleted: true,
                 note: "Deleted markdown block from research document.",

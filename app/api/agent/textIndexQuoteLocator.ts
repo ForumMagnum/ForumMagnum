@@ -1,5 +1,6 @@
 import { $getRoot, $isElementNode, $isRootNode, type LexicalNode } from "lexical";
 import { $isListItemNode } from "@lexical/list";
+import { $isCollapsibleSectionContainerNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode";
 import { $isCollapsibleSectionContentNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode";
 import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { foldPunctuation } from "./editorAgentUtil";
@@ -544,13 +545,53 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
   // by the widget's ID instead.
   const widgetFenceMatch = /^\s*```widget\[([^\]]*)\]/.exec(prefix);
   if (widgetFenceMatch) {
-    const widgetId = widgetFenceMatch[1].trim();
-    const widgetNode = widgetId ? $findWidgetNodeById($getRoot(), widgetId) : null;
-    return widgetNode
-      ? { node: widgetNode }
-      : { node: null, reason: `No widget with ID ${JSON.stringify(widgetId)}.` };
+    return $locateWidgetById(widgetFenceMatch[1].trim());
   }
+  // A "+++ Title" prefix names a collapsible section. Matching it only
+  // against sections keeps a body block that opens with the title's text
+  // from making it ambiguous.
+  if (/^\s*\+\+\+/.test(prefix)) {
+    return $locateCollapsibleSectionByTitle(prefix);
+  }
+  return $locateBlockByTextPrefix(prefix, null, "No block starts with the given prefix.");
+}
 
+/**
+ * Locate the collapsible section whose title starts with the given prefix
+ * (its "+++ Title" line, with or without the leading "+++").
+ *
+ * Must be called inside a Lexical read/update context.
+ */
+export function $locateCollapsibleSectionByTitle(prefix: string): BlockPrefixResult {
+  return $locateBlockByTextPrefix(
+    prefix,
+    $isCollapsibleSectionContainerNode,
+    "No collapsible section's title starts with the given prefix.",
+  );
+}
+
+function $locateWidgetById(widgetId: string): BlockPrefixResult {
+  const widgetNodes = widgetId ? $findWidgetNodesById(widgetId) : [];
+  if (widgetNodes.length === 1) {
+    return { node: widgetNodes[0] };
+  }
+  return {
+    node: null,
+    reason: widgetNodes.length === 0
+      ? `No widget with ID ${JSON.stringify(widgetId)}.`
+      : `Ambiguous widget ID: ${widgetNodes.length} widgets have ID ${JSON.stringify(widgetId)}.`,
+  };
+}
+
+/**
+ * Text-index prefix matching for $locateBlockByPrefix, optionally restricted
+ * to the blocks accepted by `isEligible`.
+ */
+function $locateBlockByTextPrefix(
+  prefix: string,
+  isEligible: ((node: LexicalNode) => boolean) | null,
+  noMatchReason: string,
+): BlockPrefixResult {
   const { projection, normalizedDocument } = $buildNormalizedDocument();
   const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix)).text;
   if (!normalizedPrefix) {
@@ -570,7 +611,12 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
     const rawStart = normalizedDocument.toRawStart[matchIndex];
     const rawEnd = normalizedDocument.toRawEnd[matchIndex + normalizedPrefix.length - 1];
     const candidate = blocksByContentStart.get(rawStart);
-    if (candidate && rawEnd <= candidate.spanEnd && !matchedKeys.has(candidate.node.getKey())) {
+    if (
+      candidate
+      && rawEnd <= candidate.spanEnd
+      && (!isEligible || isEligible(candidate.node))
+      && !matchedKeys.has(candidate.node.getKey())
+    ) {
       matchedKeys.add(candidate.node.getKey());
       matchedBlocks.push(candidate.node);
     }
@@ -581,7 +627,7 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
     return { node: matchedBlocks[0] };
   }
   if (matchedBlocks.length === 0) {
-    return { node: null, reason: "No block starts with the given prefix." };
+    return { node: null, reason: noMatchReason };
   }
   return {
     node: null,
@@ -590,18 +636,22 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
   };
 }
 
-export function $findWidgetNodeById(rootNode: LexicalNode, widgetId: string): IframeWidgetNode | null {
-  if ($isIframeWidgetNode(rootNode) && rootNode.getWidgetId() === widgetId) {
-    return rootNode;
+/** Every widget node at or below the given node, in document order. */
+export function $collectWidgetNodes(node: LexicalNode): IframeWidgetNode[] {
+  if ($isIframeWidgetNode(node)) {
+    return [node];
   }
-  if (!$isElementNode(rootNode)) {
-    return null;
+  if (!$isElementNode(node)) {
+    return [];
   }
-  for (const child of rootNode.getChildren()) {
-    const match = $findWidgetNodeById(child, widgetId);
-    if (match) {
-      return match;
-    }
-  }
-  return null;
+  return node.getChildren().flatMap((child) => $collectWidgetNodes(child));
+}
+
+/**
+ * Every widget in the document with the given ID. IDs are meant to be unique,
+ * but the editor doesn't enforce that, so callers must handle duplicates.
+ * Must be called inside a Lexical read/update context.
+ */
+export function $findWidgetNodesById(widgetId: string): IframeWidgetNode[] {
+  return $collectWidgetNodes($getRoot()).filter((widgetNode) => widgetNode.getWidgetId() === widgetId);
 }
