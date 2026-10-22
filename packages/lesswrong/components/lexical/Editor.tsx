@@ -396,7 +396,8 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     '& p:has(> ins.block-type-change.target-paragraph)': {
       background: theme.palette.background.diffInserted,
-      height: '26px',
+      // Keep empty suggestions visible without constraining wrapped text.
+      minHeight: '1lh',
     },
     // Split suggestion: show two horizontal lines stretching from the end
     // of the text to the right edge of the paragraph, indicating where the
