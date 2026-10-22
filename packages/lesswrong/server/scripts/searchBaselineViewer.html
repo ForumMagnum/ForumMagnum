@@ -33,7 +33,7 @@ select, input, textarea { border: 1px solid var(--line); background: var(--panel
 header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 5; }
 header h1 { font-size: 15px; margin: 0 8px 0 0; }
 header .runs { display: flex; gap: 6px; align-items: center; margin-left: auto; flex-wrap: wrap; min-width: 0; max-width: 100%; }
-header .runs select { min-width: 0; max-width: 100%; flex: 1 1 220px; }
+
 .meta { color: var(--muted); font-size: 12px; }
 main { padding: 12px 16px 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
@@ -54,10 +54,17 @@ main { padding: 12px 16px 40px; display: grid; grid-template-columns: minmax(0, 
 .cat .bar span { display: block; height: 100%; background: var(--accent); }
 .cat.thin .name::after { content: " thin"; color: var(--warn); font-weight: 400; font-size: 11px; }
 .chart { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
-.chart svg { width: 100%; height: 96px; display: block; }
-.chart rect.bar { cursor: pointer; }
-.chart rect.bar:hover { opacity: .7; }
-.chart rect.sel { stroke: var(--ink); stroke-width: 1.5; }
+.runpick { display: inline-flex; align-items: center; gap: 4px; min-width: 0; max-width: 100%; flex: 1 1 220px; }
+.runpick span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.runpick select { min-width: 0; flex: 1; }
+.chart .head { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.chart .legend { display: flex; gap: 12px; font-size: 12px; }
+.chart .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.chart .plot { position: relative; margin-top: 6px; cursor: crosshair; }
+.chart svg { width: 100%; height: 120px; display: block; }
+.chart .cursor { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--ink); opacity: .5; pointer-events: none; display: none; }
+.chart .tip { position: absolute; top: -4px; transform: translateX(-50%); background: var(--ink); color: var(--panel); font-size: 12px; padding: 2px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none; display: none; max-width: 60vw; overflow: hidden; text-overflow: ellipsis; }
+.chart .axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 2px; }
 .split { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 12px; align-items: start; }
 @media (max-width: 860px) {
   .split { grid-template-columns: minmax(0, 1fr); }
@@ -133,9 +140,9 @@ dialog .foot { display: flex; justify-content: flex-end; gap: 8px; padding: 10px
   <h1>Search baseline</h1>
   <span class="meta" id="meta"></span>
   <div class="runs">
-    <select id="baseline" aria-label="Baseline run"></select>
+    <label class="runpick"><span>Baseline</span><select id="baseline" aria-label="Baseline run"></select></label>
     <span class="muted">→</span>
-    <select id="candidate" aria-label="Candidate run"></select>
+    <label class="runpick"><span>Candidate</span><select id="candidate" aria-label="Candidate run"></select></label>
     <button id="run" title="Run every golden query with the code this server loaded">Run current code</button>
     <button id="add" class="primary" title="Add something that annoys you (a)">+ Annoyance</button>
   </div>
@@ -274,8 +281,12 @@ async function loadState() {
   S.state = await api("/api/state");
   const names = S.state.runs.map(run => run.name);
   const hash = readHash();
-  S.candidate = names.includes(S.candidate) ? S.candidate : names.includes(hash.candidate) ? hash.candidate : names[0] || "";
-  S.baseline = names.includes(S.baseline) ? S.baseline : names.includes(hash.baseline) ? hash.baseline : names[1] || names[0] || "";
+  // Default to judging the newest branch run against the newest master run.
+  const isMaster = name => name.includes("-master-");
+  const newestBranch = names.find(name => !isMaster(name)) ?? names[0] ?? "";
+  const newestMaster = names.find(isMaster) ?? names.find(name => name !== newestBranch) ?? newestBranch;
+  S.candidate = names.includes(S.candidate) ? S.candidate : names.includes(hash.candidate) ? hash.candidate : newestBranch;
+  S.baseline = names.includes(S.baseline) ? S.baseline : names.includes(hash.baseline) ? hash.baseline : newestMaster;
   if (!S.selected) S.selected = hash.selected && queryById(hash.selected) ? hash.selected : golden()[0]?.id ?? null;
   await loadComparison();
 }
@@ -377,20 +388,51 @@ function renderChart() {
   $("chart").style.display = "";
   const items = c.queries.filter(query => query.delta !== null).sort((a, b) => a.delta - b.delta);
   if (!items.length) { $("chart").innerHTML = `<div class="empty">No graded queries in both runs yet.</div>`; return; }
-  const width = 1000, height = 96, mid = height / 2;
+  const width = 1000, height = 120, mid = height / 2;
   const maxAbs = Math.max(0.05, ...items.map(item => Math.abs(item.delta)));
   const step = width / items.length;
-  const bars = items.map((item, i) => {
-    const h = Math.max(1, (Math.abs(item.delta) / maxAbs) * (mid - 6));
-    const y = item.delta >= 0 ? mid - h : mid;
-    const color = item.verdict === "win" ? "var(--win)" : item.verdict === "loss" ? "var(--loss)" : "var(--tie)";
-    return `<rect class="bar ${item.id === S.selected ? "sel" : ""}" data-id="${esc(item.id)}" x="${i * step + step * 0.12}" y="${y}" width="${Math.max(1, step * 0.76)}" height="${h}" fill="${color}"><title>${esc(item.query)}  ${signed(item.delta)}</title></rect>`;
-  }).join("");
-  $("chart").innerHTML = `<div class="meta">Per-query Δ nDCG@10, sorted. Click a bar to open the query.</div>
-    <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="Per-query delta chart">
-      <line x1="0" x2="${width}" y1="${mid}" y2="${mid}" stroke="var(--line)" />${bars}
-    </svg>`;
-  for (const el of $("chart").querySelectorAll("rect.bar")) el.onclick = () => select(el.dataset.id);
+  const y = delta => mid - (delta / maxAbs) * (mid - 4);
+  // One step-shaped area per sign keeps thousands of queries legible.
+  const area = sign => {
+    let path = `M0 ${mid}`;
+    items.forEach((item, i) => {
+      const value = Math.sign(item.delta) === sign ? item.delta : 0;
+      path += ` L${i * step} ${y(value)} L${(i + 1) * step} ${y(value)}`;
+    });
+    return path + ` L${width} ${mid} Z`;
+  };
+  const counts = {loss: 0, tie: 0, win: 0};
+  for (const item of items) counts[item.verdict]++;
+  const selectedIndex = items.findIndex(item => item.id === S.selected);
+  $("chart").innerHTML = `<div class="head">
+      <span class="meta">Each query's change in nDCG@10, candidate minus baseline, sorted. Hover to identify, click to open.</span>
+      <span class="legend"><span><i style="background:var(--loss)"></i>${counts.loss} worse</span><span><i style="background:var(--tie)"></i>${counts.tie} same</span><span><i style="background:var(--win)"></i>${counts.win} better</span></span>
+    </div>
+    <div class="plot" id="plot">
+      <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="Per-query change chart">
+        <path d="${area(-1)}" fill="var(--loss)" opacity=".85" />
+        <path d="${area(1)}" fill="var(--win)" opacity=".85" />
+        <line x1="0" x2="${width}" y1="${mid}" y2="${mid}" stroke="var(--muted)" stroke-width="1" vector-effect="non-scaling-stroke" />
+        ${selectedIndex >= 0 ? `<line x1="${(selectedIndex + 0.5) * step}" x2="${(selectedIndex + 0.5) * step}" y1="0" y2="${height}" stroke="var(--ink)" stroke-width="2" vector-effect="non-scaling-stroke" />` : ""}
+      </svg>
+      <div class="cursor" id="cursor"></div><div class="tip" id="tip"></div>
+    </div>
+    <div class="axis"><span>candidate worse</span><span>±${fmt(maxAbs, 2)} at full height</span><span>candidate better</span></div>`;
+  const plot = $("plot");
+  const at = event => {
+    const rect = plot.getBoundingClientRect();
+    const index = Math.min(items.length - 1, Math.max(0, Math.floor(((event.clientX - rect.left) / rect.width) * items.length)));
+    return {item: items[index], x: event.clientX - rect.left};
+  };
+  plot.onmousemove = event => {
+    const {item, x} = at(event);
+    $("cursor").style.display = $("tip").style.display = "block";
+    $("cursor").style.left = `${x}px`;
+    $("tip").style.left = `${Math.min(Math.max(x, 120), plot.clientWidth - 120)}px`;
+    $("tip").textContent = `${item.query}  ${signed(item.delta, 2)}`;
+  };
+  plot.onmouseleave = () => { $("cursor").style.display = $("tip").style.display = "none"; };
+  plot.onclick = event => select(at(event).item.id);
 }
 
 const tabs = [
@@ -457,7 +499,14 @@ function renderList() {
     </div>`;
   }).join("") : `<div class="empty" style="padding:16px">Nothing matches.</div>`;
   for (const el of $("rows").querySelectorAll(".row")) el.onclick = () => select(el.dataset.id);
-  $("rows").querySelector(".row.on")?.scrollIntoView({block: "nearest"});
+  // Scroll only the list; scrollIntoView would also scroll the page.
+  const selectedRow = $("rows").querySelector(".row.on");
+  if (selectedRow) {
+    const list = $("rows");
+    const top = selectedRow.offsetTop - list.offsetTop;
+    if (top < list.scrollTop) list.scrollTop = top;
+    else if (top + selectedRow.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = top + selectedRow.offsetHeight - list.clientHeight;
+  }
 }
 
 function select(id) {
