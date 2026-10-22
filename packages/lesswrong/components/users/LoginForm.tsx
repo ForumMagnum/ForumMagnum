@@ -13,6 +13,7 @@ import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 import DeferRender from '../common/DeferRender';
 import { ErrorLike } from '@apollo/client';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
+import { sanitizeLoginReturnTo } from '@/lib/auth/loginNotices';
 
 const styles = defineStyles('LoginForm', (theme: ThemeType) => ({
   root: {
@@ -157,7 +158,7 @@ const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
   
   const loginSuccess = useCallback(() => {
     if (returnTo) {
-      window.location.href = returnTo;
+      window.location.href = sanitizeLoginReturnTo(returnTo);
     } else {
       location.reload()
     }
@@ -205,7 +206,7 @@ const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
     }
   }
 
-  const oauthReturnTo = encodeURIComponent(returnTo ?? pathname);
+  const oauthReturnTo = encodeURIComponent(sanitizeLoginReturnTo(returnTo ?? pathname));
 
   return <ContentStyles contentType="commentExceptPointerEvents">
     {reCaptchaSiteKey && <DeferRender ssr={false}>
