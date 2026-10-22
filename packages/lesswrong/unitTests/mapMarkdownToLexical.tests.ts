@@ -1,12 +1,15 @@
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM, $generateHtmlFromNodes } from "@lexical/html";
 import {
+  $createParagraphNode,
   $createRangeSelection,
   $getRoot,
   $getSelection,
+  $isElementNode,
   $isRangeSelection,
   $setSelection,
   type LexicalEditor,
+  type LexicalNode,
 } from "lexical";
 import { markdownToHtml, htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
@@ -18,9 +21,12 @@ import {
   type MarkdownQuoteSelectionResult,
 } from "../../../app/api/agent/mapMarkdownToLexical";
 import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
-import { resolveInsertionIndex } from "../../../app/api/agent/insertBlock/route";
+import { agentMarkdownFromEditorHtml } from "../../../app/api/agent/agentMarkdownView";
+import { $createImageNode, $isImageNode, type ImageNode } from "@/components/lexical/nodes/ImageNode";
+import { $createPopulatedQueryInputNode } from "@/components/research/lexical/QueryInputNode";
+import { $resolveInsertionPoint } from "../../../app/api/agent/insertBlock/route";
 import { $isListItemNode, $isListNode } from "@lexical/list";
-import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
+import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
 
@@ -397,19 +403,235 @@ describe("$locateBlockByPrefix", () => {
   });
 });
 
-describe("resolveInsertionIndex with nested structures", () => {
+describe("$resolveInsertionPoint with nested structures", () => {
   it("translates a nested list-item match to its top-level list index", async () => {
     const editor = await setupEditorWithContent(
       "Intro paragraph.\n\n*   outer item\n    *   nested needle item\n*   second outer\n\nClosing paragraph."
     );
-    let result: { index: number | null } = { index: null };
+    let index: number | null = null;
+    let isRootParent = false;
     editor.getEditorState().read(() => {
-      result = resolveInsertionIndex({ after: "nested needle" }, $getRoot().getChildren());
+      const { point } = $resolveInsertionPoint({ after: "nested needle" });
+      index = point?.index ?? null;
+      isRootParent = point?.parent === $getRoot();
     });
     // Document top level: [paragraph, list, paragraph] — "after" the matched
     // nested item must insert after the whole list (index 2), not at a
     // root position derived from inner-list indices.
-    expect(result.index).toBe(2);
+    expect(index).toBe(2);
+    expect(isRootParent).toBe(true);
+  });
+});
+
+function $findFirstImage(node: LexicalNode): ImageNode | null {
+  if ($isImageNode(node)) return node;
+  if (!$isElementNode(node)) return null;
+  for (const child of node.getChildren()) {
+    const image = $findFirstImage(child);
+    if (image) return image;
+  }
+  return null;
+}
+
+/** The editPost read path's markdown for the editor's current document. */
+function readPathMarkdown(editor: LexicalEditor): string {
+  let html = "";
+  editor.getEditorState().read(() => {
+    html = withDomGlobals(() => $generateHtmlFromNodes(editor, null));
+  });
+  return agentMarkdownFromEditorHtml(html);
+}
+
+describe("$locateBlockByPrefix with image prefixes", () => {
+  interface ImageMatchInfo { type: string; imageSrc: string | null; text: string; reason?: string }
+  function locateImageBlock(editor: LexicalEditor, prefix: string): ImageMatchInfo | null {
+    let result: ImageMatchInfo | null = null;
+    editor.getEditorState().read(() => {
+      const { node, reason } = $locateBlockByPrefix(prefix);
+      if (!node) {
+        result = { type: "none", imageSrc: null, text: "", reason };
+        return;
+      }
+      result = { type: node.getType(), imageSrc: $findFirstImage(node)?.getSrc() ?? null, text: node.getTextContent() };
+    });
+    return result;
+  }
+
+  const twoImageDocument = [
+    "Intro paragraph.",
+    "![First figure](https://example.com/figures/one.png)",
+    "Middle paragraph.",
+    "![Second figure](https://example.com/figures/two.png)",
+    "Closing paragraph.",
+  ].join("\n\n");
+
+  it("matches an image-only paragraph by its image markdown", async () => {
+    const editor = await setupEditorWithContent(twoImageDocument);
+    const matched = locateImageBlock(editor, "![Second figure](https://example.com/figures/two.png)");
+    expect(matched?.reason).toBeUndefined();
+    expect(matched?.imageSrc).toBe("https://example.com/figures/two.png");
+  });
+
+  it("identifies the image by URL, ignoring the alt text", async () => {
+    const editor = await setupEditorWithContent(twoImageDocument);
+    const matched = locateImageBlock(editor, "![](https://example.com/figures/one.png)");
+    expect(matched?.imageSrc).toBe("https://example.com/figures/one.png");
+    expect(locateImageBlock(editor, "![Fig [1]](https://example.com/figures/one.png)")?.imageSrc)
+      .toBe("https://example.com/figures/one.png");
+  });
+
+  it("reports no match for an image URL that isn't in the document, rather than an empty prefix", async () => {
+    const editor = await setupEditorWithContent(twoImageDocument);
+    const matched = locateImageBlock(editor, "![Second figure](https://example.com/figures/three.png)");
+    expect(matched?.type).toBe("none");
+    expect(matched?.reason).toBe("No block starts with the given prefix.");
+  });
+
+  it("matches an image block followed by caption text, using the text to disambiguate", async () => {
+    const editor = await setupEditorWithContent([
+      "![fig](https://example.com/same.png)\n*Caption A*",
+      "![fig](https://example.com/same.png)\n*Caption B*",
+    ].join("\n\n"));
+    expect(locateImageBlock(editor, "![fig](https://example.com/same.png)")?.reason).toContain("Ambiguous");
+    expect(locateImageBlock(editor, "![fig](https://example.com/same.png)*Caption B*")?.text).toContain("Caption B");
+  });
+
+  it("does not match a text block when the prefix's image is not in it", async () => {
+    // An image-only paragraph followed by a caption-like paragraph reads like
+    // a captioned figure; the prefix spans both blocks, so it matches neither.
+    const editor = await setupEditorWithContent(
+      "![](https://example.com/f.png)\n\n*Figure 1: Results*\n\nResults are shown above."
+    );
+    expect(locateImageBlock(editor, "![](https://example.com/f.png)\n\n*Figure 1: Results*")?.type).toBe("none");
+    expect(locateImageBlock(editor, "![](https://example.com/WRONG.png)Results are shown above")?.type).toBe("none");
+  });
+
+  it("does not match a list when the prefix runs from an image item into the next item", async () => {
+    const editor = await setupEditorWithContent("*   ![pic](https://example.com/g.png)\n*   Caption item");
+    expect(locateImageBlock(editor, "![pic](https://example.com/g.png)\n\nCaption item")?.type).toBe("none");
+  });
+
+  it("matches a list item that consists of an image", async () => {
+    const editor = await setupEditorWithContent(
+      "*   item one\n*   ![pic](https://example.com/b.png)\n*   item three"
+    );
+    const matched = locateImageBlock(editor, "![pic](https://example.com/b.png)");
+    expect(matched?.type).toBe("listitem");
+    expect(matched?.imageSrc).toBe("https://example.com/b.png");
+  });
+
+  it("matches a top-level image node", async () => {
+    const editor = await setupEditorWithContent("Intro paragraph.");
+    await runEditorUpdate(editor, () => {
+      $getRoot().append($createImageNode({ src: "https://example.com/top.png", altText: "top" }));
+    });
+    const matched = locateImageBlock(editor, "![top](https://example.com/top.png)");
+    expect(matched?.type).toBe("image");
+  });
+
+  it("matches an image block inside a collapsible section", async () => {
+    const editor = await setupEditorWithHtml(
+      `<p>Intro</p>`
+      + `<details class="detailsBlock"><summary class="detailsBlockTitle">Figures</summary>`
+      + `<div class="detailsBlockContent"><p>Inside text</p>`
+      + `<p><img src="https://example.com/inside.png" alt="inside"></p></div></details>`
+    );
+    const matched = locateImageBlock(editor, "![inside](https://example.com/inside.png)");
+    expect(matched?.reason).toBeUndefined();
+    expect(matched?.type).toBe("paragraph");
+    expect(matched?.imageSrc).toBe("https://example.com/inside.png");
+  });
+
+  it("does not match an image that follows text in its block", async () => {
+    const editor = await setupEditorWithContent("Text before ![inline](https://example.com/c.png) after.");
+    expect(locateImageBlock(editor, "![inline](https://example.com/c.png)")?.type).toBe("none");
+  });
+
+  it("does not match an image inside a block hidden from agent edits", async () => {
+    const editor = await setupEditorWithContent("Intro paragraph.");
+    await runEditorUpdate(editor, () => {
+      const paragraph = $createParagraphNode();
+      paragraph.append($createImageNode({ src: "https://example.com/hidden.png", altText: "hidden" }));
+      $getRoot().append($createPopulatedQueryInputNode({ baseEnvironmentId: null, runtime: null }, [paragraph]).node);
+    });
+    expect(locateImageBlock(editor, "![hidden](https://example.com/hidden.png)")?.type).toBe("none");
+  });
+
+  it("matches a captioned figure by its image, not by its caption alone", async () => {
+    const editor = await setupEditorWithHtml(
+      `<p>Intro</p><figure class="image"><img src="https://example.com/f.png" alt="f">`
+      + `<figcaption>Figure 1: Results</figcaption></figure><p>After</p>`
+    );
+    const readPathPrefix = "![f](https://example.com/f.png)\n\nFigure 1: Results";
+    expect(readPathMarkdown(editor)).toContain(readPathPrefix);
+    expect(locateImageBlock(editor, readPathPrefix)?.type).toBe("image");
+    expect(locateImageBlock(editor, "![f](https://example.com/f.png)")?.type).toBe("image");
+    expect(locateImageBlock(editor, "Figure 1: Results")?.type).toBe("none");
+  });
+
+  it.each([
+    {
+      name: "a linked image",
+      html: `<p>Intro</p><p><a href="https://target.com"><img src="https://example.com/b.png" alt="b"></a></p>`,
+      prefix: "[![b](https://example.com/b.png)](https://target.com)",
+      type: "paragraph",
+      src: "https://example.com/b.png",
+    },
+    {
+      name: "an image with brackets in its alt text and an ampersand in its URL",
+      html: `<p><img src="https://example.com/a.png?x=1&amp;y=2" alt="Fig [1]"></p>`,
+      prefix: "![Fig \\[1\\]](https://example.com/a.png?x=1&y=2)",
+      type: "paragraph",
+      src: "https://example.com/a.png?x=1&y=2",
+    },
+    {
+      name: "an image URL with a space and an unbalanced parenthesis",
+      html: `<p><img src="https://example.com/a b(1.png" alt="x"></p>`,
+      prefix: "![x](<https://example.com/a b(1.png>)",
+      type: "paragraph",
+      src: "https://example.com/a b(1.png",
+    },
+    {
+      name: "an image list item, with its list marker",
+      html: `<ul><li>one</li><li><img src="https://example.com/c.png" alt="pic"></li><li>three</li></ul>`,
+      prefix: "*   ![pic](https://example.com/c.png)",
+      type: "listitem",
+      src: "https://example.com/c.png",
+    },
+    {
+      name: "an image blockquote, with its quote marker",
+      html: `<p>Intro</p><blockquote><p><img src="https://example.com/q.png" alt="q"></p></blockquote>`,
+      prefix: "> ![q](https://example.com/q.png)",
+      type: "quote",
+      src: "https://example.com/q.png",
+    },
+    {
+      name: "an image followed by text that looks like block syntax",
+      html: `<p><img src="https://example.com/x.png" alt="x">- dash text</p>`,
+      prefix: "![x](https://example.com/x.png)\\- dash text",
+      type: "paragraph",
+      src: "https://example.com/x.png",
+    },
+  ])("matches $name by its line in the editPost output", async ({ html, prefix, type, src }) => {
+    const editor = await setupEditorWithHtml(html);
+    expect(readPathMarkdown(editor)).toContain(prefix);
+    const matched = locateImageBlock(editor, prefix);
+    expect(matched?.reason).toBeUndefined();
+    expect(matched?.type).toBe(type);
+    expect(matched?.imageSrc).toBe(src);
+  });
+
+  it("resolves an insertion point after an image block", async () => {
+    const editor = await setupEditorWithContent(twoImageDocument);
+    let index: number | null = null;
+    let isRootParent = false;
+    editor.getEditorState().read(() => {
+      const { point } = $resolveInsertionPoint({ after: "![First figure](https://example.com/figures/one.png)" });
+      index = point?.index ?? null;
+      isRootParent = point?.parent === $getRoot();
+    });
+    expect(index).toBe(2);
+    expect(isRootParent).toBe(true);
   });
 });
 

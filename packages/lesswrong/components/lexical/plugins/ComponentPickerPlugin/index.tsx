@@ -25,6 +25,7 @@ import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/
 import {
   $getSelection,
   $isRangeSelection,
+  $onUpdate,
   LexicalEditor,
   TextNode,
 } from 'lexical';
@@ -39,6 +40,7 @@ import { INSERT_SPOILER_COMMAND } from '@/components/editor/lexicalPlugins/spoil
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
 import {InsertImageDialog} from '../ImagesPlugin';
+import { PasteMarkdownDialog } from '../PasteMarkdownPlugin/PasteMarkdownDialog';
 import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin/commands';
 
 import { TableIcon } from '../../icons/TableIcon';
@@ -57,10 +59,12 @@ import { FileImageIcon } from '../../icons/FileImageIcon';
 import { Diagram2Icon } from '../../icons/Diagram2Icon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
+import { MarkdownIcon } from '../../icons/MarkdownIcon';
 import ForumIcon from '@/components/common/ForumIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import { useCurrentUser } from '@/components/common/withUser';
+import { useMessages } from '@/components/common/withMessages';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useResearchEditorEnvironmentOptional } from '@/components/research/lexical/ResearchEditorContext';
 import { INSERT_QUERY_INPUT_COMMAND } from '@/components/research/lexical/QueryInputPlugin';
@@ -85,7 +89,10 @@ const styles = defineStyles('LexicalComponentPicker', (theme: ThemeType) => ({
   },
   list: {
     ...typeaheadList(theme),
-    maxHeight: 400,
+    // Items are 36px tall (8px padding top and bottom, 20px line height).
+    // The scrollbar is hidden, so cut the last visible item in half to make
+    // it visibly scrollable.
+    maxHeight: 36 * 10.5,
   },
   listItem: typeaheadListItem(theme),
   item: typeaheadItem(theme),
@@ -197,8 +204,10 @@ function useBaseOptions(
   openDialog: OpenDialogContextType['openDialog'],
   currentUser: UsersCurrent | null,
   inResearchContext: boolean,
+  isSuggestionMode: boolean,
 ) {
   const classes = useStyles(styles);
+  const { flash } = useMessages();
   const isAdminUser = userIsAdmin(currentUser);
   return [
     new ComponentPickerOption('Table', {
@@ -317,6 +326,26 @@ function useBaseOptions(
           }),
       }),
     ] : []),
+    new ComponentPickerOption('Paste as Markdown', {
+      icon: <MarkdownIcon style={iconStyle} />,
+      keywords: ['paste', 'markdown', 'md', 'import'],
+      onSelect: () => {
+        if (isSuggestionMode) {
+          flash({ messageString: 'Pasting as markdown is not supported in suggestion mode', type: 'error' });
+          return;
+        }
+        // onSelect runs inside the update that removes the slash-command text.
+        // Committing that update moves the DOM selection (and thus focus) back
+        // into the editor, so open the dialog only afterwards; otherwise it
+        // steals focus from the dialog's textarea.
+        $onUpdate(() => openDialog({
+          name: 'PasteMarkdownDialog',
+          contents: ({ onClose }) => (
+            <PasteMarkdownDialog activeEditor={editor} onClose={onClose} />
+          ),
+        }));
+      },
+    }),
     new ComponentPickerOption('Paragraph', {
       icon: <TextParagraphIcon style={iconStyle} />,
       keywords: ['normal', 'paragraph', 'p', 'text'],
@@ -356,7 +385,9 @@ function useResearchSlashCustomizations(editor: LexicalEditor): ResearchSlashCus
   }, [env, editor]);
 }
 
-export default function ComponentPickerMenuPlugin(): JSX.Element {
+export default function ComponentPickerMenuPlugin({ isSuggestionMode = false }: {
+  isSuggestionMode?: boolean;
+}): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [queryString, setQueryString] = useState<string | null>(null);
   const { openDialog } = useDialog();
@@ -386,7 +417,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     [baseCheckForTriggerMatch],
   );
 
-  const baseOptions = useBaseOptions(editor, openDialog, currentUser, !!researchCustomizations);
+  const baseOptions = useBaseOptions(editor, openDialog, currentUser, !!researchCustomizations, isSuggestionMode);
 
   const options = useMemo(() => {
     const allOptions: ComponentPickerOption[] = [

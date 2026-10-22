@@ -3,8 +3,9 @@ export type RateLimitUser = UserKarmaInfo|DbUser
 export type TimeframeUnitType = 'seconds'|'minutes'|'hours'|'days'|'weeks'|'months'
 export type RateLimitType = "moderator"|"lowKarma"|"universal"|"downvoteRatio"|"newUserDefault"
  
-export type RateLimitInfo = {
-  nextEligible: Date,
+export interface RateLimitInfo {
+  /** Null means blocked until the restriction is lifted, with no scheduled expiry. */
+  nextEligible: Date | null,
   rateLimitType?: RateLimitType,
   rateLimitMessage: string,
 }

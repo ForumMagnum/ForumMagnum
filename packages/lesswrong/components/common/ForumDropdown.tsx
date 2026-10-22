@@ -11,6 +11,7 @@ const ForumDropdown = ({
   useIconLabel,
   disabled,
   className,
+  menuPlacement,
 }: {
   value: string,
   options: Record<string, SettingsOption>,
@@ -20,6 +21,7 @@ const ForumDropdown = ({
   useIconLabel?: boolean,
   disabled?: boolean,
   className?: string,
+  menuPlacement?: "bottom-start" | "bottom-end",
 }) => {
   return <ForumDropdownMultiselect
     values={[value]}
@@ -30,6 +32,7 @@ const ForumDropdown = ({
     useIconLabel={useIconLabel}
     disabled={disabled}
     className={className}
+    menuPlacement={menuPlacement}
   />
 }
 

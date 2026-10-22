@@ -234,8 +234,34 @@ function unescapeLiteralBracketPairs(text: string, escaped: string): string {
   return result;
 }
 
+function hasBalancedParentheses(text: string): boolean {
+  let depth = 0;
+  for (const ch of text) {
+    if (ch === '(') {
+      depth++;
+    } else if (ch === ')') {
+      depth--;
+      if (depth < 0) return false;
+    }
+  }
+  return depth === 0;
+}
+
+/**
+ * Write a URL as a markdown link destination. CommonMark accepts a bare
+ * destination only without whitespace and with balanced parentheses, and
+ * reads a backslash in it as an escape; any other URL is written in the
+ * `<…>` form, which parses back to the same URL.
+ */
+function markdownLinkDestination(url: string): string {
+  if (/^[^\s<>\\]*$/.test(url) && hasBalancedParentheses(url)) {
+    return url;
+  }
+  return `<${url.replace(/[\r\n]/g, '').replace(/([<>\\])/g, '\\$1')}>`;
+}
+
 let _turndownService: TurndownService|null = null;
-const TURNDOWN_BUILD_MARKER = 'widget-markdown-v8-literal-brackets';
+const TURNDOWN_BUILD_MARKER = 'widget-markdown-v10-literal-brackets-image-destinations';
 function getTurndown(): TurndownService {
   const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
   if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
@@ -382,15 +408,14 @@ function getTurndown(): TurndownService {
         // Use the data-footnote-id attribute to get the footnote id
         const id = (node as unknown as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
 
-        // Get the content of the footnote from the footnote-content div.
-        // `textContent` of the div as a whole jams adjacent block children
-        // together ("…bonus post?A fellow Resident…"); join the blocks'
-        // texts with spaces instead.
-        const contentElement = (node as unknown as Element).querySelector('.footnote-content')
-        const blockChildren = contentElement ? Array.from(contentElement.children) : []
-        const text = blockChildren.length > 0
-          ? blockChildren.map((child) => (child.textContent ?? '').trim()).filter(Boolean).join(' ')
-          : (contentElement?.textContent || '')
+        // Convert the footnote-content div with the same rules as the body,
+        // so links and emphasis inside footnotes survive (`textContent` drops
+        // them). A footnote definition is a single line, so block breaks
+        // between its paragraphs collapse to spaces.
+        const contentElement = (node as unknown as Element).querySelector<HTMLElement>('.footnote-content')
+        const text = contentElement
+          ? turndownService.turndown(contentElement).replace(/\s*\n\s*/g, ' ').trim()
+          : ''
         return `[^${id}]: ${text} \n\n`
       }
     })
@@ -412,6 +437,24 @@ function getTurndown(): TurndownService {
         const singleLineContent = content.replace(/\s*\n\s*/g, ' ').trim();
         if (!singleLineContent) return '';
         return `[${singleLineContent}](${href}${title})`;
+      }
+    })
+    // Turndown's default image rule writes the URL and alt text raw, which
+    // doesn't parse back as an image when the URL contains spaces or
+    // unbalanced parentheses, or the alt text has unbalanced brackets or
+    // line breaks.
+    turndownService.addRule('image', {
+      filter: 'img',
+      replacement: (_content, node) => {
+        const element = node as Element;
+        const src = element.getAttribute('src') ?? '';
+        if (!src) return '';
+        const alt = (element.getAttribute('alt') ?? '')
+          .replace(/\s*\n\s*/g, ' ')
+          .replace(/([\\[\]])/g, '\\$1');
+        const rawTitle = element.getAttribute('title');
+        const title = rawTitle ? ` "${rawTitle.replace(/(\n+\s*)+/g, ' ').replace(/"/g, '\\"')}"` : '';
+        return `![${alt}](${markdownLinkDestination(src)}${title})`;
       }
     })
     turndownService.addRule('subscript', {

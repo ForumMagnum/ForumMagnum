@@ -4,11 +4,13 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import ForumIcon from "../common/ForumIcon";
 import EditorSettingsSidebar from "./EditorSettingsSidebar";
 import UnanchoredCommentsBadge from "./UnanchoredCommentsBadge";
-import { getDraftLabel, type EditablePost, type PostSubmitMeta } from "@/lib/collections/posts/helpers";
+import { getDraftLabel, postGetRejectionReviewUrl, shouldPublishGoToRejectionReview, type EditablePost, type PostSubmitMeta } from "@/lib/collections/posts/helpers";
 import type { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm";
 import type { AddOnSubmitCallback, AddOnSuccessCallback } from "../editor/EditorFormComponent";
 import { InlineCommentsPanelContext, EditorUserModeContext } from "../common/sharedContexts";
 import { getAvailableEditorModes, editorModeLabels } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
+import { useRapidPostingConfirmation } from "./useRapidPostingConfirmation";
+import { useNavigate } from "@/lib/routeUtil";
 
 type SidebarMode = "publish" | "settings" | "sharing";
 
@@ -341,6 +343,8 @@ const MobileEditorBottomBar = ({
   const showModeSelector = editorType === "lexical" && editorModeContext && availableModes.length > 1;
 
   const { showComments, setShowComments, commentCount } = useContext(InlineCommentsPanelContext);
+  const { confirmRapidPosting, isCheckingRapidPosting } = useRapidPostingConfirmation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!modeExpanded) return;
@@ -384,9 +388,10 @@ const MobileEditorBottomBar = ({
         canSubmit: s.canSubmit,
         isSubmitting: s.isSubmitting,
         draft: s.values.draft,
+        isRejected: shouldPublishGoToRejectionReview(currentUser, s.values),
       })}>
-        {({ canSubmit, isSubmitting, draft }) => {
-          const disabled = !canSubmit || isSubmitting || isSaving;
+        {({ canSubmit, isSubmitting, draft, isRejected }) => {
+          const disabled = !canSubmit || isSubmitting || isSaving || isCheckingRapidPosting;
           return (
             <div className={classes.bottomBar}>
               <button
@@ -467,14 +472,27 @@ const MobileEditorBottomBar = ({
                 >
                   <ForumIcon icon="Settings" className={classes.settingsIcon} />
                 </button>
-                <button
+                {isRejected ? <button
+                  type="button"
+                  className={classes.publishButton}
+                  onClick={() => navigate(postGetRejectionReviewUrl(form.state.values._id))}
+                >
+                  Request Review
+                </button> : <button
                   type="submit"
                   className={classes.publishButton}
                   disabled={disabled}
-                  onClick={() => form.setFieldValue("draft", false)}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!await confirmRapidPosting(form.state.values)) {
+                      return;
+                    }
+                    form.setFieldValue("draft", false);
+                    await form.handleSubmit();
+                  }}
                 >
                   {draft ? "Publish" : "Publish Changes"}
-                </button>
+                </button>}
               </div>
             </div>
           );

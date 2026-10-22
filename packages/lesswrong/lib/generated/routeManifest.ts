@@ -837,11 +837,17 @@ export const routeTrie = {
     "contact": {
       "hasPage": true
     },
+    "contentForYou": {
+      "hasPage": true
+    },
     "crosspostLogin": {
       "hasPage": true
     },
     "debug": {
       "staticChildren": {
+        "digestEmailPreview": {
+          "hasPage": true
+        },
         "emailHistory": {
           "hasPage": true
         },
@@ -859,6 +865,7 @@ export const routeTrie = {
         }
       },
       "lowerCase": {
+        "digestemailpreview": "digestEmailPreview",
         "emailhistory": "emailHistory",
         "linkpreview": "linkPreview",
         "markdownapi": "markdownApi",
@@ -986,6 +993,9 @@ export const routeTrie = {
       "hasPage": true
     },
     "login": {
+      "hasPage": true
+    },
+    "loginNotice": {
       "hasPage": true
     },
     "logout": {
@@ -1207,6 +1217,9 @@ export const routeTrie = {
       "hasPage": true
     },
     "recommendations": {
+      "hasPage": true
+    },
+    "rejection-review": {
       "hasPage": true
     },
     "research": {
@@ -1462,6 +1475,7 @@ export const routeTrie = {
     "community": "community",
     "compare": "compare",
     "contact": "contact",
+    "contentforyou": "contentForYou",
     "crosspostlogin": "crosspostLogin",
     "debug": "debug",
     "dialogues": "dialogues",
@@ -1488,6 +1502,7 @@ export const routeTrie = {
     "leaderboard": "leaderboard",
     "library": "library",
     "login": "login",
+    "loginnotice": "loginNotice",
     "logout": "logout",
     "lw": "lw",
     "meetups": "meetups",
@@ -1515,6 +1530,7 @@ export const routeTrie = {
     "quicktakes": "quicktakes",
     "rationality": "rationality",
     "recommendations": "recommendations",
+    "rejection-review": "rejection-review",
     "research": "research",
     "resendverificationemail": "resendVerificationEmail",
     "resetpassword": "resetPassword",

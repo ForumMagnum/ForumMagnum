@@ -20,19 +20,24 @@ type emailTokenResultComponents = {
 
 export type EmailTokenResultComponentName = keyof emailTokenResultComponents;
 
+const PASSWORD_RESET_TOKEN_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
 export class EmailTokenType<T extends EmailTokenResultComponentName> {
   name: DbEmailTokens['tokenType']
   onUseAction: (user: DbUser, params: any, args: any, context: ResolverContext) => Promise<ComponentProps<emailTokenResultComponents[T]>>
   resultComponentName: T
   reusable: boolean
   path: string
+  /** If set, tokens of this type can't be used once they're older than this */
+  maxAgeMs: number | null
   
-  constructor({ name, onUseAction, resultComponentName, reusable=false, path = "emailToken" }: {
+  constructor({ name, onUseAction, resultComponentName, reusable=false, path = "emailToken", maxAgeMs = null }: {
     name: DbEmailTokens['tokenType'],
     onUseAction: (user: DbUser, params: any, args: any, context: ResolverContext) => Promise<ComponentProps<emailTokenResultComponents[T]>>,
     resultComponentName: T,
     reusable?: boolean,
     path?: string,
+    maxAgeMs?: number | null,
   }) {
     if(!name || !onUseAction || !resultComponentName)
       throw new Error("EmailTokenType: missing required argument");
@@ -42,6 +47,7 @@ export class EmailTokenType<T extends EmailTokenResultComponentName> {
     this.resultComponentName = resultComponentName;
     this.reusable = reusable;
     this.path = path;
+    this.maxAgeMs = maxAgeMs;
   }
   
   generateToken = async (userId: string) => {
@@ -77,6 +83,7 @@ export class EmailTokenType<T extends EmailTokenResultComponentName> {
       tokenType: this.name,
       userId,
       usedAt: null,
+      ...(this.maxAgeMs !== null && { createdAt: { $gt: new Date(Date.now() - this.maxAgeMs) } }),
     });
     if (existing) return existing.token;
     return this.generateToken(userId);
@@ -115,6 +122,9 @@ async function getAndValidateToken(token: string) {
   
   if (tokenObj.usedAt && !tokenType.reusable)
     throw new Error("This email link has already been used.");
+  
+  if (tokenType.maxAgeMs !== null && Date.now() - tokenObj.createdAt.getTime() > tokenType.maxAgeMs)
+    throw new Error("This email link has expired.");
   
   return { tokenObj, tokenType }
 }
@@ -201,7 +211,8 @@ export const emailTokenTypesByName = {
       return {message: "Your new password has been set. Try logging in again." };
     },
     resultComponentName: "EmailTokenResult",
-    path: "resetPassword" // Defined in routes.ts
+    path: "resetPassword", // Defined in routes.ts
+    maxAgeMs: PASSWORD_RESET_TOKEN_MAX_AGE_MS,
   }),
 
   confirmClaudeAccess: new EmailTokenType({

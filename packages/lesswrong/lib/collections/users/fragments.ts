@@ -178,6 +178,7 @@ export const UsersCurrent = gql(`
     nearbyPeopleNotificationThreshold
     hideFrontpageMap
     emailSubscribedToCurated
+    emailSubscribedToAiDigest
     unsubscribeFromAll
     whenConfirmationEmailSent
     hideSubscribePoke
@@ -371,7 +372,9 @@ export const SunshineUsersList = gql(`
       ...ModeratorActionDisplay
     }
     reviewGroup
-    hasPendingComments
+    pendingPostCount
+    pendingCommentCount
+    oldestPendingContentAt
     usersContactedBeforeReview
 
     voteReceivedCount
@@ -474,6 +477,7 @@ export const UsersEdit = gql(`
     email
     whenConfirmationEmailSent
     emailSubscribedToCurated
+    emailSubscribedToAiDigest
     unsubscribeFromAll
 
     # Moderation
