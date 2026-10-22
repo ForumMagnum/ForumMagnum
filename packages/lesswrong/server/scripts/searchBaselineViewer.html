@@ -394,7 +394,7 @@ function renderChart() {
 }
 
 const tabs = [
-  ["all", "All"], ["losses", "Losses"], ["wins", "Wins"], ["failing", "Failing"], ["grading", "Needs grading"], ["annoyance", "Annoyances"],
+  ["all", "All"], ["losses", "Losses"], ["wins", "Wins"], ["failing", "Failing"], ["grading", "Needs grading"], ["annoyance", "Annoyances"], ["clicks", "From clicks"],
 ];
 function matchesTab(query, comparison) {
   switch (S.tab) {
@@ -403,6 +403,7 @@ function matchesTab(query, comparison) {
     case "failing": return comparison && comparison.candidate.expectations.some(result => !result.pass);
     case "grading": return !Object.keys(query.grades).length || (comparison && (comparison.candidate.unjudgedTop10 > 0 || comparison.baseline.unjudgedTop10 > 0));
     case "annoyance": return query.source === "annoyance";
+    case "clicks": return query.source === "clicks" || !!query.evidence;
     default: return true;
   }
 }
@@ -451,7 +452,7 @@ function renderList() {
     const deltaCls = verdict === "win" ? "win" : verdict === "loss" ? "loss" : "";
     return `<div class="row ${query.id === S.selected ? "on" : ""}" data-id="${esc(query.id)}">
       <span class="dot ${verdict === "n/a" ? "na" : verdict}"></span>
-      <div><div class="q">${esc(query.query)}</div><div class="tags">${esc(query.category)}${query.source === "annoyance" ? " · annoyance" : ""}${flags}</div></div>
+      <div><div class="q">${esc(query.query)}</div><div class="tags">${esc(query.category)}${query.source === "annoyance" ? " · annoyance" : ""}${query.evidence ? ` · ${query.evidence.searchers} searchers` : ""}${flags}</div></div>
       <span class="delta num ${deltaCls}">${comparison && S.baseline !== S.candidate ? signed(comparison.delta, 2) : ""}</span>
     </div>`;
   }).join("") : `<div class="empty" style="padding:16px">Nothing matches.</div>`;
@@ -499,7 +500,7 @@ function hitRow(query, hit, rank, focusable, focused) {
   return `<div class="hit ${graded ? "" : "ungraded"} ${focused ? "focus" : ""}" ${focusable ? `data-focus="${rank - 1}"` : ""}>
     <span class="rk num">${rank}</span>
     <div class="ttl">${hit.path ? `<a href="${esc(siteBase + hit.path)}" target="_blank" rel="noreferrer" title="${esc(hit.title)}">` : `<a title="${esc(hit.title)}">`}${esc(hit.title) || "<span class='muted'>(untitled)</span>"}</a>
-      <div class="sub"><span class="idx">${esc(hit.index)}</span> karma ${hit.karma} · score ${hit.score.toFixed(2)}</div></div>
+      <div class="sub"><span class="idx">${esc(hit.index)}</span> karma ${hit.karma} · score ${hit.score.toFixed(2)}${graded?.clickedBy ? ` · chosen by ${graded.clickedBy}` : ""}</div></div>
     <div class="grades">${buttons}${expect}</div>
   </div>`;
 }
@@ -552,7 +553,7 @@ function renderDetail() {
   el.innerHTML = `
     <div class="head">
       <h2>${esc(query.query)}</h2>
-      <span class="muted">${esc(query.category)} · ${esc(query.source)} · added ${esc(query.addedAt)}</span>
+      <span class="muted">${esc(query.category)} · ${esc(query.source)} · added ${esc(query.addedAt)}${query.evidence ? ` · ${query.evidence.searchers} searchers, ${query.evidence.clicks} clicks` : ""}</span>
       <div class="actions">
         ${right && !right.live ? `<button id="liveBtn" title="Compare against the code this server loaded">Live (l)</button>` : S.liveMode ? `<button id="liveBtn">Back to run</button>` : ""}
         <button id="depthBtn">${depth === 10 ? "Show 20" : "Show 10"}</button>
@@ -767,6 +768,23 @@ $("dlgCancel").onclick = () => $("dlg").close();
 $("dlgSave").onclick = saveDialog;
 $("sGo").onclick = drawSuggestions;
 for (const button of $("dlgTabs").querySelectorAll("button")) button.onclick = () => setDialogTab(button.dataset.tab);
+
+// serveSearchBaseline.sh restarts the server when ranking code changes; follow it.
+let serverDown = false;
+async function watchServerCode() {
+  try {
+    const code = await (await fetch("/api/code")).json();
+    if (serverDown) { serverDown = false; renderHeader(); }
+    if (S.state && code.fingerprint !== S.state.code.fingerprint) {
+      S.live = {};
+      await loadState();
+      toast(`Ranking code changed (${code.head}${code.dirty ? " + local changes" : ""}); live results refreshed`);
+    }
+  } catch {
+    if (!serverDown) { serverDown = true; $("meta").innerHTML += ` · <span style="color:var(--warn)">server restarting…</span>`; }
+  }
+}
+setInterval(watchServerCode, 3000);
 
 loadState().catch(error => { document.body.innerHTML = `<pre style="padding:16px">${esc(error.message)}</pre>`; });
 </script>

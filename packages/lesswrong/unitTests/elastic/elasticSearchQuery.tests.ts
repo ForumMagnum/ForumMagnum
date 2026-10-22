@@ -36,7 +36,7 @@ it("recognizes exact and prominent first names, retains ambiguity, and extracts 
   expect(resolvePersonSearch("Eliezer", [eliezer, {...eliezer, objectID: "other"}])?.userIds).toMatchObject(["ey", "other"]);
   expect(resolvePersonSearch("Eliezer Yudkowsky", [eliezer])?.topic).toBe("");
   expect(resolvePersonSearch("Elie", [eliezer])).toMatchObject({userIds: ["ey"], topic: "", confidence: "weak"});
-  expect(resolvePersonSearch("Eli", [eliezer])).toBeUndefined();
+  expect(resolvePersonSearch("Eli", [eliezer])).toMatchObject({userIds: ["ey"], topic: "", confidence: "prefix"});
   expect(resolvePersonSearch("Eliezer", [{...eliezer, karma: 2}])).toBeUndefined();
   expect(compilePersonLookup('user:ey "corrigibility"')).toBeUndefined();
 });
@@ -82,7 +82,7 @@ describe("person resolution confidence", () => {
 
   it("prefers the most confident reading of the longest span and never infers from minor accounts", () => {
     expect(resolvePersonSearch("kwa", [minor])).toBeUndefined();
-    expect(resolvePersonSearch("pau", [paul])).toBeUndefined();
+    expect(resolvePersonSearch("pau", [paul])).toMatchObject({userIds: ["pc"], topic: "", confidence: "prefix"});
     expect(resolvePersonSearch("Eliezer Yudkowsky", [eliezer, {objectID: "fuzzy", displayName: "Eliezer Yudkowski", slug: "eliezer-yudkowski", karma: 5000}])).toMatchObject({userIds: ["ey"], topic: "", confidence: "exact"});
   });
 
@@ -160,7 +160,7 @@ it("allows one inserted handle character without changing short initials", () =>
   expect(resolvePersonSearch("Samuel T", [user])?.topic).toBe("t");
   expect(resolvePersonSearch("Samuel P", [{...user, displayName: "samuelrrpatel"}])?.topic).toBe("p");
   expect(resolvePersonSearch("Samuel P on AI", [user])?.topic).toBe("p on ai");
-  expect(resolvePersonSearch("Sam P", [user])).toBeUndefined();
+  expect(resolvePersonSearch("Sam P", [user])).toMatchObject({topic: "p", confidence: "prefix"});
 });
 
 it("retrieves complete low-karma names inside author-plus-topic queries", () => {
@@ -176,4 +176,42 @@ it("retains punctuation in complete name spans", () => {
   const must = compilePersonLookup("Alice O'Connor quantum")?.query?.bool?.must;
   if (!Array.isArray(must)) throw new Error("Missing candidate clauses");
   expect(must[0].bool?.should).toContainEqual({term: {"displayName.sort": {value: "Alice O'Connor", case_insensitive: true, boost: 100}}});
+});
+
+describe("short and embedded name fragments", () => {
+  const kaj = {objectID: "ks", displayName: "Kaj_Sotala", slug: "kaj_sotala", karma: 54756};
+  const john = {objectID: "jw", displayName: "johnswentworth", slug: "johnswentworth", karma: 64994};
+  const dean = {objectID: "dv", displayName: "Dean Valentine", slug: "dean-valentine", username: "lc", karma: 14564};
+  const namesake = {objectID: "eli", displayName: "Eli", slug: "eli", karma: 0};
+
+  it("reads a prominent name word, a word prefix, and a handle fragment", () => {
+    expect(resolvePersonSearch("kaj", [kaj])).toMatchObject({userIds: ["ks"], confidence: "weak"});
+    expect(resolvePersonSearch("yud", [eliezer])).toMatchObject({userIds: ["ey"], confidence: "prefix"});
+    expect(resolvePersonSearch("wentworth", [john])).toMatchObject({userIds: ["jw"], confidence: "prefix"});
+    expect(resolvePersonSearch("ent", [john])).toBeUndefined();
+    expect(resolvePersonSearch("y", [eliezer])).toBeUndefined();
+  });
+
+  it("treats a former username as an exact alias", () => {
+    expect(resolvePersonSearch("lc", [dean])).toMatchObject({userIds: ["dv"], confidence: "exact"});
+  });
+
+  it("keeps a prominent prefix reading alongside an exact namesake", () => {
+    expect(resolvePersonSearch("eli", [namesake, eliezer])).toMatchObject({
+      userIds: ["eli"], confidence: "exact",
+      candidates: [{userId: "eli", confidence: "exact"}, {userId: "ey", confidence: "prefix"}],
+    });
+  });
+
+  it("never reads fragments of minor accounts", () => {
+    expect(resolvePersonSearch("kaj", [{...kaj, karma: 50}])).toBeUndefined();
+  });
+
+  it("retrieves word prefixes, handle fragments and usernames among prominent authors", () => {
+    const lookup = JSON.stringify(compilePersonLookup("wentworth"));
+    expect(lookup).toContain('"prefix":{"displayName.exact":{"value":"wentworth"}}');
+    expect(lookup).toContain('"wildcard":{"displayName.sort":{"value":"*wentworth*","case_insensitive":true}}');
+    expect(lookup).toContain('"username.keyword"');
+    expect(JSON.stringify(compilePersonLookup("yud"))).not.toContain("wildcard");
+  });
 });
