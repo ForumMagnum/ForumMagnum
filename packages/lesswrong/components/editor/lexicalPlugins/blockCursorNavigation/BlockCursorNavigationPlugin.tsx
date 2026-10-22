@@ -34,6 +34,8 @@ import {
   KEY_ARROW_RIGHT_COMMAND,
   KEY_ARROW_UP_COMMAND,
   KEY_BACKSPACE_COMMAND,
+  type ElementNode,
+  type RangeSelection,
   type LexicalEditor,
   type LexicalNode,
 } from 'lexical';
@@ -360,6 +362,20 @@ function getCurrentSentinelFromSelection(): SentinelParagraphNode | null {
   return null;
 }
 
+// Offset zero is relative to the selected node, not the whole paragraph.
+// Walk through first children only, so inline math (or formatted text) before
+// the cursor does not make Backspace jump to the preceding sentinel.
+function $getBlockAtSelectionStart(selection: RangeSelection): ElementNode | null {
+  if (selection.anchor.offset !== 0) return null;
+  let node: LexicalNode | null = selection.anchor.getNode();
+  while (node && !$isRootNode(node)) {
+    if ($isElementNode(node) && !node.isInline()) return node;
+    if (node.getPreviousSibling()) return null;
+    node = node.getParent();
+  }
+  return null;
+}
+
 function shouldSkipThroughFromSentinel(
   node: LexicalNode,
   editor: LexicalEditor,
@@ -461,20 +477,16 @@ export default function BlockCursorNavigationPlugin(): null {
           // sibling is a sentinel — delete the block if it's an empty
           // paragraph, otherwise move cursor into the sentinel instead of
           // merging across it
-          if (selection.anchor.offset === 0) {
-            const block = $isElementNode(anchorNode)
-              ? anchorNode
-              : anchorNode.getParent();
-            if (block && $isElementNode(block)) {
-              const prevSibling = block.getPreviousSibling();
-              if ($isSentinelParagraphNode(prevSibling)) {
-                event.preventDefault();
-                if ($isParagraphNode(block) && block.isEmpty()) {
-                  block.remove();
-                }
-                prevSibling.selectEnd();
-                return true;
+          const block = $getBlockAtSelectionStart(selection);
+          if (block) {
+            const prevSibling = block.getPreviousSibling();
+            if ($isSentinelParagraphNode(prevSibling)) {
+              event.preventDefault();
+              if ($isParagraphNode(block) && block.isEmpty()) {
+                block.remove();
               }
+              prevSibling.selectEnd();
+              return true;
             }
           }
 
