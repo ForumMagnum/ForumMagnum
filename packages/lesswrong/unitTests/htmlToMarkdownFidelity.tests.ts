@@ -65,6 +65,18 @@ describe("htmlToMarkdown text fidelity", () => {
     expect(htmlToMarkdown(html)).toBe("[![image.png](https://example.com/img.png)](https://example.com/post)");
   });
 
+  it("writes image URLs that a bare destination can't hold in the <…> form", () => {
+    expect(htmlToMarkdown('<p><img src="https://example.com/a b(1.png" alt="x"></p>'))
+      .toBe("![x](<https://example.com/a b(1.png>)");
+    expect(htmlToMarkdown('<p><img src="https://en.wikipedia.org/wiki/X_(Y).png" alt="x"></p>'))
+      .toBe("![x](https://en.wikipedia.org/wiki/X_(Y).png)");
+  });
+
+  it("escapes brackets in image alt text", () => {
+    expect(htmlToMarkdown('<p><img src="https://example.com/a.png" alt="a] [b"></p>'))
+      .toBe("![a\\] \\[b](https://example.com/a.png)");
+  });
+
   it("keeps non-breaking spaces inside widget srcdoc attributes", () => {
     // The NBSP fold must only touch text content: widget source round-trips
     // verbatim through the agent read/write path.

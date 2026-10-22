@@ -171,8 +171,34 @@ function stripIframeWidgetSrcdocs(html: string): string {
   return $.html();
 }
 
+function hasBalancedParentheses(text: string): boolean {
+  let depth = 0;
+  for (const ch of text) {
+    if (ch === '(') {
+      depth++;
+    } else if (ch === ')') {
+      depth--;
+      if (depth < 0) return false;
+    }
+  }
+  return depth === 0;
+}
+
+/**
+ * Write a URL as a markdown link destination. CommonMark accepts a bare
+ * destination only without whitespace and with balanced parentheses, and
+ * reads a backslash in it as an escape; any other URL is written in the
+ * `<…>` form, which parses back to the same URL.
+ */
+function markdownLinkDestination(url: string): string {
+  if (/^[^\s<>\\]*$/.test(url) && hasBalancedParentheses(url)) {
+    return url;
+  }
+  return `<${url.replace(/[\r\n]/g, '').replace(/([<>\\])/g, '\\$1')}>`;
+}
+
 let _turndownService: TurndownService|null = null;
-const TURNDOWN_BUILD_MARKER = 'widget-markdown-v8-footnote-markdown';
+const TURNDOWN_BUILD_MARKER = 'widget-markdown-v9-image-destinations';
 function getTurndown(): TurndownService {
   const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
   if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
@@ -348,6 +374,24 @@ function getTurndown(): TurndownService {
         const singleLineContent = content.replace(/\s*\n\s*/g, ' ').trim();
         if (!singleLineContent) return '';
         return `[${singleLineContent}](${href}${title})`;
+      }
+    })
+    // Turndown's default image rule writes the URL and alt text raw, which
+    // doesn't parse back as an image when the URL contains spaces or
+    // unbalanced parentheses, or the alt text has unbalanced brackets or
+    // line breaks.
+    turndownService.addRule('image', {
+      filter: 'img',
+      replacement: (_content, node) => {
+        const element = node as Element;
+        const src = element.getAttribute('src') ?? '';
+        if (!src) return '';
+        const alt = (element.getAttribute('alt') ?? '')
+          .replace(/\s*\n\s*/g, ' ')
+          .replace(/([\\[\]])/g, '\\$1');
+        const rawTitle = element.getAttribute('title');
+        const title = rawTitle ? ` "${rawTitle.replace(/(\n+\s*)+/g, ' ').replace(/"/g, '\\"')}"` : '';
+        return `![${alt}](${markdownLinkDestination(src)}${title})`;
       }
     })
     turndownService.addRule('subscript', {
