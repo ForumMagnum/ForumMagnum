@@ -81,6 +81,9 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
   llmChatColumn: {
     flexShrink: 0,
     flexGrow: 0,
+    "@media print": {
+      display: "none",
+    },
   },
   '@global': {
     ...globalStyles(theme),
