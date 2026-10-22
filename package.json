@@ -311,7 +311,6 @@
     "@types/prismjs": "^1.26.6",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
-    "@vitejs/plugin-react": "^4.3.3",
     "babel-jest": "^29.7.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "chai": "^4.2.0",
@@ -339,8 +338,7 @@
     "ts-morph": "^25.0.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript-eslint-language-service": "^5.0.5",
-    "vite": "^5.4.19"
+    "typescript-eslint-language-service": "^5.0.5"
   },
   "resolutions": {
     "esbuild": "^0.24.0",
