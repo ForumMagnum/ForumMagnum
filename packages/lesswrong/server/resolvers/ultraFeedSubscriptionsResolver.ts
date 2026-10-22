@@ -387,11 +387,19 @@ export const ultraFeedSubscriptionsQueries = {
 
     feedItemsWithMetadata.sort((a, b) => (b.sortDate.getTime() - a.sortDate.getTime()) || (a.type < b.type ? -1 : 1));
 
-    // Use offset-based pagination (ignore cutoff) to align with main feed behavior
+    // Paginate by cutoff (the sortDate of the last item on the previous page)
+    // rather than by offset. This list is recomputed on every request, and
+    // shifts between page loads when new items appear at the top or when
+    // hideRead drops items the user has read since. Offset is only used to
+    // count how many items have been served so far.
+    const cutoff = args.cutoff;
+    const itemsAfterCutoff = cutoff
+      ? feedItemsWithMetadata.filter(item => item.sortDate < cutoff)
+      : feedItemsWithMetadata;
     const pageStart = offset ?? 0;
-    const pageEnd = pageStart + (limit ?? 20);
-    const pageCore = feedItemsWithMetadata.slice(pageStart, pageEnd);
-    
+    const pageCore = itemsAfterCutoff.slice(0, limit);
+    const hasMore = itemsAfterCutoff.length > pageCore.length;
+
     const pageItems: typeof feedItemsWithMetadata = [];
     // Insert a suggestions entry after every N feed items
     for (let i = 0; i < pageCore.length; i++) {
@@ -475,9 +483,10 @@ export const ultraFeedSubscriptionsQueries = {
       };
     });
 
-    const results = insertTimeMarkers(pageItems, baseResults, timezoneOffset, args.cutoff);
+    const results = insertTimeMarkers(pageItems, baseResults, timezoneOffset, cutoff);
 
-    const nextCutoff = pageItems.length > 0 ? pageItems[pageItems.length - 1].sortDate : null;
+    // A null cutoff tells the client it has reached the end of the feed
+    const nextCutoff = (hasMore && pageCore.length > 0) ? pageCore[pageCore.length - 1].sortDate : null;
 
     // Compute endOffset based on core items only (exclude suggestion entries)
     const response = createUltraFeedResponse(results, offset ?? 0, null, nextCutoff);

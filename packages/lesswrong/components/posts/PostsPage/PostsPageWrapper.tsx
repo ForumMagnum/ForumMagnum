@@ -29,11 +29,12 @@ const PostsWithNavigationQuery = gql(`
   }
 `);
 
-const PostsPageWrapper = ({ sequenceId, version, documentId, embedded }: {
+const PostsPageWrapper = ({ sequenceId, version, documentId, embedded, recordView }: {
   sequenceId: string|null,
   version?: string,
   documentId: string,
   embedded?: boolean,
+  recordView?: boolean,
 }) => {
   const postPreloadWithSequence = usePostPreload(documentId, sequenceId);
 
@@ -84,6 +85,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId, embedded }: {
       sequenceIdFromUrl={sequenceId}
       refetch={refetch}
       embedded={embedded}
+      recordView={recordView}
     />
   </>;
 }

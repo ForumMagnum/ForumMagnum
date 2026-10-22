@@ -81,7 +81,12 @@ const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginTop: 4,
     fontStyle: "italic",
-  }
+  },
+  moderationLogLink: {
+    "@media print": {
+      display: "none",
+    },
+  },
 }))
 
 const CommentsListSection = ({
@@ -207,7 +212,7 @@ const CommentsListSection = ({
       <PostsPageCrosspostComments />
       <Row justifyContent="flex-end">
         <LWTooltip title="View deleted comments and banned users">
-          <Link to="/moderation">
+          <Link to="/moderation" className={classes.moderationLogLink}>
             <MetaInfo>Moderation Log</MetaInfo>
           </Link>
         </LWTooltip>

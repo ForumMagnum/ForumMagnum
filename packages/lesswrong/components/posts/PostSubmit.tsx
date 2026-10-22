@@ -6,11 +6,12 @@ import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
-import type { EditablePost, PostSubmitMeta } from '@/lib/collections/posts/helpers.ts';
+import { postGetRejectionReviewUrl, shouldPublishGoToRejectionReview, type EditablePost, type PostSubmitMeta } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
 import LWTooltip from "../common/LWTooltip";
 import { useRapidPostingConfirmation } from './useRapidPostingConfirmation';
+import { useNavigate } from '@/lib/routeUtil';
 
 export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
   formButton: {
@@ -71,6 +72,7 @@ export const PostSubmit = ({
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
+  const navigate = useNavigate();
   if (!currentUser) throw Error("must be logged in to post");
   const document = formApi.state.values;
   const { confirmRapidPosting, isCheckingRapidPosting } = useRapidPostingConfirmation();
@@ -95,7 +97,15 @@ export const PostSubmit = ({
 
   const requireConfirmation = isLW && !!document.debate;
 
-  const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
+  const goToRejectionReview = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(postGetRejectionReviewUrl(document._id));
+  };
+
+  const isRejected = shouldPublishGoToRejectionReview(currentUser, document);
+  const onSubmitClick = isRejected
+    ? goToRejectionReview
+    : (requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation);
   const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get(forumType)
   const showFeedbackButton = requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel;
   const feedbackTitle = `Request feedback from our editor.  If you don't see a notification pop up next to the Intercom icon in a few seconds, try opening Intercom and check the "Messages" panel to see if there's a new conversation there.`
@@ -117,12 +127,12 @@ export const PostSubmit = ({
       }
       <div className={classes.submitButtons}>
         <Button
-          type="submit"
+          type={isRejected ? "button" : "submit"}
           onClick={onSubmitClick}
-          disabled={buttonsDisabled}
+          disabled={!isRejected && buttonsDisabled}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
         >
-          {submitLabel}
+          {isRejected ? "Request Review" : submitLabel}
         </Button>
         {(showFeedbackButton || claudeButton) && (
           <div className={classes.feedbackRow}>

@@ -92,6 +92,9 @@ interface Query {
   getSequenceStats: SequenceStats | null;
   reviewPredictionPosts: Array<Post>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
+  AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
+  aiDigestIssue: SingleAiDigestIssueOutput | null;
+  aiDigestIssues: MultiAiDigestIssueOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
   arbitalTagContentRels: MultiArbitalTagContentRelOutput | null;
   ban: SingleBanOutput | null;
@@ -319,6 +322,8 @@ interface Mutation {
   moveSequencePost: boolean;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
+  GenerateAiDigestIssues: Array<string>;
+  ClearAiDigestRecommendationHistory: number;
   createBook: BookOutput | null;
   updateBook: BookOutput | null;
   createChapter: ChapterOutput | null;
@@ -1470,6 +1475,61 @@ interface AdminSendBulkEmailResult {
   batches: number;
   errors: Array<AdminSendBulkEmailError>;
   lastAfterUserId: string | null;
+}
+
+interface AiDigestToolCall {
+  toolName: string;
+  input: string;
+}
+
+interface AiDigestModelCall {
+  purpose: string;
+  modelId: string;
+  promptVersion: string;
+  systemPrompt: string;
+  prompt: string;
+  inputTokenCount: number | null;
+  outputTokenCount: number | null;
+  uncachedInputTokenCount: number | null;
+  cacheReadInputTokenCount: number | null;
+  cacheWriteInputTokenCount: number | null;
+  costUsd: number | null;
+  toolCalls: Array<AiDigestToolCall>;
+}
+
+interface AiDigestEmailSamplePreview {
+  email: EmailPreview;
+  durationMs: number;
+  calls: Array<AiDigestModelCall>;
+}
+
+interface AiDigestIssue {
+  _id: string;
+  createdAt: Date;
+  recipientId: string | null;
+  emailedAt: Date | null;
+  trigger: AiDigestIssueTrigger | null;
+  countsTowardHistory: boolean | null;
+  spec: any;
+  subject: string | null;
+}
+
+interface SingleAiDigestIssueOutput {
+  result: AiDigestIssue | null;
+}
+
+interface AiDigestIssuesRecipientIssuesInput {
+  recipientId?: string | null;
+}
+
+interface AiDigestIssueSelector {
+  default: EmptyViewInput | null;
+  recipientIssues: AiDigestIssuesRecipientIssuesInput | null;
+}
+
+interface MultiAiDigestIssueOutput {
+  results: Array<AiDigestIssue>;
+  totalCount: number | null;
 }
 
 interface ArbitalCaches {
@@ -7274,6 +7334,7 @@ interface User {
   karmaChangeLastOpened: Date | null;
   karmaChangeBatchStart: Date | null;
   emailSubscribedToCurated: boolean | null;
+  emailSubscribedToAiDigest: boolean | null;
   unsubscribeFromAll: boolean | null;
   hideSubscribePoke: boolean | null;
   hideMeetupsPoke: boolean | null;
@@ -7399,6 +7460,7 @@ interface User {
   hideSunshineSidebar: boolean | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
+  aiDigestPersonalInstructions: string | null;
   lastRemovedFromReviewQueueAt: Date | null;
   pendingPostCount: number | null;
   pendingCommentCount: number | null;
@@ -9120,6 +9182,7 @@ interface CreateUserDataInput {
   karmaChangeLastOpened?: Date | null;
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
+  emailSubscribedToAiDigest?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -9290,6 +9353,7 @@ interface UpdateUserDataInput {
   karmaChangeLastOpened?: Date | null;
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
+  emailSubscribedToAiDigest?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -9364,6 +9428,7 @@ interface UpdateUserDataInput {
   afSubmittedApplication?: boolean | null;
   hideSunshineSidebar?: boolean | null;
   recommendationSettings?: RecommendationSettingsInput | null;
+  aiDigestPersonalInstructions?: string | null;
 }
 
 interface UpdateUserInput {
@@ -9543,6 +9608,14 @@ interface GraphQLTypeMap {
   AdminSendTestEmailResult: AdminSendTestEmailResult;
   AdminSendBulkEmailError: AdminSendBulkEmailError;
   AdminSendBulkEmailResult: AdminSendBulkEmailResult;
+  AiDigestToolCall: AiDigestToolCall;
+  AiDigestModelCall: AiDigestModelCall;
+  AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
+  AiDigestIssue: AiDigestIssue;
+  SingleAiDigestIssueOutput: SingleAiDigestIssueOutput;
+  AiDigestIssuesRecipientIssuesInput: AiDigestIssuesRecipientIssuesInput;
+  AiDigestIssueSelector: AiDigestIssueSelector;
+  MultiAiDigestIssueOutput: MultiAiDigestIssueOutput;
   ArbitalCaches: ArbitalCaches;
   ArbitalTagContentRel: ArbitalTagContentRel;
   SingleArbitalTagContentRelInput: SingleArbitalTagContentRelInput;
@@ -10363,6 +10436,9 @@ interface CreateInputsByCollectionName {
   UserRateLimits: CreateUserRateLimitInput;
   UserTagRels: CreateUserTagRelInput;
   Users: CreateUserInput;
+  AiDigestIssueGenerations: never;
+  AiDigestIssues: never;
+  AiDigestSchedules: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
@@ -10399,8 +10475,10 @@ interface CreateInputsByCollectionName {
   PetrovDayLaunchs: never;
   Podcasts: never;
   PostEmbeddings: never;
+  PostPreviews: never;
   PostRecommendations: never;
   PostRelations: never;
+  PostSummaries: never;
   PostViewTimes: never;
   PostViews: never;
   ReadStatuses: never;
@@ -10459,6 +10537,9 @@ interface UpdateInputsByCollectionName {
   UserRateLimits: UpdateUserRateLimitInput;
   UserTagRels: UpdateUserTagRelInput;
   Users: UpdateUserInput;
+  AiDigestIssueGenerations: never;
+  AiDigestIssues: never;
+  AiDigestSchedules: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
@@ -10496,8 +10577,10 @@ interface UpdateInputsByCollectionName {
   PodcastEpisodes: never;
   Podcasts: never;
   PostEmbeddings: never;
+  PostPreviews: never;
   PostRecommendations: never;
   PostRelations: never;
+  PostSummaries: never;
   PostViewTimes: never;
   PostViews: never;
   ReadStatuses: never;

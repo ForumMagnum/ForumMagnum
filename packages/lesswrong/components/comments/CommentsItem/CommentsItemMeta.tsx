@@ -64,6 +64,9 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
     "& span": {
       fontFamily: "monospace",
     },
+    "@media print": {
+      display: "none",
+    },
   },
   collapseChevron: {
     width: 15,
@@ -142,6 +145,9 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
   },
   menu: {
     opacity: 0.35,
+    "@media print": {
+      display: "none",
+    },
   }
 }));
 
