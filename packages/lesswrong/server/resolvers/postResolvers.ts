@@ -464,7 +464,7 @@ export const postGqlQueries = {
       { expiresIn: '1h' }
     );
 
-    return { token };
+    return { token, accessLevel };
   },
   ...CuratedAndPopularThisWeekQuery,
   ...RecentlyActiveDialoguesQuery,
@@ -729,6 +729,7 @@ export const postGqlTypeDefs = gql`
   }
   type HocuspocusAuth {
     token: String!
+    accessLevel: String!
   }
   ${CuratedAndPopularThisWeekTypeDefs}
   ${RecentlyActiveDialoguesTypeDefs}

@@ -2491,6 +2491,7 @@ type GoogleServiceAccountSessionSelector = {
 
 type HocuspocusAuth = {
   __typename?: 'HocuspocusAuth';
+  accessLevel: Scalars['String']['output'];
   token: Scalars['String']['output'];
 };
 
@@ -13040,7 +13041,7 @@ type MarkdownUserProfileRecentCommentsQueryVariables = Exact<{
 
 type MarkdownUserProfileRecentCommentsQuery = MarkdownUserProfileRecentCommentsQuery_Query;
 
-type HocuspocusAuthQueryServerQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
+type HocuspocusAuthQueryServerQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string, accessLevel: string };
 
 type HocuspocusAuthQueryServerQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryServerQuery_HocuspocusAuth_HocuspocusAuth | null };
 

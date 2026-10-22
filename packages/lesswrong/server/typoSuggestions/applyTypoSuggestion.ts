@@ -10,7 +10,7 @@ import type { TypoAcceptMode, TypoSuggestionStatus, TypoSuggestionTargetCollecti
 import { antiReactToTypoOnOwnContent } from "./antiReact";
 import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
 import { replaceTextInMainDoc } from "../../../../app/api/agent/replaceText/route";
-import { checkEditorTypeAndGetToken } from "../../../../app/api/agent/editorAgentUtil";
+import { checkEditorTypeAndGetToken, insufficientDraftAccessMessage, requiredAccessForMode } from "../../../../app/api/agent/editorAgentUtil";
 import { $locateQuoteWithTextIndex } from "../../../../app/api/agent/textIndexQuoteLocator";
 import { $applyEditModeReplacement } from "../../../../app/api/agent/applyEditAtSelection";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
@@ -161,6 +161,10 @@ async function applyToPost(
   }
 
   const replaceMode = mode === "APPLY" ? "edit" : "suggest";
+  const accessError = insufficientDraftAccessMessage(auth.accessLevel, requiredAccessForMode(replaceMode));
+  if (accessError) {
+    return { status: "failed", message: accessError };
+  }
   const result = await replaceTextInMainDoc({
     postId: suggestion.documentId,
     token: auth.token,

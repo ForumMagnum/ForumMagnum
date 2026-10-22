@@ -20,8 +20,10 @@ import { sleep } from "@/lib/utils/asyncUtils";
 import { getLatestRev } from "@/server/editor/utils";
 import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
-import { getHocuspocusTokenForCollection } from "./getHocuspocusToken";
+import { getHocuspocusAuthForCollection } from "./getHocuspocusToken";
 import { captureAgentApiEvent } from "./captureAgentAnalytics";
+import type { ReplaceMode } from "./toolSchemas";
+import { type CollaborativeEditingAccessLevel, accessLevelCan } from "@/lib/collections/posts/collabEditingPermissions";
 import { sanitize } from "@/lib/utils/sanitize";
 import { foldCaseOutsideMath, canonicalizeMathTokens } from "@/lib/utils/mathTokens";
 import type MarkdownIt from "markdown-it";
@@ -223,10 +225,39 @@ export function unsupportedEditorMessage(editorType: string): string {
 export const UNAUTHORIZED_DRAFT_MESSAGE =
   "Unauthorized to access this draft. Make sure the post's sharing settings have 'Anyone with the link can' set to 'Edit', and that the correct link-sharing key is provided.";
 
+/**
+ * The access level an agent write operation needs: suggestions and comments
+ * need comment access, and changing the document directly needs edit access.
+ */
+export type AgentWriteAccess = "comment" | "edit";
+
+export function requiredAccessForMode(mode: ReplaceMode): AgentWriteAccess {
+  return mode === "edit" ? "edit" : "comment";
+}
+
+/**
+ * Returns an error message if `accessLevel` doesn't allow an operation that
+ * needs `requiredAccess`, or null if it does. Agent write paths must check this
+ * before writing: the Hocuspocus server silently discards writes from
+ * read-only connections, and `waitForProviderFlush` can't detect that.
+ */
+export function insufficientDraftAccessMessage(
+  accessLevel: CollaborativeEditingAccessLevel,
+  requiredAccess: AgentWriteAccess,
+): string | null {
+  if (accessLevelCan(accessLevel, requiredAccess)) {
+    return null;
+  }
+  const commentAccessNote = accessLevel === "comment"
+    ? " Comment access allows comments and suggestions (mode 'suggest'), but not direct edits."
+    : "";
+  return `This operation requires ${requiredAccess} access to this draft, but you have ${accessLevel} access.${commentAccessNote}`;
+}
+
 export type EditorTypeAndTokenCheckResult =
   | { kind: "unsupported_editor"; editorType: string }
   | { kind: "unauthorized" }
-  | { kind: "ready"; token: string };
+  | { kind: "ready"; token: string; accessLevel: CollaborativeEditingAccessLevel };
 
 /**
  * Fire the editor-type check and the Hocuspocus auth-token query in parallel,
@@ -258,28 +289,29 @@ export async function checkEditorTypeAndGetToken({
     throw new Error('checkEditorTypeAndGetToken: must pass documentId or postId');
   }
   const editorCheckPromise = isSupportedEditorType(effectiveCollectionName, effectiveDocumentId, context);
-  const tokenPromise = getHocuspocusTokenForCollection(context, effectiveCollectionName, effectiveDocumentId, linkSharingKey);
+  const authPromise = getHocuspocusAuthForCollection(context, effectiveCollectionName, effectiveDocumentId, linkSharingKey);
   // If the editor-type check returns "unsupported" first, we early-return
-  // without awaiting tokenPromise. Attach a no-op handler so a later
+  // without awaiting authPromise. Attach a no-op handler so a later
   // rejection doesn't bubble up as an unhandled-rejection warning. The
-  // real `await tokenPromise` below still throws on real failures.
-  tokenPromise.catch(() => {});
+  // real `await authPromise` below still throws on real failures.
+  authPromise.catch(() => {});
 
   const editorCheck = await editorCheckPromise;
   if (!editorCheck.supported) {
     return { kind: "unsupported_editor", editorType: editorCheck.editorType };
   }
-  const token = await tokenPromise;
-  if (!token) {
+  const auth = await authPromise;
+  if (!auth) {
     return { kind: "unauthorized" };
   }
-  return { kind: "ready", token };
+  return { kind: "ready", token: auth.token, accessLevel: auth.accessLevel };
 }
 
 /**
  * Wrapper around `checkEditorTypeAndGetToken` for the agent write routes:
- * runs the parallel check, emits the matching analytics event, and returns
- * either a token to use or an HTTP error response to forward verbatim.
+ * runs the parallel check, verifies the user has `requiredAccess`, emits the
+ * matching analytics event, and returns either a token to use or an HTTP
+ * error response to forward verbatim.
  *
  * The non-route `/editPost` markdown caller wants different status codes
  * and a plaintext body, so it uses `checkEditorTypeAndGetToken` directly.
@@ -292,6 +324,7 @@ export async function authorizeAgentDraftAccess({
   context,
   linkSharingKey,
   agentName,
+  requiredAccess,
 }: {
   route: string
   // Either pass {collectionName, documentId} or {postId} (legacy).
@@ -301,6 +334,7 @@ export async function authorizeAgentDraftAccess({
   context: ResolverContext
   linkSharingKey?: string
   agentName?: string
+  requiredAccess: AgentWriteAccess
 }): Promise<{ token: string } | { errorResponse: NextResponse }> {
   const effectiveCollectionName = collectionName ?? 'Posts';
   const effectiveDocumentId = documentId ?? postId;
@@ -327,6 +361,16 @@ export async function authorizeAgentDraftAccess({
     return {
       errorResponse: NextResponse.json(
         { error: UNAUTHORIZED_DRAFT_MESSAGE },
+        { status: 403 },
+      ),
+    };
+  }
+  const accessError = insufficientDraftAccessMessage(checkResult.accessLevel, requiredAccess);
+  if (accessError) {
+    captureAgentApiEvent({ route, postId: effectiveDocumentId, userId: context.currentUser?._id, agentName, status: "insufficient_access" });
+    return {
+      errorResponse: NextResponse.json(
+        { error: accessError },
         { status: 403 },
       ),
     };
