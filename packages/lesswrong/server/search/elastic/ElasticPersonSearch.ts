@@ -27,6 +27,7 @@ export interface PersonCandidate {
   fullName?: string | null;
   /** The account's original username, which often survives as a well-known handle. */
   username?: string;
+  commentCount?: number;
 }
 
 interface SpanMatch {
@@ -36,8 +37,14 @@ interface SpanMatch {
 }
 
 const prominentKarma = 1000;
+// Active accounts can be found by name fragments; karma alone undersells people
+// who mostly comment or are new. Fuzzy and first-name readings stay prominent-only.
+const activeKarma = 100;
+const activeComments = 10;
 const confidenceRank: Record<PersonConfidence, number> = {exact: 3, strong: 2, weak: 1, prefix: 0};
 const minPrefixLength = 2;
+// Two letters of a merely active account match too many ordinary words ("AI").
+const minActivePrefixLength = 3;
 const minInfixLength = 4;
 
 function words(text: string): string[] {
@@ -105,15 +112,15 @@ function prefixSpans(tokens: string[], candidate: PersonCandidate): SpanMatch[] 
 }
 
 /**
- * For prominent accounts: a query word equal to any name word, a prefix of one,
+ * For active accounts: a query word equal to any name word, a prefix of one,
  * or a substring of a run-together handle such as "johnswentworth".
  */
-function partialWordSpans(tokens: string[], names: string[][]): SpanMatch[] {
+function partialWordSpans(tokens: string[], names: string[][], minLength: number): SpanMatch[] {
   const nameWords = new Set(names.flat());
   const compactNames = names.map(name => name.join(""));
   const spans: SpanMatch[] = [];
   tokens.forEach((token, start) => {
-    if (token.length < minPrefixLength) return;
+    if (token.length < minLength) return;
     if (nameWords.has(token)) {
       spans.push({start, length: 1, confidence: "weak"});
       return;
@@ -134,12 +141,18 @@ function compactPrefixMatch(query: string, name: string): boolean {
   return false;
 }
 
+function isActive(candidate: PersonCandidate): boolean {
+  return (candidate.karma ?? 0) >= activeKarma || (candidate.commentCount ?? 0) >= activeComments;
+}
+
 function candidateSpans(tokens: string[], candidate: PersonCandidate): SpanMatch[] {
   const names = [words(candidate.displayName), ...(candidate.fullName ? [words(candidate.fullName)] : [])];
   const handles = [...(candidate.slug ? [words(candidate.slug)] : []), ...(candidate.username ? [words(candidate.username)] : [])];
   const spans = [...names, ...handles].flatMap(name => exactSpans(tokens, name, "exact"));
-  if ((candidate.karma ?? 0) < prominentKarma) return spans;
-  spans.push(...partialWordSpans(tokens, [...names, ...handles]));
+  if (!isActive(candidate)) return spans;
+  const prominent = (candidate.karma ?? 0) >= prominentKarma;
+  spans.push(...partialWordSpans(tokens, [...names, ...handles], prominent ? minPrefixLength : minActivePrefixLength));
+  if (!prominent) return spans;
   for (const name of names) {
     if (name.length > 1 && name[0].length >= 4) spans.push(...exactSpans(tokens, [name[0]], "strong"));
     const surname = name[name.length - 1];
@@ -164,6 +177,18 @@ function betterSpan(candidate: SpanMatch, best: SpanMatch | undefined): boolean 
 
 function sameSpan(a: SpanMatch, b: SpanMatch): boolean {
   return a.start === b.start && a.length === b.length && a.confidence === b.confidence;
+}
+
+function nameFragmentClauses(token: string): QueryDslQueryContainer[] {
+  return [
+    {prefix: {"displayName.exact": {value: token}}},
+    {prefix: {"fullName.exact": {value: token}}},
+    {prefix: {"slug.sort": {value: token, case_insensitive: true}}},
+    {prefix: {"username.keyword": {value: token, case_insensitive: true}}},
+    ...(token.length >= minInfixLength ? ["displayName.sort", "slug.sort"].map(field => ({
+      wildcard: {[field]: {value: `*${token}*`, case_insensitive: true}},
+    })) : []),
+  ];
 }
 
 export function compilePersonLookup(search: string): SearchRequest | undefined {
@@ -202,16 +227,12 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
     {match: {"displayName.exact": {query: joined, operator: "or", fuzziness: "AUTO", prefix_length: 1}}},
     {match: {"slug.exact": {query: joined, operator: "or", fuzziness: "AUTO", prefix_length: 1}}},
     {match: {"fullName.exact": {query: joined, operator: "or", fuzziness: "AUTO", prefix_length: 1}}},
-    ...tokens.filter(token => token.length >= minPrefixLength).flatMap(token => [
-      {prefix: {"displayName.exact": {value: token}}},
-      {prefix: {"fullName.exact": {value: token}}},
-      {prefix: {"slug.sort": {value: token, case_insensitive: true}}},
-      {prefix: {"username.keyword": {value: token, case_insensitive: true}}},
-      ...(token.length >= minInfixLength ? ["displayName.sort", "slug.sort"].map(field => ({
-        wildcard: {[field]: {value: `*${token}*`, case_insensitive: true}},
-      })) : []),
-    ]),
+    ...tokens.filter(token => token.length >= minPrefixLength && token.length < minActivePrefixLength).flatMap(nameFragmentClauses),
   ];
+  const fragments = tokens.filter(token => token.length >= minActivePrefixLength).flatMap(nameFragmentClauses);
+  const active: QueryDslQueryContainer = {bool: {should: [
+    {range: {karma: {gte: activeKarma}}}, {range: {commentCount: {gte: activeComments}}},
+  ], minimum_should_match: 1}};
   return {
     index: "users",
     size: 100,
@@ -221,10 +242,11 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
         ...exact,
         // Partial matches tie, so the karma sort keeps the most prominent of many similar names.
         {constant_score: {boost: 1, filter: {bool: {should: partial, minimum_should_match: 1, filter: [{range: {karma: {gte: prominentKarma}}}]}}}},
+        ...(fragments.length ? [{constant_score: {boost: 1, filter: {bool: {should: fragments, minimum_should_match: 1, filter: [active]}}}}] : []),
       ]}}],
     }},
     sort: [{_score: {order: "desc"}}, {karma: "desc"}, {objectID: "asc"}],
-    _source: ["objectID", "displayName", "slug", "karma", "fullName", "username"],
+    _source: ["objectID", "displayName", "slug", "karma", "fullName", "username", "commentCount"],
   };
 }
 
