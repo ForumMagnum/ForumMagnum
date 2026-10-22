@@ -342,7 +342,7 @@ export const CommentsItem = ({
         classes.root,
         className,
         "recent-comments-node",
-        comment.deleted && !comment.deletedPublic && classes.deleted,
+        ((comment.deleted && !comment.deletedPublic) || comment.rejected) && classes.deleted,
         treeOptions.isSideComment && classes.sideComment,
         comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId && classes.subforumTop,
       )}>
@@ -393,7 +393,12 @@ export const CommentsItem = ({
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Pinned by {comment.promotedByUser.displayName}
           </div>}
-          {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason ?? null}/></p>}
+          {comment.rejected && <p>
+            <RejectedReasonDisplay reason={comment.rejectedReason ?? null}/>
+            {comment.userId === currentUserId && <span className={classes.metaNotice}>
+              Hidden from other readers of this thread.
+            </span>}
+          </p>}
           {comment.deleted ? renderBodyOrEditor(voteProps) : <AnimatedCollapse expanded={!collapsed}>
             {renderBodyOrEditor(voteProps)}
             {!showEditState && <CommentBottom
