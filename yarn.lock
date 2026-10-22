@@ -20221,7 +20221,7 @@ undici@^5.5.1:
   dependencies:
     "@fastify/busboy" "^2.0.0"
 
-undici@^7.16.0:
+undici@^7.16.0, undici@^7.30.1:
   version "7.30.1"
   resolved "https://registry.yarnpkg.com/undici/-/undici-7.30.1.tgz#360b3de104b94abc52729aa1a4a07e027aa71f73"
   integrity sha512-03KrMbjIFDWQR5RNPrSw3bd1r12JpyFQl9/yxjUbJtqkjmllqC5lFjZh6ujeuJCKr8EOQvRW872Oy/az+nLYxg==
