@@ -1,7 +1,6 @@
 import type { PersonSearch } from "../../server/search/elastic/ElasticPersonSearch";
 import type { QueryDslQueryContainer } from "@elastic/elasticsearch/lib/api/types";
-import { compileSearchQuery } from "../../server/search/elastic/ElasticAdditiveRanking";
-import { compoundTitleQuery, matchPoints, navigationPoints, parseIdentifier, popularityGate, popularityPoints, rankingWeights, wantsUpcomingEvents } from "../../server/search/elastic/ElasticAdditiveRanking";
+import { compileSearchQuery, compoundTitleQuery, matchPoints, navigationPoints, parseIdentifier, popularityGate, popularityPoints, rankingWeights, wantsUpcomingEvents } from "../../server/search/elastic/ElasticAdditiveRanking";
 
 function interpretations(index: string, search: string, person?: PersonSearch): QueryDslQueryContainer[] {
   const request = compileSearchQuery({indexes: [index], search, person});
@@ -194,4 +193,25 @@ it("gives established user karma more weight without changing content popularity
   expect(anna - established).toBeGreaterThan(3);
   expect(popularityPoints(1000000000, pivots.users, userSlope, userCap)).toBe(10);
   expect(popularityPoints(1000000000, pivots.posts)).toBe(4);
+});
+
+describe("one-word queries", () => {
+  it("recalls and scores titles continuing an unfinished word, but not short fragments", () => {
+    const recall = (search: string) => JSON.stringify(compileSearchQuery({indexes: ["posts"], search}).query);
+    expect(recall("trans")).toContain('"prefix":{"title.exact":{"value":"trans"}}');
+    expect(recall("udt")).not.toContain('"prefix":{"title.exact"');
+    const outer = JSON.stringify(outerScore(interpretations("posts", "trans")[0]).functions);
+    expect(outer).toContain(`"titleGate":${rankingWeights.popularity.titleGate}`);
+    expect(JSON.stringify(lexicalScore(interpretations("posts", "trans")[0]).function_score?.functions)).not.toContain('"title.exact"');
+  });
+
+  it("gives wiki pages named by the query word navigation points", () => {
+    const functions = JSON.stringify(outerScore(interpretations("tags", "Meditation")[0]).functions);
+    expect(functions).toContain('"name.sort":{"value":"Meditation","case_insensitive":true}');
+    expect(functions).toContain(`"weight":${rankingWeights.navigation.conceptName}`);
+    expect(functions).toContain('"span_first"');
+    const posts = JSON.stringify(outerScore(interpretations("posts", "Meditation")[0]).functions);
+    expect(posts).not.toContain('"span_first"');
+    expect(JSON.stringify(outerScore(interpretations("tags", "meditation practice")[0]).functions)).not.toContain('"span_first"');
+  });
 });

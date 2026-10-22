@@ -18,6 +18,8 @@ export type Grade = 0 | 1 | 2 | 3;
 export interface GradedResult {
   grade: Grade;
   title: string;
+  /** For grades imported from search analytics: distinct searchers who settled on this result. */
+  clickedBy?: number;
 }
 
 export type Expectation =
@@ -32,8 +34,10 @@ export interface GoldenQuery {
   intent: string;
   /** What currently annoys about this search, if it was added as an annoyance. */
   note?: string;
-  source: "annoyance" | "stress-suite" | "judged" | "suggested";
+  source: "annoyance" | "stress-suite" | "judged" | "suggested" | "clicks";
   addedAt: string;
+  /** Distinct searchers and total clicks behind a query imported from search analytics. */
+  evidence?: {searchers: number; clicks: number};
   /** Keyed by `${index}:${objectID}`. */
   grades: Record<string, GradedResult>;
   expectations: Expectation[];

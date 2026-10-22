@@ -50,8 +50,8 @@ G(T) = 0.1 + 0.9 × min(T / 5, 1)²
 |---|---|
 | T, topical evidence | Raw content-only BM25 contributes 0–3, complete analyzed term coverage adds 1, title/body phrase proximity adds 1. Author metadata and recall boosts never contribute. |
 | H, title coverage | Adds 1 for multiple content tokens or 0.5 for a single content token. Complete analyzed coverage or title-prefix coverage qualifies once. |
-| N, navigation | Exact title adds 0/2.5/4.5 for 1/2/3+ content tokens. Unfinished title prefixes receive the same bounded preference. Identifiers add 8 within identifier-only eligibility. |
-| A, relationship | Exact/strong/weak profiles add 6/5/4; authored posts and sequences 3/3/2; authored comments 2/2/1.5. Use the strongest relationship once. Minor exact accounts receive half the profile points. |
+| N, navigation | Exact title adds 0/2.5/4.5 for 1/2/3+ content tokens. Unfinished title prefixes receive the same bounded preference. For one-word queries, a wiki/tag page named exactly by the word adds 3, one whose first word is the word or a near spelling adds 1.5, one containing it elsewhere adds 1. Identifiers add 8 within identifier-only eligibility. |
+| A, relationship | Exact/strong/weak/prefix profiles add 8/6/4/3; authored posts and sequences 3/3/2/1; authored comments 2/2/1.5/0.5. Use the strongest relationship once. Profiles under 100 karma receive half the profile points. |
 | C, context | Curated posts add 0.5; unresolved profiles subtract 0.5. Comments have no fixed penalty. Future events can add up to 1 when event intent is present. |
 
 The constant 2 keeps Elasticsearch function scores nonnegative and does not
@@ -67,8 +67,12 @@ has not already earned ordinary phrase proximity. Its navigation bonus requires
 an unfinished final word. Prefix scoring uses the same bounded 50-completion
 budget as recall; a smaller scoring budget silently dropped “college” for
 “american coll” in the real index. Complete topic phrases such as “lab automation” do
-not gain it simply because a title continues afterward. Generic exact titles
-such as “History” have no unconditional priority. No ordinary title or profile
+not gain it simply because a title continues afterward. A one-word query is
+recalled in titles it starts a word of ("trans" for "Transgender"), from four
+letters on. Shorter fragments such as "udt" continue too many unrelated titles.
+A title containing or continuing the word opens the popularity gate to at least
+0.6. This adds nothing for an unpopular title, so generic exact titles such as
+“History” have no unconditional priority. No ordinary title or profile
 is mathematically guaranteed first place.
 
 Recall searches exact and stemmed/synonym fields together, with bounded fuzzy
@@ -90,9 +94,17 @@ Internal URLs also support lowercase-only IDs. Identifier-only searches still
 apply all eligibility and permission-related filters.
 
 Person resolution keeps all plausible candidates for the selected name span,
-with confidence per candidate. Public full names, display names and slugs
-support real-name aliases, surnames, prefixes and bounded typos. A prominent
-account has at least 1,000 karma. Exact minor accounts remain possible matches.
+with confidence per candidate. Public full names, display names, slugs and
+original usernames ("lc") support real-name aliases, surnames, prefixes and
+bounded typos. A prominent account has at least 1,000 karma. Exact minor
+accounts remain possible matches. For prominent accounts, a query word equal to
+any name word reads as `weak`. A word of at least two letters starting a name word
+("yud", "wei"), or one of at least four letters inside a run-together handle
+("wentworth" in johnswentworth), reads as `prefix`. A `prefix` reading is kept
+alongside an exact namesake, so "eli" offers both zero-karma accounts named Eli
+and Eliezer Yudkowsky, and popularity orders them. Partial candidates are
+retrieved by match tier, then karma, so the most prominent of many similar names
+survive the 100-candidate limit.
 For author-plus-topic queries, the original query and residual topic compete
 by maximum; only that author's documents qualify for the residual branch.
 “roko” can therefore retrieve both the author and topic results. Multiple
@@ -148,7 +160,7 @@ yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'freezeSear
 yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'runGoldenSet("baseline")'
 # change ranking code, then:
 yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'runGoldenSet("my-change")'
-yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'serveSearchBaseline()'   # http://localhost:4111
+packages/lesswrong/server/scripts/serveSearchBaseline.sh   # http://localhost:4111, restarts on ranking-code changes
 ```
 
 The viewer shows the verdict, per-category coverage and movement, a sorted
@@ -156,9 +168,50 @@ per-query delta chart, and side-by-side top-10 lists with rank-movement lines.
 In the viewer you can grade results (keys `0`–`3`), add expectations, compare
 against live results from the loaded code (`l`), add an annoyance (`a`), and
 draw random known-item, person, concept and sequence queries to fill thin
-categories. Every edit is written to `goldenSet.json`. The server uses the
-ranking code it loaded at startup, so restart it after editing ranking code.
+categories. Every edit is written to `goldenSet.json`. `serveSearchBaseline.sh`
+restarts the server whenever code under `server/search` or the baseline
+scripts changes, and an open viewer refreshes its live results, so live
+results and "Run current code" always use the code on disk.
 `addSearchAnnoyance(query, note, category)` adds an annoyance from the REPL.
+
+#### Importing real searches
+
+`importClickedSearches()` turns production `searchResultSelected` events from the
+header (`searchBar`) and search page (`searchPageTabbed`) into golden queries.
+Each searcher's last click for a query is the result they wanted. A target is
+imported only when at least three distinct people (by user or client ID) settled
+on it, and it is graded 3 with its count stored as `clickedBy`. A target that
+more than half of a query's searchers chose must appear in the top 3. Targets no
+longer searchable in the frozen corpus are dropped. Re-importing refreshes counts
+and keeps grades and expectations added by hand. A query that already exists by
+hand only gains grades for results it has not graded.
+
+Every run, including a dry run, writes `/tmp/forum-search-report/click-import.csv`
+and `.json` with one row per query and target:
+
+| Column | Meaning |
+|---|---|
+| `productionTypeRank` | median rank within the target's type list when it was clicked |
+| `productionHeaderRank` | median rank in master's flattened header (users, posts, tags, comments, sequences; three each), header clicks only |
+| `branchRank` | rank in the loaded code's unified list on the frozen corpus |
+| `branchTypeRank` | rank among same-type results in that list, comparable to `productionTypeRank` |
+
+The console shows hit rates at 1, 3 and 10 for production and the branch on the
+same pairs, and the most-chosen targets that the branch ranks outside its top 10.
+
+The golden set is public. Besides the per-target threshold, queries containing
+an `@`, a long digit run, an external URL, or more than 80 characters are never
+imported. Clicks have only been recorded since 2026-04-17.
+
+The import reads the production analytics database, so run it yourself and
+look at the dry run before writing:
+
+```sh
+yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'importClickedSearches()'                  # dry run
+yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'importClickedSearches({dryRun: false})'
+```
+
+After importing, record new runs, since earlier runs do not contain the new queries.
 
 ### Evaluation and release decision
 

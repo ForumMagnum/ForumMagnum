@@ -10,7 +10,10 @@ import type { QueryDslQueryContainer, SearchRequest, SearchResponse } from "@ela
 import { executeSearch, SearchExecutor } from "../search/elastic/ElasticClient";
 import { rankingWeights } from "../search/elastic/ElasticAdditiveRanking";
 import { indexNameToConfig } from "../search/elastic/ElasticConfig";
+import { compilePersonLookup, PersonCandidate, resolvePersonSearch } from "../search/elastic/ElasticPersonSearch";
 import { evaluationClient, summarizeHit } from "./searchRankingEval";
+import { getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
+import { aggregateClicks, clickReport, ClickedSearch, ClickReportRow, ClickTarget, hitRates, HitRates, mergeClickedSearches, SearchClick } from "./searchBaselineClicks";
 import { compareRuns, Expectation, GoldenQuery, GoldenSet, Grade, hitKey, RunEntry, RunHit, SearchIntentCategory, searchIntentCategories, SearchRun, validateGoldenSet } from "./searchBaselineMetrics";
 
 const dataDir = "packages/lesswrong/server/scripts/searchBaselineData";
@@ -180,7 +183,10 @@ export async function runGoldenSet(label = "") {
   const executor = frozenExecutor(client, corpus);
   const golden = readGoldenSet();
   const entries: RunEntry[] = [];
-  for (const query of golden.queries) entries.push(await runQuery(executor, query));
+  for (const query of golden.queries) {
+    entries.push(await runQuery(executor, query));
+    if (entries.length % 100 === 0) console.log(`Ran ${entries.length}/${golden.queries.length}`);
+  }
   const stamp = new Date().toISOString().replace(/[:]/g, "").slice(0, 15);
   const slug = label.replace(/[^\w-]+/g, "-").replace(/^-|-$/g, "");
   const name = [stamp, loadedCode.head + (loadedCode.dirty ? "-dirty" : ""), slug].filter(Boolean).join("-");
@@ -194,10 +200,253 @@ export async function runGoldenSet(label = "") {
   return {name, queries: entries.length, failed};
 }
 
+/** Show how the loaded code resolves people for a query and ranks it on the frozen corpus. */
+export async function explainFrozenSearch(query: string, limit = 10) {
+  const executor = frozenExecutor(evaluationClient(), readCorpus());
+  const lookup = compilePersonLookup(query);
+  const candidates = lookup ? (await executor.search<PersonCandidate>(lookup)).hits.hits.flatMap(hit => hit._source ? [hit._source] : []) : [];
+  const person = resolvePersonSearch(query, candidates);
+  console.log(`Person lookup: ${candidates.length} candidates; top by score:`);
+  console.table(candidates.slice(0, 8).map(candidate => ({displayName: candidate.displayName, slug: candidate.slug, karma: candidate.karma})));
+  console.log(`Resolved: ${person ? JSON.stringify({confidence: person.confidence, topic: person.topic, candidates: person.candidates?.slice(0, 8)}) : "none"}`);
+  const hits = await searchFrozen(executor, query, limit);
+  console.table(hits.map(hit => ({key: hit.key, title: hit.title.slice(0, 60), karma: hit.karma, score: Number(hit.score.toFixed(2))})));
+}
+
 export function compareGoldenRuns(baseline: string, candidate: string) {
   const comparison = compareRuns(readGoldenSet(), readRun(baseline), readRun(candidate));
   console.table(comparison.categories);
   return comparison.summary;
+}
+
+/** Production LessWrong events; general search surfaces only, not user or tag pickers. */
+const clickEnvironment = "lesswrong.com";
+const clickContexts = ["searchBar", "searchPageTabbed"];
+const lookupChunk = 1000;
+
+function fetchSearchClicks(environment: string, since: string): Promise<SearchClick[]> {
+  return getAnalyticsConnectionOrThrow().any<SearchClick>(`
+    -- searchBaseline.fetchSearchClicks
+    SELECT
+      event->>'query' AS query,
+      event->>'resultId' AS "resultId",
+      event->>'resultType' AS "resultType",
+      COALESCE('u:' || (event->>'userId'), 'c:' || (event->>'clientId')) AS searcher,
+      to_char(timestamp, 'YYYY-MM-DD HH24:MI:SS.US') AS timestamp,
+      event->>'context' AS context,
+      CASE WHEN event->>'position' ~ '^[0-9]+$' THEN (event->>'position')::INTEGER END AS position
+    FROM raw
+    WHERE environment = $(environment)
+      AND event_type = 'searchResultSelected'
+      AND event->>'context' IN ($(contexts:csv))
+      AND timestamp >= $(since)
+      AND COALESCE(event->>'query', '') <> ''
+      AND COALESCE(event->>'resultId', '') <> ''
+      AND COALESCE(event->>'userId', event->>'clientId') IS NOT NULL
+  `, {environment, since, contexts: clickContexts});
+}
+
+/** Resolve clicked targets that are still present and searchable in the frozen corpus. */
+async function lookupClickTargets(client: Client, corpus: FrozenCorpus, keys: string[]): Promise<Map<string, ClickTarget>> {
+  const targets = new Map<string, ClickTarget>();
+  for (const index of allIndexes) {
+    const ids = keys.filter(key => key.startsWith(`${index}:`)).map(key => key.slice(index.length + 1));
+    for (let start = 0; start < ids.length; start += lookupChunk) {
+      const chunk = ids.slice(start, start + lookupChunk);
+      const response = await client.search<SearchDocument>({
+        index: corpus.indexes[index].name, size: chunk.length, timeout: "10s",
+        query: {bool: {should: [], filter: [...(indexNameToConfig(index).filters ?? []), {terms: {objectID: chunk}}]}},
+      });
+      for (const hit of response.hits.hits) {
+        const summary = toRunHit({...hit, _index: index});
+        targets.set(summary.key, {index, title: summary.title});
+      }
+    }
+  }
+  return targets;
+}
+
+/** Rank every clicked query with the code this REPL loaded, keyed by normalized query. */
+async function rankClickedSearches(executor: SearchExecutor, clicked: ClickedSearch[]): Promise<Map<string, RunHit[]>> {
+  const ranked = new Map<string, RunHit[]>();
+  for (const search of clicked) {
+    try {
+      ranked.set(search.normalized, await searchFrozen(executor, search.text));
+    } catch (error) {
+      console.log(`Ranking failed for one query: ${error instanceof Error ? error.message.slice(0, 200) : String(error)}`);
+    }
+    if (ranked.size % 100 === 0) console.log(`Ranked ${ranked.size}/${clicked.length}`);
+  }
+  return ranked;
+}
+
+function csvCell(value: string | number | boolean | null): string {
+  const text = value === null ? "" : String(value);
+  return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function writeClickReport(out: string, rows: ClickReportRow[]) {
+  fs.mkdirSync(path.dirname(out), {recursive: true});
+  writeJson(`${out}.json`, rows);
+  const columns: (keyof ClickReportRow)[] = ["query", "category", "target", "title", "searchable", "targetSearchers", "querySearchers", "productionTypeRank", "productionHeaderRank", "branchRank", "branchTypeRank"];
+  const lines = [columns.join(","), ...rows.map(row => columns.map(column => csvCell(row[column])).join(","))];
+  fs.writeFileSync(`${out}.csv`, lines.join("\n") + "\n");
+}
+
+function formatRates(rates: HitRates) {
+  const percent = (value: number) => `${Math.round(value * 100)}%`;
+  return {pairs: rates.pairs, "@1": percent(rates.at1), "@3": percent(rates.at3), "@10": percent(rates.at10)};
+}
+
+interface ClickImportOptions {
+  /** ISO date; defaults to one year ago. Clicks have only been recorded since 2026-04-17. */
+  since?: string;
+  /** Distinct searchers who must have settled on a target before it is imported. */
+  minSearchers?: number;
+  dryRun?: boolean;
+  /** Report path without extension; `.csv` and `.json` are written. */
+  out?: string;
+}
+
+/**
+ * Import production search clicks as graded queries: each searcher's last click
+ * for a query is the result they wanted. A target is only imported once at
+ * least `minSearchers` distinct people settled on it, because the golden set is
+ * committed to a public repository. Dry run by default; either way, a report of
+ * every query and target is written with where production showed the target
+ * and where the current code ranks it.
+ */
+export async function importClickedSearches({since, ...options}: ClickImportOptions = {}) {
+  const from = since ?? new Date(Date.now() - (365 * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
+  const clicks = await fetchSearchClicks(clickEnvironment, from);
+  console.log(`Clicks since ${from}: ${clicks.length}`);
+  return applyClickImport(clicks, options);
+}
+
+/** The import after fetching, for click events obtained some other way. */
+export async function applyClickImport(clicks: SearchClick[], {minSearchers = 3, dryRun = true, out = "/tmp/forum-search-report/click-import"}: Omit<ClickImportOptions, "since"> = {}) {
+  const client = evaluationClient();
+  const corpus = readCorpus();
+  const clicked = aggregateClicks(clicks, minSearchers);
+  const keys = [...new Set(clicked.flatMap(search => search.targets.map(target => target.key)))];
+  const targets = await lookupClickTargets(client, corpus, keys);
+  const rows = clickReport(clicked, targets, await rankClickedSearches(frozenExecutor(client, corpus), clicked));
+  writeClickReport(out, rows);
+
+  const searchable = rows.filter(row => row.searchable);
+  const fromHeader = searchable.filter(row => row.productionHeaderRank !== null);
+  const withTypeRank = searchable.filter(row => row.productionTypeRank !== null);
+  console.log(`Query-target pairs chosen by >= ${minSearchers} searchers: ${rows.length} across ${clicked.length} queries; searchable in corpus ${corpus.tag}: ${searchable.length}`);
+  console.table({
+    "production header (master, flattened)": formatRates(hitRates(fromHeader, row => row.productionHeaderRank)),
+    "branch, same pairs": formatRates(hitRates(fromHeader, row => row.branchRank)),
+    "production rank within type": formatRates(hitRates(withTypeRank, row => row.productionTypeRank)),
+    "branch rank within type, same pairs": formatRates(hitRates(withTypeRank, row => row.branchTypeRank)),
+    "branch, all searchable pairs": formatRates(hitRates(searchable, row => row.branchRank)),
+  });
+  const misses = searchable.filter(row => row.branchRank === null || row.branchRank > 10).sort((a, b) => b.targetSearchers - a.targetSearchers);
+  console.log(`Branch misses (target outside the top 10): ${misses.length}`);
+  console.table(misses.slice(0, 25).map(row => ({query: row.query, title: row.title.slice(0, 50), searchers: row.targetSearchers, production: row.productionHeaderRank ?? row.productionTypeRank, branch: row.branchRank ?? "-"})));
+  console.log(`Full report: ${out}.csv and ${out}.json`);
+
+  const {golden, summary} = mergeClickedSearches(readGoldenSet(), clicked, targets, new Date().toISOString().slice(0, 10));
+  if (dryRun) {
+    console.log(`Dry run: would add ${summary.added}, refresh ${summary.refreshed}, enrich ${summary.enriched}, skip ${summary.skippedNoTarget} without a searchable target. Pass {dryRun: false} to write goldenSet.json.`);
+  } else {
+    writeGoldenSet(golden);
+    console.log(`Wrote goldenSet.json: ${summary.added} added, ${summary.refreshed} refreshed, ${summary.enriched} enriched, ${summary.skippedNoTarget} skipped without a searchable target`);
+  }
+  return summary;
+}
+
+async function mapWithConcurrency<T, R>(items: T[], concurrency: number, work: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  const workers = Array.from({length: Math.min(concurrency, items.length)}, async () => {
+    while (next < items.length) {
+      const index = next++;
+      results[index] = await work(items[index]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+interface ClickEvaluationOptions {
+  /** A click-import report; its `branchRank` column is the "before" ranking. */
+  report?: string;
+  category?: string;
+  concurrency?: number;
+  out?: string;
+}
+
+interface EvaluatedClickRow extends ClickReportRow {
+  before: number | null;
+  after: number | null;
+}
+
+function weightedShare(rows: EvaluatedClickRow[], rank: (row: EvaluatedClickRow) => number | null, limit: number): string {
+  const total = rows.reduce((sum, row) => sum + row.targetSearchers, 0);
+  const hit = rows.reduce((sum, row) => {
+    const value = rank(row);
+    return sum + (value !== null && value <= limit ? row.targetSearchers : 0);
+  }, 0);
+  return total ? `${Math.round(100 * hit / total)}%` : "-";
+}
+
+function clickSummary(rows: EvaluatedClickRow[]) {
+  return {
+    pairs: rows.length,
+    "before @1": weightedShare(rows, row => row.before, 1), "after @1": weightedShare(rows, row => row.after, 1),
+    "before @3": weightedShare(rows, row => row.before, 3), "after @3": weightedShare(rows, row => row.after, 3),
+    "before @10": weightedShare(rows, row => row.before, 10), "after @10": weightedShare(rows, row => row.after, 10),
+  };
+}
+
+function rankLabel(rank: number | null): string | number {
+  return rank ?? "-";
+}
+
+/**
+ * Re-rank every searchable production click target with the loaded code and
+ * compare against the report's earlier branch ranks. Shares are weighted by how
+ * many searchers settled on each target.
+ */
+export async function evaluateClickTargets({report = "/tmp/forum-search-report/click-import.json", category, concurrency = 8, out = "/tmp/forum-search-report/click-evaluation.json"}: ClickEvaluationOptions = {}) {
+  const executor = frozenExecutor(evaluationClient(), readCorpus());
+  const rows = readJson<ClickReportRow[]>(report).filter(row => row.searchable && (!category || row.category === category));
+  const queries = [...new Set(rows.map(row => row.query))];
+  const ranked = new Map<string, string[]>();
+  await mapWithConcurrency(queries, concurrency, async query => {
+    try {
+      ranked.set(query, (await searchFrozen(executor, query)).map(hit => hit.key));
+    } catch (error) {
+      console.log(`Search failed for one query: ${error instanceof Error ? error.message.slice(0, 200) : String(error)}`);
+    }
+  });
+  const evaluated: EvaluatedClickRow[] = rows.map(row => {
+    const position = ranked.get(row.query)?.indexOf(row.target) ?? -1;
+    return {...row, before: row.branchRank, after: position < 0 ? null : position + 1};
+  });
+  writeJson(out, evaluated);
+  const categories = [...new Set(evaluated.map(row => row.category))].sort();
+  console.table(Object.fromEntries([
+    ["all", clickSummary(evaluated)],
+    ...categories.map(name => [name, clickSummary(evaluated.filter(row => row.category === name))]),
+  ]));
+  const missed = (rank: number | null) => rank === null || rank > 10;
+  const broken = evaluated.filter(row => !missed(row.before) && missed(row.after)).sort((a, b) => b.targetSearchers - a.targetSearchers);
+  const fixed = evaluated.filter(row => missed(row.before) && !missed(row.after));
+  const remaining = evaluated.filter(row => missed(row.after)).sort((a, b) => b.targetSearchers - a.targetSearchers);
+  console.log(`Fixed ${fixed.length}, broken ${broken.length}, still missed ${remaining.length}`);
+  const show = (list: EvaluatedClickRow[]) => console.table(list.slice(0, 20).map(row => ({query: row.query, title: row.title.slice(0, 40), searchers: row.targetSearchers, before: rankLabel(row.before), after: rankLabel(row.after)})));
+  if (broken.length) {
+    console.log("Newly outside the top 10:");
+    show(broken);
+  }
+  console.log("Still outside the top 10:");
+  show(remaining);
+  return {fixed: fixed.length, broken: broken.length, remaining: remaining.length};
 }
 
 interface Suggestion {
@@ -296,6 +545,7 @@ function upsertQuery(input: QueryInput): GoldenQuery {
     addedAt: existing?.addedAt ?? new Date().toISOString().slice(0, 10),
     grades: input.grades ?? existing?.grades ?? {},
     expectations: input.expectations ?? existing?.expectations ?? [],
+    ...(existing?.evidence ? {evidence: existing.evidence} : {}),
   };
   golden.queries = existing ? golden.queries.map(other => other.id === query.id ? query : other) : [...golden.queries, query];
   writeGoldenSet(golden);
@@ -410,6 +660,9 @@ async function handleApi(client: Client, request: http.IncomingMessage, url: URL
       });
       return {golden: readGoldenSet(), corpus, runs, code: loadedCode, categories: searchIntentCategories};
     }
+    case "GET /api/code": {
+      return loadedCode;
+    }
     case "GET /api/compare": {
       const baseline = url.searchParams.get("baseline");
       const candidate = url.searchParams.get("candidate");
@@ -445,12 +698,30 @@ async function handleApi(client: Client, request: http.IncomingMessage, url: URL
   }
 }
 
+/** Exit code asking `serveSearchBaseline.sh` to start a fresh process with the changed code. */
+const restartExitCode = 75;
+const watchedCode = ["packages/lesswrong/server/search", "packages/lesswrong/server/scripts"];
+
+function exitOnCodeChange() {
+  let timer: NodeJS.Timeout | undefined;
+  for (const directory of watchedCode) {
+    fs.watch(directory, {recursive: true}, (_event, file) => {
+      if (!file || !/\.ts$/.test(file) || (directory.endsWith("scripts") && !file.startsWith("searchBaseline"))) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        console.log(`${file} changed; restarting with the new code`);
+        process.exit(restartExitCode);
+      }, 300);
+    });
+  }
+}
+
 /**
  * Serve the interactive baseline viewer on localhost. Ranking code is whatever
- * this REPL loaded, so restart the server after changing ranking code to make
- * "Run current code" produce a candidate run.
+ * this process loaded; with `watch`, the process exits when search code changes
+ * so that `serveSearchBaseline.sh` restarts it with the new code.
  */
-export function serveSearchBaseline(port = 4111): Promise<void> {
+export function serveSearchBaseline(port = 4111, watch = false): Promise<void> {
   const client = evaluationClient();
   const server = http.createServer((request, response) => {
     const url = new URL(request.url ?? "/", `http://localhost:${port}`);
@@ -464,6 +735,9 @@ export function serveSearchBaseline(port = 4111): Promise<void> {
       error => sendJson(response, 400, {error: error instanceof Error ? error.message : String(error)}),
     );
   });
+  // Recording a run over a large golden set takes minutes.
+  server.requestTimeout = 0;
+  if (watch) exitOnCodeChange();
   return new Promise(resolve => {
     server.listen(port, "127.0.0.1", () => console.log(`Search baseline viewer: http://localhost:${port} (code ${loadedCode.head}${loadedCode.dirty ? " + uncommitted search changes" : ""})`));
     process.once("SIGINT", () => server.close(() => resolve()));

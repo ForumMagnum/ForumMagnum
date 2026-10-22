@@ -1,7 +1,11 @@
 import type { SearchRequest, QueryDslQueryContainer } from "@elastic/elasticsearch/lib/api/types";
 import { parseQuery } from "./parseQuery";
 
-export type PersonConfidence = "exact" | "strong" | "weak";
+/**
+ * `prefix` covers a query word that only starts a name word or sits inside a
+ * run-together handle ("yud", "wentworth"); it is the weakest reading.
+ */
+export type PersonConfidence = "exact" | "strong" | "weak" | "prefix";
 
 export interface PersonSearch {
   userIds: string[];
@@ -21,6 +25,8 @@ export interface PersonCandidate {
   slug?: string;
   karma?: number;
   fullName?: string | null;
+  /** The account's original username, which often survives as a well-known handle. */
+  username?: string;
 }
 
 interface SpanMatch {
@@ -30,7 +36,9 @@ interface SpanMatch {
 }
 
 const prominentKarma = 1000;
-const confidenceRank: Record<PersonConfidence, number> = {exact: 3, strong: 2, weak: 1};
+const confidenceRank: Record<PersonConfidence, number> = {exact: 3, strong: 2, weak: 1, prefix: 0};
+const minPrefixLength = 2;
+const minInfixLength = 4;
 
 function words(text: string): string[] {
   return text.toLowerCase().replace(/[-_]/g, " ").match(/[\p{L}\p{N}]+/gu) ?? [];
@@ -96,6 +104,27 @@ function prefixSpans(tokens: string[], candidate: PersonCandidate): SpanMatch[] 
   return spans;
 }
 
+/**
+ * For prominent accounts: a query word equal to any name word, a prefix of one,
+ * or a substring of a run-together handle such as "johnswentworth".
+ */
+function partialWordSpans(tokens: string[], names: string[][]): SpanMatch[] {
+  const nameWords = new Set(names.flat());
+  const compactNames = names.map(name => name.join(""));
+  const spans: SpanMatch[] = [];
+  tokens.forEach((token, start) => {
+    if (token.length < minPrefixLength) return;
+    if (nameWords.has(token)) {
+      spans.push({start, length: 1, confidence: "weak"});
+      return;
+    }
+    const startsWord = [...nameWords, ...compactNames].some(word => word.startsWith(token));
+    const insideHandle = token.length >= minInfixLength && compactNames.some(name => name.includes(token));
+    if (startsWord || insideHandle) spans.push({start, length: 1, confidence: "prefix"});
+  });
+  return spans;
+}
+
 function compactPrefixMatch(query: string, name: string): boolean {
   if (query.length < 4 || query.slice(0, 4) !== name.slice(0, 4)) return false;
   if (name.startsWith(query)) return true;
@@ -107,9 +136,10 @@ function compactPrefixMatch(query: string, name: string): boolean {
 
 function candidateSpans(tokens: string[], candidate: PersonCandidate): SpanMatch[] {
   const names = [words(candidate.displayName), ...(candidate.fullName ? [words(candidate.fullName)] : [])];
-  const spans = names.flatMap(name => exactSpans(tokens, name, "exact"));
-  if (candidate.slug) spans.push(...exactSpans(tokens, words(candidate.slug), "exact"));
+  const handles = [...(candidate.slug ? [words(candidate.slug)] : []), ...(candidate.username ? [words(candidate.username)] : [])];
+  const spans = [...names, ...handles].flatMap(name => exactSpans(tokens, name, "exact"));
   if ((candidate.karma ?? 0) < prominentKarma) return spans;
+  spans.push(...partialWordSpans(tokens, [...names, ...handles]));
   for (const name of names) {
     if (name.length > 1 && name[0].length >= 4) spans.push(...exactSpans(tokens, [name[0]], "strong"));
     const surname = name[name.length - 1];
@@ -155,6 +185,7 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
     {term: {"displayName.sort": {value, case_insensitive: true, boost: 100}}},
     {term: {"slug.sort": {value, case_insensitive: true, boost: 100}}},
     {term: {"fullName.sort": {value, case_insensitive: true, boost: 100}}},
+    {term: {"username.keyword": {value, case_insensitive: true, boost: 100}}},
   ]);
   const anchor = tokens.join("").slice(0, 4);
   const partial: QueryDslQueryContainer[] = [
@@ -171,6 +202,15 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
     {match: {"displayName.exact": {query: joined, operator: "or", fuzziness: "AUTO", prefix_length: 1}}},
     {match: {"slug.exact": {query: joined, operator: "or", fuzziness: "AUTO", prefix_length: 1}}},
     {match: {"fullName.exact": {query: joined, operator: "or", fuzziness: "AUTO", prefix_length: 1}}},
+    ...tokens.filter(token => token.length >= minPrefixLength).flatMap(token => [
+      {prefix: {"displayName.exact": {value: token}}},
+      {prefix: {"fullName.exact": {value: token}}},
+      {prefix: {"slug.sort": {value: token, case_insensitive: true}}},
+      {prefix: {"username.keyword": {value: token, case_insensitive: true}}},
+      ...(token.length >= minInfixLength ? ["displayName.sort", "slug.sort"].map(field => ({
+        wildcard: {[field]: {value: `*${token}*`, case_insensitive: true}},
+      })) : []),
+    ]),
   ];
   return {
     index: "users",
@@ -179,11 +219,12 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
       should: [], filter: [{term: {deleted: false}}, {term: {deleteContent: false}}],
       must: [{bool: {minimum_should_match: 1, should: [
         ...exact,
-        {bool: {should: partial, minimum_should_match: 1, filter: [{range: {karma: {gte: prominentKarma}}}]}},
+        // Partial matches tie, so the karma sort keeps the most prominent of many similar names.
+        {constant_score: {boost: 1, filter: {bool: {should: partial, minimum_should_match: 1, filter: [{range: {karma: {gte: prominentKarma}}}]}}}},
       ]}}],
     }},
     sort: [{_score: {order: "desc"}}, {karma: "desc"}, {objectID: "asc"}],
-    _source: ["objectID", "displayName", "slug", "karma", "fullName"],
+    _source: ["objectID", "displayName", "slug", "karma", "fullName", "username"],
   };
 }
 
