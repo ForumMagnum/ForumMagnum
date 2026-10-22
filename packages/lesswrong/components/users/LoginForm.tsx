@@ -12,7 +12,6 @@ import ReCaptcha from "../common/ReCaptcha";
 import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 import DeferRender from '../common/DeferRender';
 import { ErrorLike } from '@apollo/client';
-import useCookies from '@/lib/vendor/react-cookie/useCookies.tsx';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
 
 const styles = defineStyles('LoginForm', (theme: ThemeType) => ({
@@ -118,18 +117,6 @@ const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
   const { flash } = useMessages();
   const [currentAction, setCurrentAction] = useState<possibleActions>(startingState)
   const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(hasSubscribeToCuratedCheckbox)
-  const [_, setCookie] = useCookies(["loginToken"]);
-
-  const saveLoginToken = useCallback((token: string) => {
-    // The graphql request with a "login" or "signup" mutation returns a login
-    // token in the graphql response. It will also use a header to set a cookie,
-    // but only if using the non-streaming graphql API, so we have to convert
-    // the token into a cookie ourselves.
-    setCookie("loginToken", token, {
-      maxAge: 315360000,
-      path: "/",
-    });
-  }, [setCookie]);
 
   const [loginMutation] = useMutation(gql(`
     mutation login($username: String, $password: String) {
@@ -137,7 +124,12 @@ const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
         token
       }
     }
-  `), { errorPolicy: 'all' })
+  `), {
+    errorPolicy: 'all',
+    // The server sets the login token as an HttpOnly cookie, which only works
+    // through the non-streaming endpoint
+    context: { nonStreaming: true },
+  })
 
   const [signupMutation] = useMutation(gql(`
     mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean, $reCaptchaToken: String, $abTestKey: String) {
@@ -145,7 +137,10 @@ const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
         token
       }
     }
-  `), { errorPolicy: 'all' })
+  `), {
+    errorPolicy: 'all',
+    context: { nonStreaming: true },
+  })
 
   const [pwResetMutation] = useMutation(gql(`
     mutation resetPassword($email: String) {
@@ -180,7 +175,6 @@ const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
         showError(error);
       }
       if (data?.login?.token) {
-        saveLoginToken(data.login.token);
         loginSuccess();
       }
     } else if (currentAction === 'signup') {
@@ -196,7 +190,6 @@ const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
         showError(error);
       }
       if (data?.signup?.token) {
-        saveLoginToken(data.signup.token);
         loginSuccess();
       }
     } else if (currentAction === 'pwReset') {

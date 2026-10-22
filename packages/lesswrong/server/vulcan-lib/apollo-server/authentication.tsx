@@ -115,6 +115,11 @@ export async function createAndSetToken(headers: Headers|undefined, user: DbUser
   cookieStore.set("loginToken", token, {
     maxAge: 315360000,
     path: "/",
+    // Not readable by client-side JS, so an XSS can't exfiltrate it
+    httpOnly: true,
+    // Dev servers are served over plain HTTP
+    secure: !isDevelopment,
+    sameSite: "lax",
   });
 
   const hashedToken = hashLoginToken(token)
