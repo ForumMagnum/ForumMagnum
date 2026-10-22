@@ -24,6 +24,7 @@ const viewerPath = "packages/lesswrong/server/scripts/searchBaselineViewer.html"
 const allIndexes = ["posts", "comments", "users", "tags", "sequences"];
 const frozenPrefix = "searcheval-";
 const runDepth = 20;
+const runConcurrency = 8;
 
 interface FrozenCorpus {
   tag: string;
@@ -176,17 +177,31 @@ function readRun(name: string): SearchRun {
   return readJson<SearchRun>(path.join(runsDir, `${name}.json`));
 }
 
+async function mapWithConcurrency<T, R>(items: T[], concurrency: number, work: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  const workers = Array.from({length: Math.min(concurrency, items.length)}, async () => {
+    while (next < items.length) {
+      const index = next++;
+      results[index] = await work(items[index]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
 /** Run every golden query with the code this REPL loaded, against the frozen corpus. */
 export async function runGoldenSet(label = "") {
   const client = evaluationClient();
   const corpus = readCorpus();
   const executor = frozenExecutor(client, corpus);
   const golden = readGoldenSet();
-  const entries: RunEntry[] = [];
-  for (const query of golden.queries) {
-    entries.push(await runQuery(executor, query));
-    if (entries.length % 100 === 0) console.log(`Ran ${entries.length}/${golden.queries.length}`);
-  }
+  let done = 0;
+  const entries = await mapWithConcurrency(golden.queries, runConcurrency, async query => {
+    const entry = await runQuery(executor, query);
+    if (++done % 250 === 0) console.log(`Ran ${done}/${golden.queries.length}`);
+    return entry;
+  });
   const stamp = new Date().toISOString().replace(/[:]/g, "").slice(0, 15);
   const slug = label.replace(/[^\w-]+/g, "-").replace(/^-|-$/g, "");
   const name = [stamp, loadedCode.head + (loadedCode.dirty ? "-dirty" : ""), slug].filter(Boolean).join("-");
@@ -357,19 +372,6 @@ export async function applyClickImport(clicks: SearchClick[], {minSearchers = 3,
     console.log(`Wrote goldenSet.json: ${summary.added} added, ${summary.refreshed} refreshed, ${summary.enriched} enriched, ${summary.skippedNoTarget} skipped without a searchable target`);
   }
   return summary;
-}
-
-async function mapWithConcurrency<T, R>(items: T[], concurrency: number, work: (item: T) => Promise<R>): Promise<R[]> {
-  const results: R[] = new Array(items.length);
-  let next = 0;
-  const workers = Array.from({length: Math.min(concurrency, items.length)}, async () => {
-    while (next < items.length) {
-      const index = next++;
-      results[index] = await work(items[index]);
-    }
-  });
-  await Promise.all(workers);
-  return results;
 }
 
 interface ClickEvaluationOptions {
