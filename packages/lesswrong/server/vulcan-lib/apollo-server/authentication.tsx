@@ -258,6 +258,9 @@ export const loginDataGraphQLMutations = {
         <p>
           <a href={tokenLink}>{tokenLink}</a>
         </p>
+        <p>
+          This link will expire in 7 days.
+        </p>
       </div>
     });  
     if (emailSucceeded)
@@ -276,10 +279,10 @@ async function insertHashedLoginToken(userId: string, hashedToken: string) {
   });
 };
 
-async function invalidateLoginToken(token: string) {
+export async function invalidateLoginToken(hashedToken: string) {
   const now = new Date();
   await LoginTokens.rawUpdateMany(
-    {hashedToken: token},
+    {hashedToken},
     {$set: {
       loggedOutAt: now
     }}
