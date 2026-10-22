@@ -219,6 +219,12 @@ describe("SelectQuery", () => {
       expectedArgs: ["test"],
     },
     {
+      name: "escapes quotes in json path components",
+      getQuery: () => new SelectQuery(testTable, {"c.key') OR TRUE --": 3}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ("c"->\'key\'\') OR TRUE --\')::INTEGER = $1',
+      expectedArgs: [3],
+    },
+    {
       name: "can build select query with array fields",
       getQuery: () => new SelectQuery(testTable, {"c.0": 3}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ("c"[0])::INTEGER = $1',

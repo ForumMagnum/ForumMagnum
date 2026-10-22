@@ -55,11 +55,11 @@ export async function GET(request: NextRequest) {
     await createAndSetToken(request.headers, user, getForumTypeForRequest(request));
     
     // Get return URL
-    const returnTo = cookieStore.get('google_oauth_return')?.value ?? '/';
+    const returnTo = sanitizeLoginReturnTo(cookieStore.get('google_oauth_return')?.value);
     cookieStore.delete('google_oauth_return');
 
     if (conflictingAccounts) {
-      return NextResponse.redirect(new URL(getLoginWarningUrl(loginWarningCodes.conflictingAccounts, sanitizeLoginReturnTo(returnTo)), siteUrl));
+      return NextResponse.redirect(new URL(getLoginWarningUrl(loginWarningCodes.conflictingAccounts, returnTo), siteUrl));
     }
     
     return NextResponse.redirect(new URL(returnTo, siteUrl));
