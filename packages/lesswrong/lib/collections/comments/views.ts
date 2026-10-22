@@ -130,8 +130,7 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient | undefined, cont
   
   // Rejected comments are only visible to their author and to admins, and only
   // when a view of a single user's comments opts in.
-  const includeRejected = !!terms.includeRejected && !!terms.userId
-    && (!context || context.currentUser?._id === terms.userId || !!context.currentUser?.isAdmin);
+  const includeRejected = !!terms.includeRejected && !!terms.userId && (!context || context.currentUser?._id === terms.userId || !!context.currentUser?.isAdmin);
 
   // When we're hiding unreviewed comments, we allow comments that meet any of:
   //  * The author is reviewed
