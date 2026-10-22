@@ -6,7 +6,6 @@ import { userGetDisplayName } from '../../../../lib/collections/users/helpers';
 import { userMentionQueryString } from '../../../../lib/pingback';
 import { filterNonnull } from '../../../../lib/utils/typeGuardUtils';
 import { getSiteUrl } from '../../../../lib/vulcan-lib/utils';
-import type { MentionItem } from './MentionDropdown';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
 import ForumIcon, { type ForumIconName } from '@/components/common/ForumIcon';
 import type { ForumTypeString } from '@/lib/instanceSettings';
@@ -53,6 +52,22 @@ const styles = defineStyles('LexicalMentionItem', (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
   },
 }));
+
+/**
+ * A mention item that can be displayed in the dropdown
+ */
+interface MentionItem {
+  /** Unique identifier (should start with the marker, e.g., "@username") */
+  id: string;
+  /** Display text (used as link text when inserted) */
+  text?: string;
+  /** URL to link to when the mention is inserted */
+  link: string;
+  /** Optional label to display (defaults to id) */
+  label?: string;
+  /** Optional description/subtitle */
+  description?: string;
+}
 
 // Extended MentionItem with hit data for rendering
 interface MentionItemWithUserHit extends MentionItem {
