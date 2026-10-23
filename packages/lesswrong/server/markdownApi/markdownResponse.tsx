@@ -5,6 +5,7 @@ import { renderToString } from "../emails/renderEmail";
 import { NextResponse } from "next/server";
 import { siteUrlSetting } from "@/lib/instanceSettings";
 import { combineUrls } from "@/lib/vulcan-lib/utils";
+import { makeMarkdownLinksAbsolute } from "./markdownLinks";
 
 export const markdownClasses: Record<string, string> = {
   title: "markdown-title",
@@ -15,9 +16,13 @@ export const markdownClasses: Record<string, string> = {
  * component tree, and renders it to Markdown. Elements in the provided tree
  * should not use any classes except those in `markdownClasses`.
  */
-export async function markdownResponse(reactTree: React.ReactNode, forumType: ForumTypeString): Promise<Response> {
+export async function markdownResponse(reactTree: React.ReactNode, forumType: ForumTypeString, options?: {
+  /** Make root-relative links absolute, for markdown that will be copied elsewhere */
+  absoluteLinks?: boolean
+}): Promise<Response> {
   const markdown = await renderReactToMarkdown(reactTree, forumType)
-  return new NextResponse(markdown, { status: 200 });
+  const output = options?.absoluteLinks ? makeMarkdownLinksAbsolute(markdown, forumType) : markdown;
+  return new NextResponse(output, { status: 200 });
 }
 
 export async function renderReactToMarkdown(reactTree: React.ReactNode, forumType: ForumTypeString): Promise<string> {
