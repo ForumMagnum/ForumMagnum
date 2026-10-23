@@ -151,10 +151,26 @@ const styles = defineStyles('ScrollyIframeWidget', (theme: ThemeType) => ({
     'html[data-lw-scrolly-notes-up] [class*="SideItems-sideItem"]': {
       animation: 'lwScrollyNotesIn 160ms ease-out',
     },
+    // While the notes are up, every footnote gets the tinted card LW normally gives only the
+    // hovered one, so they read as a layer above the figure. The tint is translucent, so it sits
+    // on the page color to keep the faded figure from showing through the text.
+    'html[data-lw-scrolly-notes-up] [class~="FootnotePreview-sidenote"]': {
+      background: `linear-gradient(${theme.palette.background.sidenoteBackground}, ${theme.palette.background.sidenoteBackground}), var(--lw-scrolly-page-bg)`,
+      borderRadius: 3,
+    },
+    // Long sidenotes are clipped with a fade strip in the page color, which shows up as a band on
+    // a tinted card; fade the text itself out instead (except on the hovered note, which LW expands).
+    'html[data-lw-scrolly-notes-up] [class~="FootnotePreview-overflowFade"]': {
+      display: 'none',
+    },
+    'html[data-lw-scrolly-notes-up] [class~="FootnotePreview-sidenote"]:not([class~="FootnotePreview-sidenoteHover"]) [class~="FootnotePreview-sidenoteContent"]': {
+      maskImage: 'linear-gradient(to bottom, #000 160px, transparent 200px)',
+      WebkitMaskImage: 'linear-gradient(to bottom, #000 160px, transparent 200px)',
+    },
     // While the notes are up, the figure steps back and lets the mouse through to them.
     'html[data-lw-scrolly-notes-up] .lwScrollyPanel': {
-      opacity: 0.12,
-      filter: 'blur(1px)',
+      opacity: 0.06,
+      filter: 'blur(1.5px)',
       pointerEvents: 'none',
     },
     // When the site header slides away, let the panel use that space.
