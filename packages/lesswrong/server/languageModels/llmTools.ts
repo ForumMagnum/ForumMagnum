@@ -6,6 +6,7 @@ import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import { gateway, tool, type ToolSet } from "ai";
 import { z } from "zod";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import { asyncFilter } from "@/lib/utils/asyncUtils";
@@ -18,68 +19,46 @@ import { fetchPublicMarkdown, getPublicMarkdownPath } from "./publicMarkdown";
 const SEMANTIC_SEARCH_RESULT_LIMIT = 10;
 const COMMENT_SNIPPET_CHARACTERS = 300;
 
-/**
- * The tools a model gets: web search, web fetch, and LessWrong search and
- * reading. LessWrong content comes through the public Markdown API, fetched
- * without cookies so it returns exactly what a logged-out visitor sees;
- * semantic search reads embeddings from our database, so its results are
- * checked with `publicVisibility`.
- */
+const searchLessWrongInputSchema = z.object({
+  query: z.string(),
+  type: z.enum(["posts", "comments", "tags", "users", "sequences"]).optional()
+    .describe("Only return this kind of result"),
+  author: z.string().optional()
+    .describe("Only return posts and comments by this user, given as their user slug"),
+});
+
+const semanticSearchLessWrongInputSchema = z.object({
+  query: z.string(),
+  type: z.enum(["posts", "comments"]),
+});
+
+const readLessWrongInputSchema = z.object({
+  url: z.string(),
+});
+
 export function getLlmTools(context: ResolverContext, gatewayModelId: string): ToolSet {
   const { forumType } = context;
   return {
     ...getWebSearchTool(gatewayModelId),
-    // Fetched by Browserbase, not by our servers
     browserbase_fetch: gateway.tools.browserbaseFetch({ format: "markdown" }),
     searchLessWrong: tool({
       description: "Keyword search over LessWrong posts, comments, wiki pages, users and sequences, optionally limited to one author's posts and comments. Returns Markdown with links you can open with readLessWrong.",
-      inputSchema: z.object({
-        query: z.string(),
-        type: z.enum(["posts", "comments", "tags", "users", "sequences"]).optional()
-          .describe("Only return this kind of result"),
-        author: z.string().optional()
-          .describe("Only return posts and comments by this user, given as their user slug"),
-      }),
-      execute: async ({ query, type, author }) => {
-        const params = new URLSearchParams({
-          search: query,
-          limit: "10",
-          ...(type ? { type } : {}),
-          ...(author ? { author } : {}),
-        });
-        return await fetchPublicMarkdown(`/api/search?${params}`, forumType);
-      },
+      inputSchema: searchLessWrongInputSchema,
+      execute: (input) => searchLessWrong(input, forumType),
     }),
     semanticSearchLessWrong: tool({
       description: "Search LessWrong posts or comments by meaning rather than exact words. Comment coverage is partial, mostly comments from 2023 onward.",
-      inputSchema: z.object({
-        query: z.string(),
-        type: z.enum(["posts", "comments"]),
-      }),
-      execute: async ({ query, type }) => type === "posts"
-        ? await semanticSearchPosts(query, context)
-        : await semanticSearchComments(query, context),
+      inputSchema: semanticSearchLessWrongInputSchema,
+      execute: (input) => semanticSearchLessWrong(input, context),
     }),
     readLessWrong: tool({
       description: "Read a LessWrong page as Markdown: a post, comment, wiki page or sequence. Takes a LessWrong URL or path. Use this rather than browserbase_fetch for LessWrong pages.",
-      inputSchema: z.object({
-        url: z.string(),
-      }),
-      execute: async ({ url }) => {
-        const markdownPath = getPublicMarkdownPath(url, forumType);
-        if (!markdownPath) {
-          return `There is no Markdown version of ${url}.`;
-        }
-        return await fetchPublicMarkdown(markdownPath, forumType);
-      },
+      inputSchema: readLessWrongInputSchema,
+      execute: (input) => readLessWrong(input, forumType),
     }),
   };
 }
 
-/**
- * The model's own provider's search tool where it has one, otherwise the
- * Gateway's. Tool names follow each provider's documented examples.
- */
 function getWebSearchTool(gatewayModelId: string): ToolSet {
   const provider = gatewayModelId.split("/")[0];
   switch (provider) {
@@ -92,6 +71,31 @@ function getWebSearchTool(gatewayModelId: string): ToolSet {
     default:
       return { parallel_search: gateway.tools.parallelSearch() };
   }
+}
+
+async function searchLessWrong({ query, type, author }: z.infer<typeof searchLessWrongInputSchema>, forumType: ForumTypeString): Promise<string> {
+  const params = new URLSearchParams({
+    search: query,
+    limit: "10",
+    ...(type ? { type } : {}),
+    ...(author ? { author } : {}),
+  });
+  return await fetchPublicMarkdown(`/api/search?${params}`, forumType);
+}
+
+async function semanticSearchLessWrong({ query, type }: z.infer<typeof semanticSearchLessWrongInputSchema>, context: ResolverContext): Promise<string> {
+  if (type === "posts") {
+    return await semanticSearchPosts(query, context);
+  }
+  return await semanticSearchComments(query, context);
+}
+
+async function readLessWrong({ url }: z.infer<typeof readLessWrongInputSchema>, forumType: ForumTypeString): Promise<string> {
+  const markdownPath = getPublicMarkdownPath(url, forumType);
+  if (!markdownPath) {
+    throw new Error(`There is no Markdown version of ${url}`);
+  }
+  return await fetchPublicMarkdown(markdownPath, forumType);
 }
 
 async function semanticSearchPosts(query: string, context: ResolverContext): Promise<string> {

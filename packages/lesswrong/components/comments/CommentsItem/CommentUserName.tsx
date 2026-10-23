@@ -15,9 +15,6 @@ const styles = defineStyles("CommentUserName", (theme: ThemeType) => ({
     ...theme.typography.body2,
     fontWeight: 600,
   },
-  // A model's reply: a sparkle before the name, both grey like the date, with
-  // the name lettered like an LLM content block's model label. The flex
-  // container centres the icon on the name without nudging it by pixels.
   llmAuthor: {
     display: "inline-flex",
     alignItems: "center",

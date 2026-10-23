@@ -2747,11 +2747,8 @@ type LlmRun = {
   gatewayModelId: Scalars['String']['output'];
   invocationContext: Scalars['String']['output'];
   modelName: Scalars['String']['output'];
-  modelUserId?: Maybe<Scalars['String']['output']>;
   post?: Maybe<Post>;
-  postId?: Maybe<Scalars['String']['output']>;
   replyCommentId?: Maybe<Scalars['String']['output']>;
-  requesterUserId: Scalars['String']['output'];
   response?: Maybe<Scalars['String']['output']>;
   status: Scalars['String']['output'];
   systemPrompt: Scalars['String']['output'];
@@ -3528,13 +3525,6 @@ type MultiLlmConversationOutput = {
   __typename?: 'MultiLlmConversationOutput';
   results: Array<LlmConversation>;
   totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiLlmRunInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 type MultiLlmRunOutput = {
@@ -8432,14 +8422,12 @@ type QueryllmConversationsArgs = {
 
 
 type QueryllmRunArgs = {
-  input?: InputMaybe<SingleLlmRunInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
 type QueryllmRunsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiLlmRunInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<LlmRunSelector>;
@@ -10087,11 +10075,6 @@ type SingleLlmConversationInput = {
 type SingleLlmConversationOutput = {
   __typename?: 'SingleLlmConversationOutput';
   result?: Maybe<LlmConversation>;
-};
-
-type SingleLlmRunInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
 };
 
 type SingleLlmRunOutput = {
@@ -24854,7 +24837,7 @@ type CommentsList_Comment_user_User = (
   & UsersMinimumInfo
 );
 
-type CommentsList_Comment_llmRun_LlmRun = { __typename?: 'LlmRun', _id: string, modelName: string };
+type CommentsList_Comment_llmRun_LlmRun = { __typename?: 'LlmRun', _id: string, status: string };
 
 type CommentsList_Comment_promotedByUser_User = (
   { __typename?: 'User' }
@@ -25187,7 +25170,7 @@ type LlmMessagesFragment = { __typename?: 'LlmMessage', _id: string, userId: str
 
 type LlmRunPageFragment_LlmRun_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
 
-type LlmRunPageFragment = { __typename?: 'LlmRun', _id: string, createdAt: string, completedAt: string | null, invocationContext: string, status: string, modelName: string, gatewayModelId: string, postId: string | null, triggerCommentId: string | null, replyCommentId: string | null, systemPrompt: string, contextMessage: string | null, transcript: any, response: string | null, error: string | null, post: LlmRunPageFragment_LlmRun_post_Post | null };
+type LlmRunPageFragment = { __typename?: 'LlmRun', _id: string, createdAt: string, completedAt: string | null, invocationContext: string, status: string, modelName: string, gatewayModelId: string, triggerCommentId: string | null, replyCommentId: string | null, systemPrompt: string, contextMessage: string | null, transcript: any, response: string | null, error: string | null, post: LlmRunPageFragment_LlmRun_post_Post | null };
 
 type localGroupsBase_Localgroup_organizers_User = (
   { __typename?: 'User' }

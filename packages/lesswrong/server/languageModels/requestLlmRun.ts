@@ -1,13 +1,8 @@
 import { siteUrlSetting, type ForumTypeString } from "@/lib/instanceSettings";
 import { combineUrls } from "@/lib/vulcan-lib/utils";
 
-export const LLM_RUN_ROUTE = "/api/llmRuns/run";
+const LLM_RUN_ROUTE = "/api/llmRuns/run";
 
-/**
- * Start a run in its own request, so it gets that route's longer time limit
- * instead of sharing the limit of the request that created it. The route
- * responds as soon as the run has started.
- */
 export async function requestLlmRun(runId: string, forumType: ForumTypeString): Promise<void> {
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) {

@@ -8,14 +8,7 @@ import { extractLinks } from "@/server/pingbacks";
 
 const USER_PAGE_PATH = /^\/users\/([^/]+)\/?$/;
 
-/**
- * The first model version mentioned in a comment's HTML. Only the first
- * replies, so later model mentions are ignored. A mention without a version
- * summons the family's latest; a mention of a retired version summons
- * nothing.
- */
 export function getFirstMentionedLlm(html: string, forumType: ForumTypeString): LlmFamilyVersion | null {
-  // Most comments mention no one, so skip parsing them
   if (!html.includes(userMentionQueryString)) {
     return null;
   }
@@ -44,6 +37,9 @@ function getMentionedLlm(link: string, forumType: ForumTypeString): LlmFamilyVer
   }
   const accountSlug = url.pathname.match(USER_PAGE_PATH)?.[1];
   const family = accountSlug ? getLlmFamilyBySlug(accountSlug) : undefined;
-  const version = family && getMentionedLlmVersion(family, url.searchParams.get(LLM_MENTION_VERSION_QUERY));
-  return family && version ? { family, version } : null;
+  if (!family) {
+    return null;
+  }
+  const version = getMentionedLlmVersion(family, url.searchParams.get(LLM_MENTION_VERSION_QUERY));
+  return version ? { family, version } : null;
 }

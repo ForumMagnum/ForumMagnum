@@ -784,7 +784,6 @@ export async function commentsNewNotifications(comment: DbComment, context: Reso
   backgroundTask(utils.sendNewCommentNotifications(comment, context))
 }
 
-/** Sends the new-comment notifications for a model reply once it's written */
 export async function sendLlmReplyNotifications(comment: DbComment, context: ResolverContext) {
   await utils.sendNewCommentNotifications(comment, context);
 }

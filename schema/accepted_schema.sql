@@ -608,6 +608,11 @@ CREATE INDEX IF NOT EXISTS "idx_comments_rejectionConversationId_createdAt" ON "
 WHERE
   "rejectionConversationId" IS NOT NULL;
 
+-- Index "idx_comments_llmRunId"
+CREATE INDEX IF NOT EXISTS "idx_comments_llmRunId" ON "Comments" USING btree ("llmRunId")
+WHERE
+  "llmRunId" IS NOT NULL;
+
 -- Table "Conversations"
 CREATE TABLE "Conversations" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1011,8 +1016,6 @@ CREATE TABLE "LlmRuns" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "invocationContext" TEXT NOT NULL,
-  "postId" VARCHAR(27),
-  "requesterUserId" VARCHAR(27) NOT NULL,
   "modelName" TEXT NOT NULL,
   "gatewayModelId" TEXT NOT NULL,
   "status" TEXT NOT NULL DEFAULT 'pending',
@@ -1024,9 +1027,7 @@ CREATE TABLE "LlmRuns" (
   "attemptCount" INTEGER NOT NULL DEFAULT 0,
   "claimedAt" TIMESTAMPTZ,
   "completedAt" TIMESTAMPTZ,
-  "triggerCommentId" VARCHAR(27),
-  "replyCommentId" VARCHAR(27),
-  "modelUserId" VARCHAR(27)
+  "triggerCommentId" VARCHAR(27)
 );
 
 -- Index "idx_LlmRuns_status_createdAt"

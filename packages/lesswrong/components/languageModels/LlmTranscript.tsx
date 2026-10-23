@@ -6,10 +6,10 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ForumIcon, { type ForumIconName } from "@/components/common/ForumIcon";
 import { getMarkdownItNoMathjax } from "@/lib/utils/markdownItPlugins";
 import { sanitize } from "@/lib/utils/sanitize";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 const MAX_TOOL_RESULT_CHARACTERS = 5000;
 const MAX_SITE_MARKERS = 3;
-/** Same font as LLM content blocks (llmContentBlockStyles in stylePiping) */
 const LLM_FONT_FAMILY = '"cronos-pro", serif';
 
 const WEB_SEARCH_TOOLS = new Set(["web_search", "google_search", "parallel_search"]);
@@ -135,7 +135,6 @@ const styles = defineStyles("LlmTranscript", (theme: ThemeType) => ({
     background: theme.palette.panelBackground.darken04,
     borderRadius: theme.borderRadius.small,
   },
-  // The model's own words (reasoning summaries and text between tool calls)
   modelText: {
     display: "flex",
     gap: 8,
@@ -175,7 +174,6 @@ const styles = defineStyles("LlmTranscript", (theme: ThemeType) => ({
     from: { backgroundPosition: "100% 0" },
     to: { backgroundPosition: "-100% 0" },
   },
-  // As LoadMore
   showAll: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -202,14 +200,18 @@ interface ToolStep {
   toolCallId: string,
   toolName: string,
   input: unknown,
-  /** Set once the tool has returned */
   output?: { value: unknown },
   error?: string,
 }
 
+interface Source {
+  url: string,
+  title: string | null,
+}
+
 interface SourcesStep {
   kind: "sources",
-  sources: Array<{ url: string, title: string | null }>,
+  sources: Source[],
 }
 
 type TranscriptStep = ModelTextStep | ToolStep | SourcesStep;
@@ -219,17 +221,10 @@ interface LinkResult {
   title: string,
 }
 
-/**
- * What a model did during a run, as a trail of steps: its reasoning (as the
- * provider returns it, usually a summary) and any text it wrote along the way,
- * each tool call with its result, and its sources. The final text, which
- * repeats the response, is left out.
- */
 const LlmTranscript = ({ transcript, finalResponse, isRunning, initialVisibleSteps }: {
   transcript: LlmTranscriptEntry[],
   finalResponse: string | null,
   isRunning: boolean,
-  /** Show only this many steps at first, with "Show all" for the rest */
   initialVisibleSteps?: number,
 }) => {
   const classes = useStyles(styles);
@@ -362,7 +357,6 @@ const LinkList = ({ links }: { links: LinkResult[] }) => {
   </ol>;
 };
 
-/** The first letter of each of the first few sites in a list of results */
 const SiteMarkers = ({ urls }: { urls: string[] }) => {
   const classes = useStyles(styles);
   const hostnames = [...new Set(urls.map(getHostname))].slice(0, MAX_SITE_MARKERS);
@@ -372,51 +366,46 @@ const SiteMarkers = ({ urls }: { urls: string[] }) => {
 };
 
 function getTranscriptSteps(transcript: LlmTranscriptEntry[], finalResponse: string | null): TranscriptStep[] {
-  const steps: TranscriptStep[] = [];
-  const toolSteps = new Map<string, ToolStep>();
-  for (const entry of transcript) {
-    const previous = steps[steps.length - 1];
+  return transcript.reduce<TranscriptStep[]>((steps, entry) => {
     switch (entry.type) {
       case "reasoning":
       case "text": {
         const text = entry.text.trim();
-        if (text && !(entry.type === "text" && text === finalResponse?.trim())) {
-          steps.push({ kind: "modelText", text });
-        }
-        break;
+        const repeatsResponse = entry.type === "text" && text === finalResponse?.trim();
+        return text && !repeatsResponse ? [...steps, { kind: "modelText", text }] : steps;
       }
-      case "tool-call": {
-        const step: ToolStep = { kind: "tool", toolCallId: entry.toolCallId, toolName: entry.toolName, input: entry.input };
-        toolSteps.set(entry.toolCallId, step);
-        steps.push(step);
-        break;
-      }
-      case "tool-result": {
-        const step = toolSteps.get(entry.toolCallId);
-        if (step) {
-          step.output = { value: entry.output };
-        }
-        break;
-      }
-      case "tool-error": {
-        const step = toolSteps.get(entry.toolCallId);
-        if (step) {
-          step.error = entry.error;
-        }
-        break;
-      }
+      case "tool-call":
+        return [...steps, getToolStep(entry.toolCallId, entry.toolName, entry.input, transcript)];
       case "source":
-        if (previous?.kind === "sources") {
-          if (!previous.sources.some((source) => source.url === entry.url)) {
-            previous.sources.push({ url: entry.url, title: entry.title });
-          }
-        } else {
-          steps.push({ kind: "sources", sources: [{ url: entry.url, title: entry.title }] });
-        }
-        break;
+        return addSource(steps, { url: entry.url, title: entry.title });
+      case "tool-result":
+      case "tool-error":
+        return steps;
     }
+  }, []);
+}
+
+function getToolStep(toolCallId: string, toolName: string, input: unknown, transcript: LlmTranscriptEntry[]): ToolStep {
+  const outcome = transcript.find((entry) => (entry.type === "tool-result" || entry.type === "tool-error") && entry.toolCallId === toolCallId);
+  return {
+    kind: "tool",
+    toolCallId,
+    toolName,
+    input,
+    ...(outcome?.type === "tool-result" ? { output: { value: outcome.output } } : {}),
+    ...(outcome?.type === "tool-error" ? { error: outcome.error } : {}),
+  };
+}
+
+function addSource(steps: TranscriptStep[], source: Source): TranscriptStep[] {
+  const previous = steps[steps.length - 1];
+  if (previous?.kind !== "sources") {
+    return [...steps, { kind: "sources", sources: [source] }];
   }
-  return steps;
+  if (previous.sources.some(({ url }) => url === source.url)) {
+    return steps;
+  }
+  return [...steps.slice(0, -1), { kind: "sources", sources: [...previous.sources, source] }];
 }
 
 interface ToolDescription {
@@ -456,24 +445,18 @@ function describeTool(step: ToolStep): ToolDescription {
   }
 }
 
-/**
- * Provider search tools return a list of results with URLs and titles, either
- * directly or under `results` or `sources`. Null for any other output.
- */
 function getLinkResults(output: unknown): LinkResult[] | null {
   const list = Array.isArray(output) ? output : getField(output, "results") ?? getField(output, "sources");
   if (!Array.isArray(list) || list.length === 0) {
     return null;
   }
-  const links: LinkResult[] = [];
-  for (const item of list) {
-    const url = getStringField(item, "url");
-    if (!url) {
-      return null;
-    }
-    links.push({ url, title: getStringField(item, "title") ?? url });
-  }
-  return links;
+  const links = filterNonnull(list.map(toLinkResult));
+  return links.length === list.length ? links : null;
+}
+
+function toLinkResult(item: unknown): LinkResult | null {
+  const url = getStringField(item, "url");
+  return url ? { url, title: getStringField(item, "title") ?? url } : null;
 }
 
 function getField(value: unknown, key: string): unknown {
@@ -496,25 +479,26 @@ function getHostname(url: string): string {
   }
 }
 
-/** The URL without its protocol, e.g. "lesswrong.com/posts/abc/title" */
 function getShortUrl(url: string): string {
   return url.replace(/^https?:\/\/(www\.)?/, "");
 }
 
-/**
- * A tool's output as text: a string as is, the page text a fetch returns
- * (`content`), otherwise JSON. Null for outputs that only describe the action
- * taken, like OpenAI's opened pages, which the row already says.
- */
 function getTextOutput(output: unknown): string | null {
   const isActionOnly = typeof output === "object" && output !== null && Object.keys(output).every((key) => key === "action");
   if (isActionOnly) {
     return null;
   }
-  const text = typeof output === "string" ? output : getStringField(output, "content") ?? JSON.stringify(output, null, 2);
+  const text = getOutputText(output);
   return text.length > MAX_TOOL_RESULT_CHARACTERS
     ? `${text.slice(0, MAX_TOOL_RESULT_CHARACTERS)}\n\n[Truncated]`
     : text;
+}
+
+function getOutputText(output: unknown): string {
+  if (typeof output === "string") {
+    return output;
+  }
+  return getStringField(output, "content") ?? JSON.stringify(output, null, 2);
 }
 
 export default LlmTranscript;

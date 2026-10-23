@@ -1,21 +1,14 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
+import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 
 declare global {
   type LlmRunStatus = "pending" | "running" | "completed" | "failed";
-  /** Which feature invoked the model */
   type LlmRunInvocationContext = "commentReply";
 }
 
-export const LLM_RUN_STATUSES: LlmRunStatus[] = ["pending", "running", "completed", "failed"];
-export const LLM_RUN_INVOCATION_CONTEXTS: LlmRunInvocationContext[] = ["commentReply"];
+const LLM_RUN_STATUSES: LlmRunStatus[] = ["pending", "running", "completed", "failed"];
+const LLM_RUN_INVOCATION_CONTEXTS: LlmRunInvocationContext[] = ["commentReply"];
 
-/**
- * One background run of a model, from any feature that runs models in the
- * background (see `invocationContext`). Everything here is public: run pages
- * show the system prompt, the context the model was given, and the full
- * transcript.
- */
 const schema = {
   _id: DEFAULT_ID_FIELD,
   createdAt: DEFAULT_CREATED_AT_FIELD,
@@ -34,36 +27,23 @@ const schema = {
       },
     },
   },
-  postId: {
-    database: {
-      type: "VARCHAR(27)",
-      foreignKey: "Posts",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-    },
-  },
   post: {
     graphql: {
       outputType: "Post",
       canRead: ["guests"],
-      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
+      resolver: async (run, args, context) => {
+        if (!run.triggerCommentId) {
+          return null;
+        }
+        const triggerComment = await context.loaders.Comments.load(run.triggerCommentId);
+        if (!triggerComment?.postId) {
+          throw new Error(`Run ${run._id}'s trigger comment ${run.triggerCommentId} isn't on a post`);
+        }
+        const post = await context.loaders.Posts.load(triggerComment.postId);
+        return await accessFilterSingle(context.currentUser, "Posts", post, context);
+      },
     },
   },
-  requesterUserId: {
-    database: {
-      type: "VARCHAR(27)",
-      foreignKey: "Users",
-      nullable: false,
-    },
-    graphql: {
-      outputType: "String!",
-      canRead: ["guests"],
-    },
-  },
-  /** The version's name, e.g. "Opus5.5" */
   modelName: {
     database: {
       type: "TEXT",
@@ -109,7 +89,6 @@ const schema = {
       canRead: ["guests"],
     },
   },
-  /** What the model was given up front */
   contextMessage: {
     database: {
       type: "TEXT",
@@ -132,7 +111,6 @@ const schema = {
       canRead: ["guests"],
     },
   },
-  /** The model's final response */
   response: {
     database: {
       type: "TEXT",
@@ -160,7 +138,6 @@ const schema = {
       nullable: false,
     },
   },
-  /** When the current attempt claimed this run; used to detect attempts that died */
   claimedAt: {
     database: {
       type: "TIMESTAMPTZ",
@@ -177,9 +154,6 @@ const schema = {
       canRead: ["guests"],
     },
   },
-
-  // Comment replies only (invocationContext "commentReply")
-  /** The comment that mentioned the model */
   triggerCommentId: {
     database: {
       type: "VARCHAR(27)",
@@ -191,28 +165,14 @@ const schema = {
       canRead: ["guests"],
     },
   },
-  /** The model's reply, created as a placeholder when the run is created */
   replyCommentId: {
-    database: {
-      type: "VARCHAR(27)",
-      foreignKey: "Comments",
-      nullable: true,
-    },
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-    },
-  },
-  /** The model family's account, which posts the reply */
-  modelUserId: {
-    database: {
-      type: "VARCHAR(27)",
-      foreignKey: "Users",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
+      resolver: async (run, args, context) => {
+        const replyComment = await context.Comments.findOne({ llmRunId: run._id }, {}, { _id: 1 });
+        return replyComment?._id ?? null;
+      },
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"LlmRuns">>;

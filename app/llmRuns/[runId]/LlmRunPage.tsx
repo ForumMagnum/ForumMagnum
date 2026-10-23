@@ -17,13 +17,9 @@ import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 
 const POLL_INTERVAL_MS = 3000;
-/** How long the copy button shows a checkmark after copying */
 const COPIED_INDICATOR_MS = 1500;
-/** Once a run has finished, its first few steps show, with "Show all" for the rest */
 const FINISHED_RUN_VISIBLE_STEPS = 3;
-/** Comments longer than this are shortened to the sentence that mentions the model */
 const TITLE_MAX_CHARACTERS = 200;
-/** The context message ends with the thread, under this heading (see threadContext) */
 const THREAD_HEADING = "\n# Thread\n";
 
 const LlmRunQuery = gql(`
@@ -38,7 +34,7 @@ const LlmRunQuery = gql(`
 
 const LlmRunCommentQuery = gql(`
   query LlmRunPageCommentQuery($documentId: String) {
-    comment(input: { selector: { documentId: $documentId } }) {
+    comment(selector: { _id: $documentId }) {
       result {
         ...CommentsList
       }
@@ -53,7 +49,6 @@ const styles = defineStyles("LlmRunPage", (theme: ThemeType) => ({
       paddingTop: 20,
     },
   },
-  // The comment that mentioned the model, set off with the blockquote rule
   title: {
     margin: 0,
     paddingLeft: 14,
@@ -103,8 +98,6 @@ const styles = defineStyles("LlmRunPage", (theme: ThemeType) => ({
       height: 6,
     },
   },
-  // Each section's label sits in the left margin beside it, like a table of
-  // contents, and moves above the section when there's no room
   section: {
     position: "relative",
     marginTop: 32,
@@ -179,7 +172,6 @@ const styles = defineStyles("LlmRunPage", (theme: ThemeType) => ({
     wordBreak: "break-word",
     color: theme.palette.text.normal,
   },
-  // Four lines
   promptCollapsed: {
     maxHeight: "6em",
     overflow: "hidden",
@@ -190,7 +182,6 @@ const styles = defineStyles("LlmRunPage", (theme: ThemeType) => ({
       marginTop: "1.5em",
     },
   },
-  // As CommentBody's read-more-button
   readMore: {
     ...theme.typography.commentStyle,
     marginTop: 4,
@@ -216,7 +207,6 @@ const styles = defineStyles("LlmRunPage", (theme: ThemeType) => ({
     fontSize: 12.5,
     color: theme.palette.text.dim60,
   },
-  // As CommentPermalink's "See in context"
   seeInContext: {
     ...theme.typography.commentStyle,
     textAlign: "right",
@@ -234,11 +224,6 @@ interface PromptPart {
   text: string,
 }
 
-/**
- * Everything about one model run, in order: the full prompt it was given, the
- * steps it took, and its output (for a comment reply, the comment that
- * mentioned the model with the reply under it). Updates while the model works.
- */
 export default function LlmRunPage({ runId }: { runId: string }) {
   const classes = useStyles(styles);
   const [isFinished, setIsFinished] = useState(false);
@@ -266,7 +251,6 @@ export default function LlmRunPage({ runId }: { runId: string }) {
   useEffect(() => {
     if (runIsFinished) {
       setIsFinished(true);
-      // The reply was a placeholder while the model worked
       if (replyCommentId) {
         void refetchReplyComment();
       }
@@ -288,14 +272,13 @@ export default function LlmRunPage({ runId }: { runId: string }) {
     setTimeout(() => setPromptCopied(false), COPIED_INDICATOR_MS);
   };
   const { post } = run;
+  const triggerCommentText = triggerComment?.contents?.plaintextMainText;
+  const titleExcerpt = triggerCommentText && getTitleExcerpt(triggerCommentText, mention);
+  const title = titleExcerpt ? highlightMention(titleExcerpt, mention, classes.mention) : `${run.modelName}'s reply`;
 
   return <SingleColumnSection>
     <div className={classes.header}>
-      <h1 className={classes.title}>
-        {triggerComment?.contents?.plaintextMainText
-          ? highlightMention(getTitleExcerpt(triggerComment.contents.plaintextMainText, mention), mention, classes.mention)
-          : `${run.modelName}'s reply`}
-      </h1>
+      <h1 className={classes.title}>{title}</h1>
       <div className={classes.meta}>
         {triggerComment?.user && post && <span>
           <span className={classes.person}>{triggerComment.user.displayName}</span> asked <span className={classes.person}>{run.modelName}</span> on <Link to={postGetPageUrl(post)}>{post.title}</Link> ·
@@ -357,17 +340,13 @@ export default function LlmRunPage({ runId }: { runId: string }) {
         {run.modelName} couldn't finish this reply.
         {run.error && <span className={classes.errorDetail}>{run.error}</span>}
       </div>}
-      {isCompleted && post && run.postId && run.replyCommentId && <div className={classes.seeInContext}>
-        <Link to={commentGetPageUrlFromIds({ postId: run.postId, postSlug: post.slug, commentId: run.replyCommentId })}>See in context</Link>
+      {isCompleted && post && run.replyCommentId && <div className={classes.seeInContext}>
+        <Link to={commentGetPageUrlFromIds({ postId: post._id, postSlug: post.slug, commentId: run.replyCommentId })}>See in context</Link>
       </div>}
     </section>
   </SingleColumnSection>;
 }
 
-/**
- * The system prompt, then the context message split into the post and the
- * thread, each with an anchor.
- */
 function getPromptParts(systemPrompt: string, contextMessage: string | null): PromptPart[] {
   const parts: PromptPart[] = [{ anchor: "prompt-system", label: "System prompt", text: systemPrompt }];
   if (!contextMessage) {
@@ -384,11 +363,6 @@ function getPromptParts(systemPrompt: string, contextMessage: string | null): Pr
   ];
 }
 
-/**
- * The comment that mentioned the model, as the page title: all of it when
- * it's short, otherwise the sentence with the mention, which is usually the
- * request. The title is clamped to three lines either way.
- */
 function getTitleExcerpt(text: string, mention: string): string {
   const trimmed = text.trim();
   if (trimmed.length <= TITLE_MAX_CHARACTERS) {

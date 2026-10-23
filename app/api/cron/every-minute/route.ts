@@ -39,7 +39,6 @@ export async function GET(request: NextRequest) {
     await getLockOrAbort('checkAndSendUpcomingEventEmails', checkAndSendUpcomingEventEmails.bind(null, context.forumType));
   }
 
-  // Restart model runs that died or never started
   if (!isTestServer) {
     tasks.push(getLockOrAbort('retryStalledLlmRuns', retryStalledLlmRuns.bind(null, context.forumType)));
   }

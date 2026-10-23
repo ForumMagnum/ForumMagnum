@@ -5,17 +5,13 @@ import { commentReplyRunHandler } from "@/server/llmReplies/commentReplyRun";
 import { createAdminContext } from "@/server/vulcan-lib/createContexts";
 import { requestLlmRun } from "./requestLlmRun";
 
-export const MAX_LLM_RUN_ATTEMPTS = 3;
+const MAX_LLM_RUN_ATTEMPTS = 3;
 /** Longer than the run route's maxDuration, so a claim this old means its attempt died */
 const LLM_RUN_ATTEMPT_TIMEOUT_MS = 15 * 60 * 1000;
-/** Pending runs older than this were never started, e.g. because the kickoff request failed */
 const LLM_RUN_PENDING_RETRY_AFTER_MS = 2 * 60 * 1000;
 
-/** What each feature that runs models in the background does with its runs */
 export interface LlmRunHandler {
-  /** Run the model and deliver its response; throws if the run failed */
   run: (run: DbLlmRun, forumType: ForumTypeString) => Promise<void>;
-  /** Clean up after a failed run, e.g. tell the user it failed */
   fail: (run: DbLlmRun, forumType: ForumTypeString) => Promise<void>;
 }
 
@@ -33,7 +29,6 @@ export async function runLlmRun(runId: string, forumType: ForumTypeString): Prom
     new Date(Date.now() - LLM_RUN_ATTEMPT_TIMEOUT_MS),
     MAX_LLM_RUN_ATTEMPTS,
   );
-  // Finished, out of attempts, or another attempt is working on it
   if (!run) {
     return;
   }
@@ -47,7 +42,6 @@ export async function runLlmRun(runId: string, forumType: ForumTypeString): Prom
   }
 }
 
-/** Restart runs whose attempts died or never started, and fail those out of attempts */
 export async function retryStalledLlmRuns(forumType: ForumTypeString): Promise<void> {
   const context = createAdminContext({ forumType });
   const now = Date.now();

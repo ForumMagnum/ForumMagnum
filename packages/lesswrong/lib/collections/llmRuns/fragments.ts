@@ -9,7 +9,6 @@ export const LlmRunPageFragment = gql(`
     status
     modelName
     gatewayModelId
-    postId
     post {
       _id
       slug

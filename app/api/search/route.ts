@@ -21,7 +21,6 @@ const defaultSearchOptions: SearchOptions = {
 
 const SEARCH_INDEXES = ["posts", "comments", "tags", "users", "sequences"] as const;
 type SearchIndexName = typeof SEARCH_INDEXES[number];
-/** The indexes that can be filtered to one author */
 const AUTHORED_SEARCH_INDEXES: SearchIndexName[] = ["posts", "comments"];
 
 const DEFAULT_RESULTS_PER_TYPE = 5;

@@ -87,7 +87,6 @@ interface MentionItemWithTagHit extends MentionItem {
   hit: SearchTag;
 }
 
-/** A model version that replies when mentioned; links to its family's account */
 interface MentionItemWithModel extends MentionItem {
   type: 'Models';
   model: LlmFamilyVersion;
@@ -178,11 +177,6 @@ const llmFamilyAccountSlugs = new Set(LLM_FAMILIES.map((family) => family.accoun
 
 const collectionNames = ["Posts", "Users", "Tags"] as const;
 
-/**
- * Fetch mention suggestions: AI models first, then search results. Model
- * accounts are left out of the search results, so retired models can't be
- * mentioned.
- */
 async function fetchMentionableSuggestions(forumType: ForumTypeString, searchString: string): Promise<MentionItemWithHit[]> {
   if (!searchString.trim()) {
     return [];
@@ -258,9 +252,6 @@ function TagMentionItem({ hit }: { hit: SearchTag }) {
   return <MentionItemRow icon="Tag" title={hit.name} />;
 }
 
-/**
- * Component to render a model mention item, marking the family's newest version
- */
 function ModelMentionItem({ model: { family, version } }: { model: LlmFamilyVersion }) {
   const isLatest = getLatestLlmVersion(family)?.name === version.name;
   return <MentionItemRow icon="Sparkles" title={version.name} meta={isLatest ? "latest" : undefined} />;

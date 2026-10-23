@@ -1,5 +1,8 @@
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import { llmReplyFailedMarkdown } from "@/lib/llmReplies/helpers";
+import { randomId } from "@/lib/random";
+import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
+import { escapeHtml, sanitize } from "@/lib/utils/sanitize";
 import { sendLlmReplyNotifications } from "@/server/callbacks/commentCallbackFunctions";
 import Comments from "@/server/collections/comments/collection";
 import { updateComment } from "@/server/collections/comments/mutations";
@@ -10,27 +13,14 @@ import { generateLlmRunResponse } from "@/server/languageModels/llmRunResponse";
 import { getLlmTools } from "@/server/languageModels/llmTools";
 import { commentIsPubliclyVisible } from "@/server/languageModels/publicVisibility";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import { renderAgentMarkdownToHtml } from "@/server/editor/conversionUtils";
-import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { buildThreadContextMessage } from "./threadContext";
 
-/**
- * Comment replies: the model reads the thread, and its response replaces the
- * placeholder reply created when it was mentioned. The new-comment
- * notifications go out at that point, rather than for the placeholder.
- */
 export const commentReplyRunHandler: LlmRunHandler = {
   run: async (run, forumType) => {
-    const { replyCommentId, triggerCommentId, postId } = run;
-    if (!replyCommentId || !triggerCommentId || !postId) {
-      throw new Error(`Comment reply run ${run._id} is missing its comments or post`);
-    }
-    const context = await getModelAccountContext(run, forumType);
-    const [triggerComment, post] = await Promise.all([
-      Comments.findOne({ _id: triggerCommentId }),
-      Posts.findOne({ _id: postId }),
-    ]);
-    if (!triggerComment || !post || !(await commentIsPubliclyVisible(triggerComment, context))) {
+    const replyComment = await getReplyComment(run);
+    const context = await getModelAccountContext(replyComment, forumType);
+    const { triggerComment, post } = await getTriggerCommentAndPost(run);
+    if (!(await commentIsPubliclyVisible(triggerComment, context))) {
       throw new Error("The comment that mentioned the model is no longer publicly visible");
     }
 
@@ -38,29 +28,52 @@ export const commentReplyRunHandler: LlmRunHandler = {
       contextMessage: await buildThreadContextMessage(post, triggerComment, context),
       tools: getLlmTools(context, run.gatewayModelId),
     });
-    // Models often write math as `\(...\)`, which only the agent dialect reads
     const reply = await updateComment({
-      selector: { _id: replyCommentId },
-      data: { contents: { originalContents: { type: "html", data: renderAgentMarkdownToHtml(getMarkdownItForAgentPosts(), response) } } },
+      selector: { _id: replyComment._id },
+      data: { contents: { originalContents: { type: "html", data: getLlmReplyHtml(run.modelName, response) } } },
     }, context);
     await sendLlmReplyNotifications(reply, context);
   },
 
   fail: async (run, forumType) => {
-    if (!run.replyCommentId) {
-      return;
-    }
+    const replyComment = await getReplyComment(run);
     await updateComment({
-      selector: { _id: run.replyCommentId },
+      selector: { _id: replyComment._id },
       data: { contents: { originalContents: { type: "markdown", data: llmReplyFailedMarkdown(run.modelName, run._id) } } },
-    }, await getModelAccountContext(run, forumType));
+    }, await getModelAccountContext(replyComment, forumType));
   },
 };
 
-async function getModelAccountContext(run: DbLlmRun, forumType: ForumTypeString): Promise<ResolverContext> {
-  const modelUser = run.modelUserId ? await Users.findOne({ _id: run.modelUserId }) : null;
+function getLlmReplyHtml(modelName: string, response: string): string {
+  // Models often write math as `\(...\)`, which only the agent dialect reads
+  const responseHtml = sanitize(getMarkdownItForAgentPosts().render(response, { docId: randomId() }));
+  return `<div class="llm-content-block" data-model-name="${escapeHtml(modelName)}"><div class="llm-content-block-content">${responseHtml}</div></div>`;
+}
+
+async function getReplyComment(run: DbLlmRun): Promise<DbComment> {
+  const replyComment = await Comments.findOne({ llmRunId: run._id });
+  if (!replyComment) {
+    throw new Error(`Run ${run._id} has no reply comment`);
+  }
+  return replyComment;
+}
+
+async function getTriggerCommentAndPost(run: DbLlmRun): Promise<{ triggerComment: DbComment, post: DbPost }> {
+  const triggerComment = run.triggerCommentId ? await Comments.findOne({ _id: run.triggerCommentId }) : null;
+  if (!triggerComment?.postId) {
+    throw new Error(`Run ${run._id} has no trigger comment on a post`);
+  }
+  const post = await Posts.findOne({ _id: triggerComment.postId });
+  if (!post) {
+    throw new Error(`Post ${triggerComment.postId} doesn't exist`);
+  }
+  return { triggerComment, post };
+}
+
+async function getModelAccountContext(replyComment: DbComment, forumType: ForumTypeString): Promise<ResolverContext> {
+  const modelUser = await Users.findOne({ _id: replyComment.userId });
   if (!modelUser) {
-    throw new Error(`Model account ${run.modelUserId} for run ${run._id} doesn't exist`);
+    throw new Error(`Model account ${replyComment.userId} doesn't exist`);
   }
   return computeContextFromUser({ user: modelUser, isSSR: false, forumType });
 }

@@ -10,24 +10,13 @@ const MAX_MODEL_STEPS = 20;
  */
 const MAX_CONTINUATIONS = 2;
 
-/**
- * Ask every provider to return the model's reasoning. Each provider only
- * reads its own entry. All of them return summaries rather than the full
- * reasoning.
- */
 const REASONING_PROVIDER_OPTIONS = {
   anthropic: { thinking: { type: "adaptive", display: "summarized" } },
   openai: { reasoningEffort: "high", reasoningSummary: "detailed" },
-  // Gemini goes through Google AI or Vertex depending on Gateway routing
   google: { thinkingConfig: { thinkingLevel: "high", includeThoughts: true } },
   vertex: { thinkingConfig: { thinkingLevel: "high", includeThoughts: true } },
 };
 
-/**
- * Run the model with the run's system prompt and the given context message
- * and tools. The context message, the transcript (after every step, so run
- * pages can show progress) and the final response are saved on the run.
- */
 export async function generateLlmRunResponse(run: DbLlmRun, { contextMessage, tools }: {
   contextMessage: string,
   tools: ToolSet,
@@ -62,10 +51,6 @@ export async function generateLlmRunResponse(run: DbLlmRun, { contextMessage, to
   }
 }
 
-/**
- * Some providers split one answer into many text parts (e.g. around
- * citations), so consecutive text is merged into a single entry.
- */
 function appendTranscriptEntries(transcript: LlmTranscriptEntry[], entries: LlmTranscriptEntry[]): LlmTranscriptEntry[] {
   return entries.reduce((merged, entry) => {
     const last = merged[merged.length - 1];

@@ -17,7 +17,6 @@ export async function postIsPubliclyVisible(post: DbPost, context: ResolverConte
   return !!(await accessFilterSingle(null, "Posts", post, anonymousContext));
 }
 
-/** Only comments on posts can be publicly visible here; wiki/tag comments aren't supported yet */
 export async function commentIsPubliclyVisible(comment: DbComment, context: ResolverContext): Promise<boolean> {
   if (commentIsNotPublicForAnyReason(comment, context.forumType) || !comment.postId) {
     return false;

@@ -22,8 +22,21 @@ import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import { getHocuspocusTokenForCollection } from "./getHocuspocusToken";
 import { captureAgentApiEvent } from "./captureAgentAnalytics";
+import { sanitize } from "@/lib/utils/sanitize";
 import { foldCaseOutsideMath, canonicalizeMathTokens } from "@/lib/utils/mathTokens";
+import type MarkdownIt from "markdown-it";
 import { repairOrphanXmlTextsInRoot } from "@/lib/lexical/repairOrphanXmlTexts";
+
+/**
+ * Render agent-supplied markdown to sanitized HTML for import into a Lexical
+ * editor. The caller picks the markdown-it instance (post vs research — both
+ * `math-tex`-emitting). This deliberately never runs `renderMathInHtml`: that
+ * produces reader-facing display HTML (`<mjx-container>`), which Lexical's DOM
+ * importer cannot turn back into editable nodes.
+ */
+export function renderAgentMarkdownToHtml(markdownIt: MarkdownIt, markdown: string): string {
+  return sanitize(markdownIt.render(markdown, { docId: randomId() }));
+}
 
 // Split a paragraph around any display (non-inline) MathNode children: runs of
 // other children become their own paragraphs and each display MathNode becomes

@@ -8,24 +8,12 @@ import { LlmRunsViews } from "@/lib/collections/llmRuns/views";
 export const graphqlLlmRunQueryTypeDefs = gql`
   type LlmRun ${ getAllGraphQLFields(schema) }
 
-  input SingleLlmRunInput {
-    selector: SelectorInput
-    resolverArgs: JSON
-  }
-
   type SingleLlmRunOutput {
     result: LlmRun
   }
 
   input LlmRunSelector {
     default: EmptyViewInput
-  }
-
-  input MultiLlmRunInput {
-    terms: JSON
-    resolverArgs: JSON
-    enableTotal: Boolean
-    enableCache: Boolean
   }
 
   type MultiLlmRunOutput {
@@ -35,11 +23,9 @@ export const graphqlLlmRunQueryTypeDefs = gql`
 
   extend type Query {
     llmRun(
-      input: SingleLlmRunInput @deprecated(reason: "Use the selector field instead"),
       selector: SelectorInput
     ): SingleLlmRunOutput
     llmRuns(
-      input: MultiLlmRunInput @deprecated(reason: "Use the selector field instead"),
       selector: LlmRunSelector,
       limit: Int,
       offset: Int,

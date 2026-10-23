@@ -9,21 +9,13 @@ import { requestLlmRun } from "@/server/languageModels/requestLlmRun";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { getFirstMentionedLlm } from "./mentionedLlms";
-import { readLlmReplySystemPrompt } from "./threadContext";
+import { LLM_REPLY_SYSTEM_PROMPT } from "./systemPrompt";
 
-export const MIN_KARMA_TO_SUMMON_LLM = 50;
+const MIN_KARMA_TO_SUMMON_LLM = 50;
 
-/**
- * Called when a comment is published. If it mentions a model (only the first
- * model mention counts), create a run and a placeholder reply from the model
- * family's account, then start the run. Errors are reported rather than
- * thrown, since the user's comment has already been saved and shouldn't fail
- * because of this.
- */
 export async function startLlmReplyForComment(comment: DbComment, context: ResolverContext): Promise<void> {
   try {
     const { postId } = comment;
-    // Model replies are only supported on posts' comments
     if (!postId) {
       return;
     }
@@ -66,12 +58,10 @@ async function startLlmReply({ comment, postId, modelUser, llm }: {
   const runId = await LlmRuns.rawInsert({
     createdAt: new Date(),
     invocationContext: "commentReply",
-    postId,
-    requesterUserId: comment.userId,
     modelName: llm.version.name,
     gatewayModelId: llm.version.gatewayModelId,
     status: "pending",
-    systemPrompt: readLlmReplySystemPrompt(),
+    systemPrompt: LLM_REPLY_SYSTEM_PROMPT,
     contextMessage: null,
     transcript: [],
     response: null,
@@ -80,12 +70,10 @@ async function startLlmReply({ comment, postId, modelUser, llm }: {
     claimedAt: null,
     completedAt: null,
     triggerCommentId: comment._id,
-    replyCommentId: null,
-    modelUserId: modelUser._id,
   });
 
   const modelContext = computeContextFromUser({ user: modelUser, isSSR: false, forumType: context.forumType });
-  const reply = await createComment({
+  await createComment({
     data: {
       postId,
       parentCommentId: comment._id,
@@ -95,7 +83,6 @@ async function startLlmReply({ comment, postId, modelUser, llm }: {
       llmRunId: runId,
     },
   }, modelContext);
-  await LlmRuns.rawUpdateOne({ _id: runId }, { $set: { replyCommentId: reply._id } });
 
   backgroundTask(requestLlmRun(runId, context.forumType));
 }

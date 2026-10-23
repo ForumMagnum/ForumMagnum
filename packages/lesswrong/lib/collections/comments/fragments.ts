@@ -41,7 +41,7 @@ export const CommentsList = gql(`
     llmRunId
     llmRun {
       _id
-      modelName
+      status
     }
     currentUserVote
     currentUserExtendedVote

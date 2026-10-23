@@ -9,7 +9,6 @@ export const LlmRuns: LlmRunsCollection = createCollection({
 
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
-    // For the cron that retries runs whose attempts died
     indexSet.addIndex('LlmRuns', { status: 1, createdAt: 1 });
     return indexSet;
   },

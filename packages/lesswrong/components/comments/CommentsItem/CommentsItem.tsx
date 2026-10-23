@@ -336,7 +336,6 @@ export const CommentsItem = ({
   >
     {showInlineCancel ? "Cancel" : "Reply"}
   </a>), [replacementReplyButton, showInlineCancel, classes.replyLink, openReplyForm, closeReplyForm]);
-  // Model replies link to their run, beside Reply, except on that run's page
   const runPageUrl = comment.llmRunId ? llmRunGetPageUrl(comment.llmRunId) : null;
   const bottomButtons = runPageUrl && runPageUrl !== pathname
     ? <>{replyButton}<Link to={runPageUrl} className={classes.replyLink}>View run</Link></>

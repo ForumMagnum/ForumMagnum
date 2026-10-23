@@ -616,10 +616,6 @@ interface DbLlmRun extends DbObject {
   gatewayModelId: string
   invocationContext: LlmRunInvocationContext
   modelName: string
-  modelUserId: string | null
-  postId: string | null
-  replyCommentId: string | null
-  requesterUserId: string
   response: string | null
   status: LlmRunStatus
   systemPrompt: string

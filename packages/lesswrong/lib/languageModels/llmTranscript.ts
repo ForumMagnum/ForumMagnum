@@ -1,8 +1,3 @@
-/**
- * What a model did during a run, in order: its reasoning, the text it wrote,
- * and the tools it called with their results. Stored on `LlmRuns` and shown
- * on run pages.
- */
 declare global {
   type LlmTranscriptEntry =
     | { type: "reasoning", text: string }

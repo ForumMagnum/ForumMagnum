@@ -4406,9 +4406,6 @@ const schema = {
       resolver: (user) => !!user.claudeCodeOAuthTokenEncrypted,
     },
   },
-  // Set on the accounts of model families that post comment replies when
-  // mentioned (see `LLM_FAMILIES`); the value is the family's name, e.g.
-  // "Opus". Only set by `createLlmFamilyAccounts`.
   llmFamily: {
     database: {
       type: "TEXT",

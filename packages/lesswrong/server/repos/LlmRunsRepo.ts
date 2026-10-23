@@ -28,10 +28,6 @@ class LlmRunsRepo extends AbstractRepo<"LlmRuns"> {
     `, { runId, staleClaimBefore, maxAttempts });
   }
 
-  /**
-   * Runs that should have finished by now: pending runs whose first attempt
-   * never started, and running runs whose attempt died.
-   */
   getStalledRuns(pendingBefore: Date, staleClaimBefore: Date): Promise<DbLlmRun[]> {
     return this.any(`
       -- LlmRunsRepo.getStalledRuns

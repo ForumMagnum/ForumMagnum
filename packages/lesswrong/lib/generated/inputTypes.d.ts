@@ -3301,9 +3301,7 @@ interface LlmRun {
   _id: string;
   createdAt: Date;
   invocationContext: string;
-  postId: string | null;
   post: Post | null;
-  requesterUserId: string;
   modelName: string;
   gatewayModelId: string;
   status: string;
@@ -3315,12 +3313,6 @@ interface LlmRun {
   completedAt: Date | null;
   triggerCommentId: string | null;
   replyCommentId: string | null;
-  modelUserId: string | null;
-}
-
-interface SingleLlmRunInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
 }
 
 interface SingleLlmRunOutput {
@@ -3329,13 +3321,6 @@ interface SingleLlmRunOutput {
 
 interface LlmRunSelector {
   default: EmptyViewInput | null;
-}
-
-interface MultiLlmRunInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
 }
 
 interface MultiLlmRunOutput {
@@ -9896,10 +9881,8 @@ interface GraphQLTypeMap {
   MultiLlmConversationOutput: MultiLlmConversationOutput;
   LlmMessage: LlmMessage;
   LlmRun: LlmRun;
-  SingleLlmRunInput: SingleLlmRunInput;
   SingleLlmRunOutput: SingleLlmRunOutput;
   LlmRunSelector: LlmRunSelector;
-  MultiLlmRunInput: MultiLlmRunInput;
   MultiLlmRunOutput: MultiLlmRunOutput;
   Localgroup: Localgroup;
   SingleLocalgroupInput: SingleLocalgroupInput;

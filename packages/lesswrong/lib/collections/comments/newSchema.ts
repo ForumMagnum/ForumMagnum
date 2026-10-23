@@ -292,8 +292,6 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
-  // Set on replies posted by a model family's account; links to the run that
-  // produced the reply.
   llmRunId: {
     database: {
       type: "VARCHAR(27)",
