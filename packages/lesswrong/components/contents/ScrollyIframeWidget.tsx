@@ -126,9 +126,10 @@ const styles = defineStyles('ScrollyIframeWidget', (theme: ThemeType) => ({
     'html[data-lw-scrolly="right"] #postBody': {
       transform: 'translateX(calc(-1 * var(--lw-scrolly-shift, 0px)))',
     },
-    // Margin items vs. the panel. Matching on class prefixes because JSS names are generated;
-    // a real version would do this through props, not selectors.
-    'html[data-lw-scrolly="right"] [class*="FixedPositionToC"]': {
+    // Only on screens too narrow for the table of contents, the text, and the panel together.
+    // Matching on class prefixes because JSS names are generated; a real version would do this
+    // through props, not selectors.
+    'html[data-lw-scrolly-hide-toc] [class*="FixedPositionToC"]': {
       opacity: 0,
       pointerEvents: 'none',
     },
@@ -218,11 +219,21 @@ interface PanelBox {
   height: number,
   visible: boolean,
   shift: number,
+  hideToc: boolean,
 }
 
 function sameBox(a: PanelBox | null, b: PanelBox): boolean {
-  return !!a && a.left === b.left && a.top === b.top && a.width === b.width
-    && a.height === b.height && a.visible === b.visible && a.shift === b.shift;
+  return !!a && a.left === b.left && a.top === b.top && a.width === b.width && a.height === b.height
+    && a.visible === b.visible && a.shift === b.shift && a.hideToc === b.hideToc;
+}
+
+const MIN_RIGHT_PANEL_WIDTH = 380;
+
+/** Right edge of the section-title table of contents in the left column, if the post has one. */
+function getTocRight(): number | null {
+  const toc = document.querySelector('[class*="FixedPositionToC-root"]');
+  const rect = toc?.getBoundingClientRect();
+  return rect && rect.width > 0 ? rect.right : null;
 }
 
 /** Where the panel goes for a given mode, from the position of the text column before any shift. */
@@ -230,18 +241,31 @@ function computeBox(mode: ScrollyMode, column: DOMRect, active: boolean): PanelB
   const vw = window.innerWidth, vh = window.innerHeight;
   const top = HEADER_HEIGHT + 12, height = vh - top - 16;
   if (mode === 'top') {
-    return { left: column.left, top: HEADER_HEIGHT, width: column.width, height: Math.min(380, vh * 0.42), visible: active, shift: 0 };
+    return { left: column.left, top: HEADER_HEIGHT, width: column.width, height: Math.min(380, vh * 0.42), visible: active, shift: 0, hideToc: false };
   }
   if (mode === 'margin') {
     const left = column.right + 24;
-    return { left, top, width: Math.min(MAX_PANEL_WIDTH, Math.max(220, vw - left - 16)), height, visible: active, shift: 0 };
+    return { left, top, width: Math.min(MAX_PANEL_WIDTH, Math.max(220, vw - left - 16)), height, visible: active, shift: 0, hideToc: false };
   }
-  // 'right': slide the text column left until a ~520px panel fits beside it.
-  const want = Math.min(560, Math.max(380, vw * 0.36));
+  // 'right': slide the text column left until a ~520px panel fits beside it, but not over the
+  // table of contents. Only when the screen can't fit all three does the table of contents go.
+  const want = Math.min(560, Math.max(MIN_RIGHT_PANEL_WIDTH, vw * 0.36));
   const free = vw - column.right - 24 - 16;
-  const shift = active ? Math.max(0, Math.min(column.left - 24, want - free)) : 0;
+  const needed = Math.max(0, want - free);
+  const tocRight = getTocRight();
+  const roomBesideToc = Math.max(0, column.left - (tocRight ?? 0) - 24);
+  let shift = Math.min(needed, roomBesideToc);
+  let hideToc = false;
+  if (tocRight !== null && free + roomBesideToc < MIN_RIGHT_PANEL_WIDTH) {
+    hideToc = true;
+    shift = Math.min(needed, column.left - 24);
+  }
+  if (!active) {
+    shift = 0;
+    hideToc = false;
+  }
   const left = column.right - shift + 32;
-  return { left, top, width: Math.min(MAX_PANEL_WIDTH, vw - left - 16), height, visible: active, shift };
+  return { left, top, width: Math.min(MAX_PANEL_WIDTH, vw - left - 16), height, visible: active, shift, hideToc };
 }
 
 function getScrollyRoot(anchor: HTMLElement): Element | null {
@@ -363,10 +387,15 @@ function refreshNoteFades() {
   applyNoteFades(clear && panel ? panel.getBoundingClientRect() : null);
 }
 
-function setPageScrollyState(mode: ScrollyMode | '', backdrop: ScrollyBackdrop | '', shift: number) {
+function setPageScrollyState(mode: ScrollyMode | '', backdrop: ScrollyBackdrop | '', shift: number, hideToc = false) {
   document.documentElement.style.setProperty('--lw-scrolly-shift', `${shift}px`);
   document.documentElement.dataset.lwScrolly = mode;
   document.documentElement.dataset.lwScrollyBackdrop = backdrop;
+  if (hideToc) {
+    document.documentElement.dataset.lwScrollyHideToc = 'true';
+  } else {
+    delete document.documentElement.dataset.lwScrollyHideToc;
+  }
 }
 
 export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?: string }) {
@@ -447,7 +476,7 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
     shiftRef.current = next.shift;
     // The backdrop only matters where the panel covers the margin column.
     const coversMargin = mode === 'right' || mode === 'margin';
-    setPageScrollyState(active ? mode : '', active && coversMargin ? backdrop : '', next.shift);
+    setPageScrollyState(active ? mode : '', active && coversMargin ? backdrop : '', next.shift, next.hideToc);
     setBox(prev => sameBox(prev, next) ? prev : next);
     // Once a focused note scrolls away (or the panel goes away), put the figure back in front.
     const focused = getFocusedNote();
