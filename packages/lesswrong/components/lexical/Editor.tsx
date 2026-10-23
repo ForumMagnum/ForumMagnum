@@ -36,7 +36,7 @@ import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from
 import {Doc} from 'yjs';
 import * as Y from 'yjs';
 import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
-import {$getRoot, $insertNodes, EditorState} from 'lexical';
+import {$getRoot, $insertNodes, EditorState, SKIP_DOM_SELECTION_TAG} from 'lexical';
 import { CodeBlockPlugin } from '../editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 import TablesPlugin from '../editor/lexicalPlugins/tables/TablesPlugin';
 
@@ -69,7 +69,7 @@ import DateTimePlugin from './plugins/DateTimePlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 // import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
 import { MathPlugin } from '../editor/lexicalPlugins/math/MathPlugin';
-// import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
+import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
 import FigmaPlugin from './plugins/FigmaPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
@@ -125,6 +125,7 @@ import { EditorUserMode, getDefaultEditorUserMode, type EditorUserModeType } fro
 import { SET_USER_MODE_COMMAND } from '../editor/lexicalPlugins/suggestedEdits/Commands';
 import BlockCursorNavigationPlugin from '../editor/lexicalPlugins/blockCursorNavigation/BlockCursorNavigationPlugin';
 import { SideCommentsPlugin } from '../editor/lexicalPlugins/sideComments/SideCommentsPlugin';
+import { CommentThreadPopoverPlugin } from '../editor/lexicalPlugins/sideComments/CommentThreadPopoverPlugin';
 import { useLexicalEditorContext } from '../editor/LexicalEditorContext';
 import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
 import InlineCodeEscapePlugin from '../editor/lexicalPlugins/inlineCodeEscape';
@@ -393,9 +394,13 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
         outlineOffset: '-2px',
       },
     },
+    // The suggestion marker is an empty inline element, so an otherwise-empty
+    // paragraph would collapse to zero height; keep it at least one line tall.
+    // This must be a min-height rather than a fixed height, or text wrapping
+    // onto a second line would overflow onto the blocks below it.
     '& p:has(> ins.block-type-change.target-paragraph)': {
       background: theme.palette.background.diffInserted,
-      height: '26px',
+      minHeight: '1lh',
     },
     // Split suggestion: show two horizontal lines stretching from the end
     // of the text to the right edge of the paragraph, indicating where the
@@ -576,6 +581,8 @@ export interface EditorProps {
    * otherwise show two competing menus on `@`.
    */
   disableMentions?: boolean;
+  /** Loading the initial HTML normally moves focus into the editor; this leaves focus where it is */
+  keepFocusOnLoad?: boolean;
   children?: React.ReactNode;
 }
 
@@ -606,6 +613,7 @@ export default function Editor({
   commentEditor = false,
   disableComponentPicker = false,
   disableMentions = false,
+  keepFocusOnLoad = false,
   children,
 }: EditorProps): JSX.Element {
   const classes = useStyles(styles);
@@ -815,8 +823,8 @@ export default function Editor({
       const root = $getRoot();
       root.clear();
       $insertNodes(nodes);
-    });
-  }, [editor, hasInitialHtml, initialHtml, isCollab]);
+    }, keepFocusOnLoad ? { tag: SKIP_DOM_SELECTION_TAG } : undefined);
+  }, [editor, hasInitialHtml, initialHtml, isCollab, keepFocusOnLoad]);
 
   const onChange = useCallback((editorState: EditorState) => {
     if (!onChangeHtml) return;
@@ -867,7 +875,7 @@ export default function Editor({
         <CodeBlockPlugin editor={editor} />
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
         <ClearEditorPlugin />
-        {!disableComponentPicker && <ComponentPickerPlugin />}
+        {!disableComponentPicker && <ComponentPickerPlugin isSuggestionMode={isSuggestionMode} />}
         {/* <EmojiPickerPlugin /> */}
         <AutoEmbedPlugin />
         <HashtagPlugin />
@@ -885,6 +893,7 @@ export default function Editor({
                   <>
                     <CommentPlugin />
                     {showPostCommentFeatures && <SideCommentsPlugin />}
+                    {showPostCommentFeatures && <CommentThreadPopoverPlugin />}
                   </>
                 )}
               <SuggestedEditsPlugin
@@ -951,6 +960,11 @@ export default function Editor({
             />
             {onChangeHtml && (
               <OnChangePlugin
+                // Don't report cursor moves, which don't change the contents.
+                // When collaborating, keep reporting them: the first sync isn't
+                // reported (the editor was empty before it), and a click is
+                // what then updated the contents the form submits.
+                ignoreSelectionChange={!isCollab}
                 onChange={isCollab ? debouncedOnChange : onChange}
               />
             )}
@@ -991,7 +1005,7 @@ export default function Editor({
             <InlineCodeEscapePlugin />
             <BlockCursorNavigationPlugin />
             <MathPlugin />
-            {/* <ExcalidrawPlugin /> */}
+            <ExcalidrawPlugin isSuggestionMode={isSuggestionMode} />
             <TabFocusPlugin />
             <TabIndentationPlugin maxIndent={7} />
             <CollapsibleSectionsPlugin isSuggestionMode={isSuggestionMode} />

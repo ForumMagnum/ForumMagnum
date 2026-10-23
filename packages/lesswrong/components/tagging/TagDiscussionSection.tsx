@@ -37,7 +37,7 @@ const TagDiscussionSection = ({tag}: {
   });
 
   const results = data?.comments?.results;
-  const { loadMore } = loadMoreProps;
+  const { loadAll } = loadMoreProps;
   const totalCount = data?.comments?.totalCount;
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
   
@@ -47,7 +47,7 @@ const TagDiscussionSection = ({tag}: {
   return (
     <CommentsListSection
       comments={results} tag={tag ? tag : undefined}
-      loadMoreComments={loadMore}
+      loadAllComments={loadAll}
       totalComments={totalCount as number}
       commentCount={(results?.length) || 0}
       loadingMoreComments={loadingMore}

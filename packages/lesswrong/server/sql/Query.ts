@@ -56,6 +56,16 @@ export type Atom<T extends DbObject> = string | Arg | Query<T> | Table<T>;
 
 const atomIsArg = <T extends DbObject>(atom: Atom<T>): atom is Arg => atom instanceof Arg;
 
+/**
+ * Format a string as a Postgres string literal. Query values should normally be
+ * passed as Args, but JSON path components are part of the SQL expression and
+ * cannot be represented by a value placeholder in every context where they are
+ * used.
+ */
+export function postgresStringLiteral(value: string): string {
+  return `'${value.replaceAll("'", "''")}'`;
+}
+
 class NonScalarArrayAccessError extends Error {
   constructor(public fieldName: string, public path: string[]) {
     super("Non-scalar array access");
@@ -303,7 +313,7 @@ abstract class Query<T extends DbObject> {
       } else if (fieldType) {
         const hint = this.getTypeHint(typeHint);
         const result = "(" + this.prefixify(`"${first}"`) +
-          rest.map((element) => element.match(/^\d+$/) ? `[${element}]` : `->'${element}'`).join("") +
+          rest.map((element) => element.match(/^\d+$/) ? `[${element}]` : `->${postgresStringLiteral(element)}`).join("") +
           `)${hint}`;
         return hint === "::TEXT"
           ? result.replace(/->(?!.*->)/, "->>")
@@ -387,7 +397,7 @@ abstract class Query<T extends DbObject> {
    * better-optimized hand-rolled SQL.
    */
   private compileNonScalarArrayAccess(fieldName: string, path: string[], value: any): Atom<T>[] {
-    path = path.map((element: string) => `'${element}'`);
+    path = path.map(postgresStringLiteral);
     path.unshift("unnested");
     const last = path.pop();
     const selector = path.join("->") + "->>" + last;
@@ -702,7 +712,7 @@ abstract class Query<T extends DbObject> {
         // delete it?
         const tokens = array.split(".");
         const field = `"${tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0]}"`;
-        const path = tokens.slice(1).flatMap((name) => ["->", `'${name}'`]);
+        const path = tokens.slice(1).flatMap((name) => ["->", postgresStringLiteral(name)]);
         if (path.length) {
           path[path.length - 2] = "->>";
         }

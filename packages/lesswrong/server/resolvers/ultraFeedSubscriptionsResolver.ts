@@ -8,6 +8,7 @@ import { FeedPostMetaInfo, FeedCommentMetaInfo, UltraFeedResolverType, FeedItemS
 import { backgroundTask } from '../utils/backgroundTask';
 import { 
   loadMultipleEntitiesById, 
+  FilteredEntity,
   createUltraFeedResponse,
   UltraFeedEventInsertData
 } from './ultraFeedResolverHelpers';
@@ -22,6 +23,7 @@ import type {
 import { serverCaptureEvent } from "../analytics/serverAnalyticsWriter";
 import { insertTimeMarkers, SubscribedFeedEntryType } from '../ultraFeed/feedTimeMarkers';
 import UltraFeedEvents from '../collections/ultraFeedEvents/collection';
+import { accessFilterMultiple } from '@/lib/utils/schemaUtils';
 
 interface SubscribedFeedDateCutoffs {
   initialCommentCandidateLookbackDays: number;
@@ -57,6 +59,18 @@ interface SliceTarget {
 }
 
 /**
+ * A permissions-filtered comment that has a postedAt (which everyone can read,
+ * so in practice filtering never removes it).
+ */
+interface FeedComment extends FilteredEntity<DbComment> {
+  postedAt: Date;
+}
+
+function isFeedComment(comment: FilteredEntity<DbComment>): comment is FeedComment {
+  return !!comment.postedAt;
+}
+
+/**
  * Scores feed items and returns new items with ranking metadata attached.
  * This does not impact the display of items, it is just so developers can better understand the scoring algorithm.
  */
@@ -64,9 +78,9 @@ function addRankingMetadata<T extends {
   type: SubscribedFeedEntryType;
   data: {
     _id: string;
-    post?: DbPost | null;
+    post?: Partial<DbPost> | null;
     postMetaInfo?: FeedPostMetaInfo;
-    comments?: DbComment[];
+    comments?: FeedComment[];
     commentMetaInfos?: Record<string, FeedCommentMetaInfo>;
   };
 }>(feedItems: T[]): T[] {
@@ -79,7 +93,7 @@ function addRankingMetadata<T extends {
       } else if (item.type === 'feedCommentThread' && item.data.comments && item.data.commentMetaInfos) {
         const threadForScoring: MappablePreparedThread = {
           comments: item.data.comments
-            .filter((c): c is DbComment & { postId: string } => c.postId !== null)
+            .filter((c): c is FeedComment & { postId: string } => !!c.postId)
             .map(c => ({
               commentId: c._id,
               postId: c.postId,
@@ -248,9 +262,9 @@ export const ultraFeedSubscriptionsQueries = {
       sortDate: Date; 
       data: {
         _id: string;
-        post?: DbPost | null;
+        post?: Partial<DbPost> | null;
         postMetaInfo?: FeedPostMetaInfo;
-        comments?: DbComment[];
+        comments?: FeedComment[];
         commentMetaInfos?: Record<string, FeedCommentMetaInfo>;
         postSources?: string[];
         users?: DbUser[];
@@ -269,7 +283,7 @@ export const ultraFeedSubscriptionsQueries = {
         sortDate: post.postedAt ?? new Date(),
         data: {
           _id: post._id,
-          post: post as DbPost,
+          post,
           postMetaInfo: { 
             servedEventId: randomId(), 
             sources: ['subscriptionsPosts'] as const,
@@ -311,7 +325,7 @@ export const ultraFeedSubscriptionsQueries = {
         }
 
         for (const pathCommentIds of selected) {
-          const loadedComments = filterNonnull(pathCommentIds.map(id => commentsById.get(id)));
+          const loadedComments = filterNonnull(pathCommentIds.map(id => commentsById.get(id))).filter(isFeedComment);
           if (loadedComments.length === 0) continue;
 
           const hourStart = new Date(hourStr);
@@ -357,8 +371,8 @@ export const ultraFeedSubscriptionsQueries = {
           // If hideRead is enabled, skip threads where all comments by subscribed authors are read
           if (hideRead) {
             const allCommentsRead = commentsUpToThisHour
-              .filter((c: DbComment) => commentDataById.get(c._id)?.fromSubscribedUser)
-              .every((c: DbComment) => {
+              .filter((c: FeedComment) => commentDataById.get(c._id)?.fromSubscribedUser)
+              .every((c: FeedComment) => {
                 const { fromSubscribedUser, lastViewed, lastInteracted } = commentDataById.get(c._id) ?? {};
 
                 return fromSubscribedUser && (!!(lastViewed || lastInteracted));
@@ -387,11 +401,19 @@ export const ultraFeedSubscriptionsQueries = {
 
     feedItemsWithMetadata.sort((a, b) => (b.sortDate.getTime() - a.sortDate.getTime()) || (a.type < b.type ? -1 : 1));
 
-    // Use offset-based pagination (ignore cutoff) to align with main feed behavior
+    // Paginate by cutoff (the sortDate of the last item on the previous page)
+    // rather than by offset. This list is recomputed on every request, and
+    // shifts between page loads when new items appear at the top or when
+    // hideRead drops items the user has read since. Offset is only used to
+    // count how many items have been served so far.
+    const cutoff = args.cutoff;
+    const itemsAfterCutoff = cutoff
+      ? feedItemsWithMetadata.filter(item => item.sortDate < cutoff)
+      : feedItemsWithMetadata;
     const pageStart = offset ?? 0;
-    const pageEnd = pageStart + (limit ?? 20);
-    const pageCore = feedItemsWithMetadata.slice(pageStart, pageEnd);
-    
+    const pageCore = itemsAfterCutoff.slice(0, limit);
+    const hasMore = itemsAfterCutoff.length > pageCore.length;
+
     const pageItems: typeof feedItemsWithMetadata = [];
     // Insert a suggestions entry after every N feed items
     for (let i = 0; i < pageCore.length; i++) {
@@ -409,13 +431,14 @@ export const ultraFeedSubscriptionsQueries = {
     }
     
     const hasSuggestions = pageItems.some(it => it.type === 'feedSubscriptionSuggestions');
-    const suggestedUsers = hasSuggestions ? await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedIn(currentUser._id, 40) : [];
+    const unfilteredSuggestedUsers = hasSuggestions ? await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedIn(currentUser._id, 40) : [];
+    const suggestedUsers = await accessFilterMultiple(currentUser, 'Users', unfilteredSuggestedUsers, context);
 
     const eventsToCreate: UltraFeedEventInsertData[] = [];
     pageItems.forEach((item, index) => {
       const itemIndex = (offset ?? 0) + index;
       if (item.type === 'feedPost') {
-        const post = item.data.post as DbPost;
+        const post = item.data.post;
         if (post?._id) {
           const servedEventId = item.data.postMetaInfo?.servedEventId ?? randomId();
           eventsToCreate.push({
@@ -428,8 +451,8 @@ export const ultraFeedSubscriptionsQueries = {
           });
         }
       } else if (item.type === 'feedCommentThread') {
-        const commentsList: DbComment[] = item.data.comments ?? [];
-        commentsList.forEach((c: DbComment, commentIndex: number) => {
+        const commentsList: FeedComment[] = item.data.comments ?? [];
+        commentsList.forEach((c: FeedComment, commentIndex: number) => {
           const servedEventId = item.data.commentMetaInfos?.[c._id]?.servedEventId ?? randomId();
           eventsToCreate.push({
             _id: servedEventId,
@@ -453,7 +476,7 @@ export const ultraFeedSubscriptionsQueries = {
           highlight: false,
           displayStatus: 'expanded',
         };
-        return { type: 'feedPost', feedPost: { _id: item.data.post._id, post: item.data.post, postMetaInfo } };
+        return { type: 'feedPost', feedPost: { _id: item.data._id, post: item.data.post, postMetaInfo } };
       }
       if (item.type === 'feedCommentThread') {
         return { 
@@ -475,9 +498,10 @@ export const ultraFeedSubscriptionsQueries = {
       };
     });
 
-    const results = insertTimeMarkers(pageItems, baseResults, timezoneOffset, args.cutoff);
+    const results = insertTimeMarkers(pageItems, baseResults, timezoneOffset, cutoff);
 
-    const nextCutoff = pageItems.length > 0 ? pageItems[pageItems.length - 1].sortDate : null;
+    // A null cutoff tells the client it has reached the end of the feed
+    const nextCutoff = (hasMore && pageCore.length > 0) ? pageCore[pageCore.length - 1].sortDate : null;
 
     // Compute endOffset based on core items only (exclude suggestion entries)
     const response = createUltraFeedResponse(results, offset ?? 0, null, nextCutoff);

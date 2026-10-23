@@ -113,6 +113,9 @@ const InnerMessagesNewForm = ({
   submitLabel = "Submit",
   sendEmail = true,
   keystrokeSubmitButton = false,
+  fitToContent = false,
+  beforeSubmit,
+  submitMessage,
   prefilledProps,
   templateQueries,
   conversationId,
@@ -122,6 +125,10 @@ const InnerMessagesNewForm = ({
   submitLabel?: React.ReactNode;
   sendEmail?: boolean;
   keystrokeSubmitButton?: boolean;
+  fitToContent?: boolean;
+  beforeSubmit?: React.ReactNode;
+  /** Persist a message with associated domain actions; success callbacks run only after completion. */
+  submitMessage?: (data: CreateMessageDataInput) => Promise<messageListFragment>;
   prefilledProps: {
     conversationId: string;
     contents: {
@@ -171,11 +178,13 @@ const InnerMessagesNewForm = ({
           ? { ...formApi.state.values, noEmail: !sendEmail } 
           : formApi.state.values;
 
-        const { data } = await create({ variables: { data: submitData } });
-        if (!data?.createMessage?.data) {
-          throw new Error('Failed to create message');
+        if (submitMessage) {
+          result = await submitMessage(submitData);
+        } else {
+          const { data } = await create({ variables: { data: submitData } });
+          if (!data?.createMessage?.data) throw new Error('Failed to create message');
+          result = data.createMessage.data;
         }
-        result = data.createMessage.data;
 
         onSuccessCallback.current?.(result);
 
@@ -220,11 +229,14 @@ const InnerMessagesNewForm = ({
                 commentEditor={true}
                 commentStyles={true}
                 hideControls={true}
+                fitToContent={fitToContent}
                 getLocalStorageId={() => ({id: conversationId, verify: false})}
               />
             )}
           </form.Field>
         </div>
+
+        {beforeSubmit}
 
         <form.Subscribe selector={(s) => [s.isSubmitting]}>
           {([isSubmitting]) => (
@@ -233,7 +245,7 @@ const InnerMessagesNewForm = ({
                 ? <ComposerSubmitButton
                     type="submit"
                     label={isSubmitting ? <Loading /> : submitLabel}
-                    disabled={editorIsBlank}
+                    disabled={editorIsBlank || isSubmitting}
                   />
                 : <Button
                     type="submit"
@@ -257,6 +269,9 @@ export const MessagesNewForm = ({
   submitLabel,
   sendEmail = true,
   keystrokeSubmitButton,
+  fitToContent,
+  beforeSubmit,
+  submitMessage,
   formStyle="default",
 }: {
   conversationId: string;
@@ -266,6 +281,12 @@ export const MessagesNewForm = ({
   sendEmail?: boolean;
   /** Supermod sidebar style: Ctrl+Enter badge on the submit button, disabled while empty */
   keystrokeSubmitButton?: boolean;
+  /** Editor is only as tall as its text, instead of reserving a comment-sized blank area */
+  fitToContent?: boolean;
+  /** Rendered between the editor and the submit button */
+  beforeSubmit?: React.ReactNode;
+  /** Persist a message with associated domain actions; success callbacks run only after completion. */
+  submitMessage?: (data: CreateMessageDataInput) => Promise<messageListFragment>;
   formStyle?: FormDisplayMode;
 }) => {
   const classes = useStyles(styles);
@@ -296,6 +317,9 @@ export const MessagesNewForm = ({
         submitLabel={submitLabel}
         sendEmail={sendEmail}
         keystrokeSubmitButton={keystrokeSubmitButton}
+        fitToContent={fitToContent}
+        beforeSubmit={beforeSubmit}
+        submitMessage={submitMessage}
         prefilledProps={{
           conversationId,
           contents: {

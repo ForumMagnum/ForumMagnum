@@ -1,4 +1,3 @@
-import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod";
@@ -6,11 +5,12 @@ import { captureException } from "@/lib/sentryWrapper";
 import Posts from "../posts/collection";
 import Comments from "../comments/collection";
 import ModerationTemplates from "../moderationTemplates/collection";
-import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 import { updateComment } from "@/server/collections/comments/mutations";
+import { updatePost } from "@/server/collections/posts/mutations";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { stripExcludedContentForAIDetection } from "./preprocessing";
+import { maybeRunLlmRejectionTriage } from "@/server/llmRejectionTriage/triage";
 import {
   DEFAULT_PANGRAM_MODEL,
   PANGRAM_AUTOREJECT_THRESHOLD,
@@ -62,9 +62,9 @@ const PANGRAM_TASK_URL = "https://text.external-api.pangram.com/task";
 const PANGRAM_TASK_POLL_INTERVAL_MS = 2_000;
 const PANGRAM_TASK_REQUEST_TIMEOUT_MS = 10_000;
 
-// The GraphQL route has a 120-second limit. Leave time for request overhead and
-// for GraphQL to return a useful timeout error.
-const PANGRAM_TASK_TIMEOUT_MS = 90_000;
+// Checks normally take 5-15s. This keeps the every-ten-minutes cron, which retries
+// failed checks, under its 60s limit with time left for its other tasks.
+const PANGRAM_TASK_TIMEOUT_MS = 40_000;
 
 export interface PangramEvaluationResult {
   analyzedText: string;
@@ -311,28 +311,20 @@ async function rejectContentForLLM(
 
   const rejectedReason = moderationTemplate.contents?.html ?? "";
 
+  // Rejections are attributed to the LW account, since we don't want a human account to front auto-llm-rejections
+  const lwAccount = await getAdminTeamAccount(context);
+  if (!lwAccount) throw new Error("Automated rejection requires an admin team account");
+  const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
+
   if (collectionName === "Posts") {
-    const post = await context.loaders["Posts"].load(documentId);
-    await Posts.rawUpdateOne(
-      { _id: documentId },
-      { 
-        $set: { 
-          rejected: true, 
-          rejectedReason,
-        } 
-      }
-    );
-    await invalidatePostPageCache(documentId, { hardDelete: true });
-    // We're deliberate not sending auto-llm-rejections from a human account, 
-    // because we wanna blankface in this context.
-    await sendRejectionPM({ post: { ...post, rejectedReason }, currentUser: null, context });
+    await updatePost({
+      selector: { _id: documentId },
+      data: { rejected: true, rejectedReason },
+    }, lwAccountContext);
   } else {
     // For comments, use updateComment which handles sending the rejection PM via callbacks
     // But the comment rejection DM logic is a bit different, so we need to recreate a resolver context
     // with the lwAccount that we want the DM to come from
-    const lwAccount = await getAdminTeamAccount(context);
-    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
-
     await updateComment({
       selector: { _id: documentId },
       data: {
@@ -395,6 +387,12 @@ export async function createAutomatedContentEvaluation(
     const collectionName = revision.collectionName;
     if (collectionName === "Posts" || collectionName === "Comments") {
       await rejectContentForLLM(documentId, collectionName, context);
+      const document = collectionName === "Posts"
+        ? await Posts.findOne({ _id: documentId }, {}, { userId: 1 })
+        : await Comments.findOne({ _id: documentId }, {}, { userId: 1 });
+      if (document?.userId) {
+        await maybeRunLlmRejectionTriage(document.userId, context);
+      }
     }
   }
 

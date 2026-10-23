@@ -1032,7 +1032,7 @@ const UltraFeedPostDialog = ({
                         comments={comments ?? []}
                         totalComments={totalComments}
                         commentCount={(comments ?? []).length}
-                        loadMoreComments={loadMoreProps.loadMore}
+                        loadAllComments={loadMoreProps.loadAll}
                         loadingMoreComments={loadingMoreComments}
                         highlightDate={undefined}
                         setHighlightDate={() => {}}

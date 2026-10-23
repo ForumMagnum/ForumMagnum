@@ -264,12 +264,6 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     '& .form-input': {
       margin: 0
     },
-    '& .EditorFormComponent-commentEditorHeight': {
-      minHeight: "unset"
-    },
-    '& .EditorFormComponent-commentEditorHeight .ck.ck-content': {
-      minHeight: "unset"
-    },
     '& .ck.ck-content.ck-editor__editable': {
       ...descriptionStyles(theme) 
     },

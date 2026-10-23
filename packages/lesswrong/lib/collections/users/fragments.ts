@@ -24,7 +24,6 @@ export const UsersMinimumInfo = gql(`
     sequenceCount
     afPostCount
     afCommentCount
-    spamRiskScore
     tagRevisionCount
     reviewedByUserId
   }
@@ -73,6 +72,7 @@ export const UsersProfile = gql(`
     email
     emails
     banned
+    deleteContent
     noindex
     paymentEmail
     paymentInfo
@@ -114,6 +114,7 @@ export const UsersCurrent = gql(`
     email
     emails
     banned
+    deleteContent
     paymentEmail
     paymentInfo
     postingDisabled
@@ -177,6 +178,7 @@ export const UsersCurrent = gql(`
     nearbyPeopleNotificationThreshold
     hideFrontpageMap
     emailSubscribedToCurated
+    emailSubscribedToAiDigest
     unsubscribeFromAll
     whenConfirmationEmailSent
     hideSubscribePoke
@@ -370,6 +372,9 @@ export const SunshineUsersList = gql(`
       ...ModeratorActionDisplay
     }
     reviewGroup
+    pendingPostCount
+    pendingCommentCount
+    oldestPendingContentAt
     usersContactedBeforeReview
 
     voteReceivedCount
@@ -472,6 +477,7 @@ export const UsersEdit = gql(`
     email
     whenConfirmationEmailSent
     emailSubscribedToCurated
+    emailSubscribedToAiDigest
     unsubscribeFromAll
 
     # Moderation

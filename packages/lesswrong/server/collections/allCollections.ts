@@ -7,6 +7,9 @@ import sortBy from 'lodash/sortBy';
 import type PgCollection from '../sql/PgCollection';
 
 // Collection imports
+import { AiDigestIssueGenerations } from './aiDigestIssueGenerations/collection';
+import { AiDigestIssues } from './aiDigestIssues/collection';
+import { AiDigestSchedules } from './aiDigestSchedules/collection';
 import { ArbitalCaches } from './arbitalCache/collection';
 import { ArbitalTagContentRels } from './arbitalTagContentRels/collection';
 import { AutomatedContentEvaluations } from './automatedContentEvaluations/collection';
@@ -60,12 +63,15 @@ import { PetrovDayLaunchs } from './petrovDayLaunchs/collection';
 import { PodcastEpisodes } from './podcastEpisodes/collection';
 import { Podcasts } from './podcasts/collection';
 import { PostEmbeddings } from './postEmbeddings/collection';
+import { PostPreviews } from './postPreviews/collection';
 import { PostRecommendations } from './postRecommendations/collection';
 import { PostRelations } from './postRelations/collection';
+import { PostSummaries } from './postSummaries/collection';
 import { PostViewTimes } from './postViewTimes/collection';
 import { PostViews } from './postViews/collection';
 import { Posts } from './posts/collection';
 import { ReadStatuses } from './readStatus/collection';
+import { RejectionAppeals } from './rejectionAppeals/collection';
 import { ResearchConversationEvents } from './researchConversationEvents/collection';
 import { ResearchConversations } from './researchConversations/collection';
 import { ResearchDocuments } from './researchDocuments/collection';
@@ -118,13 +124,13 @@ function getTestCollectionsByTypeName() {
 
 // TODO: maybe put this behind a proxy like `getAllRepos` for performance?
 const allCollections = {
-  ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
+  AiDigestIssueGenerations, AiDigestIssues, AiDigestSchedules, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
   CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks,
   DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
   Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
-  PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
-  RecommendationsCaches, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
+  PodcastEpisodes, Podcasts, PostEmbeddings, PostPreviews, PostRecommendations, PostRelations, PostSummaries, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
+  RecommendationsCaches, RejectionAppeals, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
   TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits,
   UserTagRels, Users, Votes, YjsDocuments
