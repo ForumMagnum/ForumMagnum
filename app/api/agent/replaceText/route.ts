@@ -211,10 +211,12 @@ function $applySuggestionForRange({
 /**
  * Render a suggested replacement as inline content: an insert suggestion is
  * an inline node, so markdown that would start a block on a line of its own
- * stays inline. Footnote definitions are the exception, since inline parsing
- * leaves them as literal text. A replacement that renders as one block of
- * inline content plus definitions is rendered as blocks, with the definitions
- * returned separately to attach to the footnote section.
+ * stays inline. Reference-style footnote definitions (`[^id]: …`) are the
+ * exception, since inline parsing leaves them as literal text. A replacement
+ * that renders as one block of inline content plus definitions is rendered as
+ * blocks. Footnote sections, from these or from inline footnotes (see
+ * `$inlineMarkdownToNodes`), are returned separately to attach to the
+ * document's footnote section.
  */
 function $suggestionReplacementToNodes(
   editor: LexicalEditor,

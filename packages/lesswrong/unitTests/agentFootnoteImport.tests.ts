@@ -1,13 +1,17 @@
-import { $createParagraphNode, $getRoot, $nodesOfType, type LexicalEditor } from "lexical";
+import { $createParagraphNode, $getRoot, $isLineBreakNode, $nodesOfType, type LexicalEditor } from "lexical";
 import { $generateHtmlFromNodes } from "@lexical/html";
+import { $dfs } from "@lexical/utils";
 import { $insertMarkdownBlockInEditor, $postMarkdownToNodes } from "../../../app/api/agent/insertBlock/route";
+import { $insertLLMBlockInEditor } from "../../../app/api/agent/insertLLMBlock/route";
+import { $insertWidgetInEditor } from "../../../app/api/agent/insertWidget/route";
 import { $applyEditModeReplacement } from "../../../app/api/agent/applyEditAtSelection";
 import { $applySuggestionWithNarrowing } from "../../../app/api/agent/replaceText/route";
 import { $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { $getFootnoteItems, $getFootnoteReferences, $getFootnoteSection } from "@/components/editor/lexicalPlugins/footnotes/helpers";
 import { $isFootnoteContentNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteContentNode";
-import { FootnoteSectionNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode";
+import { $isFootnoteSectionNode, FootnoteSectionNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode";
+import { $isFootnoteItemNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode";
 import { $createFootnoteReferenceNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteReferenceNode";
 import { $createSuggestionNode, ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $acceptSuggestion } from "@/components/editor/lexicalPlugins/suggestedEdits/acceptSuggestion";
@@ -39,6 +43,29 @@ function checkFootnote(editor: LexicalEditor) {
     expect(html).toMatch(/<(strong|b)[^>]*>(<span[^>]*>)?formatted<\//);
     expect(html).not.toContain("↩");
   });
+}
+
+async function replaceOriginal(editor: LexicalEditor, mode: "edit" | "suggest", replacement: string) {
+  await runEditorUpdate(editor, () => {
+    const quote = "original";
+    const result = $locateQuoteWithTextIndex(quote);
+    if (!result.anchor || !result.focus) throw new Error("Quote not found");
+    const args = {
+      editor, anchor: result.anchor, focus: result.focus, quote, range: result.range, replacement,
+      markdownIt: getMarkdownItForAgentPosts(),
+    };
+    const applied = mode === "edit"
+      ? $applyEditModeReplacement(args)
+      : $applySuggestionWithNarrowing({ ...args, suggestionId: "footnote-insertion" });
+    expect(applied.replaced).toBe(true);
+    // Narrowing could separate footnote syntax from what it belongs to.
+    expect(applied.narrowedReplacement).toBe(replacement);
+  });
+}
+
+/** Every footnote section in the document, including any nested below the top level. */
+function $getAllFootnoteSections(): FootnoteSectionNode[] {
+  return $dfs().map(({ node }) => node).filter($isFootnoteSectionNode);
 }
 
 describe("agent Markdown footnote import", () => {
@@ -114,20 +141,9 @@ describe("agent Markdown footnote import", () => {
 
   it.each<"edit" | "suggest">(["edit", "suggest"])("preserves replaceText definitions in %s mode", async mode => {
     const editor = await setupEditorWithContent("Before original after.");
-    await runEditorUpdate(editor, () => {
-      const quote = "original";
-      const result = $locateQuoteWithTextIndex(quote);
-      if (!result.anchor || !result.focus) throw new Error("Quote not found");
-      const args = {
-        editor, anchor: result.anchor, focus: result.focus, quote, range: result.range,
-        replacement: "original[^note]\n\n[^note]: A **formatted** definition.\n\n    Second paragraph.",
-        markdownIt: getMarkdownItForAgentPosts(),
-      };
-      const applied = mode === "edit"
-        ? $applyEditModeReplacement(args)
-        : $applySuggestionWithNarrowing({ ...args, suggestionId: "footnote-insertion" });
-      expect(applied.replaced).toBe(true);
-    });
+    await replaceOriginal(
+      editor, mode, "original[^note]\n\n[^note]: A **formatted** definition.\n\n    Second paragraph.",
+    );
     checkFootnote(editor);
     if (mode === "suggest") {
       await runEditorUpdate(editor, () => { $rejectSuggestion("footnote-insertion"); });
@@ -137,6 +153,57 @@ describe("agent Markdown footnote import", () => {
         expect($getRoot().getTextContent()).toBe("Before original after.");
       });
     }
+  });
+
+  it.each<"edit" | "suggest">(["edit", "suggest"])("imports inline footnotes in replaceText %s mode", async mode => {
+    const editor = await setupEditorWithContent("Before original after.");
+    await replaceOriginal(editor, mode, "original^[An inline note.]");
+    editor.getEditorState().read(() => {
+      const sections = $getAllFootnoteSections();
+      expect(sections).toHaveLength(1);
+      expect($getRoot().getLastChild()).toBe(sections[0]);
+      expect(sections[0].getChildren().every($isFootnoteItemNode)).toBe(true);
+      const items = $getFootnoteItems();
+      expect(items).toHaveLength(1);
+      const content = items[0].getChildren().find($isFootnoteContentNode);
+      expect(content?.getChildren().map(node => node.getTextContent())).toEqual(["An inline note."]);
+      expect($getFootnoteReferences().map(ref => ref.getFootnoteId())).toEqual([items[0].getFootnoteId()]);
+      // The rendered footnote's newlines must not survive as line breaks.
+      expect($dfs().some(({ node }) => $isLineBreakNode(node))).toBe(false);
+    });
+  });
+
+  it("attaches insertLLMBlock definitions to the document's footnote section", async () => {
+    const editor = await setupEditorWithContent("Existing paragraph.");
+    await insertFootnote(editor, "edit");
+    await runEditorUpdate(editor, () => {
+      expect($insertLLMBlockInEditor({
+        editor, modelName: "test-model", location: "end", markdownToNodes: $postMarkdownToNodes,
+        markdown: "Model output[^llm].\n\n[^llm]: Model definition.",
+      }).inserted).toBe(true);
+    });
+    editor.getEditorState().read(() => {
+      const sections = $getAllFootnoteSections();
+      expect(sections).toHaveLength(1);
+      expect($getRoot().getLastChild()).toBe(sections[0]);
+      const items = $getFootnoteItems();
+      expect(items.map(item => item.getFootnoteId())).toEqual($getFootnoteReferences().map(ref => ref.getFootnoteId()));
+      expect(items.map(item => item.getTextContent())).toEqual([
+        expect.stringContaining("A formatted definition."),
+        expect.stringContaining("Model definition."),
+      ]);
+    });
+  });
+
+  it("inserts widgets above the footnote section", async () => {
+    const editor = await setupEditorWithContent("Existing paragraph.");
+    await insertFootnote(editor, "edit");
+    await runEditorUpdate(editor, () => {
+      expect($insertWidgetInEditor({ content: "<p>Widget</p>", location: "end" }).inserted).toBe(true);
+    });
+    editor.getEditorState().read(() => {
+      expect($getRoot().getLastChild()).toBe($getFootnoteSection());
+    });
   });
 
   it("does not attach definitions when the insertion locator fails", async () => {

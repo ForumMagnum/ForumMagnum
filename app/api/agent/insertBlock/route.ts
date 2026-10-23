@@ -6,7 +6,8 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
 import { JSDOM } from "jsdom";
-import { $appendImportedFootnotes, $importAgentHtml, splitImportedFootnotes } from "../importFootnotes";
+import { $generateNodesFromDOM } from "@lexical/html";
+import { $appendImportedFootnotes, splitImportedFootnotes } from "../importFootnotes";
 import { $getFootnoteSection } from "@/components/editor/lexicalPlugins/footnotes/helpers";
 import {
   $getRoot,
@@ -180,7 +181,7 @@ function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], parent: El
 function $htmlToNodes(editor: LexicalEditor, html: string): LexicalNode[] {
   const dom = new JSDOM(sanitize(html));
   try {
-    return normalizeImportedTopLevelNodes($importAgentHtml(editor, dom.window.document));
+    return normalizeImportedTopLevelNodes($generateNodesFromDOM(editor, dom.window.document));
   } finally {
     dom.window.close();
   }
@@ -251,10 +252,19 @@ function $resolveInsidePoint(prefix: string, position: "start" | "end"): Inserti
 }
 
 /**
- * Resolve an insert location to a parent node and child index. Must be called
- * inside a Lexical read/update context.
+ * Resolve an insert location to a parent node and child index. A point at the
+ * top level never comes after the footnote section, which stays at the end of
+ * the document. Must be called inside a Lexical read/update context.
  */
 export function $resolveInsertionPoint(location: InsertLocation): InsertionPointResult {
+  const result = $resolveLocation(location);
+  const section = $getFootnoteSection();
+  if (!result.point || !section || !$isRootNode(result.point.parent)) return result;
+  const index = Math.min(result.point.index, section.getIndexWithinParent());
+  return { point: { parent: result.point.parent, index } };
+}
+
+function $resolveLocation(location: InsertLocation): InsertionPointResult {
   const root = $getRoot();
   if (location === "start") {
     return { point: { parent: root, index: 0 } };
@@ -312,10 +322,7 @@ export function $insertMarkdownBlockInEditor({
     return { inserted: false, note: reason ?? `No block starts with locator text: ${JSON.stringify(location)}` };
   }
 
-  const { parent, index } = point;
-  // New blocks go above the footnote section, which stays at the end of the document.
-  const section = $isRootNode(parent) ? $getFootnoteSection() : null;
-  const insertionIndex = Math.min(index, section?.getIndexWithinParent() ?? index);
+  const { parent, index: insertionIndex } = point;
   parent.splice(insertionIndex, 0, nodesToInsert);
   let suggestionId: string | undefined = undefined;
   if (mode === "suggest") {

@@ -1,5 +1,6 @@
 import { JSDOM } from "jsdom";
-import { $appendImportedFootnotes, $importAgentHtml, splitImportedFootnotes } from "./importFootnotes";
+import { $generateNodesFromDOM } from "@lexical/html";
+import { $appendImportedFootnotes, splitImportedFootnotes } from "./importFootnotes";
 import {
   $createRangeSelection,
   $isBlockElementNode,
@@ -35,7 +36,7 @@ import type { Token } from "markdown-it/index.js";
 function $htmlToNodes(editor: LexicalEditor, html: string): LexicalNode[] {
   const dom = new JSDOM(html);
   try {
-    return $importAgentHtml(editor, dom.window.document);
+    return $generateNodesFromDOM(editor, dom.window.document);
   } finally {
     dom.window.close();
   }
@@ -67,6 +68,12 @@ export function $htmlToInlineNodes(editor: LexicalEditor, html: string): Lexical
  * Lexical keeps its whitespace rather than collapsing it and trimming it at
  * the fragment's edges.
  *
+ * Inline footnotes (`^[…]`) are the one block the inline parser emits: their
+ * definitions follow the inline content as a footnote section. That section
+ * is rendered outside the preformatted span, where the newlines between its
+ * tags would become line breaks, and is returned at the end of the array for
+ * callers to attach after a successful edit.
+ *
  * Must be called inside a Lexical update context.
  */
 export function $inlineMarkdownToNodes(
@@ -77,11 +84,15 @@ export function $inlineMarkdownToNodes(
   if (markdown.length === 0) return [];
   const env = { docId: randomId() };
   const tokens = markdownIt.parseInline(markdown, env);
-  for (const token of tokens) {
+  const footnoteBlockStart = tokens.findIndex((token) => token.type === "footnote_block_open");
+  const inlineTokens = footnoteBlockStart === -1 ? tokens : tokens.slice(0, footnoteBlockStart);
+  const footnoteTokens = footnoteBlockStart === -1 ? [] : tokens.slice(footnoteBlockStart);
+  for (const token of inlineTokens) {
     rewriteBreaksForPreformattedText(token.children ?? []);
   }
-  const html = sanitize(markdownIt.renderer.render(tokens, markdownIt.options, env));
-  return $htmlToNodes(editor, `<span style="white-space: pre-wrap">${html}</span>`);
+  const inlineHtml = sanitize(markdownIt.renderer.render(inlineTokens, markdownIt.options, env));
+  const footnoteHtml = sanitize(markdownIt.renderer.render(footnoteTokens, markdownIt.options, env));
+  return $htmlToNodes(editor, `<span style="white-space: pre-wrap">${inlineHtml}</span>${footnoteHtml}`);
 }
 
 /**
@@ -403,6 +414,9 @@ interface TextSpan {
  */
 const MARKDOWN_ESCAPE = /\\[!-/:-@[-`{-~\n]/g;
 
+/** A footnote reference or definition (`[^id]`), or an inline footnote (`^[…]`). */
+const MARKDOWN_FOOTNOTE = /\[\^|\^\[/;
+
 /**
  * Spans of markdown that narrowing mustn't split. A math token's fragment
  * can't be located against the document's atomic MathNode. A piece of a
@@ -490,8 +504,9 @@ export function $computeNarrowing(
   replacement: string
 } | null {
   if (!range) return null;
-  // Footnote definitions are nonlocal: narrowing can split a reference from its definition.
-  if (quote.includes("[^") || replacement.includes("[^")) return null;
+  // Footnote definitions are nonlocal: narrowing can split a reference from
+  // its definition, or the `^` of an inline footnote from its brackets.
+  if (MARKDOWN_FOOTNOTE.test(quote) || MARKDOWN_FOOTNOTE.test(replacement)) return null;
   // Narrowed replacements are rendered as inline nodes, which assumes a
   // single block's inline context; cross-block edits use the full range.
   if (!$pointsShareBlock(anchor, focus)) return null;
