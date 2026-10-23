@@ -8,8 +8,6 @@ import { renderEquation } from "./loadMathJax";
 const styles = defineStyles('MathComponent', (theme: ThemeType) => ({
   preview: {
     userSelect: 'none',
-    minWidth: '1em',
-    minHeight: '1em',
     '& mjx-merror': {
       color: theme.palette.error.light,
       backgroundColor: 'transparent',
@@ -17,6 +15,13 @@ const styles = defineStyles('MathComponent', (theme: ThemeType) => ({
   },
   inline: {
     display: 'inline-block',
+  },
+  // Keeps an empty equation clickable. Rendered equations are left at their
+  // natural width, since a 1em minimum adds visible space after narrow
+  // equations like a single letter.
+  empty: {
+    minWidth: '1em',
+    minHeight: '1em',
   },
   display: {
     display: 'block',
@@ -70,6 +75,7 @@ export function MathComponent({ equation, inline }: {
     <span
       ref={containerRef}
       className={classNames('math-preview', inline ? 'math-inline' : 'math-display', classes.preview, inline ? classes.inline : classes.display, {
+        [classes.empty]: !equation.trim(),
         [classes.placeholder]: !inline && !equation.trim(),
       })}
     />
