@@ -26,6 +26,11 @@ function Embed() {
   const hudRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
+      // LessWrong tells the widget its page background so the panel blends into the page.
+      if (e.data?.type === 'lw-scrolly-theme' && typeof e.data.background === 'string') {
+        document.documentElement.style.setProperty('--vivid-background', e.data.background);
+        return;
+      }
       if (e.data?.type !== 'lw-scrolly') return;
       const f = frameFor(e.data);
       if (f !== null) setFrame(f);
