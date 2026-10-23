@@ -8,8 +8,9 @@ import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/ap
 import { $applyEditModeReplacement } from "../../../app/api/agent/applyEditAtSelection";
 import { $isListItemNode, $isListNode } from "@lexical/list";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
-import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
+import { loadHtmlIntoHeadlessEditor } from "@/server/typoSuggestions/headlessLexical";
 import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
 
@@ -400,8 +401,7 @@ describe("replaceText when a quote ends inside or after a link", () => {
     );
 
     expect(replaced).toBe(true);
-    expect(getPlainTextContent(editor)).toContain("Intro text and further discussion in the appendix.");
-    expect(getPlainTextContent(editor)).not.toContain("Asking the model");
+    expect(getMarkdownContent(editor)).toBe("Intro text and further discussion in the appendix.\n\nNext paragraph.");
   });
 
   it("replaces a quote ending exactly at the end of a link in edit mode", async () => {
@@ -414,12 +414,13 @@ describe("replaceText when a quote ends inside or after a link", () => {
     );
 
     expect(replaced).toBe(true);
-    expect(getPlainTextContent(editor)).toContain("Intro text and further discussion in the appendix.");
+    expect(getMarkdownContent(editor)).toBe("Intro text and further discussion in the appendix.\n\nNext paragraph.");
   });
 
-  it("replaces a quote starting inside a link and ending after it in edit mode", async () => {
+  it("inserts after a link without cutting it short when the quote starts inside it in edit mode", async () => {
     const editor = await setupEditorWithContent(doc);
 
+    // Narrowing reduces this to inserting ", below" after the link's text.
     const replaced = await replaceTextInEditMode(
       editor,
       "Asking the model to explain its reasoning.",
@@ -427,7 +428,79 @@ describe("replaceText when a quote ends inside or after a link", () => {
     );
 
     expect(replaced).toBe(true);
-    expect(getPlainTextContent(editor)).toContain("Appendix: Asking the model to explain its reasoning, below.");
+    expect(getMarkdownContent(editor)).toBe(
+      "Intro text and additional discussion in [Appendix: Asking the model to explain its reasoning](#appendix), below.\n\nNext paragraph.",
+    );
+  });
+
+  it("replaces a quote from plain text into a link in an editor that already has a selection", async () => {
+    // Loading content this way leaves a selection at the end of the document,
+    // as on the typo-suggestion apply path; the edit must not act on it.
+    const editor = loadHtmlIntoHeadlessEditor(
+      markdownToHtml("Alpha beta [gamma delta](https://example.com) epsilon zeta."),
+      "StaleSelectionTest",
+    );
+
+    const replaced = await replaceTextInEditMode(editor, "beta gamma", "BETA GAMMA");
+
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Alpha BETA GAMMA [delta](https://example.com) epsilon zeta.");
+  });
+
+  it("keeps a link whose whole text is replaced in edit mode", async () => {
+    const editor = await setupEditorWithContent("See [foo](https://example.com) now.");
+
+    expect(await replaceTextInEditMode(editor, "foo", "bar")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("See [bar](https://example.com) now.");
+  });
+});
+
+describe("replaceText edit mode pure insertions", () => {
+  // Narrowing reduces each of these edits to inserting text at one point,
+  // which goes where Lexical would put text typed there.
+  it("inserts next to a link without unlinking any of it", async () => {
+    const editor = await setupEditorWithContent("See [the draft notes](https://example.com) for details.");
+
+    expect(await replaceTextInEditMode(editor, "notes for", "notes, for")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("See [the draft notes](https://example.com), for details.");
+  });
+
+  it("inserts into a link's text inside the link", async () => {
+    const editor = await setupEditorWithContent("See [the draft notes](https://example.com) for details.");
+
+    expect(await replaceTextInEditMode(editor, "draft notes", "draft new notes")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("See [the draft new notes](https://example.com) for details.");
+  });
+
+  it("inserts at either edge of a link outside it", async () => {
+    const editor = await setupEditorWithContent("See [the notes](https://example.com)");
+
+    expect(await replaceTextInEditMode(editor, "the notes", "the notes.")).toBe(true);
+    expect(await replaceTextInEditMode(editor, "See the", "See all the")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("See all [the notes](https://example.com).");
+  });
+
+  it("gives inserted text the formatting of the text around it", async () => {
+    const editor = await setupEditorWithContent("Some *the map* here.");
+
+    expect(await replaceTextInEditMode(editor, "*the map*", "*the big map*")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Some *the big map* here.");
+  });
+
+  it("keeps the spaces at the edges of the inserted text", async () => {
+    const editor = await setupEditorWithContent("I went home today.");
+
+    expect(await replaceTextInEditMode(editor, "went home", "went to his home")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("I went to his home today.");
+  });
+});
+
+describe("replaceText edit mode multi-paragraph replacements", () => {
+  it("splits the paragraph around a multi-paragraph replacement", async () => {
+    const editor = await setupEditorWithContent("One two three.");
+
+    expect(await replaceTextInEditMode(editor, "two", "X\n\nY")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("One X\n\nY three.");
   });
 });
 
