@@ -47,7 +47,6 @@ Disallow: /allPosts?*
 Disallow: /allPosts
 Disallow: /allposts
 Disallow: /allposts?*
-Disallow: /out?*
 Disallow: /graphiql
 Disallow: /debug
 Disallow: /admin

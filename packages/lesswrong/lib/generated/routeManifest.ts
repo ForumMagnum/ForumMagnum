@@ -1114,9 +1114,6 @@ export const routeTrie = {
         "token": "token"
       }
     },
-    "out": {
-      "hasRoute": true
-    },
     "pastEvents": {
       "hasPage": true
     },
@@ -1520,7 +1517,6 @@ export const routeTrie = {
     "nominations": "nominations",
     "notifications": "notifications",
     "oauth": "oauth",
-    "out": "out",
     "pastevents": "pastEvents",
     "payments": "payments",
     "petrov": "petrov",
