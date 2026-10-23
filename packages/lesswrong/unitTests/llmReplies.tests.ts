@@ -3,6 +3,8 @@ import { getLlmMentionPath, getMentionableLlms, getMentionedLlmVersion } from "@
 import { llmReplyStartsAsPreview, LLM_REPLY_EXPAND_KARMA } from "@/lib/llmReplies/helpers";
 import { getFirstMentionedLlm } from "@/server/llmReplies/mentionedLlms";
 import { getPublicMarkdownPath } from "@/server/languageModels/publicMarkdown";
+import { renderAgentMarkdownToHtml } from "@/server/editor/conversionUtils";
+import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 
 const testFamily: LlmFamily = {
   name: "Test",
@@ -101,5 +103,13 @@ describe("getPublicMarkdownPath", () => {
 
   it("returns null for pages without a Markdown version", () => {
     expect(getPublicMarkdownPath("/notARealPage/xyz/abc", "LessWrong")).toBeNull();
+  });
+});
+
+describe("model reply HTML", () => {
+  it("keeps single-backslash math delimiters as math", () => {
+    const html = renderAgentMarkdownToHtml(getMarkdownItForAgentPosts(), "The bound is \\(D_{\\mathrm{KL}}(\\xi\\|\\rho)\\leq\\eta\\).");
+    expect(html).toContain('class="math-tex"');
+    expect(html).toContain("D_{\\mathrm{KL}}");
   });
 });

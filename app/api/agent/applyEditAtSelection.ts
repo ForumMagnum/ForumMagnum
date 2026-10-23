@@ -22,7 +22,8 @@ import {
 import { findMathSpansInMarkdown } from "@/lib/utils/mathTokens";
 import { randomId } from "@/lib/random";
 import { sanitize } from "@/lib/utils/sanitize";
-import { renderAgentMarkdownToHtml, splitParagraphAtDisplayMath } from "./editorAgentUtil";
+import { splitParagraphAtDisplayMath } from "./editorAgentUtil";
+import { renderAgentMarkdownToHtml } from "@/server/editor/conversionUtils";
 import {
   normalizeTracked,
   resolveRawIndexToPoint,

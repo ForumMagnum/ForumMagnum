@@ -8,6 +8,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { sanitize } from "@/lib/utils/sanitize";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { getMarkdownIt, getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
+import type MarkdownIt from 'markdown-it';
 import { formatMathToken } from '@/lib/utils/mathTokens';
 import type { Cheerio, CheerioAPI, Element as CheerioElement } from 'cheerio';
 import type { DataNode } from 'domhandler';
@@ -947,6 +948,18 @@ export function htmlToMarkdown(html: string): string {
 export function ckEditorMarkupToMarkdown(markup: string): string {
   // Sanitized CKEditor markup is just html
   return turndownToMarkdown(sanitize(markup))
+}
+
+/**
+ * Render model-written markdown to sanitized HTML. Uses an "agent" dialect
+ * (the caller picks post vs research), which recognizes single-backslash math
+ * delimiters like `\(...\)` and emits `math-tex` spans. It deliberately
+ * never runs `renderMathInHtml`: callers importing into a Lexical editor need
+ * editable math, and callers saving HTML contents get math rendered by
+ * `dataToHTML`.
+ */
+export function renderAgentMarkdownToHtml(markdownIt: MarkdownIt, markdown: string): string {
+  return sanitize(markdownIt.render(markdown, { docId: randomId() }));
 }
 
 export function markdownToHtmlNoLaTeX(markdown: string): string {

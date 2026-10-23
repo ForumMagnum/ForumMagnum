@@ -1,7 +1,6 @@
 import { JSDOM } from "jsdom";
-import { htmlToMarkdown, markdownToHtmlNoLaTeX } from "@/server/editor/conversionUtils";
+import { htmlToMarkdown, markdownToHtmlNoLaTeX, renderAgentMarkdownToHtml } from "@/server/editor/conversionUtils";
 import { getMarkdownItForAgentPosts, getMarkdownItForResearch } from "@/lib/utils/markdownItPlugins";
-import { renderAgentMarkdownToHtml } from "../../../app/api/agent/editorAgentUtil";
 
 /**
  * Text-fidelity regressions for the Lexical→HTML→Turndown read path, found

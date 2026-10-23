@@ -10,6 +10,8 @@ import { generateLlmRunResponse } from "@/server/languageModels/llmRunResponse";
 import { getLlmTools } from "@/server/languageModels/llmTools";
 import { commentIsPubliclyVisible } from "@/server/languageModels/publicVisibility";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { renderAgentMarkdownToHtml } from "@/server/editor/conversionUtils";
+import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { buildThreadContextMessage } from "./threadContext";
 
 /**
@@ -36,9 +38,10 @@ export const commentReplyRunHandler: LlmRunHandler = {
       contextMessage: await buildThreadContextMessage(post, triggerComment, context),
       tools: getLlmTools(context, run.gatewayModelId),
     });
+    // Models often write math as `\(...\)`, which only the agent dialect reads
     const reply = await updateComment({
       selector: { _id: replyCommentId },
-      data: { contents: { originalContents: { type: "markdown", data: response } } },
+      data: { contents: { originalContents: { type: "html", data: renderAgentMarkdownToHtml(getMarkdownItForAgentPosts(), response) } } },
     }, context);
     await sendLlmReplyNotifications(reply, context);
   },
