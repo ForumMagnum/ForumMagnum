@@ -216,6 +216,10 @@ re-read the draft before retrying on "no match" errors). Quotes may span
 formatting boundaries and even paragraph boundaries. In suggest mode, a quote
 spanning paragraphs produces per-paragraph deletion suggestions plus one
 insertion; accepting it does not merge the paragraphs.
+If the quote is plain text (no emphasis markers), the replacement inherits any
+formatting shared by all of the quoted text, so replacing a few words inside an
+italic or bold span keeps them italic or bold. To remove formatting, include the
+markers in the quote (e.g. quote "*some words*" with replacement "some words").
 
 If the mode is "edit", the change will be applied immediately; if the mode is
 "suggest", the change will be displayed as a suggestion in the post editor. If

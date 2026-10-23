@@ -17,8 +17,10 @@ import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import {
+  $addTextFormat,
   $applyEditModeReplacement,
   $computeNarrowing,
+  $getInheritedTextFormat,
   $inlineMarkdownToNodes,
 } from "../applyEditAtSelection";
 
@@ -95,12 +97,14 @@ function $applySuggestionInsertionAtPoint({
   editor,
   point,
   replacement,
+  inheritedFormat,
   suggestionId,
   markdownIt,
 }: {
   editor: LexicalEditor
   point: MarkdownSelectionPoint
   replacement: string
+  inheritedFormat: number
   suggestionId: string
   markdownIt: MarkdownIt
 }): boolean {
@@ -130,7 +134,7 @@ function $applySuggestionInsertionAtPoint({
     anchorNode.insertAfter(deleteSuggestion);
   }
 
-  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, suggestionId, markdownIt });
+  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, inheritedFormat, suggestionId, markdownIt });
   deleteSuggestion.insertAfter(insertSuggestion);
   return true;
 }
@@ -144,18 +148,19 @@ function $applySuggestionForSelection(
   anchor: MarkdownSelectionPoint,
   focus: MarkdownSelectionPoint,
   replacement: string,
+  inheritedFormat: number,
   suggestionId: string,
   markdownIt: MarkdownIt,
 ): boolean {
   const insertionPoint = $getEquivalentInsertionPoint(anchor, focus);
   if (insertionPoint) {
     return $applySuggestionInsertionAtPoint({
-      editor, point: insertionPoint, replacement, suggestionId, markdownIt,
+      editor, point: insertionPoint, replacement, inheritedFormat, suggestionId, markdownIt,
     });
   }
 
   return $applySuggestionForRange({
-    editor, anchor, focus, replacement, suggestionId, markdownIt,
+    editor, anchor, focus, replacement, inheritedFormat, suggestionId, markdownIt,
   });
 }
 
@@ -176,6 +181,7 @@ function $applySuggestionForRange({
   anchor,
   focus,
   replacement,
+  inheritedFormat,
   suggestionId,
   markdownIt,
 }: {
@@ -183,6 +189,7 @@ function $applySuggestionForRange({
   anchor: MarkdownSelectionPoint
   focus: MarkdownSelectionPoint
   replacement: string
+  inheritedFormat: number
   suggestionId: string
   markdownIt: MarkdownIt
 }): boolean {
@@ -192,7 +199,7 @@ function $applySuggestionForRange({
   const deleteSuggestions = $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
   if (deleteSuggestions.length === 0) return false;
 
-  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, suggestionId, markdownIt });
+  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, inheritedFormat, suggestionId, markdownIt });
   deleteSuggestions[0].insertAfter(insertSuggestion);
   return true;
 }
@@ -200,21 +207,25 @@ function $applySuggestionForRange({
 /**
  * An insert suggestion is an inline node, so the replacement is always
  * rendered as inline content, even one with markdown that would start a
- * block on a line of its own.
+ * block on a line of its own. Its text also gets `inheritedFormat` (see
+ * `$getInheritedTextFormat`).
  */
 function $buildInsertSuggestion({
   editor,
   replacement,
+  inheritedFormat,
   suggestionId,
   markdownIt,
 }: {
   editor: LexicalEditor
   replacement: string
+  inheritedFormat: number
   suggestionId: string
   markdownIt: MarkdownIt
 }): LexicalNode {
   const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
   for (const node of $inlineMarkdownToNodes(editor, replacement, markdownIt)) {
+    $addTextFormat(node, inheritedFormat);
     insertSuggestion.append(node);
   }
   return insertSuggestion;
@@ -249,12 +260,16 @@ export function $applySuggestionWithNarrowing({
   const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range, markdownIt);
 
   if (!narrowing) {
-    const replaced = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId, markdownIt);
+    const inheritedFormat = $getInheritedTextFormat(anchor, focus, quote);
+    const replaced = $applySuggestionForSelection(
+      editor, anchor, focus, replacement, inheritedFormat, suggestionId, markdownIt,
+    );
     return { replaced, narrowedQuote: quote, narrowedReplacement: replacement };
   }
 
+  const inheritedFormat = $getInheritedTextFormat(narrowing.anchor, narrowing.focus, narrowing.quote);
   const replaced = $applySuggestionForSelection(
-    editor, narrowing.anchor, narrowing.focus, narrowing.replacement, suggestionId, markdownIt,
+    editor, narrowing.anchor, narrowing.focus, narrowing.replacement, inheritedFormat, suggestionId, markdownIt,
   );
   return { replaced, narrowedQuote: narrowing.quote, narrowedReplacement: narrowing.replacement };
 }

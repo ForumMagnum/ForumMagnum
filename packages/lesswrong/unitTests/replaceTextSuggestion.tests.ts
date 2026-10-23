@@ -1,4 +1,4 @@
-import { $createRangeSelection, $getRoot, $isElementNode, $isRootNode, type LexicalEditor, type LexicalNode } from "lexical";
+import { $createRangeSelection, $getRoot, $isElementNode, $isRootNode, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import { $applySuggestionWithNarrowing } from "../../../app/api/agent/replaceText/route";
@@ -11,6 +11,7 @@ import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { loadHtmlIntoHeadlessEditor } from "@/server/typoSuggestions/headlessLexical";
+import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs, walkLexicalNodes } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
 
@@ -1252,5 +1253,87 @@ describe("LaTeX correctness regressions", () => {
     );
     expect(replaced).toBe(true);
     expect(getMarkdownContent(editor)).toBe("$a$ before $x3$ after $b$");
+  });
+});
+
+/** Text and italic-ness of each text node inside an insert suggestion. */
+function getInsertedTextItalics(editor: LexicalEditor): Array<{ text: string, italic: boolean }> {
+  const inserted: Array<{ text: string, italic: boolean }> = [];
+  editor.getEditorState().read(() => {
+    walkLexicalNodes($getRoot(), (node) => {
+      if (!$isSuggestionNode(node) || node.getSuggestionTypeOrThrow() !== "insert") return;
+      walkLexicalNodes(node, (child) => {
+        if ($isTextNode(child)) {
+          inserted.push({ text: child.getTextContent(), italic: child.hasFormat("italic") });
+        }
+      });
+    });
+  });
+  return inserted;
+}
+
+describe("replaceText inherits the formatting of the replaced text", () => {
+  it("keeps a narrowed plain replacement inside an italic span italic", async () => {
+    const editor = await setupEditorWithContent("She said *the quick brown fox* jumped.");
+    const replaced = await replaceTextInEditMode(editor, "the quick brown fox", "the slow brown fox");
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("She said *the slow brown fox* jumped.");
+  });
+
+  it("keeps a plain replacement of a whole italic span italic", async () => {
+    const editor = await setupEditorWithContent("Intro *alpha beta* outro.");
+    const replaced = await replaceTextInEditMode(editor, "alpha beta", "omega pi");
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Intro *omega pi* outro.");
+  });
+
+  it("keeps bold formatting when replacing words inside bold text", async () => {
+    const editor = await setupEditorWithContent("Intro **one two three** outro.");
+    const replaced = await replaceTextInEditMode(editor, "two", "2");
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Intro **one 2 three** outro.");
+  });
+
+  it("combines the replacement's own formatting with the inherited formatting", async () => {
+    const editor = await setupEditorWithContent("She said *the quick brown fox* jumped.");
+    const replaced = await replaceTextInEditMode(editor, "quick", "**slow**");
+    expect(replaced).toBe(true);
+    let slowFormats: string[] = [];
+    editor.getEditorState().read(() => {
+      walkLexicalNodes($getRoot(), (node) => {
+        if ($isTextNode(node) && node.getTextContent() === "slow") {
+          slowFormats = (["bold", "italic"] as const).filter(f => node.hasFormat(f));
+        }
+      });
+    });
+    expect(slowFormats).toEqual(["bold", "italic"]);
+  });
+
+  it("removes formatting when the quote spells out the markers", async () => {
+    const editor = await setupEditorWithContent("Intro *alpha beta* outro.");
+    const replaced = await replaceTextInEditMode(editor, "*alpha beta*", "alpha beta");
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Intro alpha beta outro.");
+  });
+
+  it("does not inherit formatting that only part of the quote has", async () => {
+    const editor = await setupEditorWithContent("Start plain *italic* end.");
+    const replaced = await replaceTextInEditMode(editor, "plain italic", "words");
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Start words end.");
+  });
+
+  it("keeps a suggested plain replacement inside an italic span italic", async () => {
+    const editor = await setupEditorWithContent("She said *the quick brown fox* jumped.");
+    const replaced = await replaceTextAsSuggestion(editor, "the quick brown fox", "the slow brown fox");
+    expect(replaced).toBe(true);
+    expect(getInsertedTextItalics(editor)).toEqual([{ text: "slow", italic: true }]);
+  });
+
+  it("keeps a suggested non-narrowed plain replacement inside an italic span italic", async () => {
+    const editor = await setupEditorWithContent("Intro *alpha beta* outro.");
+    const replaced = await replaceTextAsSuggestion(editor, "alpha beta", "omega pi");
+    expect(replaced).toBe(true);
+    expect(getInsertedTextItalics(editor)).toEqual([{ text: "omega pi", italic: true }]);
   });
 });

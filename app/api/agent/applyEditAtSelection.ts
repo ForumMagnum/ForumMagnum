@@ -14,6 +14,7 @@ import {
   type LexicalEditor,
   type LexicalNode,
   type PointType,
+  type TextNode,
 } from "lexical";
 import {
   markdownQuoteToPlainText,
@@ -103,6 +104,40 @@ function rewriteBreaksForPreformattedText(children: Token[]): void {
       token.content = "<br>";
     }
   }
+}
+
+/**
+ * The text formatting (bold, italic, code, ...) that a replacement for this
+ * selection should inherit: the format bits shared by every text node the
+ * selection covers. A quote written as plain text (no markdown markers) says
+ * nothing about formatting, so a plain replacement of words inside an italic
+ * span should stay italic. A quote that spells out markers (e.g. `*foo*`)
+ * makes formatting explicit, so nothing is inherited and the replacement's own
+ * markdown decides it — that's how an agent removes formatting.
+ *
+ * Must be called inside a Lexical read/update context, before the selection
+ * is mutated.
+ */
+export function $getInheritedTextFormat(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+  quote: string,
+): number {
+  if (markdownQuoteToPlainText(quote) !== quote) return 0;
+  const selection = $createRangeSelection();
+  selection.anchor.set(anchor.key, anchor.offset, anchor.type);
+  selection.focus.set(focus.key, focus.offset, focus.type);
+  const collapsed = selection.isCollapsed();
+  const coveredTextNodes = selection.getNodes().filter((node): node is TextNode => {
+    if (!$isTextNode(node)) return false;
+    if (collapsed) return true;
+    // A boundary node the selection only touches at its edge isn't covered.
+    if (anchor.type === "text" && node.getKey() === anchor.key && anchor.offset >= node.getTextContentSize()) return false;
+    if (focus.type === "text" && node.getKey() === focus.key && focus.offset <= 0) return false;
+    return true;
+  });
+  if (coveredTextNodes.length === 0) return 0;
+  return coveredTextNodes.reduce((format, node) => format & node.getFormat(), coveredTextNodes[0].getFormat());
 }
 
 /**
@@ -246,7 +281,7 @@ function $outsideInlineEdge(node: LexicalNode, edge: "start" | "end"): LexicalNo
 }
 
 /** Add text formatting to every text node in `node`'s subtree. */
-function $addTextFormat(node: LexicalNode, format: number): void {
+export function $addTextFormat(node: LexicalNode, format: number): void {
   if ($isTextNode(node)) {
     node.setFormat(node.getFormat() | format);
   } else if ($isElementNode(node)) {
@@ -643,6 +678,12 @@ export function $applyEditModeReplacement({
     nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
   } else {
     nodes = $inlineMarkdownToNodes(editor, replacement, markdownIt);
+  }
+  const inheritedFormat = $getInheritedTextFormat(
+    narrowing?.anchor ?? anchor, narrowing?.focus ?? focus, narrowing?.quote ?? quote,
+  );
+  for (const node of nodes) {
+    $addTextFormat(node, inheritedFormat);
   }
   const replaced = $applyEditAtSelection({
     anchor: narrowing?.anchor ?? anchor,
