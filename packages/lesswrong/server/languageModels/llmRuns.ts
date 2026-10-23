@@ -34,16 +34,16 @@ export async function runLlmRun(runId: string, forumType: ForumTypeString): Prom
   }
 
   try {
-    await getLlmRunHandler(run.invocationContext).run(run, forumType);
+    await getLlmRunHandler(run.invocationContext).run(run, run.forumType);
     await LlmRuns.rawUpdateOne({ _id: run._id }, { $set: { status: "completed", completedAt: new Date() } });
   } catch (err) {
     captureException(err);
     const error = err instanceof Error ? err.message : String(err);
     if (run.attemptCount < MAX_LLM_RUN_ATTEMPTS) {
       await LlmRuns.rawUpdateOne({ _id: run._id }, { $set: { status: "pending", error } });
-      await requestLlmRun(run._id, forumType);
+      await requestLlmRun(run._id, run.forumType);
     } else {
-      await failLlmRun(run, error, forumType);
+      await failLlmRun(run, error);
     }
   }
 }
@@ -57,14 +57,14 @@ export async function retryStalledLlmRuns(forumType: ForumTypeString): Promise<v
   );
   for (const run of stalledRuns) {
     if (run.attemptCount >= MAX_LLM_RUN_ATTEMPTS) {
-      await failLlmRun(run, `Gave up after ${run.attemptCount} attempts`, forumType);
+      await failLlmRun(run, `Gave up after ${run.attemptCount} attempts`);
     } else {
-      await requestLlmRun(run._id, forumType);
+      await requestLlmRun(run._id, run.forumType);
     }
   }
 }
 
-async function failLlmRun(run: DbLlmRun, error: string, forumType: ForumTypeString): Promise<void> {
+async function failLlmRun(run: DbLlmRun, error: string): Promise<void> {
   await LlmRuns.rawUpdateOne({ _id: run._id }, { $set: { status: "failed", error, completedAt: new Date() } });
-  await getLlmRunHandler(run.invocationContext).fail(run, forumType);
+  await getLlmRunHandler(run.invocationContext).fail(run, run.forumType);
 }

@@ -1,9 +1,11 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { accessFilterMultiple, accessFilterSingle } from "@/lib/utils/schemaUtils";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 
 declare global {
   type LlmRunStatus = "pending" | "running" | "completed" | "failed";
   type LlmRunInvocationContext = "commentReply";
+  type LlmRunForumType = ForumTypeString;
 }
 
 const LLM_RUN_STATUSES: LlmRunStatus[] = ["pending", "running", "completed", "failed"];
@@ -25,6 +27,13 @@ const schema = {
       validation: {
         allowedValues: LLM_RUN_INVOCATION_CONTEXTS,
       },
+    },
+  },
+  forumType: {
+    database: {
+      type: "TEXT",
+      typescriptType: "LlmRunForumType",
+      nullable: false,
     },
   },
   post: {

@@ -91,6 +91,7 @@ async function startLlmReply({ comment, postId, modelUser, llm }: {
   const runId = await LlmRuns.rawInsert({
     createdAt: new Date(),
     invocationContext: "commentReply",
+    forumType: context.forumType,
     modelName: llm.version.name,
     gatewayModelId: llm.version.gatewayModelId,
     status: "pending",

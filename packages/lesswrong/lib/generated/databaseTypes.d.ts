@@ -631,6 +631,7 @@ interface DbLlmRun extends DbObject {
   contextMessage: string | null
   createdAt: Date
   error: string | null
+  forumType: LlmRunForumType
   gatewayModelId: string
   invocationContext: LlmRunInvocationContext
   modelName: string
