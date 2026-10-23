@@ -27,8 +27,8 @@ const styles = defineStyles('RateLimitWarning', (theme: ThemeType) => ({
 // Tells the user when they can next comment or post if they're rate limited, and a brief explanation
 const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage}: {
   contentType: 'comment' | 'post',
-  lastRateLimitExpiry: Date,
-  rateLimitMessage?: string,
+  lastRateLimitExpiry: Date | null,
+  rateLimitMessage?: string | null,
 }) => {
   const classes = useStyles(styles);
   const getTimeUntilNextPost = () => {
@@ -54,7 +54,9 @@ const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage}: 
     return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''}`
   }
 
-  let message = `<p>You can submit again in ${getTimeUntilNextPost()}.</p> ${rateLimitMessage ?? ''}`
+  const message = lastRateLimitExpiry === null
+    ? `<p>You cannot ${contentType} until your restriction is lifted.</p> ${rateLimitMessage ?? ''}`
+    : `<p>You can submit again in ${getTimeUntilNextPost()}.</p> ${rateLimitMessage ?? ''}`
   return <ContentStyles contentType="comment" className={classes.lwBanner}>
     <AlarmIcon className={classes.icon} />
     <ContentItemBody dangerouslySetInnerHTML={{__html: message }}/>

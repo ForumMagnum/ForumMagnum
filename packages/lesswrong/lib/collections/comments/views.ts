@@ -129,20 +129,31 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient | undefined, cont
   };
   
   // Rejected comments are only visible to their author and to admins, and only
-  // when a view opts in.
-  const includeRejected = !!terms.includeRejected && (!context || context.currentUser?._id === terms.userId || !!context.currentUser?.isAdmin);
+  // when a view of a single user's comments opts in.
+  const includeRejected = !!terms.includeRejected && !!terms.userId && (!context || context.currentUser?._id === terms.userId || !!context.currentUser?.isAdmin);
+
+  // In a post's or comment's thread, the author of a rejected comment can still
+  // see it (it's labeled as rejected), so it doesn't silently disappear for them.
+  // Views can remove this with dontHideDeletedAndUnreviewed, like the other
+  // conditions in $and.
+  const currentUserId = context?.currentUser?._id;
+  const isThreadView = !!(terms.postId || terms.topLevelCommentId || terms.parentCommentId);
+  const includeOwnRejected = !includeRejected && isThreadView && !!currentUserId;
 
   // When we're hiding unreviewed comments, we allow comments that meet any of:
   //  * The author is reviewed
   //  * The comment was posted before the hideSince date
   //  * The comment was posted by the current user
+  // Views that include rejected comments are lists of a single user's comments
+  // shown to that user or to an admin, so they don't hide unreviewed comments
+  // either (most rejected comments are by unreviewed authors).
   // Do not run this on the client (ie: Mingo), because we will not have the
   // resolver context, and return unreviewed comments to ensure cache is
   // properly invalidated.
   // We set `{$ne: true}` instead of `false` to allow for comments that haven't
   // had the default value set yet (ie: those created by the frontend
   // immediately prior to appearing)
-  const shouldHideNewUnreviewedAuthorComments = (hideSince && bundleIsServer);
+  const shouldHideNewUnreviewedAuthorComments = (hideSince && bundleIsServer && !includeRejected);
   const hideNewUnreviewedAuthorComments =
     (shouldHideNewUnreviewedAuthorComments && (
       {$or: [
@@ -162,14 +173,16 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient | undefined, cont
         { $and: [
           getDraftSelector({ drafts: terms.drafts, context }),
           notDeletedOrDeletionIsPublic
-        ] }
+        ] },
+        ...(includeOwnRejected ? [{$or: [{rejected: {$ne: true}}, {userId: currentUserId}]}] : []),
       ],
       hideAuthor: terms.userId ? false : undefined,
       ...(terms.commentIds && {_id: {$in: terms.commentIds}}),
       ...alignmentForum,
       ...validFields,
       debateResponse: { $ne: true },
-      rejected: includeRejected ? viewFieldAllowAny : { $ne: true },
+      // When includeOwnRejected is set, the condition in $and above handles this.
+      rejected: includeRejected ? viewFieldAllowAny : (includeOwnRejected ? undefined : { $ne: true }),
       ...(typeof terms.minimumKarma === 'number' ? {baseScore: {$gte: terms.minimumKarma}} : {}),
     },
     options: {

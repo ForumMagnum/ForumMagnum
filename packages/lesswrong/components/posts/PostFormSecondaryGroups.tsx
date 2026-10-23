@@ -1,7 +1,7 @@
 import type { ForumTypeString } from '@/lib/instanceSettings';
 import { useForumType } from '@/components/hooks/useForumType';
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels } from "@/lib/collections/posts/constants";
-import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
+import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum } from "@/lib/instanceSettings";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
@@ -157,7 +157,6 @@ const PostFormSecondaryGroups = ({
   const isDialogue = !!initialData.collabEditorDialogue;
 
   const isAdminOrMod = userIsAdminOrMod(currentUser);
-  const canEditCoauthors = userCanEditCoauthors(currentUser);
   const canSeeHighlight = isAdminOrMod; // same condition as render guard
   const canSeeAdmin = isAdminOrMod;
   const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'podcasters');
@@ -185,8 +184,6 @@ const PostFormSecondaryGroups = ({
     switch (group.label) {
       case 'Tags':
         return canSeeTags;
-      case 'Coauthors':
-        return canEditCoauthors;
       case 'Link Preview':
         return canSeeSocialPreview;
       case 'Admin':
@@ -234,7 +231,7 @@ const PostFormSecondaryGroups = ({
           </form.Field>
       </div>}
 
-        {expandedFormGroup === 'Coauthors' && userCanEditCoauthors(currentUser) && <div className={classes.formGroup}>
+        {expandedFormGroup === 'Coauthors' && <div className={classes.formGroup}>
           <h3 className={classes.formGroupTitle}>Co-Authors</h3>
             <form.Field name="coauthorUserIds">
               {(field) => (

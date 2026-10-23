@@ -3,6 +3,7 @@ import { $generateNodesFromDOM } from "@lexical/html";
 import {
   $createRangeSelection,
   $createTextNode,
+  $isBlockElementNode,
   $isDecoratorNode,
   $getNodeByKey,
   $getRoot,
@@ -10,8 +11,10 @@ import {
   $isParagraphNode,
   $isRootNode,
   $isTextNode,
+  $setSelection,
   type LexicalEditor,
   type LexicalNode,
+  type PointType,
 } from "lexical";
 import {
   markdownQuoteToPlainText,
@@ -25,46 +28,6 @@ import {
   type LocatedQuoteRange,
 } from "./textIndexQuoteLocator";
 import type MarkdownIt from "markdown-it";
-
-export interface FinalSelection {
-  anchor: MarkdownSelectionPoint
-  focus: MarkdownSelectionPoint
-  narrowedQuote: string
-  narrowedReplacement: string
-  /** Whether the selection was narrowed to the minimal diff. */
-  narrowed: boolean
-}
-
-/**
- * Resolve the final selection and replacement after applying narrowing.
- * Strips the common markdown prefix/suffix shared between quote and
- * replacement so the edit only touches the minimal diff. Falls back to the
- * original (wide) selection when narrowing would collapse to a pure insertion
- * (empty narrowed quote) — edit mode has no distinct insertion-at-point
- * primitive, and the wide replacement is functionally equivalent.
- *
- * Must be called inside a Lexical update/read context (the underlying
- * narrowing reads from the editor tree).
- */
-export function $computeFinalSelection(
-  anchor: MarkdownSelectionPoint,
-  focus: MarkdownSelectionPoint,
-  quote: string,
-  replacement: string,
-  range: LocatedQuoteRange | undefined,
-): FinalSelection {
-  const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range);
-  if (!narrowing || narrowing.quote.length === 0) {
-    return { anchor, focus, narrowedQuote: quote, narrowedReplacement: replacement, narrowed: false };
-  }
-  return {
-    anchor: narrowing.anchor,
-    focus: narrowing.focus,
-    narrowedQuote: narrowing.quote,
-    narrowedReplacement: narrowing.replacement,
-    narrowed: true,
-  };
-}
 
 /**
  * Convert pre-rendered HTML into inline LexicalNodes suitable for insertion
@@ -127,48 +90,61 @@ export function $narrowedReplacementToNodes(
 }
 
 /**
- * Apply an edit at a Lexical selection by removing the selected text-node
- * range and splicing the given pre-parsed inline nodes in its place.
- * Dispatches between the single-text-node case (a quote contained inside one
- * text node) and the multi-node case (a quote spanning sibling inline nodes,
- * e.g. across a bold/code boundary). Empty `inlineNodes` is a pure deletion.
+ * Replace the content between two selection points with pre-parsed nodes.
+ * Empty `nodes` is a pure deletion, and identical points a pure insertion,
+ * which goes where Lexical would put text typed at that point (see
+ * `$insertAtCaret`). A replacement goes where the replaced content began,
+ * inside any link or mark that content started in (see `$replaceRange`).
+ * Nodes that include blocks (a multi-paragraph replacement) go through
+ * Lexical's paste path instead, which splits the surrounding block around
+ * them.
  *
  * Must be called inside a Lexical update context.
  */
 export function $applyEditAtSelection({
   anchor,
   focus,
-  inlineNodes,
+  nodes,
 }: {
-  editor: LexicalEditor
   anchor: MarkdownSelectionPoint
   focus: MarkdownSelectionPoint
-  inlineNodes: LexicalNode[]
+  nodes: LexicalNode[]
 }): boolean {
-  if (!$pointsShareBlock(anchor, focus)) {
-    return $applyEditAcrossBlocks({ anchor, focus, inlineNodes });
+  const selection = $createRangeSelection();
+  selection.anchor.set(anchor.key, anchor.offset, anchor.type);
+  selection.focus.set(focus.key, focus.offset, focus.type);
+  // Lexical's selection editing re-reads the editor's current selection
+  // partway through, so the range has to be the current selection rather
+  // than one left over from an earlier update (as in a headless editor that
+  // just loaded its content). Clear it afterwards rather than leave it
+  // pointing into replaced content.
+  $setSelection(selection);
+  try {
+    if (nodes.length === 0) {
+      selection.removeText();
+      return true;
+    }
+    if (nodes.some($isBlockElementNode)) {
+      selection.insertNodes(nodes);
+      return true;
+    }
+    if (selection.isCollapsed()) {
+      return $insertAtCaret(anchor, nodes);
+    }
+    return $replaceRange(anchor, focus, nodes);
+  } finally {
+    $setSelection(null);
   }
-  const sameTextNode =
-    anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
-  if (sameTextNode) {
-    return $applyEditSingleNode({
-      matchedNodeKey: anchor.key,
-      startOffset: anchor.offset,
-      endOffset: focus.offset,
-      inlineNodes,
-    });
-  }
-  return $applyEditMultiNode({ anchor, focus, inlineNodes });
 }
 
 /**
  * The nearest block-level node containing a selection point: the first
  * non-inline element or decorator ancestor (a paragraph inside a blockquote,
  * a list item, a top-level display equation), not the top-level element.
- * Sibling-walk application can only operate within one such block, so this
- * is the boundary that decides same-block vs cross-block dispatch. An
- * element point keyed on an element resolves to the child the boundary sits
- * against: before it for an anchor, after it for a focus.
+ * Narrowing renders the replacement as inline nodes, so it only applies to
+ * ranges within one such block. An element point keyed on an element
+ * resolves to the child the boundary sits against: before it for an anchor,
+ * after it for a focus.
  */
 function $blockOfPoint(point: MarkdownSelectionPoint, isFocus: boolean): LexicalNode | null {
   let node = $getNodeByKey(point.key);
@@ -198,78 +174,106 @@ function $pointsShareBlock(
 }
 
 /**
- * Apply an edit whose range spans block boundaries, via Lexical's own
- * range-selection editing (the paste path): removing a cross-block range
- * merges the boundary blocks, and inserting nodes splits blocks as needed
- * when the replacement itself is multi-block.
+ * Insert nodes at a point where Lexical would put text typed there: inside
+ * the text node the point is in, except at the edge of an inline element
+ * that doesn't take text there (a link, a comment mark), where they go
+ * outside it. Their text also gets the formatting typed text would, that of
+ * the text the point is in: a narrowed replacement's markdown covers only the
+ * inserted text, so it can't carry the formatting around it.
  */
-function $applyEditAcrossBlocks({
-  anchor,
-  focus,
-  inlineNodes,
-}: {
-  anchor: MarkdownSelectionPoint
-  focus: MarkdownSelectionPoint
-  inlineNodes: LexicalNode[]
-}): boolean {
-  const selection = $createRangeSelection();
-  selection.anchor.set(anchor.key, anchor.offset, anchor.type);
-  selection.focus.set(focus.key, focus.offset, focus.type);
-  if (inlineNodes.length === 0) {
-    selection.removeText();
+function $insertAtCaret(point: MarkdownSelectionPoint, nodes: LexicalNode[]): boolean {
+  const caretNode = $getNodeByKey(point.key);
+  if (point.type === "element") {
+    if (!$isElementNode(caretNode)) return false;
+    caretNode.splice(point.offset, 0, nodes);
+    return true;
+  }
+  if (!$isTextNode(caretNode)) return false;
+
+  for (const node of nodes) {
+    $addTextFormat(node, caretNode.getFormat());
+  }
+  if (point.offset === 0) {
+    const next = $outsideInlineEdge(caretNode, "start");
+    for (const node of nodes) {
+      next.insertBefore(node);
+    }
+  } else if (point.offset >= caretNode.getTextContentSize()) {
+    let previous = $outsideInlineEdge(caretNode, "end");
+    for (const node of nodes) {
+      previous.insertAfter(node);
+      previous = node;
+    }
   } else {
-    selection.insertNodes(inlineNodes);
+    const [, next] = caretNode.splitText(point.offset);
+    for (const node of nodes) {
+      next.insertBefore(node);
+    }
   }
   return true;
 }
 
-function $applyEditSingleNode({
-  matchedNodeKey,
-  startOffset,
-  endOffset,
-  inlineNodes,
-}: {
-  matchedNodeKey: string
-  startOffset: number
-  endOffset: number
-  inlineNodes: LexicalNode[]
-}): boolean {
-  const originalNode = $getNodeByKey(matchedNodeKey);
-  if (!$isTextNode(originalNode)) return false;
-
-  const splitNodes = originalNode.splitText(startOffset, endOffset);
-  // When startOffset > 0, splitText produces [before, match, ...] so the match
-  // is at index 1. When startOffset === 0, there is no "before" part.
-  const matchNodeIndex = startOffset > 0 ? 1 : 0;
-  const selectedNode = splitNodes[matchNodeIndex];
-  if (!$isTextNode(selectedNode)) return false;
-
-  for (const node of inlineNodes) {
-    selectedNode.insertBefore(node);
+/**
+ * The node to insert next to at an edge of `node`: the outermost inline
+ * element that `node` starts (or ends) and that doesn't take text inserted
+ * there, or `node` itself if there's none.
+ */
+function $outsideInlineEdge(node: LexicalNode, edge: "start" | "end"): LexicalNode {
+  let current = node;
+  for (let parent = current.getParent(); parent?.isInline(); parent = current.getParent()) {
+    const atEdge = edge === "start" ? !current.getPreviousSibling() : !current.getNextSibling();
+    const takesText = edge === "start" ? parent.canInsertTextBefore() : parent.canInsertTextAfter();
+    if (!atEdge || takesText) break;
+    current = parent;
   }
-  selectedNode.remove();
+  return current;
+}
+
+/** Add text formatting to every text node in `node`'s subtree. */
+function $addTextFormat(node: LexicalNode, format: number): void {
+  if ($isTextNode(node)) {
+    node.setFormat(node.getFormat() | format);
+  } else if ($isElementNode(node)) {
+    for (const child of node.getChildren()) {
+      $addTextFormat(child, format);
+    }
+  }
+}
+
+/**
+ * Replace a non-empty range with inline nodes, inserting them where the
+ * range starts, inside any link or mark its content started in: before the
+ * first selected node. The selected nodes are then removed with Lexical's
+ * range removal, which also merges the blocks at the range's ends when it
+ * spans several. Inserting first means a link or mark whose whole content is
+ * replaced is never left empty, which would remove it.
+ */
+function $replaceRange(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+  nodes: LexicalNode[],
+): boolean {
+  const selected = $splitAtRangeEnds(anchor, focus);
+  if (!selected) return false;
+
+  for (const node of nodes) {
+    selected.first.insertBefore(node);
+  }
+  const removal = $createRangeSelection();
+  $setPointAtNodeEdge(removal.anchor, selected.first, "start");
+  $setPointAtNodeEdge(removal.focus, selected.last, "end");
+  $setSelection(removal);
+  removal.removeText();
   return true;
 }
 
-function $applyEditMultiNode({
-  anchor,
-  focus,
-  inlineNodes,
-}: {
-  anchor: MarkdownSelectionPoint
-  focus: MarkdownSelectionPoint
-  inlineNodes: LexicalNode[]
-}): boolean {
-  const selectedNodes = $splitAndCollectSelectedNodes(anchor, focus);
-  if (!selectedNodes) return false;
-
-  for (const node of inlineNodes) {
-    selectedNodes[0].insertBefore(node);
+function $setPointAtNodeEdge(point: PointType, node: LexicalNode, edge: "start" | "end"): void {
+  if ($isTextNode(node)) {
+    point.set(node.getKey(), edge === "start" ? 0 : node.getTextContentSize(), "text");
+  } else {
+    const index = node.getIndexWithinParent() + (edge === "start" ? 0 : 1);
+    point.set(node.getParentOrThrow().getKey(), index, "element");
   }
-  for (const node of selectedNodes) {
-    node.remove();
-  }
-  return true;
 }
 
 /**
@@ -308,40 +312,31 @@ function $resolveLastSelectedNode(focus: MarkdownSelectionPoint): LexicalNode | 
 }
 
 /**
- * Resolve anchor/focus selection points to the run of sibling nodes they
- * select (inclusive), splitting boundary text nodes as needed. Used when a
- * quote spans multiple inline nodes — across a bold/code boundary, or across
+ * Split boundary text nodes so that a range covers whole nodes, and return
+ * the first and last of them. They can have different parents (a range from
+ * plain text into a link) or blocks. A range can also end on either side of
  * an atomic node like a MathNode (selected via an element-type point).
  */
-function $splitAndCollectSelectedNodes(
+function $splitAtRangeEnds(
   anchor: MarkdownSelectionPoint,
   focus: MarkdownSelectionPoint,
-): LexicalNode[] | null {
+): { first: LexicalNode, last: LexicalNode } | null {
+  if (anchor.type === "text" && focus.type === "text" && anchor.key === focus.key) {
+    const node = $getNodeByKey(anchor.key);
+    if (!$isTextNode(node)) return null;
+    // When anchor.offset > 0, splitText produces [before, selected, ...];
+    // otherwise there is no "before" part.
+    const selected = node.splitText(anchor.offset, focus.offset)[anchor.offset > 0 ? 1 : 0];
+    return selected ? { first: selected, last: selected } : null;
+  }
   // Resolve element-typed points first: they are plain child-index lookups,
   // whereas resolving a text point may `splitText` and shift sibling indices,
   // which would invalidate a not-yet-resolved element point's offset.
-  let firstSelectedNode = anchor.type === "element" ? $resolveFirstSelectedNode(anchor) : null;
-  let lastSelectedNode = focus.type === "element" ? $resolveLastSelectedNode(focus) : null;
-  if (anchor.type === "text") firstSelectedNode = $resolveFirstSelectedNode(anchor);
-  if (focus.type === "text") lastSelectedNode = $resolveLastSelectedNode(focus);
-  if (!firstSelectedNode || !lastSelectedNode) return null;
-
-  const selectedNodes: LexicalNode[] = [];
-  let current: LexicalNode | null = firstSelectedNode;
-  while (current) {
-    selectedNodes.push(current);
-    if (current.getKey() === lastSelectedNode.getKey()) break;
-    current = current.getNextSibling();
-  }
-
-  if (
-    selectedNodes.length === 0
-    || selectedNodes[selectedNodes.length - 1].getKey() !== lastSelectedNode.getKey()
-  ) {
-    return null;
-  }
-
-  return selectedNodes;
+  let first = anchor.type === "element" ? $resolveFirstSelectedNode(anchor) : null;
+  let last = focus.type === "element" ? $resolveLastSelectedNode(focus) : null;
+  if (anchor.type === "text") first = $resolveFirstSelectedNode(anchor);
+  if (focus.type === "text") last = $resolveLastSelectedNode(focus);
+  return first && last ? { first, last } : null;
 }
 
 /**
@@ -544,11 +539,12 @@ function countPlainTextInSuffix(toMarkdown: number[], markdownLength: number, md
 
 /**
  * Apply an "edit" mode replacement at an already-located selection: narrow to
- * the minimal diff, render the narrowed replacement markdown to inline nodes
- * (the caller supplies the `math-tex`-emitting markdown-it instance — post or
- * research — so `$...$` becomes a real MathNode), and splice them in. Shared
- * by the post and research replaceText routes and the typo-suggestion apply
- * path. Must be called inside a Lexical update context.
+ * the minimal diff (possibly a pure insertion), render the narrowed
+ * replacement markdown to nodes (the caller supplies the `math-tex`-emitting
+ * markdown-it instance — post or research — so `$...$` becomes a real
+ * MathNode), and splice them in. Shared by the post and research replaceText
+ * routes and the typo-suggestion apply path. Must be called inside a Lexical
+ * update context.
  */
 export function $applyEditModeReplacement({
   editor,
@@ -567,17 +563,17 @@ export function $applyEditModeReplacement({
   range: LocatedQuoteRange | undefined
   markdownIt: MarkdownIt
 }): { replaced: boolean, narrowedQuote: string, narrowedReplacement: string } {
-  const sel = $computeFinalSelection(anchor, focus, quote, replacement, range);
-  // A narrowed replacement is a fragment of a sentence (e.g. a lone "-" or
-  // " and"), which must not be rendered as standalone markdown: a bare "-"
-  // would become a list block, and edge whitespace would be trimmed.
-  const inlineNodes = sel.narrowed
-    ? $narrowedReplacementToNodes(editor, sel.narrowedReplacement, markdownIt)
-    : sel.narrowedReplacement.length > 0
-      ? $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, sel.narrowedReplacement))
-      : [];
+  const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range);
+  let nodes: LexicalNode[] = [];
+  if (narrowing) {
+    nodes = $narrowedReplacementToNodes(editor, narrowing.replacement, markdownIt);
+  } else if (replacement.length > 0) {
+    nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
+  }
   const replaced = $applyEditAtSelection({
-    editor, anchor: sel.anchor, focus: sel.focus, inlineNodes,
+    anchor: narrowing?.anchor ?? anchor,
+    focus: narrowing?.focus ?? focus,
+    nodes,
   });
   if (replaced) {
     // A `$$…$$` replacement renders to a block-level (display) MathNode that
@@ -587,8 +583,8 @@ export function $applyEditModeReplacement({
   }
   return {
     replaced,
-    narrowedQuote: sel.narrowedQuote,
-    narrowedReplacement: sel.narrowedReplacement,
+    narrowedQuote: narrowing?.quote ?? quote,
+    narrowedReplacement: narrowing?.replacement ?? replacement,
   };
 }
 

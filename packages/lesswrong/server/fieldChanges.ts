@@ -1,5 +1,4 @@
 import { FieldChanges } from '@/server/collections/fieldChanges/collection';
-import { getSchema } from '@/lib/schema/allSchemas';
 import { randomId } from '@/lib/random';
 import { captureException } from '@/lib/sentryWrapper';
 
@@ -13,7 +12,7 @@ export const logFieldChanges = async <
 }) => {
   let loggedChangesBefore: any = {};
   let loggedChangesAfter: any = {};
-  let schema = getSchema(collection.collectionName);
+  let schema = collection.options.schema;
   
   for (let key of Object.keys(data)) {
     let before = oldDocument[key as keyof ObjectsByCollectionName[N]];

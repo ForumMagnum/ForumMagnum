@@ -57,17 +57,17 @@ const ModerationUserKeyboardHandler = ({
   const {
     handleReview,
     handleApproveCurrentOnly,
-    handleSnooze,
-    handleSnoozeCustom,
+    handleSnoozeChoice,
     handleRejectContentAndRemove,
     handleRestrictAndNotify,
     handleRemoveNeedsReview,
+    handleRemoveKeepingReviewStatus,
     handlePurge,
-    updateUserWith,
-    getModSignatureWithNote,
+    handleFlag,
+    updateUserWithNote,
     posts,
     comments,
-  } = useModerationUserActions({ selectedUser, currentUser, addToUndoQueue });
+  } = useModerationUserActions({ selectedUser, currentUser, addToUndoQueue, dispatch });
 
   const {
     toggleDisablePosting,
@@ -96,32 +96,14 @@ const ModerationUserKeyboardHandler = ({
     const banMonths = 3;
     if (!confirm(`Ban this user for ${banMonths} months?`)) return;
 
-    const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote('Ban') + notes;
-    void updateUserWith({
+    updateUserWithNote({
       sunshineFlagged: false,
       reviewedByUserId: currentUser._id,
       needsReview: false,
       reviewedAt: new Date(),
       banned: moment().add(banMonths, 'months').toDate(),
-      sunshineNotes: newNotes,
-    }, 'Banned 3mo');
-  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
-
-  const handleFlag = useCallback(() => {
-    if (!selectedUser) return;
-    const flagStatus = selectedUser.sunshineFlagged ? 'Unflag' : 'Flag';
-    const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote(flagStatus) + notes;
-    const newFlaggedState = !selectedUser.sunshineFlagged;
-    
-    dispatch({ type: 'UPDATE_USER', userId: selectedUser._id, fields: { sunshineNotes: newNotes, sunshineFlagged: newFlaggedState } });
-    
-    void updateUserWith({
-      sunshineFlagged: newFlaggedState,
-      sunshineNotes: newNotes,
-    });
-  }, [selectedUser, getModSignatureWithNote, dispatch, updateUserWith]);
+    }, 'Ban', 'Banned 3mo');
+  }, [selectedUser, currentUser, updateUserWithNote]);
 
   const handleUnrejectCurrentContent = useCallback(() => {
     if (!selectedUser) return;
@@ -180,19 +162,12 @@ const ModerationUserKeyboardHandler = ({
     execute: handleApproveCurrentOnly,
   }), [selectedUser, handleApproveCurrentOnly]);
 
-  const snooze10Command: CommandPaletteItem = useMemo(() => ({
-    label: 'Snooze 10',
+  const snoozeChoiceCommand: CommandPaletteItem = useMemo(() => ({
+    label: 'Snooze (1, 3, 5, 10 or any 1–9)',
     keystroke: 'S',
     isDisabled: () => !selectedUser,
-    execute: () => handleSnooze(10),
-  }), [selectedUser, handleSnooze]);
-
-  const snoozeCustomCommand: CommandPaletteItem = useMemo(() => ({
-    label: 'Snooze Custom Amount',
-    keystroke: 'Shift+S',
-    isDisabled: () => !selectedUser,
-    execute: handleSnoozeCustom,
-  }), [selectedUser, handleSnoozeCustom]);
+    execute: handleSnoozeChoice,
+  }), [selectedUser, handleSnoozeChoice]);
 
   const removeCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Remove',
@@ -200,6 +175,13 @@ const ModerationUserKeyboardHandler = ({
     isDisabled: () => !selectedUser,
     execute: handleRemoveNeedsReview,
   }), [selectedUser, handleRemoveNeedsReview]);
+
+  const removeKeepingReviewStatusCommand: CommandPaletteItem = useMemo(() => ({
+    label: 'Remove, Keeping Review Status',
+    keystroke: 'Shift+Q',
+    isDisabled: () => !selectedUser,
+    execute: handleRemoveKeepingReviewStatus,
+  }), [selectedUser, handleRemoveKeepingReviewStatus]);
 
   const ban3moCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Ban 3mo',
@@ -244,6 +226,20 @@ const ModerationUserKeyboardHandler = ({
       : onFocusRejectTab,
   }), [isDetailView, selectedUser, selectedContent, onFocusRejectTab, handleUnrejectCurrentContent]);
 
+  const editRejectionCommand: CommandPaletteItem = useMemo(() => ({
+    label: 'Edit Rejection Message',
+    keystroke: 'I',
+    isDisabled: () => !isDetailView || !selectedUser || !canRejectContent(selectedContent),
+    execute: () => dispatch({ type: 'FOCUS_REJECT_COMPOSER' }),
+  }), [isDetailView, selectedUser, selectedContent, dispatch]);
+
+  const messageCommand: CommandPaletteItem = useMemo(() => ({
+    label: 'Message',
+    keystroke: 'M',
+    isDisabled: () => !isDetailView || !selectedUser,
+    execute: () => dispatch({ type: 'SET_SIDEBAR_TAB', tab: 'dm' }),
+  }), [isDetailView, selectedUser, dispatch]);
+
   const rejectLatestAndRemoveCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Reject Latest & Remove',
     keystroke: 'X',
@@ -274,7 +270,7 @@ const ModerationUserKeyboardHandler = ({
 
   const disableMessagingCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Disable Messaging',
-    keystroke: 'M',
+    keystroke: 'Shift+M',
     isDisabled: () => !isDetailView || !selectedUser,
     execute: toggleDisableMessaging,
   }), [isDetailView, selectedUser, toggleDisableMessaging]);
@@ -346,9 +342,9 @@ const ModerationUserKeyboardHandler = ({
   const commands: CommandPaletteItem[] = useMemo(() => [
     rerunLlmCheckCommand,
     approveCommand, approveCurrentOnlyCommand,
-    snooze10Command, snoozeCustomCommand,
-    removeCommand,
-    rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand,
+    snoozeChoiceCommand,
+    removeCommand, removeKeepingReviewStatusCommand,
+    rejectOrUnrejectCommand, editRejectionCommand, messageCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand,
     purgeCommand,
     flagCommand,
     copyUserIdCommand,
@@ -356,7 +352,7 @@ const ModerationUserKeyboardHandler = ({
     nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand,
     openOrCloseDetailViewCommand, undoMostRecentActionCommand,
     ban3moCommand,
-  ], [rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snooze10Command, snoozeCustomCommand, removeCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, toggleAllPermissionsCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
+  ], [rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snoozeChoiceCommand, removeCommand, removeKeepingReviewStatusCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, editRejectionCommand, messageCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, toggleAllPermissionsCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
 
   useSupermodKeyboardCommands({
     commands,

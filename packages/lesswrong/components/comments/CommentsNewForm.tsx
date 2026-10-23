@@ -151,7 +151,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
   });
   const document = data?.user?.result;
   const userNextAbleToComment = document?.rateLimitNextAbleToComment;
-  const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment.nextEligible)) ?? null;
+  const lastRateLimitExpiry: Date|null = userNextAbleToComment?.nextEligible ? new Date(userNextAbleToComment.nextEligible) : null;
   const rateLimitMessage = userNextAbleToComment ? userNextAbleToComment.rateLimitMessage : null
   
   // Disable the form if there's a rate limit and it's more than 1 minute until it
@@ -160,7 +160,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
   // comment anyways, and this avoids an awkward interaction with the 15-second
   // rate limit that's only supposed to be there to prevent accidental double posts.
   // TODO
-  const formDisabledDueToRateLimit = !!lastRateLimitExpiry && isInFuture(moment(lastRateLimitExpiry).subtract(1,'minutes').toDate());
+  const formDisabledDueToRateLimit = userNextAbleToComment?.nextEligible === null || (!!lastRateLimitExpiry && isInFuture(moment(lastRateLimitExpiry).subtract(1,'minutes').toDate()));
 
   const {flash} = useMessages();
   prefilledProps = {
@@ -371,6 +371,5 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
 export default registerComponent('CommentsNewForm', CommentsNewForm, {
   hocs: [withErrorBoundary]
 });
-
 
 
