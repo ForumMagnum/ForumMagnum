@@ -46,7 +46,8 @@ const styles = defineStyles('LexicalMentions', (theme: ThemeType) => ({
   list: {
     ...typeaheadList(theme),
     borderRadius: 0,
-    maxHeight: 340,
+    // Items are 32px tall (6px padding top and bottom, 20px line height)
+    maxHeight: 32 * 10.5,
   },
   item: {
     margin: 0,

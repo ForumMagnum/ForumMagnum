@@ -100,7 +100,14 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
     flexGrow: 1,
     overflow: "hidden",
     textOverflow: "ellipsis",
-    
+    // Safari shows a native tooltip with the full text of ellipsis-truncated
+    // elements, which duplicates our hover preview. An empty block-level
+    // pseudo-element suppresses it.
+    '&::after': {
+      content: '""',
+      display: "block",
+    },
+
     marginTop: 0,
     marginBottom: 0,
     '& *': {

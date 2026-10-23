@@ -47,6 +47,9 @@ const styles = defineStyles("PostBottomRecommendations", (theme: ThemeType) => (
     fontSize: 14,
     fontWeight: 600,
     color: theme.palette.grey[600],
+    "@media print": {
+      display: "none",
+    },
   },
 }));
 

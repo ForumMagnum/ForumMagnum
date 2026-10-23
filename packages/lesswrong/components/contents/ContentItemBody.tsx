@@ -843,6 +843,7 @@ function splitTextNode(textNode: DomHandlerText, splitOffsets: number[]): DomHan
 
 function findStringMultiple(needle: string, haystack: string): number[] {
   const indices: number[] = [];
+  if (!needle.length) return indices;
   let index = haystack.indexOf(needle);
   while (index !== -1) {
     indices.push(index);

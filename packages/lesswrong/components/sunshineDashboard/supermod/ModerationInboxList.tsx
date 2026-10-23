@@ -4,6 +4,8 @@ import ModerationInboxItem from './ModerationInboxItem';
 import ModerationPostItem from './ModerationPostItem';
 import CurationPostItem from './CurationPostItem';
 import TeamInboxThreadItem from './TeamInboxThreadItem';
+import ModerationReportItem from './ModerationReportItem';
+import ModerationTagItem from './ModerationTagItem';
 import type { TeamInboxThread } from './teamInboxThreads';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -192,13 +194,19 @@ const ModerationInboxList = ({
   hasMoreDoneTeamInboxThreads,
   onToggleShowDoneThreads,
   onLoadMoreDoneThreads,
+  reports,
+  tags,
   focusedUserId,
   focusedPostId,
   focusedThreadId,
+  focusedReportId,
+  focusedTagId,
   onFocusUser,
   onOpenUser,
   onFocusPost,
   onFocusThread,
+  onFocusReport,
+  onFocusTag,
   activeTab,
   unloadedCount,
   onLoadUnloaded,
@@ -214,13 +222,19 @@ const ModerationInboxList = ({
   hasMoreDoneTeamInboxThreads: boolean;
   onToggleShowDoneThreads: () => void;
   onLoadMoreDoneThreads: () => void;
+  reports: UnclaimedReportsList[];
+  tags: SunshineTagFragment[];
   focusedUserId: string | null;
   focusedPostId: string | null;
   focusedThreadId: string | null;
+  focusedReportId: string | null;
+  focusedTagId: string | null;
   onFocusUser: (userId: string) => void;
   onOpenUser: (userId: string) => void;
   onFocusPost: (postId: string) => void;
   onFocusThread: (conversationId: string) => void;
+  onFocusReport: (reportId: string) => void;
+  onFocusTag: (tagId: string) => void;
   activeTab: TabId;
   unloadedCount: number;
   onLoadUnloaded: () => void;
@@ -244,6 +258,36 @@ const ModerationInboxList = ({
           onToggleShowDoneThreads={onToggleShowDoneThreads}
           onLoadMoreDoneThreads={onLoadMoreDoneThreads}
         />
+      ) : activeTab === 'reports' ? (
+        reports.length === 0 ? (
+          <div className={classes.empty}>No flagged content to review</div>
+        ) : (
+          <div className={classes.scrollContainer}>
+            {reports.map((report) => (
+              <ModerationReportItem
+                key={report._id}
+                report={report}
+                isFocused={report._id === focusedReportId}
+                onFocus={() => onFocusReport(report._id)}
+              />
+            ))}
+          </div>
+        )
+      ) : activeTab === 'tags' ? (
+        tags.length === 0 ? (
+          <div className={classes.empty}>No wikitags to review</div>
+        ) : (
+          <div className={classes.scrollContainer}>
+            {tags.map((tag) => (
+              <ModerationTagItem
+                key={tag._id}
+                tag={tag}
+                isFocused={tag._id === focusedTagId}
+                onFocus={() => onFocusTag(tag._id)}
+              />
+            ))}
+          </div>
+        )
       ) : activeTab === 'curation' ? (
         curationPosts.length === 0 ? (
           <div className={classes.empty}>No curation candidates</div>

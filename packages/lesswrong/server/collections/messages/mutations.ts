@@ -11,6 +11,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import { loadByIds } from "@/lib/loaders";
 import gql from "graphql-tag";
 import { sendAppealLinkReplyIfFirstReply } from "@/server/collections/rejectionAppeals/helpers";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { captureException } from "@/lib/sentryWrapper";
 
 async function newCheck(user: DbUser | null, document: DbMessage | null, context: ResolverContext) {
@@ -84,7 +85,7 @@ export async function createMessage({ data }: CreateMessageInput, context: Resol
   await updateConversationActivity(documentWithId, context);
   await sendMessageNotifications(documentWithId, context);
   // An optional automated reply must not make a delivered message appear unsent.
-  await sendAppealLinkReplyIfFirstReply(documentWithId, context).catch(captureException);
+  backgroundTask(sendAppealLinkReplyIfFirstReply(documentWithId, context).catch(captureException));
 
   uploadImagesInEditableFields({
     newDoc: documentWithId,

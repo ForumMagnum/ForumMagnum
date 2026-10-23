@@ -17,6 +17,45 @@ CREATE EXTENSION IF NOT EXISTS "vector" CASCADE;
 -- Extension "pg_trgm"
 CREATE EXTENSION IF NOT EXISTS "pg_trgm" CASCADE;
 
+-- Table "AiDigestIssueGenerations"
+CREATE TABLE "AiDigestIssueGenerations" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "issueId" VARCHAR(27) NOT NULL,
+  "durationMs" INTEGER NOT NULL,
+  "calls" JSONB NOT NULL
+);
+
+-- Index "idx_AiDigestIssueGenerations_issueId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_AiDigestIssueGenerations_issueId" ON "AiDigestIssueGenerations" USING btree ("issueId");
+
+-- Table "AiDigestIssues"
+CREATE TABLE "AiDigestIssues" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "recipientId" VARCHAR(27) NOT NULL,
+  "emailedAt" TIMESTAMPTZ,
+  "trigger" TEXT NOT NULL DEFAULT 'adminSample',
+  "countsTowardHistory" BOOL NOT NULL DEFAULT TRUE,
+  "spec" JSONB NOT NULL
+);
+
+-- Index "idx_AiDigestIssues_recipientId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_AiDigestIssues_recipientId_createdAt" ON "AiDigestIssues" USING btree ("recipientId", "createdAt");
+
+-- Table "AiDigestSchedules"
+CREATE TABLE "AiDigestSchedules" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "nextDueAt" TIMESTAMPTZ NOT NULL,
+  "claimedUntil" TIMESTAMPTZ,
+  "issueId" VARCHAR(27)
+);
+
+-- Index "idx_AiDigestSchedules_userId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_AiDigestSchedules_userId" ON "AiDigestSchedules" USING btree ("userId");
+
 -- Table "ArbitalCaches"
 CREATE TABLE "ArbitalCaches" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -563,6 +602,11 @@ CREATE INDEX IF NOT EXISTS "idx_comments_moderatorHat" ON "Comments" USING btree
 
 -- Index "idx_Comments_userId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Comments_userId_createdAt" ON "Comments" USING btree ("userId", "createdAt");
+
+-- Index "idx_comments_rejectionConversationId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_comments_rejectionConversationId_createdAt" ON "Comments" USING btree ("rejectionConversationId", "createdAt")
+WHERE
+  "rejectionConversationId" IS NOT NULL;
 
 -- Table "Conversations"
 CREATE TABLE "Conversations" (
@@ -1372,6 +1416,25 @@ CREATE TABLE "PostEmbeddings" (
 -- Index "idx_PostEmbeddings_postId_model"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostEmbeddings_postId_model" ON "PostEmbeddings" USING btree ("postId", "model");
 
+-- Table "PostPreviews"
+CREATE TABLE "PostPreviews" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "postId" VARCHAR(27) NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "previewHtml" TEXT NOT NULL,
+  "modelId" TEXT NOT NULL,
+  "promptVersion" TEXT NOT NULL
+);
+
+-- Index "idx_PostPreviews_postId_revisionId_modelId_promptVersion"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostPreviews_postId_revisionId_modelId_promptVersion" ON "PostPreviews" USING btree (
+  "postId",
+  "revisionId",
+  "modelId",
+  "promptVersion"
+);
+
 -- Table "PostRecommendations"
 CREATE TABLE "PostRecommendations" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1409,6 +1472,25 @@ CREATE TABLE "PostRelations" (
 
 -- Index "idx_PostRelations_sourcePostId_order_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_PostRelations_sourcePostId_order_createdAt" ON "PostRelations" USING btree ("sourcePostId", "order", "createdAt");
+
+-- Table "PostSummaries"
+CREATE TABLE "PostSummaries" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "postId" VARCHAR(27) NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "summary" TEXT NOT NULL,
+  "modelId" TEXT NOT NULL,
+  "promptVersion" TEXT NOT NULL
+);
+
+-- Index "idx_PostSummaries_postId_revisionId_modelId_promptVersion"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostSummaries_postId_revisionId_modelId_promptVersion" ON "PostSummaries" USING btree (
+  "postId",
+  "revisionId",
+  "modelId",
+  "promptVersion"
+);
 
 -- Table "PostViewTimes"
 CREATE TABLE "PostViewTimes" (
@@ -2127,6 +2209,11 @@ WHERE
 
 -- Index "idx_Posts_userId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Posts_userId_createdAt" ON "Posts" USING btree ("userId", "createdAt");
+
+-- Index "idx_posts_rejectionConversationId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_posts_rejectionConversationId_createdAt" ON "Posts" USING btree ("rejectionConversationId", "createdAt")
+WHERE
+  "rejectionConversationId" IS NOT NULL;
 
 -- Index "idx_Posts_agentFoundationsId"
 CREATE INDEX IF NOT EXISTS "idx_Posts_agentFoundationsId" ON "Posts" USING btree ("agentFoundationsId");
@@ -3261,6 +3348,7 @@ CREATE TABLE "Users" (
   "karmaChangeLastOpened" TIMESTAMPTZ,
   "karmaChangeBatchStart" TIMESTAMPTZ,
   "emailSubscribedToCurated" BOOL,
+  "emailSubscribedToAiDigest" BOOL,
   "unsubscribeFromAll" BOOL,
   "hideSubscribePoke" BOOL NOT NULL DEFAULT FALSE,
   "hideMeetupsPoke" BOOL NOT NULL DEFAULT FALSE,
@@ -3365,6 +3453,7 @@ CREATE TABLE "Users" (
   "afSubmittedApplication" BOOL,
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "recommendationSettings" JSONB,
+  "aiDigestPersonalInstructions" TEXT,
   "claudeLinkedAt" TIMESTAMPTZ,
   "claudeCodeOAuthTokenEncrypted" TEXT,
   "llmFamily" TEXT

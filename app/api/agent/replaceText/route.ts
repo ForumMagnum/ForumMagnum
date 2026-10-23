@@ -1,16 +1,16 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createRangeSelection, $createTextNode, $getNodeByKey, $getRoot, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
+import { $createRangeSelection, $getNodeByKey, $getRoot, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import type MarkdownIt from "markdown-it";
 import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
-import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess, renderAgentMarkdownToHtml } from "../editorAgentUtil";
+import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
+import type { MarkdownSelectionPoint } from "../mapMarkdownToLexical";
 import { $locateQuoteWithTextIndex, type LocatedQuoteRange } from "../textIndexQuoteLocator";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -19,7 +19,7 @@ import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugi
 import {
   $applyEditModeReplacement,
   $computeNarrowing,
-  $htmlToInlineNodes,
+  $inlineMarkdownToNodes,
 } from "../applyEditAtSelection";
 
 interface ReplaceResult {
@@ -47,44 +47,6 @@ interface SuggestionNarrowingResult {
   /** The quote/replacement actually used after narrowing (for summaries). */
   narrowedQuote: string
   narrowedReplacement: string
-}
-
-/**
- * Convert a narrowed replacement string into Lexical nodes while preserving
- * edge whitespace. The standard markdown→HTML pipeline strips leading/trailing
- * whitespace; for narrowed replacements those spaces are meaningful content.
- * When the narrowed text is plain (no formatting), a TextNode is created
- * directly. Otherwise the markdown pipeline is used with whitespace patched.
- */
-function $narrowedReplacementToNodes(
-  editor: LexicalEditor,
-  replacement: string,
-  markdownIt: MarkdownIt,
-  expectedPlainText?: string,
-): LexicalNode[] {
-  if (replacement.length === 0) return [];
-
-  const plainText = expectedPlainText ?? markdownQuoteToPlainText(replacement);
-  if (replacement === plainText) {
-    return [$createTextNode(replacement)];
-  }
-
-  const nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
-  const nodesText = nodes.map(n => n.getTextContent()).join("");
-
-  const leadingWs = plainText.match(/^(\s+)/)?.[1] ?? "";
-  const nodesLeadingWs = nodesText.match(/^(\s+)/)?.[1] ?? "";
-  if (leadingWs.length > nodesLeadingWs.length) {
-    nodes.unshift($createTextNode(leadingWs.slice(0, leadingWs.length - nodesLeadingWs.length)));
-  }
-
-  const trailingWs = plainText.match(/(\s+)$/)?.[1] ?? "";
-  const nodesTrailingWs = nodesText.match(/(\s+)$/)?.[1] ?? "";
-  if (trailingWs.length > nodesTrailingWs.length) {
-    nodes.push($createTextNode(trailingWs.slice(nodesTrailingWs.length)));
-  }
-
-  return nodes;
 }
 
 /**
@@ -135,14 +97,12 @@ function $applySuggestionInsertionAtPoint({
   replacement,
   suggestionId,
   markdownIt,
-  replacementNodes,
 }: {
   editor: LexicalEditor
   point: MarkdownSelectionPoint
   replacement: string
   suggestionId: string
   markdownIt: MarkdownIt
-  replacementNodes?: LexicalNode[]
 }): boolean {
   if (point.type !== "text") return false;
 
@@ -170,7 +130,7 @@ function $applySuggestionInsertionAtPoint({
     anchorNode.insertAfter(deleteSuggestion);
   }
 
-  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, replacementNodes, suggestionId, markdownIt });
+  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, suggestionId, markdownIt });
   deleteSuggestion.insertAfter(insertSuggestion);
   return true;
 }
@@ -186,17 +146,16 @@ function $applySuggestionForSelection(
   replacement: string,
   suggestionId: string,
   markdownIt: MarkdownIt,
-  replacementNodes?: LexicalNode[],
 ): boolean {
   const insertionPoint = $getEquivalentInsertionPoint(anchor, focus);
   if (insertionPoint) {
     return $applySuggestionInsertionAtPoint({
-      editor, point: insertionPoint, replacement, suggestionId, markdownIt, replacementNodes,
+      editor, point: insertionPoint, replacement, suggestionId, markdownIt,
     });
   }
 
   return $applySuggestionForRange({
-    editor, anchor, focus, replacement, replacementNodes, suggestionId, markdownIt,
+    editor, anchor, focus, replacement, suggestionId, markdownIt,
   });
 }
 
@@ -217,7 +176,6 @@ function $applySuggestionForRange({
   anchor,
   focus,
   replacement,
-  replacementNodes,
   suggestionId,
   markdownIt,
 }: {
@@ -225,7 +183,6 @@ function $applySuggestionForRange({
   anchor: MarkdownSelectionPoint
   focus: MarkdownSelectionPoint
   replacement: string
-  replacementNodes?: LexicalNode[]
   suggestionId: string
   markdownIt: MarkdownIt
 }): boolean {
@@ -235,27 +192,29 @@ function $applySuggestionForRange({
   const deleteSuggestions = $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
   if (deleteSuggestions.length === 0) return false;
 
-  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, replacementNodes, suggestionId, markdownIt });
+  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, suggestionId, markdownIt });
   deleteSuggestions[0].insertAfter(insertSuggestion);
   return true;
 }
 
+/**
+ * An insert suggestion is an inline node, so the replacement is always
+ * rendered as inline content, even one with markdown that would start a
+ * block on a line of its own.
+ */
 function $buildInsertSuggestion({
   editor,
   replacement,
-  replacementNodes,
   suggestionId,
   markdownIt,
 }: {
   editor: LexicalEditor
   replacement: string
-  replacementNodes?: LexicalNode[]
   suggestionId: string
   markdownIt: MarkdownIt
 }): LexicalNode {
   const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
-  const nodes = replacementNodes ?? $narrowedReplacementToNodes(editor, replacement, markdownIt);
-  for (const node of nodes) {
+  for (const node of $inlineMarkdownToNodes(editor, replacement, markdownIt)) {
     insertSuggestion.append(node);
   }
   return insertSuggestion;
@@ -287,17 +246,15 @@ export function $applySuggestionWithNarrowing({
   suggestionId: string
   markdownIt: MarkdownIt
 }): SuggestionNarrowingResult {
-  const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range);
+  const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range, markdownIt);
 
   if (!narrowing) {
     const replaced = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId, markdownIt);
     return { replaced, narrowedQuote: quote, narrowedReplacement: replacement };
   }
 
-  const narrowedPlainText = markdownQuoteToPlainText(narrowing.replacement);
-  const replacementNodes = $narrowedReplacementToNodes(editor, narrowing.replacement, markdownIt, narrowedPlainText);
   const replaced = $applySuggestionForSelection(
-    editor, narrowing.anchor, narrowing.focus, narrowing.replacement, suggestionId, markdownIt, replacementNodes,
+    editor, narrowing.anchor, narrowing.focus, narrowing.replacement, suggestionId, markdownIt,
   );
   return { replaced, narrowedQuote: narrowing.quote, narrowedReplacement: narrowing.replacement };
 }

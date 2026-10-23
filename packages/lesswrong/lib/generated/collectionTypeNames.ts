@@ -1,6 +1,9 @@
 import { isAnyTest, isIntegrationTest } from '@/lib/executionEnvironment';
 
 export const collectionNameToTypeName = {
+  AiDigestIssueGenerations: 'AiDigestIssueGeneration',
+  AiDigestIssues: 'AiDigestIssue',
+  AiDigestSchedules: 'AiDigestSchedule',
   ArbitalCaches: 'ArbitalCaches',
   ArbitalTagContentRels: 'ArbitalTagContentRel',
   AutomatedContentEvaluations: 'AutomatedContentEvaluation',
@@ -55,8 +58,10 @@ export const collectionNameToTypeName = {
   PodcastEpisodes: 'PodcastEpisode',
   Podcasts: 'Podcast',
   PostEmbeddings: 'PostEmbedding',
+  PostPreviews: 'PostPreview',
   PostRecommendations: 'PostRecommendation',
   PostRelations: 'PostRelation',
+  PostSummaries: 'PostSummary',
   PostViewTimes: 'PostViewTime',
   PostViews: 'PostViews',
   Posts: 'Post',
@@ -107,6 +112,9 @@ export const collectionNameToTypeName = {
 } as const;
 
 export const typeNameToCollectionName = {
+  AiDigestIssueGeneration: 'AiDigestIssueGenerations',
+  AiDigestIssue: 'AiDigestIssues',
+  AiDigestSchedule: 'AiDigestSchedules',
   ArbitalCaches: 'ArbitalCaches',
   ArbitalTagContentRel: 'ArbitalTagContentRels',
   AutomatedContentEvaluation: 'AutomatedContentEvaluations',
@@ -161,8 +169,10 @@ export const typeNameToCollectionName = {
   PodcastEpisode: 'PodcastEpisodes',
   Podcast: 'Podcasts',
   PostEmbedding: 'PostEmbeddings',
+  PostPreview: 'PostPreviews',
   PostRecommendation: 'PostRecommendations',
   PostRelation: 'PostRelations',
+  PostSummary: 'PostSummaries',
   PostViewTime: 'PostViewTimes',
   PostViews: 'PostViews',
   Post: 'Posts',
@@ -213,6 +223,9 @@ export const typeNameToCollectionName = {
 } as const;
 
 export const tableNameToCollectionName = {
+  aidigestissuegenerations: 'AiDigestIssueGenerations',
+  aidigestissues: 'AiDigestIssues',
+  aidigestschedules: 'AiDigestSchedules',
   arbitalcaches: 'ArbitalCaches',
   arbitaltagcontentrels: 'ArbitalTagContentRels',
   automatedcontentevaluations: 'AutomatedContentEvaluations',
@@ -267,8 +280,10 @@ export const tableNameToCollectionName = {
   podcastepisodes: 'PodcastEpisodes',
   podcasts: 'Podcasts',
   postembeddings: 'PostEmbeddings',
+  postpreviews: 'PostPreviews',
   postrecommendations: 'PostRecommendations',
   postrelations: 'PostRelations',
+  postsummaries: 'PostSummaries',
   postviewtimes: 'PostViewTimes',
   postviews: 'PostViews',
   posts: 'Posts',

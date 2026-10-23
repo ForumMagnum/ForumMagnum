@@ -1,6 +1,7 @@
 import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import type { NextRequest } from 'next/server';
+import { checkCronRequestAuthorization } from '@/server/utils/cronAuth';
 import { sendCurationEmails } from '@/server/curationEmails/cron';
 import { testServerSetting } from '@/lib/instanceSettings';
 import { usesCurationEmailsCron } from '@/lib/betas';
@@ -11,9 +12,9 @@ import { getLockOrAbort } from '@/server/utils/advisoryLockUtil';
 import { retryStalledLlmRuns } from '@/server/languageModels/llmRuns';
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response('Unauthorized', { status: 401 });
+  const authError = checkCronRequestAuthorization(request);
+  if (authError) {
+    return authError;
   }
 
   const context = createAnonymousContext({ forumType: getForumTypeForRequest(request) });

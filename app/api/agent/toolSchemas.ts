@@ -10,7 +10,11 @@ export const insertLocationSchema = z.union([
   z.literal("end"),
   z.object({ before: z.string().describe("Insert before the paragraph starting with this text") }),
   z.object({ after: z.string().describe("Insert after the paragraph starting with this text") }),
-]).describe("Where to insert: 'start', 'end', { before: '...' }, or { after: '...' }");
+  z.object({
+    inside: z.string().describe("The collapsible section to insert into, matched by its '+++ Title' line"),
+    position: z.enum(["start", "end"]).default("end").describe("Insert at the start or end of the section's body. Defaults to 'end'."),
+  }),
+]).describe("Where to insert: 'start', 'end', { before: '...' }, { after: '...' }, or { inside: '+++ Title', position?: 'start'|'end' }");
 
 export type InsertLocation = z.infer<typeof insertLocationSchema>;
 

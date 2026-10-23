@@ -1,4 +1,4 @@
-import { $createRangeSelection, $getRoot, $isElementNode, type LexicalEditor, type LexicalNode } from "lexical";
+import { $createRangeSelection, $getRoot, $isElementNode, $isRootNode, type LexicalEditor, type LexicalNode } from "lexical";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import { $applySuggestionWithNarrowing } from "../../../app/api/agent/replaceText/route";
@@ -8,9 +8,10 @@ import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/ap
 import { $applyEditModeReplacement } from "../../../app/api/agent/applyEditAtSelection";
 import { $isListItemNode, $isListNode } from "@lexical/list";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
-import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
-import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
+import { loadHtmlIntoHeadlessEditor } from "@/server/typoSuggestions/headlessLexical";
+import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs, walkLexicalNodes } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
 
 async function replaceTextAsSuggestion(
@@ -338,6 +339,126 @@ describe("replaceText edit mode", () => {
     expect(text).not.toContain("**");
     expect(text).toContain("bold");
   });
+
+  it.each([
+    ["under discussed", "under-discussed", "Methods like this are under-discussed in general."],
+    ["helpful only", "helpful-only", "Methods like this are helpful-only in general."],
+    ["near-future", "near future", "Methods like this are near future in general."],
+    ["teacher, run", "teacher and run", "Methods like this are teacher and run in general."],
+    ["(prompt,teacher-response", "(prompt, teacher-response", "Methods like this are (prompt, teacher-response in general."],
+  ])("keeps a narrowed whitespace/hyphen edit %j -> %j inline", async (quote, replacement, expected) => {
+    const editor = await setupEditorWithContent(
+      `Methods like this are ${quote} in general.`,
+    );
+
+    const replaced = await replaceTextInEditMode(editor, quote, replacement);
+
+    expect(replaced).toBe(true);
+    expect(getPlainTextContent(editor)).toBe(expected);
+    editor.getEditorState().read(() => {
+      expect($getRoot().getChildrenSize()).toBe(1);
+    });
+  });
+
+  it("keeps edge whitespace of a narrowed replacement that contains formatting", async () => {
+    const editor = await setupEditorWithContent("Alpha, beta.");
+
+    // Narrows to ", beta" -> " and **beta**", whose leading space the
+    // markdown renderer would otherwise trim.
+    const replaced = await replaceTextInEditMode(editor, "Alpha, beta.", "Alpha and **beta**.");
+
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Alpha and **beta**.");
+  });
+});
+
+describe("replaceText renders replacement text as inline markdown", () => {
+  it.each([
+    ["-", "Methods are under-discussed here."],
+    [" ", "Methods are under discussed here."],
+  ])("keeps an unnarrowed edit of the dash to %j inline", async (replacement, expected) => {
+    const editor = await setupEditorWithContent("Methods are under—discussed here.");
+
+    // The quote and replacement share no prefix or suffix, so this replaces
+    // the whole quote.
+    expect(await replaceTextInEditMode(editor, "—", replacement)).toBe(true);
+    expect(getMarkdownContent(editor)).toBe(expected);
+  });
+
+  it.each([
+    ["We left in 1998. Then we came back.", "in 1998. Then", "in 1999. *Then*", "We left in 1999. *Then* we came back."],
+    ["Alpha, beta.", "Alpha, beta.", "Alpha - **beta**.", "Alpha - **beta**."],
+    ["A plus B.", "A plus B.", "A + *B*.", "A + *B*."],
+    ["Alpha, beta, gamma.", "Alpha, beta, gamma.", "Alpha, > *beta*, gamma.", "Alpha, > *beta*, gamma."],
+  ])("doesn't start a block for a narrowed fragment of %j that starts with block syntax", async (doc, quote, replacement, expected) => {
+    const editor = await setupEditorWithContent(doc);
+
+    expect(await replaceTextInEditMode(editor, quote, replacement)).toBe(true);
+    expect(getMarkdownContent(editor)).toBe(expected);
+  });
+
+  it("doesn't narrow into the middle of a backslash escape", async () => {
+    const editor = await setupEditorWithContent("We left in 1998. Then we came back.");
+
+    // The shared suffix ". Then" would leave the narrowed replacement ending
+    // in the `\` of `\.`.
+    expect(await replaceTextInEditMode(editor, "in 1998. Then", "in 1999\\. Then")).toBe(true);
+    expect(getPlainTextContent(editor)).toBe("We left in 1999. Then we came back.");
+  });
+
+  it("doesn't narrow into the middle of a bare URL", async () => {
+    const editor = await setupEditorWithContent("Read the docs today.");
+
+    // The shared suffix "docs" would cut the URL short.
+    expect(await replaceTextInEditMode(editor, "Read the docs", "Read https://example.com/docs")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Read [https://example.com/docs](https://example.com/docs) today.");
+  });
+
+  it("decodes an entity in a narrowed replacement", async () => {
+    const editor = await setupEditorWithContent("Tom and Jerry.");
+
+    expect(await replaceTextInEditMode(editor, "Tom and Jerry", "Tom &amp; Jerry")).toBe(true);
+    expect(getPlainTextContent(editor)).toBe("Tom & Jerry.");
+  });
+
+  it("splits the paragraph for a replacement that narrows to a paragraph break", async () => {
+    const editor = await setupEditorWithContent("First sentence. Second sentence.");
+
+    expect(await replaceTextInEditMode(
+      editor, "First sentence. Second sentence.", "First sentence.\n\nSecond sentence.",
+    )).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("First sentence.\n\nSecond sentence.");
+  });
+
+  it.each([
+    // A hard break becomes a LineBreakNode, and a soft break a space.
+    ["beta  \ngamma", "Alpha beta  \ngamma delta.", "Alpha beta\ngamma delta."],
+    ["beta\ngamma", "Alpha beta gamma delta.", "Alpha beta gamma delta."],
+  ])("renders the line break in %j as markdown does", async (replacement, expectedMarkdown, expectedText) => {
+    const editor = await setupEditorWithContent("Alpha beta gamma delta.");
+
+    expect(await replaceTextInEditMode(editor, "beta gamma", replacement)).toBe(true);
+    expect(getMarkdownContent(editor)).toBe(expectedMarkdown);
+    expect(getPlainTextContent(editor)).toBe(expectedText);
+  });
+
+  it.each([
+    ["Alpha, beta, gamma.", "Alpha, > *beta*, gamma.", "> beta"],
+    ["Alpha, beta.", "Alpha - **beta**.", " - beta"],
+  ])("keeps a suggestion for %j -> %j inline", async (doc, replacement, insertedText) => {
+    const editor = await setupEditorWithContent(doc);
+
+    expect(await replaceTextAsSuggestion(editor, doc, replacement)).toBe(true);
+    const inserts = getAllSuggestions(editor).filter((s) => s.type === "insert");
+    expect(inserts.map((s) => s.textContent)).toEqual([insertedText]);
+    editor.getEditorState().read(() => {
+      const blocks: string[] = [];
+      walkLexicalNodes($getRoot(), (node) => {
+        if (!$isRootNode(node) && !node.isInline()) blocks.push(node.getType());
+      });
+      expect(blocks).toEqual(["paragraph"]);
+    });
+  });
 });
 
 describe("replaceText edit mode when quote starts at beginning of text node", () => {
@@ -382,6 +503,124 @@ describe("replaceText edit mode when quote starts at beginning of text node", ()
     expect(suggestions[0].textContent).toBe("Hello");
     expect(suggestions[1].type).toBe("insert");
     expect(suggestions[1].textContent).toBe("Goodbye");
+  });
+});
+
+describe("replaceText when a quote ends inside or after a link", () => {
+  const doc = "Intro text and additional discussion in [Appendix: Asking the model to explain its reasoning](#appendix).\n\nNext paragraph.";
+
+  it("replaces a quote ending after a link at the end of a paragraph in edit mode", async () => {
+    const editor = await setupEditorWithContent(doc);
+
+    // Narrowing strips the shared "and " and ".", leaving a range that starts
+    // in plain text and ends inside the link's text.
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "and additional discussion in Appendix: Asking the model to explain its reasoning.",
+      "and further discussion in the appendix.",
+    );
+
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Intro text and further discussion in the appendix.\n\nNext paragraph.");
+  });
+
+  it("replaces a quote ending exactly at the end of a link in edit mode", async () => {
+    const editor = await setupEditorWithContent(doc);
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "and additional discussion in Appendix: Asking the model to explain its reasoning",
+      "and further discussion in the appendix",
+    );
+
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Intro text and further discussion in the appendix.\n\nNext paragraph.");
+  });
+
+  it("inserts after a link without cutting it short when the quote starts inside it in edit mode", async () => {
+    const editor = await setupEditorWithContent(doc);
+
+    // Narrowing reduces this to inserting ", below" after the link's text.
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "Asking the model to explain its reasoning.",
+      "Asking the model to explain its reasoning, below.",
+    );
+
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe(
+      "Intro text and additional discussion in [Appendix: Asking the model to explain its reasoning](#appendix), below.\n\nNext paragraph.",
+    );
+  });
+
+  it("replaces a quote from plain text into a link in an editor that already has a selection", async () => {
+    // Loading content this way leaves a selection at the end of the document,
+    // as on the typo-suggestion apply path; the edit must not act on it.
+    const editor = loadHtmlIntoHeadlessEditor(
+      markdownToHtml("Alpha beta [gamma delta](https://example.com) epsilon zeta."),
+      "StaleSelectionTest",
+    );
+
+    const replaced = await replaceTextInEditMode(editor, "beta gamma", "BETA GAMMA");
+
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Alpha BETA GAMMA [delta](https://example.com) epsilon zeta.");
+  });
+
+  it("keeps a link whose whole text is replaced in edit mode", async () => {
+    const editor = await setupEditorWithContent("See [foo](https://example.com) now.");
+
+    expect(await replaceTextInEditMode(editor, "foo", "bar")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("See [bar](https://example.com) now.");
+  });
+});
+
+describe("replaceText edit mode pure insertions", () => {
+  // Narrowing reduces each of these edits to inserting text at one point,
+  // which goes where Lexical would put text typed there.
+  it("inserts next to a link without unlinking any of it", async () => {
+    const editor = await setupEditorWithContent("See [the draft notes](https://example.com) for details.");
+
+    expect(await replaceTextInEditMode(editor, "notes for", "notes, for")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("See [the draft notes](https://example.com), for details.");
+  });
+
+  it("inserts into a link's text inside the link", async () => {
+    const editor = await setupEditorWithContent("See [the draft notes](https://example.com) for details.");
+
+    expect(await replaceTextInEditMode(editor, "draft notes", "draft new notes")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("See [the draft new notes](https://example.com) for details.");
+  });
+
+  it("inserts at either edge of a link outside it", async () => {
+    const editor = await setupEditorWithContent("See [the notes](https://example.com)");
+
+    expect(await replaceTextInEditMode(editor, "the notes", "the notes.")).toBe(true);
+    expect(await replaceTextInEditMode(editor, "See the", "See all the")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("See all [the notes](https://example.com).");
+  });
+
+  it("gives inserted text the formatting of the text around it", async () => {
+    const editor = await setupEditorWithContent("Some *the map* here.");
+
+    expect(await replaceTextInEditMode(editor, "*the map*", "*the big map*")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Some *the big map* here.");
+  });
+
+  it("keeps the spaces at the edges of the inserted text", async () => {
+    const editor = await setupEditorWithContent("I went home today.");
+
+    expect(await replaceTextInEditMode(editor, "went home", "went to his home")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("I went to his home today.");
+  });
+});
+
+describe("replaceText edit mode multi-paragraph replacements", () => {
+  it("splits the paragraph around a multi-paragraph replacement", async () => {
+    const editor = await setupEditorWithContent("One two three.");
+
+    expect(await replaceTextInEditMode(editor, "two", "X\n\nY")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("One X\n\nY three.");
   });
 });
 

@@ -20,7 +20,10 @@ export const typeaheadList = (theme: ThemeType) => ({
   listStyle: 'none',
   margin: 0,
   borderRadius: 8,
-  maxHeight: 200,
+  // Items are 36px tall (8px padding top and bottom, 20px line height).
+  // The scrollbar is hidden, so cut the last visible item in half to make
+  // it visibly scrollable.
+  maxHeight: 36 * 5.5,
   overflowY: 'scroll' as const,
   // Hide scrollbar
   '&::-webkit-scrollbar': {
