@@ -3,7 +3,7 @@ import { classifyHost } from '@/lib/routeUtil';
 import { parseRoute, parsePath } from '@/lib/routeChecks/parseRoute';
 import { getMarkdownPathname } from '@/lib/routeChecks/markdownVersionRoutes';
 import { getUrlClass } from '../utils/getUrlClass';
-import { getSiteUrl } from '@/lib/vulcan-lib/utils';
+import { getSiteUrl, makeAbsolute } from '@/lib/vulcan-lib/utils';
 
 type UrlRewriter = (urlParams: Record<string,string>) => string
 
@@ -111,5 +111,20 @@ export const rewritePostLinksForAgentMarkdown = async (
 ): Promise<string> => {
   const urls = Array.from(collectMarkdownUrls(markdown));
   const replacements = new Map<string, string>(urls.map(url => [url, linkToMarkdownApiLink(url, context.forumType)]));
+  return replaceMarkdownUrls(markdown, replacements);
+};
+
+/**
+ * Used for markdown that a user requested through the UI (eg the "Copy
+ * Markdown" menu item), rather than markdown for AI agents: onsite links stay
+ * pointed at the regular HTML pages, but root-relative links are made absolute
+ * so they still work after being pasted somewhere else.
+ */
+export const makeMarkdownLinksAbsolute = (markdown: string, forumType: ForumTypeString): string => {
+  const urls = Array.from(collectMarkdownUrls(markdown));
+  const replacements = new Map<string, string>(urls
+    .filter(url => url.startsWith("/") && !url.startsWith("//"))
+    .map(url => [url, makeAbsolute(url, forumType)])
+  );
   return replaceMarkdownUrls(markdown, replacements);
 };
