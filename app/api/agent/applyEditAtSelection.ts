@@ -1,5 +1,6 @@
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
+import { $appendImportedFootnotes, splitImportedFootnotes } from "./importFootnotes";
 import {
   $createRangeSelection,
   $isBlockElementNode,
@@ -46,16 +47,17 @@ function $htmlToNodes(editor: LexicalEditor, html: string): LexicalNode[] {
  * within an existing paragraph. When the HTML produces a single wrapping
  * paragraph (the typical markdown-to-HTML output for an inline fragment),
  * its inline children are extracted so they stay within the surrounding
- * paragraph rather than starting a new one.
+ * paragraph rather than starting a new one. Footnote sections are returned
+ * separately at the end of the array for callers to attach after a successful edit.
  *
  * Must be called inside a Lexical update context.
  */
 export function $htmlToInlineNodes(editor: LexicalEditor, html: string): LexicalNode[] {
-  const nodes = $htmlToNodes(editor, html);
+  const { contentNodes: nodes, footnoteSections } = splitImportedFootnotes($htmlToNodes(editor, html));
   if (nodes.length === 1 && $isElementNode(nodes[0])) {
-    return nodes[0].getChildren();
+    return [...nodes[0].getChildren(), ...footnoteSections];
   }
-  return nodes;
+  return [...nodes, ...footnoteSections];
 }
 
 /**
@@ -65,6 +67,12 @@ export function $htmlToInlineNodes(editor: LexicalEditor, html: string): Lexical
  * imported as preformatted text, which is how Lexical exports text, so that
  * Lexical keeps its whitespace rather than collapsing it and trimming it at
  * the fragment's edges.
+ *
+ * Inline footnotes (`^[…]`) are the one block the inline parser emits: their
+ * definitions follow the inline content as a footnote section. That section
+ * is rendered outside the preformatted span, where the newlines between its
+ * tags would become line breaks, and is returned at the end of the array for
+ * callers to attach after a successful edit.
  *
  * Must be called inside a Lexical update context.
  */
@@ -76,11 +84,15 @@ export function $inlineMarkdownToNodes(
   if (markdown.length === 0) return [];
   const env = { docId: randomId() };
   const tokens = markdownIt.parseInline(markdown, env);
-  for (const token of tokens) {
+  const footnoteBlockStart = tokens.findIndex((token) => token.type === "footnote_block_open");
+  const inlineTokens = footnoteBlockStart === -1 ? tokens : tokens.slice(0, footnoteBlockStart);
+  const footnoteTokens = footnoteBlockStart === -1 ? [] : tokens.slice(footnoteBlockStart);
+  for (const token of inlineTokens) {
     rewriteBreaksForPreformattedText(token.children ?? []);
   }
-  const html = sanitize(markdownIt.renderer.render(tokens, markdownIt.options, env));
-  return $htmlToNodes(editor, `<span style="white-space: pre-wrap">${html}</span>`);
+  const inlineHtml = sanitize(markdownIt.renderer.render(inlineTokens, markdownIt.options, env));
+  const footnoteHtml = sanitize(markdownIt.renderer.render(footnoteTokens, markdownIt.options, env));
+  return $htmlToNodes(editor, `<span style="white-space: pre-wrap">${inlineHtml}</span>${footnoteHtml}`);
 }
 
 /**
@@ -402,6 +414,9 @@ interface TextSpan {
  */
 const MARKDOWN_ESCAPE = /\\[!-/:-@[-`{-~\n]/g;
 
+/** A footnote reference or definition (`[^id]`), or an inline footnote (`^[…]`). */
+const MARKDOWN_FOOTNOTE = /\[\^|\^\[/;
+
 /**
  * Spans of markdown that narrowing mustn't split. A math token's fragment
  * can't be located against the document's atomic MathNode. A piece of a
@@ -489,6 +504,9 @@ export function $computeNarrowing(
   replacement: string
 } | null {
   if (!range) return null;
+  // Footnote definitions are nonlocal: narrowing can split a reference from
+  // its definition, or the `^` of an inline footnote from its brackets.
+  if (MARKDOWN_FOOTNOTE.test(quote) || MARKDOWN_FOOTNOTE.test(replacement)) return null;
   // Narrowed replacements are rendered as inline nodes, which assumes a
   // single block's inline context; cross-block edits use the full range.
   if (!$pointsShareBlock(anchor, focus)) return null;
@@ -671,14 +689,15 @@ export function $applyEditModeReplacement({
 }): { replaced: boolean, narrowedQuote: string, narrowedReplacement: string } {
   const computedNarrowing = $computeNarrowing(anchor, focus, quote, replacement, range, markdownIt);
   const narrowing = computedNarrowing?.replacement.includes("\n") ? null : computedNarrowing;
-  let nodes: LexicalNode[];
+  let importedNodes: LexicalNode[];
   if (narrowing) {
-    nodes = $inlineMarkdownToNodes(editor, narrowing.replacement, markdownIt);
+    importedNodes = $inlineMarkdownToNodes(editor, narrowing.replacement, markdownIt);
   } else if (replacement.includes("\n")) {
-    nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
+    importedNodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
   } else {
-    nodes = $inlineMarkdownToNodes(editor, replacement, markdownIt);
+    importedNodes = $inlineMarkdownToNodes(editor, replacement, markdownIt);
   }
+  const { contentNodes: nodes, footnoteSections } = splitImportedFootnotes(importedNodes);
   const inheritedFormat = $getInheritedTextFormat(
     narrowing?.anchor ?? anchor, narrowing?.focus ?? focus, narrowing?.quote ?? quote,
   );
@@ -695,6 +714,7 @@ export function $applyEditModeReplacement({
     // `$applyEditAtSelection` splices inline into the surrounding paragraph;
     // hoist it back out so the document never holds a block-inside-paragraph.
     $hoistDisplayMathOutOfParagraphs();
+    $appendImportedFootnotes(footnoteSections);
   }
   return {
     replaced,
