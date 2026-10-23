@@ -1,5 +1,6 @@
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
+import { $appendImportedFootnotes, splitImportedFootnotes } from "./importFootnotes";
 import {
   $createRangeSelection,
   $isBlockElementNode,
@@ -14,6 +15,7 @@ import {
   type LexicalEditor,
   type LexicalNode,
   type PointType,
+  type TextNode,
 } from "lexical";
 import {
   markdownQuoteToPlainText,
@@ -45,16 +47,17 @@ function $htmlToNodes(editor: LexicalEditor, html: string): LexicalNode[] {
  * within an existing paragraph. When the HTML produces a single wrapping
  * paragraph (the typical markdown-to-HTML output for an inline fragment),
  * its inline children are extracted so they stay within the surrounding
- * paragraph rather than starting a new one.
+ * paragraph rather than starting a new one. Footnote sections are returned
+ * separately at the end of the array for callers to attach after a successful edit.
  *
  * Must be called inside a Lexical update context.
  */
 export function $htmlToInlineNodes(editor: LexicalEditor, html: string): LexicalNode[] {
-  const nodes = $htmlToNodes(editor, html);
+  const { contentNodes: nodes, footnoteSections } = splitImportedFootnotes($htmlToNodes(editor, html));
   if (nodes.length === 1 && $isElementNode(nodes[0])) {
-    return nodes[0].getChildren();
+    return [...nodes[0].getChildren(), ...footnoteSections];
   }
-  return nodes;
+  return [...nodes, ...footnoteSections];
 }
 
 /**
@@ -64,6 +67,12 @@ export function $htmlToInlineNodes(editor: LexicalEditor, html: string): Lexical
  * imported as preformatted text, which is how Lexical exports text, so that
  * Lexical keeps its whitespace rather than collapsing it and trimming it at
  * the fragment's edges.
+ *
+ * Inline footnotes (`^[…]`) are the one block the inline parser emits: their
+ * definitions follow the inline content as a footnote section. That section
+ * is rendered outside the preformatted span, where the newlines between its
+ * tags would become line breaks, and is returned at the end of the array for
+ * callers to attach after a successful edit.
  *
  * Must be called inside a Lexical update context.
  */
@@ -75,11 +84,15 @@ export function $inlineMarkdownToNodes(
   if (markdown.length === 0) return [];
   const env = { docId: randomId() };
   const tokens = markdownIt.parseInline(markdown, env);
-  for (const token of tokens) {
+  const footnoteBlockStart = tokens.findIndex((token) => token.type === "footnote_block_open");
+  const inlineTokens = footnoteBlockStart === -1 ? tokens : tokens.slice(0, footnoteBlockStart);
+  const footnoteTokens = footnoteBlockStart === -1 ? [] : tokens.slice(footnoteBlockStart);
+  for (const token of inlineTokens) {
     rewriteBreaksForPreformattedText(token.children ?? []);
   }
-  const html = sanitize(markdownIt.renderer.render(tokens, markdownIt.options, env));
-  return $htmlToNodes(editor, `<span style="white-space: pre-wrap">${html}</span>`);
+  const inlineHtml = sanitize(markdownIt.renderer.render(inlineTokens, markdownIt.options, env));
+  const footnoteHtml = sanitize(markdownIt.renderer.render(footnoteTokens, markdownIt.options, env));
+  return $htmlToNodes(editor, `<span style="white-space: pre-wrap">${inlineHtml}</span>${footnoteHtml}`);
 }
 
 /**
@@ -103,6 +116,40 @@ function rewriteBreaksForPreformattedText(children: Token[]): void {
       token.content = "<br>";
     }
   }
+}
+
+/**
+ * The text formatting (bold, italic, code, ...) that a replacement for this
+ * selection should inherit: the format bits shared by every text node the
+ * selection covers. A quote written as plain text (no markdown markers) says
+ * nothing about formatting, so a plain replacement of words inside an italic
+ * span should stay italic. A quote that spells out markers (e.g. `*foo*`)
+ * makes formatting explicit, so nothing is inherited and the replacement's own
+ * markdown decides it — that's how an agent removes formatting.
+ *
+ * Must be called inside a Lexical read/update context, before the selection
+ * is mutated.
+ */
+export function $getInheritedTextFormat(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+  quote: string,
+): number {
+  if (markdownQuoteToPlainText(quote) !== quote) return 0;
+  const selection = $createRangeSelection();
+  selection.anchor.set(anchor.key, anchor.offset, anchor.type);
+  selection.focus.set(focus.key, focus.offset, focus.type);
+  const collapsed = selection.isCollapsed();
+  const coveredTextNodes = selection.getNodes().filter((node): node is TextNode => {
+    if (!$isTextNode(node)) return false;
+    if (collapsed) return true;
+    // A boundary node the selection only touches at its edge isn't covered.
+    if (anchor.type === "text" && node.getKey() === anchor.key && anchor.offset >= node.getTextContentSize()) return false;
+    if (focus.type === "text" && node.getKey() === focus.key && focus.offset <= 0) return false;
+    return true;
+  });
+  if (coveredTextNodes.length === 0) return 0;
+  return coveredTextNodes.reduce((format, node) => format & node.getFormat(), coveredTextNodes[0].getFormat());
 }
 
 /**
@@ -246,7 +293,7 @@ function $outsideInlineEdge(node: LexicalNode, edge: "start" | "end"): LexicalNo
 }
 
 /** Add text formatting to every text node in `node`'s subtree. */
-function $addTextFormat(node: LexicalNode, format: number): void {
+export function $addTextFormat(node: LexicalNode, format: number): void {
   if ($isTextNode(node)) {
     node.setFormat(node.getFormat() | format);
   } else if ($isElementNode(node)) {
@@ -367,6 +414,9 @@ interface TextSpan {
  */
 const MARKDOWN_ESCAPE = /\\[!-/:-@[-`{-~\n]/g;
 
+/** A footnote reference or definition (`[^id]`), or an inline footnote (`^[…]`). */
+const MARKDOWN_FOOTNOTE = /\[\^|\^\[/;
+
 /**
  * Spans of markdown that narrowing mustn't split. A math token's fragment
  * can't be located against the document's atomic MathNode. A piece of a
@@ -454,6 +504,9 @@ export function $computeNarrowing(
   replacement: string
 } | null {
   if (!range) return null;
+  // Footnote definitions are nonlocal: narrowing can split a reference from
+  // its definition, or the `^` of an inline footnote from its brackets.
+  if (MARKDOWN_FOOTNOTE.test(quote) || MARKDOWN_FOOTNOTE.test(replacement)) return null;
   // Narrowed replacements are rendered as inline nodes, which assumes a
   // single block's inline context; cross-block edits use the full range.
   if (!$pointsShareBlock(anchor, focus)) return null;
@@ -636,13 +689,20 @@ export function $applyEditModeReplacement({
 }): { replaced: boolean, narrowedQuote: string, narrowedReplacement: string } {
   const computedNarrowing = $computeNarrowing(anchor, focus, quote, replacement, range, markdownIt);
   const narrowing = computedNarrowing?.replacement.includes("\n") ? null : computedNarrowing;
-  let nodes: LexicalNode[];
+  let importedNodes: LexicalNode[];
   if (narrowing) {
-    nodes = $inlineMarkdownToNodes(editor, narrowing.replacement, markdownIt);
+    importedNodes = $inlineMarkdownToNodes(editor, narrowing.replacement, markdownIt);
   } else if (replacement.includes("\n")) {
-    nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
+    importedNodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
   } else {
-    nodes = $inlineMarkdownToNodes(editor, replacement, markdownIt);
+    importedNodes = $inlineMarkdownToNodes(editor, replacement, markdownIt);
+  }
+  const { contentNodes: nodes, footnoteSections } = splitImportedFootnotes(importedNodes);
+  const inheritedFormat = $getInheritedTextFormat(
+    narrowing?.anchor ?? anchor, narrowing?.focus ?? focus, narrowing?.quote ?? quote,
+  );
+  for (const node of nodes) {
+    $addTextFormat(node, inheritedFormat);
   }
   const replaced = $applyEditAtSelection({
     anchor: narrowing?.anchor ?? anchor,
@@ -654,6 +714,7 @@ export function $applyEditModeReplacement({
     // `$applyEditAtSelection` splices inline into the surrounding paragraph;
     // hoist it back out so the document never holds a block-inside-paragraph.
     $hoistDisplayMathOutOfParagraphs();
+    $appendImportedFootnotes(footnoteSections);
   }
   return {
     replaced,

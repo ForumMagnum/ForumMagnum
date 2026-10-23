@@ -12881,8 +12881,10 @@ type MarkdownFrontPageQueryVariables = Exact<{
 
 type MarkdownFrontPageQuery = MarkdownFrontPageQuery_Query;
 
+type PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment_contents_Revision = { __typename?: 'Revision', markdown?: string | null };
+
 type PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment = (
-  { __typename?: 'Comment' }
+  { __typename?: 'Comment', contents: PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment_contents_Revision | null }
   & CommentsMarkdownFragment
 );
 
@@ -12893,6 +12895,7 @@ type PostMarkdownCommentByIdQuery_Query = { __typename?: 'Query', comment: PostM
 
 type PostMarkdownCommentByIdQueryVariables = Exact<{
   commentId: Scalars['String']['input'];
+  webLinks: Scalars['Boolean']['input'];
 }>;
 
 

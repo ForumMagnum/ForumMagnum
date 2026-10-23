@@ -1,14 +1,17 @@
+import { $reorderFootnotes } from "@/components/editor/lexicalPlugins/footnotes/helpers";
+import type { FootnoteSectionNode } from "@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode";
+import { $appendImportedFootnotes, splitImportedFootnotes } from "../importFootnotes";
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createRangeSelection, $getNodeByKey, $getRoot, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
+import { $createRangeSelection, $getNodeByKey, $getRoot, $isBlockElementNode, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import type MarkdownIt from "markdown-it";
 import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
-import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
+import { deriveAgentAuthor, renderAgentMarkdownToHtml, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import type { MarkdownSelectionPoint } from "../mapMarkdownToLexical";
 import { $locateQuoteWithTextIndex, type LocatedQuoteRange } from "../textIndexQuoteLocator";
@@ -17,8 +20,11 @@ import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import {
+  $addTextFormat,
   $applyEditModeReplacement,
   $computeNarrowing,
+  $getInheritedTextFormat,
+  $htmlToInlineNodes,
   $inlineMarkdownToNodes,
 } from "../applyEditAtSelection";
 
@@ -95,12 +101,14 @@ function $applySuggestionInsertionAtPoint({
   editor,
   point,
   replacement,
+  inheritedFormat,
   suggestionId,
   markdownIt,
 }: {
   editor: LexicalEditor
   point: MarkdownSelectionPoint
   replacement: string
+  inheritedFormat: number
   suggestionId: string
   markdownIt: MarkdownIt
 }): boolean {
@@ -130,7 +138,7 @@ function $applySuggestionInsertionAtPoint({
     anchorNode.insertAfter(deleteSuggestion);
   }
 
-  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, suggestionId, markdownIt });
+  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, inheritedFormat, suggestionId, markdownIt });
   deleteSuggestion.insertAfter(insertSuggestion);
   return true;
 }
@@ -144,18 +152,19 @@ function $applySuggestionForSelection(
   anchor: MarkdownSelectionPoint,
   focus: MarkdownSelectionPoint,
   replacement: string,
+  inheritedFormat: number,
   suggestionId: string,
   markdownIt: MarkdownIt,
 ): boolean {
   const insertionPoint = $getEquivalentInsertionPoint(anchor, focus);
   if (insertionPoint) {
     return $applySuggestionInsertionAtPoint({
-      editor, point: insertionPoint, replacement, suggestionId, markdownIt,
+      editor, point: insertionPoint, replacement, inheritedFormat, suggestionId, markdownIt,
     });
   }
 
   return $applySuggestionForRange({
-    editor, anchor, focus, replacement, suggestionId, markdownIt,
+    editor, anchor, focus, replacement, inheritedFormat, suggestionId, markdownIt,
   });
 }
 
@@ -176,6 +185,7 @@ function $applySuggestionForRange({
   anchor,
   focus,
   replacement,
+  inheritedFormat,
   suggestionId,
   markdownIt,
 }: {
@@ -183,6 +193,7 @@ function $applySuggestionForRange({
   anchor: MarkdownSelectionPoint
   focus: MarkdownSelectionPoint
   replacement: string
+  inheritedFormat: number
   suggestionId: string
   markdownIt: MarkdownIt
 }): boolean {
@@ -192,31 +203,62 @@ function $applySuggestionForRange({
   const deleteSuggestions = $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
   if (deleteSuggestions.length === 0) return false;
 
-  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, suggestionId, markdownIt });
+  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, inheritedFormat, suggestionId, markdownIt });
   deleteSuggestions[0].insertAfter(insertSuggestion);
   return true;
 }
 
 /**
+ * Render a suggested replacement as inline content: an insert suggestion is
+ * an inline node, so markdown that would start a block on a line of its own
+ * stays inline. Reference-style footnote definitions (`[^id]: …`) are the
+ * exception, since inline parsing leaves them as literal text. A replacement
+ * that renders as one block of inline content plus definitions is rendered as
+ * blocks. Footnote sections, from these or from inline footnotes (see
+ * `$inlineMarkdownToNodes`), are returned separately to attach to the
+ * document's footnote section.
+ */
+function $suggestionReplacementToNodes(
+  editor: LexicalEditor,
+  replacement: string,
+  markdownIt: MarkdownIt,
+): { contentNodes: LexicalNode[], footnoteSections: FootnoteSectionNode[] } {
+  if (replacement.includes("[^")) {
+    const imported = splitImportedFootnotes(
+      $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement)),
+    );
+    if (imported.footnoteSections.length > 0 && !imported.contentNodes.some($isBlockElementNode)) {
+      return imported;
+    }
+  }
+  return splitImportedFootnotes($inlineMarkdownToNodes(editor, replacement, markdownIt));
+}
+
+/**
  * An insert suggestion is an inline node, so the replacement is always
- * rendered as inline content, even one with markdown that would start a
- * block on a line of its own.
+ * rendered as inline content (see `$suggestionReplacementToNodes`). Its text
+ * also gets `inheritedFormat` (see `$getInheritedTextFormat`).
  */
 function $buildInsertSuggestion({
   editor,
   replacement,
+  inheritedFormat,
   suggestionId,
   markdownIt,
 }: {
   editor: LexicalEditor
   replacement: string
+  inheritedFormat: number
   suggestionId: string
   markdownIt: MarkdownIt
 }): LexicalNode {
   const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
-  for (const node of $inlineMarkdownToNodes(editor, replacement, markdownIt)) {
+  const { contentNodes, footnoteSections } = $suggestionReplacementToNodes(editor, replacement, markdownIt);
+  for (const node of contentNodes) {
+    $addTextFormat(node, inheritedFormat);
     insertSuggestion.append(node);
   }
+  $appendImportedFootnotes(footnoteSections);
   return insertSuggestion;
 }
 
@@ -249,13 +291,19 @@ export function $applySuggestionWithNarrowing({
   const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range, markdownIt);
 
   if (!narrowing) {
-    const replaced = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId, markdownIt);
+    const inheritedFormat = $getInheritedTextFormat(anchor, focus, quote);
+    const replaced = $applySuggestionForSelection(
+      editor, anchor, focus, replacement, inheritedFormat, suggestionId, markdownIt,
+    );
+    if (replaced) $reorderFootnotes();
     return { replaced, narrowedQuote: quote, narrowedReplacement: replacement };
   }
 
+  const inheritedFormat = $getInheritedTextFormat(narrowing.anchor, narrowing.focus, narrowing.quote);
   const replaced = $applySuggestionForSelection(
-    editor, narrowing.anchor, narrowing.focus, narrowing.replacement, suggestionId, markdownIt,
+    editor, narrowing.anchor, narrowing.focus, narrowing.replacement, inheritedFormat, suggestionId, markdownIt,
   );
+  if (replaced) $reorderFootnotes();
   return { replaced, narrowedQuote: narrowing.quote, narrowedReplacement: narrowing.replacement };
 }
 

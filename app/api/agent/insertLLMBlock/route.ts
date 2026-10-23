@@ -12,6 +12,7 @@ import { $createLLMContentBlockHeaderNode } from "@/components/editor/lexicalPlu
 import { waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { $findWidgetInsertionProblem, $postMarkdownToNodes, $resolveInsertionPoint, type MarkdownConversion } from "../insertBlock/route";
+import { $appendImportedFootnotes, splitImportedFootnotes } from "../importFootnotes";
 import { insertLLMBlockToolSchema, type InsertLocation } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -63,7 +64,8 @@ export function $insertLLMBlockInEditor({
   markdown: string
   markdownToNodes: (editor: LexicalEditor, markdown: string) => MarkdownConversion
 }): InsertLLMBlockResult {
-  const { nodes: contentChildren, error } = markdownToNodes(editor, markdown);
+  const { nodes, error } = markdownToNodes(editor, markdown);
+  const { contentNodes: contentChildren, footnoteSections } = splitImportedFootnotes(nodes);
   const conversionProblem = error ?? $findWidgetInsertionProblem(contentChildren, "edit");
   if (conversionProblem) {
     return { inserted: false, note: conversionProblem };
@@ -77,6 +79,7 @@ export function $insertLLMBlockInEditor({
 
   const { parent, index: insertionIndex } = point;
   parent.splice(insertionIndex, 0, [blockNode]);
+  $appendImportedFootnotes(footnoteSections);
   return {
     inserted: true,
     note: `Inserted LLM content block (model: ${modelName}) at index ${insertionIndex}.`,

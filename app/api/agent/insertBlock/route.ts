@@ -7,6 +7,8 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { NextRequest, NextResponse } from "next/server";
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
+import { $appendImportedFootnotes, splitImportedFootnotes } from "../importFootnotes";
+import { $getFootnoteSection } from "@/components/editor/lexicalPlugins/footnotes/helpers";
 import {
   $getRoot,
   $createRangeSelection,
@@ -178,8 +180,11 @@ function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], parent: El
 
 function $htmlToNodes(editor: LexicalEditor, html: string): LexicalNode[] {
   const dom = new JSDOM(sanitize(html));
-  const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
-  return normalizeImportedTopLevelNodes(importedNodes);
+  try {
+    return normalizeImportedTopLevelNodes($generateNodesFromDOM(editor, dom.window.document));
+  } finally {
+    dom.window.close();
+  }
 }
 
 export function $markdownToNodes(
@@ -247,10 +252,19 @@ function $resolveInsidePoint(prefix: string, position: "start" | "end"): Inserti
 }
 
 /**
- * Resolve an insert location to a parent node and child index. Must be called
- * inside a Lexical read/update context.
+ * Resolve an insert location to a parent node and child index. A point at the
+ * top level never comes after the footnote section, which stays at the end of
+ * the document. Must be called inside a Lexical read/update context.
  */
 export function $resolveInsertionPoint(location: InsertLocation): InsertionPointResult {
+  const result = $resolveLocation(location);
+  const section = $getFootnoteSection();
+  if (!result.point || !section || !$isRootNode(result.point.parent)) return result;
+  const index = Math.min(result.point.index, section.getIndexWithinParent());
+  return { point: { parent: result.point.parent, index } };
+}
+
+function $resolveLocation(location: InsertLocation): InsertionPointResult {
   const root = $getRoot();
   if (location === "start") {
     return { point: { parent: root, index: 0 } };
@@ -290,10 +304,11 @@ export function $insertMarkdownBlockInEditor({
   markdown: string
   markdownToNodes: (editor: LexicalEditor, markdown: string) => MarkdownConversion
 }): InsertBlockResult {
-  const { nodes: nodesToInsert, error } = markdownToNodes(editor, markdown);
+  const { nodes: importedNodes, error } = markdownToNodes(editor, markdown);
   if (error) {
     return { inserted: false, note: error };
   }
+  const { contentNodes: nodesToInsert, footnoteSections } = splitImportedFootnotes(importedNodes);
   if (nodesToInsert.length === 0) {
     return { inserted: false, note: "No insertable nodes were generated from markdown." };
   }
@@ -314,6 +329,7 @@ export function $insertMarkdownBlockInEditor({
     suggestionId = randomId();
     $wrapInsertedNodesAsSuggestion(nodesToInsert, parent, insertionIndex, suggestionId);
   }
+  $appendImportedFootnotes(footnoteSections);
   return {
     inserted: true,
     note: mode === "suggest"
