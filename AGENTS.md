@@ -541,6 +541,24 @@ The current default editor provided to users is our implementation of lexical.  
 
 We are not token-constrained and do not need to save money.  As such, strongly prefer to use subagents of the same model family and version as you, even for basic exploration tasks, rather than using smaller/cheaper subagents.
 
+## Database Design
+
+When doing work that involves updating the database schema, strongly prefer normalized designs.  Almost everything should be at least 4NF or 5NF by default, absent compelling reasons otherwise.  (You should approximately never propose using a jsonb field, and very rarely propose using an array field.)  Our existing schema violates this rule in several places, but those were mostly poor design choices made earlier, rather than decisions that should be taken as examples to follow.
+
+## Unit Tests
+
+Unit tests should only be added in cases where you encounter an actual bug in unit-testable code which can faithfully be reproduced via a failing unit test, or in cases where the user explicitly requests a unit test.  Do not add tests just to increase test coverage, or tests that test trivial functionality, implementation details, or code paths whose correctness in practice depend on external resources (such as database queries) that would be mocked or stubbed out during the tests.  (There's no issue with creating temporary test files for real-time testing/verification purposes; they just shouldn't be committed to the codebase.)  If you find that you've added unit tests which don't meet the criteria in the first sentence, please remember to clean them up before committing your code.
+
+## Fail loud and early
+
+All code should fail loud and early when encountering unexpected or invalid invariants, rather than trying to "make things work".  Adding additional schema, complexity, or epicycles in order to avoid the need for a `throw` is almost never the right move - similarly, for trying to preserve backwards-compatibility when explicitly changing business logic or data models.  (We should avoid ever _losing_ data, but when practical this should be handled via migrations rather than by writing code that supports both legacy and new invariants.)
+
+Another random thing that falls into this bucket: it's almost never the case that having any sort of fallback value for a missing environment variable is correct.
+
+## Comments
+
+Do not add new comments to the code, unless you are documenting a non-obvious property of a complicated state machine, or a very subtle behavior that was previously broken.  If you add new comments in the course of writing code that don't satisfy that criteria, please remember to clean them up before committing your changes.
+
 ## Style / Conventions
 Never apply `as any` type casts, and try very hard to avoid any other type casts.  Consider whether you are applying a type cast because you've forgotten to run `yarn generate`.  If you absolutely must apply a type cast somewhere, always leave the following comment above it:
 ```typescript
@@ -550,8 +568,11 @@ Never apply `as any` type casts, and try very hard to avoid any other type casts
 Never add new inline dynamic imports (i.e. `await import(...)` or `require(...)`).
 Strongly prefer to avoid writing classes to encapsulate functionality.  Write top-level functions and only export those that are meant to be used by other parts of the codebase.
 Strongly prefer to avoid declaring inline functions that capture scope; declare them at the top of the module and pass in all the necessary dependencies.  This does not include standard React component patterns like `useEffect` callbacks and defining event handlers inside of the component; those are fine.
+Avoid writing code with high "cognitive complexity" for humans trying to read it.  Make judicious use of intermediate declarations with clear variable names rather than, for example, trying to stuff a five-layer-deep inline expression into a function argument.  Nested ternaries and ternaries that are evaluating some kind of complex expression(s) in their branches are especially pernicious.
 If you need to combine multiple classNames, use `import classNames from 'classnames';` rather than combining them via template string.
 Prefer interfaces to types where possible.
+Prefer functional and concise assignments and declarations, unless there would be a substantial performance impact or other meaningful downside from doing so.
+If you have a choice between writing an implementation that relies on mutation and an implementation which doesn't, pick the second one if it has no meaningful downsides in performance, correctness, comprehensibility, and maintainability.
 Do not create barrel import/export files.
 Do not use `ReturnType<...>`.  Instead, check the return type of the relevant function and use that type directly (with an additional import, if necessary).
 If you have access to the typescript LSP, strongly prefer to use the tools it provides to check for type errors in files that you've changed while in the middle of coding, rather than using the project's top-level `yarn lint` or `yarn tsc` (which can take up to 30 seconds).  You should use the project-level command after finishing an entire feature, if you've made any changes to types/type signatures that might have been used from elsewhere in the codebase.
