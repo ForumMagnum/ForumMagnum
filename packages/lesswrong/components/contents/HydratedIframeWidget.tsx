@@ -4,6 +4,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT } from '@/components/lexical/embeds/IframeWidgetEmbed/iframeResizeScript';
+import { ScrollyIframeWidget, SCROLLY_META_RE } from './ScrollyIframeWidget';
 
 const iframeWidgetSrcdocQuery = gql(`
   query IframeWidgetSrcdocQuery($widgetId: String!) {
@@ -82,6 +83,10 @@ function HydratedIframeWidgetInner({ widgetId, attribs }: {
   const srcdoc = data?.iframeWidgetSrcdoc?.result?.html;
   if (!srcdoc) {
     return null;
+  }
+
+  if (SCROLLY_META_RE.test(srcdoc)) {
+    return <ScrollyIframeWidget srcdoc={srcdoc} title={attribs.title} />;
   }
 
   return <InlineIframeWidget srcdoc={srcdoc} title={attribs.title} />;
