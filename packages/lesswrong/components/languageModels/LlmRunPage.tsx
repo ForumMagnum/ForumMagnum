@@ -15,6 +15,7 @@ import LWTooltip from "@/components/common/LWTooltip";
 import { Link } from "@/lib/reactRouterWrapper";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { getLlmVersionFullName } from "@/lib/languageModels/llmRegistry";
 
 const POLL_INTERVAL_MS = 3000;
 const COPIED_INDICATOR_MS = 1500;
@@ -266,7 +267,8 @@ export default function LlmRunPage({ runId }: { runId: string }) {
 
   const isRunning = !runIsFinished;
   const isCompleted = run.status === "completed";
-  const mention = `@${run.modelName}`;
+  const modelFullName = getLlmVersionFullName(run.modelName);
+  const mention = `@${modelFullName}`;
   const promptParts = getPromptParts(run.systemPrompt, run.contextMessage);
   const copyPrompt = async () => {
     await navigator.clipboard.writeText([run.systemPrompt, run.contextMessage].filter(Boolean).join("\n\n"));
@@ -276,14 +278,14 @@ export default function LlmRunPage({ runId }: { runId: string }) {
   const { post } = run;
   const triggerCommentText = triggerComment?.contents?.plaintextMainText;
   const titleExcerpt = triggerCommentText && getTitleExcerpt(triggerCommentText, mention);
-  const title = titleExcerpt ? highlightMention(titleExcerpt, mention, classes.mention) : `${run.modelName}'s reply`;
+  const title = titleExcerpt ? highlightMention(titleExcerpt, mention, classes.mention) : `${modelFullName}'s reply`;
 
   return <SingleColumnSection>
     <div className={classes.header}>
       <h1 className={classes.title}>{title}</h1>
       <div className={classes.meta}>
         {triggerComment?.user && post && <span>
-          <span className={classes.person}>{triggerComment.user.displayName}</span> asked <span className={classes.person}>{run.modelName}</span> on <Link to={postGetPageUrl(post)}>{post.title}</Link> ·
+          <span className={classes.person}>{triggerComment.user.displayName}</span> asked <span className={classes.person}>{modelFullName}</span> on <Link to={postGetPageUrl(post)}>{post.title}</Link> ·
         </span>}
         {isRunning && <>
           <span>Writing</span>
@@ -339,7 +341,7 @@ export default function LlmRunPage({ runId }: { runId: string }) {
       />}
       {isRunning && <div className={classes.outputStatus}><Loading className={classes.inlineLoading} /></div>}
       {run.status === "failed" && <div className={classNames(classes.outputStatus, classes.failed)}>
-        {run.modelName} couldn't finish this reply.
+        {modelFullName} couldn't finish this reply.
         {run.error && <span className={classes.errorDetail}>{run.error}</span>}
       </div>}
       {isCompleted && post && run.replyCommentId && <div className={classes.seeInContext}>

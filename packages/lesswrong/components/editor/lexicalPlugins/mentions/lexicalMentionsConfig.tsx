@@ -165,10 +165,10 @@ function formatSearchHit(hit: SearchUser | SearchPost | SearchTag, forumType: Fo
 function formatModelItem(model: LlmFamilyVersion, forumType: ForumTypeString): MentionItemWithModel {
   return {
     type: "Models",
-    id: MARKER + model.version.name,
+    id: MARKER + model.version.fullName,
     link: combineUrls(getSiteUrl(forumType), getLlmMentionPath(model)),
-    text: MARKER + model.version.name,
-    label: model.version.name,
+    text: MARKER + model.version.fullName,
+    label: model.version.fullName,
     model,
   };
 }
@@ -255,7 +255,7 @@ function TagMentionItem({ hit }: { hit: SearchTag }) {
 
 function ModelMentionItem({ model: { family, version } }: { model: LlmFamilyVersion }) {
   const isLatest = getLatestLlmVersion(family)?.name === version.name;
-  return <MentionItemRow icon="Sparkles" title={version.name} meta={isLatest ? "latest" : undefined} />;
+  return <MentionItemRow icon="Sparkles" title={version.fullName} meta={isLatest ? "latest" : undefined} />;
 }
 
 function mentionItemRenderer(item: MentionItemWithHit): React.ReactNode {

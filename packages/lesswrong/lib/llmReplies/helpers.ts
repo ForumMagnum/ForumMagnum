@@ -6,10 +6,10 @@ export function llmReplyStartsAsPreview(comment: { llmRunId: string | null, base
   return !!comment.llmRunId && (comment.baseScore ?? 0) < LLM_REPLY_EXPAND_KARMA;
 }
 
-export function llmReplyPendingMarkdown(versionName: string, runId: string): string {
-  return `*${versionName} is writing a reply. [Follow along](${llmRunGetPageUrl(runId)}).*`;
+export function llmReplyPendingMarkdown(modelName: string, runId: string): string {
+  return `*${modelName} is writing a reply. [Follow along](${llmRunGetPageUrl(runId)}).*`;
 }
 
-export function llmReplyFailedMarkdown(versionName: string, runId: string): string {
-  return `*${versionName} couldn't finish this reply. [See what happened](${llmRunGetPageUrl(runId)}).*`;
+export function llmReplyFailedMarkdown(modelName: string, runId: string): string {
+  return `*${modelName} couldn't finish this reply. [See what happened](${llmRunGetPageUrl(runId)}).*`;
 }

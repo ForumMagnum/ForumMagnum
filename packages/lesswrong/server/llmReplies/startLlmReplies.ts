@@ -42,7 +42,7 @@ export async function assertLlmMentionAllowed(postId: string | null, html: strin
   }
   const check = await checkLlmSummon(currentUser, postId, llm, context);
   if (!check.allowed) {
-    throw new Error(`${check.reason} Remove the @${llm.version.name} mention to post without a reply.`);
+    throw new Error(`${check.reason} Remove the @${llm.version.fullName} mention to post without a reply.`);
   }
 }
 
@@ -64,7 +64,7 @@ export async function startLlmReplyForComment(comment: DbComment, context: Resol
 }
 
 async function checkLlmSummon(currentUser: DbUser, postId: string | null, llm: LlmFamilyVersion, context: ResolverContext): Promise<LlmSummonCheck> {
-  const modelName = llm.version.name;
+  const modelName = llm.version.fullName;
   if (!postId) {
     return { allowed: false, reason: `${modelName} only replies to comments on posts.` };
   }
@@ -111,7 +111,7 @@ async function startLlmReply({ comment, postId, modelUser, llm }: {
       postId,
       parentCommentId: comment._id,
       contents: {
-        originalContents: { type: "markdown", data: llmReplyPendingMarkdown(llm.version.name, runId) },
+        originalContents: { type: "markdown", data: llmReplyPendingMarkdown(llm.version.fullName, runId) },
       },
       llmRunId: runId,
     },

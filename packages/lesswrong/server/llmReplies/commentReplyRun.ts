@@ -1,4 +1,5 @@
 import type { ForumTypeString } from "@/lib/instanceSettings";
+import { getLlmVersionFullName } from "@/lib/languageModels/llmRegistry";
 import { llmReplyFailedMarkdown } from "@/lib/llmReplies/helpers";
 import { randomId } from "@/lib/random";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
@@ -30,7 +31,7 @@ export const commentReplyRunHandler: LlmRunHandler = {
     });
     const reply = await updateComment({
       selector: { _id: replyComment._id },
-      data: { contents: { originalContents: { type: "html", data: getLlmReplyHtml(run.modelName, response) } } },
+      data: { contents: { originalContents: { type: "html", data: getLlmReplyHtml(getLlmVersionFullName(run.modelName), response) } } },
     }, context);
     await sendLlmReplyNotifications(reply, context);
   },
@@ -39,7 +40,7 @@ export const commentReplyRunHandler: LlmRunHandler = {
     const replyComment = await getReplyComment(run);
     await updateComment({
       selector: { _id: replyComment._id },
-      data: { contents: { originalContents: { type: "markdown", data: llmReplyFailedMarkdown(run.modelName, run._id) } } },
+      data: { contents: { originalContents: { type: "markdown", data: llmReplyFailedMarkdown(getLlmVersionFullName(run.modelName), run._id) } } },
     }, await getModelAccountContext(replyComment, forumType));
   },
 };

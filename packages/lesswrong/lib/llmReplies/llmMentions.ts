@@ -14,16 +14,22 @@ export function getMentionedLlmVersion(family: LlmFamily, versionName: string | 
 export function getMentionableLlms(query: string): LlmFamilyVersion[] {
   const normalizedQuery = query.toLowerCase();
   const latestOfMatchingFamilies = LLM_FAMILIES
-    .filter((family) => family.name.toLowerCase().startsWith(normalizedQuery))
+    .filter((family) => nameMatchesQuery(family.name, normalizedQuery))
     .flatMap((family) => {
       const version = getLatestLlmVersion(family);
       return version ? [{ family, version }] : [];
     });
   const matchingVersions = LLM_FAMILIES.flatMap((family) => family.versions
-    .filter((version) => !version.retired && version.name.toLowerCase().startsWith(normalizedQuery))
+    .filter((version) => !version.retired && (nameMatchesQuery(version.name, normalizedQuery) || nameMatchesQuery(version.fullName, normalizedQuery)))
     .map((version) => ({ family, version })),
   );
   return uniqBy([...latestOfMatchingFamilies, ...matchingVersions], ({ version }) => version.name);
+}
+
+function nameMatchesQuery(name: string, normalizedQuery: string): boolean {
+  const normalizedName = name.toLowerCase();
+  return normalizedName.startsWith(normalizedQuery)
+    || normalizedName.split(/[\s-]+/).some((word) => word.startsWith(normalizedQuery));
 }
 
 export function getLlmMentionPath({ family, version }: LlmFamilyVersion): string {
