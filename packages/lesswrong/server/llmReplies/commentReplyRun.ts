@@ -13,6 +13,7 @@ import type { LlmRunHandler } from "@/server/languageModels/llmRuns";
 import { generateLlmRunResponse } from "@/server/languageModels/llmRunResponse";
 import { getLlmTools } from "@/server/languageModels/llmTools";
 import { commentIsPubliclyVisible } from "@/server/languageModels/publicVisibility";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { buildThreadContextMessage } from "./threadContext";
 
@@ -33,7 +34,7 @@ export const commentReplyRunHandler: LlmRunHandler = {
       selector: { _id: replyComment._id },
       data: { contents: { originalContents: { type: "html", data: getLlmReplyHtml(getLlmVersionFullName(run.modelName), response) } } },
     }, context);
-    await sendLlmReplyNotifications(reply, context);
+    backgroundTask(sendLlmReplyNotifications(reply, context));
   },
 
   fail: async (run, forumType) => {

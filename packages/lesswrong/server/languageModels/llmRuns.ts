@@ -9,6 +9,7 @@ const MAX_LLM_RUN_ATTEMPTS = 3;
 /** Longer than the run route's maxDuration, so a claim this old means its attempt died */
 const LLM_RUN_ATTEMPT_TIMEOUT_MS = 15 * 60 * 1000;
 const LLM_RUN_PENDING_RETRY_AFTER_MS = 2 * 60 * 1000;
+const LLM_RUN_GIVE_UP_AFTER_MS = 60 * 60 * 1000;
 
 export interface LlmRunHandler {
   run: (run: DbLlmRun, forumType: ForumTypeString) => Promise<void>;
@@ -56,7 +57,7 @@ export async function retryStalledLlmRuns(forumType: ForumTypeString): Promise<v
     new Date(now - LLM_RUN_ATTEMPT_TIMEOUT_MS),
   );
   for (const run of stalledRuns) {
-    if (run.attemptCount >= MAX_LLM_RUN_ATTEMPTS) {
+    if (run.attemptCount >= MAX_LLM_RUN_ATTEMPTS || run.createdAt.getTime() < now - LLM_RUN_GIVE_UP_AFTER_MS) {
       await failLlmRun(run, `Gave up after ${run.attemptCount} attempts`);
     } else {
       await requestLlmRun(run._id, run.forumType);
