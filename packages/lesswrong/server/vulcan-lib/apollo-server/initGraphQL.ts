@@ -109,6 +109,7 @@ import { graphqlLweventQueryTypeDefs, lweventGqlQueryHandlers, lweventGqlFieldRe
 import { graphqlLegacyDataQueryTypeDefs, legacyDataGqlFieldResolvers } from "@/server/collections/legacyData/queries";
 import { graphqlLlmConversationQueryTypeDefs, llmConversationGqlQueryHandlers, llmConversationGqlFieldResolvers } from "@/server/collections/llmConversations/queries";
 import { graphqlLlmMessageQueryTypeDefs, llmMessageGqlFieldResolvers } from "@/server/collections/llmMessages/queries";
+import { graphqlLlmRunQueryTypeDefs, llmRunGqlQueryHandlers, llmRunGqlFieldResolvers } from "@/server/collections/llmRuns/queries";
 import { graphqlLocalgroupQueryTypeDefs, localgroupGqlQueryHandlers, localgroupGqlFieldResolvers } from "@/server/collections/localgroups/queries";
 import { graphqlManifoldProbabilitiesCacheQueryTypeDefs, manifoldProbabilitiesCacheGqlFieldResolvers } from "@/server/collections/manifoldProbabilitiesCaches/queries";
 import { graphqlMessageQueryTypeDefs, messageGqlQueryHandlers, messageGqlFieldResolvers } from "@/server/collections/messages/queries";
@@ -360,6 +361,7 @@ export const getTypeDefs = () => gql`
   ${graphqlLegacyDataQueryTypeDefs}
   ${graphqlLlmConversationQueryTypeDefs}
   ${graphqlLlmMessageQueryTypeDefs}
+  ${graphqlLlmRunQueryTypeDefs}
   ${graphqlLocalgroupQueryTypeDefs}
   ${graphqlManifoldProbabilitiesCacheQueryTypeDefs}
   ${graphqlMessageQueryTypeDefs}
@@ -528,6 +530,7 @@ const getResolvers = () => ({
     ...jargonTermGqlQueryHandlers,
     ...lweventGqlQueryHandlers,
     ...llmConversationGqlQueryHandlers,
+    ...llmRunGqlQueryHandlers,
     ...localgroupGqlQueryHandlers,
     ...messageGqlQueryHandlers,
     ...moderationTemplateGqlQueryHandlers,
@@ -724,6 +727,7 @@ const getResolvers = () => ({
   ...legacyDataGqlFieldResolvers,
   ...llmConversationGqlFieldResolvers,
   ...llmMessageGqlFieldResolvers,
+  ...llmRunGqlFieldResolvers,
   ...localgroupGqlFieldResolvers,
   ...manifoldProbabilitiesCacheGqlFieldResolvers,
   ...messageGqlFieldResolvers,

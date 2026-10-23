@@ -68,6 +68,7 @@ const nextConfig: NextConfig = {
       './packages/lesswrong/server/research/sandbox/dist/supervisor.js',
       './packages/lesswrong/server/research/sandbox/dist/research-tool.cjs',
       './packages/lesswrong/server/research/sandbox/supervisor/agentInstructions.md',
+      './packages/lesswrong/server/llmReplies/systemPrompt.md',
     ],
   },
   experimental: {

@@ -15,6 +15,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { updateCommentEmbeddings } from "@/server/voyage/client";
+import { startLlmReplyForComment } from "@/server/llmReplies/startLlmReplies";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
@@ -173,6 +174,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
 
   if (!documentWithId.draft) {
     backgroundTask(updateCommentEmbeddings(documentWithId._id, context.forumType));
+    await startLlmReplyForComment(documentWithId, context);
   }
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(documentWithId, null, context));
 
@@ -235,6 +237,9 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   // There really has to be a currentUser here.
   await commentsEditSoftDeleteCallback(updatedDocument, oldDocument, currentUser!, context);
   await commentsPublishedNotifications(updatedDocument, oldDocument, context);
+  if (oldDocument.draft && !updatedDocument.draft) {
+    await startLlmReplyForComment(updatedDocument, context);
+  }
   await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument, context);
 
   reuploadImagesIfEditableFieldsChanged({

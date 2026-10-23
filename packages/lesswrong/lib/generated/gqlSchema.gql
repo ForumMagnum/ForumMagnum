@@ -2174,6 +2174,8 @@ type Comment {
   tagCommentType: TagCommentType!
   userId: String!
   user: User
+  llmRunId: String
+  llmRun: LlmRun
   userIP: String
   userAgent: String
   referrer: String
@@ -3579,6 +3581,57 @@ type LlmMessage {
   conversationId: String
   role: String
   content: String
+}
+
+type LlmRun {
+  _id: String!
+  createdAt: Date!
+  invocationContext: String!
+  postId: String
+  post: Post
+  requesterUserId: String!
+  modelName: String!
+  gatewayModelId: String!
+  status: String!
+  systemPrompt: String!
+  contextMessage: String
+  transcript: JSON!
+  response: String
+  error: String
+  completedAt: Date
+  triggerCommentId: String
+  replyCommentId: String
+  modelUserId: String
+}
+
+input SingleLlmRunInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleLlmRunOutput {
+  result: LlmRun
+}
+
+input LlmRunSelector {
+  default: EmptyViewInput
+}
+
+input MultiLlmRunInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiLlmRunOutput {
+  results: [LlmRun!]!
+  totalCount: Int
+}
+
+extend type Query {
+  llmRun(input: SingleLlmRunInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleLlmRunOutput
+  llmRuns(input: MultiLlmRunInput @deprecated(reason: "Use the selector field instead"), selector: LlmRunSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiLlmRunOutput
 }
 
 type Localgroup {
@@ -8007,6 +8060,7 @@ type User {
   userRateLimits: [UserRateLimit!]
   claudeLinkedAt: Date
   hasClaudeCodeOAuthToken: Boolean
+  llmFamily: String
 }
 
 enum ReactPaletteStyle {
@@ -8373,6 +8427,7 @@ input CreateCommentDataInput {
   tagId: String
   tagCommentType: TagCommentType
   userId: String
+  llmRunId: String
   authorIsUnreviewed: Boolean
   answer: Boolean
   parentAnswerId: String

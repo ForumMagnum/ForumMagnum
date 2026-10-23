@@ -18,6 +18,7 @@ import ContentStyles from "../common/ContentStyles";
 import LWPopper from "../common/LWPopper";
 import CommentsNode from "./CommentsNode";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { llmRunGetPageUrl } from '@/lib/collections/llmRuns/helpers';
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -88,6 +89,10 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
     padding: SINGLE_LINE_PADDING_TOP,
     paddingRight: 8,
     paddingLeft: 8
+  },
+  // A model's words, in the LLM content block font
+  llmText: {
+    fontFamily: '"cronos-pro", serif',
   },
   truncatedHighlight: {
     padding: SINGLE_LINE_PADDING_TOP,
@@ -160,6 +165,9 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle, hideParentCommentToggle, deemphasizeCommentsExcludingUserIds } = treeOptions;
 
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
+  // The writing and failure notices on model replies link to the run page and
+  // are LessWrong's words, so they keep the comment font
+  const isModelText = !!comment.llmRunId && !comment.contents?.html?.includes(llmRunGetPageUrl(comment.llmRunId));
   const displayHoverOver = hover && ((comment.baseScore ?? 0) > -5) && !isMobile() && enableHoverPreview
   const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
 
@@ -205,7 +213,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {!hideSingleLineMeta && <span className={classes.date}>
           <FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
-        {renderHighlight && <ContentStyles contentType="comment" className={classes.truncatedHighlight}> 
+        {renderHighlight && <ContentStyles contentType="comment" className={classNames(classes.truncatedHighlight, isModelText && classes.llmText)}> 
           {singleLinePostTitle && <span className={classes.postTitle}>{post?.title}</span>}
           { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
           { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}

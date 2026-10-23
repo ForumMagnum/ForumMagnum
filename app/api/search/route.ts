@@ -1,5 +1,6 @@
 import { queryRequestSchema, type SearchOptions, type SearchQuery } from "@/lib/search/NativeSearchClient";
 import ElasticService from "@/server/search/elastic/ElasticService";
+import Users from "@/server/collections/users/collection";
 import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 import uniq from "lodash/uniq";
 import type { NextRequest } from "next/server";
@@ -20,6 +21,8 @@ const defaultSearchOptions: SearchOptions = {
 
 const SEARCH_INDEXES = ["posts", "comments", "tags", "users", "sequences"] as const;
 type SearchIndexName = typeof SEARCH_INDEXES[number];
+/** The indexes that can be filtered to one author */
+const AUTHORED_SEARCH_INDEXES: SearchIndexName[] = ["posts", "comments"];
 
 const DEFAULT_RESULTS_PER_TYPE = 5;
 const MAX_RESULTS_PER_TYPE = 20;
@@ -136,7 +139,18 @@ async function runMarkdownSearchQuery(
   searchQuery: string,
 ): Promise<Response> {
   const typeFilter = parseTypeFilter(req.nextUrl.searchParams.get("type"));
-  const indexes = typeFilter ? [typeFilter] : [...SEARCH_INDEXES];
+  const authorSlug = req.nextUrl.searchParams.get("author");
+  const author = authorSlug ? await Users.findOne({ slug: authorSlug, deleted: false }) : null;
+  if (authorSlug && !author) {
+    return new Response(`No user found with slug: ${authorSlug}`, {
+      status: 404,
+      headers: { "content-type": "text/plain; charset=utf-8" },
+    });
+  }
+  const typeIndexes = typeFilter ? [typeFilter] : [...SEARCH_INDEXES];
+  const indexes = author
+    ? typeIndexes.filter((indexName) => AUTHORED_SEARCH_INDEXES.includes(indexName))
+    : typeIndexes;
   const limitPerType = parseLimit(req.nextUrl.searchParams.get("limit"));
   const page = parsePage(req.nextUrl.searchParams.get("page"));
 
@@ -147,6 +161,7 @@ async function runMarkdownSearchQuery(
         query: searchQuery,
         hitsPerPage: limitPerType,
         page,
+        ...(author ? { facetFilters: [[`userId:${author._id}`]] } : {}),
       },
     }, defaultSearchOptions);
     return { indexName, result };
@@ -157,6 +172,7 @@ async function runMarkdownSearchQuery(
     `# Search Results: ${searchQuery}`,
     "",
     `- Query: \`${searchQuery}\``,
+    ...(author ? [`- Author: ${author.displayName} (\`${author.slug}\`)`] : []),
     `- Results across all types: ${totalHits}`,
     `- Per-type page size: ${limitPerType}`,
     `- Page: ${page + 1}`,
@@ -207,6 +223,7 @@ Examples:
 
 - \`search\` (required for results): search text
 - \`type\` (optional): one of \`posts\`, \`comments\`, \`tags\`, \`users\`, \`sequences\`
+- \`author\` (optional): a user's slug; only returns that user's posts and comments
 - \`limit\` (optional): results per type (default ${DEFAULT_RESULTS_PER_TYPE}, max ${MAX_RESULTS_PER_TYPE})
 - \`page\` (optional): zero-based page (default 0)
 

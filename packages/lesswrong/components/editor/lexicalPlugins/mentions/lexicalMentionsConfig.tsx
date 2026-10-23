@@ -5,10 +5,12 @@ import { getSearchClient, getSearchIndexName } from '../../../../lib/search/sear
 import { userGetDisplayName } from '../../../../lib/collections/users/helpers';
 import { userMentionQueryString } from '../../../../lib/pingback';
 import { filterNonnull } from '../../../../lib/utils/typeGuardUtils';
-import { getSiteUrl } from '../../../../lib/vulcan-lib/utils';
-import type { MentionItem } from './MentionDropdown';
+import { combineUrls, getSiteUrl } from '../../../../lib/vulcan-lib/utils';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
+import ForumIcon, { type ForumIconName } from '@/components/common/ForumIcon';
 import type { ForumTypeString } from '@/lib/instanceSettings';
+import { getLatestLlmVersion, LLM_FAMILIES, type LlmFamilyVersion } from '@/lib/languageModels/llmRegistry';
+import { getLlmMentionPath, getMentionableLlms } from '@/lib/llmReplies/llmMentions';
 
 const MARKER = "@";
 
@@ -27,40 +29,47 @@ const styles = defineStyles('LexicalMentionItem', (theme: ThemeType) => ({
   item: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: 10,
     width: '100%',
-  },
-  icon: {
-    fontSize: '16px',
-    width: '20px',
-    textAlign: 'center',
-    flexShrink: 0,
-  },
-  content: {
-    flex: 1,
     minWidth: 0,
   },
+  icon: {
+    '--icon-size': '16px',
+    flexShrink: 0,
+    color: theme.palette.grey[500],
+  },
   title: {
-    fontSize: '14px',
-    fontWeight: 500,
+    fontSize: 14.3,
+    lineHeight: '20px',
+    color: theme.palette.grey[900],
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
   meta: {
-    fontSize: '12px',
+    marginLeft: 'auto',
+    flexShrink: 0,
+    fontSize: 12.5,
     color: theme.palette.grey[600],
-    display: 'flex',
-    gap: '8px',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
-  userMeta: {
-    display: 'flex',
-    gap: '8px',
-  },
-}), { allowNonThemeColors: true });
+}));
+
+/**
+ * A mention item that can be displayed in the dropdown
+ */
+interface MentionItem {
+  /** Unique identifier (should start with the marker, e.g., "@username") */
+  id: string;
+  /** Display text (used as link text when inserted) */
+  text?: string;
+  /** URL to link to when the mention is inserted */
+  link: string;
+  /** Optional label to display (defaults to id) */
+  label?: string;
+  /** Optional description/subtitle */
+  description?: string;
+}
 
 // Extended MentionItem with hit data for rendering
 interface MentionItemWithUserHit extends MentionItem {
@@ -78,7 +87,13 @@ interface MentionItemWithTagHit extends MentionItem {
   hit: SearchTag;
 }
 
-export type MentionItemWithHit = MentionItemWithUserHit | MentionItemWithPostHit | MentionItemWithTagHit;
+/** A model version that replies when mentioned; links to its family's account */
+interface MentionItemWithModel extends MentionItem {
+  type: 'Models';
+  model: LlmFamilyVersion;
+}
+
+export type MentionItemWithHit = MentionItemWithUserHit | MentionItemWithPostHit | MentionItemWithTagHit | MentionItemWithModel;
 
 /**
  * Type guard to check if hit is a SearchUser
@@ -148,16 +163,42 @@ function formatSearchHit(hit: SearchUser | SearchPost | SearchTag, forumType: Fo
   return null;
 }
 
+function formatModelItem(model: LlmFamilyVersion, forumType: ForumTypeString): MentionItemWithModel {
+  return {
+    type: "Models",
+    id: MARKER + model.version.name,
+    link: combineUrls(getSiteUrl(forumType), getLlmMentionPath(model)),
+    text: MARKER + model.version.name,
+    label: model.version.name,
+    model,
+  };
+}
+
+const llmFamilyAccountSlugs = new Set(LLM_FAMILIES.map((family) => family.accountSlug));
+
 const collectionNames = ["Posts", "Users", "Tags"] as const;
 
 /**
- * Fetch mention suggestions from Algolia
+ * Fetch mention suggestions: AI models first, then search results. Model
+ * accounts are left out of the search results, so retired models can't be
+ * mentioned.
  */
 async function fetchMentionableSuggestions(forumType: ForumTypeString, searchString: string): Promise<MentionItemWithHit[]> {
   if (!searchString.trim()) {
     return [];
   }
-  
+  const modelItems = getMentionableLlms(searchString).map((model) => formatModelItem(model, forumType));
+  const searchItems = await fetchSearchSuggestions(forumType, searchString);
+  return [
+    ...modelItems,
+    ...searchItems.filter((item) => !(item.type === "Users" && llmFamilyAccountSlugs.has(item.hit.slug))),
+  ];
+}
+
+/**
+ * Fetch mention suggestions from Algolia
+ */
+async function fetchSearchSuggestions(forumType: ForumTypeString, searchString: string): Promise<MentionItemWithHit[]> {
   try {
     const indexName = collectionNames.map(getSearchIndexName).join(",");
     const searchClient = getSearchClient();
@@ -178,51 +219,51 @@ async function fetchMentionableSuggestions(forumType: ForumTypeString, searchStr
 }
 
 /**
- * Component to render a user mention item
+ * One row of the mention menu: an icon, the name, and optional metadata on the
+ * right
  */
-function UserMentionItem({ hit }: { hit: SearchUser }) {
+function MentionItemRow({ icon, title, meta }: {
+  icon: ForumIconName,
+  title: string | null | undefined,
+  meta?: string,
+}) {
   const classes = useStyles(styles);
   return (
     <div className={classes.item}>
-      <span className={classes.icon}>👤</span>
-      <div className={classes.content}>
-        <div className={classes.title}>{hit.displayName}</div>
-        <div className={classes.meta}>
-          <span>{hit.karma || 0} karma</span>
-        </div>
-      </div>
+      <ForumIcon icon={icon} className={classes.icon} />
+      <span className={classes.title}>{title}</span>
+      {meta && <span className={classes.meta}>{meta}</span>}
     </div>
   );
+}
+
+/**
+ * Component to render a user mention item
+ */
+function UserMentionItem({ hit }: { hit: SearchUser }) {
+  return <MentionItemRow icon="User" title={hit.displayName} meta={`${hit.karma || 0} karma`} />;
 }
 
 /**
  * Component to render a post mention item
  */
 function PostMentionItem({ hit }: { hit: SearchPost }) {
-  const classes = useStyles(styles);
-  return (
-    <div className={classes.item}>
-      <span className={classes.icon}>📄</span>
-      <div className={classes.content}>
-        <div className={classes.title}>{hit.title}</div>
-      </div>
-    </div>
-  );
+  return <MentionItemRow icon="Post" title={hit.title} />;
 }
 
 /**
  * Component to render a tag mention item
  */
 function TagMentionItem({ hit }: { hit: SearchTag }) {
-  const classes = useStyles(styles);
-  return (
-    <div className={classes.item}>
-      <span className={classes.icon}>🏷️</span>
-      <div className={classes.content}>
-        <div className={classes.title}>{hit.name}</div>
-      </div>
-    </div>
-  );
+  return <MentionItemRow icon="Tag" title={hit.name} />;
+}
+
+/**
+ * Component to render a model mention item, marking the family's newest version
+ */
+function ModelMentionItem({ model: { family, version } }: { model: LlmFamilyVersion }) {
+  const isLatest = getLatestLlmVersion(family)?.name === version.name;
+  return <MentionItemRow icon="Sparkles" title={version.name} meta={isLatest ? "latest" : undefined} />;
 }
 
 function mentionItemRenderer(item: MentionItemWithHit): React.ReactNode {
@@ -230,6 +271,7 @@ function mentionItemRenderer(item: MentionItemWithHit): React.ReactNode {
     case 'Users': return <UserMentionItem hit={item.hit} />;
     case 'Posts': return <PostMentionItem hit={item.hit} />;
     case 'Tags': return <TagMentionItem hit={item.hit} />;
+    case 'Models': return <ModelMentionItem model={item.model} />;
   }
 }
 

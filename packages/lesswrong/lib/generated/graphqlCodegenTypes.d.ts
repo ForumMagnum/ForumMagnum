@@ -473,6 +473,8 @@ type Comment = {
   legacyId?: Maybe<Scalars['String']['output']>;
   legacyParentId?: Maybe<Scalars['String']['output']>;
   legacyPoll: Scalars['Boolean']['output'];
+  llmRun?: Maybe<LlmRun>;
+  llmRunId?: Maybe<Scalars['String']['output']>;
   moderatorHat: Scalars['Boolean']['output'];
   moveToAlignmentUser?: Maybe<User>;
   moveToAlignmentUserId?: Maybe<Scalars['String']['output']>;
@@ -1242,6 +1244,7 @@ type CreateCommentDataInput = {
   legacyId?: InputMaybe<Scalars['String']['input']>;
   legacyParentId?: InputMaybe<Scalars['String']['input']>;
   legacyPoll?: InputMaybe<Scalars['Boolean']['input']>;
+  llmRunId?: InputMaybe<Scalars['String']['input']>;
   moderatorHat?: InputMaybe<Scalars['Boolean']['input']>;
   needsReview?: InputMaybe<Scalars['Boolean']['input']>;
   nominatedForReview?: InputMaybe<Scalars['String']['input']>;
@@ -2676,6 +2679,32 @@ type LlmMessage = {
   userId?: Maybe<Scalars['String']['output']>;
 };
 
+type LlmRun = {
+  __typename?: 'LlmRun';
+  _id: Scalars['String']['output'];
+  completedAt?: Maybe<Scalars['Date']['output']>;
+  contextMessage?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  error?: Maybe<Scalars['String']['output']>;
+  gatewayModelId: Scalars['String']['output'];
+  invocationContext: Scalars['String']['output'];
+  modelName: Scalars['String']['output'];
+  modelUserId?: Maybe<Scalars['String']['output']>;
+  post?: Maybe<Post>;
+  postId?: Maybe<Scalars['String']['output']>;
+  replyCommentId?: Maybe<Scalars['String']['output']>;
+  requesterUserId: Scalars['String']['output'];
+  response?: Maybe<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+  systemPrompt: Scalars['String']['output'];
+  transcript: Scalars['JSON']['output'];
+  triggerCommentId?: Maybe<Scalars['String']['output']>;
+};
+
+type LlmRunSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
 type Localgroup = {
   __typename?: 'Localgroup';
   _id: Scalars['String']['output'];
@@ -3434,6 +3463,19 @@ type MultiLlmConversationInput = {
 type MultiLlmConversationOutput = {
   __typename?: 'MultiLlmConversationOutput';
   results: Array<LlmConversation>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type MultiLlmRunInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiLlmRunOutput = {
+  __typename?: 'MultiLlmRunOutput';
+  results: Array<LlmRun>;
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -7486,6 +7528,8 @@ type Query = {
   latestGoogleDocMetadata?: Maybe<Scalars['JSON']['output']>;
   llmConversation?: Maybe<SingleLlmConversationOutput>;
   llmConversations?: Maybe<MultiLlmConversationOutput>;
+  llmRun?: Maybe<SingleLlmRunOutput>;
+  llmRuns?: Maybe<MultiLlmRunOutput>;
   localgroup?: Maybe<SingleLocalgroupOutput>;
   localgroups?: Maybe<MultiLocalgroupOutput>;
   marketplaceHomePageDesigns: Array<MarketplaceHomePageDesign>;
@@ -8284,6 +8328,21 @@ type QueryllmConversationsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<LlmConversationSelector>;
+};
+
+
+type QueryllmRunArgs = {
+  input?: InputMaybe<SingleLlmRunInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryllmRunsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiLlmRunInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<LlmRunSelector>;
 };
 
 
@@ -9923,6 +9982,16 @@ type SingleLlmConversationInput = {
 type SingleLlmConversationOutput = {
   __typename?: 'SingleLlmConversationOutput';
   result?: Maybe<LlmConversation>;
+};
+
+type SingleLlmRunInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleLlmRunOutput = {
+  __typename?: 'SingleLlmRunOutput';
+  result?: Maybe<LlmRun>;
 };
 
 type SingleLocalgroupInput = {
@@ -12069,6 +12138,7 @@ type User = {
   legacyData?: Maybe<Scalars['JSON']['output']>;
   legacyId?: Maybe<Scalars['String']['output']>;
   linkedinProfileURL?: Maybe<Scalars['String']['output']>;
+  llmFamily?: Maybe<Scalars['String']['output']>;
   location?: Maybe<Scalars['String']['output']>;
   lwWikiImport?: Maybe<Scalars['Boolean']['output']>;
   mailgunValidation?: Maybe<MailgunValidationResult>;
@@ -12976,6 +13046,40 @@ type LocalgroupMetadataQueryVariables = Exact<{
 
 
 type LocalgroupMetadataQuery = LocalgroupMetadataQuery_Query;
+
+type LlmRunPageQueryQuery_llmRun_SingleLlmRunOutput_result_LlmRun = (
+  { __typename?: 'LlmRun' }
+  & LlmRunPageFragment
+);
+
+type LlmRunPageQueryQuery_llmRun_SingleLlmRunOutput = { __typename?: 'SingleLlmRunOutput', result: LlmRunPageQueryQuery_llmRun_SingleLlmRunOutput_result_LlmRun | null };
+
+type LlmRunPageQueryQuery_Query = { __typename?: 'Query', llmRun: LlmRunPageQueryQuery_llmRun_SingleLlmRunOutput | null };
+
+
+type LlmRunPageQueryQueryVariables = Exact<{
+  runId: Scalars['String']['input'];
+}>;
+
+
+type LlmRunPageQueryQuery = LlmRunPageQueryQuery_Query;
+
+type LlmRunPageCommentQueryQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type LlmRunPageCommentQueryQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: LlmRunPageCommentQueryQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type LlmRunPageCommentQueryQuery_Query = { __typename?: 'Query', comment: LlmRunPageCommentQueryQuery_comment_SingleCommentOutput | null };
+
+
+type LlmRunPageCommentQueryQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type LlmRunPageCommentQueryQuery = LlmRunPageCommentQueryQuery_Query;
 
 type multiModeratorCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
@@ -24329,12 +24433,14 @@ type CommentsList_Comment_user_User = (
   & UsersMinimumInfo
 );
 
+type CommentsList_Comment_llmRun_LlmRun = { __typename?: 'LlmRun', _id: string, modelName: string };
+
 type CommentsList_Comment_promotedByUser_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
 );
 
-type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
+type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, llmRunId: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, llmRun: CommentsList_Comment_llmRun_LlmRun | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
 
 type CommentsListWithTopLevelComment_Comment_topLevelComment_Comment = (
   { __typename?: 'Comment' }
@@ -24647,6 +24753,10 @@ type LlmConversationsWithMessagesFragment = (
 );
 
 type LlmMessagesFragment = { __typename?: 'LlmMessage', _id: string, userId: string | null, conversationId: string | null, role: string | null, content: string | null, createdAt: string };
+
+type LlmRunPageFragment_LlmRun_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
+
+type LlmRunPageFragment = { __typename?: 'LlmRun', _id: string, createdAt: string, completedAt: string | null, invocationContext: string, status: string, modelName: string, gatewayModelId: string, postId: string | null, triggerCommentId: string | null, replyCommentId: string | null, systemPrompt: string, contextMessage: string | null, transcript: any, response: string | null, error: string | null, post: LlmRunPageFragment_LlmRun_post_Post | null };
 
 type localGroupsBase_Localgroup_organizers_User = (
   { __typename?: 'User' }

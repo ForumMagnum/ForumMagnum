@@ -101,6 +101,7 @@ export const truncateWithGrace = (html: string, maxLengthWords: number, graceWor
 export function getTruncationCharCount (comment: CommentsList, postPage?: boolean) {
   const commentIsByGPT2 = !!(comment && comment.user && comment.user.displayName === "GPT2")
   if (commentIsByGPT2) return GTP2_TRUNCATION_CHAR_COUNT
+  if (comment.llmRunId) return SMALL_TRUNCATION_CHAR_COUNT
 
   const commentIsRecent = new Date(comment.postedAt) > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
   const commentIsHighKarma = typeof comment.baseScore === 'number' && comment.baseScore >= TRUNCATION_KARMA_THRESHOLD

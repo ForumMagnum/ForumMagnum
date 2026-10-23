@@ -21,6 +21,7 @@ import { HomePageDesignsViews } from '../collections/homePageDesigns/views';
 import { IframeWidgetSrcdocsViews } from '../collections/iframeWidgetSrcdocs/views';
 import { JargonTermsViews } from '../collections/jargonTerms/views';
 import { LlmConversationsViews } from '../collections/llmConversations/views';
+import { LlmRunsViews } from '../collections/llmRuns/views';
 import { LocalgroupsViews } from '../collections/localgroups/views';
 import { LWEventsViews } from '../collections/lwevents/views';
 import { MessagesViews } from '../collections/messages/views';
@@ -99,6 +100,7 @@ export const allViews = {
   LinkPreviewCaches: new CollectionViewSet('LinkPreviewCaches', {}),
   LlmConversations: LlmConversationsViews,
   LlmMessages: new CollectionViewSet('LlmMessages', {}),
+  LlmRuns: LlmRunsViews,
   Localgroups: LocalgroupsViews,
   LoginTokens: new CollectionViewSet('LoginTokens', {}),
   LWEvents: LWEventsViews,

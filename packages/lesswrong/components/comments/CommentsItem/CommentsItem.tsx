@@ -35,8 +35,9 @@ import CoreTagIcon from "../../tagging/CoreTagIcon";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useNavigate } from '@/lib/routeUtil';
+import { useLocation, useNavigate } from '@/lib/routeUtil';
 import dynamic from 'next/dynamic';
+import { llmRunGetPageUrl } from '@/lib/collections/llmRuns/helpers';
 
 const RejectedReasonDisplay = dynamic(() => import("../../sunshineDashboard/RejectedReasonDisplay"));
 
@@ -206,6 +207,7 @@ export const CommentsItem = ({
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const [showEditState, setShowEditState] = useState(treeOptions.initialShowEdit || false);
@@ -334,6 +336,11 @@ export const CommentsItem = ({
   >
     {showInlineCancel ? "Cancel" : "Reply"}
   </a>), [replacementReplyButton, showInlineCancel, classes.replyLink, openReplyForm, closeReplyForm]);
+  // Model replies link to their run, beside Reply, except on that run's page
+  const runPageUrl = comment.llmRunId ? llmRunGetPageUrl(comment.llmRunId) : null;
+  const bottomButtons = runPageUrl && runPageUrl !== pathname
+    ? <>{replyButton}<Link to={runPageUrl} className={classes.replyLink}>View run</Link></>
+    : replyButton;
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -403,7 +410,7 @@ export const CommentsItem = ({
               votingSystem={votingSystem}
               voteProps={voteProps}
               commentBodyRef={commentBodyRef}
-              replyButton={replyButton}
+              replyButton={bottomButtons}
             />}
           </AnimatedCollapse>}
         </div>

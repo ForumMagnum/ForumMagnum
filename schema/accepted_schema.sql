@@ -250,6 +250,7 @@ CREATE TABLE "Comments" (
   "tagId" VARCHAR(27),
   "tagCommentType" TEXT NOT NULL DEFAULT 'DISCUSSION',
   "userId" VARCHAR(27) NOT NULL,
+  "llmRunId" VARCHAR(27),
   "userIP" TEXT,
   "userAgent" TEXT,
   "referrer" TEXT,
@@ -960,6 +961,32 @@ CREATE TABLE "LlmMessages" (
 
 -- Index "idx_LlmMessages_conversationId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_LlmMessages_conversationId_createdAt" ON "LlmMessages" USING btree ("conversationId", "createdAt");
+
+-- Table "LlmRuns"
+CREATE TABLE "LlmRuns" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "invocationContext" TEXT NOT NULL,
+  "postId" VARCHAR(27),
+  "requesterUserId" VARCHAR(27) NOT NULL,
+  "modelName" TEXT NOT NULL,
+  "gatewayModelId" TEXT NOT NULL,
+  "status" TEXT NOT NULL DEFAULT 'pending',
+  "systemPrompt" TEXT NOT NULL,
+  "contextMessage" TEXT,
+  "transcript" JSONB NOT NULL DEFAULT '{}',
+  "response" TEXT,
+  "error" TEXT,
+  "attemptCount" INTEGER NOT NULL DEFAULT 0,
+  "claimedAt" TIMESTAMPTZ,
+  "completedAt" TIMESTAMPTZ,
+  "triggerCommentId" VARCHAR(27),
+  "replyCommentId" VARCHAR(27),
+  "modelUserId" VARCHAR(27)
+);
+
+-- Index "idx_LlmRuns_status_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_LlmRuns_status_createdAt" ON "LlmRuns" USING btree ("status", "createdAt");
 
 -- Table "Localgroups"
 CREATE TABLE "Localgroups" (
@@ -3339,7 +3366,8 @@ CREATE TABLE "Users" (
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "recommendationSettings" JSONB,
   "claudeLinkedAt" TIMESTAMPTZ,
-  "claudeCodeOAuthTokenEncrypted" TEXT
+  "claudeCodeOAuthTokenEncrypted" TEXT,
+  "llmFamily" TEXT
 );
 
 -- Index "idx_Users_username"

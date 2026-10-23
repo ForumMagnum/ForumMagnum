@@ -24,13 +24,7 @@ import * as ReactDOM from 'react-dom';
 
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-import {
-  typeaheadPopover,
-  typeaheadList,
-  typeaheadListItem,
-  typeaheadItem,
-  typeaheadItemText,
-} from '../../styles/typeaheadStyles';
+import { typeaheadPopover, typeaheadList } from '../../styles/typeaheadStyles';
 import {
   getLexicalMentionFeeds,
   type MentionFeed,
@@ -42,38 +36,46 @@ import { useSearchAnalytics, useCaptureSearchResultSelected } from '@/components
 const styles = defineStyles('LexicalMentions', (theme: ThemeType) => ({
   popover: {
     ...typeaheadPopover(theme),
-    minWidth: 220,
-    maxWidth: 420,
+    width: 320,
+    maxWidth: 'calc(100vw - 32px)',
+    background: theme.palette.panelBackground.default,
+    borderRadius: 2,
+    boxShadow: theme.palette.boxShadow.lwCard,
+    overflow: 'hidden',
   },
   list: {
     ...typeaheadList(theme),
-    width: '100%',
-    maxHeight: 280,
-    overflowY: 'auto',
+    borderRadius: 0,
+    maxHeight: 340,
   },
-  listItem: typeaheadListItem(theme),
   item: {
-    ...typeaheadItem(theme),
-    width: '100%',
+    margin: 0,
+    padding: '6px 12px',
+    cursor: 'pointer',
+    outline: 'none',
   },
-  text: typeaheadItemText(),
+  selected: {
+    background: theme.palette.greyAlpha(0.07),
+  },
   itemContent: {
     display: 'flex',
-    flexDirection: 'column',
-    gap: '2px',
+    alignItems: 'baseline',
+    gap: 10,
+    minWidth: 0,
   },
   itemLabel: {
-    fontSize: '14px',
-    color: theme.palette.text.normal,
+    fontSize: 14.3,
+    lineHeight: '20px',
+    color: theme.palette.grey[900],
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
   itemDescription: {
-    fontSize: '12px',
+    marginLeft: 'auto',
+    flexShrink: 0,
+    fontSize: 12.5,
     color: theme.palette.grey[600],
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
 }));
@@ -214,7 +216,7 @@ function MentionsTypeaheadMenuItem({index, isSelected, onClick, onMouseEnter, op
     <li
       key={option.key}
       tabIndex={-1}
-      className={classNames(classes.item, classes.listItem, { selected: isSelected })}
+      className={classNames(classes.item, { [classes.selected]: isSelected })}
       ref={option.setRefElement}
       role="option"
       aria-selected={isSelected}
@@ -298,7 +300,7 @@ export default function MentionsPlugin(): JSX.Element | null {
       const item = selectedOption.item;
       captureResultSelected({
         query: queryString ?? undefined,
-        resultId: item.hit._id,
+        resultId: item.type === "Models" ? item.model.version.name : item.hit._id,
         resultType: item.type,
         context: "mentionsEditor",
         marker: selectedOption.marker,

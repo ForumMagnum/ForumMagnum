@@ -292,6 +292,30 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
+  // Set on replies posted by a model family's account; links to the run that
+  // produced the reply.
+  llmRunId: {
+    database: {
+      type: "VARCHAR(27)",
+      foreignKey: "LlmRuns",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canCreate: [(user) => !!user?.llmFamily],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  llmRun: {
+    graphql: {
+      outputType: "LlmRun",
+      canRead: ["guests"],
+      resolver: generateIdResolverSingle({ foreignCollectionName: "LlmRuns", fieldName: "llmRunId" }),
+    },
+  },
   userIP: {
     database: {
       type: "TEXT",

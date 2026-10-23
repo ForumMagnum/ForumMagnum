@@ -145,6 +145,8 @@ interface Query {
   lWEvents: MultiLWEventOutput | null;
   llmConversation: SingleLlmConversationOutput | null;
   llmConversations: MultiLlmConversationOutput | null;
+  llmRun: SingleLlmRunOutput | null;
+  llmRuns: MultiLlmRunOutput | null;
   localgroup: SingleLocalgroupOutput | null;
   localgroups: MultiLocalgroupOutput | null;
   message: SingleMessageOutput | null;
@@ -1930,6 +1932,8 @@ interface Comment {
   tagCommentType: TagCommentType;
   userId: string;
   user: User | null;
+  llmRunId: string | null;
+  llmRun: LlmRun | null;
   userIP: string | null;
   userAgent: string | null;
   referrer: string | null;
@@ -3229,6 +3233,52 @@ interface LlmMessage {
   conversationId: string | null;
   role: string | null;
   content: string | null;
+}
+
+interface LlmRun {
+  _id: string;
+  createdAt: Date;
+  invocationContext: string;
+  postId: string | null;
+  post: Post | null;
+  requesterUserId: string;
+  modelName: string;
+  gatewayModelId: string;
+  status: string;
+  systemPrompt: string;
+  contextMessage: string | null;
+  transcript: any;
+  response: string | null;
+  error: string | null;
+  completedAt: Date | null;
+  triggerCommentId: string | null;
+  replyCommentId: string | null;
+  modelUserId: string | null;
+}
+
+interface SingleLlmRunInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleLlmRunOutput {
+  result: LlmRun | null;
+}
+
+interface LlmRunSelector {
+  default: EmptyViewInput | null;
+}
+
+interface MultiLlmRunInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiLlmRunOutput {
+  results: Array<LlmRun>;
+  totalCount: number | null;
 }
 
 interface Localgroup {
@@ -7407,6 +7457,7 @@ interface User {
   userRateLimits: Array<UserRateLimit> | null;
   claudeLinkedAt: Date | null;
   hasClaudeCodeOAuthToken: boolean | null;
+  llmFamily: string | null;
 }
 
 interface UserSelectorUniqueInput {
@@ -7680,6 +7731,7 @@ interface CreateCommentDataInput {
   tagId?: string | null;
   tagCommentType?: TagCommentType | null;
   userId?: string | null;
+  llmRunId?: string | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
   parentAnswerId?: string | null;
@@ -9768,6 +9820,12 @@ interface GraphQLTypeMap {
   MultiLlmConversationInput: MultiLlmConversationInput;
   MultiLlmConversationOutput: MultiLlmConversationOutput;
   LlmMessage: LlmMessage;
+  LlmRun: LlmRun;
+  SingleLlmRunInput: SingleLlmRunInput;
+  SingleLlmRunOutput: SingleLlmRunOutput;
+  LlmRunSelector: LlmRunSelector;
+  MultiLlmRunInput: MultiLlmRunInput;
+  MultiLlmRunOutput: MultiLlmRunOutput;
   Localgroup: Localgroup;
   SingleLocalgroupInput: SingleLocalgroupInput;
   SingleLocalgroupOutput: SingleLocalgroupOutput;
@@ -10388,6 +10446,7 @@ interface CreateInputsByCollectionName {
   LinkPreviewCaches: never;
   LlmConversations: never;
   LlmMessages: never;
+  LlmRuns: never;
   LoginTokens: never;
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
@@ -10484,6 +10543,7 @@ interface UpdateInputsByCollectionName {
   LegacyData: never;
   LinkPreviewCaches: never;
   LlmMessages: never;
+  LlmRuns: never;
   LoginTokens: never;
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;

@@ -8,6 +8,7 @@ import { dispatchPendingEvents } from '@/server/debouncer';
 import { checkAndSendUpcomingEventEmails } from '@/server/eventReminders';
 import { updateScoreActiveDocuments } from '@/server/votingCron';
 import { getLockOrAbort } from '@/server/utils/advisoryLockUtil';
+import { retryStalledLlmRuns } from '@/server/languageModels/llmRuns';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -35,6 +36,11 @@ export async function GET(request: NextRequest) {
   // Check upcoming event emails
   if (!isTestServer) {
     await getLockOrAbort('checkAndSendUpcomingEventEmails', checkAndSendUpcomingEventEmails.bind(null, context.forumType));
+  }
+
+  // Restart model runs that died or never started
+  if (!isTestServer) {
+    tasks.push(getLockOrAbort('retryStalledLlmRuns', retryStalledLlmRuns.bind(null, context.forumType)));
   }
 
   // Update score active documents (runs regardless of test server setting)

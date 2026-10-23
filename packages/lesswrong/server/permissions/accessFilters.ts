@@ -469,6 +469,7 @@ const accessFilters = {
   LinkPreviewCaches: denyAll,
   LlmConversations: llmConversationCheckAccess,
   LlmMessages: llmMessageCheckAccess,
+  LlmRuns: allowAccess,
   Localgroups: allowAccess,
   LoginTokens: denyAll,
   LWEvents: lweventCheckAccess,

@@ -222,6 +222,7 @@ interface DbComment extends DbObject {
   legacyId: string | null
   legacyParentId: string | null
   legacyPoll: boolean
+  llmRunId: string | null
   moderatorHat: boolean
   moveToAlignmentUserId: string | null
   needsReview: boolean | null
@@ -567,6 +568,30 @@ interface DbLlmMessage extends DbObject {
   legacyData: any | null
   role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant"
   userId: string
+}
+
+type LlmRunsCollection = PgCollection<"LlmRuns">;
+
+interface DbLlmRun extends DbObject {
+  __collectionName?: "LlmRuns"
+  attemptCount: number
+  claimedAt: Date | null
+  completedAt: Date | null
+  contextMessage: string | null
+  createdAt: Date
+  error: string | null
+  gatewayModelId: string
+  invocationContext: LlmRunInvocationContext
+  modelName: string
+  modelUserId: string | null
+  postId: string | null
+  replyCommentId: string | null
+  requesterUserId: string
+  response: string | null
+  status: LlmRunStatus
+  systemPrompt: string
+  transcript: LlmTranscriptEntry[]
+  triggerCommentId: string | null
 }
 
 type LocalgroupsCollection = PgCollection<"Localgroups">;
@@ -1792,6 +1817,7 @@ interface DbUser extends DbObject {
   legacyData: any | null
   legacyId: string | null
   linkedinProfileURL: string | null
+  llmFamily: string | null
   location: string | null
   lwWikiImport: boolean | null
   mapLocation: any | null
@@ -2369,6 +2395,7 @@ interface CollectionsByName {
   LinkPreviewCaches: LinkPreviewCachesCollection
   LlmConversations: LlmConversationsCollection
   LlmMessages: LlmMessagesCollection
+  LlmRuns: LlmRunsCollection
   Localgroups: LocalgroupsCollection
   LoginTokens: LoginTokensCollection
   MailgunValidations: MailgunValidationsCollection
@@ -2466,6 +2493,7 @@ interface ObjectsByCollectionName {
   LinkPreviewCaches: DbLinkPreviewCaches
   LlmConversations: DbLlmConversation
   LlmMessages: DbLlmMessage
+  LlmRuns: DbLlmRun
   Localgroups: DbLocalgroup
   LoginTokens: DbLoginToken
   MailgunValidations: DbMailgunValidation
@@ -2563,6 +2591,7 @@ interface ObjectsByTypeName {
   LinkPreviewCaches: DbLinkPreviewCaches
   LlmConversation: DbLlmConversation
   LlmMessage: DbLlmMessage
+  LlmRun: DbLlmRun
   Localgroup: DbLocalgroup
   LoginToken: DbLoginToken
   MailgunValidation: DbMailgunValidation

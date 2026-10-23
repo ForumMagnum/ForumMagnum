@@ -412,6 +412,16 @@ export const routeTrie = {
           },
           "hasRoute": true
         },
+        "llmRuns": {
+          "staticChildren": {
+            "run": {
+              "hasRoute": true
+            }
+          },
+          "lowerCase": {
+            "run": "run"
+          }
+        },
         "mcp": {
           "hasRoute": true
         },
@@ -657,6 +667,7 @@ export const routeTrie = {
         "health": "health",
         "homedesignchat": "homeDesignChat",
         "homedesigns": "homeDesigns",
+        "llmruns": "llmRuns",
         "mcp": "mcp",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",
@@ -984,6 +995,14 @@ export const routeTrie = {
     },
     "library": {
       "hasPage": true
+    },
+    "llmRuns": {
+      "dynamicChild": {
+        "paramName": "runId",
+        "child": {
+          "hasPage": true
+        }
+      }
     },
     "login": {
       "hasPage": true
@@ -1493,6 +1512,7 @@ export const routeTrie = {
     "item": "item",
     "leaderboard": "leaderboard",
     "library": "library",
+    "llmruns": "llmRuns",
     "login": "login",
     "loginnotice": "loginNotice",
     "logout": "logout",
