@@ -1,0 +1,5886 @@
+{
+  "name": "2026-10-22T0027-25ab5356b8-baseline",
+  "createdAt": "2026-10-22T00:27:58.488Z",
+  "gitHead": "25ab5356b8",
+  "dirty": false,
+  "codeFingerprint": "eaf010712b7a",
+  "corpusTag": "2026-10-22",
+  "weights": {
+    "match": {
+      "bm25": 3,
+      "allTerms": 1,
+      "titleAll": 1,
+      "phrase": 1,
+      "max": 6,
+      "topicalMax": 5,
+      "pivots": {
+        "posts": 8.1,
+        "comments": 7.6,
+        "users": 12.9,
+        "tags": 5.9,
+        "sequences": 3.8
+      }
+    },
+    "navigation": {
+      "identifier": 8,
+      "exactTitle": [
+        0,
+        2.5,
+        4.5
+      ]
+    },
+    "relationship": {
+      "profile": {
+        "exact": 6,
+        "strong": 5,
+        "weak": 4
+      },
+      "authored": {
+        "exact": 3,
+        "strong": 3,
+        "weak": 2
+      },
+      "authoredComment": {
+        "exact": 2,
+        "strong": 2,
+        "weak": 1.5
+      },
+      "minorShare": 0.5,
+      "prominentKarma": 1000
+    },
+    "popularity": {
+      "slope": 0.8,
+      "userSlope": 2,
+      "userCap": 10,
+      "cap": 4,
+      "gateFloor": 0.1,
+      "pivots": {
+        "posts": 15,
+        "comments": 4,
+        "tags": 5,
+        "sequences": 15,
+        "users": 3000
+      }
+    },
+    "context": {
+      "comment": 0,
+      "unresolvedUser": -0.5,
+      "curated": 0.5,
+      "event": 1,
+      "baseline": 2
+    }
+  },
+  "entries": [
+    {
+      "queryId": "anna-s",
+      "query": "Anna S",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "pnFbJAtNHGDK8PHQx",
+          "title": "AnnaSalamon",
+          "karma": 21291,
+          "score": 13.034775,
+          "key": "users:pnFbJAtNHGDK8PHQx"
+        },
+        {
+          "index": "comments",
+          "objectID": "QQrpKRiC9Wzr7ceor",
+          "title": "Comment on: What is missing from rationality? ",
+          "karma": 8,
+          "score": 6.439135,
+          "key": "comments:QQrpKRiC9Wzr7ceor"
+        },
+        {
+          "index": "posts",
+          "objectID": "jTkmEGWM4dJAfE62W",
+          "title": "Original Research on Less Wrong",
+          "karma": 48,
+          "score": 6.322753,
+          "key": "posts:jTkmEGWM4dJAfE62W"
+        },
+        {
+          "index": "comments",
+          "objectID": "saKL7cuaFXDA2oKE3",
+          "title": "Comment on: ryan_greenblatt's Shortform",
+          "karma": 31,
+          "score": 6.237674,
+          "key": "comments:saKL7cuaFXDA2oKE3"
+        },
+        {
+          "index": "posts",
+          "objectID": "FqvhuLkdR8FeyCf5b",
+          "title": "Text Posts from the Kids Group: 2023 I",
+          "karma": 75,
+          "score": 6.0373874,
+          "key": "posts:FqvhuLkdR8FeyCf5b"
+        },
+        {
+          "index": "posts",
+          "objectID": "wmjPGE8TZKNLSKzm4",
+          "title": "Urges vs. Goals: The analogy to anticipation and belief",
+          "karma": 126,
+          "score": 5.841284,
+          "key": "posts:wmjPGE8TZKNLSKzm4"
+        },
+        {
+          "index": "posts",
+          "objectID": "BHYBdijDcAKQ6e45Z",
+          "title": "Cached Selves",
+          "karma": 216,
+          "score": 5.6632795,
+          "key": "posts:BHYBdijDcAKQ6e45Z"
+        },
+        {
+          "index": "comments",
+          "objectID": "EtHic2Wag688kbNpz",
+          "title": "Comment on: Wei Dai's Shortform",
+          "karma": 14,
+          "score": 5.6141777,
+          "key": "comments:EtHic2Wag688kbNpz"
+        },
+        {
+          "index": "comments",
+          "objectID": "9CMxcSyqDEQ3Wpq5D",
+          "title": "Comment on: High School Lectures",
+          "karma": 9,
+          "score": 5.5911417,
+          "key": "comments:9CMxcSyqDEQ3Wpq5D"
+        },
+        {
+          "index": "posts",
+          "objectID": "prNZuwcLfnAvguiQf",
+          "title": "Text Posts from the Kids Group: 2019",
+          "karma": 23,
+          "score": 5.5264807,
+          "key": "posts:prNZuwcLfnAvguiQf"
+        },
+        {
+          "index": "posts",
+          "objectID": "PsFuEFbfZMqGeicB8",
+          "title": "Text Posts from the Kids Group: 2018",
+          "karma": 21,
+          "score": 5.466233,
+          "key": "posts:PsFuEFbfZMqGeicB8"
+        },
+        {
+          "index": "comments",
+          "objectID": "8fW8Jkj9zhrj2LviK",
+          "title": "Comment on: Maximizing Your Donations via a Job",
+          "karma": 24,
+          "score": 5.4160347,
+          "key": "comments:8fW8Jkj9zhrj2LviK"
+        },
+        {
+          "index": "comments",
+          "objectID": "SFxSddXXdXrKg9Kgo",
+          "title": "Comment on: Friedman's \"Prediction vs. Explanation\"",
+          "karma": 0,
+          "score": 5.091804,
+          "key": "comments:SFxSddXXdXrKg9Kgo"
+        },
+        {
+          "index": "posts",
+          "objectID": "MmDRY8hRy45Rj8WgD",
+          "title": "Carving of Reality 3 - LW/ACX Meetup #253 (Wednesday, September 6th 2023) ",
+          "karma": 2,
+          "score": 4.995903,
+          "key": "posts:MmDRY8hRy45Rj8WgD"
+        },
+        {
+          "index": "posts",
+          "objectID": "D4hHASaZuLCW92gMy",
+          "title": "Is Success the Enemy of Freedom? (Full)",
+          "karma": 299,
+          "score": 4.97516,
+          "key": "posts:D4hHASaZuLCW92gMy"
+        },
+        {
+          "index": "tags",
+          "objectID": "5f5c37ee1b5cdee568cfb1f8",
+          "title": "Sequences",
+          "karma": 18,
+          "score": 4.9268565,
+          "key": "tags:5f5c37ee1b5cdee568cfb1f8"
+        },
+        {
+          "index": "posts",
+          "objectID": "mmHctwkKjpvaQdC3c",
+          "title": "What should you change in response to an \"emergency\"? And AI risk",
+          "karma": 336,
+          "score": 4.863875,
+          "key": "posts:mmHctwkKjpvaQdC3c"
+        },
+        {
+          "index": "posts",
+          "objectID": "SWxnP5LZeJzuT3ccd",
+          "title": "“PR” is corrosive; “reputation” is not.",
+          "karma": 322,
+          "score": 4.859177,
+          "key": "posts:SWxnP5LZeJzuT3ccd"
+        },
+        {
+          "index": "posts",
+          "objectID": "byewoxJiAfwE6zpep",
+          "title": "Reality-Revealing and Reality-Masking Puzzles",
+          "karma": 264,
+          "score": 4.8373785,
+          "key": "posts:byewoxJiAfwE6zpep"
+        },
+        {
+          "index": "posts",
+          "objectID": "duvzdffTzL3dWJcxn",
+          "title": "Believing In",
+          "karma": 246,
+          "score": 4.8296814,
+          "key": "posts:duvzdffTzL3dWJcxn"
+        }
+      ],
+      "elapsedMs": 685.4077699999998
+    },
+    {
+      "queryId": "anna-sa",
+      "query": "Anna Sa",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "pnFbJAtNHGDK8PHQx",
+          "title": "AnnaSalamon",
+          "karma": 21291,
+          "score": 13.034775,
+          "key": "users:pnFbJAtNHGDK8PHQx"
+        },
+        {
+          "index": "tags",
+          "objectID": "5f5c37ee1b5cdee568cfb1e3",
+          "title": "Anna Salamon",
+          "karma": 0,
+          "score": 6.5,
+          "key": "tags:5f5c37ee1b5cdee568cfb1e3"
+        },
+        {
+          "index": "comments",
+          "objectID": "kXhCRLBek3QQvFsxL",
+          "title": "Comment on: CFAR update, and New CFAR workshops",
+          "karma": 15,
+          "score": 5.666361,
+          "key": "comments:kXhCRLBek3QQvFsxL"
+        },
+        {
+          "index": "comments",
+          "objectID": "syqyr3PN2nzsancYk",
+          "title": "Comment on: Confusion about Newcomb is confusion about counterfactuals",
+          "karma": 1,
+          "score": 5.4870358,
+          "key": "comments:syqyr3PN2nzsancYk"
+        },
+        {
+          "index": "comments",
+          "objectID": "hbvtjeP72NHEeLn8z",
+          "title": "Comment on: What’s going on at CFAR? (Updates and Fundraiser)",
+          "karma": 14,
+          "score": 5.05822,
+          "key": "comments:hbvtjeP72NHEeLn8z"
+        },
+        {
+          "index": "posts",
+          "objectID": "mmHctwkKjpvaQdC3c",
+          "title": "What should you change in response to an \"emergency\"? And AI risk",
+          "karma": 336,
+          "score": 4.863875,
+          "key": "posts:mmHctwkKjpvaQdC3c"
+        },
+        {
+          "index": "posts",
+          "objectID": "SWxnP5LZeJzuT3ccd",
+          "title": "“PR” is corrosive; “reputation” is not.",
+          "karma": 322,
+          "score": 4.859177,
+          "key": "posts:SWxnP5LZeJzuT3ccd"
+        },
+        {
+          "index": "posts",
+          "objectID": "byewoxJiAfwE6zpep",
+          "title": "Reality-Revealing and Reality-Masking Puzzles",
+          "karma": 264,
+          "score": 4.8373785,
+          "key": "posts:byewoxJiAfwE6zpep"
+        },
+        {
+          "index": "posts",
+          "objectID": "duvzdffTzL3dWJcxn",
+          "title": "Believing In",
+          "karma": 246,
+          "score": 4.8296814,
+          "key": "posts:duvzdffTzL3dWJcxn"
+        },
+        {
+          "index": "posts",
+          "objectID": "xtuk9wkuSP6H7CcE2",
+          "title": "Ayn Rand’s model of “living money”; and an upside of burnout",
+          "karma": 215,
+          "score": 4.8150883,
+          "key": "posts:xtuk9wkuSP6H7CcE2"
+        },
+        {
+          "index": "posts",
+          "objectID": "E9CyhJWBjzoXritRJ",
+          "title": "Ethical Design Patterns",
+          "karma": 206,
+          "score": 4.810481,
+          "key": "posts:E9CyhJWBjzoXritRJ"
+        },
+        {
+          "index": "posts",
+          "objectID": "iprqfLaDLCGoJFeiZ",
+          "title": "Narrative Syncing",
+          "karma": 118,
+          "score": 4.751871,
+          "key": "posts:iprqfLaDLCGoJFeiZ"
+        },
+        {
+          "index": "comments",
+          "objectID": "zJwyMLXEoyrQtxKsR",
+          "title": "Comment on: Text Posts from the Kids Group: 2022",
+          "karma": 12,
+          "score": 4.6633077,
+          "key": "comments:zJwyMLXEoyrQtxKsR"
+        },
+        {
+          "index": "posts",
+          "objectID": "FKB7iEergZaC7PvQf",
+          "title": "Growing Independence",
+          "karma": 186,
+          "score": 4.639777,
+          "key": "posts:FKB7iEergZaC7PvQf"
+        },
+        {
+          "index": "posts",
+          "objectID": "3aonzw5HZqpDfBZxC",
+          "title": "Text Posts from the Kids Group: 2020",
+          "karma": 69,
+          "score": 4.569137,
+          "key": "posts:3aonzw5HZqpDfBZxC"
+        },
+        {
+          "index": "comments",
+          "objectID": "xc5wkNk5sYMEWmRnT",
+          "title": "Comment on: New censorship: against hypothetical violence against identifiable people",
+          "karma": 10,
+          "score": 4.5396676,
+          "key": "comments:xc5wkNk5sYMEWmRnT"
+        },
+        {
+          "index": "posts",
+          "objectID": "xmDzYvasaegWvFWtx",
+          "title": "Text Posts from the Kids Group: 2021",
+          "karma": 38,
+          "score": 4.527857,
+          "key": "posts:xmDzYvasaegWvFWtx"
+        },
+        {
+          "index": "comments",
+          "objectID": "g6TqxmEaMZsuwt2Wf",
+          "title": "Comment on: Viliam's Shortform",
+          "karma": 8,
+          "score": 4.4770217,
+          "key": "comments:g6TqxmEaMZsuwt2Wf"
+        },
+        {
+          "index": "comments",
+          "objectID": "BzBgsdy9BpCwtWt8f",
+          "title": "Comment on: Strategic research on AI risk",
+          "karma": 14,
+          "score": 4.4339833,
+          "key": "comments:BzBgsdy9BpCwtWt8f"
+        },
+        {
+          "index": "posts",
+          "objectID": "PBRWb2Em5SNeWYwwB",
+          "title": "Humans are not automatically strategic",
+          "karma": 580,
+          "score": 4.4,
+          "key": "posts:PBRWb2Em5SNeWYwwB"
+        }
+      ],
+      "elapsedMs": 268.91512299999977
+    },
+    {
+      "queryId": "john",
+      "query": "John",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "MEu8MdhruX5jfGsFQ",
+          "title": "johnswentworth",
+          "karma": 64994,
+          "score": 15.004746,
+          "key": "users:MEu8MdhruX5jfGsFQ"
+        },
+        {
+          "index": "users",
+          "objectID": "mcKSiwq2TBrTMZS6X",
+          "title": "John_Maxwell",
+          "karma": 13423,
+          "score": 13.446119,
+          "key": "users:mcKSiwq2TBrTMZS6X"
+        },
+        {
+          "index": "users",
+          "objectID": "QBGzMxkzBJpLxBzTj",
+          "title": "jdp",
+          "karma": 2244,
+          "score": 8.61141,
+          "key": "users:QBGzMxkzBJpLxBzTj"
+        },
+        {
+          "index": "posts",
+          "objectID": "nz2BaA37pa8Fkx7fL",
+          "title": "Raleigh SSC/LW/EA Meetup - Meet MealSquares People",
+          "karma": 12,
+          "score": 7.4947076,
+          "key": "posts:nz2BaA37pa8Fkx7fL"
+        },
+        {
+          "index": "users",
+          "objectID": "kBvTXutfPytNtzPyD",
+          "title": "Johnicholas",
+          "karma": 2017,
+          "score": 7.4837246,
+          "key": "users:kBvTXutfPytNtzPyD"
+        },
+        {
+          "index": "posts",
+          "objectID": "7fq3r4n5CCgYLfsJb",
+          "title": "Trying to understand John Wentworth's research agenda",
+          "karma": 96,
+          "score": 7.398776,
+          "key": "posts:7fq3r4n5CCgYLfsJb"
+        },
+        {
+          "index": "users",
+          "objectID": "NjYTzHAEAz44HitHH",
+          "title": "johnlawrenceaspden",
+          "karma": 1749,
+          "score": 7.3253226,
+          "key": "users:NjYTzHAEAz44HitHH"
+        },
+        {
+          "index": "posts",
+          "objectID": "p9rQJMRq4qtB9acds",
+          "title": "Information vs Assurance",
+          "karma": 187,
+          "score": 7.1821237,
+          "key": "posts:p9rQJMRq4qtB9acds"
+        },
+        {
+          "index": "users",
+          "objectID": "xvjDLm9LxcgexuteF",
+          "title": "JohnWittle",
+          "karma": 1477,
+          "score": 7.15514,
+          "key": "users:xvjDLm9LxcgexuteF"
+        },
+        {
+          "index": "comments",
+          "objectID": "mcdGPBczBDMH5GfpJ",
+          "title": "Comment on: A rough and incomplete review of some of John Wentworth's research",
+          "karma": 27,
+          "score": 6.7555213,
+          "key": "comments:mcdGPBczBDMH5GfpJ"
+        },
+        {
+          "index": "comments",
+          "objectID": "dLrRmwrEb4GpPZRuz",
+          "title": "Comment on: Rationality Quotes 13",
+          "karma": 4,
+          "score": 6.7139955,
+          "key": "comments:dLrRmwrEb4GpPZRuz"
+        },
+        {
+          "index": "posts",
+          "objectID": "f3kM7NM5eGMTp3KtZ",
+          "title": "Lessons On How To Get Things Right On The First Try",
+          "karma": 253,
+          "score": 6.6912837,
+          "key": "posts:f3kM7NM5eGMTp3KtZ"
+        },
+        {
+          "index": "users",
+          "objectID": "XoiBE5pjBDiPNCQ6G",
+          "title": "John",
+          "karma": 57,
+          "score": 6.6669474,
+          "key": "users:XoiBE5pjBDiPNCQ6G"
+        },
+        {
+          "index": "comments",
+          "objectID": "JBbR3gEuFWkToX3e7",
+          "title": "Comment on: Interested in learning Linux? Need hosting? Free shells!",
+          "karma": 0,
+          "score": 6.6524706,
+          "key": "comments:JBbR3gEuFWkToX3e7"
+        },
+        {
+          "index": "users",
+          "objectID": "LWhacy4k5J8cSRsnE",
+          "title": "John",
+          "karma": 1,
+          "score": 6.6136007,
+          "key": "users:LWhacy4k5J8cSRsnE"
+        },
+        {
+          "index": "users",
+          "objectID": "nooQfFoPMhzih3PS8",
+          "title": "John",
+          "karma": 0,
+          "score": 6.612639,
+          "key": "users:nooQfFoPMhzih3PS8"
+        },
+        {
+          "index": "users",
+          "objectID": "J9WBQgQqRikgrYDui",
+          "title": "John",
+          "karma": 0,
+          "score": 6.612639,
+          "key": "users:J9WBQgQqRikgrYDui"
+        },
+        {
+          "index": "users",
+          "objectID": "pTYpgRYTRv3pqrMvQ",
+          "title": "John",
+          "karma": -2,
+          "score": 6.612639,
+          "key": "users:pTYpgRYTRv3pqrMvQ"
+        },
+        {
+          "index": "users",
+          "objectID": "oPY8WhjeGoMex9nJH",
+          "title": "John",
+          "karma": 0,
+          "score": 6.612639,
+          "key": "users:oPY8WhjeGoMex9nJH"
+        },
+        {
+          "index": "users",
+          "objectID": "H9jevSSBqTDikf7Zz",
+          "title": "John",
+          "karma": 0,
+          "score": 6.612639,
+          "key": "users:H9jevSSBqTDikf7Zz"
+        }
+      ],
+      "elapsedMs": 289.2974319999994
+    },
+    {
+      "queryId": "john-w",
+      "query": "John W",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "MEu8MdhruX5jfGsFQ",
+          "title": "johnswentworth",
+          "karma": 64994,
+          "score": 16.004745,
+          "key": "users:MEu8MdhruX5jfGsFQ"
+        },
+        {
+          "index": "comments",
+          "objectID": "4MPaP5NfKWDXLqMx5",
+          "title": "Comment on: Rationality Quotes November 2011",
+          "karma": 55,
+          "score": 8.803908,
+          "key": "comments:4MPaP5NfKWDXLqMx5"
+        },
+        {
+          "index": "users",
+          "objectID": "xvjDLm9LxcgexuteF",
+          "title": "JohnWittle",
+          "karma": 1477,
+          "score": 8.15514,
+          "key": "users:xvjDLm9LxcgexuteF"
+        },
+        {
+          "index": "comments",
+          "objectID": "JD6k8miHLq5BDg2cL",
+          "title": "Comment on: My AI Model Delta Compared To Yudkowsky",
+          "karma": 25,
+          "score": 8.106225,
+          "key": "comments:JD6k8miHLq5BDg2cL"
+        },
+        {
+          "index": "comments",
+          "objectID": "5EyTa96BeKh5SGJvB",
+          "title": "Comment on: Open Thread, March 1-15, 2013 ",
+          "karma": 16,
+          "score": 7.858375,
+          "key": "comments:5EyTa96BeKh5SGJvB"
+        },
+        {
+          "index": "comments",
+          "objectID": "xAWB6D9DXsprJpSMN",
+          "title": "Comment on: Rationality Quotes June 2013",
+          "karma": 14,
+          "score": 7.720657,
+          "key": "comments:xAWB6D9DXsprJpSMN"
+        },
+        {
+          "index": "comments",
+          "objectID": "Aw6wbnBwjWdvfSLYA",
+          "title": "Comment on: Eliezer's Sequences and Mainstream Academia",
+          "karma": 9,
+          "score": 7.571694,
+          "key": "comments:Aw6wbnBwjWdvfSLYA"
+        },
+        {
+          "index": "comments",
+          "objectID": "RNMi4FP2hN2a7uvM3",
+          "title": "Comment on: BHTV: Yudkowsky & Adam Frank on \"religious experience\"",
+          "karma": 4,
+          "score": 6.9419827,
+          "key": "comments:RNMi4FP2hN2a7uvM3"
+        },
+        {
+          "index": "comments",
+          "objectID": "thc6jiwGybpskds95",
+          "title": "Comment on: A rough and incomplete review of some of John Wentworth's research",
+          "karma": 34,
+          "score": 6.470323,
+          "key": "comments:thc6jiwGybpskds95"
+        },
+        {
+          "index": "comments",
+          "objectID": "Gfk6o9kuzKu7YKfm9",
+          "title": "Comment on: [Link] Power of Suggestion",
+          "karma": 8,
+          "score": 6.0885415,
+          "key": "comments:Gfk6o9kuzKu7YKfm9"
+        },
+        {
+          "index": "comments",
+          "objectID": "upzwRgbagyvjkgykA",
+          "title": "Comment on: $250 prize for checking Jake Cannell's Brain Efficiency",
+          "karma": 35,
+          "score": 6.016663,
+          "key": "comments:upzwRgbagyvjkgykA"
+        },
+        {
+          "index": "posts",
+          "objectID": "cC2mEzNhzLHPKbru7",
+          "title": "Logical uncertainty reading list",
+          "karma": 29,
+          "score": 5.889234,
+          "key": "posts:cC2mEzNhzLHPKbru7"
+        },
+        {
+          "index": "comments",
+          "objectID": "CixonSXNfLgAPh48Z",
+          "title": "Comment on: My AI Model Delta Compared To Yudkowsky",
+          "karma": 162,
+          "score": 5.8448505,
+          "key": "comments:CixonSXNfLgAPh48Z"
+        },
+        {
+          "index": "comments",
+          "objectID": "7wn4do2RZEuy7sgpB",
+          "title": "Comment on: Why Not Subagents?",
+          "karma": 4,
+          "score": 5.8242555,
+          "key": "comments:7wn4do2RZEuy7sgpB"
+        },
+        {
+          "index": "posts",
+          "objectID": "PfcQguFpT8CDHcozj",
+          "title": "Finite Factored Sets in Pictures",
+          "karma": 174,
+          "score": 5.614235,
+          "key": "posts:PfcQguFpT8CDHcozj"
+        },
+        {
+          "index": "comments",
+          "objectID": "uhHGSrK8Ga6iLEw76",
+          "title": "Comment on: Mere Messiahs",
+          "karma": 4,
+          "score": 5.5955305,
+          "key": "comments:uhHGSrK8Ga6iLEw76"
+        },
+        {
+          "index": "posts",
+          "objectID": "2MX2bXreTtntB85Zy",
+          "title": "From SLT to AIT: NN generalisation out-of-distribution",
+          "karma": 114,
+          "score": 5.5928726,
+          "key": "posts:2MX2bXreTtntB85Zy"
+        },
+        {
+          "index": "posts",
+          "objectID": "mgjHS6ou7DgwhKPpu",
+          "title": "A rough and incomplete review of some of John Wentworth's research",
+          "karma": 177,
+          "score": 5.5810175,
+          "key": "posts:mgjHS6ou7DgwhKPpu"
+        },
+        {
+          "index": "posts",
+          "objectID": "N6WM6hs7RQMKDhYjB",
+          "title": "A Mechanistic Interpretability Analysis of Grokking",
+          "karma": 373,
+          "score": 5.569178,
+          "key": "posts:N6WM6hs7RQMKDhYjB"
+        },
+        {
+          "index": "tags",
+          "objectID": "5f5c37ee1b5cdee568cfb2da",
+          "title": "History of AI Risk Thought",
+          "karma": 9,
+          "score": 5.536473,
+          "key": "tags:5f5c37ee1b5cdee568cfb2da"
+        }
+      ],
+      "elapsedMs": 299.4103049999994
+    },
+    {
+      "queryId": "john-we",
+      "query": "John We",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "MEu8MdhruX5jfGsFQ",
+          "title": "johnswentworth",
+          "karma": 64994,
+          "score": 16.004745,
+          "key": "users:MEu8MdhruX5jfGsFQ"
+        },
+        {
+          "index": "posts",
+          "objectID": "f3kM7NM5eGMTp3KtZ",
+          "title": "Lessons On How To Get Things Right On The First Try",
+          "karma": 253,
+          "score": 8.713808,
+          "key": "posts:f3kM7NM5eGMTp3KtZ"
+        },
+        {
+          "index": "posts",
+          "objectID": "BseaxjsiDPKvGtDrm",
+          "title": "We Choose To Align AI",
+          "karma": 280,
+          "score": 8.581665,
+          "key": "posts:BseaxjsiDPKvGtDrm"
+        },
+        {
+          "index": "posts",
+          "objectID": "QsstSjDqa7tmjQfnq",
+          "title": "... Wait, our models of semantics should inform fluid mechanics?!?",
+          "karma": 62,
+          "score": 8.279476,
+          "key": "posts:QsstSjDqa7tmjQfnq"
+        },
+        {
+          "index": "posts",
+          "objectID": "p9rQJMRq4qtB9acds",
+          "title": "Information vs Assurance",
+          "karma": 187,
+          "score": 7.548578,
+          "key": "posts:p9rQJMRq4qtB9acds"
+        },
+        {
+          "index": "posts",
+          "objectID": "bzmLC3J8PsknwRZbr",
+          "title": "Why Not Subagents?",
+          "karma": 130,
+          "score": 7.2507863,
+          "key": "posts:bzmLC3J8PsknwRZbr"
+        },
+        {
+          "index": "comments",
+          "objectID": "mcdGPBczBDMH5GfpJ",
+          "title": "Comment on: A rough and incomplete review of some of John Wentworth's research",
+          "karma": 27,
+          "score": 7.1998167,
+          "key": "comments:mcdGPBczBDMH5GfpJ"
+        },
+        {
+          "index": "posts",
+          "objectID": "gvzW46Z3BsaZsLc25",
+          "title": "Natural Abstractions: Key Claims, Theorems, and Critiques",
+          "karma": 251,
+          "score": 7.1957054,
+          "key": "posts:gvzW46Z3BsaZsLc25"
+        },
+        {
+          "index": "posts",
+          "objectID": "SN3BjoizdbvZG5J6a",
+          "title": "minutes from a human-alignment meeting",
+          "karma": 67,
+          "score": 7.1128917,
+          "key": "posts:SN3BjoizdbvZG5J6a"
+        },
+        {
+          "index": "posts",
+          "objectID": "2x67s6u8oAitNKF73",
+          "title": "Misrepresentation as a Barrier for Interp (Part I)",
+          "karma": 113,
+          "score": 7.0995083,
+          "key": "posts:2x67s6u8oAitNKF73"
+        },
+        {
+          "index": "tags",
+          "objectID": "5f5c37ee1b5cdee568cfb28e",
+          "title": "Causal Decision Theory",
+          "karma": 9,
+          "score": 6.8799562,
+          "key": "tags:5f5c37ee1b5cdee568cfb28e"
+        },
+        {
+          "index": "posts",
+          "objectID": "rC6CXZd34geayEH4s",
+          "title": "On Dwarkesh’s Podcast with OpenAI’s John Schulman",
+          "karma": 73,
+          "score": 6.876329,
+          "key": "posts:rC6CXZd34geayEH4s"
+        },
+        {
+          "index": "comments",
+          "objectID": "p8jEWLKfPgNMxDDQW",
+          "title": "Comment on: Daniel Tan's Shortform",
+          "karma": 84,
+          "score": 6.745511,
+          "key": "comments:p8jEWLKfPgNMxDDQW"
+        },
+        {
+          "index": "posts",
+          "objectID": "L896Fp8hLSbh8Ryei",
+          "title": "AXRP Episode 15 - Natural Abstractions with John Wentworth",
+          "karma": 34,
+          "score": 6.682139,
+          "key": "posts:L896Fp8hLSbh8Ryei"
+        },
+        {
+          "index": "posts",
+          "objectID": "pvBqB6F89enufZkYr",
+          "title": "Dialogue on What It Means For Something to Have A Function/Purpose",
+          "karma": 39,
+          "score": 6.649014,
+          "key": "posts:pvBqB6F89enufZkYr"
+        },
+        {
+          "index": "comments",
+          "objectID": "Kgncits5JjbseZTqh",
+          "title": "Comment on: Forget Everything (Statistical Mechanics Part 1)",
+          "karma": 9,
+          "score": 6.6070576,
+          "key": "comments:Kgncits5JjbseZTqh"
+        },
+        {
+          "index": "comments",
+          "objectID": "CGoaDgsDdK5TztBqi",
+          "title": "Comment on: The Plan - 2023 Version",
+          "karma": 23,
+          "score": 6.5924606,
+          "key": "comments:CGoaDgsDdK5TztBqi"
+        },
+        {
+          "index": "posts",
+          "objectID": "kDsywodAKgQAAAxE8",
+          "title": "How (not) to choose a research project",
+          "karma": 79,
+          "score": 6.5658007,
+          "key": "posts:kDsywodAKgQAAAxE8"
+        },
+        {
+          "index": "comments",
+          "objectID": "mJHNZSBLBGioouAFA",
+          "title": "Comment on: The Case Against AI Control Research",
+          "karma": 6,
+          "score": 6.5613046,
+          "key": "comments:mJHNZSBLBGioouAFA"
+        },
+        {
+          "index": "posts",
+          "objectID": "3ecs6duLmTfyra3Gp",
+          "title": "Some Lessons Learned from Studying Indirect Object Identification in GPT-2 small",
+          "karma": 102,
+          "score": 6.5467577,
+          "key": "posts:3ecs6duLmTfyra3Gp"
+        }
+      ],
+      "elapsedMs": 337.50703000000067
+    },
+    {
+      "queryId": "a-pragmatic-vision-for-interpretability",
+      "query": "A Pragmatic Vision for Interpretability",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "StENzDcD3kpfGJssR",
+          "title": "A Pragmatic Vision for Interpretability",
+          "karma": 140,
+          "score": 14.58157,
+          "key": "posts:StENzDcD3kpfGJssR"
+        },
+        {
+          "index": "comments",
+          "objectID": "Fw6JwHFB655wGjiM6",
+          "title": "Comment on: Buck's Shortform",
+          "karma": 69,
+          "score": 9.398914,
+          "key": "comments:Fw6JwHFB655wGjiM6"
+        },
+        {
+          "index": "comments",
+          "objectID": "QbNsyhFMRm29EJejW",
+          "title": "Comment on: New LessWrong Editor! (Also, an update to our LLM policy.)",
+          "karma": 57,
+          "score": 8.79378,
+          "key": "comments:QbNsyhFMRm29EJejW"
+        },
+        {
+          "index": "posts",
+          "objectID": "Ro7kkSHg5SE7yYW2c",
+          "title": "Balancing Rigor and Utility: A Review of \"A Pragmatic Vision for Interpretability\"",
+          "karma": 10,
+          "score": 7.927997,
+          "key": "posts:Ro7kkSHg5SE7yYW2c"
+        },
+        {
+          "index": "posts",
+          "objectID": "NraMusoWhj9Njdpi5",
+          "title": "What did \"scheming\" and \"mech interp\" mean pre-2023?",
+          "karma": 100,
+          "score": 7.5617857,
+          "key": "posts:NraMusoWhj9Njdpi5"
+        },
+        {
+          "index": "posts",
+          "objectID": "qkhwh4AdG7kXgELCD",
+          "title": "Scalable End-to-End Interpretability",
+          "karma": 124,
+          "score": 6.9116583,
+          "key": "posts:qkhwh4AdG7kXgELCD"
+        },
+        {
+          "index": "comments",
+          "objectID": "hC8KQDXG5rZ8S86Aj",
+          "title": "Comment on: TT Self Study Journal # 4",
+          "karma": 2,
+          "score": 6.807853,
+          "key": "comments:hC8KQDXG5rZ8S86Aj"
+        },
+        {
+          "index": "posts",
+          "objectID": "Hy6PX43HGgmfiTaKu",
+          "title": "An Ambitious Vision for Interpretability",
+          "karma": 179,
+          "score": 6.72186,
+          "key": "posts:Hy6PX43HGgmfiTaKu"
+        },
+        {
+          "index": "posts",
+          "objectID": "hjPTHrPRB59iBy6jt",
+          "title": "The Pragmatic Interpretability Trap",
+          "karma": 8,
+          "score": 6.7179794,
+          "key": "posts:hjPTHrPRB59iBy6jt"
+        },
+        {
+          "index": "posts",
+          "objectID": "gapGhQxqYQrayDdLd",
+          "title": "Can We Make AI Alignment Framing Less Wrong?",
+          "karma": 3,
+          "score": 6.1388526,
+          "key": "posts:gapGhQxqYQrayDdLd"
+        },
+        {
+          "index": "comments",
+          "objectID": "WZbrmW9bQaQCd3qSm",
+          "title": "Comment on: Oliver Daniels-Koch's Shortform",
+          "karma": 6,
+          "score": 6.103947,
+          "key": "comments:WZbrmW9bQaQCd3qSm"
+        },
+        {
+          "index": "posts",
+          "objectID": "Wti4Wr7Cf5ma3FGWa",
+          "title": "Shallow review of technical AI safety, 2025",
+          "karma": 199,
+          "score": 6.0713453,
+          "key": "posts:Wti4Wr7Cf5ma3FGWa"
+        },
+        {
+          "index": "comments",
+          "objectID": "2F9KDK2b5GrCK3trH",
+          "title": "Comment on: AGI-Automated Interpretability is Suicide",
+          "karma": 3,
+          "score": 5.854014,
+          "key": "comments:2F9KDK2b5GrCK3trH"
+        },
+        {
+          "index": "posts",
+          "objectID": "4ofmbG8iPQKadJo6z",
+          "title": "A Technical Primer on Mechanistic Interpretability",
+          "karma": 1,
+          "score": 5.7627974,
+          "key": "posts:4ofmbG8iPQKadJo6z"
+        },
+        {
+          "index": "comments",
+          "objectID": "iFEFSbgQ4M6XutyLq",
+          "title": "Comment on: The Gentle Romance",
+          "karma": 16,
+          "score": 5.503692,
+          "key": "comments:iFEFSbgQ4M6XutyLq"
+        },
+        {
+          "index": "posts",
+          "objectID": "zFoR8LssMLbzTtvua",
+          "title": "TT Self Study Journal # 5",
+          "karma": 4,
+          "score": 5.3520937,
+          "key": "posts:zFoR8LssMLbzTtvua"
+        },
+        {
+          "index": "comments",
+          "objectID": "6K9TSqyQsvJuA6aam",
+          "title": "Comment on: Open thread, July 29-August 4, 2013",
+          "karma": 2,
+          "score": 5.0438704,
+          "key": "comments:6K9TSqyQsvJuA6aam"
+        },
+        {
+          "index": "posts",
+          "objectID": "CTh74TaWgvRiXnkS6",
+          "title": "Toy Models of Superposition",
+          "karma": 69,
+          "score": 5.024334,
+          "key": "posts:CTh74TaWgvRiXnkS6"
+        },
+        {
+          "index": "tags",
+          "objectID": "56yXXrcxRjrQs6z9R",
+          "title": "Interpretability (ML & AI)",
+          "karma": 28,
+          "score": 5.004727,
+          "key": "tags:56yXXrcxRjrQs6z9R"
+        },
+        {
+          "index": "comments",
+          "objectID": "X4hPW4NNDoCheXsgj",
+          "title": "Comment on: Neel Nanda's Shortform",
+          "karma": 22,
+          "score": 4.973611,
+          "key": "comments:X4hPW4NNDoCheXsgj"
+        }
+      ],
+      "elapsedMs": 789.7085740000002
+    },
+    {
+      "queryId": "a-pragmatic-vision-for-interpretability-lowercase",
+      "query": "a pragmatic vision for interpretability",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "StENzDcD3kpfGJssR",
+          "title": "A Pragmatic Vision for Interpretability",
+          "karma": 140,
+          "score": 14.58157,
+          "key": "posts:StENzDcD3kpfGJssR"
+        },
+        {
+          "index": "comments",
+          "objectID": "Fw6JwHFB655wGjiM6",
+          "title": "Comment on: Buck's Shortform",
+          "karma": 69,
+          "score": 9.398914,
+          "key": "comments:Fw6JwHFB655wGjiM6"
+        },
+        {
+          "index": "comments",
+          "objectID": "QbNsyhFMRm29EJejW",
+          "title": "Comment on: New LessWrong Editor! (Also, an update to our LLM policy.)",
+          "karma": 57,
+          "score": 8.79378,
+          "key": "comments:QbNsyhFMRm29EJejW"
+        },
+        {
+          "index": "posts",
+          "objectID": "Ro7kkSHg5SE7yYW2c",
+          "title": "Balancing Rigor and Utility: A Review of \"A Pragmatic Vision for Interpretability\"",
+          "karma": 10,
+          "score": 7.927997,
+          "key": "posts:Ro7kkSHg5SE7yYW2c"
+        },
+        {
+          "index": "posts",
+          "objectID": "NraMusoWhj9Njdpi5",
+          "title": "What did \"scheming\" and \"mech interp\" mean pre-2023?",
+          "karma": 100,
+          "score": 7.5617857,
+          "key": "posts:NraMusoWhj9Njdpi5"
+        },
+        {
+          "index": "posts",
+          "objectID": "qkhwh4AdG7kXgELCD",
+          "title": "Scalable End-to-End Interpretability",
+          "karma": 124,
+          "score": 6.9116583,
+          "key": "posts:qkhwh4AdG7kXgELCD"
+        },
+        {
+          "index": "comments",
+          "objectID": "hC8KQDXG5rZ8S86Aj",
+          "title": "Comment on: TT Self Study Journal # 4",
+          "karma": 2,
+          "score": 6.807853,
+          "key": "comments:hC8KQDXG5rZ8S86Aj"
+        },
+        {
+          "index": "posts",
+          "objectID": "Hy6PX43HGgmfiTaKu",
+          "title": "An Ambitious Vision for Interpretability",
+          "karma": 179,
+          "score": 6.72186,
+          "key": "posts:Hy6PX43HGgmfiTaKu"
+        },
+        {
+          "index": "posts",
+          "objectID": "hjPTHrPRB59iBy6jt",
+          "title": "The Pragmatic Interpretability Trap",
+          "karma": 8,
+          "score": 6.7179794,
+          "key": "posts:hjPTHrPRB59iBy6jt"
+        },
+        {
+          "index": "posts",
+          "objectID": "gapGhQxqYQrayDdLd",
+          "title": "Can We Make AI Alignment Framing Less Wrong?",
+          "karma": 3,
+          "score": 6.1388526,
+          "key": "posts:gapGhQxqYQrayDdLd"
+        },
+        {
+          "index": "comments",
+          "objectID": "WZbrmW9bQaQCd3qSm",
+          "title": "Comment on: Oliver Daniels-Koch's Shortform",
+          "karma": 6,
+          "score": 6.103947,
+          "key": "comments:WZbrmW9bQaQCd3qSm"
+        },
+        {
+          "index": "posts",
+          "objectID": "Wti4Wr7Cf5ma3FGWa",
+          "title": "Shallow review of technical AI safety, 2025",
+          "karma": 199,
+          "score": 6.0713453,
+          "key": "posts:Wti4Wr7Cf5ma3FGWa"
+        },
+        {
+          "index": "comments",
+          "objectID": "2F9KDK2b5GrCK3trH",
+          "title": "Comment on: AGI-Automated Interpretability is Suicide",
+          "karma": 3,
+          "score": 5.854014,
+          "key": "comments:2F9KDK2b5GrCK3trH"
+        },
+        {
+          "index": "posts",
+          "objectID": "4ofmbG8iPQKadJo6z",
+          "title": "A Technical Primer on Mechanistic Interpretability",
+          "karma": 1,
+          "score": 5.7627974,
+          "key": "posts:4ofmbG8iPQKadJo6z"
+        },
+        {
+          "index": "comments",
+          "objectID": "iFEFSbgQ4M6XutyLq",
+          "title": "Comment on: The Gentle Romance",
+          "karma": 16,
+          "score": 5.503692,
+          "key": "comments:iFEFSbgQ4M6XutyLq"
+        },
+        {
+          "index": "posts",
+          "objectID": "zFoR8LssMLbzTtvua",
+          "title": "TT Self Study Journal # 5",
+          "karma": 4,
+          "score": 5.3520937,
+          "key": "posts:zFoR8LssMLbzTtvua"
+        },
+        {
+          "index": "comments",
+          "objectID": "6K9TSqyQsvJuA6aam",
+          "title": "Comment on: Open thread, July 29-August 4, 2013",
+          "karma": 2,
+          "score": 5.0438704,
+          "key": "comments:6K9TSqyQsvJuA6aam"
+        },
+        {
+          "index": "posts",
+          "objectID": "CTh74TaWgvRiXnkS6",
+          "title": "Toy Models of Superposition",
+          "karma": 69,
+          "score": 5.024334,
+          "key": "posts:CTh74TaWgvRiXnkS6"
+        },
+        {
+          "index": "tags",
+          "objectID": "56yXXrcxRjrQs6z9R",
+          "title": "Interpretability (ML & AI)",
+          "karma": 28,
+          "score": 5.004727,
+          "key": "tags:56yXXrcxRjrQs6z9R"
+        },
+        {
+          "index": "comments",
+          "objectID": "X4hPW4NNDoCheXsgj",
+          "title": "Comment on: Neel Nanda's Shortform",
+          "karma": 22,
+          "score": 4.973611,
+          "key": "comments:X4hPW4NNDoCheXsgj"
+        }
+      ],
+      "elapsedMs": 753.419825
+    },
+    {
+      "queryId": "navier",
+      "query": "navier",
+      "hits": [
+        {
+          "index": "comments",
+          "objectID": "Gh8T3MgBfCLrDpEPY",
+          "title": "Comment on: MarkelKori's Shortform",
+          "karma": 33,
+          "score": 6.878352,
+          "key": "comments:Gh8T3MgBfCLrDpEPY"
+        },
+        {
+          "index": "comments",
+          "objectID": "7eA5Sz52du2HJCJhb",
+          "title": "Comment on: anaguma's Shortform",
+          "karma": 155,
+          "score": 6.7140408,
+          "key": "comments:7eA5Sz52du2HJCJhb"
+        },
+        {
+          "index": "posts",
+          "objectID": "yekQKwmQJNk7thDtQ",
+          "title": "OpenAI have solved the Navier-Stokes Problem with a substantially more powerful model than Astra.",
+          "karma": 51,
+          "score": 6.6759963,
+          "key": "posts:yekQKwmQJNk7thDtQ"
+        },
+        {
+          "index": "comments",
+          "objectID": "jLTKrb5kKpRXLLwFB",
+          "title": "Comment on: Thane Ruthenis's Shortform",
+          "karma": 64,
+          "score": 6.643475,
+          "key": "comments:jLTKrb5kKpRXLLwFB"
+        },
+        {
+          "index": "comments",
+          "objectID": "46TiduEvHzEXfgru8",
+          "title": "Comment on: Mateusz Bagiński's Shortform",
+          "karma": 41,
+          "score": 6.635562,
+          "key": "comments:46TiduEvHzEXfgru8"
+        },
+        {
+          "index": "comments",
+          "objectID": "DbsJWusq7HEibKQrX",
+          "title": "Comment on: james oofou's Shortform",
+          "karma": 19,
+          "score": 6.3602815,
+          "key": "comments:DbsJWusq7HEibKQrX"
+        },
+        {
+          "index": "comments",
+          "objectID": "LwYrBnBcSJRFoxrWu",
+          "title": "Comment on: sam's Shortform",
+          "karma": 29,
+          "score": 6.30774,
+          "key": "comments:LwYrBnBcSJRFoxrWu"
+        },
+        {
+          "index": "comments",
+          "objectID": "ahJQHKsQ5gkzXHCaC",
+          "title": "Comment on: Scientific breakthroughs of the year",
+          "karma": 15,
+          "score": 6.223854,
+          "key": "comments:ahJQHKsQ5gkzXHCaC"
+        },
+        {
+          "index": "comments",
+          "objectID": "HctB3StEWBAoAePf2",
+          "title": "Comment on: Thane Ruthenis's Shortform",
+          "karma": 101,
+          "score": 6.215544,
+          "key": "comments:HctB3StEWBAoAePf2"
+        },
+        {
+          "index": "comments",
+          "objectID": "BDDrN8C6E7GDasAzz",
+          "title": "Comment on: Ashe Vazquez Nuñez's Shortform",
+          "karma": 7,
+          "score": 5.907181,
+          "key": "comments:BDDrN8C6E7GDasAzz"
+        },
+        {
+          "index": "comments",
+          "objectID": "u7EDvNNKfZ4men26N",
+          "title": "Comment on: Scientific breakthroughs of the year",
+          "karma": 6,
+          "score": 5.901388,
+          "key": "comments:u7EDvNNKfZ4men26N"
+        },
+        {
+          "index": "comments",
+          "objectID": "MyT65ZJR4cXeeHtpz",
+          "title": "Comment on: anaguma's Shortform",
+          "karma": 9,
+          "score": 5.8994875,
+          "key": "comments:MyT65ZJR4cXeeHtpz"
+        },
+        {
+          "index": "comments",
+          "objectID": "HiTeCo7rqe4GFAvch",
+          "title": "Comment on: Ruby's Quick Takes",
+          "karma": 7,
+          "score": 5.800773,
+          "key": "comments:HiTeCo7rqe4GFAvch"
+        },
+        {
+          "index": "comments",
+          "objectID": "4ZDPkDWA2AqWkJcfH",
+          "title": "Comment on: StanislavKrym's Shortform",
+          "karma": 5,
+          "score": 5.785819,
+          "key": "comments:4ZDPkDWA2AqWkJcfH"
+        },
+        {
+          "index": "comments",
+          "objectID": "D2CaLCWnZfurBmSCH",
+          "title": "Comment on: StanislavKrym's Shortform",
+          "karma": 3,
+          "score": 5.7561164,
+          "key": "comments:D2CaLCWnZfurBmSCH"
+        },
+        {
+          "index": "comments",
+          "objectID": "jkeqoWN4mbdz3nSZy",
+          "title": "Comment on: less_raichu's Shortform",
+          "karma": 7,
+          "score": 5.732218,
+          "key": "comments:jkeqoWN4mbdz3nSZy"
+        },
+        {
+          "index": "comments",
+          "objectID": "w7sk3CHswZ4wAavi5",
+          "title": "Comment on: Thane Ruthenis's Shortform",
+          "karma": 6,
+          "score": 5.6323886,
+          "key": "comments:w7sk3CHswZ4wAavi5"
+        },
+        {
+          "index": "posts",
+          "objectID": "tHt2HJ4ececp6dun2",
+          "title": "Book Review: Worlds of Flow",
+          "karma": 85,
+          "score": 5.6198535,
+          "key": "posts:tHt2HJ4ececp6dun2"
+        },
+        {
+          "index": "comments",
+          "objectID": "EbBSr8hxxbHsSjYA3",
+          "title": "Comment on: The Value of Theoretical Research",
+          "karma": 9,
+          "score": 5.5700326,
+          "key": "comments:EbBSr8hxxbHsSjYA3"
+        },
+        {
+          "index": "comments",
+          "objectID": "skfcvstTHiGcaTmxH",
+          "title": "Comment on: anaguma's Shortform",
+          "karma": 3,
+          "score": 5.545548,
+          "key": "comments:skfcvstTHiGcaTmxH"
+        }
+      ],
+      "elapsedMs": 208.82704600000034
+    },
+    {
+      "queryId": "navier-strokes",
+      "query": "navier-strokes",
+      "hits": [
+        {
+          "index": "comments",
+          "objectID": "Gh8T3MgBfCLrDpEPY",
+          "title": "Comment on: MarkelKori's Shortform",
+          "karma": 33,
+          "score": 5.6628337,
+          "key": "comments:Gh8T3MgBfCLrDpEPY"
+        },
+        {
+          "index": "comments",
+          "objectID": "7eA5Sz52du2HJCJhb",
+          "title": "Comment on: anaguma's Shortform",
+          "karma": 155,
+          "score": 5.6350474,
+          "key": "comments:7eA5Sz52du2HJCJhb"
+        },
+        {
+          "index": "comments",
+          "objectID": "jLTKrb5kKpRXLLwFB",
+          "title": "Comment on: Thane Ruthenis's Shortform",
+          "karma": 64,
+          "score": 5.564445,
+          "key": "comments:jLTKrb5kKpRXLLwFB"
+        },
+        {
+          "index": "comments",
+          "objectID": "46TiduEvHzEXfgru8",
+          "title": "Comment on: Mateusz Bagiński's Shortform",
+          "karma": 41,
+          "score": 5.5378284,
+          "key": "comments:46TiduEvHzEXfgru8"
+        },
+        {
+          "index": "comments",
+          "objectID": "DbsJWusq7HEibKQrX",
+          "title": "Comment on: james oofou's Shortform",
+          "karma": 19,
+          "score": 5.3345723,
+          "key": "comments:DbsJWusq7HEibKQrX"
+        },
+        {
+          "index": "comments",
+          "objectID": "LwYrBnBcSJRFoxrWu",
+          "title": "Comment on: sam's Shortform",
+          "karma": 29,
+          "score": 5.3217583,
+          "key": "comments:LwYrBnBcSJRFoxrWu"
+        },
+        {
+          "index": "comments",
+          "objectID": "HctB3StEWBAoAePf2",
+          "title": "Comment on: Thane Ruthenis's Shortform",
+          "karma": 101,
+          "score": 5.288828,
+          "key": "comments:HctB3StEWBAoAePf2"
+        },
+        {
+          "index": "comments",
+          "objectID": "ahJQHKsQ5gkzXHCaC",
+          "title": "Comment on: Scientific breakthroughs of the year",
+          "karma": 15,
+          "score": 5.2424173,
+          "key": "comments:ahJQHKsQ5gkzXHCaC"
+        },
+        {
+          "index": "posts",
+          "objectID": "yekQKwmQJNk7thDtQ",
+          "title": "OpenAI have solved the Navier-Stokes Problem with a substantially more powerful model than Astra.",
+          "karma": 51,
+          "score": 5.2094913,
+          "key": "posts:yekQKwmQJNk7thDtQ"
+        },
+        {
+          "index": "comments",
+          "objectID": "MyT65ZJR4cXeeHtpz",
+          "title": "Comment on: anaguma's Shortform",
+          "karma": 9,
+          "score": 5.0253854,
+          "key": "comments:MyT65ZJR4cXeeHtpz"
+        },
+        {
+          "index": "comments",
+          "objectID": "BDDrN8C6E7GDasAzz",
+          "title": "Comment on: Ashe Vazquez Nuñez's Shortform",
+          "karma": 7,
+          "score": 5.0222864,
+          "key": "comments:BDDrN8C6E7GDasAzz"
+        },
+        {
+          "index": "comments",
+          "objectID": "u7EDvNNKfZ4men26N",
+          "title": "Comment on: Scientific breakthroughs of the year",
+          "karma": 6,
+          "score": 5.013858,
+          "key": "comments:u7EDvNNKfZ4men26N"
+        },
+        {
+          "index": "comments",
+          "objectID": "YfjuG3CKsYswvaWTM",
+          "title": "Comment on: Philosophy: A Diseased Discipline",
+          "karma": 19,
+          "score": 4.971816,
+          "key": "comments:YfjuG3CKsYswvaWTM"
+        },
+        {
+          "index": "posts",
+          "objectID": "tHt2HJ4ececp6dun2",
+          "title": "Book Review: Worlds of Flow",
+          "karma": 85,
+          "score": 4.9697957,
+          "key": "posts:tHt2HJ4ececp6dun2"
+        },
+        {
+          "index": "comments",
+          "objectID": "HiTeCo7rqe4GFAvch",
+          "title": "Comment on: Ruby's Quick Takes",
+          "karma": 7,
+          "score": 4.956449,
+          "key": "comments:HiTeCo7rqe4GFAvch"
+        },
+        {
+          "index": "comments",
+          "objectID": "4ZDPkDWA2AqWkJcfH",
+          "title": "Comment on: StanislavKrym's Shortform",
+          "karma": 5,
+          "score": 4.938321,
+          "key": "comments:4ZDPkDWA2AqWkJcfH"
+        },
+        {
+          "index": "comments",
+          "objectID": "jkeqoWN4mbdz3nSZy",
+          "title": "Comment on: less_raichu's Shortform",
+          "karma": 7,
+          "score": 4.912857,
+          "key": "comments:jkeqoWN4mbdz3nSZy"
+        },
+        {
+          "index": "comments",
+          "objectID": "D2CaLCWnZfurBmSCH",
+          "title": "Comment on: StanislavKrym's Shortform",
+          "karma": 3,
+          "score": 4.869429,
+          "key": "comments:D2CaLCWnZfurBmSCH"
+        },
+        {
+          "index": "comments",
+          "objectID": "w7sk3CHswZ4wAavi5",
+          "title": "Comment on: Thane Ruthenis's Shortform",
+          "karma": 6,
+          "score": 4.844979,
+          "key": "comments:w7sk3CHswZ4wAavi5"
+        },
+        {
+          "index": "comments",
+          "objectID": "EbBSr8hxxbHsSjYA3",
+          "title": "Comment on: The Value of Theoretical Research",
+          "karma": 9,
+          "score": 4.8089204,
+          "key": "comments:EbBSr8hxxbHsSjYA3"
+        }
+      ],
+      "elapsedMs": 235.56714899999952
+    },
+    {
+      "queryId": "navier-stokes",
+      "query": "navier stokes",
+      "hits": [
+        {
+          "index": "comments",
+          "objectID": "7eA5Sz52du2HJCJhb",
+          "title": "Comment on: anaguma's Shortform",
+          "karma": 155,
+          "score": 9.744955,
+          "key": "comments:7eA5Sz52du2HJCJhb"
+        },
+        {
+          "index": "comments",
+          "objectID": "HctB3StEWBAoAePf2",
+          "title": "Comment on: Thane Ruthenis's Shortform",
+          "karma": 101,
+          "score": 9.558749,
+          "key": "comments:HctB3StEWBAoAePf2"
+        },
+        {
+          "index": "comments",
+          "objectID": "jLTKrb5kKpRXLLwFB",
+          "title": "Comment on: Thane Ruthenis's Shortform",
+          "karma": 64,
+          "score": 9.330595,
+          "key": "comments:jLTKrb5kKpRXLLwFB"
+        },
+        {
+          "index": "posts",
+          "objectID": "yekQKwmQJNk7thDtQ",
+          "title": "OpenAI have solved the Navier-Stokes Problem with a substantially more powerful model than Astra.",
+          "karma": 51,
+          "score": 9.171569,
+          "key": "posts:yekQKwmQJNk7thDtQ"
+        },
+        {
+          "index": "comments",
+          "objectID": "Gh8T3MgBfCLrDpEPY",
+          "title": "Comment on: MarkelKori's Shortform",
+          "karma": 33,
+          "score": 9.102968,
+          "key": "comments:Gh8T3MgBfCLrDpEPY"
+        },
+        {
+          "index": "comments",
+          "objectID": "46TiduEvHzEXfgru8",
+          "title": "Comment on: Mateusz Bagiński's Shortform",
+          "karma": 41,
+          "score": 9.074055,
+          "key": "comments:46TiduEvHzEXfgru8"
+        },
+        {
+          "index": "comments",
+          "objectID": "LwYrBnBcSJRFoxrWu",
+          "title": "Comment on: sam's Shortform",
+          "karma": 29,
+          "score": 8.655512,
+          "key": "comments:LwYrBnBcSJRFoxrWu"
+        },
+        {
+          "index": "comments",
+          "objectID": "DbsJWusq7HEibKQrX",
+          "title": "Comment on: james oofou's Shortform",
+          "karma": 19,
+          "score": 8.463806,
+          "key": "comments:DbsJWusq7HEibKQrX"
+        },
+        {
+          "index": "comments",
+          "objectID": "ahJQHKsQ5gkzXHCaC",
+          "title": "Comment on: Scientific breakthroughs of the year",
+          "karma": 15,
+          "score": 8.252019,
+          "key": "comments:ahJQHKsQ5gkzXHCaC"
+        },
+        {
+          "index": "posts",
+          "objectID": "tHt2HJ4ececp6dun2",
+          "title": "Book Review: Worlds of Flow",
+          "karma": 85,
+          "score": 7.971996,
+          "key": "posts:tHt2HJ4ececp6dun2"
+        },
+        {
+          "index": "comments",
+          "objectID": "MyT65ZJR4cXeeHtpz",
+          "title": "Comment on: anaguma's Shortform",
+          "karma": 9,
+          "score": 7.7973704,
+          "key": "comments:MyT65ZJR4cXeeHtpz"
+        },
+        {
+          "index": "comments",
+          "objectID": "BDDrN8C6E7GDasAzz",
+          "title": "Comment on: Ashe Vazquez Nuñez's Shortform",
+          "karma": 7,
+          "score": 7.693611,
+          "key": "comments:BDDrN8C6E7GDasAzz"
+        },
+        {
+          "index": "comments",
+          "objectID": "u7EDvNNKfZ4men26N",
+          "title": "Comment on: Scientific breakthroughs of the year",
+          "karma": 6,
+          "score": 7.626558,
+          "key": "comments:u7EDvNNKfZ4men26N"
+        },
+        {
+          "index": "comments",
+          "objectID": "HiTeCo7rqe4GFAvch",
+          "title": "Comment on: Ruby's Quick Takes",
+          "karma": 7,
+          "score": 7.6260734,
+          "key": "comments:HiTeCo7rqe4GFAvch"
+        },
+        {
+          "index": "comments",
+          "objectID": "YfjuG3CKsYswvaWTM",
+          "title": "Comment on: Philosophy: A Diseased Discipline",
+          "karma": 19,
+          "score": 7.603518,
+          "key": "comments:YfjuG3CKsYswvaWTM"
+        },
+        {
+          "index": "comments",
+          "objectID": "jkeqoWN4mbdz3nSZy",
+          "title": "Comment on: less_raichu's Shortform",
+          "karma": 7,
+          "score": 7.581142,
+          "key": "comments:jkeqoWN4mbdz3nSZy"
+        },
+        {
+          "index": "comments",
+          "objectID": "EbBSr8hxxbHsSjYA3",
+          "title": "Comment on: The Value of Theoretical Research",
+          "karma": 9,
+          "score": 7.56896,
+          "key": "comments:EbBSr8hxxbHsSjYA3"
+        },
+        {
+          "index": "comments",
+          "objectID": "ofDanMsrCghzFrWDx",
+          "title": "Comment on: OpenAI have solved the Navier-Stokes Problem with a substantially more powerful model than Astra.",
+          "karma": 15,
+          "score": 7.513459,
+          "key": "comments:ofDanMsrCghzFrWDx"
+        },
+        {
+          "index": "comments",
+          "objectID": "4ZDPkDWA2AqWkJcfH",
+          "title": "Comment on: StanislavKrym's Shortform",
+          "karma": 5,
+          "score": 7.4854765,
+          "key": "comments:4ZDPkDWA2AqWkJcfH"
+        },
+        {
+          "index": "comments",
+          "objectID": "w7sk3CHswZ4wAavi5",
+          "title": "Comment on: Thane Ruthenis's Shortform",
+          "karma": 6,
+          "score": 7.454668,
+          "key": "comments:w7sk3CHswZ4wAavi5"
+        }
+      ],
+      "elapsedMs": 240.8830680000001
+    },
+    {
+      "queryId": "dear-god",
+      "query": "dear god",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "6j3kBHdowGLCeqobg",
+          "title": "Dear God, Please Do Not Resign In Protest",
+          "karma": 126,
+          "score": 8.584257,
+          "key": "posts:6j3kBHdowGLCeqobg"
+        },
+        {
+          "index": "comments",
+          "objectID": "dr5j8zxZXC2Cxnja8",
+          "title": "Comment on: Thanksgiving Prayer",
+          "karma": 10,
+          "score": 7.1513047,
+          "key": "comments:dr5j8zxZXC2Cxnja8"
+        },
+        {
+          "index": "posts",
+          "objectID": "mN4ogYzCcaNf2bar2",
+          "title": "Dear AGI,",
+          "karma": 88,
+          "score": 6.9718184,
+          "key": "posts:mN4ogYzCcaNf2bar2"
+        },
+        {
+          "index": "comments",
+          "objectID": "dovQ8fickj84hQWph",
+          "title": "Comment on: Thanksgiving Prayer",
+          "karma": 11,
+          "score": 6.9510813,
+          "key": "comments:dovQ8fickj84hQWph"
+        },
+        {
+          "index": "comments",
+          "objectID": "cXGQFMzNd6Wd9Bmxg",
+          "title": "Comment on: Open Thread: May 2010",
+          "karma": 3,
+          "score": 6.4679337,
+          "key": "comments:cXGQFMzNd6Wd9Bmxg"
+        },
+        {
+          "index": "comments",
+          "objectID": "afBafjczLpNuv2vdF",
+          "title": "Comment on: Harry Potter and the Methods of Rationality discussion thread, part 14, chapter 82",
+          "karma": 2,
+          "score": 6.3659678,
+          "key": "comments:afBafjczLpNuv2vdF"
+        },
+        {
+          "index": "comments",
+          "objectID": "TFZd6zn8vQyXW29pB",
+          "title": "Comment on: How can I argue without people online and not come out feeling bad?",
+          "karma": 1,
+          "score": 6.3315616,
+          "key": "comments:TFZd6zn8vQyXW29pB"
+        },
+        {
+          "index": "comments",
+          "objectID": "bny5o5hvXEGdukrnw",
+          "title": "Comment on: Dear God, Please Do Not Resign In Protest",
+          "karma": 50,
+          "score": 6.3264127,
+          "key": "comments:bny5o5hvXEGdukrnw"
+        },
+        {
+          "index": "comments",
+          "objectID": "ho7EbfWMNNYdSraxE",
+          "title": "Comment on: My idea of sacredness, divinity, and religion",
+          "karma": 2,
+          "score": 6.2559776,
+          "key": "comments:ho7EbfWMNNYdSraxE"
+        },
+        {
+          "index": "comments",
+          "objectID": "wc93cKFZGWQthJhKC",
+          "title": "Comment on: Jemist's Shortform",
+          "karma": 88,
+          "score": 6.0295568,
+          "key": "comments:wc93cKFZGWQthJhKC"
+        },
+        {
+          "index": "comments",
+          "objectID": "YpgGLMgciQ6kkbFck",
+          "title": "Comment on: Politics and Awful Art",
+          "karma": 1,
+          "score": 6.0281196,
+          "key": "comments:YpgGLMgciQ6kkbFck"
+        },
+        {
+          "index": "posts",
+          "objectID": "JH6tJhYpnoCfFqAct",
+          "title": "The Company Man",
+          "karma": 683,
+          "score": 5.8708816,
+          "key": "posts:JH6tJhYpnoCfFqAct"
+        },
+        {
+          "index": "tags",
+          "objectID": "nRyQAWq8Gac5MQMe2",
+          "title": "Report likelihoods, not p-values",
+          "karma": 34,
+          "score": 5.8313365,
+          "key": "tags:nRyQAWq8Gac5MQMe2"
+        },
+        {
+          "index": "comments",
+          "objectID": "3hyAtnGA7NxwBBHhA",
+          "title": "Comment on: Apollo Neuro Results",
+          "karma": -1,
+          "score": 5.7318134,
+          "key": "comments:3hyAtnGA7NxwBBHhA"
+        },
+        {
+          "index": "posts",
+          "objectID": "2MD3NMLBPCqPfnfre",
+          "title": "Cached Thoughts",
+          "karma": 205,
+          "score": 5.700792,
+          "key": "posts:2MD3NMLBPCqPfnfre"
+        },
+        {
+          "index": "comments",
+          "objectID": "kYnhazZqzPA3Xz7oW",
+          "title": "Comment on: ektimo's Shortform",
+          "karma": 10,
+          "score": 5.690261,
+          "key": "comments:kYnhazZqzPA3Xz7oW"
+        },
+        {
+          "index": "posts",
+          "objectID": "fsDz6HieZJBu54Yes",
+          "title": "Zombies: The Movie",
+          "karma": 171,
+          "score": 5.68988,
+          "key": "posts:fsDz6HieZJBu54Yes"
+        },
+        {
+          "index": "posts",
+          "objectID": "MeaDB5nybkJBfKysi",
+          "title": "An atheist's guide to prayer",
+          "karma": 17,
+          "score": 5.6456,
+          "key": "posts:MeaDB5nybkJBfKysi"
+        },
+        {
+          "index": "posts",
+          "objectID": "QB6BkkpwiecfF6Ekq",
+          "title": "Thanksgiving Prayer",
+          "karma": 41,
+          "score": 5.639988,
+          "key": "posts:QB6BkkpwiecfF6Ekq"
+        },
+        {
+          "index": "comments",
+          "objectID": "DbS2XmKnPNjoem7ub",
+          "title": "Comment on: JennaS's Shortform",
+          "karma": 7,
+          "score": 5.598558,
+          "key": "comments:DbS2XmKnPNjoem7ub"
+        }
+      ],
+      "elapsedMs": 305.1774319999986
+    },
+    {
+      "queryId": "well-kept-gardens-die-by",
+      "query": "Well kept gardens die by",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "tscc3e5eujrsEeFN4",
+          "title": "Well-Kept Gardens Die By Pacifism",
+          "karma": 250,
+          "score": 10.862678,
+          "key": "posts:tscc3e5eujrsEeFN4"
+        },
+        {
+          "index": "comments",
+          "objectID": "iyJw5Z6siTr5yQr9L",
+          "title": "Comment on: Moderation notes re: recent Said/Duncan threads",
+          "karma": 29,
+          "score": 8.693492,
+          "key": "comments:iyJw5Z6siTr5yQr9L"
+        },
+        {
+          "index": "comments",
+          "objectID": "ZRJgym2sBpawwjF5h",
+          "title": "Comment on: Zach Stein-Perlman's Shortform",
+          "karma": 12,
+          "score": 8.044191,
+          "key": "comments:ZRJgym2sBpawwjF5h"
+        },
+        {
+          "index": "posts",
+          "objectID": "rKbLh89tGNi7n52YM",
+          "title": "[SEQ RERUN] Well-Kept Gardens Die By Pacifism",
+          "karma": 5,
+          "score": 8.026603,
+          "key": "posts:rKbLh89tGNi7n52YM"
+        },
+        {
+          "index": "comments",
+          "objectID": "AcdWn4M6X2ppEfiC4",
+          "title": "Comment on: Magic Words and Performative Utterances",
+          "karma": 21,
+          "score": 7.9806376,
+          "key": "comments:AcdWn4M6X2ppEfiC4"
+        },
+        {
+          "index": "comments",
+          "objectID": "8QPxxqytKN3JS6dxA",
+          "title": "Comment on: My Empathy Is Rarely Kind",
+          "karma": 26,
+          "score": 7.830493,
+          "key": "comments:8QPxxqytKN3JS6dxA"
+        },
+        {
+          "index": "comments",
+          "objectID": "pcbuBAfc7er6CjqqX",
+          "title": "Comment on: [Meta] New moderation tools and moderation guidelines",
+          "karma": 5,
+          "score": 7.622225,
+          "key": "comments:pcbuBAfc7er6CjqqX"
+        },
+        {
+          "index": "comments",
+          "objectID": "Srsg7KEqboXdy9qCd",
+          "title": "Comment on: Less Wrong automated systems are inadvertently Censoring me ",
+          "karma": 5,
+          "score": 7.5555096,
+          "key": "comments:Srsg7KEqboXdy9qCd"
+        },
+        {
+          "index": "comments",
+          "objectID": "2EbcxpuezNEc9Ymun",
+          "title": "Comment on: Wei Dai's Shortform",
+          "karma": 10,
+          "score": 7.526816,
+          "key": "comments:2EbcxpuezNEc9Ymun"
+        },
+        {
+          "index": "comments",
+          "objectID": "tN2DodhB2hqR3EqZ6",
+          "title": "Comment on: Marcio Díaz's Shortform",
+          "karma": 5,
+          "score": 7.462505,
+          "key": "comments:tN2DodhB2hqR3EqZ6"
+        },
+        {
+          "index": "comments",
+          "objectID": "i7TbixB4bARFhkvXT",
+          "title": "Comment on: Moderation notes re: recent Said/Duncan threads",
+          "karma": 14,
+          "score": 7.451509,
+          "key": "comments:i7TbixB4bARFhkvXT"
+        },
+        {
+          "index": "comments",
+          "objectID": "ses2StKoJJeuwYk5N",
+          "title": "Comment on: Best shot at immortality?",
+          "karma": 5,
+          "score": 7.422333,
+          "key": "comments:ses2StKoJJeuwYk5N"
+        },
+        {
+          "index": "comments",
+          "objectID": "wJwKxLAZ8PQcjMcvn",
+          "title": "Comment on: [Meta] New moderation tools and moderation guidelines",
+          "karma": 5,
+          "score": 7.299199,
+          "key": "comments:wJwKxLAZ8PQcjMcvn"
+        },
+        {
+          "index": "comments",
+          "objectID": "gvFCd95gjQNHtxN95",
+          "title": "Comment on: [Meta] New moderation tools and moderation guidelines",
+          "karma": 5,
+          "score": 7.2084365,
+          "key": "comments:gvFCd95gjQNHtxN95"
+        },
+        {
+          "index": "comments",
+          "objectID": "bmTMfHxb4J3mAcHdY",
+          "title": "Comment on: I've had it with those dark rumours about our culture rigorously suppressing opinions",
+          "karma": 2,
+          "score": 7.192441,
+          "key": "comments:bmTMfHxb4J3mAcHdY"
+        },
+        {
+          "index": "comments",
+          "objectID": "E67g7HxX5qCy34zqj",
+          "title": "Comment on: What we're losing",
+          "karma": 2,
+          "score": 7.182189,
+          "key": "comments:E67g7HxX5qCy34zqj"
+        },
+        {
+          "index": "comments",
+          "objectID": "3R7EdNY7HxsifYrMG",
+          "title": "Comment on: Open Thread, May 16-31, 2012",
+          "karma": 4,
+          "score": 7.0722957,
+          "key": "comments:3R7EdNY7HxsifYrMG"
+        },
+        {
+          "index": "comments",
+          "objectID": "qYQHryQWpNcvsvLZp",
+          "title": "Comment on: Suffering as attention-allocational conflict",
+          "karma": 2,
+          "score": 7.0584035,
+          "key": "comments:qYQHryQWpNcvsvLZp"
+        },
+        {
+          "index": "comments",
+          "objectID": "o5Qpf5kxnXMujaXS7",
+          "title": "Comment on: [Feedback please] New User's Guide to LessWrong",
+          "karma": 26,
+          "score": 6.9940076,
+          "key": "comments:o5Qpf5kxnXMujaXS7"
+        },
+        {
+          "index": "tags",
+          "objectID": "5f5c37ee1b5cdee568cfb21d",
+          "title": "The Craft and The Community (Sequence)",
+          "karma": 0,
+          "score": 6.7559667,
+          "key": "tags:5f5c37ee1b5cdee568cfb21d"
+        }
+      ],
+      "elapsedMs": 466.4420500000015
+    },
+    {
+      "queryId": "shut-up-and-do-the-impo",
+      "query": "shut up and do the impo",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "nCvvhFBaayaXyuBiD",
+          "title": "Shut up and do the impossible!",
+          "karma": 136,
+          "score": 11.866114,
+          "key": "posts:nCvvhFBaayaXyuBiD"
+        },
+        {
+          "index": "posts",
+          "objectID": "udH3CoLhwFcod8yZY",
+          "title": "Chapter 114: Shut Up and Do The Impossible",
+          "karma": 26,
+          "score": 11.198689,
+          "key": "posts:udH3CoLhwFcod8yZY"
+        },
+        {
+          "index": "posts",
+          "objectID": "CYnPzFga2nQk9dowy",
+          "title": "Chapter 115: Shut Up and Do The Impossible, Pt 2",
+          "karma": 30,
+          "score": 11.047887,
+          "key": "posts:CYnPzFga2nQk9dowy"
+        },
+        {
+          "index": "posts",
+          "objectID": "F8oJ4RZEAPAorR7Qx",
+          "title": "[SEQ RERUN] Shut up and do the impossible!",
+          "karma": 6,
+          "score": 10.967743,
+          "key": "posts:F8oJ4RZEAPAorR7Qx"
+        },
+        {
+          "index": "comments",
+          "objectID": "zWovvuvNCFgg7pLrr",
+          "title": "Comment on: The Unfinished Mystery of the Shangri-La Diet",
+          "karma": 15,
+          "score": 5.0814295,
+          "key": "comments:zWovvuvNCFgg7pLrr"
+        },
+        {
+          "index": "comments",
+          "objectID": "dg5iBNKRAJTjjSrP3",
+          "title": "Comment on: The Dial of Progress",
+          "karma": 32,
+          "score": 4.8788,
+          "key": "comments:dg5iBNKRAJTjjSrP3"
+        },
+        {
+          "index": "tags",
+          "objectID": "Fs2tZQoJ4piPzBNhm",
+          "title": "Problem of fully updated deference",
+          "karma": 28,
+          "score": 4.8732862,
+          "key": "tags:Fs2tZQoJ4piPzBNhm"
+        },
+        {
+          "index": "tags",
+          "objectID": "5f5c37ee1b5cdee568cfb187",
+          "title": "Shut Up and Multiply",
+          "karma": 21,
+          "score": 4.8152943,
+          "key": "tags:5f5c37ee1b5cdee568cfb187"
+        },
+        {
+          "index": "posts",
+          "objectID": "gPPdYTwPkdvAEYyEK",
+          "title": "Fucking Goddamn Basics of Rationalist Discourse",
+          "karma": 323,
+          "score": 4.8145323,
+          "key": "posts:gPPdYTwPkdvAEYyEK"
+        },
+        {
+          "index": "comments",
+          "objectID": "5mKK9FpkG7BWpQeSz",
+          "title": "Comment on: The Unfinished Mystery of the Shangri-La Diet",
+          "karma": 12,
+          "score": 4.791883,
+          "key": "comments:5mKK9FpkG7BWpQeSz"
+        },
+        {
+          "index": "comments",
+          "objectID": "THdhQA6XqhMqTzhyS",
+          "title": "Comment on: Welcome to Heaven",
+          "karma": 19,
+          "score": 4.788799,
+          "key": "comments:THdhQA6XqhMqTzhyS"
+        },
+        {
+          "index": "comments",
+          "objectID": "ckwcde6QBaNw7yxCt",
+          "title": "Comment on: Bing Chat is blatantly, aggressively misaligned",
+          "karma": 121,
+          "score": 4.7617097,
+          "key": "comments:ckwcde6QBaNw7yxCt"
+        },
+        {
+          "index": "comments",
+          "objectID": "mzNHZcokvWgq5Sdv6",
+          "title": "Comment on: If Anyone Builds It Everyone Dies, a semi-outsider review\n",
+          "karma": 6,
+          "score": 4.7307577,
+          "key": "comments:mzNHZcokvWgq5Sdv6"
+        },
+        {
+          "index": "comments",
+          "objectID": "mBsLKDz52g7MPtdG3",
+          "title": "Comment on: If Many-Worlds Had Come First",
+          "karma": 11,
+          "score": 4.657166,
+          "key": "comments:mBsLKDz52g7MPtdG3"
+        },
+        {
+          "index": "comments",
+          "objectID": "Mkqayj9abK3PyD2NE",
+          "title": "Comment on: Rationality quotes: April 2010",
+          "karma": 15,
+          "score": 4.6567984,
+          "key": "comments:Mkqayj9abK3PyD2NE"
+        },
+        {
+          "index": "tags",
+          "objectID": "5f5c37ee1b5cdee568cfb24f",
+          "title": "Ethical Injunction",
+          "karma": 9,
+          "score": 4.6513863,
+          "key": "tags:5f5c37ee1b5cdee568cfb24f"
+        },
+        {
+          "index": "comments",
+          "objectID": "RvHzpKF2BjrD5BtGF",
+          "title": "Comment on: Rationality quotes January 2012",
+          "karma": 10,
+          "score": 4.6274967,
+          "key": "comments:RvHzpKF2BjrD5BtGF"
+        },
+        {
+          "index": "comments",
+          "objectID": "auLDFzJzrTLaKGRxA",
+          "title": "Comment on: Shortform",
+          "karma": 6,
+          "score": 4.6259027,
+          "key": "comments:auLDFzJzrTLaKGRxA"
+        },
+        {
+          "index": "comments",
+          "objectID": "HbK2Lzjws69RqSajE",
+          "title": "Comment on: Grandpa Has Different Rules",
+          "karma": 5,
+          "score": 4.6198497,
+          "key": "comments:HbK2Lzjws69RqSajE"
+        },
+        {
+          "index": "comments",
+          "objectID": "4DmTSM7HAarbw3co7",
+          "title": "Comment on: Mr. Meeseeks as an AI capability tripwire",
+          "karma": 16,
+          "score": 4.616071,
+          "key": "comments:4DmTSM7HAarbw3co7"
+        }
+      ],
+      "elapsedMs": 428.38071200000013
+    },
+    {
+      "queryId": "hammertime-day-3",
+      "query": "hammertime day 3",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "ESnzpoCJrAfwAzpMB",
+          "title": "Hammertime Day 3: TAPs",
+          "karma": 20,
+          "score": 8.420356,
+          "key": "posts:ESnzpoCJrAfwAzpMB"
+        },
+        {
+          "index": "posts",
+          "objectID": "tvA9wBLQbotcrFe9z",
+          "title": "Trigger Action Planning Workshop",
+          "karma": 6,
+          "score": 6.39261,
+          "key": "posts:tvA9wBLQbotcrFe9z"
+        },
+        {
+          "index": "posts",
+          "objectID": "rFjhz5Ks685xHbMXW",
+          "title": "Hammertime Day 1: Bug Hunt",
+          "karma": 117,
+          "score": 6.3830147,
+          "key": "posts:rFjhz5Ks685xHbMXW"
+        },
+        {
+          "index": "posts",
+          "objectID": "N47M3JiHveHfwdbFg",
+          "title": "Hammertime Day 10: Murphyjitsu",
+          "karma": 57,
+          "score": 6.1878905,
+          "key": "posts:N47M3JiHveHfwdbFg"
+        },
+        {
+          "index": "posts",
+          "objectID": "Q7MsMshzbzhEs729s",
+          "title": "Hammertime Final Exam",
+          "karma": 40,
+          "score": 6.1294165,
+          "key": "posts:Q7MsMshzbzhEs729s"
+        },
+        {
+          "index": "posts",
+          "objectID": "b6p684c9A5QfsaQEC",
+          "title": "Bug Hunt 3",
+          "karma": 26,
+          "score": 6.1040745,
+          "key": "posts:b6p684c9A5QfsaQEC"
+        },
+        {
+          "index": "posts",
+          "objectID": "vpvKEj7shuk8h5Eet",
+          "title": "Hammertime Day 2: Yoda Timers",
+          "karma": 56,
+          "score": 6.0643215,
+          "key": "posts:vpvKEj7shuk8h5Eet"
+        },
+        {
+          "index": "posts",
+          "objectID": "Cu5C5KhkoXhrPMLFN",
+          "title": "Goal Factoring",
+          "karma": 27,
+          "score": 5.9518228,
+          "key": "posts:Cu5C5KhkoXhrPMLFN"
+        },
+        {
+          "index": "posts",
+          "objectID": "HHjn3r8n7bJp6Q5HE",
+          "title": "Hammertime Day 4: Design",
+          "karma": 31,
+          "score": 5.9337115,
+          "key": "posts:HHjn3r8n7bJp6Q5HE"
+        },
+        {
+          "index": "posts",
+          "objectID": "7LmmZaqhL4TWsQdPN",
+          "title": "Bug Hunt 2",
+          "karma": 37,
+          "score": 5.816132,
+          "key": "posts:7LmmZaqhL4TWsQdPN"
+        },
+        {
+          "index": "posts",
+          "objectID": "sZCqpRHQLHSmFNWxK",
+          "title": "Hammertime Day 7: Aversion Factoring",
+          "karma": 29,
+          "score": 5.7875476,
+          "key": "posts:sZCqpRHQLHSmFNWxK"
+        },
+        {
+          "index": "posts",
+          "objectID": "midh5959ibYKDm6Qq",
+          "title": "Karlsruhe Rationalist Meetup #4",
+          "karma": 2,
+          "score": 5.7787247,
+          "key": "posts:midh5959ibYKDm6Qq"
+        },
+        {
+          "index": "posts",
+          "objectID": "SYT8E7YThLHWr6JEm",
+          "title": "The Strategic Level",
+          "karma": 37,
+          "score": 5.771955,
+          "key": "posts:SYT8E7YThLHWr6JEm"
+        },
+        {
+          "index": "posts",
+          "objectID": "o8EWXypYGwJ6JYpBT",
+          "title": "Hammertime Day 8: Sunk Cost Faith",
+          "karma": 29,
+          "score": 5.720934,
+          "key": "posts:o8EWXypYGwJ6JYpBT"
+        },
+        {
+          "index": "tags",
+          "objectID": "pJthrJDMw54JFGise",
+          "title": "Murphyjitsu",
+          "karma": 0,
+          "score": 5.690234,
+          "key": "tags:pJthrJDMw54JFGise"
+        },
+        {
+          "index": "posts",
+          "objectID": "bLeWxzkn4mzLd36SH",
+          "title": "Karlsruhe Rationalist Meetup #26",
+          "karma": 1,
+          "score": 5.6680484,
+          "key": "posts:bLeWxzkn4mzLd36SH"
+        },
+        {
+          "index": "posts",
+          "objectID": "t2Ts2AXqzi4cZex6B",
+          "title": "Karlsruhe Rationailty Meetup #16",
+          "karma": 2,
+          "score": 5.6640563,
+          "key": "posts:t2Ts2AXqzi4cZex6B"
+        },
+        {
+          "index": "posts",
+          "objectID": "FLLFy8mLze5mBksaj",
+          "title": "Karlsruhe Rationalist Meetup #5",
+          "karma": 1,
+          "score": 5.658644,
+          "key": "posts:FLLFy8mLze5mBksaj"
+        },
+        {
+          "index": "posts",
+          "objectID": "LSDtWbE6acmff6Tig",
+          "title": "AI Generated Music as a Method of Installing Essential Rationalist Skills",
+          "karma": 19,
+          "score": 5.649268,
+          "key": "posts:LSDtWbE6acmff6Tig"
+        },
+        {
+          "index": "posts",
+          "objectID": "G4mzC7zFW6WMMkmSS",
+          "title": "CoZE 2",
+          "karma": 16,
+          "score": 5.632607,
+          "key": "posts:G4mzC7zFW6WMMkmSS"
+        }
+      ],
+      "elapsedMs": 443.0261380000011
+    },
+    {
+      "queryId": "open-source-game-theory",
+      "query": "open source game theory",
+      "hits": [
+        {
+          "index": "tags",
+          "objectID": "mtz4rz8B4ansonhWG",
+          "title": "Open Source Game Theory",
+          "karma": 0,
+          "score": 12.220594,
+          "key": "tags:mtz4rz8B4ansonhWG"
+        },
+        {
+          "index": "posts",
+          "objectID": "5X8bXKaPNiZsNw2FG",
+          "title": "A failed solution to open-source game theory",
+          "karma": 15,
+          "score": 8.159158,
+          "key": "posts:5X8bXKaPNiZsNw2FG"
+        },
+        {
+          "index": "posts",
+          "objectID": "rASeoR7iZ9Fokzh7L",
+          "title": "Problems in AI Alignment that philosophers could potentially contribute to",
+          "karma": 78,
+          "score": 8.1336355,
+          "key": "posts:rASeoR7iZ9Fokzh7L"
+        },
+        {
+          "index": "comments",
+          "objectID": "PFGztHJWD6bCg3obv",
+          "title": "Comment on: Paranoia: A Beginner's Guide",
+          "karma": 9,
+          "score": 7.641229,
+          "key": "comments:PFGztHJWD6bCg3obv"
+        },
+        {
+          "index": "comments",
+          "objectID": "rZXWnncmsFevoCpXs",
+          "title": "Comment on: Summary of and Thoughts on the Hotz/Yudkowsky Debate",
+          "karma": 17,
+          "score": 7.6281085,
+          "key": "comments:rZXWnncmsFevoCpXs"
+        },
+        {
+          "index": "comments",
+          "objectID": "QaD3wKYtehbHzutCE",
+          "title": "Comment on: Would we even want AI to solve all our problems?",
+          "karma": 6,
+          "score": 7.548775,
+          "key": "comments:QaD3wKYtehbHzutCE"
+        },
+        {
+          "index": "comments",
+          "objectID": "64K5437JkrM8AwCJh",
+          "title": "Comment on: Chi Nguyen's Shortform",
+          "karma": 20,
+          "score": 7.4978786,
+          "key": "comments:64K5437JkrM8AwCJh"
+        },
+        {
+          "index": "comments",
+          "objectID": "9Am2ShnzM7nifTTY3",
+          "title": "Comment on: Rational Agents Cooperate in the Prisoner's Dilemma",
+          "karma": 5,
+          "score": 7.4801917,
+          "key": "comments:9Am2ShnzM7nifTTY3"
+        },
+        {
+          "index": "posts",
+          "objectID": "6nWhntKPtCFm8LFo6",
+          "title": "Logical Line-Of-Sight Makes Games Sequential or Loopy",
+          "karma": 40,
+          "score": 7.474511,
+          "key": "posts:6nWhntKPtCFm8LFo6"
+        },
+        {
+          "index": "comments",
+          "objectID": "LaHz7uzPKuegooRm3",
+          "title": "Comment on: Alexander Müller's Shortform",
+          "karma": 5,
+          "score": 7.3821316,
+          "key": "comments:LaHz7uzPKuegooRm3"
+        },
+        {
+          "index": "comments",
+          "objectID": "j34gGobMzb3Dsfi9o",
+          "title": "Comment on: Contra Yudkowsky on AI Doom",
+          "karma": 12,
+          "score": 7.324986,
+          "key": "comments:j34gGobMzb3Dsfi9o"
+        },
+        {
+          "index": "posts",
+          "objectID": "kj37Hzb2MsALwLqWt",
+          "title": "Alignment research exercises",
+          "karma": 150,
+          "score": 7.2588596,
+          "key": "posts:kj37Hzb2MsALwLqWt"
+        },
+        {
+          "index": "comments",
+          "objectID": "jqhNzXCvks5c8JLpS",
+          "title": "Comment on: Honorable AI",
+          "karma": 4,
+          "score": 7.2304053,
+          "key": "comments:jqhNzXCvks5c8JLpS"
+        },
+        {
+          "index": "posts",
+          "objectID": "DbuCdEbkh4wL5cjJ5",
+          "title": "Preface to CLR's Research Agenda on Cooperation, Conflict, and TAI ",
+          "karma": 62,
+          "score": 7.162543,
+          "key": "posts:DbuCdEbkh4wL5cjJ5"
+        },
+        {
+          "index": "comments",
+          "objectID": "o2Yh4abk4wRrxhpxW",
+          "title": "Comment on: What Heuristics Do You Use to Think About Alignment Topics?",
+          "karma": 8,
+          "score": 7.103667,
+          "key": "comments:o2Yh4abk4wRrxhpxW"
+        },
+        {
+          "index": "comments",
+          "objectID": "ddPadv82nZLSC5NnR",
+          "title": "Comment on: Alexander Gietelink Oldenziel's Shortform",
+          "karma": 6,
+          "score": 7.0971613,
+          "key": "comments:ddPadv82nZLSC5NnR"
+        },
+        {
+          "index": "posts",
+          "objectID": "qRKyZGcoio9JhdmvX",
+          "title": "Book report: Theory of Games and Economic Behavior (von Neumann & Morgenstern)",
+          "karma": 38,
+          "score": 7.090833,
+          "key": "posts:qRKyZGcoio9JhdmvX"
+        },
+        {
+          "index": "posts",
+          "objectID": "wXbSAKu2AcohaK2Gt",
+          "title": "UDT shows that decision theory is more puzzling than ever",
+          "karma": 224,
+          "score": 7.0774336,
+          "key": "posts:wXbSAKu2AcohaK2Gt"
+        },
+        {
+          "index": "comments",
+          "objectID": "djHY4ndYCNaKXHgzc",
+          "title": "Comment on: Sentience matters",
+          "karma": 3,
+          "score": 7.0584188,
+          "key": "comments:djHY4ndYCNaKXHgzc"
+        },
+        {
+          "index": "posts",
+          "objectID": "HbPXiB5Aiv3uHPXEh",
+          "title": "Master plan spec: needs audit (logic and cooperative AI) ",
+          "karma": 17,
+          "score": 7.054295,
+          "key": "posts:HbPXiB5Aiv3uHPXEh"
+        }
+      ],
+      "elapsedMs": 421.0277069999993
+    },
+    {
+      "queryId": "j-space",
+      "query": "j-space",
+      "hits": [
+        {
+          "index": "comments",
+          "objectID": "EwojCnTw23xnLuFr5",
+          "title": "Comment on: A global workspace in language models",
+          "karma": 91,
+          "score": 9.4448,
+          "key": "comments:EwojCnTw23xnLuFr5"
+        },
+        {
+          "index": "posts",
+          "objectID": "3PaLrzxagpbnNtPLT",
+          "title": "A global workspace in language models",
+          "karma": 369,
+          "score": 9.345827,
+          "key": "posts:3PaLrzxagpbnNtPLT"
+        },
+        {
+          "index": "posts",
+          "objectID": "EnxHPxJT4Xin5cTsX",
+          "title": "No Space Like J-Space",
+          "karma": 51,
+          "score": 8.822492,
+          "key": "posts:EnxHPxJT4Xin5cTsX"
+        },
+        {
+          "index": "comments",
+          "objectID": "yJ72uyhw9CqGqisrC",
+          "title": "Comment on: A global workspace in language models",
+          "karma": 31,
+          "score": 8.413033,
+          "key": "comments:yJ72uyhw9CqGqisrC"
+        },
+        {
+          "index": "posts",
+          "objectID": "LhDJdccLszLEAqgZ9",
+          "title": "Models are blind outside the J-space. NLAs aren't.",
+          "karma": 28,
+          "score": 8.152562,
+          "key": "posts:LhDJdccLszLEAqgZ9"
+        },
+        {
+          "index": "comments",
+          "objectID": "v3tSmJaEXsiv2nwhE",
+          "title": "Comment on: A global workspace in language models",
+          "karma": 21,
+          "score": 8.129284,
+          "key": "comments:v3tSmJaEXsiv2nwhE"
+        },
+        {
+          "index": "comments",
+          "objectID": "wfy3pndQTbCvz5mHG",
+          "title": "Comment on: A global workspace in language models",
+          "karma": 28,
+          "score": 8.08992,
+          "key": "comments:wfy3pndQTbCvz5mHG"
+        },
+        {
+          "index": "posts",
+          "objectID": "6ek6n7yZ5DzfarJHy",
+          "title": "Towards surfacing model algorithms with meta-tokens in the J-Space",
+          "karma": 47,
+          "score": 8.078558,
+          "key": "posts:6ek6n7yZ5DzfarJHy"
+        },
+        {
+          "index": "posts",
+          "objectID": "zFJ3ZdQwrTWE9jT5S",
+          "title": "A Review of Anthropic's Global Workspace Paper",
+          "karma": 135,
+          "score": 7.878343,
+          "key": "posts:zFJ3ZdQwrTWE9jT5S"
+        },
+        {
+          "index": "comments",
+          "objectID": "CoeH7dN4Bb8ykzeX6",
+          "title": "Comment on: A global workspace in language models",
+          "karma": 9,
+          "score": 7.585246,
+          "key": "comments:CoeH7dN4Bb8ykzeX6"
+        },
+        {
+          "index": "comments",
+          "objectID": "6BxZeabCWvGzWkgaB",
+          "title": "Comment on: A global workspace in language models",
+          "karma": 12,
+          "score": 7.5848384,
+          "key": "comments:6BxZeabCWvGzWkgaB"
+        },
+        {
+          "index": "comments",
+          "objectID": "CFHaWvrn3xegRZmcQ",
+          "title": "Comment on: R-lens: Making J-lens More Faithful on Early Layers",
+          "karma": 16,
+          "score": 7.5721316,
+          "key": "comments:CFHaWvrn3xegRZmcQ"
+        },
+        {
+          "index": "comments",
+          "objectID": "97axm9mRsvBJc6SDE",
+          "title": "Comment on: the gears to ascenscion's Shortform",
+          "karma": 63,
+          "score": 7.543154,
+          "key": "comments:97axm9mRsvBJc6SDE"
+        },
+        {
+          "index": "posts",
+          "objectID": "2Ef7zM7eMpAB7nvcR",
+          "title": "Trying to grok Anthropic's Global Workspace paper and the J-space",
+          "karma": 14,
+          "score": 7.4440804,
+          "key": "posts:2Ef7zM7eMpAB7nvcR"
+        },
+        {
+          "index": "posts",
+          "objectID": "mFbDjEbhJtsCDGtAT",
+          "title": "\nA J-Space-Based Metric for Model Valence: Defining the Metric, Testing, and Comparisons to Self-Reports\n",
+          "karma": 8,
+          "score": 7.37078,
+          "key": "posts:mFbDjEbhJtsCDGtAT"
+        },
+        {
+          "index": "posts",
+          "objectID": "c6uTNm5erRrmyJvvD",
+          "title": "Mapping the semantic void: Strange goings-on in GPT embedding spaces",
+          "karma": 115,
+          "score": 7.35378,
+          "key": "posts:c6uTNm5erRrmyJvvD"
+        },
+        {
+          "index": "posts",
+          "objectID": "nv8oedrnLXKRzNEL9",
+          "title": "R-lens: Making J-lens More Faithful on Early Layers",
+          "karma": 83,
+          "score": 7.3345914,
+          "key": "posts:nv8oedrnLXKRzNEL9"
+        },
+        {
+          "index": "comments",
+          "objectID": "LP74N9imekrbtMPdB",
+          "title": "Comment on: A global workspace in language models",
+          "karma": 9,
+          "score": 7.331746,
+          "key": "comments:LP74N9imekrbtMPdB"
+        },
+        {
+          "index": "comments",
+          "objectID": "nudg3k4uYKLPPzJhj",
+          "title": "Comment on: No Space Like J-Space",
+          "karma": 11,
+          "score": 7.2483587,
+          "key": "comments:nudg3k4uYKLPPzJhj"
+        },
+        {
+          "index": "comments",
+          "objectID": "rjbbn5rM3ZimfgEis",
+          "title": "Comment on: There is No One There: A simple experiment to convince yourself that LLMs probably are not conscious",
+          "karma": 9,
+          "score": 7.227699,
+          "key": "comments:rjbbn5rM3ZimfgEis"
+        }
+      ],
+      "elapsedMs": 373.37366499999916
+    },
+    {
+      "queryId": "infra-bayesiansism",
+      "query": "infra-bayesiansism",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "LgLez8aeK24PbyyQJ",
+          "title": "New Paper: Infra-Bayesian Decision-Estimation Theory",
+          "karma": 77,
+          "score": 5.3303394,
+          "key": "posts:LgLez8aeK24PbyyQJ"
+        },
+        {
+          "index": "posts",
+          "objectID": "NWKk2eQwfuGzRXusJ",
+          "title": "Video lectures on the learning-theoretic agenda",
+          "karma": 75,
+          "score": 5.2076163,
+          "key": "posts:NWKk2eQwfuGzRXusJ"
+        },
+        {
+          "index": "comments",
+          "objectID": "XDqpFJZQHt9pPX2bF",
+          "title": "Comment on: The Learning-Theoretic Agenda: Status 2023",
+          "karma": 13,
+          "score": 5.188182,
+          "key": "comments:XDqpFJZQHt9pPX2bF"
+        },
+        {
+          "index": "posts",
+          "objectID": "mSDwPeqAzYk79vLiA",
+          "title": "Understanding Infra-Bayesianism: A Beginner-Friendly Video Series",
+          "karma": 140,
+          "score": 5.1871796,
+          "key": "posts:mSDwPeqAzYk79vLiA"
+        },
+        {
+          "index": "comments",
+          "objectID": "3iAgxFmehqzHQBo7W",
+          "title": "Comment on: Infra-Bayesian physicalism: a formal theory of naturalized induction",
+          "karma": 19,
+          "score": 5.157088,
+          "key": "comments:3iAgxFmehqzHQBo7W"
+        },
+        {
+          "index": "posts",
+          "objectID": "fsGEyCYhqs7AWwdCe",
+          "title": "Learning-theoretic agenda reading list",
+          "karma": 103,
+          "score": 5.135204,
+          "key": "posts:fsGEyCYhqs7AWwdCe"
+        },
+        {
+          "index": "tags",
+          "objectID": "wdLqQnzdgiYpDXEWH",
+          "title": "Infra-Bayesianism",
+          "karma": 9,
+          "score": 5.128447,
+          "key": "tags:wdLqQnzdgiYpDXEWH"
+        },
+        {
+          "index": "comments",
+          "objectID": "cxnBT27fwudgFiAWq",
+          "title": "Comment on: Vanessa Kosoy's Shortform",
+          "karma": 12,
+          "score": 5.124872,
+          "key": "comments:cxnBT27fwudgFiAWq"
+        },
+        {
+          "index": "comments",
+          "objectID": "u4Dbyc5XKJ4wfCvpK",
+          "title": "Comment on: Towards Guaranteed Safe AI: A Framework for Ensuring Robust and Reliable AI Systems",
+          "karma": 26,
+          "score": 5.099248,
+          "key": "comments:u4Dbyc5XKJ4wfCvpK"
+        },
+        {
+          "index": "comments",
+          "objectID": "uiWhccYejBvDiRqpm",
+          "title": "Comment on: The Pointers Problem: Human Values Are A Function Of Humans' Latent Variables",
+          "karma": 19,
+          "score": 5.0452075,
+          "key": "comments:uiWhccYejBvDiRqpm"
+        },
+        {
+          "index": "posts",
+          "objectID": "StkjjQyKwg7hZjcGB",
+          "title": "A mostly critical review of infra-Bayesianism",
+          "karma": 110,
+          "score": 5.036178,
+          "key": "posts:StkjjQyKwg7hZjcGB"
+        },
+        {
+          "index": "posts",
+          "objectID": "XCDwfr8LER8XnDaCv",
+          "title": "Result Of The Bounty/Contest  To Explain Infra-Bayes In The Language Of Game Theory",
+          "karma": 83,
+          "score": 5.032598,
+          "key": "posts:XCDwfr8LER8XnDaCv"
+        },
+        {
+          "index": "comments",
+          "objectID": "fQjyLe69bk4BzYncj",
+          "title": "Comment on: Which LessWrong/Alignment topics would you like to be tutored in? [Poll]",
+          "karma": 9,
+          "score": 5.031878,
+          "key": "comments:fQjyLe69bk4BzYncj"
+        },
+        {
+          "index": "posts",
+          "objectID": "zyN7K8NB8RzAft7KZ",
+          "title": "Linear infra-Bayesian Bandits",
+          "karma": 40,
+          "score": 5.0300984,
+          "key": "posts:zyN7K8NB8RzAft7KZ"
+        },
+        {
+          "index": "comments",
+          "objectID": "douaBsYpocoCAiEcC",
+          "title": "Comment on: Infra-Bayesian physicalism: a formal theory of naturalized induction",
+          "karma": 9,
+          "score": 5.0035496,
+          "key": "comments:douaBsYpocoCAiEcC"
+        },
+        {
+          "index": "comments",
+          "objectID": "atDhfyamh3SLnsoMv",
+          "title": "Comment on: Vanessa Kosoy's Shortform",
+          "karma": 30,
+          "score": 4.9388003,
+          "key": "comments:atDhfyamh3SLnsoMv"
+        },
+        {
+          "index": "comments",
+          "objectID": "Hzcv8RxBemJ2PArEj",
+          "title": "Comment on: UDT shows that decision theory is more puzzling than ever",
+          "karma": 6,
+          "score": 4.9265704,
+          "key": "comments:Hzcv8RxBemJ2PArEj"
+        },
+        {
+          "index": "comments",
+          "objectID": "gxQci8EtoRYWgrvqz",
+          "title": "Comment on: What are your cruxes for imprecise probabilities / decision rules?",
+          "karma": 10,
+          "score": 4.91123,
+          "key": "comments:gxQci8EtoRYWgrvqz"
+        },
+        {
+          "index": "posts",
+          "objectID": "8BL7w55PS4rWYmrmv",
+          "title": "[Closed] Prize and fast track to alignment research at ALTER",
+          "karma": 64,
+          "score": 4.901594,
+          "key": "posts:8BL7w55PS4rWYmrmv"
+        },
+        {
+          "index": "posts",
+          "objectID": "it5odhMKY6xYLrFZD",
+          "title": "[Closed] Hiring a mathematician to work on the learning-theoretic AI alignment agenda",
+          "karma": 70,
+          "score": 4.894988,
+          "key": "posts:it5odhMKY6xYLrFZD"
+        }
+      ],
+      "elapsedMs": 325.6335549999985
+    },
+    {
+      "queryId": "kwa",
+      "query": "kwa",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "x5S2Kuj6TfQTGuo63",
+          "title": "Thomas Kwa",
+          "karma": 10495,
+          "score": 12.21798,
+          "key": "users:x5S2Kuj6TfQTGuo63"
+        },
+        {
+          "index": "posts",
+          "objectID": "qbcuk8WwFnTZcXTd6",
+          "title": "Thomas Kwa's MIRI research experience",
+          "karma": 174,
+          "score": 8.734314,
+          "key": "posts:qbcuk8WwFnTZcXTd6"
+        },
+        {
+          "index": "posts",
+          "objectID": "bf3vciB36dnd75ZKJ",
+          "title": "Thomas Kwa's research journal",
+          "karma": 79,
+          "score": 8.116979,
+          "key": "posts:bf3vciB36dnd75ZKJ"
+        },
+        {
+          "index": "posts",
+          "objectID": "hmTysyXvtg6wGgHja",
+          "title": "Thomas Kwa's Bounty List",
+          "karma": 12,
+          "score": 7.5651517,
+          "key": "posts:hmTysyXvtg6wGgHja"
+        },
+        {
+          "index": "posts",
+          "objectID": "Zr37dY5YPRT6s56jY",
+          "title": "Thomas Kwa's Shortform",
+          "karma": 2,
+          "score": 7.492157,
+          "key": "posts:Zr37dY5YPRT6s56jY"
+        },
+        {
+          "index": "comments",
+          "objectID": "rfECrM75amGzvFXnJ",
+          "title": "Comment on: Related Discussion from Thomas Kwa's MIRI Research Experience",
+          "karma": 22,
+          "score": 7.4087086,
+          "key": "comments:rfECrM75amGzvFXnJ"
+        },
+        {
+          "index": "comments",
+          "objectID": "ES7iYEEPaoSA4Bpgn",
+          "title": "Comment on: The US Government may find it difficult to seize control during takeoff",
+          "karma": 6,
+          "score": 7.306226,
+          "key": "comments:ES7iYEEPaoSA4Bpgn"
+        },
+        {
+          "index": "comments",
+          "objectID": "tZJXQBBYdxRg3hEjC",
+          "title": "Comment on: Thomas Kwa's Shortform",
+          "karma": 3,
+          "score": 6.5209165,
+          "key": "comments:tZJXQBBYdxRg3hEjC"
+        },
+        {
+          "index": "comments",
+          "objectID": "CxZHtuWDFQaAdTjjs",
+          "title": "Comment on: How do you feel about LessWrong these days? [Open feedback thread]",
+          "karma": 22,
+          "score": 6.2596273,
+          "key": "comments:CxZHtuWDFQaAdTjjs"
+        },
+        {
+          "index": "comments",
+          "objectID": "sifCL7XpJf2oq2vjq",
+          "title": "Comment on: Related Discussion from Thomas Kwa's MIRI Research Experience",
+          "karma": 26,
+          "score": 6.234521,
+          "key": "comments:sifCL7XpJf2oq2vjq"
+        },
+        {
+          "index": "comments",
+          "objectID": "hQxuY3zvMEyhyg688",
+          "title": "Comment on: Annapurna's Shortform",
+          "karma": 22,
+          "score": 6.089226,
+          "key": "comments:hQxuY3zvMEyhyg688"
+        },
+        {
+          "index": "posts",
+          "objectID": "BGLu3iCGjjcSaeeBG",
+          "title": "Related Discussion from Thomas Kwa's MIRI Research Experience",
+          "karma": 72,
+          "score": 5.9451265,
+          "key": "posts:BGLu3iCGjjcSaeeBG"
+        },
+        {
+          "index": "comments",
+          "objectID": "tjqwucrrxJiPgvigz",
+          "title": "Comment on: StanislavKrym's Shortform",
+          "karma": 26,
+          "score": 5.8184757,
+          "key": "comments:tjqwucrrxJiPgvigz"
+        },
+        {
+          "index": "comments",
+          "objectID": "G8BftXMjg5cJytfSh",
+          "title": "Comment on: Thomas Kwa's Shortform",
+          "karma": 14,
+          "score": 5.7569633,
+          "key": "comments:G8BftXMjg5cJytfSh"
+        },
+        {
+          "index": "comments",
+          "objectID": "hrcjhawQ86vWkrQdh",
+          "title": "Comment on: You're gonna need a bigger boat (benchmark), METR",
+          "karma": 11,
+          "score": 5.748553,
+          "key": "comments:hrcjhawQ86vWkrQdh"
+        },
+        {
+          "index": "comments",
+          "objectID": "e4KX9BJjNDLxbkGoL",
+          "title": "Comment on: Related Discussion from Thomas Kwa's MIRI Research Experience",
+          "karma": 83,
+          "score": 5.72508,
+          "key": "comments:e4KX9BJjNDLxbkGoL"
+        },
+        {
+          "index": "comments",
+          "objectID": "WYaLGh8mNxAvF9Ax9",
+          "title": "Comment on: Thomas Kwa's Shortform",
+          "karma": 4,
+          "score": 5.7173,
+          "key": "comments:WYaLGh8mNxAvF9Ax9"
+        },
+        {
+          "index": "comments",
+          "objectID": "qnNfs2YedDzoF5zCx",
+          "title": "Comment on: Work with me on agent foundations: independent fellowship",
+          "karma": 9,
+          "score": 5.689113,
+          "key": "comments:qnNfs2YedDzoF5zCx"
+        },
+        {
+          "index": "comments",
+          "objectID": "TnNTttg8fTnoFpxhn",
+          "title": "Comment on: Kajus's Shortform",
+          "karma": 3,
+          "score": 5.6607947,
+          "key": "comments:TnNTttg8fTnoFpxhn"
+        },
+        {
+          "index": "comments",
+          "objectID": "aJh2oEQBPXW99rdDe",
+          "title": "Comment on: My Number 1 Epistemology Book Recommendation: Inventing Temperature",
+          "karma": 2,
+          "score": 5.6605606,
+          "key": "comments:aJh2oEQBPXW99rdDe"
+        }
+      ],
+      "elapsedMs": 195.13236899999902
+    },
+    {
+      "queryId": "paulf",
+      "query": "paulf",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "gb44edJjXhte8DA3A",
+          "title": "paulfchristiano",
+          "karma": 29826,
+          "score": 14.444363,
+          "key": "users:gb44edJjXhte8DA3A"
+        },
+        {
+          "index": "posts",
+          "objectID": "7qhtuQLCCvmwCPfXK",
+          "title": "AMA: Paul Christiano, alignment researcher",
+          "karma": 117,
+          "score": 5.7623158,
+          "key": "posts:7qhtuQLCCvmwCPfXK"
+        },
+        {
+          "index": "posts",
+          "objectID": "CoZhXrhpQxpy9xw9y",
+          "title": "Where I agree and disagree with Eliezer",
+          "karma": 890,
+          "score": 4.9,
+          "key": "posts:CoZhXrhpQxpy9xw9y"
+        },
+        {
+          "index": "posts",
+          "objectID": "HBxe6wdjxK239zajf",
+          "title": "What failure looks like",
+          "karma": 419,
+          "score": 4.888373,
+          "key": "posts:HBxe6wdjxK239zajf"
+        },
+        {
+          "index": "posts",
+          "objectID": "AyNHoTWWAJ5eb99ji",
+          "title": "Another (outer) alignment failure story",
+          "karma": 247,
+          "score": 4.830123,
+          "key": "posts:AyNHoTWWAJ5eb99ji"
+        },
+        {
+          "index": "posts",
+          "objectID": "ZRrYsZ626KSEgHv8s",
+          "title": "Self-driving car bets",
+          "karma": 236,
+          "score": 4.8251724,
+          "key": "posts:ZRrYsZ626KSEgHv8s"
+        },
+        {
+          "index": "posts",
+          "objectID": "qHCDysDnvhteW7kRd",
+          "title": "ARC's first technical report: Eliciting Latent Knowledge",
+          "karma": 228,
+          "score": 4.821434,
+          "key": "posts:qHCDysDnvhteW7kRd"
+        },
+        {
+          "index": "posts",
+          "objectID": "fRSj2W4Fjje8rQWm9",
+          "title": "Thoughts on sharing information about language model capabilities",
+          "karma": 211,
+          "score": 4.813063,
+          "key": "posts:fRSj2W4Fjje8rQWm9"
+        },
+        {
+          "index": "comments",
+          "objectID": "u3mYhCMPbXKfeB3pJ",
+          "title": "Comment on: The Value of Theoretical Research",
+          "karma": 8,
+          "score": 4.7960596,
+          "key": "comments:u3mYhCMPbXKfeB3pJ"
+        },
+        {
+          "index": "posts",
+          "objectID": "hbmsW2k9DxED5Z4eJ",
+          "title": "Impossibility results for unbounded utilities",
+          "karma": 167,
+          "score": 4.7880726,
+          "key": "posts:hbmsW2k9DxED5Z4eJ"
+        },
+        {
+          "index": "posts",
+          "objectID": "vit9oWGj6WgXpRhce",
+          "title": "Secure homes for digital people",
+          "karma": 161,
+          "score": 4.7842035,
+          "key": "posts:vit9oWGj6WgXpRhce"
+        },
+        {
+          "index": "posts",
+          "objectID": "EF5M6CmKRd6qZk27Z",
+          "title": "My research methodology",
+          "karma": 159,
+          "score": 4.782884,
+          "key": "posts:EF5M6CmKRd6qZk27Z"
+        },
+        {
+          "index": "posts",
+          "objectID": "vwt3wKXWaCvqZyF74",
+          "title": "Mechanistic anomaly detection and ELK",
+          "karma": 138,
+          "score": 4.7680397,
+          "key": "posts:vwt3wKXWaCvqZyF74"
+        },
+        {
+          "index": "posts",
+          "objectID": "BxersHYN2qcFoonwg",
+          "title": "Experimentally evaluating whether honesty generalizes",
+          "karma": 103,
+          "score": 4.73806,
+          "key": "posts:BxersHYN2qcFoonwg"
+        },
+        {
+          "index": "posts",
+          "objectID": "AfGmsjGPXN97kNp57",
+          "title": "Arguments about fast takeoff",
+          "karma": 97,
+          "score": 4.732037,
+          "key": "posts:AfGmsjGPXN97kNp57"
+        },
+        {
+          "index": "posts",
+          "objectID": "nyCHnY7T5PHPLjxmN",
+          "title": "Open question: are minimal circuits daemon-free?",
+          "karma": 92,
+          "score": 4.726766,
+          "key": "posts:nyCHnY7T5PHPLjxmN"
+        },
+        {
+          "index": "posts",
+          "objectID": "JLyWP2Y9LAruR2gi9",
+          "title": "Can we efficiently distinguish different mechanisms?",
+          "karma": 88,
+          "score": 4.7223687,
+          "key": "posts:JLyWP2Y9LAruR2gi9"
+        },
+        {
+          "index": "posts",
+          "objectID": "nRAMpjnb6Z4Qv3imF",
+          "title": "The strategy-stealing assumption",
+          "karma": 86,
+          "score": 4.7201056,
+          "key": "posts:nRAMpjnb6Z4Qv3imF"
+        },
+        {
+          "index": "comments",
+          "objectID": "eWzfmMRGAJ7BCRsuL",
+          "title": "Comment on: Timescales Matter",
+          "karma": 0,
+          "score": 4.7005186,
+          "key": "comments:eWzfmMRGAJ7BCRsuL"
+        },
+        {
+          "index": "posts",
+          "objectID": "y5eapqjYYku8Wt9wn",
+          "title": "The abruptness of nuclear weapons",
+          "karma": 47,
+          "score": 4.6637845,
+          "key": "posts:y5eapqjYYku8Wt9wn"
+        }
+      ],
+      "elapsedMs": 280.1647670000002
+    },
+    {
+      "queryId": "johnswentwroth",
+      "query": "johnswentwroth",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "MEu8MdhruX5jfGsFQ",
+          "title": "johnswentworth",
+          "karma": 64994,
+          "score": 16.434399,
+          "key": "users:MEu8MdhruX5jfGsFQ"
+        },
+        {
+          "index": "posts",
+          "objectID": "CJjT8GMitsnKc2wgG",
+          "title": "Natural abstractions are observer-dependent: a conversation with John Wentworth",
+          "karma": 40,
+          "score": 6.8395367,
+          "key": "posts:CJjT8GMitsnKc2wgG"
+        },
+        {
+          "index": "posts",
+          "objectID": "L896Fp8hLSbh8Ryei",
+          "title": "AXRP Episode 15 - Natural Abstractions with John Wentworth",
+          "karma": 34,
+          "score": 6.786204,
+          "key": "posts:L896Fp8hLSbh8Ryei"
+        },
+        {
+          "index": "posts",
+          "objectID": "kpkxKDpiRn6BNArFm",
+          "title": "Content and Takeaways from SERI MATS Training Program with John Wentworth",
+          "karma": 28,
+          "score": 6.6406984,
+          "key": "posts:kpkxKDpiRn6BNArFm"
+        },
+        {
+          "index": "posts",
+          "objectID": "327tEJuLvqSW2yf4Y",
+          "title": "Sunday September 13, 12:00PM (PT) — talks by John Wentworth, Liron and more",
+          "karma": 19,
+          "score": 6.434496,
+          "key": "posts:327tEJuLvqSW2yf4Y"
+        },
+        {
+          "index": "posts",
+          "objectID": "EKGC73CWvgmSmuNeR",
+          "title": "John Wentworth on \"Tabooing 'Should' Exercise\" [Sunday Meetup 1pm]",
+          "karma": 14,
+          "score": 6.380214,
+          "key": "posts:EKGC73CWvgmSmuNeR"
+        },
+        {
+          "index": "posts",
+          "objectID": "puv8fRDCH9jx5yhbX",
+          "title": "johnswentworth's Shortform",
+          "karma": 10,
+          "score": 6.315857,
+          "key": "posts:puv8fRDCH9jx5yhbX"
+        },
+        {
+          "index": "posts",
+          "objectID": "7fq3r4n5CCgYLfsJb",
+          "title": "Trying to understand John Wentworth's research agenda",
+          "karma": 96,
+          "score": 6.237452,
+          "key": "posts:7fq3r4n5CCgYLfsJb"
+        },
+        {
+          "index": "posts",
+          "objectID": "ahNcJGNtTX8JvMy93",
+          "title": "Dialogue on the Claim: \"OpenAI's Firing of Sam Altman (And Shortly-Subsequent Events) On Net Reduced Existential Risk From AGI\"",
+          "karma": 73,
+          "score": 6.2074137,
+          "key": "posts:ahNcJGNtTX8JvMy93"
+        },
+        {
+          "index": "posts",
+          "objectID": "nvsowCafyYZb5gqRC",
+          "title": "Summary: \"How to Write Quickly...\" by John Wentworth",
+          "karma": 4,
+          "score": 6.0778184,
+          "key": "posts:nvsowCafyYZb5gqRC"
+        },
+        {
+          "index": "posts",
+          "objectID": "T8qhPyiFPFcSZ2swC",
+          "title": "Mazes and Duality",
+          "karma": 62,
+          "score": 5.8690567,
+          "key": "posts:T8qhPyiFPFcSZ2swC"
+        },
+        {
+          "index": "posts",
+          "objectID": "TLvbXNHNvppNEkXYj",
+          "title": "Human Mimicry Mainly Works When We’re Already Close",
+          "karma": 83,
+          "score": 5.7485533,
+          "key": "posts:TLvbXNHNvppNEkXYj"
+        },
+        {
+          "index": "comments",
+          "objectID": "32MCuJgxfuLy5Eq2Y",
+          "title": "Comment on: My AI Model Delta Compared To Yudkowsky",
+          "karma": 3,
+          "score": 5.740862,
+          "key": "comments:32MCuJgxfuLy5Eq2Y"
+        },
+        {
+          "index": "posts",
+          "objectID": "Wg6ptgi2DupFuAnXG",
+          "title": "Orienting Toward Wizard Power",
+          "karma": 563,
+          "score": 4.9,
+          "key": "posts:Wg6ptgi2DupFuAnXG"
+        },
+        {
+          "index": "posts",
+          "objectID": "XvN2QQpKTuEzgkZHY",
+          "title": "Being the (Pareto) Best in the World",
+          "karma": 471,
+          "score": 4.9,
+          "key": "posts:XvN2QQpKTuEzgkZHY"
+        },
+        {
+          "index": "posts",
+          "objectID": "Psr9tnQFuEXiuqGcR",
+          "title": "How To Write Quickly While Maintaining Epistemic Rigor",
+          "karma": 456,
+          "score": 4.8978157,
+          "key": "posts:Psr9tnQFuEXiuqGcR"
+        },
+        {
+          "index": "posts",
+          "objectID": "9kNxhKWvixtKW5anS",
+          "title": "You Are Not Measuring What You Think You Are Measuring",
+          "karma": 448,
+          "score": 4.8958383,
+          "key": "posts:9kNxhKWvixtKW5anS"
+        },
+        {
+          "index": "posts",
+          "objectID": "fJvjin8ETkzhFdadC",
+          "title": "Accounting For College Costs",
+          "karma": 366,
+          "score": 4.8733406,
+          "key": "posts:fJvjin8ETkzhFdadC"
+        },
+        {
+          "index": "posts",
+          "objectID": "naAeSkQur8ueCAAfY",
+          "title": "Generalized Hangriness: A Standard Rationalist Stance Toward Emotions",
+          "karma": 359,
+          "score": 4.8712006,
+          "key": "posts:naAeSkQur8ueCAAfY"
+        },
+        {
+          "index": "posts",
+          "objectID": "8wBN8cdNAv3c7vt6p",
+          "title": "The Case Against AI Control Research",
+          "karma": 356,
+          "score": 4.8702707,
+          "key": "posts:8wBN8cdNAv3c7vt6p"
+        }
+      ],
+      "elapsedMs": 570.3765270000004
+    },
+    {
+      "queryId": "elizer-yud",
+      "query": "elizer yud",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "nmk3nLpQE89dMRzzN",
+          "title": "Eliezer Yudkowsky",
+          "karma": 166948,
+          "score": 17,
+          "key": "users:nmk3nLpQE89dMRzzN"
+        },
+        {
+          "index": "comments",
+          "objectID": "cx4ZcQTHBCz5hyijA",
+          "title": "Comment on: Rationality Quotes September 2012",
+          "karma": 39,
+          "score": 5.4709463,
+          "key": "comments:cx4ZcQTHBCz5hyijA"
+        },
+        {
+          "index": "posts",
+          "objectID": "7im8at9PmhbT4JHsW",
+          "title": "Ngo and Yudkowsky on alignment difficulty",
+          "karma": 254,
+          "score": 5.1381216,
+          "key": "posts:7im8at9PmhbT4JHsW"
+        },
+        {
+          "index": "comments",
+          "objectID": "qPtPz9gkCTJcgECqz",
+          "title": "Comment on: Wikipedia as an introduction to the alignment problem",
+          "karma": 21,
+          "score": 5.1171474,
+          "key": "comments:qPtPz9gkCTJcgECqz"
+        },
+        {
+          "index": "posts",
+          "objectID": "isSBwfgRY6zD6mycc",
+          "title": "Eliezer's Unteachable Methods of Sanity",
+          "karma": 548,
+          "score": 4.9,
+          "key": "posts:isSBwfgRY6zD6mycc"
+        },
+        {
+          "index": "posts",
+          "objectID": "uMQ3cqWDPHhjtiesc",
+          "title": "AGI Ruin: A List of Lethalities",
+          "karma": 921,
+          "score": 4.9,
+          "key": "posts:uMQ3cqWDPHhjtiesc"
+        },
+        {
+          "index": "posts",
+          "objectID": "uyBeAN5jPEATMqKkX",
+          "title": "Lies Told To Children",
+          "karma": 381,
+          "score": 4.877797,
+          "key": "posts:uyBeAN5jPEATMqKkX"
+        },
+        {
+          "index": "posts",
+          "objectID": "fbrz9xhKpEeTKw5zL",
+          "title": "Irretrievability; or, Murphy's Curse of Oneshotness upon ASI",
+          "karma": 370,
+          "score": 4.874546,
+          "key": "posts:fbrz9xhKpEeTKw5zL"
+        },
+        {
+          "index": "posts",
+          "objectID": "cujpciCqNbawBihhQ",
+          "title": "Self-Integrity and the Drowning Child",
+          "karma": 335,
+          "score": 4.8635454,
+          "key": "posts:cujpciCqNbawBihhQ"
+        },
+        {
+          "index": "posts",
+          "objectID": "keiYkaeoLHoKK4LYA",
+          "title": "Six Dimensions of Operational Adequacy in AGI Projects",
+          "karma": 310,
+          "score": 4.8549924,
+          "key": "posts:keiYkaeoLHoKK4LYA"
+        },
+        {
+          "index": "posts",
+          "objectID": "MzKKi7niyEqkBPnyu",
+          "title": "Your Cheerful Price",
+          "karma": 272,
+          "score": 4.840641,
+          "key": "posts:MzKKi7niyEqkBPnyu"
+        },
+        {
+          "index": "posts",
+          "objectID": "dhj9dhiwhq3DX6W8z",
+          "title": "Hero Licensing",
+          "karma": 241,
+          "score": 4.827449,
+          "key": "posts:dhj9dhiwhq3DX6W8z"
+        },
+        {
+          "index": "posts",
+          "objectID": "Gg9a4y8reWKtLe3Tn",
+          "title": "The Rocket Alignment Problem",
+          "karma": 227,
+          "score": 4.820958,
+          "key": "posts:Gg9a4y8reWKtLe3Tn"
+        },
+        {
+          "index": "posts",
+          "objectID": "WQFioaudEH8R7fyhm",
+          "title": "Local Validity as a Key to Sanity and Civilization",
+          "karma": 212,
+          "score": 4.813573,
+          "key": "posts:WQFioaudEH8R7fyhm"
+        },
+        {
+          "index": "posts",
+          "objectID": "EzSH9698DhBsXAcYY",
+          "title": "My current LK99 questions",
+          "karma": 206,
+          "score": 4.810481,
+          "key": "posts:EzSH9698DhBsXAcYY"
+        },
+        {
+          "index": "posts",
+          "objectID": "6KzFwcDy7hsCkzJKY",
+          "title": "The Point of Trade",
+          "karma": 175,
+          "score": 4.7930374,
+          "key": "posts:6KzFwcDy7hsCkzJKY"
+        },
+        {
+          "index": "posts",
+          "objectID": "CPP2uLcaywEokFKQG",
+          "title": "Toolbox-thinking and Law-thinking",
+          "karma": 169,
+          "score": 4.789334,
+          "key": "posts:CPP2uLcaywEokFKQG"
+        },
+        {
+          "index": "posts",
+          "objectID": "ax695frGJEzGxFBK4",
+          "title": "Biology-Inspired AGI Timelines: The Trick That Never Works",
+          "karma": 158,
+          "score": 4.782219,
+          "key": "posts:ax695frGJEzGxFBK4"
+        },
+        {
+          "index": "posts",
+          "objectID": "x5ASTMPKPowLKpLpZ",
+          "title": "Moloch's Toolbox (1/2)",
+          "karma": 154,
+          "score": 4.779519,
+          "key": "posts:x5ASTMPKPowLKpLpZ"
+        },
+        {
+          "index": "posts",
+          "objectID": "BEtzRE2M5m9YEAQpX",
+          "title": "There's No Fire Alarm for Artificial General Intelligence",
+          "karma": 150,
+          "score": 4.7767544,
+          "key": "posts:BEtzRE2M5m9YEAQpX"
+        }
+      ],
+      "elapsedMs": 571.3790559999998
+    },
+    {
+      "queryId": "evan-hubinger",
+      "query": "evan hubinger",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "AThTtkDufXp3rmMDa",
+          "title": "evhub",
+          "karma": 16374,
+          "score": 14.3821745,
+          "key": "users:AThTtkDufXp3rmMDa"
+        },
+        {
+          "index": "posts",
+          "objectID": "J76LZCC55RdHeqEhz",
+          "title": "Training a Misaligned Reward Seeker",
+          "karma": 145,
+          "score": 11.28787,
+          "key": "posts:J76LZCC55RdHeqEhz"
+        },
+        {
+          "index": "posts",
+          "objectID": "jotZXEixzToEHnrfr",
+          "title": "The Hubinger lectures on AGI safety: an introductory lecture series",
+          "karma": 126,
+          "score": 10.290657,
+          "key": "posts:jotZXEixzToEHnrfr"
+        },
+        {
+          "index": "posts",
+          "objectID": "wPLeBqsLgJyFyuTr7",
+          "title": "A distillation of Evan Hubinger's training stories (for SERI MATS)",
+          "karma": 15,
+          "score": 10.052941,
+          "key": "posts:wPLeBqsLgJyFyuTr7"
+        },
+        {
+          "index": "posts",
+          "objectID": "yRAo2KEGWenKYZG9K",
+          "title": "Discovering Language Model Behaviors with Model-Written Evaluations",
+          "karma": 100,
+          "score": 8.995678,
+          "key": "posts:yRAo2KEGWenKYZG9K"
+        },
+        {
+          "index": "comments",
+          "objectID": "qtyoNzStTDGcyAtAk",
+          "title": "Comment on: My AI Model Delta Compared To Yudkowsky",
+          "karma": 43,
+          "score": 8.977547,
+          "key": "comments:qtyoNzStTDGcyAtAk"
+        },
+        {
+          "index": "posts",
+          "objectID": "FpokmCnbP3CEZ5h4t",
+          "title": "ML Alignment Theory Program under Evan Hubinger",
+          "karma": 82,
+          "score": 8.817208,
+          "key": "posts:FpokmCnbP3CEZ5h4t"
+        },
+        {
+          "index": "posts",
+          "objectID": "EszCTbovFfpJd5C8N",
+          "title": "AXRP Episode 4 - Risks from Learned Optimization with Evan Hubinger",
+          "karma": 43,
+          "score": 8.804137,
+          "key": "posts:EszCTbovFfpJd5C8N"
+        },
+        {
+          "index": "posts",
+          "objectID": "XwXmedJAo5m4r29eu",
+          "title": "Conditioning Predictive Models: Large language models as predictors",
+          "karma": 89,
+          "score": 8.744448,
+          "key": "posts:XwXmedJAo5m4r29eu"
+        },
+        {
+          "index": "users",
+          "objectID": "wsHA3uLEPrf7cJRCE",
+          "title": "Evan Hubinger",
+          "karma": 0,
+          "score": 8.586631,
+          "key": "users:wsHA3uLEPrf7cJRCE"
+        },
+        {
+          "index": "users",
+          "objectID": "fKBDBuskLcenvvRaE",
+          "title": "Evan Hubinger",
+          "karma": 0,
+          "score": 8.586631,
+          "key": "users:fKBDBuskLcenvvRaE"
+        },
+        {
+          "index": "posts",
+          "objectID": "FkgsxrGf3QxhfLWHG",
+          "title": "Risks from Learned Optimization: Introduction",
+          "karma": 187,
+          "score": 8.308699,
+          "key": "posts:FkgsxrGf3QxhfLWHG"
+        },
+        {
+          "index": "posts",
+          "objectID": "sookiqxkzzLmPYB3r",
+          "title": "AXRP Episode 39 - Evan Hubinger on Model Organisms of Misalignment",
+          "karma": 41,
+          "score": 8.296509,
+          "key": "posts:sookiqxkzzLmPYB3r"
+        },
+        {
+          "index": "comments",
+          "objectID": "B6oDGoyphuNuzdDAT",
+          "title": "Comment on: ryan_greenblatt's Shortform",
+          "karma": 135,
+          "score": 8.227008,
+          "key": "comments:B6oDGoyphuNuzdDAT"
+        },
+        {
+          "index": "comments",
+          "objectID": "XcCJRcbF5fxYhKqCc",
+          "title": "Comment on: Shortform",
+          "karma": 26,
+          "score": 8.215585,
+          "key": "comments:XcCJRcbF5fxYhKqCc"
+        },
+        {
+          "index": "posts",
+          "objectID": "qZGoHkRgANQpGHWnu",
+          "title": "Evan Hubinger on Inner Alignment, Outer Alignment, and Proposals for Building Safe Advanced AI",
+          "karma": 35,
+          "score": 8.15037,
+          "key": "posts:qZGoHkRgANQpGHWnu"
+        },
+        {
+          "index": "comments",
+          "objectID": "zpSq5q3aJoZxnPEBJ",
+          "title": "Comment on: Florian_Dietz's Shortform",
+          "karma": 17,
+          "score": 8.144786,
+          "key": "comments:zpSq5q3aJoZxnPEBJ"
+        },
+        {
+          "index": "posts",
+          "objectID": "4XPa3xa44jAWiCkmy",
+          "title": "Risks from Learned Optimization: Conclusion and Related Work",
+          "karma": 82,
+          "score": 8.12151,
+          "key": "posts:4XPa3xa44jAWiCkmy"
+        },
+        {
+          "index": "comments",
+          "objectID": "JNAjwNiNaeTqSwkNi",
+          "title": "Comment on: Daniel Tan's Shortform",
+          "karma": 27,
+          "score": 8.102468,
+          "key": "comments:JNAjwNiNaeTqSwkNi"
+        },
+        {
+          "index": "posts",
+          "objectID": "NFfZsWrzALPdw54NL",
+          "title": "Evan Hubinger on Homogeneity in Takeoff Speeds, Learned Optimization and Interpretability",
+          "karma": 28,
+          "score": 7.9568725,
+          "key": "posts:NFfZsWrzALPdw54NL"
+        }
+      ],
+      "elapsedMs": 472.76246600000013
+    },
+    {
+      "queryId": "richard-ngo",
+      "query": "richard ngo",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "BCmzFRdQhqLPREvat",
+          "title": "Richard_Ngo",
+          "karma": 27273,
+          "score": 15.669994,
+          "key": "users:BCmzFRdQhqLPREvat"
+        },
+        {
+          "index": "posts",
+          "objectID": "FuGfR3jL3sw6r8kB4",
+          "title": "Richard Ngo's Shortform",
+          "karma": 6,
+          "score": 13.300446,
+          "key": "posts:FuGfR3jL3sw6r8kB4"
+        },
+        {
+          "index": "posts",
+          "objectID": "M3qB2BGgMNuG5oRTB",
+          "title": "A Retrospective of Richard Ngo's 2022 List of Conceptual Alignment Projects ",
+          "karma": 39,
+          "score": 10.813872,
+          "key": "posts:M3qB2BGgMNuG5oRTB"
+        },
+        {
+          "index": "posts",
+          "objectID": "oiuZjPfknKsSc5waC",
+          "title": "Commentary on AGI Safety from First Principles",
+          "karma": 81,
+          "score": 10.732777,
+          "key": "posts:oiuZjPfknKsSc5waC"
+        },
+        {
+          "index": "posts",
+          "objectID": "s4GqendqFsKzfhFzD",
+          "title": "Alignment 201 curriculum",
+          "karma": 102,
+          "score": 10.2718,
+          "key": "posts:s4GqendqFsKzfhFzD"
+        },
+        {
+          "index": "posts",
+          "objectID": "aEZgw6rHssGRqnRFa",
+          "title": "The Future of Science",
+          "karma": 21,
+          "score": 9.719944,
+          "key": "posts:aEZgw6rHssGRqnRFa"
+        },
+        {
+          "index": "posts",
+          "objectID": "gf9hhmSvpZfyfS34B",
+          "title": "Ngo's view on alignment difficulty",
+          "karma": 73,
+          "score": 9.629338,
+          "key": "posts:gf9hhmSvpZfyfS34B"
+        },
+        {
+          "index": "comments",
+          "objectID": "FhXqbsjKTktkwS6A5",
+          "title": "Comment on: Richard Ngo's Shortform",
+          "karma": 4,
+          "score": 9.273753,
+          "key": "comments:FhXqbsjKTktkwS6A5"
+        },
+        {
+          "index": "posts",
+          "objectID": "7im8at9PmhbT4JHsW",
+          "title": "Ngo and Yudkowsky on alignment difficulty",
+          "karma": 254,
+          "score": 8.94634,
+          "key": "posts:7im8at9PmhbT4JHsW"
+        },
+        {
+          "index": "users",
+          "objectID": "YzDCzBo6LaogdBzHE",
+          "title": "Richard Ngo",
+          "karma": 0,
+          "score": 8.934477,
+          "key": "users:YzDCzBo6LaogdBzHE"
+        },
+        {
+          "index": "users",
+          "objectID": "gfLB6WgFx5bxkGw4k",
+          "title": "Richard Ngo",
+          "karma": 0,
+          "score": 8.934477,
+          "key": "users:gfLB6WgFx5bxkGw4k"
+        },
+        {
+          "index": "posts",
+          "objectID": "mXKjuquNC8ivpiKWz",
+          "title": "Applications open for AGI Safety Fundamentals: Alignment Course",
+          "karma": 49,
+          "score": 8.925899,
+          "key": "posts:mXKjuquNC8ivpiKWz"
+        },
+        {
+          "index": "comments",
+          "objectID": "4qdySTmQx2cp9txCr",
+          "title": "Comment on: Wei Dai's Shortform",
+          "karma": 42,
+          "score": 8.9010725,
+          "key": "comments:4qdySTmQx2cp9txCr"
+        },
+        {
+          "index": "posts",
+          "objectID": "34Gkqus9vusXRevR8",
+          "title": "Late 2021 MIRI Conversations: AMA / Discussion",
+          "karma": 119,
+          "score": 8.813717,
+          "key": "posts:34Gkqus9vusXRevR8"
+        },
+        {
+          "index": "posts",
+          "objectID": "DJB82jKwgJE5NsWgT",
+          "title": "Some cruxes on impactful alternatives to AI policy work",
+          "karma": 165,
+          "score": 8.674087,
+          "key": "posts:DJB82jKwgJE5NsWgT"
+        },
+        {
+          "index": "comments",
+          "objectID": "Af49fvvm3jgzJzxXC",
+          "title": "Comment on: The Gentle Romance",
+          "karma": 27,
+          "score": 8.310474,
+          "key": "comments:Af49fvvm3jgzJzxXC"
+        },
+        {
+          "index": "comments",
+          "objectID": "b4fLPmzgwCKHLAdum",
+          "title": "Comment on: EJT's Shortform",
+          "karma": 34,
+          "score": 8.273774,
+          "key": "comments:b4fLPmzgwCKHLAdum"
+        },
+        {
+          "index": "posts",
+          "objectID": "tEf8fEFCkFtPyg9pm",
+          "title": "AXRP Episode 13 - First Principles of AGI Safety with Richard Ngo",
+          "karma": 24,
+          "score": 8.260078,
+          "key": "posts:tEf8fEFCkFtPyg9pm"
+        },
+        {
+          "index": "comments",
+          "objectID": "24v9RakAR3bXzsvvF",
+          "title": "Comment on: We should try to automate AI safety work asap",
+          "karma": 23,
+          "score": 8.253319,
+          "key": "comments:24v9RakAR3bXzsvvF"
+        },
+        {
+          "index": "comments",
+          "objectID": "FCK8JkvRxzyjTEWXL",
+          "title": "Comment on: Unless its governance changes, Anthropic is untrustworthy",
+          "karma": 20,
+          "score": 8.22421,
+          "key": "comments:FCK8JkvRxzyjTEWXL"
+        }
+      ],
+      "elapsedMs": 463.91651400000046
+    },
+    {
+      "queryId": "zvi",
+      "query": "zvi",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "N9zj5qpTfqmbn9dro",
+          "title": "Zvi",
+          "karma": 63409,
+          "score": 19.229948,
+          "key": "users:N9zj5qpTfqmbn9dro"
+        },
+        {
+          "index": "posts",
+          "objectID": "6bgAzPqNppojyGL2v",
+          "title": "Zvi’s 2024 In Movies",
+          "karma": 44,
+          "score": 8.8864975,
+          "key": "posts:6bgAzPqNppojyGL2v"
+        },
+        {
+          "index": "posts",
+          "objectID": "kuDKtwwbsksAW4BG2",
+          "title": "Zvi’s Thoughts on the Survival and Flourishing Fund (SFF)",
+          "karma": 193,
+          "score": 8.854116,
+          "key": "posts:kuDKtwwbsksAW4BG2"
+        },
+        {
+          "index": "posts",
+          "objectID": "J4nhntwkoxhk3XJDm",
+          "title": "Zvi’s 2025 In Movies",
+          "karma": 28,
+          "score": 8.747926,
+          "key": "posts:J4nhntwkoxhk3XJDm"
+        },
+        {
+          "index": "posts",
+          "objectID": "Yz65s2JzkmpZfE63J",
+          "title": "Zvi's Shortform",
+          "karma": 11,
+          "score": 8.6871395,
+          "key": "posts:Yz65s2JzkmpZfE63J"
+        },
+        {
+          "index": "posts",
+          "objectID": "2JCdzhJeo2gsTjv8D",
+          "title": "Zvi’s Thoughts on His 2nd Round of SFF",
+          "karma": 92,
+          "score": 8.616458,
+          "key": "posts:2JCdzhJeo2gsTjv8D"
+        },
+        {
+          "index": "posts",
+          "objectID": "ge3Jf5Hnon8wq4xqT",
+          "title": "Zvi's Manifold Markets House Rules",
+          "karma": 53,
+          "score": 8.605272,
+          "key": "posts:ge3Jf5Hnon8wq4xqT"
+        },
+        {
+          "index": "posts",
+          "objectID": "6soAYY8RzHWb9mgNL",
+          "title": "Zvi’s 2024 In Movies",
+          "karma": 10,
+          "score": 8.510359,
+          "key": "posts:6soAYY8RzHWb9mgNL"
+        },
+        {
+          "index": "posts",
+          "objectID": "bjgDmFdE8wyDKN4yE",
+          "title": "Zvi’s 2024 In Movies",
+          "karma": 10,
+          "score": 8.510359,
+          "key": "posts:bjgDmFdE8wyDKN4yE"
+        },
+        {
+          "index": "posts",
+          "objectID": "sBLSKhzEjjb9Ttctm",
+          "title": "Zvi’s 2024 In Movies",
+          "karma": 10,
+          "score": 8.510359,
+          "key": "posts:sBLSKhzEjjb9Ttctm"
+        },
+        {
+          "index": "posts",
+          "objectID": "BpexJXPpkyoKgGwCy",
+          "title": "Zvi Will Be In San Francisco January 15-21",
+          "karma": 2,
+          "score": 7.9587274,
+          "key": "posts:BpexJXPpkyoKgGwCy"
+        },
+        {
+          "index": "posts",
+          "objectID": "m9BdZgaigzSc6Dr72",
+          "title": "New York Times, Please Do Not Threaten The Safety of Scott Alexander By Revealing His True Name",
+          "karma": 153,
+          "score": 7.7236047,
+          "key": "posts:m9BdZgaigzSc6Dr72"
+        },
+        {
+          "index": "posts",
+          "objectID": "ubXpW5aNnCsGzH2r2",
+          "title": "What Belongs in my Glossary?",
+          "karma": 14,
+          "score": 7.4439254,
+          "key": "posts:ubXpW5aNnCsGzH2r2"
+        },
+        {
+          "index": "posts",
+          "objectID": "cE8B9jDoAq9Agtt2K",
+          "title": "Keeping Up Against the Joneses: Balsa’s 2025 Fundraiser",
+          "karma": 49,
+          "score": 7.4032226,
+          "key": "posts:cE8B9jDoAq9Agtt2K"
+        },
+        {
+          "index": "posts",
+          "objectID": "F7d9bCKit2mfvpKng",
+          "title": "Balsa Research 2024 Update",
+          "karma": 21,
+          "score": 7.3915734,
+          "key": "posts:F7d9bCKit2mfvpKng"
+        },
+        {
+          "index": "posts",
+          "objectID": "2YAeneeqGz6KpXWTD",
+          "title": "Announcing the DWATV Discord",
+          "karma": 20,
+          "score": 7.131532,
+          "key": "posts:2YAeneeqGz6KpXWTD"
+        },
+        {
+          "index": "comments",
+          "objectID": "qruuujiS838GoFfYr",
+          "title": "Comment on: Welcome to Less Wrong!",
+          "karma": 8,
+          "score": 7.06779,
+          "key": "comments:qruuujiS838GoFfYr"
+        },
+        {
+          "index": "posts",
+          "objectID": "v7iepLXH2KT4SDEvB",
+          "title": "AIs Will Increasingly Attempt Shenanigans",
+          "karma": 118,
+          "score": 6.8519173,
+          "key": "posts:v7iepLXH2KT4SDEvB"
+        },
+        {
+          "index": "posts",
+          "objectID": "Qk4h5cCcLmDXuuXYW",
+          "title": "Beginners’ Meditation",
+          "karma": 2,
+          "score": 6.7566915,
+          "key": "posts:Qk4h5cCcLmDXuuXYW"
+        },
+        {
+          "index": "posts",
+          "objectID": "MkwL4AcbE44yePEQx",
+          "title": "White House Will Ad Hoc Decide Who Can Individually Access GPT-5.6",
+          "karma": 80,
+          "score": 6.6453266,
+          "key": "posts:MkwL4AcbE44yePEQx"
+        }
+      ],
+      "elapsedMs": 376.26578599999993
+    },
+    {
+      "queryId": "byrne",
+      "query": "byrne",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "SCnD6W8NiztYBN39M",
+          "title": "byrnema",
+          "karma": 2653,
+          "score": 9.368862,
+          "key": "users:SCnD6W8NiztYBN39M"
+        },
+        {
+          "index": "users",
+          "objectID": "3tKQCbMWLM6wiTf8a",
+          "title": "Byrne",
+          "karma": 18,
+          "score": 7.28192,
+          "key": "users:3tKQCbMWLM6wiTf8a"
+        },
+        {
+          "index": "posts",
+          "objectID": "EFiCGc3YwadZBzvZ3",
+          "title": "Contra Byrnes on UV & cancer",
+          "karma": 78,
+          "score": 6.091426,
+          "key": "posts:EFiCGc3YwadZBzvZ3"
+        },
+        {
+          "index": "comments",
+          "objectID": "4dwvoJngwYmkpkMwX",
+          "title": "Comment on: [Intuitive self-models] 1. Preliminaries",
+          "karma": 17,
+          "score": 5.9719205,
+          "key": "comments:4dwvoJngwYmkpkMwX"
+        },
+        {
+          "index": "comments",
+          "objectID": "24v9RakAR3bXzsvvF",
+          "title": "Comment on: We should try to automate AI safety work asap",
+          "karma": 23,
+          "score": 5.934765,
+          "key": "comments:24v9RakAR3bXzsvvF"
+        },
+        {
+          "index": "comments",
+          "objectID": "eXg72oF39JzsiYu3R",
+          "title": "Comment on: AI as a science, and three obstacles to alignment strategies",
+          "karma": 11,
+          "score": 5.8086815,
+          "key": "comments:eXg72oF39JzsiYu3R"
+        },
+        {
+          "index": "comments",
+          "objectID": "kNC7ba8T7uHgSjRqT",
+          "title": "Comment on: What is autism?",
+          "karma": 8,
+          "score": 5.674185,
+          "key": "comments:kNC7ba8T7uHgSjRqT"
+        },
+        {
+          "index": "comments",
+          "objectID": "DfaLJfHErfubAY5s3",
+          "title": "Comment on: Thomas Kwa's MIRI research experience",
+          "karma": 8,
+          "score": 5.674185,
+          "key": "comments:DfaLJfHErfubAY5s3"
+        },
+        {
+          "index": "comments",
+          "objectID": "u9zdLTHqJySKP4zYK",
+          "title": "Comment on: [Prediction] We are in an Algorithmic Overhang",
+          "karma": 27,
+          "score": 5.672572,
+          "key": "comments:u9zdLTHqJySKP4zYK"
+        },
+        {
+          "index": "comments",
+          "objectID": "gX7txF9GrNcNxNMat",
+          "title": "Comment on: Those of you with lots of meditation experience: How did it influence your understanding of philosophy of mind and topics such as qualia?",
+          "karma": 8,
+          "score": 5.666362,
+          "key": "comments:gX7txF9GrNcNxNMat"
+        },
+        {
+          "index": "comments",
+          "objectID": "gQe9hezDeGvwLafx8",
+          "title": "Comment on: METR's 14h 50% Horizon Impacts The Economy More Than ASI Timelines",
+          "karma": 14,
+          "score": 5.6362967,
+          "key": "comments:gQe9hezDeGvwLafx8"
+        },
+        {
+          "index": "comments",
+          "objectID": "7A7EikzTYNrSjQpSp",
+          "title": "Comment on: Highlights: Wentworth, Shah, and Murphy on \"Retargeting the Search\"",
+          "karma": 6,
+          "score": 5.6340513,
+          "key": "comments:7A7EikzTYNrSjQpSp"
+        },
+        {
+          "index": "comments",
+          "objectID": "3Sfba279hfQEYhtEs",
+          "title": "Comment on: If your AGI definition excludes most humans, it sucks.",
+          "karma": 9,
+          "score": 5.6053495,
+          "key": "comments:3Sfba279hfQEYhtEs"
+        },
+        {
+          "index": "posts",
+          "objectID": "8Be6ZQvzhsigt5fkk",
+          "title": "A reply to Byrnes on the Free Energy Principle",
+          "karma": 28,
+          "score": 5.6018615,
+          "key": "posts:8Be6ZQvzhsigt5fkk"
+        },
+        {
+          "index": "comments",
+          "objectID": "f4RdgoQrefTZAiBp5",
+          "title": "Comment on: Does My Appearance Primarily Matter for a Romantic Partner?",
+          "karma": 5,
+          "score": 5.592339,
+          "key": "comments:f4RdgoQrefTZAiBp5"
+        },
+        {
+          "index": "comments",
+          "objectID": "5oRBfWZbZndZtGp5g",
+          "title": "Comment on: My take on Jacob Cannell’s take on AGI safety",
+          "karma": 4,
+          "score": 5.55417,
+          "key": "comments:5oRBfWZbZndZtGp5g"
+        },
+        {
+          "index": "comments",
+          "objectID": "7LZLYoELcjfQ58fBy",
+          "title": "Comment on: Rationality Quotes November 2011",
+          "karma": 13,
+          "score": 5.5467067,
+          "key": "comments:7LZLYoELcjfQ58fBy"
+        },
+        {
+          "index": "comments",
+          "objectID": "Lo8krkrRjutQvuiyN",
+          "title": "Comment on: Secular interpretations of core perennialist claims",
+          "karma": 5,
+          "score": 5.5281878,
+          "key": "comments:Lo8krkrRjutQvuiyN"
+        },
+        {
+          "index": "posts",
+          "objectID": "YfvJP6h7gjtFqA27J",
+          "title": "On Steven Byrnes' ruthless ASI, (dis)analogies with humans and alignment proposals",
+          "karma": 9,
+          "score": 5.517732,
+          "key": "posts:YfvJP6h7gjtFqA27J"
+        },
+        {
+          "index": "comments",
+          "objectID": "2GCEpvEwvP8WKoxkG",
+          "title": "Comment on: Towards_Keeperhood's Shortform",
+          "karma": 13,
+          "score": 5.500546,
+          "key": "comments:2GCEpvEwvP8WKoxkG"
+        }
+      ],
+      "elapsedMs": 205.352155999999
+    },
+    {
+      "queryId": "ryan",
+      "query": "ryan",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "dfZAq9eZxs4BB4Ji5",
+          "title": "ryan_greenblatt",
+          "karma": 29320,
+          "score": 13.858786,
+          "key": "users:dfZAq9eZxs4BB4Ji5"
+        },
+        {
+          "index": "users",
+          "objectID": "eQLqnBs9c6c6HfXcx",
+          "title": "ryan_b",
+          "karma": 5363,
+          "score": 11.498869,
+          "key": "users:eQLqnBs9c6c6HfXcx"
+        },
+        {
+          "index": "users",
+          "objectID": "9Ei4fDjtA43AEWZs2",
+          "title": "Ryan Kidd",
+          "karma": 3162,
+          "score": 10.407921,
+          "key": "users:9Ei4fDjtA43AEWZs2"
+        },
+        {
+          "index": "users",
+          "objectID": "CBkbKSCEzEK2kLQww",
+          "title": "RyanCarey",
+          "karma": 1664,
+          "score": 9.813964,
+          "key": "users:CBkbKSCEzEK2kLQww"
+        },
+        {
+          "index": "posts",
+          "objectID": "FG54euEAesRkSZuJN",
+          "title": "ryan_greenblatt's Shortform",
+          "karma": 15,
+          "score": 8.819072,
+          "key": "posts:FG54euEAesRkSZuJN"
+        },
+        {
+          "index": "posts",
+          "objectID": "tEPHGZAb63dfq2v8n",
+          "title": "How useful is mechanistic interpretability?",
+          "karma": 171,
+          "score": 8.433416,
+          "key": "posts:tEPHGZAb63dfq2v8n"
+        },
+        {
+          "index": "comments",
+          "objectID": "sfs8gH2qhac53zwqC",
+          "title": "Comment on: Getting 50% (SoTA) on ARC-AGI with GPT-4o",
+          "karma": 17,
+          "score": 7.820674,
+          "key": "comments:sfs8gH2qhac53zwqC"
+        },
+        {
+          "index": "comments",
+          "objectID": "X9GZjcfKqSRFfuQjR",
+          "title": "Comment on: Should we benchmark conceptual capabilities using judgment prediction tasks?",
+          "karma": 8,
+          "score": 7.743298,
+          "key": "comments:X9GZjcfKqSRFfuQjR"
+        },
+        {
+          "index": "posts",
+          "objectID": "wfbg2Bgi4PgwisiCc",
+          "title": "One week left for CSER researcher applications",
+          "karma": 16,
+          "score": 7.3642836,
+          "key": "posts:wfbg2Bgi4PgwisiCc"
+        },
+        {
+          "index": "posts",
+          "objectID": "WGNYAdBrsNjujJaB8",
+          "title": "Talk: AI safety fieldbuilding at MATS",
+          "karma": 26,
+          "score": 7.3423014,
+          "key": "posts:WGNYAdBrsNjujJaB8"
+        },
+        {
+          "index": "comments",
+          "objectID": "nDYcpzZgRwfuZ4LAE",
+          "title": "Comment on: MIRI 2024 Communications Strategy",
+          "karma": 5,
+          "score": 7.185456,
+          "key": "comments:nDYcpzZgRwfuZ4LAE"
+        },
+        {
+          "index": "comments",
+          "objectID": "pAqBBqPj5KpepLjdQ",
+          "title": "Comment on: faul_sname's Shortform",
+          "karma": 6,
+          "score": 7.0060673,
+          "key": "comments:pAqBBqPj5KpepLjdQ"
+        },
+        {
+          "index": "comments",
+          "objectID": "XrfxuPkTPyWwXtBEj",
+          "title": "Comment on: Getting 50% (SoTA) on ARC-AGI with GPT-4o",
+          "karma": 42,
+          "score": 6.8796105,
+          "key": "comments:XrfxuPkTPyWwXtBEj"
+        },
+        {
+          "index": "comments",
+          "objectID": "5H64rdESFnCDZ3yez",
+          "title": "Comment on: Steering Llama-2 with contrastive activation additions",
+          "karma": 10,
+          "score": 6.8692026,
+          "key": "comments:5H64rdESFnCDZ3yez"
+        },
+        {
+          "index": "comments",
+          "objectID": "hniowuWLjfmXCqJLt",
+          "title": "Comment on: Anthropic: \"Statement from Dario Amodei on our discussions with the Department of War\"",
+          "karma": 7,
+          "score": 6.8318567,
+          "key": "comments:hniowuWLjfmXCqJLt"
+        },
+        {
+          "index": "users",
+          "objectID": "Kghgx6MDub7BZdxYv",
+          "title": "Ryan",
+          "karma": 47,
+          "score": 6.811798,
+          "key": "users:Kghgx6MDub7BZdxYv"
+        },
+        {
+          "index": "users",
+          "objectID": "E2QfabeoAD6Q373Mc",
+          "title": "Ryan",
+          "karma": 0,
+          "score": 6.7669444,
+          "key": "users:E2QfabeoAD6Q373Mc"
+        },
+        {
+          "index": "users",
+          "objectID": "kHBCGbZXNo3jiqJCe",
+          "title": "ryan",
+          "karma": 0,
+          "score": 6.7669444,
+          "key": "users:kHBCGbZXNo3jiqJCe"
+        },
+        {
+          "index": "users",
+          "objectID": "RMrSWRwy5mFLimtsQ",
+          "title": "Ryan",
+          "karma": 0,
+          "score": 6.7669444,
+          "key": "users:RMrSWRwy5mFLimtsQ"
+        },
+        {
+          "index": "posts",
+          "objectID": "9auCLJg3Z77dFdYhR",
+          "title": "The OpenAI/Huggingface incident | Redwood Research podcast episode 2",
+          "karma": 85,
+          "score": 6.7114305,
+          "key": "posts:9auCLJg3Z77dFdYhR"
+        }
+      ],
+      "elapsedMs": 234.37731799999892
+    },
+    {
+      "queryId": "roko",
+      "query": "roko",
+      "hits": [
+        {
+          "index": "users",
+          "objectID": "73WJbnX59kE4afuuY",
+          "title": "Roko",
+          "karma": 6389,
+          "score": 13.622098,
+          "key": "users:73WJbnX59kE4afuuY"
+        },
+        {
+          "index": "comments",
+          "objectID": "mpB6n6Lm9pjeEpJGT",
+          "title": "Comment on: Spock's Dirty Little Secret",
+          "karma": 3,
+          "score": 7.3001986,
+          "key": "comments:mpB6n6Lm9pjeEpJGT"
+        },
+        {
+          "index": "comments",
+          "objectID": "kkLPNkmv4kGWTGD3T",
+          "title": "Comment on: The Problem",
+          "karma": 2,
+          "score": 7.167257,
+          "key": "comments:kkLPNkmv4kGWTGD3T"
+        },
+        {
+          "index": "comments",
+          "objectID": "GYtJuagKBcbjboEKq",
+          "title": "Comment on: The Problem",
+          "karma": 4,
+          "score": 7.1455655,
+          "key": "comments:GYtJuagKBcbjboEKq"
+        },
+        {
+          "index": "comments",
+          "objectID": "DbbwKQQBSg5tobwym",
+          "title": "Comment on: Savulescu: \"Genetically enhance humanity or face extinction\"",
+          "karma": 0,
+          "score": 7.083974,
+          "key": "comments:DbbwKQQBSg5tobwym"
+        },
+        {
+          "index": "comments",
+          "objectID": "sFzjfhYZtnKWmriGq",
+          "title": "Comment on: Anthropomorphic Optimism",
+          "karma": 0,
+          "score": 6.948455,
+          "key": "comments:sFzjfhYZtnKWmriGq"
+        },
+        {
+          "index": "comments",
+          "objectID": "r9dwBHtcNuPCKhjGp",
+          "title": "Comment on: The Fun Theory Sequence",
+          "karma": 0,
+          "score": 6.9462376,
+          "key": "comments:r9dwBHtcNuPCKhjGp"
+        },
+        {
+          "index": "comments",
+          "objectID": "84TqooeZuLZDWMbZa",
+          "title": "Comment on: (One reason) why capitalism is much maligned",
+          "karma": 5,
+          "score": 6.874035,
+          "key": "comments:84TqooeZuLZDWMbZa"
+        },
+        {
+          "index": "comments",
+          "objectID": "oqe5s7Wtth38weyji",
+          "title": "Comment on: Abnormal Cryonics",
+          "karma": 0,
+          "score": 6.8403273,
+          "key": "comments:oqe5s7Wtth38weyji"
+        },
+        {
+          "index": "comments",
+          "objectID": "c7B2aB3GzaB5ooDQj",
+          "title": "Comment on: Do you have High-Functioning Asperger's Syndrome?",
+          "karma": 0,
+          "score": 6.82205,
+          "key": "comments:c7B2aB3GzaB5ooDQj"
+        },
+        {
+          "index": "posts",
+          "objectID": "kxZD8ycCqK9bccGkf",
+          "title": "Competition to write the best stand-alone article on efficient charity",
+          "karma": 16,
+          "score": 6.7853174,
+          "key": "posts:kxZD8ycCqK9bccGkf"
+        },
+        {
+          "index": "comments",
+          "objectID": "jFmtqBAM3nt6K9sw2",
+          "title": "Comment on: My Naturalistic Awakening",
+          "karma": 0,
+          "score": 6.715253,
+          "key": "comments:jFmtqBAM3nt6K9sw2"
+        },
+        {
+          "index": "comments",
+          "objectID": "KX7KnzxCFg3m25drb",
+          "title": "Comment on: Missed opportunities for doing well by doing good",
+          "karma": 0,
+          "score": 6.6247225,
+          "key": "comments:KX7KnzxCFg3m25drb"
+        },
+        {
+          "index": "posts",
+          "objectID": "WBJZoeJypcNRmsdHx",
+          "title": "A few misconceptions surrounding Roko's basilisk",
+          "karma": 90,
+          "score": 6.609006,
+          "key": "posts:WBJZoeJypcNRmsdHx"
+        },
+        {
+          "index": "comments",
+          "objectID": "tSptY4bqRNbMyjqCD",
+          "title": "Comment on: Rationalists should beware rationalism",
+          "karma": 0,
+          "score": 6.581085,
+          "key": "comments:tSptY4bqRNbMyjqCD"
+        },
+        {
+          "index": "comments",
+          "objectID": "muNxt8kf2AwjKxT4w",
+          "title": "Comment on: What just happened? A retrospective of AI alignment",
+          "karma": 98,
+          "score": 6.46007,
+          "key": "comments:muNxt8kf2AwjKxT4w"
+        },
+        {
+          "index": "posts",
+          "objectID": "w2mC29nvmLbcua9yo",
+          "title": "MWI, copies and probability",
+          "karma": 19,
+          "score": 6.42986,
+          "key": "posts:w2mC29nvmLbcua9yo"
+        },
+        {
+          "index": "tags",
+          "objectID": "5f5c37ee1b5cdee568cfb326",
+          "title": "Roko's Basilisk",
+          "karma": 5,
+          "score": 6.254286,
+          "key": "tags:5f5c37ee1b5cdee568cfb326"
+        },
+        {
+          "index": "comments",
+          "objectID": "dt9avsBNNboKrZvLp",
+          "title": "Comment on: Thoughts on the Singularity Institute (SI)",
+          "karma": 46,
+          "score": 6.1935644,
+          "key": "comments:dt9avsBNNboKrZvLp"
+        },
+        {
+          "index": "comments",
+          "objectID": "mM3rTvfoni6iRPQ2r",
+          "title": "Comment on: Thoughts on the Singularity Institute (SI)",
+          "karma": 21,
+          "score": 6.180073,
+          "key": "comments:mM3rTvfoni6iRPQ2r"
+        }
+      ],
+      "elapsedMs": 200.45258099999955
+    },
+    {
+      "queryId": "neel-nanda-how-to-become-an-interpretabi",
+      "query": "neel nanda how to become an interpretability",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "jP9KDyMkchuv6tHwm",
+          "title": "How To Become A Mechanistic Interpretability Researcher",
+          "karma": 109,
+          "score": 10.482563,
+          "key": "posts:jP9KDyMkchuv6tHwm"
+        },
+        {
+          "index": "posts",
+          "objectID": "uK6sQCNMw8WKzJeCQ",
+          "title": "A Longlist of Theories of Impact for Interpretability",
+          "karma": 127,
+          "score": 8.933207,
+          "key": "posts:uK6sQCNMw8WKzJeCQ"
+        },
+        {
+          "index": "posts",
+          "objectID": "G9HdpyREaCbFJjKu5",
+          "title": "It Is Reasonable To Research How To Use Model Internals In Training",
+          "karma": 122,
+          "score": 8.196914,
+          "key": "posts:G9HdpyREaCbFJjKu5"
+        },
+        {
+          "index": "comments",
+          "objectID": "QbNsyhFMRm29EJejW",
+          "title": "Comment on: New LessWrong Editor! (Also, an update to our LLM policy.)",
+          "karma": 57,
+          "score": 8.116183,
+          "key": "comments:QbNsyhFMRm29EJejW"
+        },
+        {
+          "index": "posts",
+          "objectID": "N6WM6hs7RQMKDhYjB",
+          "title": "A Mechanistic Interpretability Analysis of Grokking",
+          "karma": 373,
+          "score": 7.965813,
+          "key": "posts:N6WM6hs7RQMKDhYjB"
+        },
+        {
+          "index": "posts",
+          "objectID": "MnkeepcGirnJn736j",
+          "title": "How Can Interpretability Researchers Help AGI Go Well?",
+          "karma": 68,
+          "score": 7.805032,
+          "key": "posts:MnkeepcGirnJn736j"
+        },
+        {
+          "index": "posts",
+          "objectID": "StENzDcD3kpfGJssR",
+          "title": "A Pragmatic Vision for Interpretability",
+          "karma": 140,
+          "score": 7.625519,
+          "key": "posts:StENzDcD3kpfGJssR"
+        },
+        {
+          "index": "posts",
+          "objectID": "SQ9cZtfrzDJmw9A2m",
+          "title": "My Overview of the AI Alignment Landscape: A Bird's Eye View",
+          "karma": 127,
+          "score": 7.6092987,
+          "key": "posts:SQ9cZtfrzDJmw9A2m"
+        },
+        {
+          "index": "posts",
+          "objectID": "nmxzr2zsjNtjaHh7x",
+          "title": "Actually, Othello-GPT Has A Linear Emergent World Representation",
+          "karma": 214,
+          "score": 7.512173,
+          "key": "posts:nmxzr2zsjNtjaHh7x"
+        },
+        {
+          "index": "posts",
+          "objectID": "PwnadG4BFjaER3MGf",
+          "title": "Interpretability Will Not Reliably Find Deceptive AI",
+          "karma": 327,
+          "score": 7.4793983,
+          "key": "posts:PwnadG4BFjaER3MGf"
+        },
+        {
+          "index": "posts",
+          "objectID": "qgK7smTvJ4DB8rZ6h",
+          "title": "Othello-GPT: Future Work I Am Excited About",
+          "karma": 48,
+          "score": 7.455252,
+          "key": "posts:qgK7smTvJ4DB8rZ6h"
+        },
+        {
+          "index": "posts",
+          "objectID": "fKuugaxt2XLTkASkk",
+          "title": "Open Source Replication & Commentary on Anthropic's Dictionary Learning Paper",
+          "karma": 93,
+          "score": 7.4369946,
+          "key": "posts:fKuugaxt2XLTkASkk"
+        },
+        {
+          "index": "posts",
+          "objectID": "pfibDHFZ3waBo6pAc",
+          "title": "Intentionally Making Close Friends",
+          "karma": 289,
+          "score": 7.295942,
+          "key": "posts:pfibDHFZ3waBo6pAc"
+        },
+        {
+          "index": "posts",
+          "objectID": "3DFBbPFZyscrAiTKS",
+          "title": "My Overview of the AI Alignment Landscape: Threat Models",
+          "karma": 52,
+          "score": 7.1076894,
+          "key": "posts:3DFBbPFZyscrAiTKS"
+        },
+        {
+          "index": "comments",
+          "objectID": "yrqNDZ7ubJ7Pfd4jQ",
+          "title": "Comment on: Agentic Interpretability: A Strategy Against Gradual Disempowerment",
+          "karma": 5,
+          "score": 7.099196,
+          "key": "comments:yrqNDZ7ubJ7Pfd4jQ"
+        },
+        {
+          "index": "posts",
+          "objectID": "C5KAZQib3bzzpeyrg",
+          "title": "[Full Post] Progress Update #1 from the GDM Mech Interp Team",
+          "karma": 80,
+          "score": 7.095296,
+          "key": "posts:C5KAZQib3bzzpeyrg"
+        },
+        {
+          "index": "posts",
+          "objectID": "tEPHGZAb63dfq2v8n",
+          "title": "How useful is mechanistic interpretability?",
+          "karma": 171,
+          "score": 7.073636,
+          "key": "posts:tEPHGZAb63dfq2v8n"
+        },
+        {
+          "index": "posts",
+          "objectID": "btasQF7wiCYPsr5qw",
+          "title": "200 COP in MI: Techniques, Tooling and Automation",
+          "karma": 13,
+          "score": 7.050705,
+          "key": "posts:btasQF7wiCYPsr5qw"
+        },
+        {
+          "index": "posts",
+          "objectID": "JZrN4ckaCfd6J37cG",
+          "title": "How I Formed My Own Views About AI Safety",
+          "karma": 64,
+          "score": 7.0429606,
+          "key": "posts:JZrN4ckaCfd6J37cG"
+        },
+        {
+          "index": "posts",
+          "objectID": "zFJ3ZdQwrTWE9jT5S",
+          "title": "A Review of Anthropic's Global Workspace Paper",
+          "karma": 135,
+          "score": 7.0338774,
+          "key": "posts:zFJ3ZdQwrTWE9jT5S"
+        }
+      ],
+      "elapsedMs": 1202.8942100000004
+    },
+    {
+      "queryId": "elizabeth-nice-things",
+      "query": "elizabeth nice things",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "rBauzJHPYaanPJ7Br",
+          "title": "Why can’t we have nice things? Like, specifically?",
+          "karma": 57,
+          "score": 10.939788,
+          "key": "posts:rBauzJHPYaanPJ7Br"
+        },
+        {
+          "index": "posts",
+          "objectID": "9fB4gvoooNYa4t56S",
+          "title": "Power Buys You Distance From The Crime",
+          "karma": 211,
+          "score": 8.305088,
+          "key": "posts:9fB4gvoooNYa4t56S"
+        },
+        {
+          "index": "posts",
+          "objectID": "t4Fw9PmQf7M4LPt6b",
+          "title": "Review: Martyr Made Podcast",
+          "karma": 22,
+          "score": 7.5284057,
+          "key": "posts:t4Fw9PmQf7M4LPt6b"
+        },
+        {
+          "index": "comments",
+          "objectID": "dGr3ri7Ch5Bspw8y8",
+          "title": "Comment on: Elizabeth's Shortform",
+          "karma": 10,
+          "score": 7.4516444,
+          "key": "comments:dGr3ri7Ch5Bspw8y8"
+        },
+        {
+          "index": "posts",
+          "objectID": "uGDtroD26aLvHSoK2",
+          "title": "Dear Self; we need to talk about ambition",
+          "karma": 271,
+          "score": 7.4272738,
+          "key": "posts:uGDtroD26aLvHSoK2"
+        },
+        {
+          "index": "posts",
+          "objectID": "jnac43sBH85L4kxsm",
+          "title": "The Good Life in the face of the apocalypse",
+          "karma": 83,
+          "score": 7.181918,
+          "key": "posts:jnac43sBH85L4kxsm"
+        },
+        {
+          "index": "posts",
+          "objectID": "RxNDymKaqyagGyu2b",
+          "title": "Luck Based Medicine: No Good Very Bad Winter Cured My Hypothyroidism",
+          "karma": 55,
+          "score": 6.6935544,
+          "key": "posts:RxNDymKaqyagGyu2b"
+        },
+        {
+          "index": "posts",
+          "objectID": "cY43KWjamafLbij9C",
+          "title": "Truthseeking, EA, Simulacra levels, and other stuff",
+          "karma": 45,
+          "score": 6.6921806,
+          "key": "posts:cY43KWjamafLbij9C"
+        },
+        {
+          "index": "posts",
+          "objectID": "fubHaLebjJRnbEkHc",
+          "title": "Follow up to medical miracle",
+          "karma": 78,
+          "score": 6.6102514,
+          "key": "posts:fubHaLebjJRnbEkHc"
+        },
+        {
+          "index": "posts",
+          "objectID": "cDZLoKMwhzJA7PfGz",
+          "title": "Knowing I’m Being Tricked is Barely Enough",
+          "karma": 38,
+          "score": 6.585304,
+          "key": "posts:cDZLoKMwhzJA7PfGz"
+        },
+        {
+          "index": "posts",
+          "objectID": "CJC6N4xu2T6Km7w54",
+          "title": "Literature Review: Risks of MDMA\n",
+          "karma": 67,
+          "score": 6.5292625,
+          "key": "posts:CJC6N4xu2T6Km7w54"
+        },
+        {
+          "index": "posts",
+          "objectID": "NBZvpcBx4ewqkdCdT",
+          "title": "Do you believe in hundred dollar bills lying on the ground? Consider humming",
+          "karma": 122,
+          "score": 6.5242662,
+          "key": "posts:NBZvpcBx4ewqkdCdT"
+        },
+        {
+          "index": "comments",
+          "objectID": "PRbJa8G8dXYM6jow5",
+          "title": "Comment on: Sharing Information About Nonlinear",
+          "karma": 31,
+          "score": 6.502216,
+          "key": "comments:PRbJa8G8dXYM6jow5"
+        },
+        {
+          "index": "posts",
+          "objectID": "oPn3gxsDMRJwmvYsj",
+          "title": "Long Covid Informal Study Results",
+          "karma": 43,
+          "score": 6.4895487,
+          "key": "posts:oPn3gxsDMRJwmvYsj"
+        },
+        {
+          "index": "posts",
+          "objectID": "3EJtswTKC9fNAzqgR",
+          "title": "Luck Based Medicine: No Good Very Bad Winter Cured My Hypothyroidism",
+          "karma": 9,
+          "score": 6.4838552,
+          "key": "posts:3EJtswTKC9fNAzqgR"
+        },
+        {
+          "index": "posts",
+          "objectID": "YFqRrmbuB5sJvnFyu",
+          "title": "Things I learned from reddit fashion",
+          "karma": 50,
+          "score": 6.3808823,
+          "key": "posts:YFqRrmbuB5sJvnFyu"
+        },
+        {
+          "index": "posts",
+          "objectID": "QzXcfodC7nTxWC4DP",
+          "title": "Feedback loops for exercise (VO2Max)",
+          "karma": 65,
+          "score": 6.372446,
+          "key": "posts:QzXcfodC7nTxWC4DP"
+        },
+        {
+          "index": "posts",
+          "objectID": "kjbq7T7Z2vEDoPw95",
+          "title": "Ketamine part 2: What do in vitro studies tell us about safety?",
+          "karma": 44,
+          "score": 6.3032227,
+          "key": "posts:kjbq7T7Z2vEDoPw95"
+        },
+        {
+          "index": "posts",
+          "objectID": "ZYfCjz3Wi5FNRtBAH",
+          "title": "Ketamine Part 1: Dosing",
+          "karma": 25,
+          "score": 6.2028875,
+          "key": "posts:ZYfCjz3Wi5FNRtBAH"
+        },
+        {
+          "index": "posts",
+          "objectID": "jB57GvmR4rSSgKgWG",
+          "title": "Feedback loops for exercise (VO2Max)",
+          "karma": 9,
+          "score": 6.1734276,
+          "key": "posts:jB57GvmR4rSSgKgWG"
+        }
+      ],
+      "elapsedMs": 544.4267629999995
+    },
+    {
+      "queryId": "access-past-memories",
+      "query": "access past memories",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "i9xyZBS3qzA8nFXNQ",
+          "title": "Book summary: Unlocking the Emotional Brain",
+          "karma": 331,
+          "score": 6.343318,
+          "key": "posts:i9xyZBS3qzA8nFXNQ"
+        },
+        {
+          "index": "comments",
+          "objectID": "TRHDRgjfPpkkpqkJ9",
+          "title": "Comment on: Harry Potter and the Methods of Rationality discussion thread, part 23, chapter 94 ",
+          "karma": 16,
+          "score": 6.0682893,
+          "key": "comments:TRHDRgjfPpkkpqkJ9"
+        },
+        {
+          "index": "comments",
+          "objectID": "meJHSjoYvQr7uhxeP",
+          "title": "Comment on: Ideologies Embed Taboos Against Common Knowledge Formation: a Case Study with LLMs",
+          "karma": 14,
+          "score": 5.8508606,
+          "key": "comments:meJHSjoYvQr7uhxeP"
+        },
+        {
+          "index": "posts",
+          "objectID": "5gfqG3Xcopscta3st",
+          "title": "Building up to an Internal Family Systems model",
+          "karma": 288,
+          "score": 5.790871,
+          "key": "posts:5gfqG3Xcopscta3st"
+        },
+        {
+          "index": "comments",
+          "objectID": "KJCEvGF8rjMvyczRA",
+          "title": "Comment on: \"Which Future Mind is Me?\" Is a Question of Values",
+          "karma": 2,
+          "score": 5.720042,
+          "key": "comments:KJCEvGF8rjMvyczRA"
+        },
+        {
+          "index": "comments",
+          "objectID": "KGszMyzkqskYHZxnG",
+          "title": "Comment on: Comment on \"Death and the Gorgon\"",
+          "karma": 14,
+          "score": 5.705765,
+          "key": "comments:KGszMyzkqskYHZxnG"
+        },
+        {
+          "index": "posts",
+          "objectID": "7zQPYQB5EeaqLrhBh",
+          "title": "Subagents, neural Turing machines, thought selection, and blindspots",
+          "karma": 87,
+          "score": 5.6302085,
+          "key": "posts:7zQPYQB5EeaqLrhBh"
+        },
+        {
+          "index": "comments",
+          "objectID": "YyHkaWSG4qF8thHZW",
+          "title": "Comment on: When is a mind me?",
+          "karma": 4,
+          "score": 5.60582,
+          "key": "comments:YyHkaWSG4qF8thHZW"
+        },
+        {
+          "index": "comments",
+          "objectID": "edxgs3EyYsZGx4mNc",
+          "title": "Comment on: 1a3orn's Shortform",
+          "karma": 15,
+          "score": 5.6036453,
+          "key": "comments:edxgs3EyYsZGx4mNc"
+        },
+        {
+          "index": "comments",
+          "objectID": "i2zpnxT4tgvhBFnsX",
+          "title": "Comment on: Martín Soto's Shortform",
+          "karma": 4,
+          "score": 5.5733685,
+          "key": "comments:i2zpnxT4tgvhBFnsX"
+        },
+        {
+          "index": "posts",
+          "objectID": "umv3DpkCGKt5ppHqn",
+          "title": "Managing one's memory effectively",
+          "karma": 28,
+          "score": 5.564987,
+          "key": "posts:umv3DpkCGKt5ppHqn"
+        },
+        {
+          "index": "comments",
+          "objectID": "JuL4amSK4BLHWzpmf",
+          "title": "Comment on: The Meditation on Curiosity",
+          "karma": 8,
+          "score": 5.510252,
+          "key": "comments:JuL4amSK4BLHWzpmf"
+        },
+        {
+          "index": "comments",
+          "objectID": "Y7XpwYvYrqnKCDBCe",
+          "title": "Comment on: Deontology for Consequentialists",
+          "karma": 9,
+          "score": 5.506797,
+          "key": "comments:Y7XpwYvYrqnKCDBCe"
+        },
+        {
+          "index": "comments",
+          "objectID": "xQCye2o4nZRfRCzkX",
+          "title": "Comment on: On the CrowdStrike Incident",
+          "karma": 7,
+          "score": 5.5024905,
+          "key": "comments:xQCye2o4nZRfRCzkX"
+        },
+        {
+          "index": "posts",
+          "objectID": "x4n4jcoDP7xh5LWLq",
+          "title": "Book Summary: Consciousness and the Brain",
+          "karma": 177,
+          "score": 5.4891887,
+          "key": "posts:x4n4jcoDP7xh5LWLq"
+        },
+        {
+          "index": "posts",
+          "objectID": "zumPKp3zPDGsppFcF",
+          "title": "Anthropic is (probably) not meeting its RSP security commitments",
+          "karma": 131,
+          "score": 5.4869685,
+          "key": "posts:zumPKp3zPDGsppFcF"
+        },
+        {
+          "index": "posts",
+          "objectID": "G4XKiJ2Q93JGCJxCT",
+          "title": "The Bayesian Agent",
+          "karma": 19,
+          "score": 5.483497,
+          "key": "posts:G4XKiJ2Q93JGCJxCT"
+        },
+        {
+          "index": "comments",
+          "objectID": "os7YjivhkCdxqMiu5",
+          "title": "Comment on: The Joke",
+          "karma": 2,
+          "score": 5.472478,
+          "key": "comments:os7YjivhkCdxqMiu5"
+        },
+        {
+          "index": "comments",
+          "objectID": "pj8vC7NbAxS6CW8m3",
+          "title": "Comment on: An attempt to dissolve subjective expectation and personal identity",
+          "karma": 4,
+          "score": 5.4712505,
+          "key": "comments:pj8vC7NbAxS6CW8m3"
+        },
+        {
+          "index": "posts",
+          "objectID": "oCaCrxocd8vtQkbHi",
+          "title": "A cognitive algorithm for \"free will.\"",
+          "karma": 23,
+          "score": 5.4446683,
+          "key": "posts:oCaCrxocd8vtQkbHi"
+        }
+      ],
+      "elapsedMs": 484.58266299999923
+    },
+    {
+      "queryId": "cal-newport",
+      "query": "cal newport",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "Rr3aMtvCHk26egxDi",
+          "title": "A summary and broad points of agreement and disagreement with Cal Newport's book on high school extracurriculars",
+          "karma": 16,
+          "score": 10.7589855,
+          "key": "posts:Rr3aMtvCHk26egxDi"
+        },
+        {
+          "index": "comments",
+          "objectID": "zfKwtLRYmyzSmL6n3",
+          "title": "Comment on: Ian McKenzie's Shortform",
+          "karma": 23,
+          "score": 8.246727,
+          "key": "comments:zfKwtLRYmyzSmL6n3"
+        },
+        {
+          "index": "posts",
+          "objectID": "WPWfNKxYnbAHxc7Sm",
+          "title": "Book Review: So Good They Can’t Ignore You, by Cal Newport",
+          "karma": 43,
+          "score": 7.992443,
+          "key": "posts:WPWfNKxYnbAHxc7Sm"
+        },
+        {
+          "index": "comments",
+          "objectID": "2veMNNw2x9Evy6ict",
+          "title": "Comment on: Daniel Tan's Shortform",
+          "karma": 10,
+          "score": 7.8046536,
+          "key": "comments:2veMNNw2x9Evy6ict"
+        },
+        {
+          "index": "comments",
+          "objectID": "k9jQTqssThdJLgXsQ",
+          "title": "Comment on: Open Thread With Experimental Feature: Reactions",
+          "karma": 9,
+          "score": 7.777912,
+          "key": "comments:k9jQTqssThdJLgXsQ"
+        },
+        {
+          "index": "comments",
+          "objectID": "XfC9jEm9vniaX2Dcp",
+          "title": "Comment on: Open Thread, April 15-30, 2013 ",
+          "karma": 13,
+          "score": 7.7561517,
+          "key": "comments:XfC9jEm9vniaX2Dcp"
+        },
+        {
+          "index": "comments",
+          "objectID": "Gwuxpmk4jwSBo8ZDG",
+          "title": "Comment on: Signaling isn't about signaling, it's about Goodhart",
+          "karma": 9,
+          "score": 7.7317357,
+          "key": "comments:Gwuxpmk4jwSBo8ZDG"
+        },
+        {
+          "index": "comments",
+          "objectID": "oxCpxbeNPrN9tNMRo",
+          "title": "Comment on: Instrumental rationality for overcoming disability and lifestyle failure (a specific case)",
+          "karma": 5,
+          "score": 7.3417015,
+          "key": "comments:oxCpxbeNPrN9tNMRo"
+        },
+        {
+          "index": "comments",
+          "objectID": "mFEgiqXpjDbKQLDg9",
+          "title": "Comment on: Ian McKenzie's Shortform",
+          "karma": 4,
+          "score": 7.327224,
+          "key": "comments:mFEgiqXpjDbKQLDg9"
+        },
+        {
+          "index": "posts",
+          "objectID": "P3zrurj5hHKFKDL3M",
+          "title": "Productivity: Working towards a summary of what we know",
+          "karma": 94,
+          "score": 7.3131056,
+          "key": "posts:P3zrurj5hHKFKDL3M"
+        },
+        {
+          "index": "comments",
+          "objectID": "k32N2knkpE4FJZeaF",
+          "title": "Comment on: Open Thread, April 15-30, 2013 ",
+          "karma": 5,
+          "score": 7.304718,
+          "key": "comments:k32N2knkpE4FJZeaF"
+        },
+        {
+          "index": "comments",
+          "objectID": "CaEoRTNMNXZ7BEhZp",
+          "title": "Comment on: Ian McKenzie's Shortform",
+          "karma": 4,
+          "score": 7.2427144,
+          "key": "comments:CaEoRTNMNXZ7BEhZp"
+        },
+        {
+          "index": "posts",
+          "objectID": "bgu4qkr6KjkA6unbZ",
+          "title": "Against podcasts",
+          "karma": 35,
+          "score": 7.2112646,
+          "key": "posts:bgu4qkr6KjkA6unbZ"
+        },
+        {
+          "index": "comments",
+          "objectID": "tiYRvpo2LKjeeigMz",
+          "title": "Comment on: Looking Back On Ads",
+          "karma": 3,
+          "score": 7.199172,
+          "key": "comments:tiYRvpo2LKjeeigMz"
+        },
+        {
+          "index": "comments",
+          "objectID": "EByvKhBa67NGvseSz",
+          "title": "Comment on: Childhoods of exceptional people",
+          "karma": 6,
+          "score": 7.08064,
+          "key": "comments:EByvKhBa67NGvseSz"
+        },
+        {
+          "index": "comments",
+          "objectID": "2TiTwQi6S8HKkDX6W",
+          "title": "Comment on: [Link] Holistic learning ebook",
+          "karma": 2,
+          "score": 7.066696,
+          "key": "comments:2TiTwQi6S8HKkDX6W"
+        },
+        {
+          "index": "comments",
+          "objectID": "K6y6u9KiydA9ZzTLM",
+          "title": "Comment on: Learning programming: so I've learned the basics of Python, what next?",
+          "karma": 2,
+          "score": 6.9208984,
+          "key": "comments:K6y6u9KiydA9ZzTLM"
+        },
+        {
+          "index": "posts",
+          "objectID": "rZXcwEgXWbHjLemAM",
+          "title": "The failed simulation effect and its implications for the optimization of extracurricular activities",
+          "karma": 18,
+          "score": 6.8542237,
+          "key": "posts:rZXcwEgXWbHjLemAM"
+        },
+        {
+          "index": "posts",
+          "objectID": "iiRBTXfyfSKFdvPbu",
+          "title": "What are the deciding factors of human cognitive endurance?",
+          "karma": 22,
+          "score": 6.8445306,
+          "key": "posts:iiRBTXfyfSKFdvPbu"
+        },
+        {
+          "index": "comments",
+          "objectID": "mh8ZpTYNq9YirzMr7",
+          "title": "Comment on: Don't Judge a Tool by its Average Output",
+          "karma": 1,
+          "score": 6.8031693,
+          "key": "comments:mh8ZpTYNq9YirzMr7"
+        }
+      ],
+      "elapsedMs": 259.66799500000343
+    },
+    {
+      "queryId": "lab-automation",
+      "query": "lab automation",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "Zwb2TxaoGv73t9CW4",
+          "title": "Heuristics for lab robotics, and where its future may go ",
+          "karma": 80,
+          "score": 7.7229867,
+          "key": "posts:Zwb2TxaoGv73t9CW4"
+        },
+        {
+          "index": "comments",
+          "objectID": "nBwdzhd5wKw6Ma4NR",
+          "title": "Comment on: Mikhail Samin's Shortform",
+          "karma": 30,
+          "score": 7.3544297,
+          "key": "comments:nBwdzhd5wKw6Ma4NR"
+        },
+        {
+          "index": "comments",
+          "objectID": "i5Fmn2jYWNsF4JjQj",
+          "title": "Comment on: CMLKevin's Shortform",
+          "karma": 3,
+          "score": 7.1519427,
+          "key": "comments:i5Fmn2jYWNsF4JjQj"
+        },
+        {
+          "index": "comments",
+          "objectID": "A7JvHyaHwys7Pporb",
+          "title": "Comment on: Heuristics for lab robotics, and where its future may go ",
+          "karma": 4,
+          "score": 6.9692416,
+          "key": "comments:A7JvHyaHwys7Pporb"
+        },
+        {
+          "index": "comments",
+          "objectID": "v5Yc8GbKjTjYSoJxF",
+          "title": "Comment on: DW11's Shortform",
+          "karma": 167,
+          "score": 6.8781757,
+          "key": "comments:v5Yc8GbKjTjYSoJxF"
+        },
+        {
+          "index": "comments",
+          "objectID": "xvdZzCXDkMWmJDJsR",
+          "title": "Comment on: Building AI Research Fleets",
+          "karma": 9,
+          "score": 6.7687345,
+          "key": "comments:xvdZzCXDkMWmJDJsR"
+        },
+        {
+          "index": "posts",
+          "objectID": "CceeaaArnQDjJqxq4",
+          "title": "New Foresight Longevity Bio & Molecular Nano Grants Program",
+          "karma": 11,
+          "score": 6.6490107,
+          "key": "posts:CceeaaArnQDjJqxq4"
+        },
+        {
+          "index": "comments",
+          "objectID": "LMnqcZFfDzdvAz9ts",
+          "title": "Comment on: jacquesthibs's Shortform",
+          "karma": 31,
+          "score": 6.629791,
+          "key": "comments:LMnqcZFfDzdvAz9ts"
+        },
+        {
+          "index": "comments",
+          "objectID": "aAGkceicoheAHYWh8",
+          "title": "Comment on: sarahconstantin's Shortform",
+          "karma": 5,
+          "score": 6.4949517,
+          "key": "comments:aAGkceicoheAHYWh8"
+        },
+        {
+          "index": "comments",
+          "objectID": "esmRAhz8tzqY7hT7W",
+          "title": "Comment on: Whole Brain Emulation: No Progress on C. elegans After 10 Years",
+          "karma": 61,
+          "score": 6.4825687,
+          "key": "comments:esmRAhz8tzqY7hT7W"
+        },
+        {
+          "index": "comments",
+          "objectID": "4CFtmD82YmnXxrcw2",
+          "title": "Comment on: Mikhail Samin's Shortform",
+          "karma": 41,
+          "score": 6.472131,
+          "key": "comments:4CFtmD82YmnXxrcw2"
+        },
+        {
+          "index": "comments",
+          "objectID": "cNaprsyxzRH6tcXC6",
+          "title": "Comment on: Jonas Hallgren's Shortform",
+          "karma": 32,
+          "score": 6.467204,
+          "key": "comments:cNaprsyxzRH6tcXC6"
+        },
+        {
+          "index": "posts",
+          "objectID": "ygFc4caQ6Nws62dSW",
+          "title": "Bioinfohazards",
+          "karma": 87,
+          "score": 6.428946,
+          "key": "posts:ygFc4caQ6Nws62dSW"
+        },
+        {
+          "index": "comments",
+          "objectID": "ToSShshp22QEHdf4t",
+          "title": "Comment on: Bogdan Ionut Cirstea's Shortform",
+          "karma": 26,
+          "score": 6.388935,
+          "key": "comments:ToSShshp22QEHdf4t"
+        },
+        {
+          "index": "posts",
+          "objectID": "AP7YDke5jjY4v3X9Z",
+          "title": "Resolution (fka Sequent): scale and automation for higher confidence in alignment",
+          "karma": 310,
+          "score": 6.3549685,
+          "key": "posts:AP7YDke5jjY4v3X9Z"
+        },
+        {
+          "index": "posts",
+          "objectID": "RuGZ5tMdqpnraJahJ",
+          "title": "Model access for third-parties — it's a big deal!",
+          "karma": 181,
+          "score": 6.3412056,
+          "key": "posts:RuGZ5tMdqpnraJahJ"
+        },
+        {
+          "index": "comments",
+          "objectID": "iwodobEWjt9qwHbb2",
+          "title": "Comment on: ryan_greenblatt's Shortform",
+          "karma": 101,
+          "score": 6.2969737,
+          "key": "comments:iwodobEWjt9qwHbb2"
+        },
+        {
+          "index": "comments",
+          "objectID": "GeYWvxn8cmPh3piqH",
+          "title": "Comment on: What’s the short timeline plan?",
+          "karma": 66,
+          "score": 6.2675605,
+          "key": "comments:GeYWvxn8cmPh3piqH"
+        },
+        {
+          "index": "comments",
+          "objectID": "L797dnCJuezikgnuE",
+          "title": "Comment on: sarahconstantin's Shortform",
+          "karma": 2,
+          "score": 6.251924,
+          "key": "comments:L797dnCJuezikgnuE"
+        },
+        {
+          "index": "comments",
+          "objectID": "hxMNNJRF6o644aNTa",
+          "title": "Comment on: The Robots, AI, and Unemployment Anti-FAQ",
+          "karma": 142,
+          "score": 6.2280903,
+          "key": "comments:hxMNNJRF6o644aNTa"
+        }
+      ],
+      "elapsedMs": 296.6283399999993
+    },
+    {
+      "queryId": "medianworld",
+      "query": "medianworld",
+      "hits": [
+        {
+          "index": "comments",
+          "objectID": "S5fsjZt6orat4ubo3",
+          "title": "Comment on: A Test Suite for Concepts",
+          "karma": 31,
+          "score": 6.632122,
+          "key": "comments:S5fsjZt6orat4ubo3"
+        },
+        {
+          "index": "tags",
+          "objectID": "RERM5H6RMnaafxMwQ",
+          "title": "Medianworld",
+          "karma": 0,
+          "score": 6.083251,
+          "key": "tags:RERM5H6RMnaafxMwQ"
+        },
+        {
+          "index": "comments",
+          "objectID": "ZLvjvndm4fhQbtA9r",
+          "title": "Comment on: Elizabeth's Shortform",
+          "karma": 27,
+          "score": 6.047327,
+          "key": "comments:ZLvjvndm4fhQbtA9r"
+        },
+        {
+          "index": "comments",
+          "objectID": "aF3jpssZxQQhqK5ND",
+          "title": "Comment on: Shortform",
+          "karma": 2,
+          "score": 5.8303866,
+          "key": "comments:aF3jpssZxQQhqK5ND"
+        },
+        {
+          "index": "comments",
+          "objectID": "xLXa3sGyPmvZvzkQY",
+          "title": "Comment on: Why Large Bureaucratic Organizations?",
+          "karma": 7,
+          "score": 5.7362876,
+          "key": "comments:xLXa3sGyPmvZvzkQY"
+        },
+        {
+          "index": "comments",
+          "objectID": "W2gPQjfdPko2F9hjK",
+          "title": "Comment on: Education on My Homeworld",
+          "karma": 2,
+          "score": 5.6896405,
+          "key": "comments:W2gPQjfdPko2F9hjK"
+        },
+        {
+          "index": "posts",
+          "objectID": "3xBarFQyAAzfqFCYR",
+          "title": "ACX Montreal Meetup August 5th 2023",
+          "karma": 2,
+          "score": 5.6459913,
+          "key": "posts:3xBarFQyAAzfqFCYR"
+        },
+        {
+          "index": "comments",
+          "objectID": "Kbxd4BAmbyDD5a5Xf",
+          "title": "Comment on: Education on My Homeworld",
+          "karma": 1,
+          "score": 5.48467,
+          "key": "comments:Kbxd4BAmbyDD5a5Xf"
+        },
+        {
+          "index": "posts",
+          "objectID": "7q8xvwjJBcffQhMfg",
+          "title": "\"Real summer\"?",
+          "karma": 2,
+          "score": 5.0403986,
+          "key": "posts:7q8xvwjJBcffQhMfg"
+        },
+        {
+          "index": "posts",
+          "objectID": "4tACKksZQHk7mw3zH",
+          "title": "Beneath My Epistemic Dignity",
+          "karma": 6,
+          "score": 4.167017,
+          "key": "posts:4tACKksZQHk7mw3zH"
+        },
+        {
+          "index": "posts",
+          "objectID": "rsTwJGdPqipt7PJs3",
+          "title": "Concrete positive visions for a future without AGI",
+          "karma": 41,
+          "score": 3.3863375,
+          "key": "posts:rsTwJGdPqipt7PJs3"
+        },
+        {
+          "index": "posts",
+          "objectID": "7fGDacnhJHcaFeJQS",
+          "title": "Listen to Gryffindor",
+          "karma": 14,
+          "score": 3.2226264,
+          "key": "posts:7fGDacnhJHcaFeJQS"
+        }
+      ],
+      "elapsedMs": 238.9407510000019
+    },
+    {
+      "queryId": "productivity",
+      "query": "productivity",
+      "hits": [
+        {
+          "index": "tags",
+          "objectID": "udPbn9RthmgTtHMiG",
+          "title": "Productivity",
+          "karma": 21,
+          "score": 5.960262,
+          "key": "tags:udPbn9RthmgTtHMiG"
+        },
+        {
+          "index": "posts",
+          "objectID": "srwKRt9TsS5oxvJsh",
+          "title": "Habitual Productivity",
+          "karma": 95,
+          "score": 5.708567,
+          "key": "posts:srwKRt9TsS5oxvJsh"
+        },
+        {
+          "index": "posts",
+          "objectID": "siWqHqCSybdhtWGud",
+          "title": "Guardian Angels: LLM Personalization for Productivity and Security",
+          "karma": 192,
+          "score": 5.696552,
+          "key": "posts:siWqHqCSybdhtWGud"
+        },
+        {
+          "index": "posts",
+          "objectID": "LPbFoQ2AbNeLyzJmu",
+          "title": "Being Productive With Chronic Health Conditions ",
+          "karma": 100,
+          "score": 5.6727977,
+          "key": "posts:LPbFoQ2AbNeLyzJmu"
+        },
+        {
+          "index": "posts",
+          "objectID": "gp9pmgSX3BXnhv8pJ",
+          "title": "I hired 5 people to sit behind me and make me productive for a month",
+          "karma": 248,
+          "score": 5.5906134,
+          "key": "posts:gp9pmgSX3BXnhv8pJ"
+        },
+        {
+          "index": "posts",
+          "objectID": "7fDEWxY8LD4qmf2NF",
+          "title": "What is the evidence for productivity benefits of weightlifting?",
+          "karma": 59,
+          "score": 5.5431395,
+          "key": "posts:7fDEWxY8LD4qmf2NF"
+        },
+        {
+          "index": "posts",
+          "objectID": "uX3HjXo6BWos3Zgy5",
+          "title": "The mechanics of my recent productivity",
+          "karma": 202,
+          "score": 5.532324,
+          "key": "posts:uX3HjXo6BWos3Zgy5"
+        },
+        {
+          "index": "posts",
+          "objectID": "fJtELFKddJPfAxwKS",
+          "title": "Natural emergent misalignment from reward hacking in production RL",
+          "karma": 260,
+          "score": 5.5253067,
+          "key": "posts:fJtELFKddJPfAxwKS"
+        },
+        {
+          "index": "posts",
+          "objectID": "M65WWD49bKZYLmAtN",
+          "title": "Intellectual insularity and productivity ",
+          "karma": 80,
+          "score": 5.4506335,
+          "key": "posts:M65WWD49bKZYLmAtN"
+        },
+        {
+          "index": "posts",
+          "objectID": "eJYDck4EthKFLga7q",
+          "title": "Elastic Productivity Tools",
+          "karma": 76,
+          "score": 5.436019,
+          "key": "posts:eJYDck4EthKFLga7q"
+        },
+        {
+          "index": "posts",
+          "objectID": "j3QDAqSQFi4BpHxQK",
+          "title": "A Guide for Productivity",
+          "karma": 34,
+          "score": 5.4098296,
+          "key": "posts:j3QDAqSQFi4BpHxQK"
+        },
+        {
+          "index": "posts",
+          "objectID": "ADMWDDKGgivgghxWf",
+          "title": "Productive Mistakes, Not Perfect Answers",
+          "karma": 101,
+          "score": 5.335114,
+          "key": "posts:ADMWDDKGgivgghxWf"
+        },
+        {
+          "index": "posts",
+          "objectID": "eBzJawjxkMdNaCeMm",
+          "title": "Which skincare products are evidence-based?",
+          "karma": 122,
+          "score": 5.3215723,
+          "key": "posts:eBzJawjxkMdNaCeMm"
+        },
+        {
+          "index": "posts",
+          "objectID": "dvsCJLbvcu8EotGzk",
+          "title": "Sums and products",
+          "karma": 23,
+          "score": 5.31591,
+          "key": "posts:dvsCJLbvcu8EotGzk"
+        },
+        {
+          "index": "posts",
+          "objectID": "8NFSMdgxeabhEFJpd",
+          "title": "High Variance Productivity Advice",
+          "karma": 87,
+          "score": 5.2946153,
+          "key": "posts:8NFSMdgxeabhEFJpd"
+        },
+        {
+          "index": "posts",
+          "objectID": "DpQx2FaJAGdfrYNQw",
+          "title": "Productivity tool: race!",
+          "karma": 43,
+          "score": 5.282996,
+          "key": "posts:DpQx2FaJAGdfrYNQw"
+        },
+        {
+          "index": "posts",
+          "objectID": "ypXHnS3vWeDRmDsK9",
+          "title": "Approval Extraction Advertised as Production",
+          "karma": 82,
+          "score": 5.278789,
+          "key": "posts:ypXHnS3vWeDRmDsK9"
+        },
+        {
+          "index": "posts",
+          "objectID": "ZN6L5ysKd35FEyGr6",
+          "title": "A couple productivity tips for overthinkers",
+          "karma": 79,
+          "score": 5.2688966,
+          "key": "posts:ZN6L5ysKd35FEyGr6"
+        },
+        {
+          "index": "posts",
+          "objectID": "JTHe5oGvdj6T73o4o",
+          "title": "How I Am Productive",
+          "karma": 78,
+          "score": 5.265529,
+          "key": "posts:JTHe5oGvdj6T73o4o"
+        },
+        {
+          "index": "posts",
+          "objectID": "wmvCcQD4naApTvrFY",
+          "title": "Guidelines for productive discussions",
+          "karma": 37,
+          "score": 5.2458973,
+          "key": "posts:wmvCcQD4naApTvrFY"
+        }
+      ],
+      "elapsedMs": 474.3410440000007
+    },
+    {
+      "queryId": "governance",
+      "query": "governance",
+      "hits": [
+        {
+          "index": "tags",
+          "objectID": "Lgy35Xh222bwgeGTL",
+          "title": "Government",
+          "karma": 9,
+          "score": 6.1936297,
+          "key": "tags:Lgy35Xh222bwgeGTL"
+        },
+        {
+          "index": "tags",
+          "objectID": "qHDus5MuMNqQxJbjD",
+          "title": "AI Governance",
+          "karma": 14,
+          "score": 6.0148253,
+          "key": "tags:qHDus5MuMNqQxJbjD"
+        },
+        {
+          "index": "sequences",
+          "objectID": "238e8bGMPMuyZQQrT",
+          "title": "An International Agreement to Prevent the Premature Creation of Artificial Superintelligence",
+          "karma": 78.4,
+          "score": 5.9326916,
+          "key": "sequences:238e8bGMPMuyZQQrT"
+        },
+        {
+          "index": "tags",
+          "objectID": "TXYW2ftfEvuwLBCpb",
+          "title": "Compute Governance",
+          "karma": 9,
+          "score": 5.8731894,
+          "key": "tags:TXYW2ftfEvuwLBCpb"
+        },
+        {
+          "index": "sequences",
+          "objectID": "6xgy8XYEisLk3tCjH",
+          "title": "The Laws Governing Belief",
+          "karma": 0,
+          "score": 5.77419,
+          "key": "sequences:6xgy8XYEisLk3tCjH"
+        },
+        {
+          "index": "posts",
+          "objectID": "2G8j8D5auZKKAjSfY",
+          "title": "Inadequate Equilibria vs. Governance of the Commons",
+          "karma": 184,
+          "score": 5.701961,
+          "key": "posts:2G8j8D5auZKKAjSfY"
+        },
+        {
+          "index": "sequences",
+          "objectID": "4PLuwEyMZhT89Dxpo",
+          "title": "An Activist View of AI Governance",
+          "karma": 0,
+          "score": 5.669344,
+          "key": "sequences:4PLuwEyMZhT89Dxpo"
+        },
+        {
+          "index": "posts",
+          "objectID": "SCs4KpcShb23hcTni",
+          "title": "Ideal governance (for companies, countries and more)",
+          "karma": 110,
+          "score": 5.655524,
+          "key": "posts:SCs4KpcShb23hcTni"
+        },
+        {
+          "index": "posts",
+          "objectID": "LtT24cCAazQp4NYc5",
+          "title": "Open Global Investment as a Governance Model for AGI",
+          "karma": 152,
+          "score": 5.515924,
+          "key": "posts:LtT24cCAazQp4NYc5"
+        },
+        {
+          "index": "posts",
+          "objectID": "jb9zbNr6mkJRiMcjk",
+          "title": "Permissions in Governance",
+          "karma": 53,
+          "score": 5.3996263,
+          "key": "posts:jb9zbNr6mkJRiMcjk"
+        },
+        {
+          "index": "posts",
+          "objectID": "AWKkDLDnShemNCSzZ",
+          "title": "The Invisible Side of AI Governance",
+          "karma": 156,
+          "score": 5.3196425,
+          "key": "posts:AWKkDLDnShemNCSzZ"
+        },
+        {
+          "index": "posts",
+          "objectID": "vFqa8DZCuhyrbSnyx",
+          "title": "Integrity in AI Governance and Advocacy",
+          "karma": 135,
+          "score": 5.280626,
+          "key": "posts:vFqa8DZCuhyrbSnyx"
+        },
+        {
+          "index": "tags",
+          "objectID": "EmaCLRKb4baBFq4ra",
+          "title": "Dath Ilan",
+          "karma": 20,
+          "score": 5.2761183,
+          "key": "tags:EmaCLRKb4baBFq4ra"
+        },
+        {
+          "index": "comments",
+          "objectID": "AeqmE5HGbCr25kgtg",
+          "title": "Comment on: Orpheus16's Shortform",
+          "karma": 44,
+          "score": 5.260199,
+          "key": "comments:AeqmE5HGbCr25kgtg"
+        },
+        {
+          "index": "comments",
+          "objectID": "zSqe9MXwr8RSZ99jW",
+          "title": "Comment on: Beware Trivial Inconveniences",
+          "karma": 73,
+          "score": 5.258552,
+          "key": "comments:zSqe9MXwr8RSZ99jW"
+        },
+        {
+          "index": "comments",
+          "objectID": "Q6snnXy7pLEz3NpjJ",
+          "title": "Comment on: What are the best resources for building gears-level models of how governments actually work?",
+          "karma": 5,
+          "score": 5.238962,
+          "key": "comments:Q6snnXy7pLEz3NpjJ"
+        },
+        {
+          "index": "posts",
+          "objectID": "MPydBZcj8DtSXXz8f",
+          "title": "Good government",
+          "karma": 26,
+          "score": 5.222971,
+          "key": "posts:MPydBZcj8DtSXXz8f"
+        },
+        {
+          "index": "comments",
+          "objectID": "v5Yc8GbKjTjYSoJxF",
+          "title": "Comment on: DW11's Shortform",
+          "karma": 167,
+          "score": 5.222872,
+          "key": "comments:v5Yc8GbKjTjYSoJxF"
+        },
+        {
+          "index": "tags",
+          "objectID": "rXxK4w5db9DARF7cZ",
+          "title": "Funding governance filtering",
+          "karma": 0,
+          "score": 5.1609516,
+          "key": "tags:rXxK4w5db9DARF7cZ"
+        },
+        {
+          "index": "posts",
+          "objectID": "Y49znC2qfL9SXkT7e",
+          "title": "Why does LW not put much more focus on AI governance and outreach?",
+          "karma": 78,
+          "score": 5.151772,
+          "key": "posts:Y49znC2qfL9SXkT7e"
+        }
+      ],
+      "elapsedMs": 314.4803150000007
+    },
+    {
+      "queryId": "https-www-lesswrong-com-posts-yekqkwmqjn",
+      "query": "https://www.lesswrong.com/posts/yekQKwmQJNk7thDtQ",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "yekQKwmQJNk7thDtQ",
+          "title": "OpenAI have solved the Navier-Stokes Problem with a substantially more powerful model than Astra.",
+          "karma": 51,
+          "score": 10.1710005,
+          "key": "posts:yekQKwmQJNk7thDtQ"
+        }
+      ],
+      "elapsedMs": 561.2309810000006
+    },
+    {
+      "queryId": "yekqkwmqjnk7thdtq",
+      "query": "yekQKwmQJNk7thDtQ",
+      "hits": [
+        {
+          "index": "posts",
+          "objectID": "yekQKwmQJNk7thDtQ",
+          "title": "OpenAI have solved the Navier-Stokes Problem with a substantially more powerful model than Astra.",
+          "karma": 51,
+          "score": 10.1710005,
+          "key": "posts:yekQKwmQJNk7thDtQ"
+        }
+      ],
+      "elapsedMs": 199.6915990000016
+    }
+  ]
+}
