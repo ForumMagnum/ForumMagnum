@@ -33,6 +33,11 @@ export const LLM_FAMILIES: LlmFamily[] = [
     versions: [{ name: "ChatGPT-Sol6.1", fullName: "GPT-6.1 Sol", gatewayModelId: "openai/gpt-6.1-sol", retired: false }],
   },
   {
+    name: "ChatGPT-Astra",
+    accountSlug: "chatgpt-astra",
+    versions: [{ name: "ChatGPT-Astra6", fullName: "GPT-6 Astra", gatewayModelId: "openai/gpt-6-astra", retired: false }],
+  },
+  {
     name: "Gemini",
     accountSlug: "gemini",
     versions: [{ name: "Gemini4-Argon", fullName: "Gemini 4 Argon", gatewayModelId: "google/gemini-4-argon", retired: false }],
