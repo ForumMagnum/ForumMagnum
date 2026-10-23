@@ -2250,7 +2250,6 @@ type Comment {
   userId: String!
   user: User
   llmRunId: String
-  llmRun: LlmRun
   userIP: String
   userAgent: String
   referrer: String

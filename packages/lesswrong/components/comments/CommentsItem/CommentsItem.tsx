@@ -35,7 +35,7 @@ import CoreTagIcon from "../../tagging/CoreTagIcon";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useLocation, useNavigate } from '@/lib/routeUtil';
+import { useNavigate } from '@/lib/routeUtil';
 import dynamic from 'next/dynamic';
 import { llmRunGetPageUrl } from '@/lib/collections/llmRuns/helpers';
 
@@ -207,7 +207,6 @@ export const CommentsItem = ({
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const [showEditState, setShowEditState] = useState(treeOptions.initialShowEdit || false);
@@ -336,9 +335,8 @@ export const CommentsItem = ({
   >
     {showInlineCancel ? "Cancel" : "Reply"}
   </a>), [replacementReplyButton, showInlineCancel, classes.replyLink, openReplyForm, closeReplyForm]);
-  const runPageUrl = comment.llmRunId ? llmRunGetPageUrl(comment.llmRunId) : null;
-  const bottomButtons = runPageUrl && runPageUrl !== pathname
-    ? <>{replyButton}<Link to={runPageUrl} className={classes.replyLink}>View run</Link></>
+  const bottomButtons = comment.llmRunId
+    ? <>{replyButton}<Link to={llmRunGetPageUrl(comment.llmRunId)} className={classNames(classes.replyLink, "llm-view-run-link")}>View run</Link></>
     : replyButton;
 
   return (

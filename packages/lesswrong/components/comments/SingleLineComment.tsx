@@ -170,7 +170,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle, hideParentCommentToggle, deemphasizeCommentsExcludingUserIds } = treeOptions;
 
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
-  const isModelText = comment.llmRun?.status === "completed";
+  const isModelText = !!comment.llmRunId && !!comment.contents?.html?.includes('class="llm-content-block"');
   const displayHoverOver = hover && ((comment.baseScore ?? 0) > -5) && !isMobile() && enableHoverPreview
   const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
 

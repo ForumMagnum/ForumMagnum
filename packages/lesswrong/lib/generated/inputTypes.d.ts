@@ -1993,7 +1993,6 @@ interface Comment {
   userId: string;
   user: User | null;
   llmRunId: string | null;
-  llmRun: LlmRun | null;
   userIP: string | null;
   userAgent: string | null;
   referrer: string | null;

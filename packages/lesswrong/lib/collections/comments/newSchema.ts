@@ -308,13 +308,6 @@ const schema = {
       },
     },
   },
-  llmRun: {
-    graphql: {
-      outputType: "LlmRun",
-      canRead: ["guests"],
-      resolver: generateIdResolverSingle({ foreignCollectionName: "LlmRuns", fieldName: "llmRunId" }),
-    },
-  },
   userIP: {
     database: {
       type: "TEXT",

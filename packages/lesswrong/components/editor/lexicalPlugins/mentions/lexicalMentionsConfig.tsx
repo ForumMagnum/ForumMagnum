@@ -177,22 +177,14 @@ const llmFamilyAccountSlugs = new Set(LLM_FAMILIES.map((family) => family.accoun
 
 const collectionNames = ["Posts", "Users", "Tags"] as const;
 
+/**
+ * Fetch mention suggestions from Algolia
+ */
 async function fetchMentionableSuggestions(forumType: ForumTypeString, searchString: string): Promise<MentionItemWithHit[]> {
   if (!searchString.trim()) {
     return [];
   }
-  const modelItems = getMentionableLlms(searchString).map((model) => formatModelItem(model, forumType));
-  const searchItems = await fetchSearchSuggestions(forumType, searchString);
-  return [
-    ...modelItems,
-    ...searchItems.filter((item) => !(item.type === "Users" && llmFamilyAccountSlugs.has(item.hit.slug))),
-  ];
-}
-
-/**
- * Fetch mention suggestions from Algolia
- */
-async function fetchSearchSuggestions(forumType: ForumTypeString, searchString: string): Promise<MentionItemWithHit[]> {
+  
   try {
     const indexName = collectionNames.map(getSearchIndexName).join(",");
     const searchClient = getSearchClient();
@@ -210,6 +202,15 @@ async function fetchSearchSuggestions(forumType: ForumTypeString, searchString: 
     // Search failed - return empty results
     return [];
   }
+}
+
+async function fetchMentionableSuggestionsWithModels(forumType: ForumTypeString, searchString: string): Promise<MentionItemWithHit[]> {
+  const modelItems = getMentionableLlms(searchString).map((model) => formatModelItem(model, forumType));
+  const searchItems = await fetchMentionableSuggestions(forumType, searchString);
+  return [
+    ...modelItems,
+    ...searchItems.filter((item) => !(item.type === "Users" && llmFamilyAccountSlugs.has(item.hit.slug))),
+  ];
 }
 
 /**
@@ -273,7 +274,7 @@ export function getLexicalMentionFeeds(forumType: ForumTypeString): MentionFeed[
   return [
     {
       marker: MARKER,
-      feed: fetchMentionableSuggestions.bind(null, forumType),
+      feed: fetchMentionableSuggestionsWithModels.bind(null, forumType),
       minimumCharacters: 1,
       itemRenderer: mentionItemRenderer,
     },

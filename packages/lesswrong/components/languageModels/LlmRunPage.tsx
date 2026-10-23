@@ -101,6 +101,9 @@ const styles = defineStyles("LlmRunPage", (theme: ThemeType) => ({
   section: {
     position: "relative",
     marginTop: 32,
+    "& .llm-view-run-link": {
+      display: "none",
+    },
   },
   sectionLabel: {
     ...theme.typography.commentStyle,
