@@ -20,15 +20,23 @@ function frameFor(msg: { heading?: string, progress?: number }): number | null {
   return frameIndexByDate.get(section.dates[k]) ?? null;
 }
 
+// Scale against the tallest stage (the HUD grows as agent copies multiply), so the zoom stays steady.
+const TALLEST_STAGE = 720;
+const HUD_WIDTH = 448;
+
 function Embed() {
   const [frame, setFrame] = useState(0);
-  const [scale, setScale] = useState(1);
+  const [width, setWidth] = useState(window.innerWidth);
+  const [maxHeight, setMaxHeight] = useState(Infinity);
+  const [naturalHeight, setNaturalHeight] = useState(TALLEST_STAGE);
   const hudRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
-      // LessWrong tells the widget its page background so the panel blends into the page.
-      if (e.data?.type === 'lw-scrolly-theme' && typeof e.data.background === 'string') {
-        document.documentElement.style.setProperty('--vivid-background', e.data.background);
+      // LessWrong tells the widget its page background (so the panel blends into the page)
+      // and how much height it may use.
+      if (e.data?.type === 'lw-scrolly-theme') {
+        if (typeof e.data.background === 'string') document.documentElement.style.setProperty('--vivid-background', e.data.background);
+        if (typeof e.data.maxHeight === 'number') setMaxHeight(e.data.maxHeight);
         return;
       }
       if (e.data?.type !== 'lw-scrolly') return;
@@ -37,20 +45,19 @@ function Embed() {
       else if (typeof e.data.index === 'number' && e.data.index < 0) setFrame(0);
     };
     window.addEventListener('message', onMsg);
-    // Fit the HUD's natural size (measured, since some rows overflow 448px) to the frame.
-    const fit = () => {
-      const el = hudRef.current; if (!el) return;
-      const w = 448, h = Math.max(el.scrollHeight, 400);
-      setScale(Math.min(1.6, (window.innerWidth - 8) / w, (window.innerHeight - 8) / h));
-    };
-    const ro = new ResizeObserver(fit); if (hudRef.current) ro.observe(hudRef.current);
-    window.addEventListener('resize', fit); fit();
-    return () => { window.removeEventListener('message', onMsg); window.removeEventListener('resize', fit); ro.disconnect(); };
+    const onResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    // The HUD's unscaled height; the page sizes the panel to what we actually draw.
+    const ro = new ResizeObserver(() => { if (hudRef.current) setNaturalHeight(hudRef.current.offsetHeight); });
+    if (hudRef.current) ro.observe(hudRef.current);
+    return () => { window.removeEventListener('message', onMsg); window.removeEventListener('resize', onResize); ro.disconnect(); };
   }, []);
+  const scale = Math.min(1.6, (width - 8) / HUD_WIDTH, (maxHeight - 8) / TALLEST_STAGE);
   // ArticleContent advances its date marker by one day. Preserve that behavior.
   const currentDate = new Date(new Date(frames[frame][0]).getTime() + 86400000);
-  return <div className="race lw-embed-stage">
-    <div className="lw-embed-hud" ref={hudRef} style={{ transform: `scale(${scale})` }}>
+  // The stage is exactly as tall as the drawing, so the iframe's reported height is the graphic's.
+  return <div className="race lw-embed-stage" style={{ height: Math.ceil(naturalHeight * scale) }}>
+    <div className="lw-embed-hud" ref={hudRef} style={{ transform: `translateX(-50%) scale(${scale})` }}>
       <HUD currentDate={currentDate} chartData={frames} defaultChartData={frames} standalone />
     </div>
   </div>;

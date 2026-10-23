@@ -69,8 +69,6 @@ const styles = defineStyles('ScrollyIframeWidget', (theme: ThemeType) => ({
   },
   panelClear: {
     background: 'transparent',
-    // Let clicks reach the side comments and footnotes underneath.
-    pointerEvents: 'none',
   },
   panelHidden: {
     opacity: 0,
@@ -152,17 +150,7 @@ const styles = defineStyles('ScrollyIframeWidget', (theme: ThemeType) => ({
       marginLeft: -8,
       boxShadow: `0 2px 10px ${theme.palette.boxShadowColor(0.18)}`,
     },
-    // 'Clear': margin items sit behind the figure, nearly gone.
-    'html[data-lw-scrolly-backdrop="clear"] [class*="SideItems-sideItem"]': {
-      opacity: 0.1,
-      filter: 'blur(1.5px)',
-      transition: 'opacity 120ms ease, filter 120ms ease',
-    },
-    'html[data-lw-scrolly-backdrop="clear"] [class*="SideItems-sideItem"][data-lw-scrolly-focus]': {
-      opacity: 1,
-      filter: 'none',
-    },
-    // A clicked note shows in full, and the figure steps back.
+    // A clicked note shows in full, and the figure steps back (and lets clicks through to the page).
     '[data-lw-scrolly-focus] [class*="FootnotePreview-sidenoteContent"]': {
       maxHeight: 'none',
     },
@@ -172,6 +160,7 @@ const styles = defineStyles('ScrollyIframeWidget', (theme: ThemeType) => ({
     'html[data-lw-scrolly-note-focused] .lwScrollyPanel': {
       opacity: 0.12,
       filter: 'blur(1px)',
+      pointerEvents: 'none',
     },
     // When the site header slides away, let the panel use that space.
     'body:has(.headroom--unpinned) .lwScrollyPanel': {
@@ -338,6 +327,42 @@ function setFocusedNote(item: HTMLElement | null) {
   }
 }
 
+// How much of a note survives under the figure, and how tall the soft edge is where it slides under.
+const UNDER_FIGURE_ALPHA = 0.06;
+const FADE_EDGE = 48;
+
+/**
+ * 'Clear': a margin item is fully visible where it's below the figure, and fades out as it
+ * scrolls up under the figure's bottom edge. Done with a per-item gradient mask, because the
+ * cut line moves through each item as the page scrolls. Pass null to remove all masks.
+ */
+function applyNoteFades(figure: DOMRect | null) {
+  const focused = getFocusedNote();
+  for (const item of Array.from(document.querySelectorAll<HTMLElement>(SIDE_ITEM_SELECTOR))) {
+    let mask = '';
+    if (figure && item !== focused) {
+      const rect = item.getBoundingClientRect();
+      const overlapsHorizontally = rect.right > figure.left && rect.left < figure.right;
+      const cut = figure.bottom - rect.top;
+      if (overlapsHorizontally && rect.bottom > figure.top && cut > 0) {
+        const ghost = `rgba(0,0,0,${UNDER_FIGURE_ALPHA})`;
+        mask = `linear-gradient(to bottom, ${ghost} 0px, ${ghost} ${cut - FADE_EDGE}px, #000 ${cut}px)`;
+      }
+    }
+    if (item.style.maskImage !== mask) {
+      item.style.maskImage = mask;
+      item.style.webkitMaskImage = mask;
+    }
+  }
+}
+
+/** Re-fade the margin items against wherever the figure currently is on screen. */
+function refreshNoteFades() {
+  const panel = document.querySelector('.lwScrollyPanel');
+  const clear = document.documentElement.dataset.lwScrollyBackdrop === 'clear';
+  applyNoteFades(clear && panel ? panel.getBoundingClientRect() : null);
+}
+
 function setPageScrollyState(mode: ScrollyMode | '', backdrop: ScrollyBackdrop | '', shift: number) {
   document.documentElement.style.setProperty('--lw-scrolly-shift', `${shift}px`);
   document.documentElement.dataset.lwScrolly = mode;
@@ -354,12 +379,24 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
   const [backdrop, setBackdropState] = useState<ScrollyBackdrop>('clear');
   const [box, setBox] = useState<PanelBox | null>(null);
   const [mounted, setMounted] = useState(false);
+  // How tall the widget's drawing actually is; the panel is no taller than that.
+  const [contentHeight, setContentHeight] = useState<number | null>(null);
+  const maxHeight = mode === 'inline' ? INLINE_HEIGHT : box?.height ?? null;
 
   useEffect(() => {
     setMounted(true);
     setModeState(readMode());
     setBackdropState(readBackdrop());
     document.documentElement.style.setProperty('--lw-scrolly-page-bg', getPageBackground());
+  }, []);
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (event.source !== iframeRef.current?.contentWindow || event.data?.type !== 'iframe-widget-resize') return;
+      if (typeof event.data.height === 'number') setContentHeight(event.data.height);
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
   }, []);
 
   const setMode = useCallback((m: ScrollyMode) => {
@@ -373,8 +410,17 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
   }, []);
 
   const sendTheme = useCallback(() => {
-    iframeRef.current?.contentWindow?.postMessage({ type: 'lw-scrolly-theme', background: getPageBackground() }, '*');
-  }, []);
+    iframeRef.current?.contentWindow?.postMessage({
+      type: 'lw-scrolly-theme',
+      background: getPageBackground(),
+      maxHeight: maxHeight ?? undefined,
+    }, '*');
+  }, [maxHeight]);
+
+  // The widget scales its drawing to the room it has, so tell it whenever that changes.
+  useEffect(() => {
+    sendTheme();
+  }, [sendTheme]);
 
   const sendState = useCallback((force: boolean) => {
     const anchor = anchorRef.current;
@@ -409,6 +455,7 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
       const rect = focused.getBoundingClientRect();
       if (!active || rect.bottom < HEADER_HEIGHT || rect.top > vh) setFocusedNote(null);
     }
+    refreshNoteFades();
     sendState(false);
   }, [mode, backdrop, sendState]);
 
@@ -423,17 +470,21 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
         // Show the note beside the text instead of jumping to the footnotes at the bottom.
         ev.preventDefault();
         setFocusedNote(refNote);
-        return;
+      } else {
+        const item = getSideItem(ev.target);
+        if (!item) {
+          setFocusedNote(null);
+        } else if (item !== getFocusedNote()) {
+          setFocusedNote(item);
+        }
       }
-      const item = getSideItem(ev.target);
-      if (item) {
-        if (item !== getFocusedNote()) setFocusedNote(item);
-        return;
-      }
-      setFocusedNote(null);
+      refreshNoteFades();
     };
     const onKeyDown = (ev: KeyboardEvent) => {
-      if (ev.key === 'Escape') setFocusedNote(null);
+      if (ev.key === 'Escape') {
+        setFocusedNote(null);
+        refreshNoteFades();
+      }
     };
     document.addEventListener('click', onClick, true);
     document.addEventListener('keydown', onKeyDown);
@@ -441,6 +492,7 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
       document.removeEventListener('click', onClick, true);
       document.removeEventListener('keydown', onKeyDown);
       setFocusedNote(null);
+      applyNoteFades(null);
     };
   }, [mounted, mode, backdrop]);
 
@@ -449,9 +501,15 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
     shiftRef.current = 0;
     setPageScrollyState('', '', 0);
     let raf = 0;
+    let settle = 0;
+    const update = () => mode === 'inline' ? sendState(false) : relayout();
     const onScroll = () => {
       cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => mode === 'inline' ? sendState(false) : relayout());
+      raf = requestAnimationFrame(update);
+      // The panel keeps moving for a moment after scrolling stops (it follows the site header
+      // as it slides in or out), so measure again once that transition has finished.
+      window.clearTimeout(settle);
+      settle = window.setTimeout(update, 300);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
@@ -460,6 +518,7 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
       cancelAnimationFrame(raf);
+      window.clearTimeout(settle);
       setPageScrollyState('', '', 0);
     };
   }, [mounted, mode, relayout, sendState]);
@@ -478,7 +537,8 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
 
   let panel: React.ReactNode = null;
   if (mode === 'inline') {
-    panel = <div className={classes.inline}>{iframe}</div>;
+    // Sized to the drawing once the widget reports it.
+    panel = <div className={classes.inline} style={{ height: contentHeight ?? INLINE_HEIGHT }}>{iframe}</div>;
   } else if (mounted && box) {
     panel = createPortal(
       <div
@@ -490,7 +550,8 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
           [classes.panelClear]: mode !== 'top' && backdrop === 'clear',
         })}
         // Position is recomputed on every scroll frame, so it can't live in a stylesheet.
-        style={{ left: box.left, top: box.top, width: box.width, height: box.height }}
+        // Height: only as tall as what the widget actually draws, so the margin below stays visible.
+        style={{ left: box.left, top: box.top, width: box.width, height: Math.min(box.height, contentHeight ?? box.height) }}
       >{iframe}</div>,
       document.body,
     );
