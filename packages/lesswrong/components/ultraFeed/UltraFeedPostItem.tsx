@@ -138,8 +138,8 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     },
   },
   title: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontWeight: 600,
+    fontFamily: theme.palette.fonts.serifStack,
+    fontWeight: 500,
     opacity: 0.8,
     lineHeight: 1.15,
     textWrap: 'balance',
@@ -149,7 +149,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       textDecoration: 'none',
       cursor: 'pointer',
     },
-    fontSize: '1.3rem',
+    fontSize: '1.6rem',
     whiteSpace: 'normal',
     [theme.breakpoints.down('sm')]: {
       width: '100%',

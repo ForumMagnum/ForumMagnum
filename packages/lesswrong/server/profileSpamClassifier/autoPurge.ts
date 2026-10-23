@@ -1,17 +1,13 @@
+import { purgeSpamUser } from "@/server/users/moderationUtils";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { compile } from "html-to-text";
 import moment from "moment";
 import { captureException } from "@/lib/sentryWrapper";
-import { adminAccountSetting } from "@/lib/instanceSettings";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { appendToSunshineNotes } from "@/server/users/sunshineNotes";
 import { AUTO_PURGED_PROFILE_SPAM } from "@/lib/collections/moderatorActions/constants";
 import { profileSpamAutoPurgeSetting } from "@/server/databaseSettings";
 import { triggerReviewIfNeeded } from "@/server/callbacks/sunshineCallbackUtils";
-import { updateUser } from "@/server/collections/users/mutations";
-import { createModeratorAction } from "@/server/collections/moderatorActions/mutations";
-import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 
 const PROFILE_SPAM_MODEL = "anthropic/claude-sonnet-5.5";
 
@@ -76,35 +72,6 @@ async function isEligibleForAutoPurge(user: DbUser, context: ResolverContext): P
 function profileTextChanged(before: DbUser, after: DbUser): boolean {
   return before.biography?.html !== after.biography?.html || before.mapMarkerText !== after.mapMarkerText;
 }
-
-async function purgeProfileSpammer(user: DbUser, reason: string, context: ResolverContext) {
-  const adminTeamAccountId = adminAccountSetting.get(context)?._id;
-  const adminTeamAccount = adminTeamAccountId ? await context.Users.findOne({ _id: adminTeamAccountId }) : null;
-  if (!adminTeamAccount) return;
-  const adminContext = computeContextFromUser({ user: adminTeamAccount, isSSR: false, forumType: context.forumType });
-
-  await updateUser({
-    selector: { _id: user._id },
-    data: {
-      sunshineFlagged: false,
-      reviewedByUserId: adminTeamAccount._id,
-      reviewedAt: new Date(),
-      needsReview: false,
-      nullifyVotes: true,
-      deleteContent: true,
-      banned: moment().add(1000, "years").toDate(),
-    },
-  }, adminContext);
-  await appendToSunshineNotes({
-    moderatedUserId: user._id,
-    adminName: adminTeamAccount.displayName,
-    text: `Auto-purged (profile spam classifier): ${reason}`,
-    context: adminContext,
-  });
-
-  await createModeratorAction({ data: { userId: user._id, type: AUTO_PURGED_PROFILE_SPAM } }, adminContext);
-}
-
 async function maybeAutoPurgeProfileSpam(userId: string, context: ResolverContext) {
   if (!profileSpamAutoPurgeSetting.get(context)) return;
 
@@ -118,7 +85,7 @@ async function maybeAutoPurgeProfileSpam(userId: string, context: ResolverContex
   const latestUser = await context.Users.findOne({ _id: userId });
   if (!latestUser || profileTextChanged(user, latestUser) || !(await isEligibleForAutoPurge(latestUser, context))) return;
 
-  await purgeProfileSpammer(latestUser, verdict.reason, context);
+  await purgeSpamUser(latestUser, `Auto-purged (profile spam classifier): ${verdict.reason}`, AUTO_PURGED_PROFILE_SPAM, context);
 }
 
 // The purge must wait for the review trigger, which sets needsReview and would put a purged user back in the queue.

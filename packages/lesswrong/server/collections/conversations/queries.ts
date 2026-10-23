@@ -43,6 +43,8 @@ export const graphqlConversationQueryTypeDefs = gql`
     moderatorConversations: ConversationsModeratorConversationsInput
     userConversations: ConversationsUserConversationsInput
     userConversationsAll: ConversationsUserConversationsAllInput
+    teamInboxAwaitingReply: EmptyViewInput
+    teamInboxDone: EmptyViewInput
     userGroupUntitledConversations: ConversationsUserGroupUntitledConversationsInput
   }
   

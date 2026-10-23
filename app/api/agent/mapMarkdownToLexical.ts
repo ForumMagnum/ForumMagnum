@@ -106,6 +106,50 @@ const MATH_PLACEHOLDER_REGEXP = new RegExp(
   "g",
 );
 
+// Sentinel that brackets an image token's URL (see `formatImageToken`). A
+// private-use character, so no document or quote text can produce a token.
+const IMAGE_TOKEN_SENTINEL = String.fromCharCode(0xE001);
+
+/**
+ * Canonical form of an image URL, so that the URL the document stores and
+ * the one markdown-it parses out of the read path's markdown for it agree:
+ * markdown-it percent-encodes the destination and decodes entities, while a
+ * src imported from double-escaped HTML can keep a literal `&amp;`.
+ * Whitespace and the math delimiters `$` and `\` are re-escaped, so the token
+ * is one word that normalization's whitespace collapsing and math scanning
+ * leave alone.
+ */
+function canonicalImageSrc(src: string): string {
+  const unescaped = src.trim().replace(/&amp;/g, "&");
+  let decoded = unescaped;
+  try {
+    decoded = decodeURI(unescaped);
+  } catch {
+    // Malformed percent-escape: compare the URL as written.
+  }
+  return decoded.replace(/[\s$\\]/g, encodeURIComponent);
+}
+
+/**
+ * The opaque token an image projects to for block-prefix matching, on both
+ * the document side (`$projectDocumentText`) and the prefix side
+ * (`markdownQuoteToRenderedPlainText`). Without it an image contributes no
+ * text to either side, so a prefix that starts with an image has nothing to
+ * match. Identifies the image by URL only (alt text is ignored). The
+ * surrounding spaces make an image a word boundary on both sides, since the
+ * document projection separates an image from adjacent text with a block
+ * break.
+ */
+export function formatImageToken(src: string): string {
+  return ` ${IMAGE_TOKEN_SENTINEL}${canonicalImageSrc(src)}${IMAGE_TOKEN_SENTINEL} `;
+}
+
+function replaceImagesWithTokens(body: HTMLElement): void {
+  for (const image of Array.from(body.querySelectorAll("img"))) {
+    image.replaceWith(body.ownerDocument.createTextNode(formatImageToken(image.getAttribute("src") ?? "")));
+  }
+}
+
 // Project an agent-supplied markdown quote to the rendered plaintext it
 // represents, via markdown-it's CommonMark implementation. Preserves literal
 // punctuation in content (e.g. `snake_case`, `2*3`, `` `code` ``) while
@@ -117,13 +161,19 @@ const MATH_PLACEHOLDER_REGEXP = new RegExp(
 // and corrupt it. The restored math is then run through
 // `canonicalizeMathTokens` so every delimiter shape of an equation lands on
 // one form.
+//
+// With `imageTokens`, each rendered `<img>` becomes its `formatImageToken`
+// token instead of contributing no text (see `DocumentProjectionOptions`).
 export function markdownQuoteToRenderedPlainText(
   value: string,
-  // Required (no default): the two adjacent layers default this flag in
-  // opposite directions (the scanner to the LaTeX reading, the quote
-  // projection to the escaped-bracket reading), so a silent default here
-  // would be wrong for one of them.
-  options: { bracketDisplayMath: boolean },
+  options: {
+    // Required (no default): the two adjacent layers default this flag in
+    // opposite directions (the scanner to the LaTeX reading, the quote
+    // projection to the escaped-bracket reading), so a silent default here
+    // would be wrong for one of them.
+    bracketDisplayMath: boolean,
+    imageTokens?: boolean,
+  },
 ): string {
   const spans = findMathSpansInMarkdown(value, { bracketDisplayForm: options.bracketDisplayMath });
   const rawMath: string[] = [];
@@ -140,7 +190,11 @@ export function markdownQuoteToRenderedPlainText(
   const dom = new JSDOM(html);
   let rendered: string;
   try {
-    rendered = dom.window.document.body.textContent ?? "";
+    const { body } = dom.window.document;
+    if (options.imageTokens) {
+      replaceImagesWithTokens(body);
+    }
+    rendered = body.textContent ?? "";
   } finally {
     dom.window.close();
   }

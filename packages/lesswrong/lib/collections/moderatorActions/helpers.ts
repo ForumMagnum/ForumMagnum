@@ -21,7 +21,7 @@ export function getTimeframeForRateLimit(type: AllRateLimitTypes): number {
   }
 }
 
-export function getAverageContentKarma(content: VoteableType[]) {
+export function getAverageContentKarma(content: ReadonlyArray<Pick<VoteableType, "baseScore">>) {
   const runningContentKarma = content.reduce((prev, curr) => prev + (curr.baseScore ?? 0), 0);
   return runningContentKarma / content.length;
 }

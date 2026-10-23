@@ -181,10 +181,10 @@ export type FeedItem = FeedCommentsThread | FeedSpotlight | FeedFullPost;
 
 export interface FeedCommentsThreadResolverType {
   _id: string;
-  comments: DbComment[];
+  comments: Partial<DbComment>[];
   commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo};
   postSources?: FeedItemSourceType[];
-  post?: DbPost | null;
+  post?: Partial<DbPost> | null;
   postMetaInfo?: FeedPostMetaInfo;
 }
 
@@ -196,15 +196,15 @@ export interface FeedPostResolverType {
 
 export interface FeedSpotlightResolverType {
   _id: string;
-  spotlight: DbSpotlight;
-  post?: DbPost;
+  spotlight: Partial<DbSpotlight>;
+  post?: Partial<DbPost>;
   spotlightMetaInfo: FeedSpotlightMetaInfo;
   rankingMetadata?: RankedItemMetadata;
 }
 
 export interface FeedSubscriptionSuggestionsResolverType {
   _id: string;
-  suggestedUsers: DbUser[];
+  suggestedUsers: Partial<DbUser>[];
 }
 
 export interface FeedMarkerResolverType {

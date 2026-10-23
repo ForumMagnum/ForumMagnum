@@ -125,6 +125,8 @@ export const loginUser = async (
     name: "loginToken",
     value: token,
     url: new URL(response.url()).origin,
+    httpOnly: true,
+    sameSite: "Lax",
   }]);
 }
 

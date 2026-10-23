@@ -191,6 +191,7 @@ const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDr
 
     {post.draft && showDraftTag && <span className={classes.tag}>[Draft]</span>}
     {post.isFuture && <span className={classes.tag}>[Pending]</span>}
+    {post.rejected && <span className={classes.tag}>[Rejected]</span>}
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
     {shared && <span className={classes.tag}>[Shared]</span>}
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}

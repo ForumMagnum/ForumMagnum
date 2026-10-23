@@ -1,6 +1,6 @@
 import { aboutPostIdSetting, allowTypeIIIPlayerSetting, type ForumTypeString, siteUrlSetting, cloudinaryCloudName, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userOverNKarmaFunc } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdmin } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn, type SharableDocument } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import maxBy from "lodash/maxBy";
@@ -364,6 +364,17 @@ export const canUserEditPostMetadataWithoutModeratorPowers = (currentUser: Users
   return false
 }
 
+/**
+ * Whether the user can change a post's sharing settings (eg "Anyone with the
+ * link can"). Coauthors and users the post is shared with can edit other
+ * metadata, but not this. Must match the canUpdate permissions on the
+ * sharingSettings field in the posts schema.
+ */
+export const userCanEditPostSharingSettings = (currentUser: UsersCurrent|DbUser|null, post: HasUserIdType): boolean => {
+  if (!currentUser) return false;
+  return userOwns(currentUser, post) || userIsAdmin(currentUser);
+}
+
 export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): boolean => {
   if (userCanDo(currentUser, "posts.remove.all")) {
     return true
@@ -556,6 +567,18 @@ export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWit
 export const defaultVotingSystem = "namesAttachedReactions";
 
 export const dateStr = (startDate?: Date) => startDate ? moment(startDate).format('YYYY-MM-DD') : '';
+
+export function postGetRejectionReviewUrl(postId: string) {
+  return `/rejection-review?postId=${postId}`;
+}
+
+/**
+ * Authors can't republish a rejected post themselves, so in the post editor
+ * the publish button takes them to the rejection review (appeal) form instead.
+ */
+export function shouldPublishGoToRejectionReview(currentUser: UsersCurrent | null, post: { userId?: string | null, rejected?: boolean | null }) {
+  return !!post.rejected && !!post.userId && post.userId === currentUser?._id;
+}
 
 export function getDraftLabel(post: { draft?: boolean | null } | null) {
   if (!post) return "Save Draft";
