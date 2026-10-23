@@ -37,6 +37,11 @@ export const LLM_FAMILIES: LlmFamily[] = [
     accountSlug: "gemini",
     versions: [{ name: "Gemini4-Argon", fullName: "Gemini 4 Argon", gatewayModelId: "google/gemini-4-argon", retired: false }],
   },
+  {
+    name: "Grok",
+    accountSlug: "grok",
+    versions: [{ name: "Grok4.7", fullName: "Grok 4.7", gatewayModelId: "spacexai/grok-4.7", retired: false }],
+  },
 ];
 
 export function getLlmFamilyBySlug(accountSlug: string): LlmFamily | undefined {
