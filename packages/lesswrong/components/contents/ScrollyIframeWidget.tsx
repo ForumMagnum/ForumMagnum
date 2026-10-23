@@ -180,6 +180,10 @@ const styles = defineStyles('ScrollyIframeWidget', (theme: ThemeType) => ({
     'body:has(.headroom--unpinned) .lwScrollyPanel.lwScrollyTop': {
       translate: `0 -${HEADER_HEIGHT}px`,
     },
+    // ?scrollyUi=off, for screen recordings: no layout switcher, no Next.js dev badge.
+    'html[data-lw-scrolly-clean] nextjs-portal': {
+      display: 'none',
+    },
   },
   '@keyframes lwScrollyNotesIn': {
     from: { opacity: 0.15 },
@@ -395,6 +399,7 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
   const [backdrop, setBackdropState] = useState<ScrollyBackdrop>('clear');
   const [box, setBox] = useState<PanelBox | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [showSwitcher, setShowSwitcher] = useState(true);
   // How tall the widget's drawing actually is; the panel is no taller than that.
   const [contentHeight, setContentHeight] = useState<number | null>(null);
   const maxHeight = mode === 'inline' ? INLINE_HEIGHT : box?.height ?? null;
@@ -404,6 +409,10 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
     setModeState(readMode());
     setBackdropState(readBackdrop());
     document.documentElement.style.setProperty('--lw-scrolly-page-bg', getPageBackground());
+    if (new URLSearchParams(window.location.search).get('scrollyUi') === 'off') {
+      setShowSwitcher(false);
+      document.documentElement.dataset.lwScrollyClean = 'true';
+    }
   }, []);
 
   useEffect(() => {
@@ -608,7 +617,7 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
     {/* Marks where the scrollytelling starts in the text. */}
     <div ref={anchorRef} data-lw-scrolly-anchor="true" />
     {panel}
-    {mounted && createPortal(
+    {mounted && showSwitcher && createPortal(
       <ScrollyModeSwitcher mode={mode} setMode={setMode} backdrop={backdrop} setBackdrop={setBackdrop} />,
       document.body,
     )}
