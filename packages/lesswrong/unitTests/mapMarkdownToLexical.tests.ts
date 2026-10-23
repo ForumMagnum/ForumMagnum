@@ -580,7 +580,7 @@ describe("$locateBlockByPrefix with image prefixes", () => {
     {
       name: "an image with brackets in its alt text and an ampersand in its URL",
       html: `<p><img src="https://example.com/a.png?x=1&amp;y=2" alt="Fig [1]"></p>`,
-      prefix: "![Fig \\[1\\]](https://example.com/a.png?x=1&y=2)",
+      prefix: "![Fig [1]](https://example.com/a.png?x=1&y=2)",
       type: "paragraph",
       src: "https://example.com/a.png?x=1&y=2",
     },

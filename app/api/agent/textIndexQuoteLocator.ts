@@ -45,8 +45,8 @@ import {
  * CommonMark projection (`markdownQuoteToRenderedPlainText`).
  *
  * `\[…\]` is read as escaped literal brackets by default: the read path
- * emits real display math as `$$…$$` and escapes literal `[` as `\[`, so in
- * quotes copied from it the escaped-bracket reading is almost always right.
+ * emits real display math as `$$…$$`, so in quotes copied from it the
+ * escaped-bracket reading is almost always right.
  * The locator retries with `bracketDisplayMath: true` (the LaTeX reading)
  * when this reading fails to match — covering hand-written `\[…\]` math.
  */
