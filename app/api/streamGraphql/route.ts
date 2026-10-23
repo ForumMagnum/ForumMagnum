@@ -7,7 +7,7 @@ import { formatError } from "apollo-errors";
 import { getExecutableSchema } from "@/server/vulcan-lib/apollo-server/initGraphQL";
 import { configureSentryScope, getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { asyncLocalStorage, closePerfMetric, openPerfMetric } from "@/server/perfMetrics";
-import { captureException, getSentry } from "@/lib/sentryWrapper";
+import { captureException, getSentry, withIsolationScope } from "@/lib/sentryWrapper";
 import { getClientIP } from "@/server/utils/getClientIP";
 import { fmCrosspostBaseUrlSetting, performanceMetricLoggingEnabled } from "@/lib/instanceSettings";
 import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
@@ -265,11 +265,11 @@ async function sharedHandler(request: NextRequest) {
 // OPTIONS requests are for preflighting cross-site requests for
 // crossposting-related purposes.
 export function GET(request: NextRequest) {
-  return sharedHandler(request);
+  return withIsolationScope(() => sharedHandler(request));
 }
 
 export async function POST(request: NextRequest) {
-  return sharedHandler(request);
+  return withIsolationScope(() => sharedHandler(request));
 }
 
 export function OPTIONS(request: NextRequest) {

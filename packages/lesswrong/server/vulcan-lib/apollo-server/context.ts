@@ -87,6 +87,12 @@ export const computeContextFromUser = ({user, headers, searchParams, cookies, is
   return context;
 }
 
+/**
+ * The scope passed here must be one forked for this request (see the
+ * withIsolationScope wrappers in the GraphQL routes). We can't rely on the
+ * Sentry SDK to have forked one; if it hasn't, the user set here sticks to a
+ * scope shared between requests and gets attached to unrelated errors.
+ */
 export function configureSentryScope(context: ResolverContext, scope: Scope) {
   const user = context.currentUser;
   
