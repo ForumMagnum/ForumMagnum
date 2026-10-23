@@ -12,7 +12,7 @@ export async function createLlmFamilyAccounts() {
   }
 
   for (const family of LLM_FAMILIES) {
-    const existingAccount = await Users.findOne({ llmFamily: family.name });
+    const existingAccount = await Users.findOne({ slug: family.accountSlug });
     if (existingAccount) {
       // eslint-disable-next-line no-console
       console.log(`${family.name}: account exists (/users/${existingAccount.slug})`);
@@ -27,7 +27,6 @@ export async function createLlmFamilyAccounts() {
         reviewedAt: new Date(),
       },
     }, context);
-    await Users.rawUpdateOne({ _id: account._id }, { $set: { llmFamily: family.name } });
     // eslint-disable-next-line no-console
     console.log(`${family.name}: created account (/users/${account.slug})`);
   }

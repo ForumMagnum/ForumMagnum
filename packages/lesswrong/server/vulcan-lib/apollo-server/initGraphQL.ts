@@ -107,6 +107,7 @@ import { graphqlHomePageDesignQueryTypeDefs, homePageDesignGqlQueryHandlers, hom
 import { graphqlIframeWidgetSrcdocQueryTypeDefs, iframeWidgetSrcdocGqlQueryHandlers, iframeWidgetSrcdocGqlFieldResolvers } from "@/server/collections/iframeWidgetSrcdocs/queries";
 import { graphqlImagesQueryTypeDefs, imagesGqlFieldResolvers } from "@/server/collections/images/queries";
 import { graphqlJargonTermQueryTypeDefs, jargonTermGqlQueryHandlers, jargonTermGqlFieldResolvers } from "@/server/collections/jargonTerms/queries";
+import { graphqlLlmRunTranscriptEntryQueryTypeDefs, llmRunTranscriptEntryGqlFieldResolvers } from "@/server/collections/llmRunTranscriptEntries/queries";
 import { graphqlLweventQueryTypeDefs, lweventGqlQueryHandlers, lweventGqlFieldResolvers } from "@/server/collections/lwevents/queries";
 import { graphqlLegacyDataQueryTypeDefs, legacyDataGqlFieldResolvers } from "@/server/collections/legacyData/queries";
 import { graphqlLlmConversationQueryTypeDefs, llmConversationGqlQueryHandlers, llmConversationGqlFieldResolvers } from "@/server/collections/llmConversations/queries";
@@ -356,6 +357,7 @@ export const getTypeDefs = () => gql`
   ${graphqlFieldChangeQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
   ${graphqlHomePageDesignQueryTypeDefs}
+  ${graphqlLlmRunTranscriptEntryQueryTypeDefs}
   ${graphqlRejectionAppealQueryTypeDefs}
   ${graphqlTypoSuggestionQueryTypeDefs}
   ${graphqlIframeWidgetSrcdocQueryTypeDefs}
@@ -726,6 +728,7 @@ const getResolvers = () => ({
   ...fieldChangeGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
   ...homePageDesignGqlFieldResolvers,
+  ...llmRunTranscriptEntryGqlFieldResolvers,
   ...rejectionAppealGqlFieldResolvers,
   ...typoSuggestionGqlFieldResolvers,
   ...iframeWidgetSrcdocGqlFieldResolvers,

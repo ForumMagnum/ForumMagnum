@@ -4,7 +4,7 @@ import merge from "lodash/merge";
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
-import LlmRunPage from "./LlmRunPage";
+import LlmRunPage from "@/components/languageModels/LlmRunPage";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), await getPageTitleFields("AI run"), {

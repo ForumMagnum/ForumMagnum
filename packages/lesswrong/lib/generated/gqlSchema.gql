@@ -3339,6 +3339,22 @@ extend type Query {
   adminHomePageDesigns: [AdminHomePageDesign!]!
 }
 
+type LlmRunTranscriptEntry {
+  _id: String!
+  createdAt: Date!
+  llmRunId: String!
+  attempt: Int!
+  index: Int!
+  type: String!
+  text: String
+  toolCallId: String
+  toolName: String
+  query: String
+  url: String
+  title: String
+  extra: JSON
+}
+
 type RejectionAppeal {
   _id: String!
   createdAt: Date!
@@ -3670,7 +3686,7 @@ type LlmRun {
   status: String!
   systemPrompt: String!
   contextMessage: String
-  transcript: JSON!
+  transcriptEntries: [LlmRunTranscriptEntry!]!
   response: String
   error: String
   completedAt: Date
@@ -8124,7 +8140,6 @@ type User {
   userRateLimits: [UserRateLimit!]
   claudeLinkedAt: Date
   hasClaudeCodeOAuthToken: Boolean
-  llmFamily: String
 }
 
 enum ReactPaletteStyle {

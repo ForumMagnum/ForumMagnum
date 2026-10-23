@@ -18,7 +18,9 @@ export const LlmRunPageFragment = gql(`
     replyCommentId
     systemPrompt
     contextMessage
-    transcript
+    transcriptEntries {
+      ...LlmRunTranscriptEntryFragment
+    }
     response
     error
   }

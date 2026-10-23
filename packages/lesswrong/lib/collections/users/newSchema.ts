@@ -4406,16 +4406,6 @@ const schema = {
       resolver: (user) => !!user.claudeCodeOAuthTokenEncrypted,
     },
   },
-  llmFamily: {
-    database: {
-      type: "TEXT",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-    },
-  },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;
 
 export default schema;

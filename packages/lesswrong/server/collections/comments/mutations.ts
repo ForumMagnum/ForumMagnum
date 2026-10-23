@@ -15,7 +15,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { updateCommentEmbeddings } from "@/server/voyage/client";
-import { startLlmReplyForComment } from "@/server/llmReplies/startLlmReplies";
+import { assertLlmMentionAllowed, assertSubmittedLlmMentionAllowed, startLlmReplyForComment } from "@/server/llmReplies/startLlmReplies";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
@@ -124,6 +124,10 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   data = await handleReplyToAnswer(data, callbackProps);
   data = await setTopLevelCommentId(data, callbackProps);  
 
+  if (!data.draft) {
+    await assertSubmittedLlmMentionAllowed(data.postId ?? null, data.contents?.originalContents, context);
+  }
+
   data = await createInitialRevisionsForEditableFields({
     doc: data,
     props: callbackProps,
@@ -174,13 +178,14 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
 
   if (!documentWithId.draft) {
     backgroundTask(updateCommentEmbeddings(documentWithId._id, context.forumType));
-    await startLlmReplyForComment(documentWithId, context);
   }
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(documentWithId, null, context));
 
   if (documentWithId.postId) {
     await invalidatePostPageCache(documentWithId.postId);
   }
+
+  await startLlmReplyForComment(documentWithId, context);
 
   return documentWithId;
 }
@@ -211,6 +216,15 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   data = handleDraftState(data, updateCallbackProperties);
   data = await validateDeleteOperations(data, updateCallbackProperties);  
 
+  if (oldDocument.draft && data.draft === false) {
+    const newContents = data.contents?.originalContents;
+    if (newContents) {
+      await assertSubmittedLlmMentionAllowed(oldDocument.postId, newContents, context);
+    } else {
+      await assertLlmMentionAllowed(oldDocument.postId, oldDocument.contents?.html ?? "", context);
+    }
+  }
+
   data = await createRevisionsForEditableFields({
     docData: data,
     props: updateCallbackProperties,
@@ -237,9 +251,6 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   // There really has to be a currentUser here.
   await commentsEditSoftDeleteCallback(updatedDocument, oldDocument, currentUser!, context);
   await commentsPublishedNotifications(updatedDocument, oldDocument, context);
-  if (oldDocument.draft && !updatedDocument.draft) {
-    await startLlmReplyForComment(updatedDocument, context);
-  }
   await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument, context);
 
   reuploadImagesIfEditableFieldsChanged({
@@ -262,6 +273,10 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
     filterNonnull([updatedDocument.postId, oldDocument.postId]),
     { hardDelete: commentVisibilityChanged(oldDocument, updatedDocument) },
   );
+
+  if (oldDocument.draft && !updatedDocument.draft) {
+    await startLlmReplyForComment(updatedDocument, context);
+  }
 
   return updatedDocument;
 }

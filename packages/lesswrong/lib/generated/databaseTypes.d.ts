@@ -603,6 +603,24 @@ interface DbLlmMessage extends DbObject {
   userId: string
 }
 
+type LlmRunTranscriptEntriesCollection = PgCollection<"LlmRunTranscriptEntries">;
+
+interface DbLlmRunTranscriptEntry extends DbObject {
+  __collectionName?: "LlmRunTranscriptEntries"
+  attempt: number
+  createdAt: Date
+  extra: any | null
+  index: number
+  llmRunId: string
+  query: string | null
+  text: string | null
+  title: string | null
+  toolCallId: string | null
+  toolName: string | null
+  type: LlmTranscriptEntryType
+  url: string | null
+}
+
 type LlmRunsCollection = PgCollection<"LlmRuns">;
 
 interface DbLlmRun extends DbObject {
@@ -619,7 +637,6 @@ interface DbLlmRun extends DbObject {
   response: string | null
   status: LlmRunStatus
   systemPrompt: string
-  transcript: LlmTranscriptEntry[]
   triggerCommentId: string | null
 }
 
@@ -1872,7 +1889,6 @@ interface DbUser extends DbObject {
   legacyData: any | null
   legacyId: string | null
   linkedinProfileURL: string | null
-  llmFamily: string | null
   location: string | null
   lwWikiImport: boolean | null
   mapLocation: any | null
@@ -2453,6 +2469,7 @@ interface CollectionsByName {
   LinkPreviewCaches: LinkPreviewCachesCollection
   LlmConversations: LlmConversationsCollection
   LlmMessages: LlmMessagesCollection
+  LlmRunTranscriptEntries: LlmRunTranscriptEntriesCollection
   LlmRuns: LlmRunsCollection
   Localgroups: LocalgroupsCollection
   LoginTokens: LoginTokensCollection
@@ -2556,6 +2573,7 @@ interface ObjectsByCollectionName {
   LinkPreviewCaches: DbLinkPreviewCaches
   LlmConversations: DbLlmConversation
   LlmMessages: DbLlmMessage
+  LlmRunTranscriptEntries: DbLlmRunTranscriptEntry
   LlmRuns: DbLlmRun
   Localgroups: DbLocalgroup
   LoginTokens: DbLoginToken
@@ -2659,6 +2677,7 @@ interface ObjectsByTypeName {
   LinkPreviewCaches: DbLinkPreviewCaches
   LlmConversation: DbLlmConversation
   LlmMessage: DbLlmMessage
+  LlmRunTranscriptEntry: DbLlmRunTranscriptEntry
   LlmRun: DbLlmRun
   Localgroup: DbLocalgroup
   LoginToken: DbLoginToken

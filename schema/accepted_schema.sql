@@ -1011,6 +1011,26 @@ CREATE TABLE "LlmMessages" (
 -- Index "idx_LlmMessages_conversationId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_LlmMessages_conversationId_createdAt" ON "LlmMessages" USING btree ("conversationId", "createdAt");
 
+-- Table "LlmRunTranscriptEntries"
+CREATE TABLE "LlmRunTranscriptEntries" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "llmRunId" VARCHAR(27) NOT NULL,
+  "attempt" INTEGER NOT NULL,
+  "index" INTEGER NOT NULL,
+  "type" TEXT NOT NULL,
+  "text" TEXT,
+  "toolCallId" TEXT,
+  "toolName" TEXT,
+  "query" TEXT,
+  "url" TEXT,
+  "title" TEXT,
+  "extra" JSONB
+);
+
+-- Index "idx_LlmRunTranscriptEntries_llmRunId_attempt_index"
+CREATE INDEX IF NOT EXISTS "idx_LlmRunTranscriptEntries_llmRunId_attempt_index" ON "LlmRunTranscriptEntries" USING btree ("llmRunId", "attempt", "index");
+
 -- Table "LlmRuns"
 CREATE TABLE "LlmRuns" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1021,7 +1041,6 @@ CREATE TABLE "LlmRuns" (
   "status" TEXT NOT NULL DEFAULT 'pending',
   "systemPrompt" TEXT NOT NULL,
   "contextMessage" TEXT,
-  "transcript" JSONB NOT NULL DEFAULT '{}',
   "response" TEXT,
   "error" TEXT,
   "attemptCount" INTEGER NOT NULL DEFAULT 0,
@@ -3456,8 +3475,7 @@ CREATE TABLE "Users" (
   "recommendationSettings" JSONB,
   "aiDigestPersonalInstructions" TEXT,
   "claudeLinkedAt" TIMESTAMPTZ,
-  "claudeCodeOAuthTokenEncrypted" TEXT,
-  "llmFamily" TEXT
+  "claudeCodeOAuthTokenEncrypted" TEXT
 );
 
 -- Index "idx_Users_username"

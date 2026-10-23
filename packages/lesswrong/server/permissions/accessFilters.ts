@@ -478,6 +478,7 @@ const accessFilters = {
   LlmConversations: llmConversationCheckAccess,
   LlmMessages: llmMessageCheckAccess,
   LlmRuns: allowAccess,
+  LlmRunTranscriptEntries: allowAccess,
   Localgroups: allowAccess,
   LoginTokens: denyAll,
   LWEvents: lweventCheckAccess,

@@ -1,9 +1,3 @@
-import { anthropic } from "@ai-sdk/anthropic";
-import { google } from "@ai-sdk/google";
-// The restriction is meant for the `openai` package (a Turbopack bundler bug);
-// its `openai*` pattern also matches this unrelated AI SDK provider package.
-// eslint-disable-next-line no-restricted-imports
-import { openai } from "@ai-sdk/openai";
 import { gateway, tool, type ToolSet } from "ai";
 import { z } from "zod";
 import type { ForumTypeString } from "@/lib/instanceSettings";
@@ -23,8 +17,6 @@ const searchLessWrongInputSchema = z.object({
   query: z.string(),
   type: z.enum(["posts", "comments", "tags", "users", "sequences"]).optional()
     .describe("Only return this kind of result"),
-  author: z.string().optional()
-    .describe("Only return posts and comments by this user, given as their user slug"),
 });
 
 const semanticSearchLessWrongInputSchema = z.object({
@@ -36,13 +28,13 @@ const readLessWrongInputSchema = z.object({
   url: z.string(),
 });
 
-export function getLlmTools(context: ResolverContext, gatewayModelId: string): ToolSet {
+export function getLlmTools(context: ResolverContext): ToolSet {
   const { forumType } = context;
   return {
-    ...getWebSearchTool(gatewayModelId),
+    parallel_search: gateway.tools.parallelSearch(),
     browserbase_fetch: gateway.tools.browserbaseFetch({ format: "markdown" }),
     searchLessWrong: tool({
-      description: "Keyword search over LessWrong posts, comments, wiki pages, users and sequences, optionally limited to one author's posts and comments. Returns Markdown with links you can open with readLessWrong.",
+      description: "Keyword search over LessWrong posts, comments, wiki pages, users and sequences. Returns Markdown with links you can open with readLessWrong.",
       inputSchema: searchLessWrongInputSchema,
       execute: (input) => searchLessWrong(input, forumType),
     }),
@@ -59,26 +51,11 @@ export function getLlmTools(context: ResolverContext, gatewayModelId: string): T
   };
 }
 
-function getWebSearchTool(gatewayModelId: string): ToolSet {
-  const provider = gatewayModelId.split("/")[0];
-  switch (provider) {
-    case "anthropic":
-      return { web_search: anthropic.tools.webSearch_20250305() };
-    case "openai":
-      return { web_search: openai.tools.webSearch({}) };
-    case "google":
-      return { google_search: google.tools.googleSearch({}) };
-    default:
-      return { parallel_search: gateway.tools.parallelSearch() };
-  }
-}
-
-async function searchLessWrong({ query, type, author }: z.infer<typeof searchLessWrongInputSchema>, forumType: ForumTypeString): Promise<string> {
+async function searchLessWrong({ query, type }: z.infer<typeof searchLessWrongInputSchema>, forumType: ForumTypeString): Promise<string> {
   const params = new URLSearchParams({
     search: query,
     limit: "10",
     ...(type ? { type } : {}),
-    ...(author ? { author } : {}),
   });
   return await fetchPublicMarkdown(`/api/search?${params}`, forumType);
 }

@@ -48,10 +48,7 @@
     "next-start": "NODE_OPTIONS='--inspect --no-deprecation --enable-source-maps' next start"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.135",
     "@ai-sdk/gateway": "^3.0.219",
-    "@ai-sdk/google": "^3.0.137",
-    "@ai-sdk/openai": "^3.0.131",
     "@ai-sdk/react": "^3.0.315",
     "@anthropic-ai/sdk": "0.78.0",
     "@apollo/client": "^4.0.4",

@@ -36,6 +36,7 @@ type LegacyDataViewName = never
 type LinkPreviewCachesViewName = never
 type LlmConversationsViewName = "llmConversationsAll"|"llmConversationsWithUser";
 type LlmMessagesViewName = never
+type LlmRunTranscriptEntriesViewName = never
 type LlmRunsViewName = never
 type LocalgroupsViewName = "all"|"local"|"nearby"|"online"|"single"|"userActiveGroups"|"userInactiveGroups"|"userOrganizesGroups";
 type LoginTokensViewName = never
@@ -138,6 +139,7 @@ interface ViewTermsByCollectionName {
   LinkPreviewCaches: ViewTermsBase
   LlmConversations: LlmConversationsViewTerms
   LlmMessages: ViewTermsBase
+  LlmRunTranscriptEntries: ViewTermsBase
   LlmRuns: ViewTermsBase
   Localgroups: LocalgroupsViewTerms
   LoginTokens: ViewTermsBase

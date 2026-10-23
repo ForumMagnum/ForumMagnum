@@ -7,14 +7,6 @@
   resolved "https://registry.yarnpkg.com/@adobe/css-tools/-/css-tools-4.4.2.tgz#c836b1bd81e6d62cd6cdf3ee4948bcdce8ea79c8"
   integrity sha512-baYZExFpsdkBNuvGKTKWCwKH57HRZLVtycZS05WTQNVOiXVSeAki3nU35zlRbToeMW8aHlJfyS+1C4BOv27q0A==
 
-"@ai-sdk/anthropic@^3.0.135":
-  version "3.0.135"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/anthropic/-/anthropic-3.0.135.tgz#f9fc0f36cab49ccb68711e023463bf93a7a6279c"
-  integrity sha512-lOMoKXRbQ0gQ9ctOBo8aOqqQQ8nZEEf9INT8PpAXLSuwIsZl26Jg0vDqkhUsBWBuS9oPtEx3VFqGt3AuAvkjgg==
-  dependencies:
-    "@ai-sdk/provider" "3.0.19"
-    "@ai-sdk/provider-utils" "4.0.62"
-
 "@ai-sdk/gateway@3.0.220", "@ai-sdk/gateway@^3.0.219":
   version "3.0.220"
   resolved "https://registry.yarnpkg.com/@ai-sdk/gateway/-/gateway-3.0.220.tgz#37bffeff6c29b12f0a5da16920aabbc0d4f3c45d"
@@ -23,22 +15,6 @@
     "@ai-sdk/provider" "3.0.19"
     "@ai-sdk/provider-utils" "4.0.62"
     "@vercel/oidc" "3.2.0"
-
-"@ai-sdk/google@^3.0.137":
-  version "3.0.137"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/google/-/google-3.0.137.tgz#21d056c3266b9545550eea110091353235bd5df3"
-  integrity sha512-6zw7nWnPs2BwAzqDNxj6tiDqrEC6sFax/VTqTHFp7rQspEicDjjahyBrpU1TvSsKEyqVCw6PQrWqyAnpCCLjAA==
-  dependencies:
-    "@ai-sdk/provider" "3.0.19"
-    "@ai-sdk/provider-utils" "4.0.62"
-
-"@ai-sdk/openai@^3.0.131":
-  version "3.0.131"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-3.0.131.tgz#33579831e28c296105a1cfdac6ae827c882cddee"
-  integrity sha512-aiyMcWBF//Z73wCWn2oGsxGMxykioZZL5ACXQEzpkRmwcjVKOSg4/7tbxwvM/MdRkZI9TrqTUuDHu3+aXU2XXg==
-  dependencies:
-    "@ai-sdk/provider" "3.0.19"
-    "@ai-sdk/provider-utils" "4.0.62"
 
 "@ai-sdk/provider-utils@4.0.62":
   version "4.0.62"

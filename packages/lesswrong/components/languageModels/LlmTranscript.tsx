@@ -6,13 +6,10 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ForumIcon, { type ForumIconName } from "@/components/common/ForumIcon";
 import { getMarkdownItNoMathjax } from "@/lib/utils/markdownItPlugins";
 import { sanitize } from "@/lib/utils/sanitize";
-import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 const MAX_TOOL_RESULT_CHARACTERS = 5000;
 const MAX_SITE_MARKERS = 3;
 const LLM_FONT_FAMILY = '"cronos-pro", serif';
-
-const WEB_SEARCH_TOOLS = new Set(["web_search", "google_search", "parallel_search"]);
 
 const styles = defineStyles("LlmTranscript", (theme: ThemeType) => ({
   root: {
@@ -192,26 +189,20 @@ const styles = defineStyles("LlmTranscript", (theme: ThemeType) => ({
 
 interface ModelTextStep {
   kind: "modelText",
+  origin: "reasoning" | "text",
   text: string,
 }
 
 interface ToolStep {
   kind: "tool",
-  toolCallId: string,
-  toolName: string,
-  input: unknown,
-  output?: { value: unknown },
-  error?: string,
-}
-
-interface Source {
-  url: string,
-  title: string | null,
+  call: LlmRunTranscriptEntryFragment,
+  result: LlmRunTranscriptEntryFragment | null,
+  links: LinkResult[],
 }
 
 interface SourcesStep {
   kind: "sources",
-  sources: Source[],
+  sources: LinkResult[],
 }
 
 type TranscriptStep = ModelTextStep | ToolStep | SourcesStep;
@@ -221,15 +212,15 @@ interface LinkResult {
   title: string,
 }
 
-const LlmTranscript = ({ transcript, finalResponse, isRunning, initialVisibleSteps }: {
-  transcript: LlmTranscriptEntry[],
+const LlmTranscript = ({ entries, finalResponse, isRunning, initialVisibleSteps }: {
+  entries: LlmRunTranscriptEntryFragment[],
   finalResponse: string | null,
   isRunning: boolean,
   initialVisibleSteps?: number,
 }) => {
   const classes = useStyles(styles);
   const [showAll, setShowAll] = useState(false);
-  const steps = getTranscriptSteps(transcript, finalResponse);
+  const steps = getTranscriptSteps(entries, finalResponse);
   const isCollapsed = !showAll && initialVisibleSteps !== undefined && steps.length > initialVisibleSteps;
   const visibleSteps = isCollapsed ? steps.slice(0, initialVisibleSteps) : steps;
 
@@ -284,18 +275,19 @@ const ModelTextStepItem = ({ text }: { text: string }) => {
 
 const ToolStepItem = ({ step, isRunning }: { step: ToolStep, isRunning: boolean }) => {
   const classes = useStyles(styles);
-  const description = describeTool(step);
+  const description = describeTool(step.call);
+  const { result, links } = step;
 
-  if (step.error !== undefined) {
+  if (result?.type === "toolError") {
     return <div className={classNames(classes.step, classes.row)}>
       <ForumIcon icon="Warning" className={classNames(classes.icon, classes.errorIcon)} />
       <span className={classNames(classes.label, classes.errorLabel)}>{description.failedLabel}</span>
       {description.detail && <span className={classes.detail}>{description.detail}</span>}
-      <span className={classNames(classes.meta, classes.errorMeta)}>{step.error}</span>
+      <span className={classNames(classes.meta, classes.errorMeta)}>{result.text}</span>
     </div>;
   }
 
-  if (!step.output) {
+  if (!result) {
     return <div className={classNames(classes.step, classes.row)}>
       <ForumIcon icon={description.icon} className={classes.icon} />
       <span className={classNames(classes.label, isRunning && classes.shimmer)}>
@@ -305,9 +297,8 @@ const ToolStepItem = ({ step, isRunning }: { step: ToolStep, isRunning: boolean 
     </div>;
   }
 
-  const linkResults = getLinkResults(step.output.value);
-  const textOutput = linkResults ? null : getTextOutput(step.output.value);
-  if (!linkResults && textOutput === null) {
+  const textOutput = links.length ? null : getResultText(result);
+  if (!links.length && textOutput === null) {
     return <div className={classNames(classes.step, classes.row)}>
       <ForumIcon icon={description.icon} className={classes.icon} />
       <span className={classes.label}>{description.label}</span>
@@ -320,20 +311,20 @@ const ToolStepItem = ({ step, isRunning }: { step: ToolStep, isRunning: boolean 
       <span className={classes.label}>{description.label}</span>
       {description.detail && <span className={classes.detail}>{description.detail}</span>}
       <span className={classes.meta}>
-        {linkResults && <SiteMarkers urls={linkResults.map((result) => result.url)} />}
-        {linkResults && `${linkResults.length} ${linkResults.length === 1 ? "result" : "results"}`}
+        {links.length > 0 && <SiteMarkers urls={links.map((link) => link.url)} />}
+        {links.length > 0 && `${links.length} ${links.length === 1 ? "result" : "results"}`}
         <span className={classes.chevron} />
       </span>
     </summary>
     <div className={classes.body}>
-      {linkResults
-        ? <LinkList links={linkResults} />
+      {links.length > 0
+        ? <LinkList links={links} />
         : <pre className={classes.pre}>{textOutput}</pre>}
     </div>
   </details>;
 };
 
-const SourcesStepItem = ({ sources }: { sources: SourcesStep["sources"] }) => {
+const SourcesStepItem = ({ sources }: { sources: LinkResult[] }) => {
   const classes = useStyles(styles);
   return <details className={classes.step}>
     <summary className={classNames(classes.row, classes.expandableRow)}>
@@ -342,7 +333,7 @@ const SourcesStepItem = ({ sources }: { sources: SourcesStep["sources"] }) => {
       <span className={classes.meta}><span className={classes.chevron} /></span>
     </summary>
     <div className={classes.body}>
-      <LinkList links={sources.map(({ url, title }) => ({ url, title: title ?? url }))} />
+      <LinkList links={sources} />
     </div>
   </details>;
 };
@@ -365,39 +356,45 @@ const SiteMarkers = ({ urls }: { urls: string[] }) => {
   </span>;
 };
 
-function getTranscriptSteps(transcript: LlmTranscriptEntry[], finalResponse: string | null): TranscriptStep[] {
-  return transcript.reduce<TranscriptStep[]>((steps, entry) => {
+function getTranscriptSteps(entries: LlmRunTranscriptEntryFragment[], finalResponse: string | null): TranscriptStep[] {
+  const steps = entries.reduce<TranscriptStep[]>((stepsSoFar, entry) => {
     switch (entry.type) {
       case "reasoning":
-      case "text": {
-        const text = entry.text.trim();
-        const repeatsResponse = entry.type === "text" && text === finalResponse?.trim();
-        return text && !repeatsResponse ? [...steps, { kind: "modelText", text }] : steps;
-      }
-      case "tool-call":
-        return [...steps, getToolStep(entry.toolCallId, entry.toolName, entry.input, transcript)];
+      case "text":
+        return addModelText(stepsSoFar, entry.type, entry.text ?? "");
+      case "toolCall":
+        return [...stepsSoFar, getToolStep(entry, entries)];
       case "source":
-        return addSource(steps, { url: entry.url, title: entry.title });
-      case "tool-result":
-      case "tool-error":
-        return steps;
+        return entry.url ? addSource(stepsSoFar, { url: entry.url, title: entry.title ?? entry.url }) : stepsSoFar;
+      default:
+        return stepsSoFar;
     }
   }, []);
+  return steps.filter((step) => !isRepeatedResponse(step, finalResponse));
 }
 
-function getToolStep(toolCallId: string, toolName: string, input: unknown, transcript: LlmTranscriptEntry[]): ToolStep {
-  const outcome = transcript.find((entry) => (entry.type === "tool-result" || entry.type === "tool-error") && entry.toolCallId === toolCallId);
-  return {
-    kind: "tool",
-    toolCallId,
-    toolName,
-    input,
-    ...(outcome?.type === "tool-result" ? { output: { value: outcome.output } } : {}),
-    ...(outcome?.type === "tool-error" ? { error: outcome.error } : {}),
-  };
+function addModelText(steps: TranscriptStep[], origin: ModelTextStep["origin"], text: string): TranscriptStep[] {
+  const previous = steps[steps.length - 1];
+  if (origin === "text" && previous?.kind === "modelText" && previous.origin === "text") {
+    return [...steps.slice(0, -1), { ...previous, text: previous.text + text }];
+  }
+  return text.trim() ? [...steps, { kind: "modelText", origin, text }] : steps;
 }
 
-function addSource(steps: TranscriptStep[], source: Source): TranscriptStep[] {
+function isRepeatedResponse(step: TranscriptStep, finalResponse: string | null): boolean {
+  return step.kind === "modelText" && step.origin === "text" && step.text.trim() === finalResponse?.trim();
+}
+
+function getToolStep(call: LlmRunTranscriptEntryFragment, entries: LlmRunTranscriptEntryFragment[]): ToolStep {
+  const toolEntries = entries.filter((entry) => entry.toolCallId === call.toolCallId);
+  const result = toolEntries.find((entry) => entry.type === "toolResult" || entry.type === "toolError") ?? null;
+  const links = toolEntries
+    .filter((entry) => entry.type === "resultLink")
+    .flatMap((entry) => entry.url ? [{ url: entry.url, title: entry.title ?? entry.url }] : []);
+  return { kind: "tool", call, result, links };
+}
+
+function addSource(steps: TranscriptStep[], source: LinkResult): TranscriptStep[] {
   const previous = steps[steps.length - 1];
   if (previous?.kind !== "sources") {
     return [...steps, { kind: "sources", sources: [source] }];
@@ -416,47 +413,38 @@ interface ToolDescription {
   detail: string | null,
 }
 
-function describeTool(step: ToolStep): ToolDescription {
-  const { toolName, input } = step;
-  if (WEB_SEARCH_TOOLS.has(toolName)) {
-    const action = getField(step.output?.value, "action");
-    const openedUrl = getStringField(action, "type") === "openPage" ? getStringField(action, "url") : undefined;
-    if (openedUrl) {
-      return { icon: "Link", label: "Read", inProgressLabel: "Reading", failedLabel: "Couldn't open", detail: getShortUrl(openedUrl) };
-    }
-    const query = getStringField(input, "query") ?? getStringField(input, "objective") ?? getStringField(action, "query");
-    return { icon: "Search", label: "Searched the web", inProgressLabel: "Searching the web", failedLabel: "Couldn't search the web", detail: query ?? null };
-  }
+function describeTool({ toolName, query, url }: LlmRunTranscriptEntryFragment): ToolDescription {
+  const shortUrl = url ? getShortUrl(url) : null;
   switch (toolName) {
+    case "parallel_search":
+      return { icon: "Search", label: "Searched the web", inProgressLabel: "Searching the web", failedLabel: "Couldn't search the web", detail: query };
     case "browserbase_fetch":
-    case "readLessWrong": {
-      const url = getStringField(input, "url");
-      return { icon: toolName === "readLessWrong" ? "Document" : "Link", label: "Read", inProgressLabel: "Reading", failedLabel: "Couldn't open", detail: url ? getShortUrl(url) : null };
-    }
+      return { icon: "Link", label: "Read", inProgressLabel: "Reading", failedLabel: "Couldn't open", detail: shortUrl };
+    case "readLessWrong":
+      return { icon: "Document", label: "Read", inProgressLabel: "Reading", failedLabel: "Couldn't open", detail: shortUrl };
     case "searchLessWrong":
-    case "semanticSearchLessWrong": {
-      const query = getStringField(input, "query");
-      const author = getStringField(input, "author");
-      const detail = query && author ? `${query}, by ${author}` : query ?? null;
-      return { icon: "Book", label: "Searched LessWrong", inProgressLabel: "Searching LessWrong", failedLabel: "Couldn't search LessWrong", detail };
+    case "semanticSearchLessWrong":
+      return { icon: "Book", label: "Searched LessWrong", inProgressLabel: "Searching LessWrong", failedLabel: "Couldn't search LessWrong", detail: query };
+    default: {
+      const name = toolName ?? "Tool";
+      return { icon: "Settings", label: name, inProgressLabel: name, failedLabel: `${name} failed`, detail: null };
     }
-    default:
-      return { icon: "Settings", label: toolName, inProgressLabel: toolName, failedLabel: `${toolName} failed`, detail: null };
   }
 }
 
-function getLinkResults(output: unknown): LinkResult[] | null {
-  const list = Array.isArray(output) ? output : getField(output, "results") ?? getField(output, "sources");
-  if (!Array.isArray(list) || list.length === 0) {
+function getResultText(result: LlmRunTranscriptEntryFragment): string | null {
+  const text = result.text ?? getUnrecognizedOutputText(result.extra);
+  if (text === null) {
     return null;
   }
-  const links = filterNonnull(list.map(toLinkResult));
-  return links.length === list.length ? links : null;
+  return text.length > MAX_TOOL_RESULT_CHARACTERS
+    ? `${text.slice(0, MAX_TOOL_RESULT_CHARACTERS)}\n\n[Truncated]`
+    : text;
 }
 
-function toLinkResult(item: unknown): LinkResult | null {
-  const url = getStringField(item, "url");
-  return url ? { url, title: getStringField(item, "title") ?? url } : null;
+function getUnrecognizedOutputText(extra: unknown): string | null {
+  const output = getField(extra, "output");
+  return output === undefined ? null : JSON.stringify(output, null, 2);
 }
 
 function getField(value: unknown, key: string): unknown {
@@ -464,11 +452,6 @@ function getField(value: unknown, key: string): unknown {
     return undefined;
   }
   return Object.entries(value).find(([fieldName]) => fieldName === key)?.[1];
-}
-
-function getStringField(value: unknown, key: string): string | undefined {
-  const field = getField(value, key);
-  return typeof field === "string" && field ? field : undefined;
 }
 
 function getHostname(url: string): string {
@@ -481,24 +464,6 @@ function getHostname(url: string): string {
 
 function getShortUrl(url: string): string {
   return url.replace(/^https?:\/\/(www\.)?/, "");
-}
-
-function getTextOutput(output: unknown): string | null {
-  const isActionOnly = typeof output === "object" && output !== null && Object.keys(output).every((key) => key === "action");
-  if (isActionOnly) {
-    return null;
-  }
-  const text = getOutputText(output);
-  return text.length > MAX_TOOL_RESULT_CHARACTERS
-    ? `${text.slice(0, MAX_TOOL_RESULT_CHARACTERS)}\n\n[Truncated]`
-    : text;
-}
-
-function getOutputText(output: unknown): string {
-  if (typeof output === "string") {
-    return output;
-  }
-  return getStringField(output, "content") ?? JSON.stringify(output, null, 2);
 }
 
 export default LlmTranscript;

@@ -26,7 +26,7 @@ export const commentReplyRunHandler: LlmRunHandler = {
 
     const response = await generateLlmRunResponse(run, {
       contextMessage: await buildThreadContextMessage(post, triggerComment, context),
-      tools: getLlmTools(context, run.gatewayModelId),
+      tools: getLlmTools(context),
     });
     const reply = await updateComment({
       selector: { _id: replyComment._id },

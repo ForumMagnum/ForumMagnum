@@ -3012,6 +3012,22 @@ interface AdminHomePageDesign {
   ownerSlug: string;
 }
 
+interface LlmRunTranscriptEntry {
+  _id: string;
+  createdAt: Date;
+  llmRunId: string;
+  attempt: number;
+  index: number;
+  type: string;
+  text: string | null;
+  toolCallId: string | null;
+  toolName: string | null;
+  query: string | null;
+  url: string | null;
+  title: string | null;
+  extra: any;
+}
+
 interface RejectionAppeal {
   _id: string;
   createdAt: Date;
@@ -3307,7 +3323,7 @@ interface LlmRun {
   status: string;
   systemPrompt: string;
   contextMessage: string | null;
-  transcript: any;
+  transcriptEntries: Array<LlmRunTranscriptEntry>;
   response: string | null;
   error: string | null;
   completedAt: Date | null;
@@ -7506,7 +7522,6 @@ interface User {
   userRateLimits: Array<UserRateLimit> | null;
   claudeLinkedAt: Date | null;
   hasClaudeCodeOAuthToken: boolean | null;
-  llmFamily: string | null;
 }
 
 interface UserSelectorUniqueInput {
@@ -9838,6 +9853,7 @@ interface GraphQLTypeMap {
   HomePageDesignSummary: HomePageDesignSummary;
   MarketplaceHomePageDesign: MarketplaceHomePageDesign;
   AdminHomePageDesign: AdminHomePageDesign;
+  LlmRunTranscriptEntry: LlmRunTranscriptEntry;
   RejectionAppeal: RejectionAppeal;
   SingleRejectionAppealOutput: SingleRejectionAppealOutput;
   RejectionAppealSelector: RejectionAppealSelector;
@@ -10507,6 +10523,7 @@ interface CreateInputsByCollectionName {
   LinkPreviewCaches: never;
   LlmConversations: never;
   LlmMessages: never;
+  LlmRunTranscriptEntries: never;
   LlmRuns: never;
   LoginTokens: never;
   MailgunValidations: never;
@@ -10609,6 +10626,7 @@ interface UpdateInputsByCollectionName {
   LegacyData: never;
   LinkPreviewCaches: never;
   LlmMessages: never;
+  LlmRunTranscriptEntries: never;
   LlmRuns: never;
   LoginTokens: never;
   MailgunValidations: never;

@@ -261,7 +261,6 @@ export default function LlmRunPage({ runId }: { runId: string }) {
     return <SingleColumnSection>{loading ? <Loading /> : "This run doesn't exist."}</SingleColumnSection>;
   }
 
-  const transcript: LlmTranscriptEntry[] = run.transcript;
   const isRunning = !runIsFinished;
   const isCompleted = run.status === "completed";
   const mention = `@${run.modelName}`;
@@ -318,7 +317,7 @@ export default function LlmRunPage({ runId }: { runId: string }) {
     <section className={classes.section}>
       <h2 className={classes.sectionLabel}>Steps</h2>
       <LlmTranscript
-        transcript={transcript}
+        entries={run.transcriptEntries}
         finalResponse={run.response}
         isRunning={isRunning}
         initialVisibleSteps={isCompleted ? FINISHED_RUN_VISIBLE_STEPS : undefined}

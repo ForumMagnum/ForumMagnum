@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { accessFilterMultiple, accessFilterSingle } from "@/lib/utils/schemaUtils";
 
 declare global {
   type LlmRunStatus = "pending" | "running" | "completed" | "failed";
@@ -99,16 +99,17 @@ const schema = {
       canRead: ["guests"],
     },
   },
-  transcript: {
-    database: {
-      type: "JSONB",
-      typescriptType: "LlmTranscriptEntry[]",
-      defaultValue: [],
-      nullable: false,
-    },
+  transcriptEntries: {
     graphql: {
-      outputType: "JSON!",
+      outputType: "[LlmRunTranscriptEntry!]!",
       canRead: ["guests"],
+      resolver: async (run, args, context) => {
+        const entries = await context.LlmRunTranscriptEntries.find(
+          { llmRunId: run._id, attempt: run.attemptCount },
+          { sort: { index: 1 } },
+        ).fetch();
+        return await accessFilterMultiple(context.currentUser, "LlmRunTranscriptEntries", entries, context);
+      },
     },
   },
   response: {
@@ -128,7 +129,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: ["guests"],
+      canRead: ["admins"],
     },
   },
   attemptCount: {

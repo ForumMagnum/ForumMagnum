@@ -38,7 +38,13 @@ export async function runLlmRun(runId: string, forumType: ForumTypeString): Prom
     await LlmRuns.rawUpdateOne({ _id: run._id }, { $set: { status: "completed", completedAt: new Date() } });
   } catch (err) {
     captureException(err);
-    await failLlmRun(run, err instanceof Error ? err.message : String(err), forumType);
+    const error = err instanceof Error ? err.message : String(err);
+    if (run.attemptCount < MAX_LLM_RUN_ATTEMPTS) {
+      await LlmRuns.rawUpdateOne({ _id: run._id }, { $set: { status: "pending", error } });
+      await requestLlmRun(run._id, forumType);
+    } else {
+      await failLlmRun(run, error, forumType);
+    }
   }
 }
 

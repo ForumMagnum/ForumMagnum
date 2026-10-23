@@ -23,6 +23,7 @@ import { IframeWidgetSrcdocsViews } from '../collections/iframeWidgetSrcdocs/vie
 import { JargonTermsViews } from '../collections/jargonTerms/views';
 import { LlmConversationsViews } from '../collections/llmConversations/views';
 import { LlmRunsViews } from '../collections/llmRuns/views';
+import { LlmRunTranscriptEntriesViews } from '../collections/llmRunTranscriptEntries/views';
 import { LocalgroupsViews } from '../collections/localgroups/views';
 import { LWEventsViews } from '../collections/lwevents/views';
 import { MessagesViews } from '../collections/messages/views';
@@ -105,6 +106,7 @@ export const allViews = {
   LlmConversations: LlmConversationsViews,
   LlmMessages: new CollectionViewSet('LlmMessages', {}),
   LlmRuns: LlmRunsViews,
+  LlmRunTranscriptEntries: LlmRunTranscriptEntriesViews,
   Localgroups: LocalgroupsViews,
   LoginTokens: new CollectionViewSet('LoginTokens', {}),
   LWEvents: LWEventsViews,

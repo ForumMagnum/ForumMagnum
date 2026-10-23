@@ -18,6 +18,7 @@ import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_A
 import { customBaseScoreReadAccess } from "./voting";
 import { CommentsViews } from "./views";
 import { getWithLoader } from "../../loaders";
+import { getLlmFamilyBySlug } from "@/lib/languageModels/llmRegistry";
 
 function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
   return "postId" in data;
@@ -301,7 +302,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canCreate: [(user) => !!user?.llmFamily],
+      canCreate: [(user) => !!user && !!getLlmFamilyBySlug(user.slug)],
       validation: {
         optional: true,
       },

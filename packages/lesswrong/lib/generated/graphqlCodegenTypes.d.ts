@@ -2752,12 +2752,29 @@ type LlmRun = {
   response?: Maybe<Scalars['String']['output']>;
   status: Scalars['String']['output'];
   systemPrompt: Scalars['String']['output'];
-  transcript: Scalars['JSON']['output'];
+  transcriptEntries: Array<LlmRunTranscriptEntry>;
   triggerCommentId?: Maybe<Scalars['String']['output']>;
 };
 
 type LlmRunSelector = {
   default?: InputMaybe<EmptyViewInput>;
+};
+
+type LlmRunTranscriptEntry = {
+  __typename?: 'LlmRunTranscriptEntry';
+  _id: Scalars['String']['output'];
+  attempt: Scalars['Int']['output'];
+  createdAt: Scalars['Date']['output'];
+  extra?: Maybe<Scalars['JSON']['output']>;
+  index: Scalars['Int']['output'];
+  llmRunId: Scalars['String']['output'];
+  query?: Maybe<Scalars['String']['output']>;
+  text?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+  toolCallId?: Maybe<Scalars['String']['output']>;
+  toolName?: Maybe<Scalars['String']['output']>;
+  type: Scalars['String']['output'];
+  url?: Maybe<Scalars['String']['output']>;
 };
 
 type Localgroup = {
@@ -12230,7 +12247,6 @@ type User = {
   legacyData?: Maybe<Scalars['JSON']['output']>;
   legacyId?: Maybe<Scalars['String']['output']>;
   linkedinProfileURL?: Maybe<Scalars['String']['output']>;
-  llmFamily?: Maybe<Scalars['String']['output']>;
   location?: Maybe<Scalars['String']['output']>;
   lwWikiImport?: Maybe<Scalars['Boolean']['output']>;
   mailgunValidation?: Maybe<MailgunValidationResult>;
@@ -13138,40 +13154,6 @@ type LocalgroupMetadataQueryVariables = Exact<{
 
 
 type LocalgroupMetadataQuery = LocalgroupMetadataQuery_Query;
-
-type LlmRunPageQueryQuery_llmRun_SingleLlmRunOutput_result_LlmRun = (
-  { __typename?: 'LlmRun' }
-  & LlmRunPageFragment
-);
-
-type LlmRunPageQueryQuery_llmRun_SingleLlmRunOutput = { __typename?: 'SingleLlmRunOutput', result: LlmRunPageQueryQuery_llmRun_SingleLlmRunOutput_result_LlmRun | null };
-
-type LlmRunPageQueryQuery_Query = { __typename?: 'Query', llmRun: LlmRunPageQueryQuery_llmRun_SingleLlmRunOutput | null };
-
-
-type LlmRunPageQueryQueryVariables = Exact<{
-  runId: Scalars['String']['input'];
-}>;
-
-
-type LlmRunPageQueryQuery = LlmRunPageQueryQuery_Query;
-
-type LlmRunPageCommentQueryQuery_comment_SingleCommentOutput_result_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
-type LlmRunPageCommentQueryQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: LlmRunPageCommentQueryQuery_comment_SingleCommentOutput_result_Comment | null };
-
-type LlmRunPageCommentQueryQuery_Query = { __typename?: 'Query', comment: LlmRunPageCommentQueryQuery_comment_SingleCommentOutput | null };
-
-
-type LlmRunPageCommentQueryQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type LlmRunPageCommentQueryQuery = LlmRunPageCommentQueryQuery_Query;
 
 type multiModeratorCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
@@ -16567,6 +16549,40 @@ type LlmConversationsViewingPageQueryVariables = Exact<{
 
 
 type LlmConversationsViewingPageQuery = LlmConversationsViewingPageQuery_Query;
+
+type LlmRunPageQueryQuery_llmRun_SingleLlmRunOutput_result_LlmRun = (
+  { __typename?: 'LlmRun' }
+  & LlmRunPageFragment
+);
+
+type LlmRunPageQueryQuery_llmRun_SingleLlmRunOutput = { __typename?: 'SingleLlmRunOutput', result: LlmRunPageQueryQuery_llmRun_SingleLlmRunOutput_result_LlmRun | null };
+
+type LlmRunPageQueryQuery_Query = { __typename?: 'Query', llmRun: LlmRunPageQueryQuery_llmRun_SingleLlmRunOutput | null };
+
+
+type LlmRunPageQueryQueryVariables = Exact<{
+  runId: Scalars['String']['input'];
+}>;
+
+
+type LlmRunPageQueryQuery = LlmRunPageQueryQuery_Query;
+
+type LlmRunPageCommentQueryQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type LlmRunPageCommentQueryQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: LlmRunPageCommentQueryQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type LlmRunPageCommentQueryQuery_Query = { __typename?: 'Query', comment: LlmRunPageCommentQueryQuery_comment_SingleCommentOutput | null };
+
+
+type LlmRunPageCommentQueryQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type LlmRunPageCommentQueryQuery = LlmRunPageCommentQueryQuery_Query;
 
 type updateUserLayoutMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
@@ -25168,9 +25184,16 @@ type LlmConversationsWithMessagesFragment = (
 
 type LlmMessagesFragment = { __typename?: 'LlmMessage', _id: string, userId: string | null, conversationId: string | null, role: string | null, content: string | null, createdAt: string };
 
+type LlmRunTranscriptEntryFragment = { __typename?: 'LlmRunTranscriptEntry', _id: string, type: string, text: string | null, toolCallId: string | null, toolName: string | null, query: string | null, url: string | null, title: string | null, extra: any | null };
+
 type LlmRunPageFragment_LlmRun_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
 
-type LlmRunPageFragment = { __typename?: 'LlmRun', _id: string, createdAt: string, completedAt: string | null, invocationContext: string, status: string, modelName: string, gatewayModelId: string, triggerCommentId: string | null, replyCommentId: string | null, systemPrompt: string, contextMessage: string | null, transcript: any, response: string | null, error: string | null, post: LlmRunPageFragment_LlmRun_post_Post | null };
+type LlmRunPageFragment_LlmRun_transcriptEntries_LlmRunTranscriptEntry = (
+  { __typename?: 'LlmRunTranscriptEntry' }
+  & LlmRunTranscriptEntryFragment
+);
+
+type LlmRunPageFragment = { __typename?: 'LlmRun', _id: string, createdAt: string, completedAt: string | null, invocationContext: string, status: string, modelName: string, gatewayModelId: string, triggerCommentId: string | null, replyCommentId: string | null, systemPrompt: string, contextMessage: string | null, response: string | null, error: string | null, post: LlmRunPageFragment_LlmRun_post_Post | null, transcriptEntries: Array<LlmRunPageFragment_LlmRun_transcriptEntries_LlmRunTranscriptEntry> };
 
 type localGroupsBase_Localgroup_organizers_User = (
   { __typename?: 'User' }
