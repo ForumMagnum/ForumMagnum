@@ -126,7 +126,11 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
   }, [childComments, comment, scrollToCommentId])
 
   const shouldExpandAndScrollTo = !noDOMId && !noAutoScroll && comment && scrollToCommentId === comment._id
+  // Model replies start as a one-line preview, unless the reader followed a
+  // link to this reply or the caller forces comments open (e.g. permalinks)
+  const readerLinkedToComment = scrollToCommentId === comment._id || linkedCommentId === comment._id
   const startsAsLlmReplyPreview = llmReplyStartsAsPreview(comment)
+    && !readerLinkedToComment && !forceUnTruncated && !forceNotSingleLine && !expandAllThreads
 
   const beginCollapsed = useCallback(() => {
     return !shouldUncollapseForAutoScroll() && !forceUnCollapsed && (comment.deleted || (comment.baseScore ?? 0) < karmaCollapseThreshold)
@@ -146,7 +150,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
     if (treeOptions.isSideComment && nestingLevel>1)
       return true;
     if (startsAsLlmReplyPreview)
-      return !shouldExpandAndScrollTo;
+      return true;
 
     return (
       !shouldExpandAndScrollTo &&
