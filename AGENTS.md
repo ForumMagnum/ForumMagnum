@@ -177,9 +177,6 @@ const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
 
 ```
 
-**See Also**:
-- `@/lib/collections/posts/views.ts` - Comprehensive examples of complex views
-
 ---
 
 ## Client-Side GraphQL Queries
@@ -187,9 +184,8 @@ const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
 **Purpose**: Execute type-safe GraphQL queries from React components with proper TypeScript inference.
 
 **Key Concepts**:
-- MUST use `gql` from `@/lib/generated/gql-codegen` (NOT from `graphql-tag` or `@apollo/client`)
+- Use `gql` from `@/lib/generated/gql-codegen` (not from `graphql-tag` or `@apollo/client`)
 - Use `useQuery` from `@/lib/crud/useQuery` (wrapper around a relatively complicated replacement for Apollo's useQuery, which otherwise has the same interface)
-- Run `yarn generate` after modifying schemas, database indexes, resolvers, GraphQL definitions, or fragments
 - Query results are fully typed based on the generated types.  Do not use `as any` or any other type casts to work around type errors that seem to be caused by missing generated types.
 - Style note: define queries at the top level of the component file they're used in, not nested inside the component function.  Exception: when the same query is used in multiple files, define it in a separate file.
 
@@ -197,33 +193,21 @@ const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
 - Use fragments to share field selections across queries
 - Our `useQuery` wrapper handles SSR with Suspense automatically
 
-**See Also**:
-- `@/components/admin/CurationPage.tsx` - Real example of useQuery usage
-
 ---
 
 
 ## Client-Side GraphQL Mutations
 
-**Purpose**: Execute type-safe mutations from React components.
-
 **Key Concepts**:
 - Use `useMutation` from `@apollo/client/react` (standard Apollo hook)
 - Define mutations at the top level of the file, same as queries, using `gql` from `@/lib/generated/gql-codegen`
-- Mutations are fully typed with inference for variables and return types
-
-**See Also**:
-- `@/components/admin/CurationNoticesForm.tsx` - Example with both a "create" and "update" mutation
 
 ---
 
 ## Collection-Based Querying
 
-**Purpose**: Execute database queries from server-side code (resolvers, callbacks, scripts).
-
 **Key Concepts**:
 - For simple queries: use `Collection.find()` or `Collection.findOne()`
-- For complex queries: use collection-specific Repos with raw SQL
 - Queries use MongoDB-style selectors (translated to SQL automatically)
 - Use Repos when you need JOINs, CTEs, or complex SQL features
 
@@ -276,13 +260,7 @@ const taggedPosts = await context.repos.posts.getPostsByTag(tagId, 10);
 ```
 
 **Important Notes**:
-- Repos inherit from `AbstractRepo` which provides `one()`, `many()`, `any()`, `oneOrNone()`, etc.
 - Use parameterized queries with named parameters (e.g. $startDate, $endDate) for clarity and to prevent SQL injection
-- Repos are available via `context.repos.{collectionName}` in GraphQL resolvers
-
-**See Also**:
-- `@/server/repos/PostsRepo.ts` - Many complex query examples
-- `@/server/sql/PgCollection.ts` - Collection query methods
 
 ---
 
@@ -371,19 +349,9 @@ Implementation: `@/server/utils/backgroundTask.ts`
 
 ## Code Generation
 
-**Purpose**: Generate TypeScript types, GraphQL schemas, and boilerplate code from collection definitions.
-
 **Key Commands**:
-- `yarn generate` - Run after ANY schema or GraphQL changes. Generates types and GraphQL artifacts.
+- `yarn generate` - See below for when to run this.
 - `yarn create-collection PascalCasedPluralObjects` - Create a new collection with all boilerplate files.  This is a rare operation; only do this if you're creating a new collection from scratch.
-
-**What `yarn generate` does**:
-Generates TypeScript types for:
-1. GraphQL schemas, queries, mutations, and fragments
-2. Database schemas
-Also updates:
-1. The collectionTypeNames module
-2. The routeManifest module
 
 **When to run `yarn generate`**:
 - After adding a field to any schema file (`newSchema.ts`)
@@ -547,7 +515,7 @@ When doing work that involves updating the database schema, strongly prefer norm
 
 ## Unit Tests
 
-Unit tests should only be added in cases where you encounter an actual bug in unit-testable code which can faithfully be reproduced via a failing unit test, or in cases where the user explicitly requests a unit test.  Do not add tests just to increase test coverage, or tests that test trivial functionality, implementation details, or code paths whose correctness in practice depend on external resources (such as database queries) that would be mocked or stubbed out during the tests.  (There's no issue with creating temporary test files for real-time testing/verification purposes; they just shouldn't be committed to the codebase.)  If you find that you've added unit tests which don't meet the criteria in the first sentence, please remember to clean them up before committing your code.
+Unit tests should only be committed in cases where you encounter an actual bug in unit-testable code which can faithfully be reproduced via a failing unit test, or in cases where the user explicitly requests a unit test.  Do not add tests just to increase test coverage, or tests that test trivial functionality, implementation details, or code paths whose correctness in practice depend on external resources (such as database queries) that would be mocked or stubbed out during the tests.  (There's no issue with creating temporary test files for real-time testing/verification purposes; they just shouldn't be committed to the codebase.)  If you find that you've committed unit tests which don't meet the criteria in the first sentence, please remember to clean them up before committing your code.
 
 ## Fail loud and early
 
