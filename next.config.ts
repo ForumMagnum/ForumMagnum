@@ -258,8 +258,7 @@ module.exports = nextConfig;
 
 // Injected content via Sentry wizard below
 
-// eslint-disable-next-line no-restricted-imports
-import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 module.exports = isE2E ? module.exports : withSentryConfig(
   module.exports,
