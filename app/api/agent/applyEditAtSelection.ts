@@ -2,7 +2,6 @@ import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
 import {
   $createRangeSelection,
-  $createTextNode,
   $isBlockElementNode,
   $isDecoratorNode,
   $getNodeByKey,
@@ -21,6 +20,8 @@ import {
   type MarkdownSelectionPoint,
 } from "./mapMarkdownToLexical";
 import { findMathSpansInMarkdown } from "@/lib/utils/mathTokens";
+import { randomId } from "@/lib/random";
+import { sanitize } from "@/lib/utils/sanitize";
 import { renderAgentMarkdownToHtml, splitParagraphAtDisplayMath } from "./editorAgentUtil";
 import {
   normalizeTracked,
@@ -28,6 +29,16 @@ import {
   type LocatedQuoteRange,
 } from "./textIndexQuoteLocator";
 import type MarkdownIt from "markdown-it";
+import type { Token } from "markdown-it/index.js";
+
+function $htmlToNodes(editor: LexicalEditor, html: string): LexicalNode[] {
+  const dom = new JSDOM(html);
+  try {
+    return $generateNodesFromDOM(editor, dom.window.document);
+  } finally {
+    dom.window.close();
+  }
+}
 
 /**
  * Convert pre-rendered HTML into inline LexicalNodes suitable for insertion
@@ -39,54 +50,59 @@ import type MarkdownIt from "markdown-it";
  * Must be called inside a Lexical update context.
  */
 export function $htmlToInlineNodes(editor: LexicalEditor, html: string): LexicalNode[] {
-  const dom = new JSDOM(html);
-  try {
-    const nodes = $generateNodesFromDOM(editor, dom.window.document);
-    if (nodes.length === 1 && $isElementNode(nodes[0])) {
-      return nodes[0].getChildren();
-    }
-    return nodes;
-  } finally {
-    dom.window.close();
+  const nodes = $htmlToNodes(editor, html);
+  if (nodes.length === 1 && $isElementNode(nodes[0])) {
+    return nodes[0].getChildren();
   }
+  return nodes;
 }
 
 /**
- * Convert a narrowed replacement string into Lexical nodes while preserving
- * edge whitespace. The standard markdown→HTML pipeline strips leading/trailing
- * whitespace; for narrowed replacements those spaces are meaningful content.
- * When the narrowed text is plain (no formatting), a TextNode is created
- * directly. Otherwise the markdown pipeline is used with whitespace patched.
+ * Render markdown that replaces text within a block as inline nodes. It's
+ * parsed as inline markdown only, so text that would start a block at the
+ * start of a line (`-`, `9.`, `>`, `#`, an indent) stays text. And it's
+ * imported as preformatted text, which is how Lexical exports text, so that
+ * Lexical keeps its whitespace rather than collapsing it and trimming it at
+ * the fragment's edges.
+ *
+ * Must be called inside a Lexical update context.
  */
-export function $narrowedReplacementToNodes(
+export function $inlineMarkdownToNodes(
   editor: LexicalEditor,
-  replacement: string,
+  markdown: string,
   markdownIt: MarkdownIt,
-  expectedPlainText?: string,
 ): LexicalNode[] {
-  if (replacement.length === 0) return [];
-
-  const plainText = expectedPlainText ?? markdownQuoteToPlainText(replacement);
-  if (replacement === plainText) {
-    return [$createTextNode(replacement)];
+  if (markdown.length === 0) return [];
+  const env = { docId: randomId() };
+  const tokens = markdownIt.parseInline(markdown, env);
+  for (const token of tokens) {
+    rewriteBreaksForPreformattedText(token.children ?? []);
   }
+  const html = sanitize(markdownIt.renderer.render(tokens, markdownIt.options, env));
+  return $htmlToNodes(editor, `<span style="white-space: pre-wrap">${html}</span>`);
+}
 
-  const nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
-  const nodesText = nodes.map(n => n.getTextContent()).join("");
-
-  const leadingWs = plainText.match(/^(\s+)/)?.[1] ?? "";
-  const nodesLeadingWs = nodesText.match(/^(\s+)/)?.[1] ?? "";
-  if (leadingWs.length > nodesLeadingWs.length) {
-    nodes.unshift($createTextNode(leadingWs.slice(0, leadingWs.length - nodesLeadingWs.length)));
+/**
+ * Rewrite an inline token stream's line breaks for import as preformatted
+ * text, where every newline is a line break. A soft break becomes the space
+ * markdown renders it as, and a hard break just its `<br>` (markdown-it
+ * follows it with a newline). A blank line, a paragraph break that inline
+ * content can't hold, shows up as two breaks in a row, which both become
+ * `<br>`s.
+ */
+function rewriteBreaksForPreformattedText(children: Token[]): void {
+  const isBreak = children.map((token) => token.type === "softbreak" || token.type === "hardbreak");
+  for (let i = 0; i < children.length; i++) {
+    if (!isBreak[i]) continue;
+    const token = children[i];
+    if (token.type === "softbreak" && !isBreak[i - 1] && !isBreak[i + 1]) {
+      token.type = "text";
+      token.content = " ";
+    } else {
+      token.type = "html_inline";
+      token.content = "<br>";
+    }
   }
-
-  const trailingWs = plainText.match(/(\s+)$/)?.[1] ?? "";
-  const nodesTrailingWs = nodesText.match(/(\s+)$/)?.[1] ?? "";
-  if (trailingWs.length > nodesTrailingWs.length) {
-    nodes.push($createTextNode(trailingWs.slice(nodesTrailingWs.length)));
-  }
-
-  return nodes;
 }
 
 /**
@@ -339,17 +355,52 @@ function $splitAtRangeEnds(
   return first && last ? { first, last } : null;
 }
 
+interface TextSpan {
+  start: number
+  /** Exclusive. */
+  end: number
+}
+
 /**
- * Pull a common-prefix boundary back out of any math token. A boundary that
- * falls strictly inside a `$…$` / `\(…\)` token of either string would split
- * an equation; snap it to that token's start instead.
+ * A backslash escape: a backslash before ASCII punctuation, or before a
+ * newline (a hard break).
  */
-function snapPrefixOutOfMathTokens(quote: string, replacement: string, prefixLen: number): number {
+const MARKDOWN_ESCAPE = /\\[!-/:-@[-`{-~\n]/g;
+
+/**
+ * Spans of markdown that narrowing mustn't split. A math token's fragment
+ * can't be located against the document's atomic MathNode. A piece of a
+ * backslash escape renders differently from the whole: `\.` is a `.`, but a
+ * lone `\` is a backslash. And markdown-it links a bare URL, so a piece of
+ * one would link to the wrong address.
+ */
+function findUnsplittableSpans(markdown: string, markdownIt: MarkdownIt): TextSpan[] {
+  const escapes = Array.from(markdown.matchAll(MARKDOWN_ESCAPE), (match) => ({
+    start: match.index,
+    end: match.index + match[0].length,
+  }));
+  const urls = (markdownIt.linkify.match(markdown) ?? []).map((match) => ({
+    start: match.index,
+    end: match.lastIndex,
+  }));
+  return [...findMathSpansInMarkdown(markdown), ...escapes, ...urls];
+}
+
+/**
+ * Pull a common-prefix boundary back out of any unsplittable span, to the
+ * span's start. The boundary is at the same index in the quote and the
+ * replacement, so `spans` holds both of theirs. Moving it can land it inside
+ * another span, so this repeats until it's outside all of them.
+ */
+function snapPrefixOutOfSpans(prefixLen: number, spans: TextSpan[]): number {
   let result = prefixLen;
-  for (const text of [quote, replacement]) {
-    for (const span of findMathSpansInMarkdown(text)) {
+  let moved = true;
+  while (moved) {
+    moved = false;
+    for (const span of spans) {
       if (result > span.start && result < span.end) {
         result = span.start;
+        moved = true;
       }
     }
   }
@@ -357,17 +408,26 @@ function snapPrefixOutOfMathTokens(quote: string, replacement: string, prefixLen
 }
 
 /**
- * Pull a common-suffix boundary forward out of any math token. The boundary
- * sits at `text.length - suffixLen`; if it falls strictly inside a math token,
- * snap it to that token's end, shrinking the suffix.
+ * Pull a common-suffix boundary forward out of any unsplittable span, to the
+ * span's end, shrinking the suffix. In each text the boundary sits at
+ * `length - suffixLen`. Like `snapPrefixOutOfSpans`, this repeats until the
+ * boundary is outside all of the spans.
  */
-function snapSuffixOutOfMathTokens(quote: string, replacement: string, suffixLen: number): number {
+function snapSuffixOutOfSpans(
+  suffixLen: number,
+  texts: Array<{ length: number, spans: TextSpan[] }>,
+): number {
   let result = suffixLen;
-  for (const text of [quote, replacement]) {
-    for (const span of findMathSpansInMarkdown(text)) {
-      const boundary = text.length - result;
-      if (boundary > span.start && boundary < span.end) {
-        result = text.length - span.end;
+  let moved = true;
+  while (moved) {
+    moved = false;
+    for (const { length, spans } of texts) {
+      for (const span of spans) {
+        const boundary = length - result;
+        if (boundary > span.start && boundary < span.end) {
+          result = length - span.end;
+          moved = true;
+        }
       }
     }
   }
@@ -386,6 +446,7 @@ export function $computeNarrowing(
   quote: string,
   replacement: string,
   range: LocatedQuoteRange | undefined,
+  markdownIt: MarkdownIt,
 ): {
   anchor: MarkdownSelectionPoint
   focus: MarkdownSelectionPoint
@@ -413,12 +474,16 @@ export function $computeNarrowing(
   if (markdownQuoteToPlainText(replacement) === matchedText) return null;
 
   // Compare at the markdown level so that formatting/syntax changes
-  // prevent narrowing past them. Then pull each boundary out of any math
-  // token, so narrowing never splits a `$…$` into a fragment that can't be
-  // located against the document's atomic MathNode.
+  // prevent narrowing past them. Then pull each boundary out of any span
+  // that a fragment can't split, such as a `$…$` or a bare URL.
   const rawAffixes = computeCommonPrefixSuffix(quote, replacement);
-  const mdPrefixLen = snapPrefixOutOfMathTokens(quote, replacement, rawAffixes.prefixLen);
-  const mdSuffixLen = snapSuffixOutOfMathTokens(quote, replacement, rawAffixes.suffixLen);
+  const quoteSpans = findUnsplittableSpans(quote, markdownIt);
+  const replacementSpans = findUnsplittableSpans(replacement, markdownIt);
+  const mdPrefixLen = snapPrefixOutOfSpans(rawAffixes.prefixLen, [...quoteSpans, ...replacementSpans]);
+  const mdSuffixLen = snapSuffixOutOfSpans(rawAffixes.suffixLen, [
+    { length: quote.length, spans: quoteSpans },
+    { length: replacement.length, spans: replacementSpans },
+  ]);
 
   // Convert markdown offsets to plain-text character counts using the
   // quote's mapping (which has full regex context for links, math, etc.)
@@ -545,6 +610,12 @@ function countPlainTextInSuffix(toMarkdown: number[], markdownLength: number, md
  * MathNode), and splice them in. Shared by the post and research replaceText
  * routes and the typo-suggestion apply path. Must be called inside a Lexical
  * update context.
+ *
+ * Replacement text is inline content except where it starts a new line,
+ * where markdown can start a block (a list item, a new paragraph). So a
+ * replacement is only narrowed to a fragment within one line, which is
+ * rendered inline. One that isn't narrowed is rendered as blocks if it has
+ * more than one line, and inline otherwise.
  */
 export function $applyEditModeReplacement({
   editor,
@@ -563,12 +634,15 @@ export function $applyEditModeReplacement({
   range: LocatedQuoteRange | undefined
   markdownIt: MarkdownIt
 }): { replaced: boolean, narrowedQuote: string, narrowedReplacement: string } {
-  const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range);
-  let nodes: LexicalNode[] = [];
+  const computedNarrowing = $computeNarrowing(anchor, focus, quote, replacement, range, markdownIt);
+  const narrowing = computedNarrowing?.replacement.includes("\n") ? null : computedNarrowing;
+  let nodes: LexicalNode[];
   if (narrowing) {
-    nodes = $narrowedReplacementToNodes(editor, narrowing.replacement, markdownIt);
-  } else if (replacement.length > 0) {
+    nodes = $inlineMarkdownToNodes(editor, narrowing.replacement, markdownIt);
+  } else if (replacement.includes("\n")) {
     nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
+  } else {
+    nodes = $inlineMarkdownToNodes(editor, replacement, markdownIt);
   }
   const replaced = $applyEditAtSelection({
     anchor: narrowing?.anchor ?? anchor,
