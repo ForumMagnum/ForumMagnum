@@ -133,32 +133,26 @@ const styles = defineStyles('ScrollyIframeWidget', (theme: ThemeType) => ({
       opacity: 0,
       pointerEvents: 'none',
     },
-    // 'Notes on top': lift the margin column above the panel and give each item a card.
-    // 'Clear' with a focused note: the same, for just that note.
+    // Lift the margin column above the panel: always for 'Notes on top', and for 'Clear' while
+    // the reader is hovering a footnote (or has clicked one).
     [[
       'html[data-lw-scrolly-backdrop="notes"] [class*="SideItems-sidebar"]',
-      'html[data-lw-scrolly-note-focused] [class*="SideItems-sidebar"]',
+      'html[data-lw-scrolly-notes-up] [class*="SideItems-sidebar"]',
     ].join(', ')]: {
       zIndex: 11,
     },
-    [[
-      'html[data-lw-scrolly-backdrop="notes"] [class*="SideItems-sideItem"]',
-      'html[data-lw-scrolly-backdrop="clear"] [class*="SideItems-sideItem"][data-lw-scrolly-focus]',
-    ].join(', ')]: {
+    'html[data-lw-scrolly-backdrop="notes"] [class*="SideItems-sideItem"]': {
       background: 'var(--lw-scrolly-page-bg)',
       borderRadius: 6,
       padding: '6px 8px',
       marginLeft: -8,
       boxShadow: `0 2px 10px ${theme.palette.boxShadowColor(0.18)}`,
     },
-    // A clicked note shows in full, and the figure steps back (and lets clicks through to the page).
-    '[data-lw-scrolly-focus] [class*="FootnotePreview-sidenoteContent"]': {
-      maxHeight: 'none',
+    'html[data-lw-scrolly-notes-up] [class*="SideItems-sideItem"]': {
+      animation: 'lwScrollyNotesIn 160ms ease-out',
     },
-    '[data-lw-scrolly-focus] [class*="FootnotePreview-overflowFade"]': {
-      display: 'none',
-    },
-    'html[data-lw-scrolly-note-focused] .lwScrollyPanel': {
+    // While the notes are up, the figure steps back and lets the mouse through to them.
+    'html[data-lw-scrolly-notes-up] .lwScrollyPanel': {
       opacity: 0.12,
       filter: 'blur(1px)',
       pointerEvents: 'none',
@@ -170,6 +164,10 @@ const styles = defineStyles('ScrollyIframeWidget', (theme: ThemeType) => ({
     'body:has(.headroom--unpinned) .lwScrollyPanel.lwScrollyTop': {
       translate: `0 -${HEADER_HEIGHT}px`,
     },
+  },
+  '@keyframes lwScrollyNotesIn': {
+    from: { opacity: 0.15 },
+    to: { opacity: 1 },
   },
 }));
 
@@ -294,13 +292,14 @@ function computeReadingPosition(anchor: HTMLElement, root: Element) {
 }
 
 const SIDE_ITEM_SELECTOR = '[class*="SideItems-sideItem"]';
-const FOCUS_ATTRIBUTE = 'data-lw-scrolly-focus';
+// After the mouse leaves a footnote (or the notes), how long before the figure comes back.
+const NOTES_DOWN_DELAY = 400;
 
 function getSideItem(target: EventTarget | null): HTMLElement | null {
   return target instanceof Element ? target.closest<HTMLElement>(SIDE_ITEM_SELECTOR) : null;
 }
 
-/** The footnote reference a click landed on, if it's in the post text (not inside a sidenote). */
+/** The footnote reference the mouse is on, if it's in the post text (not inside a sidenote). */
 function getFootnoteRef(target: EventTarget | null): HTMLAnchorElement | null {
   if (!(target instanceof Element)) return null;
   const link = target.closest<HTMLAnchorElement>('a[href^="#fn"]');
@@ -308,47 +307,18 @@ function getFootnoteRef(target: EventTarget | null): HTMLAnchorElement | null {
   return link;
 }
 
-function normalizeText(text: string | null | undefined): string {
-  return (text ?? '').replace(/\s+/g, ' ').trim();
+function areNotesUp(): boolean {
+  return !!document.documentElement.dataset.lwScrollyNotesUp;
 }
 
-/**
- * The sidenote for a footnote reference. Sidenotes don't link back to their reference, and
- * imported footnotes often have no index, so match on the footnote's opening text; among
- * matches (or, failing that, all sidenotes) take the one nearest the reference.
- */
-function findSidenoteForRef(ref: HTMLAnchorElement): HTMLElement | null {
-  const footnote = document.getElementById(decodeURIComponent(ref.hash.slice(1)));
-  const snippet = normalizeText(footnote?.textContent).slice(0, 60);
-  const sidenotes = Array.from(document.querySelectorAll<HTMLElement>(SIDE_ITEM_SELECTOR))
-    .filter(item => item.querySelector('[class*="FootnotePreview-sidenote"]'));
-  const matching = snippet ? sidenotes.filter(item => normalizeText(item.textContent).includes(snippet)) : [];
-  const refTop = ref.getBoundingClientRect().top;
-  let best: HTMLElement | null = null;
-  let bestDistance = Infinity;
-  for (const item of matching.length ? matching : sidenotes) {
-    const distance = Math.abs(item.getBoundingClientRect().top - refTop);
-    if (distance < bestDistance) {
-      best = item;
-      bestDistance = distance;
-    }
-  }
-  return best;
-}
-
-function getFocusedNote(): HTMLElement | null {
-  return document.querySelector<HTMLElement>(`[${FOCUS_ATTRIBUTE}]`);
-}
-
-/** Bring one margin item in front of the figure (or none, to put the figure back in front). */
-function setFocusedNote(item: HTMLElement | null) {
-  getFocusedNote()?.removeAttribute(FOCUS_ATTRIBUTE);
-  if (item) {
-    item.setAttribute(FOCUS_ATTRIBUTE, 'true');
-    document.documentElement.dataset.lwScrollyNoteFocused = 'true';
+/** Put every margin note in front of the figure (and fade the figure back), or send them behind again. */
+function setNotesUp(up: boolean) {
+  if (up) {
+    document.documentElement.dataset.lwScrollyNotesUp = 'true';
   } else {
-    delete document.documentElement.dataset.lwScrollyNoteFocused;
+    delete document.documentElement.dataset.lwScrollyNotesUp;
   }
+  refreshNoteFades();
 }
 
 // How much of a note survives under the figure, and how tall the soft edge is where it slides under.
@@ -361,10 +331,9 @@ const FADE_EDGE = 48;
  * cut line moves through each item as the page scrolls. Pass null to remove all masks.
  */
 function applyNoteFades(figure: DOMRect | null) {
-  const focused = getFocusedNote();
   for (const item of Array.from(document.querySelectorAll<HTMLElement>(SIDE_ITEM_SELECTOR))) {
     let mask = '';
-    if (figure && item !== focused) {
+    if (figure) {
       const rect = item.getBoundingClientRect();
       const overlapsHorizontally = rect.right > figure.left && rect.left < figure.right;
       const cut = figure.bottom - rect.top;
@@ -384,7 +353,7 @@ function applyNoteFades(figure: DOMRect | null) {
 function refreshNoteFades() {
   const panel = document.querySelector('.lwScrollyPanel');
   const clear = document.documentElement.dataset.lwScrollyBackdrop === 'clear';
-  applyNoteFades(clear && panel ? panel.getBoundingClientRect() : null);
+  applyNoteFades(clear && panel && !areNotesUp() ? panel.getBoundingClientRect() : null);
 }
 
 function setPageScrollyState(mode: ScrollyMode | '', backdrop: ScrollyBackdrop | '', shift: number, hideToc = false) {
@@ -404,6 +373,8 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const lastSent = useRef<string>('');
   const shiftRef = useRef(0);
+  // A footnote the reader clicked: the notes stay in front of the figure until they move on.
+  const pinnedRef = useRef<HTMLElement | null>(null);
   const [mode, setModeState] = useState<ScrollyMode>('right');
   const [backdrop, setBackdropState] = useState<ScrollyBackdrop>('clear');
   const [box, setBox] = useState<PanelBox | null>(null);
@@ -478,11 +449,16 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
     const coversMargin = mode === 'right' || mode === 'margin';
     setPageScrollyState(active ? mode : '', active && coversMargin ? backdrop : '', next.shift, next.hideToc);
     setBox(prev => sameBox(prev, next) ? prev : next);
-    // Once a focused note scrolls away (or the panel goes away), put the figure back in front.
-    const focused = getFocusedNote();
-    if (focused) {
-      const rect = focused.getBoundingClientRect();
-      if (!active || rect.bottom < HEADER_HEIGHT || rect.top > vh) setFocusedNote(null);
+    // Once a clicked footnote scrolls away (or the panel goes away), put the figure back in front.
+    const pinned = pinnedRef.current;
+    if (pinned) {
+      const rect = pinned.getBoundingClientRect();
+      if (!active || rect.bottom < HEADER_HEIGHT || rect.top > vh) {
+        pinnedRef.current = null;
+        setNotesUp(false);
+      }
+    } else if (!active && areNotesUp()) {
+      setNotesUp(false);
     }
     refreshNoteFades();
     sendState(false);
@@ -490,37 +466,63 @@ export function ScrollyIframeWidget({ srcdoc, title }: { srcdoc: string, title?:
 
   useEffect(() => {
     if (!mounted || backdrop !== 'clear' || (mode !== 'right' && mode !== 'margin')) return;
-    // Clicking a footnote number in the text, or a faded note itself, brings that note in front
-    // of the figure. Clicking anywhere else, or Escape, sends it back.
+    // Hovering a footnote number in the text puts all the margin notes in front of the figure.
+    // They go back shortly after the mouse leaves both the footnote and the notes (the delay
+    // leaves time to move the mouse over to a note). Clicking a footnote keeps them up until
+    // a click elsewhere or Escape.
+    let downTimer = 0;
+    const cancelDown = () => window.clearTimeout(downTimer);
+    const scheduleDown = () => {
+      cancelDown();
+      downTimer = window.setTimeout(() => {
+        if (!pinnedRef.current) setNotesUp(false);
+      }, NOTES_DOWN_DELAY);
+    };
+    const onMouseOver = (ev: MouseEvent) => {
+      if (getFootnoteRef(ev.target) && document.documentElement.dataset.lwScrolly) {
+        cancelDown();
+        if (!areNotesUp()) setNotesUp(true);
+      } else if (areNotesUp() && getSideItem(ev.target)) {
+        cancelDown();
+      }
+    };
+    const onMouseOut = (ev: MouseEvent) => {
+      if (!areNotesUp()) return;
+      const leaving = getFootnoteRef(ev.target) ?? getSideItem(ev.target);
+      const entering = getFootnoteRef(ev.relatedTarget) ?? getSideItem(ev.relatedTarget);
+      if (leaving && !entering) scheduleDown();
+    };
     const onClick = (ev: MouseEvent) => {
       const ref = getFootnoteRef(ev.target);
-      const refNote = ref && document.documentElement.dataset.lwScrolly ? findSidenoteForRef(ref) : null;
-      if (refNote) {
-        // Show the note beside the text instead of jumping to the footnotes at the bottom.
+      if (ref && document.documentElement.dataset.lwScrolly) {
+        // Keep the notes beside the text instead of jumping to the footnotes at the bottom.
         ev.preventDefault();
-        setFocusedNote(refNote);
-      } else {
-        const item = getSideItem(ev.target);
-        if (!item) {
-          setFocusedNote(null);
-        } else if (item !== getFocusedNote()) {
-          setFocusedNote(item);
-        }
+        pinnedRef.current = ref;
+        cancelDown();
+        setNotesUp(true);
+      } else if (pinnedRef.current && !getSideItem(ev.target)) {
+        pinnedRef.current = null;
+        setNotesUp(false);
       }
-      refreshNoteFades();
     };
     const onKeyDown = (ev: KeyboardEvent) => {
       if (ev.key === 'Escape') {
-        setFocusedNote(null);
-        refreshNoteFades();
+        pinnedRef.current = null;
+        setNotesUp(false);
       }
     };
+    document.addEventListener('mouseover', onMouseOver);
+    document.addEventListener('mouseout', onMouseOut);
     document.addEventListener('click', onClick, true);
     document.addEventListener('keydown', onKeyDown);
     return () => {
+      cancelDown();
+      document.removeEventListener('mouseover', onMouseOver);
+      document.removeEventListener('mouseout', onMouseOut);
       document.removeEventListener('click', onClick, true);
       document.removeEventListener('keydown', onKeyDown);
-      setFocusedNote(null);
+      pinnedRef.current = null;
+      setNotesUp(false);
       applyNoteFades(null);
     };
   }, [mounted, mode, backdrop]);
