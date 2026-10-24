@@ -5,14 +5,13 @@ import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
-import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { postGetRejectionReviewUrl, shouldPublishGoToRejectionReview, type EditablePost, type PostSubmitMeta } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
 import LWTooltip from "../common/LWTooltip";
 import { useRapidPostingConfirmation } from './useRapidPostingConfirmation';
 import { useNavigate } from '@/lib/routeUtil';
-import { useSupportChatEvent } from '@/components/hooks/useSupportChatEvent';
+import { useRequestPostFeedback } from '@/components/hooks/useSupportChat';
 
 export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
   formButton: {
@@ -74,7 +73,7 @@ export const PostSubmit = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   const navigate = useNavigate();
-  const trackSupportChatEvent = useSupportChatEvent();
+  const requestPostFeedback = useRequestPostFeedback();
   if (!currentUser) throw Error("must be logged in to post");
   const document = formApi.state.values;
   const { confirmRapidPosting, isCheckingRapidPosting } = useRapidPostingConfirmation();
@@ -148,13 +147,7 @@ export const PostSubmit = ({
                     if (!!document.title) {
                       await formApi.handleSubmit({
                         successCallback: (createdPost: PostsEditMutationFragment) => {
-                          const intercomProps = {
-                            title: createdPost.title,
-                            _id: createdPost._id,
-                            url: getSiteUrl(forumType) + "posts/" + createdPost._id
-                          };
-
-                          trackSupportChatEvent('requested-feedback', intercomProps);
+                          requestPostFeedback(createdPost);
                         },
                         // The redirect here is both undesirable and might interfere with Intercom displaying the message prompt
                         skipRedirect: true,

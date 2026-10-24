@@ -3,10 +3,9 @@ import React, { useState } from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../../common/withUser';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
-import { getSiteUrl } from "../../../lib/vulcan-lib/utils";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
-import { useSupportChatEvent } from '@/components/hooks/useSupportChatEvent';
+import { useRequestPostFeedback } from '@/components/hooks/useSupportChat';
 
 const styles = defineStyles('DialogueEditorFeedback', (theme: ThemeType) => ({
   root: {
@@ -35,16 +34,13 @@ export const DialogueEditorFeedback = ({post}: {
   const classes = useStyles(styles);
   const [clickState, setClickState] = useState<ClickState>('unclicked');
   const user = useCurrentUser()
-  const trackSupportChatEvent = useSupportChatEvent();
+  const requestPostFeedback = useRequestPostFeedback();
 
   return <div className={classes.root}>
     <div className={classes.feedbackRow}>{clickState === 'unclicked'
-      ? <Button className={classes.button} onClick={async _ => { 
-          trackSupportChatEvent(
-            'requested-feedback',
-            {title: post.title, _id: post._id, url: getSiteUrl(forumType) + "posts/" + post._id}
-          );
-          setClickState('success')
+      ? <Button className={classes.button} onClick={async _ => {
+          const requested = requestPostFeedback(post);
+          setClickState(requested ? 'success' : 'failure')
         }}>
           Get feedback or editing help from the {forumTitleSetting.get(forumType)} team.
         </Button>
