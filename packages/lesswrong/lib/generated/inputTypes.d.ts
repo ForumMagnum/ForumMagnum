@@ -974,7 +974,6 @@ interface HomepageCommunityEventPostsResult {
 
 interface HocuspocusAuth {
   token: string;
-  accessLevel: string;
 }
 
 interface CuratedAndPopularThisWeekResult {

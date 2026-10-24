@@ -761,7 +761,6 @@ type HomepageCommunityEventPostsResult {
 
 type HocuspocusAuth {
   token: String!
-  accessLevel: String!
 }
 
 type CuratedAndPopularThisWeekResult {

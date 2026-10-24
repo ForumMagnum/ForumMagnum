@@ -18,14 +18,12 @@ import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
-import { getCollaborativeEditorAccessWithKey, type CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
-import { getResearchDocumentAccess } from '@/lib/collections/researchDocuments/permissions';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { getViewablePostsSelector } from '@/server/repos/helpers';
 import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
 import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
+import { issueHocuspocusAuth } from '../hocuspocus/hocuspocusAuth';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
-import jwt from 'jsonwebtoken';
 
 interface PostWithApprovedJargon {
   post: Partial<DbPost>;
@@ -421,50 +419,19 @@ export const postGqlQueries = {
     return { posts: filteredPosts }  
   },
   async HocuspocusAuth(root: void, args: { postId?: string | null, collectionName?: string | null, documentId?: string | null, linkSharingKey: string | null }, context: ResolverContext) {
-    const { currentUser, loaders, clientId } = context
-
     // postId is the legacy argument name, retained for clients on an old bundle.
     const collectionName = args.collectionName ?? 'Posts';
     const documentId = args.documentId ?? args.postId;
     if (!documentId) {
       throw new Error('HocuspocusAuth: must provide documentId (or legacy postId)');
     }
-    const { linkSharingKey } = args;
 
-    let accessLevel: CollaborativeEditingAccessLevel;
-    if (collectionName === 'Posts') {
-      const post = await loaders.Posts.load(documentId);
-      accessLevel = await getCollaborativeEditorAccessWithKey({
-        formType: 'edit',
-        post,
-        user: currentUser,
-        context,
-        useAdminPowers: true,
-        linkSharingKey,
-      });
-    } else if (collectionName === 'ResearchDocuments') {
-      accessLevel = await getResearchDocumentAccess(documentId, currentUser, context);
-    } else {
-      throw new Error(`HocuspocusAuth: unsupported collectionName ${collectionName}`);
-    }
-
-    if (accessLevel === 'none') {
+    const auth = await issueHocuspocusAuth({ collectionName, documentId, linkSharingKey: args.linkSharingKey, context });
+    if (!auth) {
       throw new Error(`Unauthorized: You do not have access to collaborate on this ${collectionName === 'Posts' ? 'post' : 'document'}`);
     }
 
-    const token = jwt.sign(
-      {
-        userId: currentUser?._id ?? clientId,
-        displayName: currentUser?.displayName ?? 'Anonymous',
-        collectionName,
-        documentId,
-        accessLevel,
-      },
-      process.env.HOCUSPOCUS_JWT_SECRET!,
-      { expiresIn: '1h' }
-    );
-
-    return { token, accessLevel };
+    return { token: auth.token };
   },
   ...CuratedAndPopularThisWeekQuery,
   ...RecentlyActiveDialoguesQuery,
@@ -729,7 +696,6 @@ export const postGqlTypeDefs = gql`
   }
   type HocuspocusAuth {
     token: String!
-    accessLevel: String!
   }
   ${CuratedAndPopularThisWeekTypeDefs}
   ${RecentlyActiveDialoguesTypeDefs}

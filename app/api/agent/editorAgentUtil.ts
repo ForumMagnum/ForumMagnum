@@ -20,7 +20,7 @@ import { sleep } from "@/lib/utils/asyncUtils";
 import { getLatestRev } from "@/server/editor/utils";
 import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
-import { getHocuspocusAuthForCollection } from "./getHocuspocusToken";
+import { issueHocuspocusAuth } from "@/server/hocuspocus/hocuspocusAuth";
 import { captureAgentApiEvent } from "./captureAgentAnalytics";
 import type { ReplaceMode } from "./toolSchemas";
 import { type CollaborativeEditingAccessLevel, accessLevelCan } from "@/lib/collections/posts/collabEditingPermissions";
@@ -99,29 +99,37 @@ export function buildHocuspocusCommentsDocName(collectionName: string, documentI
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
 
-const FLUSH_POLL_INTERVAL_MS = 5;
-const FLUSH_TIMEOUT_MS = 2_000;
+const FLUSH_TIMEOUT_MS = 10_000;
 
 /**
- * Wait for a HocuspocusProvider's WebSocket send buffer to drain, indicating
- * that all pending updates have been handed off to the OS network layer.
- *
- * The provider sends Yjs updates synchronously during `doc.transact()` via
- * `ws.send()`, which buffers data immediately. We just need to wait for
- * `bufferedAmount` to reach 0 before destroying the provider so that the
- * close handshake doesn't race with pending data frames.
- *
- * Returns immediately if the WebSocket isn't accessible or the buffer is
- * already empty.
+ * Wait until the Hocuspocus server has acknowledged applying every update
+ * this provider has sent. Throws if that doesn't happen within the timeout,
+ * which is what happens when the server discards the updates (e.g. because
+ * the connection is read-only).
  */
-export async function waitForProviderFlush(provider: HocuspocusProvider): Promise<void> {
-  const ws = provider.configuration.websocketProvider.webSocket;
-  if (!ws || ws.bufferedAmount === 0) return;
-
-  const deadline = Date.now() + FLUSH_TIMEOUT_MS;
-  while (ws.bufferedAmount && ws.bufferedAmount > 0 && Date.now() < deadline) {
-    await sleep(FLUSH_POLL_INTERVAL_MS);
+export function waitForProviderFlush(provider: HocuspocusProvider): Promise<void> {
+  if (!provider.hasUnsyncedChanges) {
+    return Promise.resolve();
   }
+
+  return new Promise<void>((resolve, reject) => {
+    const timeoutHandle = setTimeout(() => {
+      provider.off("unsyncedChanges", handleUnsyncedChanges);
+      reject(new Error(
+        `Timed out waiting for Hocuspocus to acknowledge updates to ${provider.configuration.name} ` +
+        `(connection scope: ${provider.authorizedScope ?? "unauthenticated"})`
+      ));
+    }, FLUSH_TIMEOUT_MS);
+
+    const handleUnsyncedChanges = () => {
+      if (provider.hasUnsyncedChanges) return;
+      clearTimeout(timeoutHandle);
+      provider.off("unsyncedChanges", handleUnsyncedChanges);
+      resolve();
+    };
+
+    provider.on("unsyncedChanges", handleUnsyncedChanges);
+  });
 }
 
 // 1:1 fold of typographic punctuation onto ASCII equivalents. Restricted to
@@ -225,25 +233,15 @@ export function unsupportedEditorMessage(editorType: string): string {
 export const UNAUTHORIZED_DRAFT_MESSAGE =
   "Unauthorized to access this draft. Make sure the post's sharing settings have 'Anyone with the link can' set to 'Edit', and that the correct link-sharing key is provided.";
 
-/**
- * The access level an agent write operation needs: suggestions and comments
- * need comment access, and changing the document directly needs edit access.
- */
-export type AgentWriteAccess = "comment" | "edit";
+export type RequiredDraftAccess = Exclude<CollaborativeEditingAccessLevel, "none">;
 
-export function requiredAccessForMode(mode: ReplaceMode): AgentWriteAccess {
+export function requiredAccessForMode(mode: ReplaceMode): RequiredDraftAccess {
   return mode === "edit" ? "edit" : "comment";
 }
 
-/**
- * Returns an error message if `accessLevel` doesn't allow an operation that
- * needs `requiredAccess`, or null if it does. Agent write paths must check this
- * before writing: the Hocuspocus server silently discards writes from
- * read-only connections, and `waitForProviderFlush` can't detect that.
- */
 export function insufficientDraftAccessMessage(
   accessLevel: CollaborativeEditingAccessLevel,
-  requiredAccess: AgentWriteAccess,
+  requiredAccess: RequiredDraftAccess,
 ): string | null {
   if (accessLevelCan(accessLevel, requiredAccess)) {
     return null;
@@ -257,11 +255,12 @@ export function insufficientDraftAccessMessage(
 export type EditorTypeAndTokenCheckResult =
   | { kind: "unsupported_editor"; editorType: string }
   | { kind: "unauthorized" }
-  | { kind: "ready"; token: string; accessLevel: CollaborativeEditingAccessLevel };
+  | { kind: "insufficient_access"; message: string }
+  | { kind: "ready"; token: string };
 
 /**
- * Fire the editor-type check and the Hocuspocus auth-token query in parallel,
- * then await editor-type first. Lets the token round-trip overlap with the
+ * Fire the editor-type check and the Hocuspocus token issuance in parallel,
+ * then await editor-type first. Lets the token lookup overlap with the
  * editor-type DB read while still allowing an early return on unsupported
  * editor types without waiting for the token.
  *
@@ -275,6 +274,7 @@ export async function checkEditorTypeAndGetToken({
   postId,
   context,
   linkSharingKey,
+  requiredAccess,
 }: {
   // Either pass {collectionName, documentId} or {postId} (legacy).
   collectionName?: string
@@ -282,6 +282,7 @@ export async function checkEditorTypeAndGetToken({
   postId?: string
   context: ResolverContext
   linkSharingKey?: string
+  requiredAccess: RequiredDraftAccess
 }): Promise<EditorTypeAndTokenCheckResult> {
   const effectiveCollectionName = collectionName ?? 'Posts';
   const effectiveDocumentId = documentId ?? postId;
@@ -289,7 +290,12 @@ export async function checkEditorTypeAndGetToken({
     throw new Error('checkEditorTypeAndGetToken: must pass documentId or postId');
   }
   const editorCheckPromise = isSupportedEditorType(effectiveCollectionName, effectiveDocumentId, context);
-  const authPromise = getHocuspocusAuthForCollection(context, effectiveCollectionName, effectiveDocumentId, linkSharingKey);
+  const authPromise = issueHocuspocusAuth({
+    collectionName: effectiveCollectionName,
+    documentId: effectiveDocumentId,
+    linkSharingKey: linkSharingKey ?? null,
+    context,
+  });
   // If the editor-type check returns "unsupported" first, we early-return
   // without awaiting authPromise. Attach a no-op handler so a later
   // rejection doesn't bubble up as an unhandled-rejection warning. The
@@ -304,14 +310,17 @@ export async function checkEditorTypeAndGetToken({
   if (!auth) {
     return { kind: "unauthorized" };
   }
-  return { kind: "ready", token: auth.token, accessLevel: auth.accessLevel };
+  const accessError = insufficientDraftAccessMessage(auth.accessLevel, requiredAccess);
+  if (accessError) {
+    return { kind: "insufficient_access", message: accessError };
+  }
+  return { kind: "ready", token: auth.token };
 }
 
 /**
  * Wrapper around `checkEditorTypeAndGetToken` for the agent write routes:
- * runs the parallel check, verifies the user has `requiredAccess`, emits the
- * matching analytics event, and returns either a token to use or an HTTP
- * error response to forward verbatim.
+ * runs the parallel check, emits the matching analytics event, and returns
+ * either a token to use or an HTTP error response to forward verbatim.
  *
  * The non-route `/editPost` markdown caller wants different status codes
  * and a plaintext body, so it uses `checkEditorTypeAndGetToken` directly.
@@ -334,7 +343,7 @@ export async function authorizeAgentDraftAccess({
   context: ResolverContext
   linkSharingKey?: string
   agentName?: string
-  requiredAccess: AgentWriteAccess
+  requiredAccess: RequiredDraftAccess
 }): Promise<{ token: string } | { errorResponse: NextResponse }> {
   const effectiveCollectionName = collectionName ?? 'Posts';
   const effectiveDocumentId = documentId ?? postId;
@@ -346,6 +355,7 @@ export async function authorizeAgentDraftAccess({
     documentId: effectiveDocumentId,
     context,
     linkSharingKey,
+    requiredAccess,
   });
   if (checkResult.kind === "unsupported_editor") {
     captureAgentApiEvent({ route, postId: effectiveDocumentId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
@@ -365,12 +375,11 @@ export async function authorizeAgentDraftAccess({
       ),
     };
   }
-  const accessError = insufficientDraftAccessMessage(checkResult.accessLevel, requiredAccess);
-  if (accessError) {
+  if (checkResult.kind === "insufficient_access") {
     captureAgentApiEvent({ route, postId: effectiveDocumentId, userId: context.currentUser?._id, agentName, status: "insufficient_access" });
     return {
       errorResponse: NextResponse.json(
-        { error: accessError },
+        { error: checkResult.message },
         { status: 403 },
       ),
     };
@@ -597,9 +606,10 @@ export async function withCommentsDocSession<T>({
   try {
     await provider.connect();
     await waitForProviderSync(provider);
-    return await callback({ doc, provider });
-  } finally {
+    const result = await callback({ doc, provider });
     await waitForProviderFlush(provider);
+    return result;
+  } finally {
     provider.destroy();
     doc.destroy();
   }

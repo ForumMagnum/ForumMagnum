@@ -71,8 +71,8 @@ export async function authenticateConnection({
   }
 
   // Allow both 'edit' and 'comment' users to write to the document.
-  // 'comment' users are forced into suggestion mode on the client side,
-  // so their edits will be wrapped in suggestion marks rather than being direct edits.
+  // 'comment' users are forced into suggestion mode on the client side, but
+  // nothing here enforces that, so a 'comment' token can make direct edits.
   const canEdit = accessLevel === 'edit' || accessLevel === 'comment';
 
   // Hocuspocus discards Yjs updates from read-only connections before applying

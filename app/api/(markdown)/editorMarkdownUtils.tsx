@@ -257,6 +257,7 @@ export async function renderLiveEditorDraftMarkdownRoute({
       postId,
       context: resolverContext,
       linkSharingKey: key,
+      requiredAccess: "read",
     });
     if (checkResult.kind === "unsupported_editor") {
       // 200 (not 4xx) so Claude's web_fetch surfaces the body to the model.
@@ -272,6 +273,9 @@ export async function renderLiveEditorDraftMarkdownRoute({
         `No accessible shared draft found for postId: ${postId}`,
         { status: 403, headers: NO_CACHE_HEADERS }
       );
+    }
+    if (checkResult.kind === "insufficient_access") {
+      return new Response(checkResult.message, { status: 403, headers: NO_CACHE_HEADERS });
     }
     const token = checkResult.token;
 

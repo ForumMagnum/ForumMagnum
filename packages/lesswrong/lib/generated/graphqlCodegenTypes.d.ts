@@ -2491,7 +2491,6 @@ type GoogleServiceAccountSessionSelector = {
 
 type HocuspocusAuth = {
   __typename?: 'HocuspocusAuth';
-  accessLevel: Scalars['String']['output'];
   token: Scalars['String']['output'];
 };
 
@@ -13040,20 +13039,6 @@ type MarkdownUserProfileRecentCommentsQueryVariables = Exact<{
 
 
 type MarkdownUserProfileRecentCommentsQuery = MarkdownUserProfileRecentCommentsQuery_Query;
-
-type HocuspocusAuthQueryServerQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string, accessLevel: string };
-
-type HocuspocusAuthQueryServerQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryServerQuery_HocuspocusAuth_HocuspocusAuth | null };
-
-
-type HocuspocusAuthQueryServerQueryVariables = Exact<{
-  collectionName: InputMaybe<Scalars['String']['input']>;
-  documentId: InputMaybe<Scalars['String']['input']>;
-  linkSharingKey: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type HocuspocusAuthQueryServerQuery = HocuspocusAuthQueryServerQuery_Query;
 
 type McpPostMetadataQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, draft: boolean | null };
 

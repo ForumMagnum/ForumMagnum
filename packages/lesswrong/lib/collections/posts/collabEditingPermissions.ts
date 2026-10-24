@@ -4,10 +4,6 @@ import { userIsPostGroupOrganizer, userIsPostCoauthor } from './helpers';
 
 export type CollaborativeEditingAccessLevel = "none"|"read"|"comment"|"edit";
 
-export function isCollaborativeEditingAccessLevel(value: string): value is CollaborativeEditingAccessLevel {
-  return value === "none" || value === "read" || value === "comment" || value === "edit";
-}
-
 export function strongerAccessLevel(a: CollaborativeEditingAccessLevel|null, b: CollaborativeEditingAccessLevel|null): CollaborativeEditingAccessLevel {
   if (a==="edit" || b==="edit") return "edit";
   if (a==="comment" || b==="comment") return "comment";

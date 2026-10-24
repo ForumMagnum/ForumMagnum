@@ -10,7 +10,7 @@ import type { TypoAcceptMode, TypoSuggestionStatus, TypoSuggestionTargetCollecti
 import { antiReactToTypoOnOwnContent } from "./antiReact";
 import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
 import { replaceTextInMainDoc } from "../../../../app/api/agent/replaceText/route";
-import { checkEditorTypeAndGetToken, insufficientDraftAccessMessage, requiredAccessForMode } from "../../../../app/api/agent/editorAgentUtil";
+import { checkEditorTypeAndGetToken, requiredAccessForMode } from "../../../../app/api/agent/editorAgentUtil";
 import { $locateQuoteWithTextIndex } from "../../../../app/api/agent/textIndexQuoteLocator";
 import { $applyEditModeReplacement } from "../../../../app/api/agent/applyEditAtSelection";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
@@ -145,10 +145,12 @@ async function applyToPost(
   replacement: string,
   context: ResolverContext,
 ): Promise<ApplyOutcome> {
+  const replaceMode = mode === "APPLY" ? "edit" : "suggest";
   const auth = await checkEditorTypeAndGetToken({
     postId: suggestion.documentId,
     context,
     linkSharingKey: undefined,
+    requiredAccess: requiredAccessForMode(replaceMode),
   });
   if (auth.kind === "unsupported_editor") {
     return {
@@ -159,12 +161,10 @@ async function applyToPost(
   if (auth.kind === "unauthorized") {
     return { status: "failed", message: "Could not obtain Hocuspocus token for this post." };
   }
-
-  const replaceMode = mode === "APPLY" ? "edit" : "suggest";
-  const accessError = insufficientDraftAccessMessage(auth.accessLevel, requiredAccessForMode(replaceMode));
-  if (accessError) {
-    return { status: "failed", message: accessError };
+  if (auth.kind === "insufficient_access") {
+    return { status: "failed", message: auth.message };
   }
+
   const result = await replaceTextInMainDoc({
     postId: suggestion.documentId,
     token: auth.token,

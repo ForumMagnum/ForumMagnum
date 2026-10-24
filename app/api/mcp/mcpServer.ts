@@ -13,8 +13,13 @@ import { insertMarkdownBlock } from "../agent/insertBlock/route";
 import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
 import { deleteMarkdownBlock } from "../agent/deleteBlock/route";
 import { getLiveDraftMarkdown } from "../(markdown)/editorMarkdownUtils";
-import { getHocuspocusAuth } from "../agent/getHocuspocusToken";
-import { type AgentWriteAccess, deriveAgentAuthor, insufficientDraftAccessMessage, requiredAccessForMode } from "../agent/editorAgentUtil";
+import {
+  type RequiredDraftAccess,
+  checkEditorTypeAndGetToken,
+  deriveAgentAuthor,
+  requiredAccessForMode,
+  unsupportedEditorMessage,
+} from "../agent/editorAgentUtil";
 import { gql } from "@/lib/generated/gql-codegen";
 import {
   commentOnDraftToolSchema,
@@ -82,26 +87,23 @@ function toolError(message: string): CallToolResult {
   };
 }
 
-/**
- * Get a Hocuspocus token for a post's draft, or a tool error if the user can't
- * access the draft. Write tools pass `requiredAccess`, since the Hocuspocus
- * server silently discards writes the token doesn't permit.
- */
 async function getDraftTokenForTool({ context, postId, linkSharingKey, requiredAccess }: {
   context: ResolverContext
   postId: string
   linkSharingKey?: string
-  requiredAccess: AgentWriteAccess | null
+  requiredAccess: RequiredDraftAccess
 }): Promise<{ token: string } | { error: CallToolResult }> {
-  const auth = await getHocuspocusAuth(context, postId, linkSharingKey);
-  if (!auth) {
-    return { error: toolError("Unauthorized to access this post's draft") };
+  const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey, requiredAccess });
+  switch (checkResult.kind) {
+    case "unsupported_editor":
+      return { error: toolError(unsupportedEditorMessage(checkResult.editorType)) };
+    case "unauthorized":
+      return { error: toolError("Unauthorized to access this post's draft") };
+    case "insufficient_access":
+      return { error: toolError(checkResult.message) };
+    case "ready":
+      return { token: checkResult.token };
   }
-  const accessError = requiredAccess && insufficientDraftAccessMessage(auth.accessLevel, requiredAccess);
-  if (accessError) {
-    return { error: toolError(accessError) };
-  }
-  return { token: auth.token };
 }
 
 /**
@@ -148,7 +150,7 @@ function createMcpServer(forumType: ForumTypeString): McpServer {
           isError: true,
         };
       }
-      const draftAccess = await getDraftTokenForTool({ context, postId: args.postId, linkSharingKey: args.key, requiredAccess: null });
+      const draftAccess = await getDraftTokenForTool({ context, postId: args.postId, linkSharingKey: args.key, requiredAccess: "read" });
       if ("error" in draftAccess) {
         return draftAccess.error;
       }
