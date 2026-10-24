@@ -6,6 +6,7 @@ import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { getSiteUrl } from "../../../lib/vulcan-lib/utils";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useSupportChatEvent } from '@/components/hooks/useSupportChatEvent';
 
 const styles = defineStyles('DialogueEditorFeedback', (theme: ThemeType) => ({
   root: {
@@ -34,13 +35,12 @@ export const DialogueEditorFeedback = ({post}: {
   const classes = useStyles(styles);
   const [clickState, setClickState] = useState<ClickState>('unclicked');
   const user = useCurrentUser()
+  const trackSupportChatEvent = useSupportChatEvent();
 
   return <div className={classes.root}>
     <div className={classes.feedbackRow}>{clickState === 'unclicked'
       ? <Button className={classes.button} onClick={async _ => { 
-          // eslint-disable-next-line
-          window.Intercom(
-            'trackEvent',
+          trackSupportChatEvent(
             'requested-feedback',
             {title: post.title, _id: post._id, url: getSiteUrl(forumType) + "posts/" + post._id}
           );

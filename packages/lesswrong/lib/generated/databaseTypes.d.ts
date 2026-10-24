@@ -1807,6 +1807,7 @@ interface DbUser extends DbObject {
   goodHeartTokens: number | null
   googleLocation: any | null
   groups: Array<string> | null
+  hailboxOptIn: boolean
   hiddenPostsMetadata: Array<PostMetadataInput!>
   hideAFNonMemberInitialWarning: boolean
   hideActiveDialogueUsers: boolean

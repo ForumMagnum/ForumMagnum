@@ -12,6 +12,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
 import LWTooltip from "../common/LWTooltip";
 import { useRapidPostingConfirmation } from './useRapidPostingConfirmation';
 import { useNavigate } from '@/lib/routeUtil';
+import { useSupportChatEvent } from '@/components/hooks/useSupportChatEvent';
 
 export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
   formButton: {
@@ -73,6 +74,7 @@ export const PostSubmit = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   const navigate = useNavigate();
+  const trackSupportChatEvent = useSupportChatEvent();
   if (!currentUser) throw Error("must be logged in to post");
   const document = formApi.state.values;
   const { confirmRapidPosting, isCheckingRapidPosting } = useRapidPostingConfirmation();
@@ -152,12 +154,7 @@ export const PostSubmit = ({
                             url: getSiteUrl(forumType) + "posts/" + createdPost._id
                           };
 
-                          // eslint-disable-next-line
-                          window.Intercom(
-                            'trackEvent',
-                            'requested-feedback',
-                            intercomProps
-                          );
+                          trackSupportChatEvent('requested-feedback', intercomProps);
                         },
                         // The redirect here is both undesirable and might interfere with Intercom displaying the message prompt
                         skipRedirect: true,

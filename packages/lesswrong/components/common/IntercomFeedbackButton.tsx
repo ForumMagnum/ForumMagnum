@@ -5,6 +5,7 @@ import classNames from "classnames";
 import LWTooltip from "./LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useSupportChatEvent } from '@/components/hooks/useSupportChatEvent';
 
 const styles = defineStyles("IntercomFeedbackButton", (theme: ThemeType) => ({
   root: {
@@ -27,11 +28,11 @@ const IntercomFeedbackButton = ({title = "Give feedback", eventName, className}:
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {captureEvent} = useTracking();
+  const trackSupportChatEvent = useSupportChatEvent();
   const onClick = useCallback(() => {
-    // eslint-disable-next-line babel/new-cap
-    window.Intercom("trackEvent", eventName);
+    trackSupportChatEvent(eventName);
     captureEvent(eventName);
-  }, [eventName, captureEvent]);
+  }, [eventName, captureEvent, trackSupportChatEvent]);
   return (
     <LWTooltip title={
       currentUser?.hideIntercom
