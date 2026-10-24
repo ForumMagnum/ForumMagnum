@@ -1,7 +1,9 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import classNames from 'classnames';
-import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
+import { commentExcerptFromHTML, getTruncationCharCount, truncate } from '../../../lib/editor/ellipsize'
+import { llmRunGetPageUrl } from '@/lib/collections/llmRuns/helpers';
+import { useLocation } from '@/lib/routeUtil';
 import { useFilteredCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import ContentStyles from '../../common/ContentStyles';
@@ -36,13 +38,39 @@ const styles = defineStyles('CommentBody', (theme: ThemeType) => ({
     position: "relative",
     '& .read-more-button': {
       fontSize: ".85em",
-      color: theme.palette.grey[600]
-    }
+      color: theme.palette.grey[600],
+      cursor: "pointer",
+    },
+    '&& .llm-content-block': {
+      margin: 0,
+    },
+    '& .llm-content-block:has(+ .read-more-button) .llm-content-block-content::after, & .llm-content-block:has(+ .read-more-button) .llm-content-block-content > p:last-child::after': {
+      display: "none !important",
+    },
   },
   retracted: {
     textDecoration: "line-through",
   },
 }))
+
+const LLM_REPLY_EXPANDED_LENGTH_MULTIPLE = 4;
+
+const STYLE_TAG_PATTERN = /<style[\s\S]*?<\/style>/g;
+
+function getLlmReplyExcerpt(comment: CommentsList, postPage: boolean | undefined, pathname: string): string | null {
+  const html = comment.contents?.html;
+  if (!comment.llmRunId || !html) {
+    return null;
+  }
+  const runPageUrl = llmRunGetPageUrl(comment.llmRunId);
+  const maxLength = LLM_REPLY_EXPANDED_LENGTH_MULTIPLE * getTruncationCharCount(comment, postPage);
+  const lengthWithoutStyles = html.replace(STYLE_TAG_PATTERN, "").length;
+  if (pathname === runPageUrl || lengthWithoutStyles <= maxLength) {
+    return null;
+  }
+  const viewFullOutputLink = `<span class="read-more-button"><a href="${runPageUrl}">View full output</a></span>`;
+  return truncate(html, maxLength, "characters", viewFullOutputLink);
+}
 
 const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, voteProps, className}: {
   comment: CommentsList,
@@ -55,6 +83,7 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
 }) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
+  const { pathname } = useLocation();
 
   // Do not truncate for users who have disabled it in their user settings
   const truncationDisabledByUserConfig = useFilteredCurrentUser((u) => u && (postPage ? u.noCollapseCommentsPosts : u.noCollapseCommentsFrontpage));
@@ -70,7 +99,9 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
   if (collapsed) { return null }
 
-  const innerHtml = (truncated && !truncationDisabledByUserConfig) ? commentExcerptFromHTML(comment, postPage) : (html ?? '')
+  const innerHtml = (truncated && !truncationDisabledByUserConfig)
+    ? commentExcerptFromHTML(comment, postPage)
+    : (getLlmReplyExcerpt(comment, postPage, pathname) ?? html ?? '')
 
   let contentType: ContentStyleType;
   if (comment.answer) {

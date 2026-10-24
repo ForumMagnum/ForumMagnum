@@ -271,11 +271,11 @@ export const CommentsItemMeta = ({
         comment={comment}
         className={classes.username}
       />
-      <UserCommentMarkers
+      {!comment.llmRunId && <UserCommentMarkers
         user={comment.user}
         isPostAuthor={authorIsPostAuthor && !commentIsTopLevelShortform}
         className={classes.userMarkers}
-      />
+      />}
       <CommentsItemDate {...commentLinkProps} />
       {showModeratorCommentAnnotation &&
         <span className={classes.moderatorHat}>

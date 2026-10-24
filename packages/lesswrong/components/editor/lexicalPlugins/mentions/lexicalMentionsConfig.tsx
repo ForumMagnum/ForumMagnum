@@ -5,10 +5,12 @@ import { getSearchClient, getSearchIndexName } from '../../../../lib/search/sear
 import { userGetDisplayName } from '../../../../lib/collections/users/helpers';
 import { userMentionQueryString } from '../../../../lib/pingback';
 import { filterNonnull } from '../../../../lib/utils/typeGuardUtils';
-import { getSiteUrl } from '../../../../lib/vulcan-lib/utils';
+import { combineUrls, getSiteUrl } from '../../../../lib/vulcan-lib/utils';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
 import ForumIcon, { type ForumIconName } from '@/components/common/ForumIcon';
 import type { ForumTypeString } from '@/lib/instanceSettings';
+import { getLatestLlmVersion, LLM_FAMILIES, type LlmFamilyVersion } from '@/lib/languageModels/llmRegistry';
+import { getLlmMentionPath, getMentionableLlms } from '@/lib/llmReplies/llmMentions';
 
 const MARKER = "@";
 
@@ -85,7 +87,12 @@ interface MentionItemWithTagHit extends MentionItem {
   hit: SearchTag;
 }
 
-export type MentionItemWithHit = MentionItemWithUserHit | MentionItemWithPostHit | MentionItemWithTagHit;
+interface MentionItemWithModel extends MentionItem {
+  type: 'Models';
+  model: LlmFamilyVersion;
+}
+
+export type MentionItemWithHit = MentionItemWithUserHit | MentionItemWithPostHit | MentionItemWithTagHit | MentionItemWithModel;
 
 /**
  * Type guard to check if hit is a SearchUser
@@ -155,6 +162,19 @@ function formatSearchHit(hit: SearchUser | SearchPost | SearchTag, forumType: Fo
   return null;
 }
 
+function formatModelItem(model: LlmFamilyVersion, forumType: ForumTypeString): MentionItemWithModel {
+  return {
+    type: "Models",
+    id: MARKER + model.version.fullName,
+    link: combineUrls(getSiteUrl(forumType), getLlmMentionPath(model)),
+    text: MARKER + model.version.fullName,
+    label: model.version.fullName,
+    model,
+  };
+}
+
+const llmFamilyAccountSlugs = new Set(LLM_FAMILIES.map((family) => family.accountSlug));
+
 const collectionNames = ["Posts", "Users", "Tags"] as const;
 
 /**
@@ -182,6 +202,15 @@ async function fetchMentionableSuggestions(forumType: ForumTypeString, searchStr
     // Search failed - return empty results
     return [];
   }
+}
+
+async function fetchMentionableSuggestionsWithModels(forumType: ForumTypeString, searchString: string): Promise<MentionItemWithHit[]> {
+  const modelItems = getMentionableLlms(searchString).map((model) => formatModelItem(model, forumType));
+  const searchItems = await fetchMentionableSuggestions(forumType, searchString);
+  return [
+    ...modelItems,
+    ...searchItems.filter((item) => !(item.type === "Users" && llmFamilyAccountSlugs.has(item.hit.slug))),
+  ];
 }
 
 /**
@@ -224,11 +253,17 @@ function TagMentionItem({ hit }: { hit: SearchTag }) {
   return <MentionItemRow icon="Tag" title={hit.name} />;
 }
 
+function ModelMentionItem({ model: { family, version } }: { model: LlmFamilyVersion }) {
+  const isLatest = getLatestLlmVersion(family)?.name === version.name;
+  return <MentionItemRow icon="Sparkles" title={version.fullName} meta={isLatest ? "latest" : undefined} />;
+}
+
 function mentionItemRenderer(item: MentionItemWithHit): React.ReactNode {
   switch (item.type) {
     case 'Users': return <UserMentionItem hit={item.hit} />;
     case 'Posts': return <PostMentionItem hit={item.hit} />;
     case 'Tags': return <TagMentionItem hit={item.hit} />;
+    case 'Models': return <ModelMentionItem model={item.model} />;
   }
 }
 
@@ -239,7 +274,7 @@ export function getLexicalMentionFeeds(forumType: ForumTypeString): MentionFeed[
   return [
     {
       marker: MARKER,
-      feed: fetchMentionableSuggestions.bind(null, forumType),
+      feed: fetchMentionableSuggestionsWithModels.bind(null, forumType),
       minimumCharacters: 1,
       itemRenderer: mentionItemRenderer,
     },

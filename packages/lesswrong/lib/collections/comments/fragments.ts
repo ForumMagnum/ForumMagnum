@@ -38,6 +38,7 @@ export const CommentsList = gql(`
     user {
       ...UsersMinimumInfo
     }
+    llmRunId
     currentUserVote
     currentUserExtendedVote
     isBookmarked
