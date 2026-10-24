@@ -1,9 +1,6 @@
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import { getLlmVersionFullName } from "@/lib/languageModels/llmRegistry";
 import { llmReplyFailedMarkdown } from "@/lib/llmReplies/helpers";
-import { randomId } from "@/lib/random";
-import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
-import { escapeHtml, sanitize } from "@/lib/utils/sanitize";
 import { sendLlmReplyNotifications } from "@/server/callbacks/commentCallbackFunctions";
 import Comments from "@/server/collections/comments/collection";
 import { updateComment } from "@/server/collections/comments/mutations";
@@ -15,6 +12,7 @@ import { getLlmTools } from "@/server/languageModels/llmTools";
 import { commentIsPubliclyVisible } from "@/server/languageModels/publicVisibility";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { getLlmReplyHtml } from "./llmReplyHtml";
 import { buildThreadContextMessage } from "./threadContext";
 
 export const commentReplyRunHandler: LlmRunHandler = {
@@ -45,12 +43,6 @@ export const commentReplyRunHandler: LlmRunHandler = {
     }, await getModelAccountContext(replyComment, forumType));
   },
 };
-
-function getLlmReplyHtml(modelName: string, response: string): string {
-  // Models often write math as `\(...\)`, which only the agent dialect reads
-  const responseHtml = sanitize(getMarkdownItForAgentPosts().render(response, { docId: randomId() }));
-  return `<div class="llm-content-block" data-model-name="${escapeHtml(modelName)}"><div class="llm-content-block-content">${responseHtml}</div></div>`;
-}
 
 async function getReplyComment(run: DbLlmRun): Promise<DbComment> {
   const replyComment = await Comments.findOne({ llmRunId: run._id });

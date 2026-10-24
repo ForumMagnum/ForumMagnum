@@ -9,6 +9,7 @@ import { commentIsPubliclyVisible, postIsPubliclyVisible } from "@/server/langua
 import { requestLlmRun } from "@/server/languageModels/requestLlmRun";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { getLlmReplyHtml } from "./llmReplyHtml";
 import { getFirstMentionedLlm } from "./mentionedLlms";
 import { LLM_REPLY_SYSTEM_PROMPT } from "./systemPrompt";
 
@@ -69,7 +70,7 @@ async function checkLlmSummon(currentUser: DbUser, postId: string | null, llm: L
     return { allowed: false, reason: `${modelName} only replies to comments on posts.` };
   }
   if (!userIsAdmin(currentUser) && currentUser.karma < MIN_KARMA_TO_SUMMON_LLM) {
-    return { allowed: false, reason: `You need ${MIN_KARMA_TO_SUMMON_LLM} karma to get a reply from ${modelName}.` };
+    return { allowed: false, reason: `You need ${MIN_KARMA_TO_SUMMON_LLM} karma to get a reply from an LLM.` };
   }
   const post = await context.loaders.Posts.load(postId);
   if (!post || !(await postIsPubliclyVisible(post, context))) {
@@ -111,7 +112,7 @@ async function startLlmReply({ comment, postId, modelUser, llm }: {
       postId,
       parentCommentId: comment._id,
       contents: {
-        originalContents: { type: "markdown", data: llmReplyPendingMarkdown(llm.version.fullName, runId) },
+        originalContents: { type: "html", data: getLlmReplyHtml(llm.version.fullName, llmReplyPendingMarkdown(runId)) },
       },
       llmRunId: runId,
     },
