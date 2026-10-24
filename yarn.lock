@@ -12320,6 +12320,10 @@ h3-js@4:
   resolved "https://registry.yarnpkg.com/h3-js/-/h3-js-4.3.0.tgz#d8705d50f1bf241cad90075498f168d4a6ab933f"
   integrity sha512-zgvyHZz5bEKeuyYGh0bF9/kYSxJ2SqroopkXHqKnD3lfjaZawcxulcI9nWbNC54gakl/2eObRLHWueTf1iLSaA==
 
+"hailbox@https://github.com/LessWrong2/hailbox/releases/download/v0.1.1/hailbox-0.1.1.tgz":
+  version "0.1.1"
+  resolved "https://github.com/LessWrong2/hailbox/releases/download/v0.1.1/hailbox-0.1.1.tgz#c7175c2b360668e90b88a66554fe93406e4a4941"
+
 hammerjs@^2.0.8:
   version "2.0.8"
   resolved "https://registry.npmjs.org/hammerjs/-/hammerjs-2.0.8.tgz"
