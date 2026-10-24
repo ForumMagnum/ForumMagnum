@@ -8,6 +8,7 @@ import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
 import { StatusCodeSetter } from '@/components/next/StatusCodeSetter';
 import { usePostPreload } from './usePostPreload';
+import { useCurrentUser } from '../../common/withUser';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
   query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
@@ -36,6 +37,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId, embedded, recordVie
   embedded?: boolean,
   recordView?: boolean,
 }) => {
+  const currentUser = useCurrentUser();
   const postPreloadWithSequence = usePostPreload(documentId, sequenceId);
 
   const { loading: postWithoutRevisionLoading, error: postWithoutRevisionError, refetch: refetchPostWithoutRevision, data: postWithoutRevisionData } = useQuery(PostsWithNavigationQuery, {
@@ -66,7 +68,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId, embedded, recordVie
   } else if (loading && !postPreloadWithSequence) {
     return <div><Loading/></div>
   } else if (error) {
-    if (isMissingDocumentError(error)) {
+    if (isMissingDocumentError(error) || (isOperationNotAllowedError(error) && !currentUser)) {
       return <Error404/>
     } else if (isOperationNotAllowedError(error)) {
       return <ErrorAccessDenied explanation={"This is usually because the post in question has been removed by the author."} skipLoginPrompt />
