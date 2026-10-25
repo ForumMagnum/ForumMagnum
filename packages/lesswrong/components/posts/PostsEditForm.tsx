@@ -33,6 +33,7 @@ const UsersCurrentPostRateLimitQuery = gql(`
     user(input: { selector: { documentId: $documentId } }) {
       result {
         ...UsersCurrentPostRateLimit
+        hasApprovedContent
       }
     }
   }
@@ -229,8 +230,9 @@ const PostsEditFormInner = ({ documentId, version }: {
     return <ForeignCrosspostEditForm post={document} />;
   }
 
-  // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW && !currentUser?.reviewedByUserId && currentUser?._id === document.userId;
+  // on LW, show a moderation message to new users who haven't had any content approved yet
+  const isUnapprovedNewUser = !currentUser?.reviewedByUserId && userWithRateLimit?.hasApprovedContent === false;
+  const showNewUserModerationWarning = isLW && isUnapprovedNewUser && currentUser?._id === document.userId;
   const rightColumnChildren = <>
     {/* We render a portal target div in the right column. PostForm will use
     createPortal to render the EditorSettingsSidebar into this target, since it needs
@@ -245,7 +247,7 @@ const PostsEditFormInner = ({ documentId, version }: {
     <SideItemsContainer>
     <DynamicTableOfContents title={liveTitle || document.title} rightColumnChildren={rightColumnChildren}>
       <div className={classes.postForm}>
-        {postWillBeHidden && <NewPostModerationWarning />}
+        {showNewUserModerationWarning && <NewPostModerationWarning />}
         {rateLimitNextAbleToPost && <RateLimitWarning
           contentType="post"
           lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible}

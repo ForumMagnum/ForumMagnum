@@ -7985,6 +7985,7 @@ type User {
   reviewedByUserId: String
   reviewedByUser: User
   isReviewed: Boolean
+  hasApprovedContent: Boolean
   reviewedAt: Date
   afKarma: Float!
   voteCount: Float

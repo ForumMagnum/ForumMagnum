@@ -7370,6 +7370,7 @@ interface User {
   reviewedByUserId: string | null;
   reviewedByUser: User | null;
   isReviewed: boolean | null;
+  hasApprovedContent: boolean | null;
   reviewedAt: Date | null;
   afKarma: number;
   voteCount: number | null;
