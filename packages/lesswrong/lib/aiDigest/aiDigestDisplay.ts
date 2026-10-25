@@ -57,10 +57,13 @@ export function formatAiDigestPostAuthors(post: {
 }
 
 export function formatAiDigestDate(date: string): string {
+  const parsedDate = new Date(date);
+  const isCurrentYear = parsedDate.getFullYear() === new Date().getFullYear();
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
-  }).format(new Date(date));
+    year: isCurrentYear ? undefined : "numeric",
+  }).format(parsedDate);
 }
 
 export interface DigestContentLookup {
