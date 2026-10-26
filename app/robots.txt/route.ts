@@ -52,7 +52,6 @@ Disallow: /debug
 Disallow: /admin
 Disallow: /compare
 Disallow: /emailToken
-Disallow: /*?commentId=*
 Disallow: /users/*/replies
 Disallow: /moderation
 Crawl-Delay: 3
