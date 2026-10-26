@@ -7238,6 +7238,7 @@ interface User {
   showHideKarmaOption: boolean | null;
   showPostAuthorCard: boolean | null;
   hideIntercom: boolean;
+  hailboxOptIn: boolean | null;
   markDownPostEditor: boolean;
   hideElicitPredictions: boolean | null;
   hideAFNonMemberInitialWarning: boolean | null;
@@ -9103,6 +9104,7 @@ interface CreateUserDataInput {
   showHideKarmaOption?: boolean | null;
   showPostAuthorCard?: boolean | null;
   hideIntercom?: boolean | null;
+  hailboxOptIn?: boolean | null;
   noSingleLineComments?: boolean | null;
   noCollapseCommentsPosts?: boolean | null;
   noCollapseCommentsFrontpage?: boolean | null;
@@ -9266,6 +9268,7 @@ interface UpdateUserDataInput {
   showHideKarmaOption?: boolean | null;
   showPostAuthorCard?: boolean | null;
   hideIntercom?: boolean | null;
+  hailboxOptIn?: boolean | null;
   markDownPostEditor?: boolean | null;
   hideElicitPredictions?: boolean | null;
   hideAFNonMemberInitialWarning?: boolean | null;

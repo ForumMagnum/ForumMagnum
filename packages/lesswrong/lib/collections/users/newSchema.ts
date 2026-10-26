@@ -811,6 +811,23 @@ const schema = {
       },
     },
   },
+  hailboxOptIn: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "admins"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   // This field-name is no longer accurate, but is here because we used to have that field
   // around and then removed `markDownCommentEditor` and merged it into this field.
   markDownPostEditor: {

@@ -192,6 +192,7 @@
     "gpt-3-encoder": "^1.1.3",
     "graphql": "^16.11.0",
     "graphql-tag": "^2.12.6",
+    "hailbox": "https://github.com/LessWrong2/hailbox/releases/download/v0.1.1/hailbox-0.1.1.tgz",
     "hepburn": "^1.2.0",
     "html-lexer": "^0.4.1",
     "html-to-text": "^9.0.3",

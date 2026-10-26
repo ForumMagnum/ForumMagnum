@@ -131,6 +131,7 @@ export const UsersCurrent = gql(`
     isReviewed
     nullifyVotes
     hideIntercom
+    hailboxOptIn
     hideNavigationSidebar
     hideCommunitySection
     hasContinueReading
@@ -463,6 +464,7 @@ export const UsersEdit = gql(`
     hideElicitPredictions
     hideAFNonMemberInitialWarning
     hideIntercom
+    hailboxOptIn
     commentSorting
     currentFrontpageFilter
     noCollapseCommentsPosts
