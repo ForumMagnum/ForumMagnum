@@ -1,0 +1,217 @@
+import { compileSearchQuery } from "../../server/search/elastic/ElasticAdditiveRanking";
+import { compilePersonLookup, resolvePersonSearch } from "../../server/search/elastic/ElasticPersonSearch";
+import { compileSearchSort } from "../../server/search/elastic/ElasticSearchSort";
+
+const eliezer = {objectID: "ey", displayName: "Eliezer Yudkowsky", slug: "eliezer-yudkowsky", karma: 10000};
+
+it("puts curated sequences first before pagination", () => {
+  const now = jest.spyOn(Date, "now").mockReturnValue(1789160075892);
+  const data = {indexes: ["sequences"], search: "alignment", curatedSequenceIds: ["curated"]};
+  const regular = compileSearchQuery({...data, curatedSequenceIds: []});
+  const request = compileSearchQuery({...data, offset: 10, limit: 5});
+  now.mockRestore();
+  expect(request.query).toEqual(regular.query);
+  expect(request).toMatchObject({from: 10, size: 5});
+  expect(request.sort).toEqual([
+    {_script: {type: "number", order: "desc", script: {
+      source: expect.stringContaining("params.ids.contains(doc['objectID'].value)"),
+      params: {ids: ["curated"]},
+    }}},
+    {_score: {order: "desc"}},
+    {publicDateMs: {order: "desc", missing: "_last", unmapped_type: "long"}},
+    {_script: {type: "number", order: "desc", script: {source: expect.stringContaining("'karma'")}}},
+    {_script: {type: "number", order: "desc", script: {source: expect.stringContaining("'commentCount'")}}},
+    {objectID: "asc"}, {_index: "asc"},
+  ]);
+});
+
+it("does not promote curated sequences in mixed results", () => {
+  const request = compileSearchQuery({indexes: ["posts", "sequences"], search: "alignment", curatedSequenceIds: ["curated"]});
+  expect(request.sort).toEqual(compileSearchSort());
+});
+
+it("recognizes exact and prominent first names, retains ambiguity, and extracts topics", () => {
+  expect(resolvePersonSearch("Eliezer", [eliezer])).toMatchObject({userIds: ["ey"], topic: "", confidence: "strong"});
+  expect(resolvePersonSearch("Eliezer corrigibility", [eliezer])).toMatchObject({userIds: ["ey"], topic: "corrigibility", confidence: "strong"});
+  expect(resolvePersonSearch("Eliezer", [eliezer, {...eliezer, objectID: "other"}])?.userIds).toMatchObject(["ey", "other"]);
+  expect(resolvePersonSearch("Eliezer Yudkowsky", [eliezer])?.topic).toBe("");
+  expect(resolvePersonSearch("Elie", [eliezer])).toMatchObject({userIds: ["ey"], topic: "", confidence: "weak"});
+  expect(resolvePersonSearch("Eli", [eliezer])).toMatchObject({userIds: ["ey"], topic: "", confidence: "prefix"});
+  expect(resolvePersonSearch("Eliezer", [{...eliezer, karma: 2}])).toBeUndefined();
+  expect(compilePersonLookup('user:ey "corrigibility"')).toBeUndefined();
+});
+
+it("keeps the same ranked query and deterministic tie-breakers across pages", () => {
+  const data = {indexes: ["users", "posts", "sequences", "comments"], search: "Eliezer", person: {userIds: ["ey"], topic: "", confidence: "strong" as const}};
+  const now = jest.spyOn(Date, "now").mockReturnValue(1789160075892);
+  const request = compileSearchQuery(data);
+  const secondPage = compileSearchQuery({...data, offset: 3, limit: 3});
+  now.mockRestore();
+  expect(secondPage.query).toEqual(request.query);
+  expect(secondPage.from).toBe(3);
+  expect(secondPage.size).toBe(3);
+  expect(secondPage.track_total_hits).toBe(true);
+  expect(secondPage.sort).toEqual(compileSearchSort());
+});
+
+it("preserves advanced filters and disables inferred authorship", () => {
+  const request = compileSearchQuery({indexes: ["posts"], search: 'user:ey "corrigibility" -bananas', person: {userIds: ["other"], topic: "", confidence: "exact"}});
+  const serialized = JSON.stringify(request.query);
+  expect(serialized).toContain('authorSlug.sort');
+  expect(serialized).toContain('corrigibility');
+  expect(serialized).toContain('bananas');
+  expect(serialized).not.toContain('coauthorIds');
+});
+
+describe("person resolution confidence", () => {
+  const kwa = {objectID: "tk", displayName: "Thomas Kwa", slug: "thomas-kwa", karma: 5000};
+  const paul = {objectID: "pc", displayName: "paulfchristiano", slug: "paulfchristiano", karma: 30000};
+  const john = {objectID: "jw", displayName: "johnswentworth", slug: "johnswentworth", karma: 40000};
+  const minor = {objectID: "mk", displayName: "Minor Kwa", slug: "minor-kwa", karma: 12};
+
+  it("labels exact names, prominent first names, and weak surname, prefix, and fuzzy matches", () => {
+    expect(resolvePersonSearch("Eliezer Yudkowsky", [eliezer])).toMatchObject({userIds: ["ey"], topic: "", confidence: "exact"});
+    expect(resolvePersonSearch("eliezer-yudkowsky", [eliezer])).toMatchObject({userIds: ["ey"], topic: "", confidence: "exact"});
+    expect(resolvePersonSearch("Eliezer", [eliezer])).toMatchObject({userIds: ["ey"], topic: "", confidence: "strong"});
+    expect(resolvePersonSearch("kwa", [kwa, minor])).toMatchObject({userIds: ["tk"], topic: "", confidence: "weak"});
+    expect(resolvePersonSearch("paulf", [paul])).toMatchObject({userIds: ["pc"], topic: "", confidence: "weak"});
+    expect(resolvePersonSearch("johnswentwroth", [john])).toMatchObject({userIds: ["jw"], topic: "", confidence: "weak"});
+    expect(resolvePersonSearch("elizer yud", [eliezer])).toMatchObject({userIds: ["ey"], topic: "", confidence: "weak"});
+    expect(resolvePersonSearch("kwa connectomics", [kwa])).toMatchObject({userIds: ["tk"], topic: "connectomics", confidence: "weak"});
+  });
+
+  it("prefers the most confident reading of the longest span and never infers from minor accounts", () => {
+    expect(resolvePersonSearch("kwa", [minor])).toBeUndefined();
+    expect(resolvePersonSearch("pau", [paul])).toMatchObject({userIds: ["pc"], topic: "", confidence: "prefix"});
+    expect(resolvePersonSearch("Eliezer Yudkowsky", [eliezer, {objectID: "fuzzy", displayName: "Eliezer Yudkowski", slug: "eliezer-yudkowski", karma: 5000}])).toMatchObject({userIds: ["ey"], topic: "", confidence: "exact"});
+  });
+
+  it("looks up prefix and fuzzy name candidates only among prominent authors, plus joined-name variants", () => {
+    const lookup = JSON.stringify(compilePersonLookup("richard ngo"));
+    expect(lookup).toContain('"prefix"');
+    expect(lookup).toContain('"slug.sort"');
+    expect(lookup).toContain('"fuzziness":"AUTO"');
+    expect(lookup).toContain('"karma":{"gte":1000}');
+    expect(lookup).toContain('"value":"richard_ngo"');
+    expect(lookup).toContain('"value":"richard-ngo"');
+    expect(lookup).toContain('"fullName.sort"');
+  });
+
+  it("treats a user's full name as an exact alias", () => {
+    const evhub = {objectID: "evhub", displayName: "evhub", slug: "evhub", karma: 14000, fullName: "Evan Hubinger"};
+    expect(resolvePersonSearch("evan hubinger", [evhub])).toMatchObject({userIds: ["evhub"], topic: "", confidence: "exact"});
+    expect(resolvePersonSearch("evan", [evhub])).toMatchObject({userIds: ["evhub"], topic: "", confidence: "strong"});
+  });
+});
+
+
+it("retains weaker same-span person interpretations alongside the strongest userIds", () => {
+  const result = resolvePersonSearch("Paul alignment", [
+    {objectID: "minor", displayName: "Paul", karma: 1},
+    {objectID: "pc", displayName: "Paul Christiano", karma: 5000},
+  ]);
+  expect(result).toEqual({userIds: ["minor"], confidence: "exact", topic: "alignment", candidates: [
+    {userId: "minor", confidence: "exact"}, {userId: "pc", confidence: "strong"},
+  ]});
+});
+
+
+it("resolves misspelled handles even when the display name differs", () => {
+  expect(resolvePersonSearch("johnswentwroth", [{objectID: "jw", displayName: "John Wentworth", slug: "johnswentworth", karma: 5000}]))
+    .toMatchObject({userIds: ["jw"], confidence: "weak"});
+  expect(JSON.stringify(compilePersonLookup("johnswentwroth"))).toContain('"slug.exact"');
+});
+
+
+describe("name completion", () => {
+  const anna = {objectID: "pnFbJAtNHGDK8PHQx", displayName: "AnnaSalamon", karma: 21291};
+  const john = {objectID: "MEu8MdhruX5jfGsFQ", displayName: "johnswentworth", karma: 64994};
+  it.each(["Anna S", "Anna Sa"])("resolves %s as a complete profile query", search => {
+    expect(resolvePersonSearch(search, [anna])).toMatchObject({userIds: [anna.objectID], topic: "", confidence: "weak"});
+  });
+  it.each(["John", "John W", "John We"])("resolves %s through a handle prefix", search => {
+    expect(resolvePersonSearch(search, [john])).toMatchObject({userIds: [john.objectID], topic: "", confidence: "weak"});
+  });
+  it.each(["John We should cooperate", "John AI", "John x"])("preserves topic words in %s", search => {
+    expect(resolvePersonSearch(search, [john])?.topic).toBe(search.toLowerCase().split(" ").slice(1).join(" "));
+  });
+  it("keeps equally fitting candidates and rejects mismatched initials", () => {
+    const candidates = [anna, {objectID: "smith", displayName: "Anna Smith", karma: 5000}, {objectID: "jones", displayName: "Anna Jones", karma: 50000}];
+    expect(resolvePersonSearch("Anna S", candidates)?.userIds).toEqual([anna.objectID, "smith"]);
+    expect(resolvePersonSearch("Anna Sa", candidates)?.userIds).toEqual([anna.objectID]);
+  });
+});
+
+
+it("ignores spaces without losing exact handle navigation", () => {
+  const user = {objectID: "mira", displayName: "MiraPatel", karma: 5000};
+  expect(resolvePersonSearch("Mira P", [user])).toMatchObject({userIds: ["mira"], topic: "", confidence: "weak"});
+  expect(resolvePersonSearch("mirapatel", [user])).toMatchObject({userIds: ["mira"], topic: "", confidence: "exact"});
+  expect(resolvePersonSearch("Mira P", [{...user, karma: 10}])).toBeUndefined();
+});
+
+
+it("allows one inserted handle character without changing short initials", () => {
+  const user = {objectID: "sam", displayName: "samuelrpatel", karma: 8000};
+  expect(resolvePersonSearch("Samuel P", [user])).toMatchObject({topic: "", confidence: "weak"});
+  expect(resolvePersonSearch("SamuelP", [user])).toMatchObject({topic: "", confidence: "weak"});
+  expect(JSON.stringify(compilePersonLookup("SamuelP"))).toContain('"value":"samu"');
+  expect(resolvePersonSearch("Samuel Pa", [user])).toMatchObject({topic: "", confidence: "weak"});
+  expect(resolvePersonSearch("Samuel T", [user])?.topic).toBe("t");
+  expect(resolvePersonSearch("Samuel P", [{...user, displayName: "samuelrrpatel"}])?.topic).toBe("p");
+  expect(resolvePersonSearch("Samuel P on AI", [user])?.topic).toBe("p on ai");
+  expect(resolvePersonSearch("Sam P", [user])).toMatchObject({topic: "p", confidence: "prefix"});
+});
+
+it("retrieves complete low-karma names inside author-plus-topic queries", () => {
+  const lookup = compilePersonLookup("quantum Alice Example mechanics");
+  const must = lookup?.query?.bool?.must;
+  if (!Array.isArray(must)) throw new Error("Missing candidate clauses");
+  expect(must[0].bool?.should).toContainEqual({term: {"displayName.sort": {value: "alice example", case_insensitive: true, boost: 100}}});
+  expect(resolvePersonSearch("quantum Alice Example mechanics", [{objectID: "alice", displayName: "Alice Example", karma: 10}]))
+    .toEqual(expect.objectContaining({userIds: ["alice"], topic: "quantum mechanics", confidence: "exact"}));
+});
+
+it("retains punctuation in complete name spans", () => {
+  const must = compilePersonLookup("Alice O'Connor quantum")?.query?.bool?.must;
+  if (!Array.isArray(must)) throw new Error("Missing candidate clauses");
+  expect(must[0].bool?.should).toContainEqual({term: {"displayName.sort": {value: "Alice O'Connor", case_insensitive: true, boost: 100}}});
+});
+
+describe("short and embedded name fragments", () => {
+  const kaj = {objectID: "ks", displayName: "Kaj_Sotala", slug: "kaj_sotala", karma: 54756};
+  const john = {objectID: "jw", displayName: "johnswentworth", slug: "johnswentworth", karma: 64994};
+  const dean = {objectID: "dv", displayName: "Dean Valentine", slug: "dean-valentine", username: "lc", karma: 14564};
+  const namesake = {objectID: "eli", displayName: "Eli", slug: "eli", karma: 0};
+
+  it("reads a prominent name word, a word prefix, and a handle fragment", () => {
+    expect(resolvePersonSearch("kaj", [kaj])).toMatchObject({userIds: ["ks"], confidence: "weak"});
+    expect(resolvePersonSearch("yud", [eliezer])).toMatchObject({userIds: ["ey"], confidence: "prefix"});
+    expect(resolvePersonSearch("wentworth", [john])).toMatchObject({userIds: ["jw"], confidence: "prefix"});
+    expect(resolvePersonSearch("ent", [john])).toBeUndefined();
+    expect(resolvePersonSearch("y", [eliezer])).toBeUndefined();
+  });
+
+  it("treats a former username as an exact alias", () => {
+    expect(resolvePersonSearch("lc", [dean])).toMatchObject({userIds: ["dv"], confidence: "exact"});
+  });
+
+  it("keeps a prominent prefix reading alongside an exact namesake", () => {
+    expect(resolvePersonSearch("eli", [namesake, eliezer])).toMatchObject({
+      userIds: ["eli"], confidence: "exact",
+      candidates: [{userId: "eli", confidence: "exact"}, {userId: "ey", confidence: "prefix"}],
+    });
+  });
+
+  it("never reads fragments of minor accounts", () => {
+    expect(resolvePersonSearch("kaj", [{...kaj, karma: 50}])).toBeUndefined();
+  });
+
+  it("retrieves word prefixes, handle fragments and usernames among prominent authors", () => {
+    const lookup = JSON.stringify(compilePersonLookup("wentworth"));
+    expect(lookup).toContain('"prefix":{"displayName.exact":{"value":"wentworth"}}');
+    expect(lookup).toContain('"wildcard":{"displayName.sort":{"value":"*wentworth*","case_insensitive":true}}');
+    expect(lookup).toContain('"username.keyword"');
+    expect(JSON.stringify(compilePersonLookup("yud"))).not.toContain("wildcard");
+  });
+});

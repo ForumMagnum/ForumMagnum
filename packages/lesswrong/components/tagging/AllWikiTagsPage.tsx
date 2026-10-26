@@ -6,7 +6,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import SearchIcon from '@/lib/vendor/@material-ui/icons/src/Search';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { Configure, SearchBox, connectStateResults } from 'react-instantsearch-dom';
-import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
+import { getSearchIndexName, getLookupSearchClient } from '../../lib/search/searchUtil';
 import { useCaptureSearchStateChange } from '../search/useSearchAnalytics';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
@@ -348,7 +348,7 @@ const AllWikiTagsPage = () => {
             <div className={classes.searchContainer}>
               <InstantSearch
                 indexName={getSearchIndexName('Tags')}
-                searchClient={getSearchClient()}
+                searchClient={getLookupSearchClient()}
                 onSearchStateChange={handleSearchStateChange}
               >
                 <div className={classes.searchInputArea}>
