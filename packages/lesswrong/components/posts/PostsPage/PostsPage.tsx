@@ -63,7 +63,7 @@ import FundraisingThermometer from "../../common/FundraisingThermometer";
 import PostPageReviewButton from "./PostPageReviewButton";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHeading';
-import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint } from './constants';
+import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, TEXT_TRACK_EXTRA, sidenotesHiddenBreakpoint } from './constants';
 import { getPostDescription, getStructuredData } from './structuredData';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { StructuredData } from '@/components/common/StructuredData';
@@ -73,6 +73,7 @@ import { useQuery } from "@/lib/crud/useQuery"
 import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 import { CommentsListMultiQuery, postCommentsThreadQuery } from '../queries';
+import { LayoutLab } from './LayoutLab';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
@@ -97,6 +98,10 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     maxWidth: CENTRAL_COLUMN_WIDTH, // this necessary in both friendly and non-friendly UI to prevent Comment Permalinks from overflowing the page
   },
   postBody: {
+    // EXPERIMENT (experiment/iframe-layout-ronny): the post's text width (comments keep centralColumn's).
+    // A wider text never eats the track's side padding, which keeps it clear of the sidenotes; on
+    // narrow screens the column is already full width, as before.
+    maxWidth: `min(var(--post-text-width, ${CENTRAL_COLUMN_WIDTH}px), max(100% - ${TEXT_TRACK_EXTRA}px, ${CENTRAL_COLUMN_WIDTH}px))`,
   },
   audioPlayerHidden: {
     // Only show the play button next to headings if the audio player is visible
@@ -585,6 +590,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const rightColumnChildren = <>
     <div className={classes.reserveSpaceForSidenotes}/>
     <SideItemsSidebar/>
+    {!preview && <LayoutLab/>}
   </>;
 
   const postsPageContext = useMemo(() => ({fullPost: fullPost ?? null, postPreload: postPreload ?? null}), [fullPost, postPreload]);

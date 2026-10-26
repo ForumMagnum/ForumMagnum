@@ -24,12 +24,15 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       paddingTop: 12,
     },
-    
+
+    // EXPERIMENT (experiment/iframe-layout-ronny): the text track reads --post-text-track, so a
+    // post can ask for a wider text column. The other tracks keep their minimum widths, so the
+    // table of contents and the right margin keep their room and the text grows into the slack.
     gridTemplateColumns: `
       0px
       minmax(200px, 270px)
       minmax(35px, 0.5fr)
-      minmax(min-content, ${MAX_COLUMN_WIDTH}px)
+      minmax(min-content, var(--post-text-track, ${MAX_COLUMN_WIDTH}px))
       minmax(10px,30px)
       50px
       minmax(0px, 0.5fr)
@@ -39,7 +42,7 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
         0px
         minmax(200px, 270px)
         minmax(35px, 0.5fr)
-        minmax(min-content, ${MAX_COLUMN_WIDTH}px)
+        minmax(min-content, var(--post-text-track, ${MAX_COLUMN_WIDTH}px))
         minmax(10px,30px)
         min-content
         minmax(0px, 0.5fr)
@@ -50,7 +53,7 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
         0px
         0px
         1fr
-        minmax(0,${MAX_COLUMN_WIDTH}px)
+        minmax(0,var(--post-text-track, ${MAX_COLUMN_WIDTH}px))
         minmax(5px,1fr)
         min-content
         0px
@@ -70,7 +73,7 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
       0px
       0px
       1fr
-      minmax(0,${MAX_COLUMN_WIDTH}px)
+      minmax(0,var(--post-text-track, ${MAX_COLUMN_WIDTH}px))
       minmax(5px,1fr)
       0px
       0px
