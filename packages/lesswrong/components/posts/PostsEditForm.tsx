@@ -23,6 +23,7 @@ import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
 import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { PostsEditFormQuery } from './queries';
+import { getPageTitleString } from '@/lib/pageTitle';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { usePathname } from 'next/navigation';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
@@ -150,7 +151,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   documentId: string,
   version?: string | null,
 }) => {
-  const { isLW } = useForumType();
+  const { isLW, forumType } = useForumType();
   const classes = useStyles(styles);
   const { query } = useLocation();
   const navigate = useNavigate();
@@ -188,6 +189,12 @@ const PostsEditFormInner = ({ documentId, version }: {
   useEffect(() => {
     setLiveTitle(document?.title ?? "");
   }, [document?.title]);
+
+  const savedTitle = document?.title;
+  useEffect(() => {
+    if (savedTitle === undefined) return;
+    window.document.title = getPageTitleString(liveTitle || savedTitle, forumType);
+  }, [liveTitle, savedTitle, forumType]);
 
   const { data: dataUser } = useQuery(UsersCurrentPostRateLimitQuery, {
     variables: { documentId: currentUser?._id, eventForm: document?.isEvent },
