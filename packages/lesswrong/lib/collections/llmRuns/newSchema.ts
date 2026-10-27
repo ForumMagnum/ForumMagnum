@@ -1,15 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { accessFilterMultiple, accessFilterSingle } from "@/lib/utils/schemaUtils";
-import type { ForumTypeString } from "@/lib/instanceSettings";
-
-declare global {
-  type LlmRunStatus = "pending" | "running" | "completed" | "failed";
-  type LlmRunInvocationContext = "commentReply";
-  type LlmRunForumType = ForumTypeString;
-}
-
-const LLM_RUN_STATUSES: LlmRunStatus[] = ["pending", "running", "completed", "failed"];
-const LLM_RUN_INVOCATION_CONTEXTS: LlmRunInvocationContext[] = ["commentReply"];
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -18,22 +8,14 @@ const schema = {
   invocationContext: {
     database: {
       type: "TEXT",
-      typescriptType: "LlmRunInvocationContext",
       nullable: false,
     },
     graphql: {
       outputType: "String!",
       canRead: ["guests"],
       validation: {
-        allowedValues: LLM_RUN_INVOCATION_CONTEXTS,
+        allowedValues: ["commentReply"],
       },
-    },
-  },
-  forumType: {
-    database: {
-      type: "TEXT",
-      typescriptType: "LlmRunForumType",
-      nullable: false,
     },
   },
   post: {
@@ -76,7 +58,6 @@ const schema = {
   status: {
     database: {
       type: "TEXT",
-      typescriptType: "LlmRunStatus",
       defaultValue: "pending",
       nullable: false,
     },
@@ -84,7 +65,7 @@ const schema = {
       outputType: "String!",
       canRead: ["guests"],
       validation: {
-        allowedValues: LLM_RUN_STATUSES,
+        allowedValues: ["pending", "running", "completed", "failed"],
       },
     },
   },
@@ -180,8 +161,9 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (run, args, context) => {
-        const replyComment = await context.Comments.findOne({ llmRunId: run._id }, {}, { _id: 1 });
-        return replyComment?._id ?? null;
+        const replyComment = await context.Comments.findOne({ llmRunId: run._id });
+        const accessibleReply = await accessFilterSingle(context.currentUser, "Comments", replyComment, context);
+        return accessibleReply?._id ?? null;
       },
     },
   },

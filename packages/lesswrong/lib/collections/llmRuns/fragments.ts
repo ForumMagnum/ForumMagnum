@@ -4,11 +4,8 @@ export const LlmRunPageFragment = gql(`
   fragment LlmRunPageFragment on LlmRun {
     _id
     createdAt
-    completedAt
-    invocationContext
     status
     modelName
-    gatewayModelId
     post {
       _id
       slug

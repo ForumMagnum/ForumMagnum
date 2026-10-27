@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!isTestServer) {
-    tasks.push(getLockOrAbort('retryStalledLlmRuns', retryStalledLlmRuns.bind(null, context.forumType)));
+    tasks.push(getLockOrAbort('retryStalledLlmRuns', retryStalledLlmRuns));
   }
 
   // Update score active documents (runs regardless of test server setting)

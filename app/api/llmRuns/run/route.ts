@@ -1,6 +1,5 @@
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { runLlmRun } from "@/server/languageModels/llmRuns";
 
@@ -14,6 +13,6 @@ export async function POST(request: NextRequest) {
     return new Response("Unauthorized", { status: 401 });
   }
   const { runId } = requestSchema.parse(await request.json());
-  backgroundTask(runLlmRun(runId, getForumTypeForRequest(request)));
+  backgroundTask(runLlmRun(runId));
   return new Response(null, { status: 202 });
 }

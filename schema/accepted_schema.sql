@@ -1036,7 +1036,6 @@ CREATE TABLE "LlmRuns" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "invocationContext" TEXT NOT NULL,
-  "forumType" TEXT NOT NULL,
   "modelName" TEXT NOT NULL,
   "gatewayModelId" TEXT NOT NULL,
   "status" TEXT NOT NULL DEFAULT 'pending',

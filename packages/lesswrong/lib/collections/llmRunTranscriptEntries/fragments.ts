@@ -10,6 +10,5 @@ export const LlmRunTranscriptEntryFragment = gql(`
     query
     url
     title
-    extra
   }
 `);

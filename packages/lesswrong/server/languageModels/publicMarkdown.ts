@@ -1,20 +1,20 @@
-import { siteUrlSetting, type ForumTypeString } from "@/lib/instanceSettings";
+import { siteUrlSetting } from "@/lib/instanceSettings";
 import { getMarkdownPathname } from "@/lib/routeChecks/markdownVersionRoutes";
 import { combineUrls } from "@/lib/vulcan-lib/utils";
 
 const MAX_PAGE_CHARACTERS = 60_000;
-const LESSWRONG_HOSTNAME = "lesswrong.com";
+const FORUM_HOSTNAMES = ["lesswrong.com", "alignmentforum.org"];
 
-export function getPublicMarkdownPath(urlOrPath: string, forumType: ForumTypeString): string | null {
-  const siteUrl = new URL(siteUrlSetting.get(forumType));
+export function getPublicMarkdownPath(urlOrPath: string): string | null {
+  const siteUrl = new URL(siteUrlSetting.get("LessWrong"));
   let url: URL;
   try {
     url = new URL(urlOrPath, siteUrl);
   } catch {
     return null;
   }
-  const isLessWrongHostname = url.hostname === LESSWRONG_HOSTNAME || url.hostname.endsWith(`.${LESSWRONG_HOSTNAME}`);
-  if (url.hostname !== siteUrl.hostname && !isLessWrongHostname) {
+  const isForumHostname = FORUM_HOSTNAMES.some(hostname => url.hostname === hostname || url.hostname.endsWith(`.${hostname}`));
+  if (url.hostname !== siteUrl.hostname && !isForumHostname) {
     return null;
   }
   if (url.pathname.startsWith("/api/")) {
@@ -29,8 +29,8 @@ export function getPublicMarkdownPath(urlOrPath: string, forumType: ForumTypeStr
   return markdownPathname;
 }
 
-export async function fetchPublicMarkdown(markdownPath: string, forumType: ForumTypeString): Promise<string> {
-  const response = await fetch(combineUrls(siteUrlSetting.get(forumType), markdownPath), {
+export async function fetchPublicMarkdown(markdownPath: string): Promise<string> {
+  const response = await fetch(combineUrls(siteUrlSetting.get("LessWrong"), markdownPath), {
     headers: { Accept: "text/markdown" },
   });
   if (!response.ok) {

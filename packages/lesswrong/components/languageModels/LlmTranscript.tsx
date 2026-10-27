@@ -433,25 +433,13 @@ function describeTool({ toolName, query, url }: LlmRunTranscriptEntryFragment): 
 }
 
 function getResultText(result: LlmRunTranscriptEntryFragment): string | null {
-  const text = result.text ?? getUnrecognizedOutputText(result.extra);
+  const text = result.text;
   if (text === null) {
     return null;
   }
   return text.length > MAX_TOOL_RESULT_CHARACTERS
     ? `${text.slice(0, MAX_TOOL_RESULT_CHARACTERS)}\n\n[Truncated]`
     : text;
-}
-
-function getUnrecognizedOutputText(extra: unknown): string | null {
-  const output = getField(extra, "output");
-  return output === undefined ? null : JSON.stringify(output, null, 2);
-}
-
-function getField(value: unknown, key: string): unknown {
-  if (typeof value !== "object" || value === null) {
-    return undefined;
-  }
-  return Object.entries(value).find(([fieldName]) => fieldName === key)?.[1];
 }
 
 function getHostname(url: string): string {

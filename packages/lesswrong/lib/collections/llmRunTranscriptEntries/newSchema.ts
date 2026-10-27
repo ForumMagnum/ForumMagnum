@@ -1,11 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 
-declare global {
-  type LlmTranscriptEntryType = "reasoning" | "text" | "toolCall" | "toolResult" | "toolError" | "source" | "resultLink";
-}
-
-const LLM_TRANSCRIPT_ENTRY_TYPES: LlmTranscriptEntryType[] = ["reasoning", "text", "toolCall", "toolResult", "toolError", "source", "resultLink"];
-
 const schema = {
   _id: DEFAULT_ID_FIELD,
   createdAt: DEFAULT_CREATED_AT_FIELD,
@@ -44,14 +38,13 @@ const schema = {
   type: {
     database: {
       type: "TEXT",
-      typescriptType: "LlmTranscriptEntryType",
       nullable: false,
     },
     graphql: {
       outputType: "String!",
       canRead: ["guests"],
       validation: {
-        allowedValues: LLM_TRANSCRIPT_ENTRY_TYPES,
+        allowedValues: ["reasoning", "text", "toolCall", "toolResult", "toolError", "source", "resultLink"],
       },
     },
   },
@@ -63,6 +56,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+      resolver: (entry) => entry.text ?? JSON.stringify(entry.extra?.output, null, 2) ?? null,
     },
   },
   toolCallId: {

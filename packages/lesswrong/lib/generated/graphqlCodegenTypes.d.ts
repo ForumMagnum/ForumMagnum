@@ -25184,7 +25184,7 @@ type LlmConversationsWithMessagesFragment = (
 
 type LlmMessagesFragment = { __typename?: 'LlmMessage', _id: string, userId: string | null, conversationId: string | null, role: string | null, content: string | null, createdAt: string };
 
-type LlmRunTranscriptEntryFragment = { __typename?: 'LlmRunTranscriptEntry', _id: string, type: string, text: string | null, toolCallId: string | null, toolName: string | null, query: string | null, url: string | null, title: string | null, extra: any | null };
+type LlmRunTranscriptEntryFragment = { __typename?: 'LlmRunTranscriptEntry', _id: string, type: string, text: string | null, toolCallId: string | null, toolName: string | null, query: string | null, url: string | null, title: string | null };
 
 type LlmRunPageFragment_LlmRun_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
 
@@ -25193,7 +25193,7 @@ type LlmRunPageFragment_LlmRun_transcriptEntries_LlmRunTranscriptEntry = (
   & LlmRunTranscriptEntryFragment
 );
 
-type LlmRunPageFragment = { __typename?: 'LlmRun', _id: string, createdAt: string, completedAt: string | null, invocationContext: string, status: string, modelName: string, gatewayModelId: string, triggerCommentId: string | null, replyCommentId: string | null, systemPrompt: string, contextMessage: string | null, response: string | null, error: string | null, post: LlmRunPageFragment_LlmRun_post_Post | null, transcriptEntries: Array<LlmRunPageFragment_LlmRun_transcriptEntries_LlmRunTranscriptEntry> };
+type LlmRunPageFragment = { __typename?: 'LlmRun', _id: string, createdAt: string, status: string, modelName: string, triggerCommentId: string | null, replyCommentId: string | null, systemPrompt: string, contextMessage: string | null, response: string | null, error: string | null, post: LlmRunPageFragment_LlmRun_post_Post | null, transcriptEntries: Array<LlmRunPageFragment_LlmRun_transcriptEntries_LlmRunTranscriptEntry> };
 
 type localGroupsBase_Localgroup_organizers_User = (
   { __typename?: 'User' }

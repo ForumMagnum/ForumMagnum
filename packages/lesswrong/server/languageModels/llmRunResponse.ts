@@ -1,4 +1,4 @@
-import { generateText, stepCountIs, type ContentPart, type ModelMessage, type ToolSet } from "ai";
+import { generateText, stepCountIs, type ContentPart, type LanguageModel, type ModelMessage, type ToolSet } from "ai";
 import { z } from "zod";
 import LlmRuns from "@/server/collections/llmRuns/collection";
 import LlmRunTranscriptEntries from "@/server/collections/llmRunTranscriptEntries/collection";
@@ -13,7 +13,7 @@ const MAX_MODEL_STEPS = 20;
 const MAX_CONTINUATIONS = 2;
 
 const REASONING_PROVIDER_OPTIONS = {
-  anthropic: { thinking: { type: "adaptive", display: "summarized" } },
+  anthropic: { effort: "high", thinking: { type: "adaptive", display: "summarized" } },
   openai: { reasoningEffort: "high", reasoningSummary: "detailed" },
   google: { thinkingConfig: { thinkingLevel: "high", includeThoughts: true } },
   vertex: { thinkingConfig: { thinkingLevel: "high", includeThoughts: true } },
@@ -36,7 +36,7 @@ const browserbaseFetchOutputSchema = z.looseObject({
 });
 
 interface TranscriptEntryFields {
-  type: LlmTranscriptEntryType,
+  type: DbLlmRunTranscriptEntry["type"],
   text: string | null,
   toolCallId: string | null,
   toolName: string | null,
@@ -46,19 +46,20 @@ interface TranscriptEntryFields {
   extra: Record<string, unknown> | null,
 }
 
-export async function generateLlmRunResponse(run: DbLlmRun, { contextMessage, tools }: {
+export async function generateLlmRunResponse(run: DbLlmRun, { model, contextMessage, tools }: {
+  model: LanguageModel,
   contextMessage: string,
   tools: ToolSet,
 }): Promise<string> {
   await LlmRuns.rawUpdateOne({ _id: run._id }, { $set: { contextMessage, response: null } });
-  const response = await generateWithContinuations(run, tools, [{ role: "user", content: contextMessage }], MAX_CONTINUATIONS);
+  const response = await generateWithContinuations(run, model, tools, [{ role: "user", content: contextMessage }], MAX_CONTINUATIONS);
   await LlmRuns.rawUpdateOne({ _id: run._id }, { $set: { response } });
   return response;
 }
 
-async function generateWithContinuations(run: DbLlmRun, tools: ToolSet, messages: ModelMessage[], continuationsLeft: number): Promise<string> {
+async function generateWithContinuations(run: DbLlmRun, model: LanguageModel, tools: ToolSet, messages: ModelMessage[], continuationsLeft: number): Promise<string> {
   const result = await generateText({
-    model: run.gatewayModelId,
+    model,
     system: run.systemPrompt,
     messages,
     tools,
@@ -73,7 +74,7 @@ async function generateWithContinuations(run: DbLlmRun, tools: ToolSet, messages
     throw new Error(`The model finished without writing a response (finish reason: ${result.finishReason})`);
   }
   const continuedMessages: ModelMessage[] = [...messages, ...result.response.messages, { role: "user", content: "Continue." }];
-  return await generateWithContinuations(run, tools, continuedMessages, continuationsLeft - 1);
+  return await generateWithContinuations(run, model, tools, continuedMessages, continuationsLeft - 1);
 }
 
 async function saveTranscriptEntries(run: DbLlmRun, content: ContentPart<ToolSet>[]): Promise<void> {
@@ -153,7 +154,7 @@ function getToolResultEntries(toolCallId: string, toolName: string, output: unkn
   return [makeEntry("toolResult", { ...toolFields, extra: { output } })];
 }
 
-function makeEntry(type: LlmTranscriptEntryType, fields: Partial<Omit<TranscriptEntryFields, "type">>): TranscriptEntryFields {
+function makeEntry(type: DbLlmRunTranscriptEntry["type"], fields: Partial<Omit<TranscriptEntryFields, "type">>): TranscriptEntryFields {
   return { type, text: null, toolCallId: null, toolName: null, query: null, url: null, title: null, extra: null, ...fields };
 }
 

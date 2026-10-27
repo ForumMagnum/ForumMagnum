@@ -28,14 +28,16 @@ class LlmRunsRepo extends AbstractRepo<"LlmRuns"> {
     `, { runId, staleClaimBefore, maxAttempts });
   }
 
-  getStalledRuns(pendingBefore: Date, staleClaimBefore: Date): Promise<DbLlmRun[]> {
-    return this.any(`
-      -- LlmRunsRepo.getStalledRuns
-      SELECT *
-      FROM "LlmRuns"
-      WHERE ("status" = 'pending' AND "createdAt" < $(pendingBefore))
-      OR ("status" = 'running' AND "claimedAt" < $(staleClaimBefore))
-    `, { pendingBefore, staleClaimBefore });
+  async countRunsTriggeredByUserSince(userId: string, since: Date): Promise<number> {
+    const { count } = await this.getRawDb().one<{ count: number }>(`
+      -- LlmRunsRepo.countRunsTriggeredByUserSince
+      SELECT COUNT(*)::INTEGER AS "count"
+      FROM "LlmRuns" r
+      JOIN "Comments" c ON c."_id" = r."triggerCommentId"
+      WHERE c."userId" = $(userId)
+      AND r."createdAt" > $(since)
+    `, { userId, since });
+    return count;
   }
 }
 

@@ -1,6 +1,5 @@
 import { gateway, tool, type ToolSet } from "ai";
 import { z } from "zod";
-import type { ForumTypeString } from "@/lib/instanceSettings";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import { asyncFilter } from "@/lib/utils/asyncUtils";
@@ -29,14 +28,13 @@ const readLessWrongInputSchema = z.object({
 });
 
 export function getLlmTools(context: ResolverContext): ToolSet {
-  const { forumType } = context;
   return {
     parallel_search: gateway.tools.parallelSearch(),
     browserbase_fetch: gateway.tools.browserbaseFetch({ format: "markdown" }),
     searchLessWrong: tool({
       description: "Keyword search over LessWrong posts, comments, wiki pages, users and sequences. Returns Markdown with links you can open with readLessWrong.",
       inputSchema: searchLessWrongInputSchema,
-      execute: (input) => searchLessWrong(input, forumType),
+      execute: searchLessWrong,
     }),
     semanticSearchLessWrong: tool({
       description: "Search LessWrong posts or comments by meaning rather than exact words. Comment coverage is partial, mostly comments from 2023 onward.",
@@ -46,18 +44,18 @@ export function getLlmTools(context: ResolverContext): ToolSet {
     readLessWrong: tool({
       description: "Read a LessWrong page as Markdown: a post, comment, wiki page or sequence. Takes a LessWrong URL or path. Use this rather than browserbase_fetch for LessWrong pages.",
       inputSchema: readLessWrongInputSchema,
-      execute: (input) => readLessWrong(input, forumType),
+      execute: readLessWrong,
     }),
   };
 }
 
-async function searchLessWrong({ query, type }: z.infer<typeof searchLessWrongInputSchema>, forumType: ForumTypeString): Promise<string> {
+async function searchLessWrong({ query, type }: z.infer<typeof searchLessWrongInputSchema>): Promise<string> {
   const params = new URLSearchParams({
     search: query,
     limit: "10",
     ...(type ? { type } : {}),
   });
-  return await fetchPublicMarkdown(`/api/search?${params}`, forumType);
+  return await fetchPublicMarkdown(`/api/search?${params}`);
 }
 
 async function semanticSearchLessWrong({ query, type }: z.infer<typeof semanticSearchLessWrongInputSchema>, context: ResolverContext): Promise<string> {
@@ -67,12 +65,12 @@ async function semanticSearchLessWrong({ query, type }: z.infer<typeof semanticS
   return await semanticSearchComments(query, context);
 }
 
-async function readLessWrong({ url }: z.infer<typeof readLessWrongInputSchema>, forumType: ForumTypeString): Promise<string> {
-  const markdownPath = getPublicMarkdownPath(url, forumType);
+async function readLessWrong({ url }: z.infer<typeof readLessWrongInputSchema>): Promise<string> {
+  const markdownPath = getPublicMarkdownPath(url);
   if (!markdownPath) {
     throw new Error(`There is no Markdown version of ${url}`);
   }
-  return await fetchPublicMarkdown(markdownPath, forumType);
+  return await fetchPublicMarkdown(markdownPath);
 }
 
 async function semanticSearchPosts(query: string, context: ResolverContext): Promise<string> {

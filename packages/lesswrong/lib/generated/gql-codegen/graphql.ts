@@ -487,13 +487,13 @@ const _467=_o3(_3,"LlmRunTranscriptEntryFragment")
 const _468=_o4(_8,_o3(_3,"toolName"))
 const _469="query"
 const _470=_o3(_3,_469)
-const _471=_o2(_2,_467,_o4(_5,_o3(_3,"LlmRunTranscriptEntry")),_o5(_7,[_10,_274,_387,_o4(_8,_o3(_3,"toolCallId")),_468,_o4(_8,_470),_87,_14,_o4(_8,_o3(_3,"extra"))]))
+const _471=_o2(_2,_467,_o4(_5,_o3(_3,"LlmRunTranscriptEntry")),_o5(_7,[_10,_274,_387,_o4(_8,_o3(_3,"toolCallId")),_468,_o4(_8,_470),_87,_14]))
 const _472=_o3(_3,"LlmRunPageFragment")
 const _473=_o4(_8,_o3(_3,"modelName"))
 const _474=_o4(_8,_o3(_3,"systemPrompt"))
 const _475=_o3(_3,"response")
 const _476=_o4(_8,_o3(_3,"error"))
-const _477=_o2(_2,_472,_o4(_5,_o3(_3,"LlmRun")),_o5(_7,[_10,_48,_o4(_8,_o3(_3,"completedAt")),_o4(_8,_o3(_3,"invocationContext")),_88,_473,_o4(_8,_o3(_3,"gatewayModelId")),_354,_o4(_8,_o3(_3,"triggerCommentId")),_o4(_8,_o3(_3,"replyCommentId")),_474,_o4(_8,_o3(_3,"contextMessage")),_o6(_8,_o3(_3,"transcriptEntries"),_o5(_7,[_o4(_25,_467)])),_o4(_8,_475),_476]))
+const _477=_o2(_2,_472,_o4(_5,_o3(_3,"LlmRun")),_o5(_7,[_10,_48,_88,_473,_354,_o4(_8,_o3(_3,"triggerCommentId")),_o4(_8,_o3(_3,"replyCommentId")),_474,_o4(_8,_o3(_3,"contextMessage")),_o6(_8,_o3(_3,"transcriptEntries"),_o5(_7,[_o4(_25,_467)])),_o4(_8,_475),_476]))
 const _478=_o3(_3,"localGroupsBase")
 const _479=_o4(_5,_o3(_3,"Localgroup"))
 const _480=_o4(_8,_o3(_3,"isOnline"))
@@ -22325,9 +22325,9 @@ export type LlmConversationsWithMessagesFragment = (
 
 export type LlmMessagesFragment = { __typename?: 'LlmMessage', _id: string, userId: string | null, conversationId: string | null, role: string | null, content: string | null, createdAt: string };
 
-export type LlmRunTranscriptEntryFragment = { __typename?: 'LlmRunTranscriptEntry', _id: string, type: string, text: string | null, toolCallId: string | null, toolName: string | null, query: string | null, url: string | null, title: string | null, extra: any | null };
+export type LlmRunTranscriptEntryFragment = { __typename?: 'LlmRunTranscriptEntry', _id: string, type: string, text: string | null, toolCallId: string | null, toolName: string | null, query: string | null, url: string | null, title: string | null };
 
-export type LlmRunPageFragment = { __typename?: 'LlmRun', _id: string, createdAt: string, completedAt: string | null, invocationContext: string, status: string, modelName: string, gatewayModelId: string, triggerCommentId: string | null, replyCommentId: string | null, systemPrompt: string, contextMessage: string | null, response: string | null, error: string | null, post: { __typename?: 'Post', _id: string, slug: string, title: string } | null, transcriptEntries: Array<(
+export type LlmRunPageFragment = { __typename?: 'LlmRun', _id: string, createdAt: string, status: string, modelName: string, triggerCommentId: string | null, replyCommentId: string | null, systemPrompt: string, contextMessage: string | null, response: string | null, error: string | null, post: { __typename?: 'Post', _id: string, slug: string, title: string } | null, transcriptEntries: Array<(
     { __typename?: 'LlmRunTranscriptEntry' }
     & LlmRunTranscriptEntryFragment
   )> };

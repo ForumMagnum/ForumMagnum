@@ -617,7 +617,7 @@ interface DbLlmRunTranscriptEntry extends DbObject {
   title: string | null
   toolCallId: string | null
   toolName: string | null
-  type: LlmTranscriptEntryType
+  type: "reasoning" | "text" | "toolCall" | "toolResult" | "toolError" | "source" | "resultLink"
   url: string | null
 }
 
@@ -631,12 +631,11 @@ interface DbLlmRun extends DbObject {
   contextMessage: string | null
   createdAt: Date
   error: string | null
-  forumType: LlmRunForumType
   gatewayModelId: string
-  invocationContext: LlmRunInvocationContext
+  invocationContext: "commentReply"
   modelName: string
   response: string | null
-  status: LlmRunStatus
+  status: "pending" | "running" | "completed" | "failed"
   systemPrompt: string
   triggerCommentId: string | null
 }
