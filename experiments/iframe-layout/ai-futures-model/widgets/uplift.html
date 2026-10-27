@@ -41,8 +41,7 @@ function draw(u0, t, uac, m) {
   const span = Math.max(36, Math.ceil((m + 10) / 12) * 12);
   const x = mo => L + (R - L) * mo / span;
   const y = u => B - (B - T) * Math.log10(u) / 2;
-  let s = '<defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">'
-    + '<stop offset="0" stop-color="#3f8255" stop-opacity=".28"/><stop offset="1" stop-color="#3f8255" stop-opacity="0"/></linearGradient></defs>';
+  let s = '';
   for (const u of [1, 2, 5, 10, 20, 50, 100]) {
     s += '<line class="gridline" x1="' + L + '" x2="' + R + '" y1="' + y(u) + '" y2="' + y(u) + '" stroke-dasharray="' + (u === 1 ? '' : '2 3') + '"/>';
     s += '<text class="axis-label" x="' + (L - 5) + '" y="' + (y(u) + 3.5) + '" text-anchor="end">' + u + '×</text>';
@@ -59,15 +58,12 @@ function draw(u0, t, uac, m) {
     points.push([x(mo), y(u)]);
   }
   const line = points.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
-  const last = points[points.length - 1];
-  s += '<path d="' + line + ' L' + last[0].toFixed(1) + ',' + B + ' L' + L + ',' + B + ' Z" fill="url(#fill)"/>';
   s += '<line x1="' + L + '" x2="' + R + '" y1="' + y(uac) + '" y2="' + y(uac) + '" stroke="#a33a26" stroke-width="1.2" stroke-dasharray="4 3"/>';
   s += '<path d="' + line + '" fill="none" stroke="#2a623d" stroke-width="2.5" stroke-linecap="round"/>';
-  s += '<circle cx="' + x(0) + '" cy="' + y(u0) + '" r="3.5" fill="#fffdf8" stroke="#2a623d" stroke-width="2"/>';
+  s += '<circle cx="' + x(0) + '" cy="' + y(u0) + '" r="3.5" fill="#ffffff" stroke="#2a623d" stroke-width="2"/>';
   if (m <= span) {
     const ax = x(m), ay = y(uac), px = Math.min(Math.max(ax, L + 20), R - 20);
-    s += '<circle cx="' + ax + '" cy="' + ay + '" r="9" fill="rgba(42,98,61,.18)"/>';
-    s += '<circle cx="' + ax + '" cy="' + ay + '" r="4.5" fill="#2a623d" stroke="#fffdf8" stroke-width="1.5"/>';
+    s += '<circle cx="' + ax + '" cy="' + ay + '" r="4.5" fill="#2a623d" stroke="#ffffff" stroke-width="1.5"/>';
     s += '<rect x="' + (px - 17) + '" y="' + (ay - 30) + '" width="34" height="17" rx="8.5" fill="#2a623d"/>';
     s += '<text x="' + px + '" y="' + (ay - 18) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">AC</text>';
   }

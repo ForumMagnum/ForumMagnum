@@ -90,11 +90,6 @@ function draw(f, firstYears) {
   }
   const mine = curvePoints(f, firstYears, x, y, top);
   const plain = curvePoints(1, firstYears, x, y, top);
-  // Shade the gap between your curve and the plain exponential.
-  if (mine.length > 1 && plain.length > 1) {
-    const back = plain.slice().reverse();
-    s += '<path d="' + toPath(mine) + ' ' + back.map(p => 'L' + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') + ' Z" fill="' + (f <= 1 ? 'rgba(63,130,85,.13)' : 'rgba(163,58,38,.10)') + '"/>';
-  }
   if (f < 1) {
     const tInf = firstYears / (1 - f);
     if (tInf <= YEARS) {
@@ -105,7 +100,7 @@ function draw(f, firstYears) {
   }
   s += '<path d="' + toPath(plain) + '" fill="none" stroke="#b4b0a4" stroke-width="1.8" stroke-dasharray="6 5"/>';
   s += '<path d="' + toPath(mine) + '" fill="none" stroke="#2a623d" stroke-width="3" stroke-linecap="round"/>';
-  s += '<circle cx="' + x(0) + '" cy="' + y(PRESENT_MIN) + '" r="4.5" fill="#fffdf8" stroke="#2a623d" stroke-width="2.2"/>';
+  s += '<circle cx="' + x(0) + '" cy="' + y(PRESENT_MIN) + '" r="4.5" fill="#ffffff" stroke="#2a623d" stroke-width="2.2"/>';
   s += '<text class="axis-label" x="' + (x(0) + 8) + '" y="' + (y(PRESENT_MIN) + 16) + '">~3 hours today</text>';
   el('chart').innerHTML = s;
 }
