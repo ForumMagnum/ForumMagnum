@@ -5,6 +5,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ensureLayoutDemoPost } from "@/server/layoutDemo/aiFuturesLayoutDemo";
 
+// Look the post up on every visit, never at build time.
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   const post = await ensureLayoutDemoPost();
   const url = new URL(`/posts/${post._id}/${post.slug}`, req.nextUrl.origin);
