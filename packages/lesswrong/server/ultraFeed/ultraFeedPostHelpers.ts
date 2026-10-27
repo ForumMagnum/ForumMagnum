@@ -4,6 +4,7 @@ import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
 import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendationSettings";
 import { UltraFeedResolverSettings } from "@/components/ultraFeed/ultraFeedSettingsTypes";
 import keyBy from 'lodash/keyBy';
+import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
 // Configuration for unviewed items optimization
 const UNVIEWED_RECOMBEE_CONFIG = {
@@ -47,9 +48,12 @@ export async function getRecommendedPostsForUltraFeed(
     if (unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.skipFetchThreshold) {
       // We have enough cached items, return them directly
       const posts = await context.loaders.Posts.loadMany(unviewedRecombeePostIds.slice(0, limit));
+      const loadedPosts = posts.filter((post): post is DbPost => !(post instanceof Error) && !!post && !post.rejected && !post.unlisted);
+      // These IDs come from UltraFeedEvents, which clients can create, so they
+      // must be permissions-filtered.
+      const filteredPosts = await accessFilterMultiple(currentUser, 'Posts', loadedPosts, context);
       
-      return posts
-        .filter((post): post is DbPost => !(post instanceof Error))
+      return filteredPosts
         .slice(0, limit)
         .map((post): FeedFullPost => ({
           post,
@@ -98,7 +102,7 @@ export async function getRecommendedPostsForUltraFeed(
   }
   
   const displayPosts = recommendedResults.map((item): FeedFullPost | null => {
-    if (!item.post?._id) return null;
+    if (!item.post?._id || item.post.unlisted) return null;
     const { post, recommId, scenario, generatedAt } = item;
 
     const recommInfo = (recommId && generatedAt) ? {
@@ -122,15 +126,16 @@ export async function getRecommendedPostsForUltraFeed(
     const postsToReuse = limit - displayPosts.length;
     const reusedPostIds = unviewedRecombeePostIds.slice(0, postsToReuse);
     const reusedPosts = await context.loaders.Posts.loadMany(reusedPostIds);
+    const loadedReusedPosts = reusedPosts.filter((post): post is DbPost => !(post instanceof Error) && !!post && !post.unlisted);
+    const filteredReusedPosts = await accessFilterMultiple(currentUser, 'Posts', loadedReusedPosts, context);
     
-    const reusedDisplayPosts = reusedPosts
-      .filter((post): post is DbPost => !(post instanceof Error))
+    const reusedDisplayPosts = filteredReusedPosts
       .map((post): FeedFullPost => ({
         post,
         postMetaInfo: {
           sources: [scenarioId as FeedItemSourceType],
           displayStatus: 'expanded',
-          highlight: !viewedPostIds.has(post._id),
+          highlight: post._id ? !viewedPostIds.has(post._id) : true,
         },
       }));
     

@@ -23,6 +23,7 @@ import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
 import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { PostsEditFormQuery } from './queries';
+import { getPageTitleString } from '@/lib/pageTitle';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { usePathname } from 'next/navigation';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
@@ -33,6 +34,7 @@ const UsersCurrentPostRateLimitQuery = gql(`
     user(input: { selector: { documentId: $documentId } }) {
       result {
         ...UsersCurrentPostRateLimit
+        hasApprovedContent
       }
     }
   }
@@ -150,7 +152,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   documentId: string,
   version?: string | null,
 }) => {
-  const { isLW } = useForumType();
+  const { isLW, forumType } = useForumType();
   const classes = useStyles(styles);
   const { query } = useLocation();
   const navigate = useNavigate();
@@ -188,6 +190,12 @@ const PostsEditFormInner = ({ documentId, version }: {
   useEffect(() => {
     setLiveTitle(document?.title ?? "");
   }, [document?.title]);
+
+  const savedTitle = document?.title;
+  useEffect(() => {
+    if (savedTitle === undefined) return;
+    window.document.title = getPageTitleString(liveTitle || savedTitle, forumType);
+  }, [liveTitle, savedTitle, forumType]);
 
   const { data: dataUser } = useQuery(UsersCurrentPostRateLimitQuery, {
     variables: { documentId: currentUser?._id, eventForm: document?.isEvent },
@@ -229,8 +237,9 @@ const PostsEditFormInner = ({ documentId, version }: {
     return <ForeignCrosspostEditForm post={document} />;
   }
 
-  // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW && !currentUser?.reviewedByUserId && currentUser?._id === document.userId;
+  // on LW, show a moderation message to new users who haven't had any content approved yet
+  const isUnapprovedNewUser = !currentUser?.reviewedByUserId && userWithRateLimit?.hasApprovedContent === false;
+  const showNewUserModerationWarning = isLW && isUnapprovedNewUser && currentUser?._id === document.userId;
   const rightColumnChildren = <>
     {/* We render a portal target div in the right column. PostForm will use
     createPortal to render the EditorSettingsSidebar into this target, since it needs
@@ -245,7 +254,7 @@ const PostsEditFormInner = ({ documentId, version }: {
     <SideItemsContainer>
     <DynamicTableOfContents title={liveTitle || document.title} rightColumnChildren={rightColumnChildren}>
       <div className={classes.postForm}>
-        {postWillBeHidden && <NewPostModerationWarning />}
+        {showNewUserModerationWarning && <NewPostModerationWarning />}
         {rateLimitNextAbleToPost && <RateLimitWarning
           contentType="post"
           lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible}

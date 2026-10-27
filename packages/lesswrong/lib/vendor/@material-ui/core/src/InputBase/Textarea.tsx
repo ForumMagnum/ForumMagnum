@@ -82,8 +82,16 @@ class Textarea extends React.Component<TextareaProps & WithStylesProps<typeof st
     };
   }
 
+  // A web font that finishes loading after mount can change the text's
+  // height (eg a title font with taller metrics than its fallback), which
+  // would otherwise leave the textarea too short and showing a scrollbar.
+  handleFontsLoaded = () => {
+    this.syncHeightWithShadow();
+  };
+
   componentDidMount() {
     this.syncHeightWithShadow();
+    document.fonts.addEventListener('loadingdone', this.handleFontsLoaded);
   }
 
   componentDidUpdate() {
@@ -92,6 +100,7 @@ class Textarea extends React.Component<TextareaProps & WithStylesProps<typeof st
 
   componentWillUnmount() {
     this.handleResize.cancel();
+    document.fonts.removeEventListener('loadingdone', this.handleFontsLoaded);
   }
 
   handleRefInput = (ref: AnyBecauseTodo) => {

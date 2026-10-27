@@ -25,7 +25,7 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
   const clientId = useClientId();
 
   const sendRecombeeViewPortionEvent = useCallback(
-    (eventProps: RecombeeViewPortionProps) => recombeeApi.createViewPortion(eventProps, forumType),
+    (eventProps: RecombeeViewPortionProps, isLoggedIn: boolean) => recombeeApi.createViewPortion(eventProps, isLoggedIn, forumType),
   [forumType]);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
           const { post, ...recombeeEventProps } = eventProps;
           if (isRecombeeRecommendablePost(post, forumType)) {
             const postId = post._id;
-            void sendRecombeeViewPortionEvent({ ...recombeeEventProps, postId, timestamp: new Date(), userId: attributedUserId });
+            void sendRecombeeViewPortionEvent({ ...recombeeEventProps, postId, timestamp: new Date(), userId: attributedUserId }, !!currentUser);
           }
           
           setAlreadySent(true);

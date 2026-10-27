@@ -81,16 +81,20 @@ const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginTop: 4,
     fontStyle: "italic",
-  }
+  },
+  moderationLogLink: {
+    "@media print": {
+      display: "none",
+    },
+  },
 }))
 
 const CommentsListSection = ({
   post,
   tag,
   commentCount,
-  loadMoreCount,
   totalComments,
-  loadMoreComments,
+  loadAllComments,
   loadingMoreComments,
   loading,
   comments,
@@ -106,9 +110,8 @@ const CommentsListSection = ({
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
-  loadMoreCount?: number,
   totalComments: number,
-  loadMoreComments: any,
+  loadAllComments: () => void,
   loadingMoreComments: boolean,
   loading?: boolean,
   comments: CommentsList[],
@@ -189,9 +192,8 @@ const CommentsListSection = ({
       {totalComments ? <CommentsListSectionTitle
         post={post}
         commentCount={commentCount}
-        loadMoreCount={loadMoreCount}
         totalComments={totalComments}
-        loadMoreComments={loadMoreComments}
+        loadAllComments={loadAllComments}
         loadingMoreComments={loadingMoreComments}
         comments={comments}
         highlightDate={highlightDate}
@@ -210,7 +212,7 @@ const CommentsListSection = ({
       <PostsPageCrosspostComments />
       <Row justifyContent="flex-end">
         <LWTooltip title="View deleted comments and banned users">
-          <Link to="/moderation">
+          <Link to="/moderation" className={classes.moderationLogLink}>
             <MetaInfo>Moderation Log</MetaInfo>
           </Link>
         </LWTooltip>
@@ -222,9 +224,8 @@ const CommentsListSection = ({
 function CommentsListSectionTitle({
   post,
   commentCount,
-  loadMoreCount,
   totalComments,
-  loadMoreComments,
+  loadAllComments,
   loadingMoreComments,
   comments,
   highlightDate,
@@ -234,9 +235,8 @@ function CommentsListSectionTitle({
 }: {
   post?: PostsDetails,
   commentCount: number,
-  loadMoreCount?: number,
   totalComments: number,
-  loadMoreComments: any,
+  loadAllComments: () => void,
   loadingMoreComments: boolean,
   comments: CommentsList[],
   highlightDate: Date|undefined,
@@ -269,11 +269,10 @@ function CommentsListSectionTitle({
 
 
   const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
-  const newLimit = commentCount + (loadMoreCount || commentCount)
   let commentSortNode = (commentCount < totalComments) ?
     <span>
       Rendering {commentCount}/{totalComments} comments, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
-      {loadingMoreComments ? <Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
+      {loadingMoreComments ? <Loading /> : <a onClick={() => loadAllComments()}> (show all) </a>}
     </span> :
     <span>
       {postGetCommentCountStr(post, forumType, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />

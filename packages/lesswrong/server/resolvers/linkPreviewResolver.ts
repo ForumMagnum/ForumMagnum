@@ -8,14 +8,42 @@ import { cheerioParse } from "@/server/utils/htmlUtil";
 import type { CheerioAPI } from 'cheerio';
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { randomId } from "@/lib/random";
+import { fetchPublicUrl, isPublicHttpUrl, parsePublicHttpUrl } from "@/server/utils/fetchPublicUrl";
 
-const LINK_PREVIEW_CACHE_VERSION = 2;
+const LINK_PREVIEW_CACHE_VERSION = 3;
 const LINK_PREVIEW_REQUEST_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const LINK_PREVIEW_FETCH_TIMEOUT_MS = 8000;
 const LINK_PREVIEW_IMAGE_FETCH_TIMEOUT_MS = 8000;
 const MAX_REMOTE_HTML_LENGTH = 300_000;
 const MAX_IMAGE_PROBE_BYTES = 262_144;
 const MAX_EXCERPT_LENGTH = 3000;
+
+// Some sites (eg PubMed) block our fetcher with a bot-check or CAPTCHA
+// interstitial. Previewing that page is worse than showing no preview at all.
+// These checks only apply to pages without ordinary preview metadata, so that
+// eg an article about CAPTCHAs, or a page with a reCAPTCHA-protected contact
+// form, still gets a preview.
+const BOT_CHALLENGE_TITLE_PATTERNS = [
+  /captcha/i,
+  /checking (your|the|if the site connection is secure|browser)/i,
+  /^just a moment/i,
+  /attention required/i,
+  /are you a (robot|human)/i,
+  /verify(ing)? (that )?you are (a )?human/i,
+  /^(access denied|security check|ddos-guard)\b/i,
+];
+const BOT_CHALLENGE_HTML_MARKERS = [
+  "challenges.cloudflare.com",
+  "/cdn-cgi/challenge-platform/",
+  "cf_chl_opt",
+  "_incapsula_resource",
+  "captcha-delivery.com",
+  "px-captcha",
+  "ddos-guard",
+  "g-recaptcha",
+  "h-captcha",
+  "challengeid",
+];
 
 interface LinkPreviewResult {
   title: string | null;
@@ -116,10 +144,7 @@ function normalizePreviewUrl(url: string): string {
   if (!trimmed) {
     throw new Error("URL is empty");
   }
-  const parsed = new URL(trimmed);
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    throw new Error("Only http(s) URLs are supported");
-  }
+  const parsed = parsePublicHttpUrl(trimmed);
   parsed.hash = "";
   return parsed.toString();
 }
@@ -167,6 +192,24 @@ function extractTitle($: CheerioAPI): ExtractedValue {
   };
 }
 
+export function looksLikeBotChallengePage(rawHtml: string): boolean {
+  const $ = cheerioParse(rawHtml);
+  const hasPreviewMetadata = !!extractMetaContent($, [
+    "meta[property='og:title']",
+    "meta[property='og:description']",
+    "meta[name='description']",
+  ]).value;
+  if (hasPreviewMetadata) {
+    return false;
+  }
+  const title = $("title").first().text();
+  if (BOT_CHALLENGE_TITLE_PATTERNS.some((pattern) => pattern.test(title))) {
+    return true;
+  }
+  const lowercaseHtml = rawHtml.toLowerCase();
+  return BOT_CHALLENGE_HTML_MARKERS.some((marker) => lowercaseHtml.includes(marker));
+}
+
 function toAbsoluteHttpUrl(url: string, baseUrl: string): string {
   try {
     const parsed = new URL(url, baseUrl);
@@ -189,7 +232,7 @@ function extractImageUrl($: CheerioAPI, pageUrl: string): ExtractedValue {
     return fromMeta;
   }
   const normalizedImageUrl = toAbsoluteHttpUrl(fromMeta.value, pageUrl);
-  if (isBlankImageFilename(normalizedImageUrl)) {
+  if (isBlankImageFilename(normalizedImageUrl) || !isPublicHttpUrl(normalizedImageUrl)) {
     return {
       value: null,
       source: null,
@@ -623,9 +666,8 @@ async function fetchImageDimensions(url: string): Promise<ExtractedImageSize | n
   const abortController = new AbortController();
   const timeout = setTimeout(() => abortController.abort(), LINK_PREVIEW_IMAGE_FETCH_TIMEOUT_MS);
   try {
-    const response = await fetch(url, {
+    const response = await fetchPublicUrl(url, {
       signal: abortController.signal,
-      redirect: "follow",
       headers: {
         "User-Agent": "LessWrong-LinkPreviewBot/1.0 (+https://www.lesswrong.com)",
         "Accept": "image/*,*/*;q=0.1",
@@ -826,9 +868,8 @@ async function fetchRemoteHtml(url: string): Promise<string> {
   const timeout = setTimeout(() => abortController.abort(), LINK_PREVIEW_FETCH_TIMEOUT_MS);
 
   try {
-    const response = await fetch(url, {
+    const response = await fetchPublicUrl(url, {
       signal: abortController.signal,
-      redirect: "follow",
       headers: {
         "User-Agent": "LessWrong-LinkPreviewBot/1.0 (+https://www.lesswrong.com)",
         "Accept": "text/html,application/xhtml+xml;q=0.9,*/*;q=0.1",
@@ -957,7 +998,23 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
   forceRefetch: boolean;
   includeDebug: boolean;
 }): Promise<LinkPreviewResult> {
-  const normalizedUrl = normalizePreviewUrl(url);
+  let normalizedUrl: string;
+  try {
+    normalizedUrl = normalizePreviewUrl(url);
+  } catch (error) {
+    // Nothing is cached for URLs we refuse to fetch. Returning an error (rather
+    // than throwing) makes the client fall back to an ordinary link.
+    return {
+      title: null,
+      imageUrl: null,
+      html: null,
+      error: error instanceof Error ? truncate(error.message) : "Invalid URL",
+      status: "error",
+      cacheVersion: LINK_PREVIEW_CACHE_VERSION,
+      fetchedAt: null,
+      nextRefreshAt: null,
+    };
+  }
   const now = new Date();
 
   const cachedResult = await getCachedPreview(normalizedUrl, includeDebug);
@@ -986,6 +1043,9 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
 
   try {
     const remoteHtml = await fetchRemoteHtml(normalizedUrl);
+    if (looksLikeBotChallengePage(remoteHtml)) {
+      throw new Error("Page is a bot check or CAPTCHA");
+    }
     const parsed = parsePreviewFromHtml(remoteHtml, normalizedUrl);
     const resolvedImage = await resolvePreviewImage(parsed.imageUrl);
     const hasPreviewData = !!(parsed.title || resolvedImage.imageUrl || parsed.sanitizedHtml);

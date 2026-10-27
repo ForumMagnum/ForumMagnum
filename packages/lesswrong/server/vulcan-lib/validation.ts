@@ -140,7 +140,7 @@ const validateModifier = async <N extends CollectionNameString>(
 };
 
 export const validateData = <N extends CollectionNameString>(
-  data: CreateInputsByCollectionName[N]['data'],
+  data: UpdateInputsByCollectionName[N]['data'],
   document: ObjectsByCollectionName[N] | DbInsertion<ObjectsByCollectionName[N]>,
   collectionName: N,
   context: ResolverContext,

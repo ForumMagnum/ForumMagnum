@@ -43,6 +43,9 @@ export const graphqlModeratorActionQueryTypeDefs = gql`
     stricterPostAutomodRateLimit
     manualRateLimitExpired
     votingDisabled
+    autoPurgedProfileSpam
+    autoRemovedLlmRejectedUser
+    autoPurgedLlmRejectedSpam
   }
   
   input SingleModeratorActionInput {

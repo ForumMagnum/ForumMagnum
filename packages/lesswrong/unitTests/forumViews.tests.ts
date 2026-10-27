@@ -34,7 +34,8 @@ describe('forum-specific views', () => {
     const getForumType = jest.spyOn(forumTypeSetting, 'get').mockReturnValue('AlignmentForum');
 
     const lwQuery = await viewTermsToQuery(ConversationsViews, terms, undefined, lwContext);
-    expect(lwQuery.selector).toMatchObject({ participantIds: 'user-id', moderator: { $ne: true } });
+    expect(lwQuery.selector).toMatchObject({ participantIds: 'user-id' });
+    expect(lwQuery.selector).not.toHaveProperty('moderator');
     expect(lwQuery.selector).not.toHaveProperty('af');
 
     getForumType.mockReturnValue('LessWrong');

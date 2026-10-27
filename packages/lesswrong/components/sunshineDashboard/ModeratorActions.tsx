@@ -1,5 +1,5 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import SnoozeIcon from '@/lib/vendor/@material-ui/icons/src/Snooze';
 import AddAlarmIcon from '@/lib/vendor/@material-ui/icons/src/AddAlarm';
@@ -15,7 +15,7 @@ import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
 import { hideScrollBars } from '../../themes/styleUtils';
-import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
+import { getSignature } from '../../lib/collections/users/helpers';
 import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { useDialog } from '../common/withDialog';
 import NewModeratorActionDialog from "./NewModeratorActionDialog";
@@ -27,6 +27,8 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { MANUAL_NEEDS_REVIEW } from '@/lib/collections/moderatorActions/constants';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useStabilizedCallback } from '@/components/hooks/useDebouncedCallback';
+import { getOptimisticNotes, useAddModeratorNote } from './useAddModeratorNote';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModeratorActions($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -118,18 +120,23 @@ export const ModeratorActions = ({user, currentUser, refetch, comments, posts}: 
   const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [notes, setNotes] = useState(user.sunshineNotes || "")
+  // Only the moderator's own edits to the textarea are saved as the whole notes;
+  // notes from the action buttons are added by the server.
+  const notesEdited = useRef(false);
+  const pendingNotesSave = useRef<Promise<unknown>>(Promise.resolve());
   const { openDialog } = useDialog();
 
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
   const [createModeratorAction] = useMutation(ModeratorActionsCreateMutation);
+  const addModeratorNote = useAddModeratorNote();
 
   const signature = getSignature(currentUser.displayName);
 
-  const getModSignatureWithNote = (note: string) => getSignatureWithNote(currentUser.displayName, note);
-  
   const handleNotes = () => {
+    if (!notesEdited.current) return;
+    notesEdited.current = false;
     if (notes !== user.sunshineNotes) {
-      void updateUser({
+      pendingNotesSave.current = updateUser({
         variables: {
           selector: { _id: user._id },
           data: {
@@ -140,11 +147,30 @@ export const ModeratorActions = ({user, currentUser, refetch, comments, posts}: 
     }
   }
 
+  const saveEditedNotes = useStabilizedCallback<void, void>(handleNotes);
   useEffect(() => {
     return () => {
-      handleNotes();
+      saveEditedNotes();
     }
-  });
+  }, [saveEditedNotes]);
+
+  const updateUserWithNote = async (data: UpdateUserDataInput, note: string) => {
+    if (!notesEdited.current) {
+      setNotes(getOptimisticNotes(notes, currentUser.displayName, note))
+    }
+    // Let a save of the textarea land (or fail) first, so it can't overwrite this note
+    await pendingNotesSave.current.catch(() => {});
+    await updateUser({
+      variables: {
+        selector: { _id: user._id },
+        data
+      }
+    })
+    const updatedUser = await addModeratorNote(user._id, note);
+    if (updatedUser && !notesEdited.current) {
+      setNotes(updatedUser.sunshineNotes || "")
+    }
+  }
 
   const signAndDate = (sunshineNotes: string) => {
     if (!sunshineNotes.match(signature)) {
@@ -157,42 +183,27 @@ export const ModeratorActions = ({user, currentUser, refetch, comments, posts}: 
   const handleClick = () => {
     const signedNotes = signAndDate(notes)
     if (signedNotes !== notes) {
+      notesEdited.current = true;
       setNotes(signedNotes)
     }
   }
   const handleReview = () => {
-    const newNotes = getModSignatureWithNote(`Approved`)+notes;
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data: {
-          sunshineFlagged: false,
-          reviewedByUserId: currentUser._id,
-          reviewedAt: new Date(),
-          needsReview: false,
-          sunshineNotes: newNotes,
-          snoozedUntilContentCount: null
-        }
-      }
-    })
-    setNotes( newNotes )
+    void updateUserWithNote({
+      sunshineFlagged: false,
+      reviewedByUserId: currentUser._id,
+      reviewedAt: new Date(),
+      needsReview: false,
+      snoozedUntilContentCount: null,
+    }, `Approved`)
   }
   
   const handleSnooze = (contentCount: number) => {
-    const newNotes = getModSignatureWithNote(`Snooze ${contentCount}`)+notes;
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data: {
-          needsReview: false,
-          reviewedAt: new Date(),
-          reviewedByUserId: currentUser!._id,
-          sunshineNotes: newNotes,
-          snoozedUntilContentCount: getNewSnoozeUntilContentCount(user, contentCount)
-        }
-      }
-    })
-    setNotes( newNotes )
+    void updateUserWithNote({
+      needsReview: false,
+      reviewedAt: new Date(),
+      reviewedByUserId: currentUser!._id,
+      snoozedUntilContentCount: getNewSnoozeUntilContentCount(user, contentCount),
+    }, `Snooze ${contentCount}`)
   }
   
   const handleNeedsReview = () => {
@@ -208,144 +219,80 @@ export const ModeratorActions = ({user, currentUser, refetch, comments, posts}: 
   }
 
   const handleRemoveNeedsReview = () => {
-    const newNotes = getModSignatureWithNote("removed from review queue without snooze/approval") + notes;
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data: {
-          needsReview: false,
-          // this is necessary so that their next post/comment won't appear without being approved by a moderator
-          reviewedByUserId: null,
-          /* 
-           * this is necessary so it shows up that they appear in the "recently reviewed" list
-           * for users who've been reviewed before, we update the date.  for users we haven't, we don't.
-           * see comment in `getReasonForReview` for more details
-           */
-          reviewedAt: user.reviewedAt ? new Date() : null,
-          sunshineNotes: newNotes
-        }
-      }
-    })    
-    setNotes( newNotes )
+    void updateUserWithNote({
+      needsReview: false,
+      // this is necessary so that their next post/comment won't appear without being approved by a moderator
+      reviewedByUserId: null,
+      /* 
+       * this is necessary so it shows up that they appear in the "recently reviewed" list
+       * for users who've been reviewed before, we update the date.  for users we haven't, we don't.
+       * see comment in `getReasonForReview` for more details
+       */
+      reviewedAt: user.reviewedAt ? new Date() : null,
+    }, "removed from review queue without snooze/approval")
   }
 
   const banMonths = 3
   
   const handleBan = () => {
-    const newNotes = getModSignatureWithNote("Ban") + notes;
     if (confirm(`Ban this user for ${banMonths} months?`)) {
-      void updateUser({
-        variables: {
-          selector: { _id: user._id },
-          data: {
-            sunshineFlagged: false,
-            reviewedByUserId: currentUser!._id,
-            needsReview: false,
-            reviewedAt: new Date(),
-            banned: moment().add(banMonths, 'months').toDate(),
-            sunshineNotes: newNotes
-          }
-        }
-      })
-      setNotes( newNotes )
+      void updateUserWithNote({
+        sunshineFlagged: false,
+        reviewedByUserId: currentUser!._id,
+        needsReview: false,
+        reviewedAt: new Date(),
+        banned: moment().add(banMonths, 'months').toDate(),
+      }, "Ban")
     }
   }
   
   const handlePurge = () => {
-    const newNotes = getModSignatureWithNote("Purge") + notes;
     if (confirm("Are you sure you want to delete all this user's posts, comments, sequences, and votes?")) {
-      void updateUser({
-        variables: {
-          selector: { _id: user._id },
-          data: {
-            sunshineFlagged: false,
-            reviewedByUserId: currentUser!._id,
-            nullifyVotes: true,
-            deleteContent: true,
-            needsReview: false,
-            reviewedAt: new Date(),
-            banned: moment().add(1000, 'years').toDate(),
-            sunshineNotes: newNotes
-          }
-        }
-      })
-      setNotes( newNotes )
+      void updateUserWithNote({
+        sunshineFlagged: false,
+        reviewedByUserId: currentUser!._id,
+        nullifyVotes: true,
+        deleteContent: true,
+        needsReview: false,
+        reviewedAt: new Date(),
+        banned: moment().add(1000, 'years').toDate(),
+      }, "Purge")
     }
   }
   
   const handleFlag = () => {
     const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
-    const newNotes =  getModSignatureWithNote(flagStatus)+notes
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data: {
-          sunshineFlagged: !user.sunshineFlagged,
-          sunshineNotes: newNotes
-        }
-      }
-    })
-    setNotes(newNotes)
+    void updateUserWithNote({
+      sunshineFlagged: !user.sunshineFlagged,
+    }, flagStatus)
   }
   
   const handleDisablePosting = () => {
     const abled = user.postingDisabled ? 'enabled' : 'disabled';
-    const newNotes = getModSignatureWithNote(`publishing posts ${abled}`) + notes;
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data: {
-          postingDisabled: !user.postingDisabled,
-          sunshineNotes: newNotes
-        }
-      }
-    })
-    setNotes( newNotes )
+    void updateUserWithNote({
+      postingDisabled: !user.postingDisabled,
+    }, `publishing posts ${abled}`)
   }
   
   const handleDisableAllCommenting = () => {
     const abled = user.allCommentingDisabled ? 'enabled' : 'disabled';
-    const newNotes = getModSignatureWithNote(`all commenting ${abled}`) + notes;
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data: {
-          allCommentingDisabled: !user.allCommentingDisabled,
-          sunshineNotes: newNotes
-        }
-      }
-    })
-    setNotes( newNotes )
+    void updateUserWithNote({
+      allCommentingDisabled: !user.allCommentingDisabled,
+    }, `all commenting ${abled}`)
   }
   
   const handleDisableCommentingOnOtherUsers = () => {
     const abled = user.commentingOnOtherUsersDisabled ? 'enabled' : 'disabled'
-    const newNotes = getModSignatureWithNote(`all commenting on others' content ${abled}`) + notes;
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data: {
-          commentingOnOtherUsersDisabled: !user.commentingOnOtherUsersDisabled,
-          sunshineNotes: newNotes
-        }
-      }
-    })
-    setNotes( newNotes )
+    void updateUserWithNote({
+      commentingOnOtherUsersDisabled: !user.commentingOnOtherUsersDisabled,
+    }, `all commenting on others' content ${abled}`)
   }
   
   const handleDisableConversations = () => {
     const abled = user.conversationsDisabled ? 'enabled' : 'disabled'
-    const newNotes = getModSignatureWithNote(`conversations ${abled}`) + notes;
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data: {
-          conversationsDisabled: !user.conversationsDisabled,
-          sunshineNotes: newNotes
-        }
-      }
-    })
-    setNotes( newNotes )
+    void updateUserWithNote({
+      conversationsDisabled: !user.conversationsDisabled,
+    }, `conversations ${abled}`)
   }
 
   const userCommentsWarning = user.commentCount && hideUnreviewedAuthorCommentsSettings.get(forumType);
@@ -426,7 +373,10 @@ export const ModeratorActions = ({user, currentUser, refetch, comments, posts}: 
       <Input
         value={notes}
         fullWidth
-        onChange={e => setNotes(e.target.value)}
+        onChange={e => {
+          notesEdited.current = true;
+          setNotes(e.target.value)
+        }}
         onClick={e => handleClick()}
         onBlur={handleNotes}
         disableUnderline

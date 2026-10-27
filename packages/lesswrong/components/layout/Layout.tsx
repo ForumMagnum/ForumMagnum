@@ -12,6 +12,7 @@ import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
 import { googleTagManagerId } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
+import { excalidrawFontFaces } from '@/lib/lexical/excalidrawFontFaces';
 import { DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
@@ -19,7 +20,7 @@ import Header, { HeaderHeightProvider } from '@/components/layout/Header';
 import { useCookiePreferences, useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { UnreadNotificationsContextProvider } from '@/components/hooks/useUnreadNotifications';
 import DeferRender from '@/components/common/DeferRender';
-import { userHasLlmChat } from '@/lib/betas';
+import { userHasHailbox, userHasLlmChat } from '@/lib/betas';
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import FlashMessages from "@/components/layout/FlashMessages";
 import AnalyticsClient from "@/components/common/AnalyticsClient";
@@ -30,6 +31,7 @@ import GlobalHotkeys from "@/components/common/GlobalHotkeys";
 import LlmChatWrapper from "@/components/languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "@/components/layout/IntercomWrapper";
+import HailboxWrapper from "@/components/layout/HailboxWrapper";
 import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
 import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -41,6 +43,8 @@ import { SubtitlePortalProvider } from './SubtitlePortalContext';
 
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-story/petrovConsts';
+import { useIsPetrovDayRitualActive } from '@/components/seasonal/petrovDay/petrov-day-story/useIsPetrovDayRitualActive';
+import { routeHasCreamBackground } from '@/lib/routeChecks/routeBackgroundColors';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { PopperPortalProvider } from '../common/LWPopper';
 import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarContextProvider';
@@ -78,6 +82,9 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
   llmChatColumn: {
     flexShrink: 0,
     flexGrow: 0,
+    "@media print": {
+      display: "none",
+    },
   },
   '@global': {
     ...globalStyles(theme),
@@ -96,6 +103,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
         fontFamily: "ETBookRoman",
         src: "url('https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1723063815/et-book-roman-line-figures_tvofzs.woff') format('woff')",  
       },
+      ...excalidrawFontFaces,
     ],
     // Hide the CKEditor table alignment menu
     '.ck-table-properties-form__alignment-row': {
@@ -122,7 +130,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
       overflow: 'hidden !important',
       height: '100dvh !important',
     },
-    'body:has(.home-design-active) #intercom-outer-frame, body:has(.home-design-active) #intercom-container, body:has(.home-design-active) .intercom-lightweight-app': {
+    'body:has(.home-design-active) #intercom-outer-frame, body:has(.home-design-active) #intercom-container, body:has(.home-design-active) .intercom-lightweight-app, body:has(.home-design-active) #hailbox-outer-frame': {
       display: 'none !important',
     },
     '.research-active .Header-root': {
@@ -187,8 +195,10 @@ const Layout = ({children}: {
   
   const hideIntercom = isPathnameWithHiddenFloatingButtons(prerenderablePathname);
 
+  const petrovDayRitualActive = useIsPetrovDayRitualActive();
   let headerBackgroundColor: ColorString|undefined = undefined;
-  if (isBlackBarTitle) {
+  // Cream-background routes force a cream header with !important in pageBackground.css, which would leave white header text on cream
+  if (isBlackBarTitle || (isLW && petrovDayRitualActive && !routeHasCreamBackground(prerenderablePathname))) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 
@@ -269,6 +279,8 @@ const Layout = ({children}: {
 }
 
 function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean }) {
+  const { forumType } = useForumType();
+  const currentUser = useCurrentUser();
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
 
@@ -278,7 +290,10 @@ function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean
     );
   }
 
-  return hideIntercomButton ? null : <IntercomWrapper />
+  if (hideIntercomButton) {
+    return null;
+  }
+  return userHasHailbox(currentUser, forumType) ? <HailboxWrapper /> : <IntercomWrapper />
 }
 
 export const IsLlmChatSidebarOpenContext = createContext(false);

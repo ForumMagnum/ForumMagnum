@@ -390,6 +390,17 @@ module.exports = {
       },
     },
     {
+      "files": ["app/api/mcp/**/*.ts"],
+      "settings": {
+        "import/resolver": {
+          typescript: {
+            // The SDK's types export maps .js imports to nonexistent .js.d.ts files.
+            conditionNames: ["import", "node", "default"],
+          },
+        },
+      },
+    },
+    {
       "files": [
         "packages/lesswrong/lib/**/*.ts",
         "packages/lesswrong/lib/**/*.tsx",

@@ -9,6 +9,7 @@ import ConversationsRepo from "./ConversationsRepo";
 import CurationEmailsRepo from "./CurationEmailsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
+import FieldChangesRepo from "./FieldChangesRepo";
 import HomePageDesignsRepo from "./HomePageDesignsRepo";
 import JargonTermsRepo from "./JargonTermsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
@@ -60,6 +61,7 @@ const allRepos = {
   curationEmails: CurationEmailsRepo,
   databaseMetadata: DatabaseMetadataRepo,
   debouncerEvents: DebouncerEventsRepo,
+  fieldChanges: FieldChangesRepo,
   homePageDesigns: HomePageDesignsRepo,
   jargonTerms: JargonTermsRepo,
   localgroups: LocalgroupsRepo,
