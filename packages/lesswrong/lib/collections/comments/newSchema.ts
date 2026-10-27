@@ -308,6 +308,18 @@ const schema = {
       },
     },
   },
+  llmReplyPublishedAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      canRead: ["admins"],
+      canUpdate: [(user, comment) => !!user && userOwns(user, comment) && !!getLlmFamilyBySlug(user.slug)],
+      validation: { optional: true },
+    },
+  },
   userIP: {
     database: {
       type: "TEXT",

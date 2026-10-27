@@ -185,7 +185,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
     await invalidatePostPageCache(documentWithId.postId);
   }
 
-  await startLlmReplyForComment(documentWithId, context);
+  await startLlmReplyForComment(documentWithId, context).catch(captureException);
 
   return documentWithId;
 }
@@ -275,7 +275,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   );
 
   if (oldDocument.draft && !updatedDocument.draft) {
-    await startLlmReplyForComment(updatedDocument, context);
+    await startLlmReplyForComment(updatedDocument, context).catch(captureException);
   }
 
   return updatedDocument;

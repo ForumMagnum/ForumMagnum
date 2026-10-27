@@ -255,6 +255,7 @@ interface DbComment extends DbObject {
   legacyId: string | null
   legacyParentId: string | null
   legacyPoll: boolean
+  llmReplyPublishedAt: Date | null
   llmRunId: string | null
   moderatorHat: boolean
   moveToAlignmentUserId: string | null

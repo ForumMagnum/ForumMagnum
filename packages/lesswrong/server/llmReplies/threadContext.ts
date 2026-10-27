@@ -5,7 +5,7 @@ import { combineUrls } from "@/lib/vulcan-lib/utils";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { getCommentAncestorIds } from "@/server/utils/commentTreeUtils";
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
-import { commentIsPubliclyVisible } from "@/server/languageModels/publicVisibility";
+import { commentIsPubliclyVisible } from "@/server/permissions/accessFilters";
 
 export async function buildThreadContextMessage(post: DbPost, triggerComment: DbComment, context: ResolverContext): Promise<string> {
   const { forumType } = context;

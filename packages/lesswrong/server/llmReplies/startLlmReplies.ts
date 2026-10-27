@@ -2,15 +2,17 @@ import { getLlmFamilyBySlug, type LlmFamilyVersion } from "@/lib/languageModels/
 import { llmReplyPendingMarkdown } from "@/lib/llmReplies/helpers";
 import { userMentionQueryString } from "@/lib/pingback";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { randomId } from "@/lib/random";
 import { createComment } from "@/server/collections/comments/mutations";
 import LlmRuns from "@/server/collections/llmRuns/collection";
 import { dataToHTML } from "@/server/editor/conversionUtils";
-import { commentIsPubliclyVisible, postIsPubliclyVisible } from "@/server/languageModels/publicVisibility";
+import { commentIsPubliclyVisible, postIsPubliclyVisible } from "@/server/permissions/accessFilters";
 import { requestLlmRun } from "@/server/languageModels/requestLlmRun";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { getLlmReplyHtml } from "./llmReplyHtml";
 import { getFirstMentionedLlm } from "./mentionedLlms";
+import { failCommentReply } from "./commentReplyRun";
 
 const MIN_KARMA_TO_SUMMON_LLM = 50;
 const LLM_REPLY_LIMIT_AT_MIN_KARMA = 3;
@@ -71,7 +73,7 @@ export async function startLlmReplyForComment(comment: DbComment, context: Resol
   }
   const check = await checkLlmSummon(currentUser, postId, llm, context);
   if (check.allowed) {
-    await startLlmReply({ comment, postId, modelUser: check.modelUser, llm });
+    await startLlmReply({ comment, postId, modelUser: check.modelUser, llm, context });
   }
 }
 
@@ -105,13 +107,16 @@ function getLlmReplyLimit(karma: number): number {
   return LLM_REPLY_LIMIT_AT_MIN_KARMA + Math.floor(LLM_REPLY_LIMIT_PER_KARMA_DOUBLING * Math.log2(karma / MIN_KARMA_TO_SUMMON_LLM));
 }
 
-async function startLlmReply({ comment, postId, modelUser, llm }: {
+async function startLlmReply({ comment, postId, modelUser, llm, context }: {
   comment: DbComment,
   postId: string,
   modelUser: DbUser,
   llm: LlmFamilyVersion,
+  context: ResolverContext,
 }): Promise<void> {
-  const runId = await LlmRuns.rawInsert({
+  const runId = randomId();
+  const run: InsertionRecord<DbLlmRun> = {
+    _id: runId,
     createdAt: new Date(),
     invocationContext: "commentReply",
     modelName: llm.version.name,
@@ -125,20 +130,42 @@ async function startLlmReply({ comment, postId, modelUser, llm }: {
     claimedAt: null,
     completedAt: null,
     triggerCommentId: comment._id,
-  });
+  };
 
   const modelContext = computeContextFromUser({ user: modelUser, isSSR: false, forumType: "LessWrong" });
-  await createComment({
-    data: {
-      postId,
-      parentCommentId: comment._id,
-      af: comment.af,
-      contents: {
-        originalContents: { type: "html", data: getLlmReplyHtml(llm.version.fullName, llmReplyPendingMarkdown(runId)) },
+  const user = context.currentUser;
+  if (!user) {
+    throw new Error("Creating a model reply requires a current user");
+  }
+  try {
+    const created = await context.repos.llmRuns.createRunForUser(
+      run, user._id, userIsAdmin(user) ? null : getLlmReplyLimit(user.karma),
+      new Date(Date.now() - LLM_REPLY_LIMIT_WINDOW_MS),
+    );
+    if (!created) {
+      return;
+    }
+    await createComment({
+      data: {
+        postId,
+        parentCommentId: comment._id,
+        af: comment.af,
+        contents: {
+          originalContents: { type: "html", data: getLlmReplyHtml(llm.version.fullName, llmReplyPendingMarkdown(runId)) },
+        },
+        llmRunId: runId,
       },
-      llmRunId: runId,
-    },
-  }, modelContext);
+    }, modelContext);
+  } catch (err) {
+    await LlmRuns.rawUpdateOne({ _id: runId, status: "pending", attemptCount: 0 }, {
+      $set: { status: "failed", completedAt: new Date(), error: err instanceof Error ? err.message : String(err) },
+    });
+    const storedRun = await LlmRuns.findOne(runId);
+    if (storedRun && await context.Comments.findOne({ llmRunId: runId })) {
+      await failCommentReply(storedRun);
+    }
+    throw err;
+  }
 
   backgroundTask(requestLlmRun(runId));
 }

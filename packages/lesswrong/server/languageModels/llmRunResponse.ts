@@ -51,9 +51,14 @@ export async function generateLlmRunResponse(run: DbLlmRun, { model, contextMess
   contextMessage: string,
   tools: ToolSet,
 }): Promise<string> {
-  await LlmRuns.rawUpdateOne({ _id: run._id }, { $set: { contextMessage, response: null } });
+  const selector = { _id: run._id, status: "running", attemptCount: run.attemptCount };
+  if (!await LlmRuns.rawUpdateOne(selector, { $set: { contextMessage, response: null } })) {
+    throw new Error("The model run is no longer claimed by this attempt");
+  }
   const response = await generateWithContinuations(run, model, tools, [{ role: "user", content: contextMessage }], MAX_CONTINUATIONS);
-  await LlmRuns.rawUpdateOne({ _id: run._id }, { $set: { response } });
+  if (!await LlmRuns.rawUpdateOne(selector, { $set: { response } })) {
+    throw new Error("The model run is no longer claimed by this attempt");
+  }
   return response;
 }
 
@@ -67,7 +72,12 @@ async function generateWithContinuations(run: DbLlmRun, model: LanguageModel, to
     providerOptions: REASONING_PROVIDER_OPTIONS,
     onStepFinish: (step) => saveTranscriptEntries(run, step.content),
   });
-  if (result.text.trim()) {
+  if (result.finishReason === "length" || result.finishReason === "error"
+    || result.finishReason === "content-filter"
+    || (result.finishReason === "tool-calls" && result.steps.length >= MAX_MODEL_STEPS)) {
+    throw new Error(`The model stopped before finishing its response (finish reason: ${result.finishReason})`);
+  }
+  if (result.text.trim() && result.finishReason === "stop") {
     return result.text;
   }
   if (continuationsLeft === 0) {
@@ -149,7 +159,7 @@ function getToolResultEntries(toolCallId: string, toolName: string, output: unkn
     if (typeof content === "string") {
       return [makeEntry("toolResult", { ...toolFields, text: content, extra: getExtra(fetchExtra) })];
     }
-    return [makeEntry("toolResult", { ...toolFields, extra: getExtra({ ...fetchExtra, content }) })];
+    return [makeEntry("toolResult", { ...toolFields, extra: getExtra({ ...fetchExtra, output: content }) })];
   }
   return [makeEntry("toolResult", { ...toolFields, extra: { output } })];
 }

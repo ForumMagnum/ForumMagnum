@@ -1,5 +1,6 @@
 import { captureException } from "@/lib/sentryWrapper";
 import LlmRuns from "@/server/collections/llmRuns/collection";
+import Comments from "@/server/collections/comments/collection";
 import { failCommentReply, runCommentReply } from "@/server/llmReplies/commentReplyRun";
 import { createAdminContext } from "@/server/vulcan-lib/createContexts";
 import { requestLlmRun } from "./requestLlmRun";
@@ -20,16 +21,19 @@ export async function runLlmRun(runId: string): Promise<void> {
   if (!run) {
     return;
   }
+  const selector = { _id: run._id, status: run.status, attemptCount: run.attemptCount };
 
   try {
     await runCommentReply(run);
-    await LlmRuns.rawUpdateOne({ _id: run._id }, { $set: { status: "completed", completedAt: new Date() } });
+    await LlmRuns.rawUpdateOne(selector, { $set: { status: "completed", completedAt: new Date(), error: null } });
   } catch (err) {
     captureException(err);
     const error = err instanceof Error ? err.message : String(err);
     if (run.attemptCount < MAX_LLM_RUN_ATTEMPTS) {
-      await LlmRuns.rawUpdateOne({ _id: run._id }, { $set: { status: "pending", error } });
-      await requestLlmRun(run._id);
+      const updated = await LlmRuns.rawUpdateOne(selector, { $set: { status: "pending", error } });
+      if (updated) {
+        await requestLlmRun(run._id);
+      }
     } else {
       await failLlmRun(run, error);
     }
@@ -46,15 +50,30 @@ export async function retryStalledLlmRuns(): Promise<void> {
     ],
   }).fetch();
   for (const run of stalledRuns) {
-    if (run.attemptCount >= MAX_LLM_RUN_ATTEMPTS || run.createdAt.getTime() < now - LLM_RUN_GIVE_UP_AFTER_MS) {
-      await failLlmRun(run, `Gave up after ${run.attemptCount} attempts`);
-    } else {
-      await requestLlmRun(run._id);
+    try {
+      if (run.attemptCount >= MAX_LLM_RUN_ATTEMPTS || run.createdAt.getTime() < now - LLM_RUN_GIVE_UP_AFTER_MS) {
+        await failLlmRun(run, `Gave up after ${run.attemptCount} attempts`);
+      } else {
+        await requestLlmRun(run._id);
+      }
+    } catch (err) {
+      captureException(err);
     }
   }
 }
 
 async function failLlmRun(run: DbLlmRun, error: string): Promise<void> {
-  await LlmRuns.rawUpdateOne({ _id: run._id }, { $set: { status: "failed", error, completedAt: new Date() } });
-  await failCommentReply(run);
+  const reply = await Comments.findOne({ llmRunId: run._id });
+  const publishedAt = reply?.llmReplyPublishedAt;
+  const updated = await LlmRuns.rawUpdateOne(
+    { _id: run._id, status: run.status, attemptCount: run.attemptCount },
+    { $set: {
+      status: publishedAt ? "completed" : "failed",
+      error: publishedAt ? null : error,
+      completedAt: publishedAt ?? new Date(),
+    } },
+  );
+  if (updated && !publishedAt) {
+    await failCommentReply(run);
+  }
 }

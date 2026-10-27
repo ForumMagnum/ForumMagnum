@@ -7,10 +7,12 @@ export const up = async ({db}: MigrationContext) => {
   await createTable(db, LlmRuns);
   await createTable(db, LlmRunTranscriptEntries);
   await addField(db, Comments, "llmRunId");
+  await addField(db, Comments, "llmReplyPublishedAt");
   await updateIndexes(Comments);
 }
 
 export const down = async ({db}: MigrationContext) => {
+  await dropField(db, Comments, "llmReplyPublishedAt");
   await dropField(db, Comments, "llmRunId");
   await dropTable(db, LlmRunTranscriptEntries);
   await dropTable(db, LlmRuns);

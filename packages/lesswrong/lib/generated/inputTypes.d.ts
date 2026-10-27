@@ -1993,6 +1993,7 @@ interface Comment {
   userId: string;
   user: User | null;
   llmRunId: string | null;
+  llmReplyPublishedAt: Date | null;
   userIP: string | null;
   userAgent: string | null;
   referrer: string | null;
@@ -7846,6 +7847,7 @@ interface UpdateCommentDataInput {
   postedAt?: Date | null;
   postId?: string | null;
   tagId?: string | null;
+  llmReplyPublishedAt?: Date | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
   shortform?: boolean | null;

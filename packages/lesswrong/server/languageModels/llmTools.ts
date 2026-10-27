@@ -6,7 +6,7 @@ import { asyncFilter } from "@/lib/utils/asyncUtils";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { getEmbeddingsFromApi as getPostSearchEmbeddings } from "@/server/embeddings";
 import { getEmbeddingsFromApi as getCommentSearchEmbeddings } from "@/server/voyage/client";
-import { commentIsPubliclyVisible, postIsPubliclyVisible } from "./publicVisibility";
+import { commentIsPubliclyVisible, postIsPubliclyVisible } from "@/server/permissions/accessFilters";
 import { fetchPublicMarkdown, getPublicMarkdownPath } from "./publicMarkdown";
 
 const SEMANTIC_SEARCH_RESULT_LIMIT = 10;

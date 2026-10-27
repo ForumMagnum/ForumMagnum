@@ -290,6 +290,7 @@ CREATE TABLE "Comments" (
   "tagCommentType" TEXT NOT NULL DEFAULT 'DISCUSSION',
   "userId" VARCHAR(27) NOT NULL,
   "llmRunId" VARCHAR(27),
+  "llmReplyPublishedAt" TIMESTAMPTZ,
   "userIP" TEXT,
   "userAgent" TEXT,
   "referrer" TEXT,

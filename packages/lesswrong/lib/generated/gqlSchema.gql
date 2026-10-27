@@ -2250,6 +2250,7 @@ type Comment {
   userId: String!
   user: User
   llmRunId: String
+  llmReplyPublishedAt: Date
   userIP: String
   userAgent: String
   referrer: String
@@ -8557,6 +8558,7 @@ input UpdateCommentDataInput {
   postedAt: Date
   postId: String
   tagId: String
+  llmReplyPublishedAt: Date
   authorIsUnreviewed: Boolean
   answer: Boolean
   shortform: Boolean

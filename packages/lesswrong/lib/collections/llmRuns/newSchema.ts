@@ -94,8 +94,14 @@ const schema = {
       outputType: "[LlmRunTranscriptEntry!]!",
       canRead: ["guests"],
       resolver: async (run, args, context) => {
+        // Publication-only retries reuse the answer and transcript from the last generation.
+        const latestEntry = await context.LlmRunTranscriptEntries.findOne(
+          { llmRunId: run._id },
+          { sort: { attempt: -1 } },
+        );
+        if (!latestEntry) return [];
         const entries = await context.LlmRunTranscriptEntries.find(
-          { llmRunId: run._id, attempt: run.attemptCount },
+          { llmRunId: run._id, attempt: latestEntry.attempt },
           { sort: { index: 1 } },
         ).fetch();
         return await accessFilterMultiple(context.currentUser, "LlmRunTranscriptEntries", entries, context);

@@ -8,34 +8,56 @@ import Posts from "@/server/collections/posts/collection";
 import Users from "@/server/collections/users/collection";
 import { generateLlmRunResponse } from "@/server/languageModels/llmRunResponse";
 import { getLlmTools } from "@/server/languageModels/llmTools";
-import { commentIsPubliclyVisible } from "@/server/languageModels/publicVisibility";
+import { commentIsPubliclyVisible } from "@/server/permissions/accessFilters";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { getLlmReplyHtml } from "./llmReplyHtml";
 import { buildThreadContextMessage } from "./threadContext";
 
 export async function runCommentReply(run: DbLlmRun): Promise<void> {
   const replyComment = await getReplyComment(run);
+  if (replyComment.llmReplyPublishedAt) {
+    return;
+  }
   const context = await getModelAccountContext(replyComment);
   const { triggerComment, post } = await getTriggerCommentAndPost(run);
   if (!(await commentIsPubliclyVisible(triggerComment, context))) {
     throw new Error("The comment that mentioned the model is no longer publicly visible");
   }
 
-  const response = await generateLlmRunResponse(run, {
+  const response = run.response ?? await generateLlmRunResponse(run, {
     model: getLlmReplyModel(run.gatewayModelId),
     contextMessage: await buildThreadContextMessage(post, triggerComment, context),
     tools: getLlmTools(context),
   });
+  const { triggerComment: currentTrigger } = await getTriggerCommentAndPost(run);
+  const publicationContext = createAnonymousContext({ forumType: "LessWrong" });
+  const currentReply = await getReplyComment(run);
+  if (!(await commentIsPubliclyVisible(currentTrigger, publicationContext))
+    || !(await commentIsPubliclyVisible(currentReply, publicationContext))) {
+    throw new Error("The comment or post is no longer publicly visible");
+  }
+  if (!await context.LlmRuns.findOne({ _id: run._id, status: "running", attemptCount: run.attemptCount })) {
+    return;
+  }
   const reply = await updateComment({
     selector: { _id: replyComment._id },
-    data: { contents: { originalContents: { type: "html", data: getLlmReplyHtml(getLlmVersionFullName(run.modelName), response) } } },
+    data: {
+      contents: { originalContents: { type: "html", data: getLlmReplyHtml(getLlmVersionFullName(run.modelName), response) } },
+      llmReplyPublishedAt: new Date(),
+    },
   }, context);
+  // Notifications are best effort after publication; a crash here can lose one.
   backgroundTask(sendNewCommentNotifications(reply, context));
 }
 
 export async function failCommentReply(run: DbLlmRun): Promise<void> {
   const replyComment = await getReplyComment(run);
+  // Publication and its timestamp are one comment write, even if a later callback failed.
+  if (replyComment.llmReplyPublishedAt) {
+    return;
+  }
   await updateComment({
     selector: { _id: replyComment._id },
     data: { contents: { originalContents: { type: "markdown", data: llmReplyFailedMarkdown(getLlmVersionFullName(run.modelName), run._id) } } },

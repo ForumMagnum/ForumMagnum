@@ -1,13 +1,14 @@
 import { getRootDocument } from "@/lib/collections/multiDocuments/helpers";
 import { accessLevelCan, getCollaborativeEditorAccess, getSharingKeyFromContext } from "@/lib/collections/posts/collabEditingPermissions";
 import { postStatusLabels } from "@/lib/collections/posts/constants";
-import { userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
+import { postIsPublic, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { userIsSharedOn } from "@/lib/collections/users/helpers";
 import { extractVersionsFromSemver } from "@/lib/editor/utils";
 import { constantTimeCompare } from "@/lib/helpers";
 import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { userCanAccessTypoSuggestion } from "@/lib/collections/typoSuggestions/helpers";
+import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 
 
 const denyAll: CheckAccessFunction<CollectionNameString> = async () => false;
@@ -141,6 +142,38 @@ const iframeWidgetSrcdocCheckAccess: CheckAccessFunction<'IframeWidgetSrcdocs'> 
 const llmConversationCheckAccess: CheckAccessFunction<'LlmConversations'> = async (currentUser, document, context): Promise<boolean> => {
   return userIsAdmin(currentUser) || userOwns(currentUser, document);
 };
+
+const llmRunCheckAccess: CheckAccessFunction<"LlmRuns"> = async (currentUser, document, context) => {
+  if (userIsAdmin(currentUser)) return true;
+  // GraphQL may only have selected a subset of the run's fields.
+  const run = await context.LlmRuns.findOne(document._id);
+  if (!run?.triggerCommentId) {
+    return false;
+  }
+  const comment = await context.loaders.Comments.load(run.triggerCommentId);
+  return !!comment && await commentIsPubliclyVisible(comment, context);
+};
+
+/**
+ * What our models write is public, so a model may only see content that a
+ * logged-out visitor could see. Everything a model reads from our database (as
+ * opposed to through the public Markdown API, which is already served to
+ * logged-out visitors) must pass these checks.
+ */
+export async function postIsPubliclyVisible(post: DbPost, context: ResolverContext): Promise<boolean> {
+  if (!postIsPublic(post) || post.rejected) {
+    return false;
+  }
+  return postCheckAccess(null, post, { ...context, headers: undefined, searchParams: undefined });
+}
+
+export async function commentIsPubliclyVisible(comment: DbComment, context: ResolverContext): Promise<boolean> {
+  if (commentIsNotPublicForAnyReason(comment, context.forumType) || !comment.postId) {
+    return false;
+  }
+  const post = await context.loaders.Posts.load(comment.postId);
+  return !!post && await postIsPubliclyVisible(post, context);
+}
 
 const researchProjectCheckAccess: CheckAccessFunction<'ResearchProjects'> = async (currentUser, document, context): Promise<boolean> => {
   return userIsAdmin(currentUser) || userOwns(currentUser, document);
@@ -477,7 +510,8 @@ const accessFilters = {
   LinkPreviewCaches: denyAll,
   LlmConversations: llmConversationCheckAccess,
   LlmMessages: llmMessageCheckAccess,
-  LlmRuns: allowAccess,
+  LlmRuns: llmRunCheckAccess,
+  // Transcript entries are exposed only through an access-checked LlmRun.
   LlmRunTranscriptEntries: allowAccess,
   Localgroups: allowAccess,
   LoginTokens: denyAll,
