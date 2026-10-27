@@ -369,6 +369,7 @@ export const firstCommentAcknowledgeMessageCommentIdSetting = new PublicInstance
 export const ipApiKey: string|null = null;
 
 export const intercomAppIdSetting = new PublicInstanceSetting<string>('intercomAppId', 'wtb8z7sj', "optional");
+export const hailboxUrlSetting = new PublicInstanceSetting<string | null>('hailboxUrl', null, "optional");
 
 export const maintenanceTime = new PublicInstanceSetting<string | null>("maintenanceBannerTime", null, "optional");
 export const explanationText = new PublicInstanceSetting<string>("maintenanceBannerExplanationText", "", "optional");

@@ -2,11 +2,12 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
 import { applyPatch } from "diff";
-import { $createTextNode, $getRoot, $isElementNode, type LexicalNode } from "lexical";
+import { $createTextNode } from "lexical";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
-import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
+import type { IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess, requiredAccessForMode } from "../editorAgentUtil";
 
+import { $findWidgetNodesById } from "../textIndexQuoteLocator";
 import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { replaceWidgetRouteSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -30,22 +31,6 @@ export interface ReplaceWidgetResult {
   nextContent?: string
   /** True when a suggestion was applied but its review thread couldn't be created. */
   threadCreationFailed?: boolean
-}
-
-function findWidgetNodeById(rootNode: LexicalNode, widgetId: string): IframeWidgetNode | null {
-  if ($isIframeWidgetNode(rootNode) && rootNode.getWidgetId() === widgetId) {
-    return rootNode;
-  }
-  if (!$isElementNode(rootNode)) {
-    return null;
-  }
-  for (const child of rootNode.getChildren()) {
-    const match = findWidgetNodeById(child, widgetId);
-    if (match) {
-      return match;
-    }
-  }
-  return null;
 }
 
 function computeReplacementContent({
@@ -104,15 +89,22 @@ export function $replaceWidgetInEditor({
   unifiedDiff?: string
   mode: ReplaceMode
 }): ReplaceWidgetResult {
-  const root = $getRoot();
-  const widgetNode = findWidgetNodeById(root, widgetId);
-  if (!widgetNode) {
+  const widgetNodes = $findWidgetNodesById(widgetId);
+  if (widgetNodes.length === 0) {
     return {
       replaced: false,
       widgetFound: false,
       note: `Widget with id ${widgetId} was not found.`,
     };
   }
+  if (widgetNodes.length > 1) {
+    return {
+      replaced: false,
+      widgetFound: true,
+      note: `Ambiguous widget id: ${widgetNodes.length} widgets have id ${widgetId}.`,
+    };
+  }
+  const widgetNode = widgetNodes[0];
 
   const currentContent = widgetNode.getTextContent();
   const replacementResult = computeReplacementContent({

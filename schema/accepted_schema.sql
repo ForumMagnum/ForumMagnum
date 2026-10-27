@@ -602,6 +602,11 @@ CREATE INDEX IF NOT EXISTS "idx_comments_moderatorHat" ON "Comments" USING btree
 -- Index "idx_Comments_userId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Comments_userId_createdAt" ON "Comments" USING btree ("userId", "createdAt");
 
+-- Index "idx_comments_rejectionConversationId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_comments_rejectionConversationId_createdAt" ON "Comments" USING btree ("rejectionConversationId", "createdAt")
+WHERE
+  "rejectionConversationId" IS NOT NULL;
+
 -- Table "Conversations"
 CREATE TABLE "Conversations" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -2178,6 +2183,11 @@ WHERE
 -- Index "idx_Posts_userId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Posts_userId_createdAt" ON "Posts" USING btree ("userId", "createdAt");
 
+-- Index "idx_posts_rejectionConversationId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_posts_rejectionConversationId_createdAt" ON "Posts" USING btree ("rejectionConversationId", "createdAt")
+WHERE
+  "rejectionConversationId" IS NOT NULL;
+
 -- Index "idx_Posts_agentFoundationsId"
 CREATE INDEX IF NOT EXISTS "idx_Posts_agentFoundationsId" ON "Posts" USING btree ("agentFoundationsId");
 
@@ -3219,6 +3229,7 @@ CREATE TABLE "Users" (
   "showHideKarmaOption" BOOL,
   "showPostAuthorCard" BOOL,
   "hideIntercom" BOOL NOT NULL DEFAULT FALSE,
+  "hailboxOptIn" BOOL NOT NULL DEFAULT FALSE,
   "markDownPostEditor" BOOL NOT NULL DEFAULT FALSE,
   "hideElicitPredictions" BOOL NOT NULL DEFAULT FALSE,
   "hideAFNonMemberInitialWarning" BOOL NOT NULL DEFAULT FALSE,

@@ -56,6 +56,14 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
         0px
       `
     },
+    // When printing, drop the grid in favor of a single column (hiding the
+    // ToC and right-hand columns). Firefox handles grid items that are split
+    // across pages badly: it adds many trailing blank pages, and positioned
+    // descendants (eg vote buttons and reaction icons on comments) after the
+    // first page break are misplaced or invisible.
+    "@media print": {
+      display: "block",
+    },
   },
   onEmbeddedPostPage: {
     gridTemplateColumns: `
@@ -68,7 +76,12 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
       0px
       `,
   },
-  gap1: {gridArea: "gap1"},
+  gap1: {
+    gridArea: "gap1",
+    "@media print": {
+      display: "none",
+    },
+  },
   toc: {
     position: 'unset',
     width: 'unset',
@@ -77,6 +90,9 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
       display: "none",
       marginTop: 0,
       marginBottom: 0,
+    },
+    "@media print": {
+      display: "none",
     },
   },
   splashPageHeaderToc: {
@@ -128,7 +144,11 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     height: "100%",
   },
   content: {},
-  rhs: {},
+  rhs: {
+    "@media print": {
+      display: "none",
+    },
+  },
   hideTocButton: {
     position: "fixed",
     top: 0,
@@ -163,6 +183,9 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     zIndex: 1000,
     [theme.breakpoints.down('sm')]: {
       display: 'none',
+    },
+    "@media print": {
+      display: "none",
     },
   }
 }));

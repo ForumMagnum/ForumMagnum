@@ -273,6 +273,8 @@ export default () => createJestConfig({
     "domutils",
     "dom-serializer",
     "entities",
+    "uuid",
+    "hailbox",
   ];
   
   config.transformIgnorePatterns = [

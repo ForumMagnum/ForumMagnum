@@ -2568,6 +2568,8 @@ interface Conversation {
   archivedByIds: Array<string>;
   archivedBy: Array<User>;
   latestMessage: Message | null;
+  rejectedPosts: Array<Post> | null;
+  rejectedComments: Array<Comment> | null;
   rejectionAppeal: RejectionAppeal | null;
   hasUnreadMessages: boolean | null;
 }
@@ -7236,6 +7238,7 @@ interface User {
   showHideKarmaOption: boolean | null;
   showPostAuthorCard: boolean | null;
   hideIntercom: boolean;
+  hailboxOptIn: boolean | null;
   markDownPostEditor: boolean;
   hideElicitPredictions: boolean | null;
   hideAFNonMemberInitialWarning: boolean | null;
@@ -7368,6 +7371,7 @@ interface User {
   reviewedByUserId: string | null;
   reviewedByUser: User | null;
   isReviewed: boolean | null;
+  hasApprovedContent: boolean | null;
   reviewedAt: Date | null;
   afKarma: number;
   voteCount: number | null;
@@ -9101,6 +9105,7 @@ interface CreateUserDataInput {
   showHideKarmaOption?: boolean | null;
   showPostAuthorCard?: boolean | null;
   hideIntercom?: boolean | null;
+  hailboxOptIn?: boolean | null;
   noSingleLineComments?: boolean | null;
   noCollapseCommentsPosts?: boolean | null;
   noCollapseCommentsFrontpage?: boolean | null;
@@ -9264,6 +9269,7 @@ interface UpdateUserDataInput {
   showHideKarmaOption?: boolean | null;
   showPostAuthorCard?: boolean | null;
   hideIntercom?: boolean | null;
+  hailboxOptIn?: boolean | null;
   markDownPostEditor?: boolean | null;
   hideElicitPredictions?: boolean | null;
   hideAFNonMemberInitialWarning?: boolean | null;
