@@ -739,7 +739,7 @@ type Documents = {
     "\n  fragment ConversationsMinimumInfo on Conversation {\n    _id\n    createdAt\n    latestActivity\n    title\n    participantIds\n    archivedByIds\n    messageCount\n    moderator\n  }\n": typeof types.ConversationsMinimumInfoDoc,
     "\n  fragment ConversationsList on Conversation {\n    ...ConversationsMinimumInfo\n    participants {\n      ...UsersMinimumInfo\n    }\n    latestMessage {\n      ...messageListFragment\n    }\n  }\n": typeof types.ConversationsListDoc,
     "\n  fragment ConversationsListWithReadStatus on Conversation {\n    ...ConversationsList\n    hasUnreadMessages\n  }\n": typeof types.ConversationsListWithReadStatusDoc,
-    "\n  fragment TeamInboxConversation on Conversation {\n    ...ConversationsList\n    awaitingModeratorReply\n  }\n": typeof types.TeamInboxConversationDoc,
+    "\n  fragment TeamInboxConversation on Conversation {\n    ...ConversationsList\n    awaitingModeratorReply\n    moderatorReplyWaitingSince\n  }\n": typeof types.TeamInboxConversationDoc,
     "\n  fragment DoneTeamInboxConversation on Conversation {\n    ...TeamInboxConversation\n    rejectionAppeal {\n      ...RejectionAppealsModerationInfo\n    }\n  }\n": typeof types.DoneTeamInboxConversationDoc,
     "\n  fragment CurationNoticesFragment on CurationNotice {\n    _id\n    createdAt\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    commentId\n    comment {\n      ...CommentsList\n    }\n    postId\n    post {\n      ...PostsMinimumInfo\n    }\n    deleted\n    contents {\n      ...RevisionEdit\n    }\n  }\n": typeof types.CurationNoticesFragmentDoc,
     "\n  fragment ElicitQuestionFragment on ElicitQuestion {\n    _id\n    title\n    notes\n    resolution\n    resolvesBy\n  }\n": typeof types.ElicitQuestionFragmentDoc,
@@ -1673,7 +1673,7 @@ const documents: Documents = {
     "\n  fragment ConversationsMinimumInfo on Conversation {\n    _id\n    createdAt\n    latestActivity\n    title\n    participantIds\n    archivedByIds\n    messageCount\n    moderator\n  }\n": types.ConversationsMinimumInfoDoc,
     "\n  fragment ConversationsList on Conversation {\n    ...ConversationsMinimumInfo\n    participants {\n      ...UsersMinimumInfo\n    }\n    latestMessage {\n      ...messageListFragment\n    }\n  }\n": types.ConversationsListDoc,
     "\n  fragment ConversationsListWithReadStatus on Conversation {\n    ...ConversationsList\n    hasUnreadMessages\n  }\n": types.ConversationsListWithReadStatusDoc,
-    "\n  fragment TeamInboxConversation on Conversation {\n    ...ConversationsList\n    awaitingModeratorReply\n  }\n": types.TeamInboxConversationDoc,
+    "\n  fragment TeamInboxConversation on Conversation {\n    ...ConversationsList\n    awaitingModeratorReply\n    moderatorReplyWaitingSince\n  }\n": types.TeamInboxConversationDoc,
     "\n  fragment DoneTeamInboxConversation on Conversation {\n    ...TeamInboxConversation\n    rejectionAppeal {\n      ...RejectionAppealsModerationInfo\n    }\n  }\n": types.DoneTeamInboxConversationDoc,
     "\n  fragment CurationNoticesFragment on CurationNotice {\n    _id\n    createdAt\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    commentId\n    comment {\n      ...CommentsList\n    }\n    postId\n    post {\n      ...PostsMinimumInfo\n    }\n    deleted\n    contents {\n      ...RevisionEdit\n    }\n  }\n": types.CurationNoticesFragmentDoc,
     "\n  fragment ElicitQuestionFragment on ElicitQuestion {\n    _id\n    title\n    notes\n    resolution\n    resolvesBy\n  }\n": types.ElicitQuestionFragmentDoc,
@@ -4799,7 +4799,7 @@ export function gql(source: "\n  fragment ConversationsListWithReadStatus on Con
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  fragment TeamInboxConversation on Conversation {\n    ...ConversationsList\n    awaitingModeratorReply\n  }\n"): (typeof documents)["\n  fragment TeamInboxConversation on Conversation {\n    ...ConversationsList\n    awaitingModeratorReply\n  }\n"];
+export function gql(source: "\n  fragment TeamInboxConversation on Conversation {\n    ...ConversationsList\n    awaitingModeratorReply\n    moderatorReplyWaitingSince\n  }\n"): (typeof documents)["\n  fragment TeamInboxConversation on Conversation {\n    ...ConversationsList\n    awaitingModeratorReply\n    moderatorReplyWaitingSince\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

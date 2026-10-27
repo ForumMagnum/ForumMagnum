@@ -49,6 +49,13 @@ const styles = defineStyles('TeamInboxThreadView', (theme: ThemeType) => ({
     overflow: 'auto',
     maxHeight: '50%',
   },
+  title: {
+    margin: '0 0 12px',
+    fontSize: 16,
+    fontWeight: 500,
+    lineHeight: 1.4,
+    overflowWrap: 'anywhere',
+  },
   appealedContent: {
     display: 'flex',
     alignItems: 'center',
@@ -235,7 +242,7 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
     }
     dispatch({
       type: 'UPDATE_THREAD',
-      thread: { conversation: { ...conversation, awaitingModeratorReply: false, latestActivity: message.createdAt }, appeal },
+      thread: { conversation: { ...conversation, awaitingModeratorReply: false, moderatorReplyWaitingSince: null, latestActivity: message.createdAt }, appeal },
       advanceFocus: false,
     });
   };
@@ -243,6 +250,7 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
   return (
     <div className={classes.root}>
       <div className={classes.actionsSection}>
+        {conversation.title && <h2 className={classes.title}>{conversation.title}</h2>}
         {appeal && <AppealedContent appeal={appeal} />}
         <div className={classes.buttonRow}>
           {appeal && appeal.status === 'open'

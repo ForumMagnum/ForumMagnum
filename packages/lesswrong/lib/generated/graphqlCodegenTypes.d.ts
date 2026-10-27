@@ -1178,6 +1178,7 @@ type Conversation = {
   legacyData?: Maybe<Scalars['JSON']['output']>;
   messageCount: Scalars['Float']['output'];
   moderator?: Maybe<Scalars['Boolean']['output']>;
+  moderatorReplyWaitingSince?: Maybe<Scalars['Date']['output']>;
   participantIds?: Maybe<Array<Scalars['String']['output']>>;
   participants?: Maybe<Array<User>>;
   rejectedComments?: Maybe<Array<Comment>>;
@@ -25006,7 +25007,7 @@ type ConversationsListWithReadStatus = (
 );
 
 type TeamInboxConversation = (
-  { __typename?: 'Conversation', awaitingModeratorReply: boolean | null }
+  { __typename?: 'Conversation', awaitingModeratorReply: boolean | null, moderatorReplyWaitingSince: string | null }
   & ConversationsList
 );
 
