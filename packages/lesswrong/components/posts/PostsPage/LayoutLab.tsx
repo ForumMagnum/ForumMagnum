@@ -2,6 +2,8 @@
 // EXPERIMENT (branch experiment/iframe-layout-ronny): try out author layout options on a post page.
 // ?textWidth=normal|wide|wider sets the post's text width; for the demo it's remembered per reader.
 // A real version would read an author-chosen field on the post instead.
+// ?layoutUi=off hides this switcher and Next's dev badge, for screen recordings (the scrollytelling
+// demo's ?scrollyUi=off works too).
 import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
@@ -10,6 +12,7 @@ import { POST_TEXT_WIDTHS, PostTextWidth, TEXT_TRACK_EXTRA } from './constants';
 
 const TEXT_WIDTH_PARAM = 'textWidth';
 const TEXT_WIDTH_STORAGE_KEY = 'lwLayoutLabTextWidth';
+const RECORDING_PARAMS = ['layoutUi', 'scrollyUi'];
 
 interface TextWidthOption {
   width: PostTextWidth,
@@ -56,6 +59,12 @@ const styles = defineStyles('LayoutLab', (theme: ThemeType) => ({
     background: theme.palette.primary.main,
     color: theme.palette.text.alwaysWhite,
   },
+  '@global': {
+    // Recording mode: no Next.js dev badge either.
+    'html[data-lw-layout-recording] nextjs-portal': {
+      display: 'none',
+    },
+  },
 }));
 
 function isPostTextWidth(value: string | null): value is PostTextWidth {
@@ -73,6 +82,12 @@ function readTextWidth(): PostTextWidth {
   return 'normal';
 }
 
+/** ?layoutUi=off: nothing on screen but the post, for screen recordings. */
+function isRecordingMode(): boolean {
+  const params = new URLSearchParams(window.location.search);
+  return RECORDING_PARAMS.some(param => params.get(param) === 'off');
+}
+
 /** The text column and the page grid's text track both read these (see PostsPage and MultiToCLayout). */
 function applyTextWidth(width: PostTextWidth) {
   const text = POST_TEXT_WIDTHS[width];
@@ -88,12 +103,20 @@ function clearTextWidth() {
 export function LayoutLab() {
   const classes = useStyles(styles);
   const [mounted, setMounted] = useState(false);
+  const [recording, setRecording] = useState(false);
   const [textWidth, setTextWidthState] = useState<PostTextWidth>('normal');
 
   useEffect(() => {
     setMounted(true);
     setTextWidthState(readTextWidth());
-    return clearTextWidth;
+    if (isRecordingMode()) {
+      setRecording(true);
+      document.documentElement.dataset.lwLayoutRecording = 'true';
+    }
+    return () => {
+      clearTextWidth();
+      delete document.documentElement.dataset.lwLayoutRecording;
+    };
   }, []);
 
   useEffect(() => {
@@ -110,7 +133,7 @@ export function LayoutLab() {
     window.history.replaceState(window.history.state, '', url.toString());
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted || recording) return null;
   return createPortal(
     <div className={classes.lab}>
       <span className={classes.label}>Text width</span>
