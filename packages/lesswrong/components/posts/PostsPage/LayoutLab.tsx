@@ -91,7 +91,7 @@ const styles = defineStyles('LayoutLab', (theme: ThemeType) => ({
     // The lab's column decisions (see columnsFor), overriding the page's own breakpoints. Class names
     // are hard-coded because these style other components.
     'html[data-lw-toc="hidden"] .MultiToCLayout-tableOfContents': {
-      gridTemplateColumns: `0px 0px minmax(16px, 1fr) minmax(min-content, var(--post-text-track, ${MAX_COLUMN_WIDTH}px)) minmax(10px, 30px) min-content minmax(16px, 1fr) !important`,
+      gridTemplateColumns: `0px 0px minmax(16px, 1fr) minmax(0, var(--post-text-track, ${MAX_COLUMN_WIDTH}px)) minmax(10px, 30px) min-content minmax(16px, 1fr) !important`,
     },
     'html[data-lw-toc="hidden"] .MultiToCLayout-toc, html[data-lw-toc="hidden"] .MultiToCLayout-tocFooter': {
       display: 'none !important',

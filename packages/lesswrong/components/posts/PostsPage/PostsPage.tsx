@@ -106,8 +106,8 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   postBody: {
     // EXPERIMENT (experiment/iframe-layout-ronny): the post's text width (comments keep centralColumn's).
     // A wider text never eats the track's side padding, which keeps it clear of the sidenotes; on
-    // narrow screens the column is already full width, as before.
-    maxWidth: `min(var(--post-text-width, ${CENTRAL_COLUMN_WIDTH}px), max(100% - ${TEXT_TRACK_EXTRA}px, ${CENTRAL_COLUMN_WIDTH}px))`,
+    // narrow screens the text fills the column.
+    maxWidth: `min(var(--post-text-width, ${CENTRAL_COLUMN_WIDTH}px), max(100% - ${TEXT_TRACK_EXTRA}px, min(100%, ${CENTRAL_COLUMN_WIDTH}px)))`,
   },
   audioPlayerHidden: {
     // Only show the play button next to headings if the audio player is visible
