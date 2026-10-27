@@ -1,28 +1,31 @@
 <meta name="lw-layout" content="position=right width=46%">
 <style>
-  .wrap { border-top: 2px solid var(--ink); padding-top: 10px; }
-  .result { margin: 8px 0 4px; font-size: 15px; }
-  .result b { font: 700 20px var(--mono); color: var(--green); }
-  svg { display: block; width: 100%; height: auto; margin-top: 6px; }
-  .axis { stroke: var(--line); }
-  .tick { fill: var(--dim); font-size: 9px; }
+  #chart { margin-top: 12px; }
 </style>
-<div class="wrap">
-  <div class="cap">How far away is the Automated Coder?</div>
+<div class="fig">
+  <div class="kicker">How far away is the Automated Coder?</div>
   <div class="slider"><div class="top"><span>AI coding uplift today</span><span class="val" id="u0v"></span></div>
     <input id="u0" type="range" min="1.25" max="4" step="0.05" value="2"></div>
-  <div class="slider"><div class="top"><span>Months for (uplift − 1) to double</span><span class="val" id="tv"></span></div>
+  <div class="slider"><div class="top"><span>Months for the excess to double</span><span class="val" id="tv"></span></div>
     <input id="t" type="range" min="2" max="12" step="0.5" value="5"></div>
   <div class="slider"><div class="top"><span>Uplift that counts as AC</span><span class="val" id="uacv"></span></div>
     <input id="uac" type="range" min="5" max="50" step="1" value="20"></div>
-  <div class="result">Trend reaches AC in <b id="months"></b> months, around <b id="when"></b></div>
-  <svg id="chart" viewBox="0 0 320 170" role="img" aria-label="Uplift over time"></svg>
-  <div class="note">A straight extrapolation from August 2026. The full model simulates the feedback loop instead, so its dates differ.</div>
+  <div class="stats">
+    <div class="stat"><div class="label">Trend hits AC in</div><div class="value" id="months"></div></div>
+    <div class="stat"><div class="label">Around</div><div class="value" id="when"></div></div>
+  </div>
+  <svg id="chart" viewBox="0 0 320 168" role="img" aria-label="Coding uplift over time"></svg>
+  <div class="caption">A straight extrapolation of the uplift trend from August 2026. The full model simulates the feedback loop instead, so its dates differ.</div>
 </div>
 <script>
 const START = { year: 2026, month: 7 };
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const el = id => document.getElementById(id);
+
+function paintSlider(input) {
+  const pct = (input.value - input.min) / (input.max - input.min) * 100;
+  input.style.setProperty('--pct', pct + '%');
+}
 
 function monthsToAC(u0, t, uac) {
   return t * Math.log2((uac - 1) / (u0 - 1));
@@ -34,42 +37,51 @@ function dateAfter(months) {
 }
 
 function draw(u0, t, uac, m) {
-  const W = 320, H = 170, L = 34, R = 312, T = 10, B = 146;
+  const L = 30, R = 312, T = 14, B = 140;
   const span = Math.max(36, Math.ceil((m + 10) / 12) * 12);
   const x = mo => L + (R - L) * mo / span;
   const y = u => B - (B - T) * Math.log10(u) / 2;
-  let s = '';
+  let s = '<defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">'
+    + '<stop offset="0" stop-color="#3f8255" stop-opacity=".28"/><stop offset="1" stop-color="#3f8255" stop-opacity="0"/></linearGradient></defs>';
   for (const u of [1, 2, 5, 10, 20, 50, 100]) {
-    s += '<line class="axis" x1="' + L + '" x2="' + R + '" y1="' + y(u) + '" y2="' + y(u) + '"/>';
-    s += '<text class="tick" x="' + (L - 4) + '" y="' + (y(u) + 3) + '" text-anchor="end">' + u + 'x</text>';
+    s += '<line class="gridline" x1="' + L + '" x2="' + R + '" y1="' + y(u) + '" y2="' + y(u) + '" stroke-dasharray="' + (u === 1 ? '' : '2 3') + '"/>';
+    s += '<text class="axis-label" x="' + (L - 5) + '" y="' + (y(u) + 3.5) + '" text-anchor="end">' + u + '×</text>';
   }
   for (let year = START.year + 1; ; year++) {
     const mo = (year - START.year) * 12 - START.month;
     if (mo > span) break;
-    s += '<text class="tick" x="' + x(mo) + '" y="' + (B + 13) + '" text-anchor="middle">' + year + '</text>';
+    s += '<text class="axis-label" x="' + x(mo) + '" y="' + (B + 16) + '" text-anchor="middle">' + year + '</text>';
   }
-  let path = '';
-  for (let mo = 0; mo <= span; mo += span / 120) {
+  const points = [];
+  for (let mo = 0; mo <= span; mo += span / 160) {
     const u = 1 + (u0 - 1) * Math.pow(2, mo / t);
     if (u > 100) break;
-    path += (path ? ' L ' : 'M ') + x(mo).toFixed(1) + ' ' + y(u).toFixed(1);
+    points.push([x(mo), y(u)]);
   }
-  s += '<line x1="' + L + '" x2="' + R + '" y1="' + y(uac) + '" y2="' + y(uac) + '" stroke="#8b0000" stroke-dasharray="3 3"/>';
-  s += '<path d="' + path + '" fill="none" stroke="#2a623d" stroke-width="2"/>';
+  const line = points.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const last = points[points.length - 1];
+  s += '<path d="' + line + ' L' + last[0].toFixed(1) + ',' + B + ' L' + L + ',' + B + ' Z" fill="url(#fill)"/>';
+  s += '<line x1="' + L + '" x2="' + R + '" y1="' + y(uac) + '" y2="' + y(uac) + '" stroke="#a33a26" stroke-width="1.2" stroke-dasharray="4 3"/>';
+  s += '<path d="' + line + '" fill="none" stroke="#2a623d" stroke-width="2.5" stroke-linecap="round"/>';
+  s += '<circle cx="' + x(0) + '" cy="' + y(u0) + '" r="3.5" fill="#fffdf8" stroke="#2a623d" stroke-width="2"/>';
   if (m <= span) {
-    s += '<circle cx="' + x(m) + '" cy="' + y(uac) + '" r="4" fill="#2a623d"/>';
-    s += '<text x="' + Math.min(x(m), R - 20) + '" y="' + (y(uac) - 8) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#2a623d">AC</text>';
+    const ax = x(m), ay = y(uac), px = Math.min(Math.max(ax, L + 20), R - 20);
+    s += '<circle cx="' + ax + '" cy="' + ay + '" r="9" fill="rgba(42,98,61,.18)"/>';
+    s += '<circle cx="' + ax + '" cy="' + ay + '" r="4.5" fill="#2a623d" stroke="#fffdf8" stroke-width="1.5"/>';
+    s += '<rect x="' + (px - 17) + '" y="' + (ay - 30) + '" width="34" height="17" rx="8.5" fill="#2a623d"/>';
+    s += '<text x="' + px + '" y="' + (ay - 18) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">AC</text>';
   }
   el('chart').innerHTML = s;
 }
 
 function update() {
+  for (const id of ['u0', 't', 'uac']) paintSlider(el(id));
   const u0 = +el('u0').value, t = +el('t').value, uac = +el('uac').value;
-  el('u0v').textContent = u0.toFixed(2) + 'x';
+  el('u0v').textContent = u0.toFixed(2) + '×';
   el('tv').textContent = t + ' mo';
-  el('uacv').textContent = uac + 'x';
+  el('uacv').textContent = uac + '×';
   const m = monthsToAC(u0, t, uac);
-  el('months').textContent = Math.round(m);
+  el('months').textContent = Math.round(m) + ' mo';
   el('when').textContent = dateAfter(m);
   draw(u0, t, uac, m);
 }

@@ -1,23 +1,54 @@
-/* Shared look for the AI Futures Model demo widgets: ET Book text, monospace labels, dark green.
-   build.py inlines this, plus the ET Book font, into every widget. */
+/* Shared look for the AI Futures Model demo widgets: editorial science figures on a warm paper
+   panel, ET Book type sized to sit next to LessWrong's body text, AI Futures green as the accent
+   and brick red for "the brake". build.py inlines this, plus the ET Book font, into every widget. */
 :root {
-  --ink: #111;
-  --dim: #6b6b6b;
-  --faint: #a7a7a2;
-  --line: #e2e2dc;
+  --ink: #1d1d1b;
+  --ink2: #4a4943;
+  --dim: #7d7a70;
+  --faint: #b4b0a4;
+  --rule: #e4e0d4;
+  --track: #d9d4c6;
+  --panel: #f6f4ee;
+  --card: #fffdf8;
   --green: #2a623d;
-  --green-soft: rgba(42, 98, 61, 0.12);
-  --red: #8b0000;
+  --green2: #3f8255;
+  --green-soft: rgba(42, 98, 61, 0.13);
+  --brick: #a33a26;
+  --brick-soft: rgba(163, 58, 38, 0.12);
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 html, body { margin: 0; padding: 0; background: transparent; color: var(--ink); }
-body { font-family: "et-book", Palatino, "Palatino Linotype", Georgia, serif; font-size: 16px; line-height: 1.4; }
-.cap { font: 600 10.5px/1.3 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
-.mono { font-family: var(--mono); }
-.note { font-size: 13px; line-height: 1.4; color: var(--dim); }
-.note a { color: var(--green); }
-.slider { margin: 10px 0 2px; }
-.slider .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13.5px; line-height: 1.25; }
-.slider .val { font: 600 12.5px var(--mono); color: var(--green); white-space: nowrap; }
-input[type=range] { width: 100%; margin: 4px 0 0; accent-color: var(--green); }
+body { font: 16px/1.45 "et-book", Palatino, "Palatino Linotype", Georgia, serif; -webkit-font-smoothing: antialiased; }
+
+/* The figure panel every widget sits on. */
+.fig { background: var(--panel); border-radius: 14px; padding: 18px 20px 16px; }
+.kicker { font: 600 10.5px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--green); }
+.title { font-size: 21px; line-height: 1.2; margin: 4px 0 2px; }
+.caption { font-size: 14.5px; line-height: 1.45; color: var(--ink2); margin-top: 14px; }
+.caption a { color: var(--green); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* Stat blocks: a small caps label over a big number. */
+.stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.stat { flex: 1 1 0; min-width: 0; background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 9px 12px 8px; }
+.stat .label { font: 600 9.5px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+.stat .value { font: 700 22px/1.15 var(--mono); color: var(--green); margin-top: 5px; letter-spacing: -.01em; }
+.stat .sub { font-size: 13.5px; color: var(--ink2); margin-top: 1px; }
+
+/* Sliders: a thin track filled in green up to the thumb (scripts set --pct). */
+.slider { margin: 14px 0 2px; }
+.slider .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 15.5px; line-height: 1.25; color: var(--ink2); }
+.slider .val { font: 600 12.5px var(--mono); color: var(--green); background: var(--card); border: 1px solid var(--rule); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; margin: 4px 0 0; background: transparent; cursor: pointer; --pct: 50%; }
+input[type=range]:focus { outline: none; }
+input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--green) var(--pct), var(--track) var(--pct)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%; background: #fff; border: 3px solid var(--green); box-shadow: 0 1px 4px rgba(0, 0, 0, .2); transition: transform .12s ease; }
+input[type=range]:hover::-webkit-slider-thumb, input[type=range]:focus-visible::-webkit-slider-thumb { transform: scale(1.12); }
+input[type=range]::-moz-range-track { height: 4px; border-radius: 4px; background: var(--track); }
+input[type=range]::-moz-range-progress { height: 4px; border-radius: 4px; background: var(--green); }
+input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border-radius: 50%; background: #fff; border: 3px solid var(--green); box-shadow: 0 1px 4px rgba(0, 0, 0, .2); }
+
+svg { display: block; width: 100%; height: auto; overflow: visible; }
 svg text { font-family: var(--mono); }
+.gridline { stroke: var(--rule); stroke-width: 1; }
+.axis-label { fill: var(--dim); font-size: 10px; }

@@ -1,21 +1,49 @@
-<meta name="lw-layout" content="position=right width=38%">
+<meta name="lw-layout" content="position=right width=42%">
 <style>
-  .card { border-top: 2px solid var(--ink); padding: 10px 2px 4px; }
-  .row { margin: 14px 0 0; }
-  .row .label { font-size: 15px; }
-  .date { font: 500 34px/1.1 var(--mono); letter-spacing: .12em; margin-top: 2px; }
-  .date .sep { color: var(--faint); }
-  .note { margin-top: 14px; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+  .lab { font-size: 16.5px; line-height: 1.2; }
+  .lab small { display: block; font: 600 9.5px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); margin-bottom: 4px; }
+  .tiles { display: flex; align-items: center; gap: 3px; flex: none; }
+  .tile { position: relative; width: 23px; height: 34px; border-radius: 5px; border: 1px solid var(--rule);
+    background: linear-gradient(var(--card) 0 50%, #f1eee4 50% 100%); box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    font: 600 21px/34px var(--mono); text-align: center; color: var(--ink); }
+  .tile::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(0,0,0,.07); }
+  .slash { font: 400 19px var(--mono); color: var(--faint); margin: 0 1px; }
+  .timeline { margin-top: 18px; }
+  .t-label { fill: var(--dim); font-size: 9.5px; }
+  .t-mark { font-size: 10px; font-weight: 700; }
 </style>
-<div class="card">
-  <div class="cap">AI Futures Model · Aug 2026</div>
-  <div class="row">
-    <div class="label">Automated Coder</div>
-    <div class="date">10<span class="sep">/</span>2027</div>
-  </div>
-  <div class="row">
-    <div class="label">Superintelligence</div>
-    <div class="date">12<span class="sep">/</span>2028</div>
-  </div>
-  <div class="note">The model's output with every parameter at Daniel Kokotajlo's median guess. Play with the live model at <a href="https://www.aifuturesmodel.com/" target="_blank" rel="noopener">aifuturesmodel.com</a>.</div>
+<div class="fig">
+  <div class="kicker">AI Futures Model · Aug 2026</div>
+  <div class="row"><div class="lab"><small>Timelines</small>Automated Coder</div><div class="tiles" data-date="10/2027"></div></div>
+  <div class="row"><div class="lab"><small>Takeoff ends</small>Superintelligence</div><div class="tiles" data-date="12/2028"></div></div>
+  <svg class="timeline" id="timeline" viewBox="0 0 300 58" role="img" aria-label="Timeline from 2026 to 2030"></svg>
+  <div class="caption">The model's run with every parameter at Daniel Kokotajlo's median guess. Try the live model at <a href="https://www.aifuturesmodel.com/" target="_blank" rel="noopener">aifuturesmodel.com</a>.</div>
 </div>
+<script>
+for (const box of document.querySelectorAll('.tiles')) {
+  let html = '';
+  for (const ch of box.dataset.date) {
+    html += ch === '/' ? '<span class="slash">/</span>' : '<span class="tile">' + ch + '</span>';
+  }
+  box.innerHTML = html;
+}
+
+// 2026 to 2030, with today, AC and ASI marked and the takeoff period shaded.
+const L = 10, R = 290, Y = 30;
+const x = year => L + (R - L) * (year - 2026) / 4;
+const NOW = 2026 + 7.5 / 12, AC = 2027 + 9.5 / 12, ASI = 2028 + 11.5 / 12;
+let s = '<line x1="' + L + '" x2="' + R + '" y1="' + Y + '" y2="' + Y + '" stroke="#d9d4c6" stroke-width="2" stroke-linecap="round"/>';
+s += '<rect x="' + x(AC) + '" y="' + (Y - 5) + '" width="' + (x(ASI) - x(AC)) + '" height="10" rx="5" fill="rgba(42,98,61,.16)"/>';
+for (let year = 2026; year <= 2030; year++) {
+  s += '<line x1="' + x(year) + '" x2="' + x(year) + '" y1="' + (Y + 6) + '" y2="' + (Y + 10) + '" stroke="#b4b0a4"/>';
+  s += '<text class="t-label" x="' + x(year) + '" y="' + (Y + 22) + '" text-anchor="middle">' + year + '</text>';
+}
+s += '<circle cx="' + x(NOW) + '" cy="' + Y + '" r="4" fill="#fffdf8" stroke="#7d7a70" stroke-width="1.5"/>';
+s += '<text class="t-mark" x="' + x(NOW) + '" y="' + (Y - 11) + '" text-anchor="middle" fill="#7d7a70">now</text>';
+for (const [year, label, fill] of [[AC, 'AC', '#3f8255'], [ASI, 'ASI', '#2a623d']]) {
+  s += '<circle cx="' + x(year) + '" cy="' + Y + '" r="5.5" fill="' + fill + '" stroke="#fffdf8" stroke-width="2"/>';
+  s += '<text class="t-mark" x="' + x(year) + '" y="' + (Y - 11) + '" text-anchor="middle" fill="' + fill + '">' + label + '</text>';
+}
+document.getElementById('timeline').innerHTML = s;
+</script>

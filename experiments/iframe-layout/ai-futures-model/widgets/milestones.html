@@ -1,29 +1,30 @@
-<meta name="lw-layout" content="position=left width=36%">
+<meta name="lw-layout" content="position=left width=38%">
 <style>
-  .ladder { border-top: 2px solid var(--ink); padding-top: 10px; }
-  ol { list-style: none; margin: 10px 0 0; padding: 0; position: relative; }
-  ol::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 14px; width: 2px; background: var(--line); }
-  li { position: relative; padding: 0 0 12px 26px; }
-  li::before { content: ""; position: absolute; left: 2px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2px solid var(--green); }
-  li:hover::before { background: var(--green); }
-  .tag { font: 700 12.5px var(--mono); color: var(--green); letter-spacing: .04em; }
-  .name { font-size: 15px; }
-  .def { font-size: 13.5px; line-height: 1.35; color: var(--dim); margin-top: 1px; }
-  .note { margin-top: 2px; }
+  ol { list-style: none; margin: 14px 0 0; padding: 0; position: relative; }
+  ol::before { content: ""; position: absolute; left: 16px; top: 18px; bottom: 26px; width: 2px; border-radius: 2px;
+    background: linear-gradient(var(--green2), var(--green)); opacity: .3; }
+  li { position: relative; padding: 0 0 14px 48px; min-height: 34px; }
+  li:last-child { padding-bottom: 2px; }
+  .badge { position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--green);
+    background: var(--card); display: flex; align-items: center; justify-content: center;
+    font: 700 8.5px var(--mono); letter-spacing: .02em; color: var(--green); transition: transform .15s ease, background .15s ease, color .15s ease; }
+  li:first-child .badge, li:hover .badge { background: var(--green); color: #fff; transform: scale(1.06); }
+  .name { font-size: 17px; line-height: 1.2; padding-top: 4px; }
+  .def { font-size: 14.5px; line-height: 1.38; color: var(--ink2); margin-top: 2px; }
 </style>
-<div class="ladder">
-  <div class="cap">The milestones, in order</div>
+<div class="fig">
+  <div class="kicker">Five milestones</div>
   <ol>
-    <li><span class="tag">AC</span> <span class="name">Automated Coder</span>
+    <li><span class="badge">AC</span><div class="name">Automated Coder</div>
       <div class="def">A lab would sooner lose all of its human engineers than its AI coders.</div></li>
-    <li><span class="tag">SAR</span> <span class="name">Superhuman AI Researcher</span>
+    <li><span class="badge">SAR</span><div class="name">Superhuman AI Researcher</div>
       <div class="def">Better research taste than the best human researcher.</div></li>
-    <li><span class="tag">SIAR</span> <span class="name">Superintelligent AI Researcher</span>
+    <li><span class="badge">SIAR</span><div class="name">Superintelligent AI Researcher</div>
       <div class="def">Twice as far above SAR as the best human is above the median one.</div></li>
-    <li><span class="tag">TED-AI</span> <span class="name">Top-Expert-Dominating AI</span>
+    <li><span class="badge">TED</span><div class="name">Top-Expert-Dominating AI</div>
       <div class="def">Does roughly 95% of remote work at the level of the best experts.</div></li>
-    <li><span class="tag">ASI</span> <span class="name">Superintelligence</span>
+    <li><span class="badge">ASI</span><div class="name">Superintelligence</div>
       <div class="def">Two more such gaps above TED-AI, at every cognitive task.</div></li>
   </ol>
-  <div class="note">"Timelines" is the time to AC. "Takeoff" is AC to ASI.</div>
+  <div class="caption">"Timelines" means the wait until AC. "Takeoff" means AC to ASI.</div>
 </div>
