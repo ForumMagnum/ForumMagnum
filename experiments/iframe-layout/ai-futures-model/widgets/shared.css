@@ -20,8 +20,8 @@
 html, body { margin: 0; padding: 0; background: transparent; color: var(--ink); }
 body { font: 16px/1.45 "et-book", Palatino, "Palatino Linotype", Georgia, serif; -webkit-font-smoothing: antialiased; }
 
-/* The figure panel every widget sits on. */
-.fig { background: var(--panel); border-radius: 14px; padding: 18px 20px 16px; }
+/* Every widget is clear: no background of its own, so it sits directly on the page. */
+.fig { background: transparent; padding: 6px 2px 4px; }
 .kicker { font: 600 10.5px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--green); }
 .title { font-size: 21px; line-height: 1.2; margin: 4px 0 2px; }
 .caption { font-size: 14.5px; line-height: 1.45; color: var(--ink2); margin-top: 14px; }
@@ -30,7 +30,7 @@ body { font: 16px/1.45 "et-book", Palatino, "Palatino Linotype", Georgia, serif;
 
 /* Stat blocks: a small caps label over a big number. */
 .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-.stat { flex: 1 1 0; min-width: 0; background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 9px 12px 8px; }
+.stat { flex: 1 1 0; min-width: 0; background: transparent; border: 1px solid var(--rule); border-radius: 10px; padding: 9px 12px 8px; }
 .stat .label { font: 600 9.5px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
 .stat .value { font: 700 22px/1.15 var(--mono); color: var(--green); margin-top: 5px; letter-spacing: -.01em; }
 .stat .sub { font-size: 13.5px; color: var(--ink2); margin-top: 1px; }
@@ -38,7 +38,7 @@ body { font: 16px/1.45 "et-book", Palatino, "Palatino Linotype", Georgia, serif;
 /* Sliders: a thin track filled in green up to the thumb (scripts set --pct). */
 .slider { margin: 14px 0 2px; }
 .slider .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 15.5px; line-height: 1.25; color: var(--ink2); }
-.slider .val { font: 600 12.5px var(--mono); color: var(--green); background: var(--card); border: 1px solid var(--rule); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+.slider .val { font: 600 12.5px var(--mono); color: var(--green); background: transparent; border: 1px solid var(--rule); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
 input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; margin: 4px 0 0; background: transparent; cursor: pointer; --pct: 50%; }
 input[type=range]:focus { outline: none; }
 input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--green) var(--pct), var(--track) var(--pct)); }
