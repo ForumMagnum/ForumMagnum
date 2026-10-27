@@ -1,11 +1,45 @@
 'use client';
-import React, { Suspense, useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT } from '@/components/lexical/embeds/IframeWidgetEmbed/iframeResizeScript';
 import classNames from 'classnames';
-import { parseIframeWidgetLayout } from './iframeWidgetLayout';
+import { IframeWidgetLayout, parseIframeWidgetLayout } from './iframeWidgetLayout';
+
+// EXPERIMENT (experiment/iframe-layout-ronny): a left/right widget only wraps if the text beside it
+// stays at least this wide (about 50 characters of post text). Otherwise it sits inline at full width.
+const MIN_TEXT_BESIDE_WIDGET = 380;
+const WRAP_GUTTER = 32;
+
+/** The widget's width in px for a text column of the given width (null: full width). */
+function widgetWidthPx(layout: IframeWidgetLayout, columnWidth: number): number | null {
+  if (!layout.width) return null;
+  const value = parseFloat(layout.width);
+  return layout.width.endsWith('%') ? Math.round(columnWidth * value / 100) : value;
+}
+
+function shouldWrap(layout: IframeWidgetLayout, columnWidth: number | null): boolean {
+  if (layout.position !== 'left' && layout.position !== 'right') return false;
+  if (columnWidth === null) return false;
+  const width = widgetWidthPx(layout, columnWidth) ?? columnWidth;
+  return columnWidth - width - WRAP_GUTTER >= MIN_TEXT_BESIDE_WIDGET;
+}
+
+/** Width of the text column the widget sits in, kept current as the window or text width changes. */
+function useColumnWidth(iframeRef: React.RefObject<HTMLIFrameElement | null>, enabled: boolean): number | null {
+  const [columnWidth, setColumnWidth] = useState<number | null>(null);
+  useEffect(() => {
+    const column = iframeRef.current?.closest('.iframe-widget')?.parentElement;
+    if (!enabled || !column) return;
+    const measure = () => setColumnWidth(column.clientWidth);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(column);
+    return () => observer.disconnect();
+  }, [iframeRef, enabled]);
+  return columnWidth;
+}
 
 const iframeWidgetSrcdocQuery = gql(`
   query IframeWidgetSrcdocQuery($widgetId: String!) {
@@ -69,8 +103,10 @@ function InlineIframeWidget({ srcdoc, title }: {
 }) {
   const classes = useStyles(styles);
   const layout = parseIframeWidgetLayout(srcdoc);
-  const floated = layout.position === 'left' || layout.position === 'right';
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const columnWidth = useColumnWidth(iframeRef, layout.position === 'left' || layout.position === 'right');
+  const floated = shouldWrap(layout, columnWidth);
+  const width = floated || layout.position === 'center' ? layout.width ?? undefined : undefined;
   const [height, setHeight] = useState<number>(IFRAME_DEFAULT_HEIGHT);
 
   const handleMessage = useCallback((event: MessageEvent) => {
@@ -102,11 +138,11 @@ function InlineIframeWidget({ srcdoc, title }: {
       data-lexical-iframe-widget="true"
       className={classNames(classes.iframe, layout.position !== 'inline' && classes.narrowScreenFullWidth, {
         [classes.center]: layout.position === 'center',
-        [classes.floatLeft]: layout.position === 'left',
-        [classes.floatRight]: layout.position === 'right',
+        [classes.floatLeft]: floated && layout.position === 'left',
+        [classes.floatRight]: floated && layout.position === 'right',
         lwFloatedWidget: floated,
       })}
-      style={{height, width: layout.width ?? undefined}}
+      style={{height, width}}
       onLoad={requestResize}
       ref={iframeRef}
     />

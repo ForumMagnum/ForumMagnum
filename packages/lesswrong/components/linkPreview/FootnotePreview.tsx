@@ -8,6 +8,7 @@ import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import { sidenotesHiddenBreakpoint, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES } from '../posts/PostsPage/constants';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import { useLayoutLabMarginShown } from '../posts/PostsPage/layoutLabColumns';
 import { SideItem, useHasSideItemsSidebar } from '../contents/SideItems';
 import { useDialog } from '../common/withDialog';
 import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
@@ -209,7 +210,10 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
   const postPageContext = usePostsPageContext();
   const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
   const sidenotesDisabledOnPost = post?.disableSidenotes;
-  const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint("lg");
+  const screenIsAboveSidenotesBreakpoint = useIsAboveBreakpoint("lg");
+  // EXPERIMENT (experiment/iframe-layout-ronny): the post page's layout lab decides when it's running.
+  const layoutLabMarginShown = useLayoutLabMarginShown();
+  const screenIsWideEnoughForSidenotes = layoutLabMarginShown ?? screenIsAboveSidenotesBreakpoint;
   const hasSideItemsSidebar = useHasSideItemsSidebar();
   const sidenoteIsVisible = hasSideItemsSidebar && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
 
