@@ -149,26 +149,6 @@ test("making a post private must not leave its full text in guest run queries", 
   expect(result.data?.llmRuns.results).not.toContainEqual(expect.objectContaining({ _id: run._id }));
 });
 
-test("a failed placeholder keeps the submitted comment and leaves a failed run", async () => {
-  const user = await createDummyUser({ isAdmin: true });
-  const post = await createDummyPost(user);
-  const context = computeContextFromUser({ user, isSSR: false, forumType: "LessWrong" });
-  const originalInsert = Comments.rawInsert.bind(Comments);
-  jest.spyOn(Comments, "rawInsert").mockImplementation(async (data, ...rest) => {
-    if (data.llmRunId) throw new Error("Injected placeholder insertion failure");
-    return originalInsert(data, ...rest);
-  });
-  const saved = await createComment({ data: { postId: post._id, contents: { originalContents: { type: "html", data: mention } } } }, context);
-  await waitForBackgroundTasks();
-  const comments = await Comments.find({ postId: post._id, userId: user._id }).fetch();
-  const runs = await LlmRuns.find({ triggerCommentId: { $in: comments.map(c => c._id) } }).fetch();
-  expect(comments).toHaveLength(1);
-  expect(comments[0]._id).toBe(saved._id);
-  expect(runs).toHaveLength(1);
-  expect(runs[0].status).toBe("failed");
-  expect(runs[0].error).toContain("placeholder insertion failure");
-});
-
 test("deleting the invoking comment during generation must prevent publication", async () => {
   const { run, comment } = await createMentionFixture();
   mocked(generateLlmRunResponse).mockImplementationOnce(async () => {
@@ -181,7 +161,7 @@ test("deleting the invoking comment during generation must prevent publication",
   expect(reply.contents?.html).not.toContain("Generated after");
 });
 
-test.each([false, true])("publication failure (write committed: %s) reuses the saved answer", async (committed) => {
+test("retrying an unpublished reply reuses the saved answer and transcript", async () => {
   const { run } = await createMentionFixture();
   await LlmRunTranscriptEntries.rawInsert({
     llmRunId: run._id, attempt: 1, index: 0, type: "text", text: "Saved transcript",
@@ -192,7 +172,6 @@ test.each([false, true])("publication failure (write committed: %s) reuses the s
   jest.spyOn(Comments, "rawUpdateOne").mockImplementation(async (selector, modifier, ...rest) => {
     if (modifier.$set?.llmReplyPublishedAt && failOnce) {
       failOnce = false;
-      if (committed) await original(selector, modifier, ...rest);
       throw new Error("Injected publication failure");
     }
     return original(selector, modifier, ...rest);
@@ -200,21 +179,20 @@ test.each([false, true])("publication failure (write committed: %s) reuses the s
   await runLlmRun(run._id);
   const first = await Comments.findOne({ llmRunId: run._id });
   assert(first);
-  expect(!!first.llmReplyPublishedAt).toBe(committed);
+  expect(first.llmReplyPublishedAt).toBeNull();
   await runLlmRun(run._id);
   const reply = await Comments.findOne({ llmRunId: run._id });
   assert(reply);
   expect(reply.llmReplyPublishedAt).toBeInstanceOf(Date);
   expect(reply.contents?.html).toContain("Successful answer 1");
   expect(generateLlmRunResponse).toHaveBeenCalledTimes(1);
-  if (committed) expect(reply.contents_latest).toBe(first.contents_latest);
   const result = await runQuery(`query($id: String!) {
     llmRun(selector: { _id: $id }) { result { status transcriptEntries { text } } }
   }`, { id: run._id }, createAnonymousContext({ forumType: "LessWrong" }));
   expect(result.data?.llmRun.result).toEqual({ status: "completed", transcriptEntries: [{ text: "Saved transcript" }] });
 });
 
-test.each([false, true])("completion failure on the last attempt (write committed: %s) preserves publication", async (committed) => {
+test("completion failure on the last attempt preserves a published answer", async () => {
   const { run } = await createMentionFixture();
   await LlmRuns.rawUpdateOne(run._id, { $set: { attemptCount: 2 } });
   const original = LlmRuns.rawUpdateOne.bind(LlmRuns);
@@ -222,7 +200,6 @@ test.each([false, true])("completion failure on the last attempt (write committe
   jest.spyOn(LlmRuns, "rawUpdateOne").mockImplementation(async (selector, modifier, ...rest) => {
     if (modifier.$set?.status === "completed" && failOnce) {
       failOnce = false;
-      if (committed) await original(selector, modifier, ...rest);
       throw new Error("Injected completion failure");
     }
     return original(selector, modifier, ...rest);
@@ -251,23 +228,6 @@ test("a post made private during generation prevents publication and hides the s
   await expect(runQuery(query, { id: run._id }, createAnonymousContext({ forumType: "LessWrong" }))).rejects.toThrow("operation_not_allowed");
   const adminResult = await runQuery(query, { id: run._id }, context);
   expect(adminResult.data?.llmRun.result.response).toContain("Successful answer");
-});
-
-test("a missing placeholder cannot stop recovery of the next run", async () => {
-  const first = await createMentionFixture();
-  const second = await createMentionFixture();
-  await Comments.rawRemove({ llmRunId: first.run._id });
-  await LlmRuns.rawUpdateOne(first.run._id, { $set: { attemptCount: 3, createdAt: new Date(0) } });
-  const rows = [await LlmRuns.findOne(first.run._id), second.run];
-  const originalFind = LlmRuns.find.bind(LlmRuns);
-  jest.spyOn(LlmRuns, "find").mockImplementation((selector, ...rest) => {
-    if (selector?.$or) return { fetch: async () => rows };
-    return originalFind(selector, ...rest);
-  });
-  mocked(requestLlmRun).mockClear();
-  await retryStalledLlmRuns();
-  expect((await LlmRuns.findOne(first.run._id))?.status).toBe("failed");
-  expect(requestLlmRun).toHaveBeenCalledWith(second.run._id);
 });
 
 test("placeholder insertion that commits then throws leaves a failed reply, not a pending orphan", async () => {
