@@ -40,6 +40,7 @@ import {SpecialTextNode} from './SpecialTextNode';
 // import {StickyNode} from './StickyNode';
 // import {TweetNode} from '../embeds/TwitterEmbed/TweetNode';
 import {YouTubeNode} from '../embeds/YouTubeEmbed/YouTubeNode';
+import {VideoFileNode} from '../embeds/VideoFileEmbed/VideoFileNode';
 import {MetaculusNode} from '../embeds/MetaculusEmbed/MetaculusNode';
 import {ThoughtsaverNode} from '../embeds/ThoughtsaverEmbed/ThoughtsaverNode';
 import {ManifoldNode} from '../embeds/ManifoldEmbed/ManifoldNode';
@@ -106,6 +107,7 @@ const PlaygroundNodes: Array<LexicalNodeConfig> = validateLexicalNodes({
   HorizontalRuleNode,
   // TweetNode,
   YouTubeNode,
+  VideoFileNode,
   MetaculusNode,
   ThoughtsaverNode,
   ManifoldNode,
