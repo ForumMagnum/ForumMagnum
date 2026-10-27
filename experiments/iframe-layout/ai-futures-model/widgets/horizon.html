@@ -1,0 +1,119 @@
+<meta name="lw-layout" content="position=inline">
+<style>
+  .wrap { border-top: 2px solid var(--ink); padding-top: 10px; }
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+  @media (max-width: 520px) { .controls { grid-template-columns: 1fr; } }
+  svg { display: block; width: 100%; height: auto; margin-top: 8px; }
+  .grid { stroke: var(--line); }
+  .tick { fill: var(--dim); font-size: 10px; }
+  .readouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+  .readout { border-left: 2px solid var(--green); padding: 2px 0 2px 10px; }
+  .readout .cap { font-size: 9.5px; }
+  .readout b { display: block; font: 700 17px var(--mono); color: var(--green); margin-top: 2px; }
+  .readout .grey { color: var(--dim); font: 12px var(--mono); }
+  .note { margin-top: 10px; }
+</style>
+<div class="wrap">
+  <div class="cap">The most argued-over number: does each doubling get easier?</div>
+  <div class="controls">
+    <div class="slider"><div class="top"><span>Each doubling costs this much of the last one</span><span class="val" id="fv"></span></div>
+      <input id="f" type="range" min="0.85" max="1.08" step="0.01" value="0.92"></div>
+    <div class="slider"><div class="top"><span>Time for the next doubling (Aug 2026)</span><span class="val" id="tv"></span></div>
+      <input id="t" type="range" min="2" max="8" step="0.5" value="4"></div>
+  </div>
+  <svg id="chart" viewBox="0 0 680 300" role="img" aria-label="AI time horizon over time"></svg>
+  <div class="readouts">
+    <div class="readout"><div class="cap">1 work-year tasks</div><b id="r1"></b><span class="grey" id="r1e"></span></div>
+    <div class="readout"><div class="cap">100 work-year tasks</div><b id="r2"></b><span class="grey" id="r2e"></span></div>
+    <div class="readout"><div class="cap">Unbounded horizon</div><b id="r3"></b><span class="grey" id="r3e"></span></div>
+  </div>
+  <div class="note">Starting from the model's ~3 hour time horizon in August 2026. Green: your setting. Grey dashed: every doubling costs the same (plain exponential). Below 1, the doublings form a converging series, so even an unbounded horizon arrives at a finite date.</div>
+</div>
+<script>
+const START = { year: 2026, month: 7 };
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const PRESENT_MIN = 186;
+const WORK_YEAR_MIN = 2000 * 60;
+const YEARS = 8;
+const el = id => document.getElementById(id);
+
+const TICKS = [
+  [60, '1 hour'], [480, '1 work-day'], [2400, '1 work-week'], [10000, '1 work-month'],
+  [WORK_YEAR_MIN, '1 work-year'], [10 * WORK_YEAR_MIN, '10 work-years'],
+  [100 * WORK_YEAR_MIN, '100 work-years'], [1000 * WORK_YEAR_MIN, '1000 work-years'],
+];
+
+// Years until the horizon has doubled n times, when each doubling costs f times the previous one.
+function yearsForDoublings(n, f, firstYears) {
+  if (Math.abs(1 - f) < 1e-9) return firstYears * n;
+  return firstYears * (1 - Math.pow(f, n)) / (1 - f);
+}
+
+function yearsToReach(minutes, f, firstYears) {
+  return yearsForDoublings(Math.log2(minutes / PRESENT_MIN), f, firstYears);
+}
+
+function dateAfter(years) {
+  const total = START.year * 12 + START.month + Math.round(years * 12);
+  return MONTH_NAMES[total % 12] + ' ' + Math.floor(total / 12);
+}
+
+function curvePath(f, firstYears, x, y, top) {
+  let d = '';
+  for (let k = 0; k <= 400; k += 0.25) {
+    const t = yearsForDoublings(k, f, firstYears);
+    const minutes = PRESENT_MIN * Math.pow(2, k);
+    if (t > YEARS || minutes > top) break;
+    d += (d ? ' L ' : 'M ') + x(t).toFixed(1) + ' ' + y(minutes).toFixed(1);
+  }
+  return d;
+}
+
+function draw(f, firstYears) {
+  const L = 104, R = 668, T = 8, B = 268;
+  const bottom = 60, top = 1000 * WORK_YEAR_MIN;
+  const x = t => L + (R - L) * t / YEARS;
+  const y = m => B - (B - T) * Math.log(m / bottom) / Math.log(top / bottom);
+  let s = '';
+  for (const [m, label] of TICKS) {
+    s += '<line class="grid" x1="' + L + '" x2="' + R + '" y1="' + y(m) + '" y2="' + y(m) + '"/>';
+    s += '<text class="tick" x="' + (L - 6) + '" y="' + (y(m) + 3.5) + '" text-anchor="end">' + label + '</text>';
+  }
+  for (let year = START.year + 1; year <= START.year + YEARS; year++) {
+    const t = year - START.year - START.month / 12;
+    s += '<text class="tick" x="' + x(t) + '" y="' + (B + 18) + '" text-anchor="middle">' + year + '</text>';
+  }
+  if (f < 1) {
+    const tInf = firstYears / (1 - f);
+    if (tInf <= YEARS) {
+      s += '<line x1="' + x(tInf) + '" x2="' + x(tInf) + '" y1="' + T + '" y2="' + B + '" stroke="#8b0000" stroke-dasharray="3 3"/>';
+      s += '<text x="' + (x(tInf) - 4) + '" y="' + (T + 10) + '" text-anchor="end" font-size="10" fill="#8b0000">unbounded</text>';
+    }
+  }
+  s += '<path d="' + curvePath(1, firstYears, x, y, top) + '" fill="none" stroke="#a7a7a2" stroke-width="1.5" stroke-dasharray="5 4"/>';
+  s += '<path d="' + curvePath(f, firstYears, x, y, top) + '" fill="none" stroke="#2a623d" stroke-width="2.5"/>';
+  el('chart').innerHTML = s;
+}
+
+function readout(id, years, plainYears) {
+  el(id).textContent = isFinite(years) ? years.toFixed(1) + ' yrs' : 'never';
+  el(id + 'e').textContent = (isFinite(years) ? dateAfter(years) : '') + '  (plain: ' + (isFinite(plainYears) ? plainYears.toFixed(1) + ' yrs' : 'never') + ')';
+}
+
+function update() {
+  const f = +el('f').value, months = +el('t').value, firstYears = months / 12;
+  el('fv').textContent = f.toFixed(2) + (f < 1 ? '  speeding up' : f > 1 ? '  slowing down' : '  steady');
+  el('tv').textContent = months + ' mo';
+  draw(f, firstYears);
+  const reach = (m, ff) => {
+    const n = Math.log2(m / PRESENT_MIN);
+    return ff < 1 || Math.abs(1 - ff) < 1e-9 || n < 1e6 ? yearsForDoublings(n, ff, firstYears) : Infinity;
+  };
+  readout('r1', reach(WORK_YEAR_MIN, f), reach(WORK_YEAR_MIN, 1));
+  readout('r2', reach(100 * WORK_YEAR_MIN, f), reach(100 * WORK_YEAR_MIN, 1));
+  readout('r3', f < 1 ? firstYears / (1 - f) : Infinity, Infinity);
+}
+
+for (const id of ['f', 't']) el(id).addEventListener('input', update);
+update();
+</script>

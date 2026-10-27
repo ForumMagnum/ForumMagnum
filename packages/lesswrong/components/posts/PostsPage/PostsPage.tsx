@@ -81,6 +81,12 @@ const emptyArray: readonly any[] = [];
 
 // Also used in PostsCompareRevisions
 export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
+  // EXPERIMENT (experiment/iframe-layout-ronny): the header (title, byline) used centralColumn's
+  // 682px cap; it already sits inside the post body column, so let it be as wide as the text.
+  headerColumn: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
   title: {
     marginBottom: 32,
     [theme.breakpoints.down('sm')]: {
@@ -562,7 +568,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">
       <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo, forumType)})}>
-        <div className={classes.centralColumn}>
+        <div className={classes.headerColumn}>
           {permalinkedCommentId && <CommentPermalink documentId={permalinkedCommentId} post={postPreload ?? fullPost} silentLoading={silentLoadingPermalink} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: permalinkedCommentId})}>
             <CloudinaryImage2

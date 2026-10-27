@@ -1,0 +1,43 @@
+"""Builds the AI Futures Model demo widgets into self-contained HTML files in out/.
+
+Each widget gets the shared CSS and the ET Book font inlined. Scripts are shipped base64-encoded,
+because LessWrong's widget save path decodes HTML entities inside scripts (`&&gt(` became `&&>(`
+in an earlier experiment). The <meta name="lw-layout"> tag stays first so it's easy to find.
+
+Usage: python3 build.py [path to et-book-roman.woff2]
+"""
+import base64
+import pathlib
+import re
+import sys
+
+HERE = pathlib.Path(__file__).parent
+FONT = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else
+                    pathlib.Path.home() / "Downloads/ai-2027-graphic/app/fonts/et-book/et-book-roman.woff2")
+
+
+def wrap_script(match: re.Match) -> str:
+    code = base64.b64encode(match.group(1).encode()).decode()
+    return ('<script>new Function(new TextDecoder().decode(Uint8Array.from(atob("%s"), c => c.charCodeAt(0))))()</script>'
+            % code)
+
+
+def main():
+    font = base64.b64encode(FONT.read_bytes()).decode()
+    shared = (HERE / "widgets/shared.css").read_text()
+    head = ('<style>@font-face{font-family:"et-book";src:url(data:font/woff2;base64,%s) format("woff2");'
+            'font-weight:normal;font-style:normal}\n%s</style>' % (font, shared))
+    out = HERE / "out"
+    out.mkdir(exist_ok=True)
+    for widget in sorted((HERE / "widgets").glob("*.html")):
+        html = widget.read_text()
+        meta = re.search(r'<meta name="lw-layout"[^>]*>\n?', html)
+        body = html.replace(meta.group(0), "") if meta else html
+        body = re.sub(r"<script>([\s\S]*?)</script>", wrap_script, body)
+        built = (meta.group(0).strip() if meta else "") + "\n" + head + "\n" + body
+        (out / widget.name).write_text(built)
+        print(f"{widget.name}: {len(built):,} bytes")
+
+
+if __name__ == "__main__":
+    main()

@@ -308,6 +308,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
           className={classes.iframe}
           srcDoc={srcdoc}
           sandbox="allow-scripts"
+          scrolling="no"
           title="Embedded widget preview"
           style={{ height: state.previewHeight }}
         />

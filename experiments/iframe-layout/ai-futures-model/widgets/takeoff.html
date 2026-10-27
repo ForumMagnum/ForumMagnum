@@ -1,0 +1,60 @@
+<meta name="lw-layout" content="position=left width=44%">
+<style>
+  .wrap { border-top: 2px solid var(--ink); padding-top: 10px; }
+  .verdict { margin: 10px 0 4px; font-size: 15px; min-height: 42px; }
+  .verdict b { color: var(--green); }
+  .verdict.slow b { color: var(--red); }
+  svg { display: block; width: 100%; height: auto; }
+  .tick { fill: var(--dim); font-size: 9px; }
+</style>
+<div class="wrap">
+  <div class="cap">Takeoff: does the loop outrun the brake?</div>
+  <div class="slider"><div class="top"><span>Returns to software research (r)</span><span class="val" id="rv"></span></div>
+    <input id="r" type="range" min="1.2" max="4" step="0.1" value="2.4"></div>
+  <div class="slider"><div class="top"><span>Research taste gained per doubling</span><span class="val" id="mv"></span></div>
+    <input id="m" type="range" min="0" max="0.8" step="0.01" value="0.16"></div>
+  <div class="verdict" id="verdict"></div>
+  <svg id="bars" viewBox="0 0 300 120" role="img" aria-label="Length of successive doublings"></svg>
+  <div class="note">A toy version of the model's takeoff test, with no new compute. The brake is β = 1/r; taste wins when it grows faster than β. In the real model's simulations, taste alone wins about 38% of the time.</div>
+</div>
+<script>
+const el = id => document.getElementById(id);
+const DOUBLINGS = 8;
+
+function draw(ratio) {
+  const L = 8, R = 292, B = 104, T = 6;
+  const lengths = Array.from({ length: DOUBLINGS }, (_, i) => Math.pow(ratio, i));
+  const max = Math.max(...lengths);
+  const w = (R - L) / DOUBLINGS;
+  let s = '';
+  lengths.forEach((len, i) => {
+    const h = (B - T) * len / max;
+    s += '<rect x="' + (L + i * w + 3) + '" y="' + (B - h) + '" width="' + (w - 6) + '" height="' + h + '" fill="' + (ratio > 1 ? '#8b0000' : '#2a623d') + '" opacity="' + (0.45 + 0.55 * (i + 1) / DOUBLINGS) + '"/>';
+    s += '<text class="tick" x="' + (L + i * w + w / 2) + '" y="' + (B + 12) + '" text-anchor="middle">#' + (i + 1) + '</text>';
+  });
+  el('bars').innerHTML = s;
+}
+
+function update() {
+  const r = +el('r').value, m = +el('m').value, beta = 1 / r;
+  const ratio = Math.pow(2, beta - m);
+  el('rv').textContent = r.toFixed(1) + '  (β = ' + beta.toFixed(2) + ')';
+  el('mv').textContent = m.toFixed(2);
+  const pct = Math.round(Math.abs(ratio - 1) * 100);
+  const v = el('verdict');
+  if (ratio > 1.0005) {
+    v.className = 'verdict slow';
+    v.innerHTML = 'Each software doubling takes <b>' + pct + '% longer</b> than the last. The brake wins unless compute keeps growing.';
+  } else if (ratio < 0.9995) {
+    v.className = 'verdict';
+    v.innerHTML = 'Each doubling is <b>' + pct + '% faster</b>: a taste-only singularity. All the remaining doublings fit in ' + (1 / (1 - ratio)).toFixed(1) + '× the first one.';
+  } else {
+    v.className = 'verdict';
+    v.innerHTML = 'A knife edge: <b>every doubling takes the same time</b>.';
+  }
+  draw(ratio);
+}
+
+for (const id of ['r', 'm']) el(id).addEventListener('input', update);
+update();
+</script>

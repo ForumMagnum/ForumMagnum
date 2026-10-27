@@ -1,0 +1,29 @@
+<meta name="lw-layout" content="position=left width=36%">
+<style>
+  .ladder { border-top: 2px solid var(--ink); padding-top: 10px; }
+  ol { list-style: none; margin: 10px 0 0; padding: 0; position: relative; }
+  ol::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 14px; width: 2px; background: var(--line); }
+  li { position: relative; padding: 0 0 12px 26px; }
+  li::before { content: ""; position: absolute; left: 2px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2px solid var(--green); }
+  li:hover::before { background: var(--green); }
+  .tag { font: 700 12.5px var(--mono); color: var(--green); letter-spacing: .04em; }
+  .name { font-size: 15px; }
+  .def { font-size: 13.5px; line-height: 1.35; color: var(--dim); margin-top: 1px; }
+  .note { margin-top: 2px; }
+</style>
+<div class="ladder">
+  <div class="cap">The milestones, in order</div>
+  <ol>
+    <li><span class="tag">AC</span> <span class="name">Automated Coder</span>
+      <div class="def">A lab would sooner lose all of its human engineers than its AI coders.</div></li>
+    <li><span class="tag">SAR</span> <span class="name">Superhuman AI Researcher</span>
+      <div class="def">Better research taste than the best human researcher.</div></li>
+    <li><span class="tag">SIAR</span> <span class="name">Superintelligent AI Researcher</span>
+      <div class="def">Twice as far above SAR as the best human is above the median one.</div></li>
+    <li><span class="tag">TED-AI</span> <span class="name">Top-Expert-Dominating AI</span>
+      <div class="def">Does roughly 95% of remote work at the level of the best experts.</div></li>
+    <li><span class="tag">ASI</span> <span class="name">Superintelligence</span>
+      <div class="def">Two more such gaps above TED-AI, at every cognitive task.</div></li>
+  </ol>
+  <div class="note">"Timelines" is the time to AC. "Takeoff" is AC to ASI.</div>
+</div>

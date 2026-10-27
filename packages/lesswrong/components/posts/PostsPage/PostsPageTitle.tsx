@@ -18,7 +18,9 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
   marginLeft: 0,
   marginBottom: 0,
   color: theme.palette.text.primary,
-  textWrap: "balance",
+  // EXPERIMENT (experiment/iframe-layout-ronny): fill each line to the text width; "balance" split
+  // a two-line title into two short lines, which looked narrower than the text below it.
+  textWrap: "pretty",
   [theme.breakpoints.down('sm')]: {
     fontSize: '3.5rem',
   },

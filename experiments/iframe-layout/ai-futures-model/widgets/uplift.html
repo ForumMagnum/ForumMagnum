@@ -1,0 +1,79 @@
+<meta name="lw-layout" content="position=right width=46%">
+<style>
+  .wrap { border-top: 2px solid var(--ink); padding-top: 10px; }
+  .result { margin: 8px 0 4px; font-size: 15px; }
+  .result b { font: 700 20px var(--mono); color: var(--green); }
+  svg { display: block; width: 100%; height: auto; margin-top: 6px; }
+  .axis { stroke: var(--line); }
+  .tick { fill: var(--dim); font-size: 9px; }
+</style>
+<div class="wrap">
+  <div class="cap">How far away is the Automated Coder?</div>
+  <div class="slider"><div class="top"><span>AI coding uplift today</span><span class="val" id="u0v"></span></div>
+    <input id="u0" type="range" min="1.25" max="4" step="0.05" value="2"></div>
+  <div class="slider"><div class="top"><span>Months for (uplift − 1) to double</span><span class="val" id="tv"></span></div>
+    <input id="t" type="range" min="2" max="12" step="0.5" value="5"></div>
+  <div class="slider"><div class="top"><span>Uplift that counts as AC</span><span class="val" id="uacv"></span></div>
+    <input id="uac" type="range" min="5" max="50" step="1" value="20"></div>
+  <div class="result">Trend reaches AC in <b id="months"></b> months, around <b id="when"></b></div>
+  <svg id="chart" viewBox="0 0 320 170" role="img" aria-label="Uplift over time"></svg>
+  <div class="note">A straight extrapolation from August 2026. The full model simulates the feedback loop instead, so its dates differ.</div>
+</div>
+<script>
+const START = { year: 2026, month: 7 };
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const el = id => document.getElementById(id);
+
+function monthsToAC(u0, t, uac) {
+  return t * Math.log2((uac - 1) / (u0 - 1));
+}
+
+function dateAfter(months) {
+  const total = START.year * 12 + START.month + Math.round(months);
+  return MONTH_NAMES[total % 12] + ' ' + Math.floor(total / 12);
+}
+
+function draw(u0, t, uac, m) {
+  const W = 320, H = 170, L = 34, R = 312, T = 10, B = 146;
+  const span = Math.max(36, Math.ceil((m + 10) / 12) * 12);
+  const x = mo => L + (R - L) * mo / span;
+  const y = u => B - (B - T) * Math.log10(u) / 2;
+  let s = '';
+  for (const u of [1, 2, 5, 10, 20, 50, 100]) {
+    s += '<line class="axis" x1="' + L + '" x2="' + R + '" y1="' + y(u) + '" y2="' + y(u) + '"/>';
+    s += '<text class="tick" x="' + (L - 4) + '" y="' + (y(u) + 3) + '" text-anchor="end">' + u + 'x</text>';
+  }
+  for (let year = START.year + 1; ; year++) {
+    const mo = (year - START.year) * 12 - START.month;
+    if (mo > span) break;
+    s += '<text class="tick" x="' + x(mo) + '" y="' + (B + 13) + '" text-anchor="middle">' + year + '</text>';
+  }
+  let path = '';
+  for (let mo = 0; mo <= span; mo += span / 120) {
+    const u = 1 + (u0 - 1) * Math.pow(2, mo / t);
+    if (u > 100) break;
+    path += (path ? ' L ' : 'M ') + x(mo).toFixed(1) + ' ' + y(u).toFixed(1);
+  }
+  s += '<line x1="' + L + '" x2="' + R + '" y1="' + y(uac) + '" y2="' + y(uac) + '" stroke="#8b0000" stroke-dasharray="3 3"/>';
+  s += '<path d="' + path + '" fill="none" stroke="#2a623d" stroke-width="2"/>';
+  if (m <= span) {
+    s += '<circle cx="' + x(m) + '" cy="' + y(uac) + '" r="4" fill="#2a623d"/>';
+    s += '<text x="' + Math.min(x(m), R - 20) + '" y="' + (y(uac) - 8) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#2a623d">AC</text>';
+  }
+  el('chart').innerHTML = s;
+}
+
+function update() {
+  const u0 = +el('u0').value, t = +el('t').value, uac = +el('uac').value;
+  el('u0v').textContent = u0.toFixed(2) + 'x';
+  el('tv').textContent = t + ' mo';
+  el('uacv').textContent = uac + 'x';
+  const m = monthsToAC(u0, t, uac);
+  el('months').textContent = Math.round(m);
+  el('when').textContent = dateAfter(m);
+  draw(u0, t, uac, m);
+}
+
+for (const id of ['u0', 't', 'uac']) el(id).addEventListener('input', update);
+update();
+</script>
