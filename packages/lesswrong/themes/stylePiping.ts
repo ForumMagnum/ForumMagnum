@@ -848,6 +848,12 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
       marginTop: 12,
       marginBottom: 12
     },
+    // LLM blocks use a slightly larger font in posts, but in comment-style
+    // content they should match the surrounding text. Otherwise the floated
+    // model label is taller than a comment line and displaces two lines.
+    '&& .llm-content-block': {
+      fontSize: 'inherit',
+    },
   }
   return commentBodyStyles;
 }

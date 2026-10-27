@@ -12,7 +12,9 @@ const CopyMarkdownDropdownItem = ({path}: {
     // Pass the fetch promise into ClipboardItem rather than awaiting it first,
     // so the clipboard write still counts as user-activated in Safari
     setLoading(true);
-    const markdownBlob = fetch(path).then(async (response) => {
+    // webLinks keeps onsite links pointing at the regular pages (made
+    // absolute), rather than the markdown API versions meant for AI agents
+    const markdownBlob = fetch(`${path}?webLinks=1`).then(async (response) => {
       if (!response.ok) {
         throw new Error(`Failed to fetch markdown: ${response.status}`);
       }

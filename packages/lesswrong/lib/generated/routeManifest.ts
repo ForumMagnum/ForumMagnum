@@ -305,6 +305,9 @@ export const routeTrie = {
             },
             "replyToComment": {
               "hasRoute": true
+            },
+            "resolveCommentThread": {
+              "hasRoute": true
             }
           },
           "lowerCase": {
@@ -318,7 +321,8 @@ export const routeTrie = {
             "ping": "ping",
             "replacetext": "replaceText",
             "replacewidget": "replaceWidget",
-            "replytocomment": "replyToComment"
+            "replytocomment": "replyToComment",
+            "resolvecommentthread": "resolveCommentThread"
           }
         },
         "autocomplete": {
@@ -1110,9 +1114,6 @@ export const routeTrie = {
         "token": "token"
       }
     },
-    "out": {
-      "hasRoute": true
-    },
     "pastEvents": {
       "hasPage": true
     },
@@ -1516,7 +1517,6 @@ export const routeTrie = {
     "nominations": "nominations",
     "notifications": "notifications",
     "oauth": "oauth",
-    "out": "out",
     "pastevents": "pastEvents",
     "payments": "payments",
     "petrov": "petrov",

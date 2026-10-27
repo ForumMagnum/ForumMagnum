@@ -1,8 +1,8 @@
-import type { ForumTypeString } from "@/lib/instanceSettings";
 import { getForumTypeForPage } from '@/server/utils/pageUtil';
 import { gql } from '@/lib/generated/gql-codegen';
 import { noIndexSetting, tabLongTitleSetting, tabTitleSetting, taglineSetting, siteImageSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
+import { getPageTitleString } from '@/lib/pageTitle';
 import { CombinedGraphQLErrors } from '@apollo/client';
 import { captureException } from '@/lib/sentryWrapper';
 import type { Metadata } from "next";
@@ -63,11 +63,6 @@ export async function getDefaultMetadata() {
     },
     ...(noIndexSetting.get(forumType) ? noIndexMetadata : {})
   } satisfies Metadata;
-}
-
-function getPageTitleString(title: string, forumType: ForumTypeString) {
-  const siteName = tabTitleSetting.get(forumType) ?? tabLongTitleSetting.get(forumType);
-  return `${title} — ${siteName}`;
 }
 
 export async function getPageTitleFields(title: string): Promise<Metadata> {

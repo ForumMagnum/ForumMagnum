@@ -13,6 +13,7 @@ import {
 import {
   $projectDocumentText,
   type DocumentProjection,
+  type DocumentProjectionOptions,
   type ProjectionSegment,
 } from "./quoteLocator";
 
@@ -44,14 +45,14 @@ import {
  * CommonMark projection (`markdownQuoteToRenderedPlainText`).
  *
  * `\[…\]` is read as escaped literal brackets by default: the read path
- * emits real display math as `$$…$$` and escapes literal `[` as `\[`, so in
- * quotes copied from it the escaped-bracket reading is almost always right.
+ * emits real display math as `$$…$$`, so in quotes copied from it the
+ * escaped-bracket reading is almost always right.
  * The locator retries with `bracketDisplayMath: true` (the LaTeX reading)
  * when this reading fails to match — covering hand-written `\[…\]` math.
  */
 export function projectQuoteToRenderedText(
   markdownQuote: string,
-  options?: { bracketDisplayMath?: boolean },
+  options?: { bracketDisplayMath?: boolean, imageTokens?: boolean },
 ): string {
   const withoutAgentSyntax = markdownQuote
     // Footnote definition markers (`[^id]: ` at line start) drop their
@@ -75,6 +76,7 @@ export function projectQuoteToRenderedText(
     .replace(/```widget\[[^\]]*\][\s\S]*?```/g, "");
   return markdownQuoteToRenderedPlainText(withoutAgentSyntax, {
     bracketDisplayMath: options?.bracketDisplayMath ?? false,
+    imageTokens: options?.imageTokens,
   });
 }
 
@@ -297,8 +299,8 @@ interface NormalizedDocument {
  * Project and normalize the current document.
  * Must be called inside a Lexical read/update context.
  */
-function $buildNormalizedDocument(): NormalizedDocument {
-  const projection = $projectDocumentText();
+function $buildNormalizedDocument(options?: DocumentProjectionOptions): NormalizedDocument {
+  const projection = $projectDocumentText(options);
   return { projection, normalizedDocument: normalizeTracked(projection.text) };
 }
 
@@ -534,8 +536,9 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
  * with the given markdown prefix, via the text index. Replaces the legacy
  * markdown-serialization prefix matcher for deleteBlock/insertBlock: the
  * prefix is treated as a quote that must match at a block start, with the
- * same normalization as quote location. A prefix matching more than one
- * block is an error, never a guess.
+ * same normalization as quote location except that images project to tokens
+ * (see `DocumentProjectionOptions`). A prefix matching more than one block is
+ * an error, never a guess.
  *
  * Must be called inside a Lexical read/update context.
  */
@@ -592,8 +595,10 @@ function $locateBlockByTextPrefix(
   isEligible: ((node: LexicalNode) => boolean) | null,
   noMatchReason: string,
 ): BlockPrefixResult {
-  const { projection, normalizedDocument } = $buildNormalizedDocument();
-  const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix)).text;
+  // Images project to tokens on both sides, so a block that starts with an
+  // image is matched by the image's markdown like any other leading content.
+  const { projection, normalizedDocument } = $buildNormalizedDocument({ imageTokens: true });
+  const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix, { imageTokens: true })).text;
   if (!normalizedPrefix) {
     return { node: null, reason: "Prefix was empty after normalization." };
   }

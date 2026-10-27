@@ -203,6 +203,16 @@ To reply to an existing comment thread on the draft:
 The threadId comes from the Comment Threads section of the editPost response.
 This adds a reply to the specified thread, visible in the editor's comment panel.
 
+To resolve an open comment thread on the draft (for example, once the issue it
+raised has been fixed, or its anchor text has been deleted):
+    POST /api/agent/resolveCommentThread
+    with JSON body: { postId, key, agentName?, threadId }
+This does the same thing as the editor's "Resolve" button: it removes the
+thread's highlight and moves the thread out of the open-threads list. Only
+comment threads can be resolved; suggestion threads are accepted or rejected
+by the author in the editor. Only resolve threads the user has asked you to
+resolve, or that you started yourself.
+
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText
     with JSON body: { postId, key, agentName?, quote, replacement, mode?: "edit"|"suggest" }
@@ -216,6 +226,10 @@ re-read the draft before retrying on "no match" errors). Quotes may span
 formatting boundaries and even paragraph boundaries. In suggest mode, a quote
 spanning paragraphs produces per-paragraph deletion suggestions plus one
 insertion; accepting it does not merge the paragraphs.
+If the quote is plain text (no emphasis markers), the replacement inherits any
+formatting shared by all of the quoted text, so replacing a few words inside an
+italic or bold span keeps them italic or bold. To remove formatting, include the
+markers in the quote (e.g. quote "*some words*" with replacement "some words").
 
 If the mode is "edit", the change will be applied immediately; if the mode is
 "suggest", the change will be displayed as a suggestion in the post editor. If
@@ -274,7 +288,19 @@ leading text — the matcher descends into lists at any nesting depth, so
 deleting "second item" removes just that item and leaves the surrounding
 list intact. Match a table by the leading text of its first cell; tables are
 always deleted as a whole (there is no per-cell deletion). Match a display
-equation by its whole \`$$...$$\` token.
+equation by its whole \`$$...$$\` token. Match a block that starts with an
+image by the image's \`![alt](url)\` markdown as it appears in the editPost
+output, optionally followed by text that comes after the image in the same
+block; the image is identified by its URL (alt text is ignored). An image
+only counts as a block's start when nothing comes before it in that block,
+and deleting by an image's markdown removes that whole block: any text after
+the image in the same paragraph, the whole list item, or the whole table. A
+captioned image appears in the editPost output as its \`![alt](url)\` line
+followed by the caption on its own line, but the image and caption form one
+block: match it by the image's markdown (the caption text alone does not
+match it), and deleting it deletes the caption too. To replace an image,
+insert the new image next to it with insertBlock (using the old image's
+markdown as the location) and then delete the old one.
 In edit mode, the matched block is removed immediately. In suggest mode, the
 matched block is wrapped as a deletion suggestion; a few block types (e.g.
 display equations) cannot be represented as deletion suggestions, and the
