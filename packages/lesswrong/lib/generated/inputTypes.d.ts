@@ -2565,6 +2565,7 @@ interface Conversation {
   messageCount: number;
   moderator: boolean | null;
   awaitingModeratorReply: boolean | null;
+  moderatorReplyWaitingSince: Date | null;
   archivedByIds: Array<string>;
   archivedBy: Array<User>;
   latestMessage: Message | null;

@@ -2846,6 +2846,7 @@ type Conversation {
   messageCount: Float!
   moderator: Boolean
   awaitingModeratorReply: Boolean
+  moderatorReplyWaitingSince: Date
   archivedByIds: [String!]!
   archivedBy: [User!]!
   latestMessage: Message

@@ -390,7 +390,7 @@ const _370=_o3(_3,"ConversationsListWithReadStatus")
 const _371=_o4(_25,_366)
 const _372=_o2(_2,_370,_357,_o5(_7,[_371,_o4(_8,_o3(_3,"hasUnreadMessages"))]))
 const _373=_o3(_3,"TeamInboxConversation")
-const _374=_o2(_2,_373,_357,_o5(_7,[_371,_o4(_8,_o3(_3,"awaitingModeratorReply"))]))
+const _374=_o2(_2,_373,_357,_o5(_7,[_371,_o4(_8,_o3(_3,"awaitingModeratorReply")),_o4(_8,_o3(_3,"moderatorReplyWaitingSince"))]))
 const _375=_o3(_3,"RejectionAppealsUserInfo")
 const _376=_o4(_5,_o3(_3,"RejectionAppeal"))
 const _377=_o3(_3,"commentId")
@@ -3217,6 +3217,7 @@ export type Conversation = {
   legacyData: Maybe<Scalars['JSON']['output']>;
   messageCount: Scalars['Float']['output'];
   moderator: Maybe<Scalars['Boolean']['output']>;
+  moderatorReplyWaitingSince: Maybe<Scalars['Date']['output']>;
   participantIds: Maybe<Array<Scalars['String']['output']>>;
   participants: Maybe<Array<User>>;
   rejectedComments: Maybe<Array<Comment>>;
@@ -22169,7 +22170,7 @@ export type ConversationsListWithReadStatus = (
 );
 
 export type TeamInboxConversation = (
-  { __typename?: 'Conversation', awaitingModeratorReply: boolean | null }
+  { __typename?: 'Conversation', awaitingModeratorReply: boolean | null, moderatorReplyWaitingSince: string | null }
   & ConversationsList
 );
 

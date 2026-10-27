@@ -5,6 +5,7 @@ import {
 } from "../../utils/schemaUtils";
 import difference from "lodash/difference";
 import { getWithCustomLoader, getWithLoader } from "../../loaders";
+import { adminAccountSetting } from "@/lib/instanceSettings";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -149,6 +150,19 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       validation: {
         optional: true,
+      },
+    },
+  },
+  moderatorReplyWaitingSince: {
+    graphql: {
+      outputType: "Date",
+      canRead: ["admins", "sunshineRegiment"],
+      resolver: async (conversation, _args, context) => {
+        if (!conversation.moderator || !conversation.awaitingModeratorReply) return null;
+        return await getWithCustomLoader(context, "moderatorReplyWaitingSince", conversation._id,
+          async (conversationIds) => context.repos.conversations.getModeratorReplyWaitingSince(
+            conversationIds, adminAccountSetting.get(context)?._id ?? null,
+          ));
       },
     },
   },
