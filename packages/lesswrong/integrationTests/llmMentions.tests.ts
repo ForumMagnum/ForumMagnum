@@ -1,8 +1,7 @@
 import { mocked } from "jest-mock";
 import assert from "node:assert/strict";
 import "./integrationTestSetup";
-import { createDummyUser, createDummyPost, createDummyComment } from "./utils";
-import { randomId } from "@/lib/random";
+import { createDummyUser, createDummyPost } from "./utils";
 import LlmRunTranscriptEntries from "@/server/collections/llmRunTranscriptEntries/collection";
 import LlmRuns from "@/server/collections/llmRuns/collection";
 import Comments from "@/server/collections/comments/collection";
@@ -16,7 +15,6 @@ import { runQuery } from "@/server/vulcan-lib/query";
 import { runLlmRun, retryStalledLlmRuns } from "@/server/languageModels/llmRuns";
 import { requestLlmRun } from "@/server/languageModels/requestLlmRun";
 import { generateLlmRunResponse } from "@/server/languageModels/llmRunResponse";
-import { startLlmReplyForComment } from "@/server/llmReplies/startLlmReplies";
 import { waitForBackgroundTasks } from "@/server/utils/backgroundTask";
 
 jest.mock("@/server/languageModels/requestLlmRun", () => ({ requestLlmRun: jest.fn(async () => {}) }));
@@ -112,33 +110,6 @@ test("a broken kickoff must not prevent other stalled runs from retrying", async
   expect(requestLlmRun).toHaveBeenCalledWith(second.run._id);
 });
 
-test("eight simultaneous submissions must respect the three-run allowance", async () => {
-  const user = await createDummyUser({ karma: 50, isAdmin: false });
-  const post = await createDummyPost();
-  const baseComment = await createDummyComment(user, { postId: post._id });
-  assert(baseComment.contents);
-  const contents = baseComment.contents;
-  const comments = await Promise.all(Array.from({ length: 8 }, async () => {
-    const data = { ...baseComment, _id: randomId(), contents: { ...contents, html: mention } };
-    await Comments.rawInsert(data);
-    return data;
-  }));
-  const context = computeContextFromUser({ user, isSSR: false, forumType: "LessWrong" });
-  const originalCount = context.repos.llmRuns.countRunsTriggeredByUserSince.bind(context.repos.llmRuns);
-  let ready = 0;
-  let release!: () => void;
-  const barrier = new Promise<void>(resolve => { release = resolve; });
-  jest.spyOn(context.repos.llmRuns, "countRunsTriggeredByUserSince").mockImplementation(async (...args) => {
-    const count = await originalCount(...args);
-    if (++ready === 8) release();
-    await barrier;
-    return count;
-  });
-  await Promise.all(comments.map(comment => startLlmReplyForComment(comment, context)));
-  const count = await originalCount(user._id, new Date(Date.now() - 86400000));
-  expect(count).toBe(3);
-});
-
 test("making a post private must not leave its full text in guest run queries", async () => {
   const { run, post } = await createMentionFixture();
   await runLlmRun(run._id);
@@ -147,18 +118,6 @@ test("making a post private must not leave its full text in guest run queries", 
   await expect(runQuery(query, { id: run._id }, createAnonymousContext({ forumType: "LessWrong" }))).rejects.toThrow("operation_not_allowed");
   const result = await runQuery(`{ llmRuns(limit: 1000) { results { _id contextMessage } } }`, {}, createAnonymousContext({ forumType: "LessWrong" }));
   expect(result.data?.llmRuns.results).not.toContainEqual(expect.objectContaining({ _id: run._id }));
-});
-
-test("deleting the invoking comment during generation must prevent publication", async () => {
-  const { run, comment } = await createMentionFixture();
-  mocked(generateLlmRunResponse).mockImplementationOnce(async () => {
-    await Comments.rawUpdateOne(comment._id, { $set: { deleted: true } });
-    return "Generated after the triggering comment was deleted";
-  });
-  await runLlmRun(run._id);
-  const reply = await Comments.findOne({ llmRunId: run._id });
-  assert(reply);
-  expect(reply.contents?.html).not.toContain("Generated after");
 });
 
 test("retrying an unpublished reply reuses the saved answer and transcript", async () => {
@@ -211,23 +170,6 @@ test("completion failure on the last attempt preserves a published answer", asyn
   expect(finished.error).toBeNull();
   expect((await Comments.findOne({ llmRunId: run._id }))?.contents?.html).toContain("Successful answer");
   expect(generateLlmRunResponse).toHaveBeenCalledTimes(1);
-});
-
-test("a post made private during generation prevents publication and hides the saved run", async () => {
-  const { run, post, context } = await createMentionFixture();
-  const generate = mocked(generateLlmRunResponse).getMockImplementation();
-  assert(generate);
-  mocked(generateLlmRunResponse).mockImplementationOnce(async (...args) => {
-    const response = await generate(...args);
-    await Posts.rawUpdateOne(post._id, { $set: { onlyVisibleToLoggedIn: true } });
-    return response;
-  });
-  await runLlmRun(run._id);
-  expect((await Comments.findOne({ llmRunId: run._id }))?.llmReplyPublishedAt).toBeNull();
-  const query = `query($id: String!) { llmRun(selector: { _id: $id }) { result { response } } }`;
-  await expect(runQuery(query, { id: run._id }, createAnonymousContext({ forumType: "LessWrong" }))).rejects.toThrow("operation_not_allowed");
-  const adminResult = await runQuery(query, { id: run._id }, context);
-  expect(adminResult.data?.llmRun.result.response).toContain("Successful answer");
 });
 
 test("placeholder insertion that commits then throws leaves a failed reply, not a pending orphan", async () => {

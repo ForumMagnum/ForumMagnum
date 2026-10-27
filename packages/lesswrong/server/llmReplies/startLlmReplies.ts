@@ -73,7 +73,7 @@ export async function startLlmReplyForComment(comment: DbComment, context: Resol
   }
   const check = await checkLlmSummon(currentUser, postId, llm, context);
   if (check.allowed) {
-    await startLlmReply({ comment, postId, modelUser: check.modelUser, llm, context });
+    await startLlmReply({ comment, postId, modelUser: check.modelUser, llm });
   }
 }
 
@@ -107,12 +107,11 @@ function getLlmReplyLimit(karma: number): number {
   return LLM_REPLY_LIMIT_AT_MIN_KARMA + Math.floor(LLM_REPLY_LIMIT_PER_KARMA_DOUBLING * Math.log2(karma / MIN_KARMA_TO_SUMMON_LLM));
 }
 
-async function startLlmReply({ comment, postId, modelUser, llm, context }: {
+async function startLlmReply({ comment, postId, modelUser, llm }: {
   comment: DbComment,
   postId: string,
   modelUser: DbUser,
   llm: LlmFamilyVersion,
-  context: ResolverContext,
 }): Promise<void> {
   const runId = randomId();
   const run: InsertionRecord<DbLlmRun> = {
@@ -133,18 +132,8 @@ async function startLlmReply({ comment, postId, modelUser, llm, context }: {
   };
 
   const modelContext = computeContextFromUser({ user: modelUser, isSSR: false, forumType: "LessWrong" });
-  const user = context.currentUser;
-  if (!user) {
-    throw new Error("Creating a model reply requires a current user");
-  }
   try {
-    const created = await context.repos.llmRuns.createRunForUser(
-      run, user._id, userIsAdmin(user) ? null : getLlmReplyLimit(user.karma),
-      new Date(Date.now() - LLM_REPLY_LIMIT_WINDOW_MS),
-    );
-    if (!created) {
-      return;
-    }
+    await LlmRuns.rawInsert(run);
     await createComment({
       data: {
         postId,
@@ -161,7 +150,7 @@ async function startLlmReply({ comment, postId, modelUser, llm, context }: {
       $set: { status: "failed", completedAt: new Date(), error: err instanceof Error ? err.message : String(err) },
     });
     const storedRun = await LlmRuns.findOne(runId);
-    if (storedRun && await context.Comments.findOne({ llmRunId: runId })) {
+    if (storedRun && await modelContext.Comments.findOne({ llmRunId: runId })) {
       await failCommentReply(storedRun);
     }
     throw err;

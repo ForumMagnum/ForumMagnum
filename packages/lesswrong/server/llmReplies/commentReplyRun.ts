@@ -11,7 +11,6 @@ import { getLlmTools } from "@/server/languageModels/llmTools";
 import { commentIsPubliclyVisible } from "@/server/permissions/accessFilters";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { getLlmReplyHtml } from "./llmReplyHtml";
 import { buildThreadContextMessage } from "./threadContext";
 
@@ -31,13 +30,6 @@ export async function runCommentReply(run: DbLlmRun): Promise<void> {
     contextMessage: await buildThreadContextMessage(post, triggerComment, context),
     tools: getLlmTools(context),
   });
-  const { triggerComment: currentTrigger } = await getTriggerCommentAndPost(run);
-  const publicationContext = createAnonymousContext({ forumType: "LessWrong" });
-  const currentReply = await getReplyComment(run);
-  if (!(await commentIsPubliclyVisible(currentTrigger, publicationContext))
-    || !(await commentIsPubliclyVisible(currentReply, publicationContext))) {
-    throw new Error("The comment or post is no longer publicly visible");
-  }
   if (!await context.LlmRuns.findOne({ _id: run._id, status: "running", attemptCount: run.attemptCount })) {
     return;
   }
