@@ -3,7 +3,7 @@ export const CENTRAL_COLUMN_WIDTH = 682;
 
 // EXPERIMENT (branch experiment/iframe-layout-ronny): an author-chosen text width for a post.
 // The page's grid track is wider than the text by a fixed amount, which is kept at every width.
-export const POST_TEXT_WIDTHS = { normal: CENTRAL_COLUMN_WIDTH, wide: 820 } as const;
+export const POST_TEXT_WIDTHS = { normal: CENTRAL_COLUMN_WIDTH, medium: 744, wide: 820 } as const;
 export type PostTextWidth = keyof typeof POST_TEXT_WIDTHS;
 export const TEXT_TRACK_EXTRA = MAX_COLUMN_WIDTH - CENTRAL_COLUMN_WIDTH;
 

@@ -1,6 +1,6 @@
 'use client';
 // EXPERIMENT (branch experiment/iframe-layout-ronny): try out author layout options on a post page.
-// ?textWidth=normal|wide sets the post's text width; for the demo it's remembered per reader.
+// ?textWidth=normal|medium|wide sets the post's text width; for the demo it's remembered per reader.
 // A real version would read an author-chosen field on the post instead.
 // As the window narrows, the table of contents gives way first, then the sidenote margin, and only
 // then does the text column shrink. (LessWrong today hides the margin below 1280px and the table
@@ -38,6 +38,8 @@ interface TextWidthOption {
 
 const TEXT_WIDTH_OPTIONS: TextWidthOption[] = [
   { width: 'normal', label: `Normal (${POST_TEXT_WIDTHS.normal})` },
+  // About 96 characters a line, the same as a default Google Doc (Arial 11pt on a 6.5in page).
+  { width: 'medium', label: `Medium (${POST_TEXT_WIDTHS.medium})` },
   { width: 'wide', label: `Wide (${POST_TEXT_WIDTHS.wide})` },
 ];
 
