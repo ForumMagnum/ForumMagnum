@@ -53,9 +53,10 @@ const emailGlobalCss = (forumType: ForumTypeString) => `
   table td {border-collapse:collapse;}
   .yshortcuts a {border-bottom: none !important;}
 
-  /* Constrain email width for small screens */
+  /* Constrain email width for small screens. Gmail and Outlook.com ignore
+     attribute selectors like table[class="container"], so these use classes. */
   @media screen and (max-width: 600px) {
-    table[class="container"] {
+    .container {
       width: 95% !important;
     }
     .wrapper{
@@ -65,7 +66,7 @@ const emailGlobalCss = (forumType: ForumTypeString) => `
 
   /* Give content more room on mobile */
   @media screen and (max-width: 480px) {
-    td[class="container-padding"] {
+    .container-padding {
       padding-left: 12px !important;
       padding-right: 12px !important;
     }

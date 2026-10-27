@@ -108,6 +108,7 @@ export const aiDigestPresentation = {
     columnGap: 16,
     rowGap: 8,
     readLinkFontSize: 14,
+    lineHeight: 17,
     reasonFlexBasis: 220,
     reasonFontSize: 12,
     reasonLineHeight: 1.4,
