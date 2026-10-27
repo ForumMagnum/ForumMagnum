@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { $createParagraphNode, $createRangeSelection, $isRootNode, $isRootOrShadowRoot, $nodesOfType, $setSelection, type LexicalNode } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
-import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
+import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess, requiredAccessForMode } from "../editorAgentUtil";
 
 import { $collectWidgetNodes, $locateBlockByPrefix } from "../textIndexQuoteLocator";
 import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, mode, prefix } = parseResult.data;
 
   try {
-    const auth = await authorizeAgentDraftAccess({ route: "deleteBlock", postId, context, linkSharingKey: key, agentName });
+    const auth = await authorizeAgentDraftAccess({ route: "deleteBlock", postId, context, linkSharingKey: key, agentName, requiredAccess: requiredAccessForMode(mode) });
     if ("errorResponse" in auth) return auth.errorResponse;
     const { token } = auth;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });

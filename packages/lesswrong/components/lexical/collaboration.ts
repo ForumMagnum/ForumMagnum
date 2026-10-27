@@ -57,11 +57,15 @@ export interface CollaborationConfig {
     id: string;
     name: string;
   };
+  /** Whether the user's access level only allows reading, so the server will discard their changes. */
+  readOnly: boolean;
   /** Called when sync with the server completes. `docId` is 'main' or a sub-doc id like 'comments'. */
   onSynced?: (doc: Doc, isFirstSync: boolean, docId: string) => void;
   onError?: (error: Error) => void;
   /** Called when WebSocket connection status changes (connected/disconnected/connecting). */
   onConnectionStatusChange?: (connected: boolean) => void;
+  /** Called when the server makes a connection read-only even though `readOnly` is false. */
+  onWriteAccessLost?: () => void;
 }
 
 export interface CollaboratorIdentity {
@@ -303,7 +307,10 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
   // Initialize persistence if needed.
   // For 'main', we wait for IndexedDB to sync (or fail) before connecting.
   // For others, we proceed immediately.
-  const readyPromise = id === 'main'
+  // Read-only users don't persist: the server discards anything they write
+  // (including the bootstrap from initialHtml), so a persisted copy would
+  // diverge from the server's and duplicate content once an editor bootstraps.
+  const readyPromise = id === 'main' && !config.readOnly
     ? setupPersistence(documentName, doc, config)
     : Promise.resolve();
 
@@ -343,6 +350,13 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
         }
       }
       config.onSynced?.(doc, isFirstSync, id);
+    },
+
+    onAuthenticated: () => {
+      if (provider.authorizedScope === 'readonly' && !config.readOnly) {
+        config.onError?.(new Error('You no longer have permission to edit this document, so changes you make will not be saved. Reload the page to continue.'));
+        config.onWriteAccessLost?.();
+      }
     },
 
     onAuthenticationFailed: ({ reason }) => {

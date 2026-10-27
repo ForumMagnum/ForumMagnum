@@ -21,7 +21,7 @@ import { useApolloClient } from '@apollo/client/react';
 import { useLocation } from '@/lib/routeUtil';
 import Editor from '../lexical/Editor';
 import { LexicalEditorContext } from './LexicalEditorContext';
-import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
+import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionComposer';
 import { SharedHistoryContext } from '../lexical/context/SharedHistoryContext';
 import { TableContext } from '../lexical/plugins/TablePlugin';
@@ -405,6 +405,7 @@ const LexicalEditor = ({
   // This ensures we always use Yjs for consistency, even when not sharing with others.
   // Anonymous users can collaborate if they have a clientId (from cookie).
   const shouldEnableCollaboration = !!collaborationCollectionName && !!documentId;
+  const isReadOnlyCollaborator = !!accessLevel && !accessLevelCan(accessLevel, 'comment');
 
   // Build collaboration config directly -- no initial auth query needed.
   // The wsUrl is a build-time constant, the documentName is derived from the collection/document id,
@@ -426,11 +427,12 @@ const LexicalEditor = ({
         id: userId,
         name: userName,
       },
+      readOnly: isReadOnlyCollaborator,
       onError: (error) => {
         setCollaborationWarning(error.message);
       },
     };
-  }, [shouldEnableCollaboration, currentUser, clientId, documentId, fieldName, apolloClient, linkSharingKey, collaborationCollectionName]);
+  }, [shouldEnableCollaboration, currentUser, clientId, documentId, fieldName, apolloClient, linkSharingKey, collaborationCollectionName, isReadOnlyCollaborator]);
 
   useEffect(() => {
     onReady?.();

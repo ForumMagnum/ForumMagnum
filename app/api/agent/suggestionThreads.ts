@@ -92,8 +92,8 @@ export async function createSuggestionThreadInCommentsDoc({
       serializedSummary,
       summaryItems[0]?.type ?? "replace",
     );
-  } finally {
     await waitForProviderFlush(provider);
+  } finally {
     unregister();
     provider.destroy();
     commentsDoc.destroy();
