@@ -3229,6 +3229,7 @@ CREATE TABLE "Users" (
   "showHideKarmaOption" BOOL,
   "showPostAuthorCard" BOOL,
   "hideIntercom" BOOL NOT NULL DEFAULT FALSE,
+  "hailboxOptIn" BOOL NOT NULL DEFAULT FALSE,
   "markDownPostEditor" BOOL NOT NULL DEFAULT FALSE,
   "hideElicitPredictions" BOOL NOT NULL DEFAULT FALSE,
   "hideAFNonMemberInitialWarning" BOOL NOT NULL DEFAULT FALSE,

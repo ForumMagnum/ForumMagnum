@@ -7853,6 +7853,7 @@ type User {
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
   hideIntercom: Boolean!
+  hailboxOptIn: Boolean
   markDownPostEditor: Boolean!
   hideElicitPredictions: Boolean
   hideAFNonMemberInitialWarning: Boolean
@@ -10005,6 +10006,7 @@ input CreateUserDataInput {
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
   hideIntercom: Boolean
+  hailboxOptIn: Boolean
   noSingleLineComments: Boolean
   noCollapseCommentsPosts: Boolean
   noCollapseCommentsFrontpage: Boolean
@@ -10168,6 +10170,7 @@ input UpdateUserDataInput {
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
   hideIntercom: Boolean
+  hailboxOptIn: Boolean
   markDownPostEditor: Boolean
   hideElicitPredictions: Boolean
   hideAFNonMemberInitialWarning: Boolean

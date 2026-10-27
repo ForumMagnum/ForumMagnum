@@ -20,7 +20,7 @@ import Header, { HeaderHeightProvider } from '@/components/layout/Header';
 import { useCookiePreferences, useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { UnreadNotificationsContextProvider } from '@/components/hooks/useUnreadNotifications';
 import DeferRender from '@/components/common/DeferRender';
-import { userHasLlmChat } from '@/lib/betas';
+import { userHasHailbox, userHasLlmChat } from '@/lib/betas';
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import FlashMessages from "@/components/layout/FlashMessages";
 import AnalyticsClient from "@/components/common/AnalyticsClient";
@@ -31,6 +31,7 @@ import GlobalHotkeys from "@/components/common/GlobalHotkeys";
 import LlmChatWrapper from "@/components/languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "@/components/layout/IntercomWrapper";
+import HailboxWrapper from "@/components/layout/HailboxWrapper";
 import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
 import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -129,7 +130,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
       overflow: 'hidden !important',
       height: '100dvh !important',
     },
-    'body:has(.home-design-active) #intercom-outer-frame, body:has(.home-design-active) #intercom-container, body:has(.home-design-active) .intercom-lightweight-app': {
+    'body:has(.home-design-active) #intercom-outer-frame, body:has(.home-design-active) #intercom-container, body:has(.home-design-active) .intercom-lightweight-app, body:has(.home-design-active) #hailbox-outer-frame': {
       display: 'none !important',
     },
     '.research-active .Header-root': {
@@ -278,6 +279,8 @@ const Layout = ({children}: {
 }
 
 function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean }) {
+  const { forumType } = useForumType();
+  const currentUser = useCurrentUser();
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
 
@@ -287,7 +290,10 @@ function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean
     );
   }
 
-  return hideIntercomButton ? null : <IntercomWrapper />
+  if (hideIntercomButton) {
+    return null;
+  }
+  return userHasHailbox(currentUser, forumType) ? <HailboxWrapper /> : <IntercomWrapper />
 }
 
 export const IsLlmChatSidebarOpenContext = createContext(false);
