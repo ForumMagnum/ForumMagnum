@@ -9,7 +9,7 @@ import { combineUrls, getSiteUrl } from '../../../../lib/vulcan-lib/utils';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
 import ForumIcon, { type ForumIconName } from '@/components/common/ForumIcon';
 import type { ForumTypeString } from '@/lib/instanceSettings';
-import { getLatestLlmVersion, LLM_FAMILIES, type LlmFamilyVersion } from '@/lib/languageModels/llmRegistry';
+import { LLM_FAMILIES, type LlmFamilyVersion } from '@/lib/languageModels/llmRegistry';
 import { getLlmMentionPath, getMentionableLlms } from '@/lib/llmReplies/llmMentions';
 
 const MARKER = "@";
@@ -253,9 +253,8 @@ function TagMentionItem({ hit }: { hit: SearchTag }) {
   return <MentionItemRow icon="Tag" title={hit.name} />;
 }
 
-function ModelMentionItem({ model: { family, version } }: { model: LlmFamilyVersion }) {
-  const isLatest = getLatestLlmVersion(family)?.name === version.name;
-  return <MentionItemRow icon="Sparkles" title={version.fullName} meta={isLatest ? "latest" : undefined} />;
+function ModelMentionItem({ model: { version } }: { model: LlmFamilyVersion }) {
+  return <MentionItemRow icon="Sparkles" title={version.fullName} />;
 }
 
 function mentionItemRenderer(item: MentionItemWithHit): React.ReactNode {
