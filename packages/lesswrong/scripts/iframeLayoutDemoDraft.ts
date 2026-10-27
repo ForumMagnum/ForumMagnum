@@ -2,7 +2,7 @@
 // post (see server/layoutDemo/aiFuturesLayoutDemo.ts). Build the widgets first
 // (experiments/iframe-layout/ai-futures-model/build.py), then for example:
 //   SKIP_VERCEL_CODE_PULL=true yarn repl dev lw packages/lesswrong/scripts/iframeLayoutDemoDraft.ts "createIframeLayoutDraft()"
-// The shareable, self-healing version is the /layout-demo link.
+// The shareable, self-healing version is the /experiment-iframe-layout-tuito7fob8u0rzrbib0v16i1 link.
 import { updatePost } from "@/server/collections/posts/mutations";
 import Users from "@/server/collections/users/collection";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
@@ -31,7 +31,7 @@ export async function createIframeLayoutDraft() {
   return post._id;
 }
 
-/** Creates the unlisted, shareable demo post if it's missing (same as visiting /layout-demo). */
+/** Creates the unlisted, shareable demo post if it's missing (same as visiting /experiment-iframe-layout-tuito7fob8u0rzrbib0v16i1). */
 export async function ensureIframeLayoutDemo() {
   const post = await ensureLayoutDemoPost();
   // eslint-disable-next-line no-console

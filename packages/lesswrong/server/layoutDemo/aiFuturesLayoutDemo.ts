@@ -1,7 +1,7 @@
 // EXPERIMENT (branch experiment/iframe-layout-ronny): the AI Futures Model demo post, which explains
 // the model with author-placed iframe widgets so people can try text widths and wrapping.
 // The post and widgets come from experiments/iframe-layout/ai-futures-model (run its build.py after
-// editing them). The dev database gets reset from time to time, so /layout-demo recreates the post
+// editing them). The dev database gets reset from time to time, so /experiment-iframe-layout-tuito7fob8u0rzrbib0v16i1 recreates the post
 // whenever it's missing (see ensureLayoutDemoPost).
 import Posts from "@/server/collections/posts/collection";
 import Revisions from "@/server/collections/revisions/collection";
