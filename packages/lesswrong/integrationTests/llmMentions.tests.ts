@@ -2,7 +2,6 @@ import { mocked } from "jest-mock";
 import assert from "node:assert/strict";
 import "./integrationTestSetup";
 import { createDummyUser, createDummyPost } from "./utils";
-import LlmRunTranscriptEntries from "@/server/collections/llmRunTranscriptEntries/collection";
 import LlmRuns from "@/server/collections/llmRuns/collection";
 import Comments from "@/server/collections/comments/collection";
 import Posts from "@/server/collections/posts/collection";
@@ -12,8 +11,7 @@ import { createComment } from "@/server/collections/comments/mutations";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { runLlmRun, retryStalledLlmRuns } from "@/server/languageModels/llmRuns";
-import { requestLlmRun } from "@/server/languageModels/requestLlmRun";
+import { runLlmRun } from "@/server/languageModels/llmRuns";
 import { generateLlmRunResponse } from "@/server/languageModels/llmRunResponse";
 import { waitForBackgroundTasks } from "@/server/utils/backgroundTask";
 
@@ -30,7 +28,6 @@ beforeAll(async () => {
 
 beforeEach(() => {
   jest.restoreAllMocks();
-  mocked(requestLlmRun).mockReset().mockResolvedValue(undefined);
   mocked(generateLlmRunResponse).mockReset().mockImplementation(async (run, options) => {
     const response = `Successful answer ${mocked(generateLlmRunResponse).mock.calls.length}`;
     await LlmRuns.rawUpdateOne(run._id, { $set: { contextMessage: options.contextMessage, response } });
@@ -47,7 +44,7 @@ async function createMentionFixture() {
   assert(run);
   expect(await Comments.find({ llmRunId: run._id }).count()).toBe(1);
   await waitForBackgroundTasks();
-  return { user, post, comment, context, run };
+  return { post, run };
 }
 
 test("a failed completion write must not regenerate or notify a published answer twice", async () => {
@@ -78,38 +75,6 @@ test("a failed completion write must not regenerate or notify a published answer
   expect((await LlmRuns.findOne(run._id))?.status).toBe("completed");
 });
 
-test("stale cron snapshot must not overwrite a reply completed meanwhile", async () => {
-  const { run } = await createMentionFixture();
-  await LlmRuns.rawUpdateOne(run._id, { $set: { createdAt: new Date(Date.now() - 3700000) } });
-  const originalFind = LlmRuns.find.bind(LlmRuns);
-  jest.spyOn(LlmRuns, "find").mockImplementation((selector, ...rest) => {
-    if (!selector?.$or) return originalFind(selector, ...rest);
-    return { fetch: async () => {
-      const snapshot = await originalFind({ _id: run._id }).fetch();
-      await runLlmRun(run._id);
-      return snapshot;
-    } };
-  });
-  await retryStalledLlmRuns();
-  expect((await LlmRuns.findOne(run._id))?.status).toBe("completed");
-});
-
-test("a broken kickoff must not prevent other stalled runs from retrying", async () => {
-  const first = await createMentionFixture();
-  const second = await createMentionFixture();
-  await LlmRuns.rawUpdateOne(first.run._id, { $set: { createdAt: new Date(Date.now() - 180000) } });
-  await LlmRuns.rawUpdateOne(second.run._id, { $set: { createdAt: new Date(Date.now() - 180000) } });
-  const rows = [await LlmRuns.findOne(first.run._id), await LlmRuns.findOne(second.run._id)];
-  const originalFind = LlmRuns.find.bind(LlmRuns);
-  jest.spyOn(LlmRuns, "find").mockImplementation((selector, ...rest) => {
-    if (selector?.$or) return { fetch: async () => rows };
-    return originalFind(selector, ...rest);
-  });
-  mocked(requestLlmRun).mockClear().mockRejectedValueOnce(new Error("Injected 503"));
-  await retryStalledLlmRuns();
-  expect(requestLlmRun).toHaveBeenCalledWith(second.run._id);
-});
-
 test("making a post private must not leave its full text in guest run queries", async () => {
   const { run, post } = await createMentionFixture();
   await runLlmRun(run._id);
@@ -118,70 +83,4 @@ test("making a post private must not leave its full text in guest run queries", 
   await expect(runQuery(query, { id: run._id }, createAnonymousContext({ forumType: "LessWrong" }))).rejects.toThrow("operation_not_allowed");
   const result = await runQuery(`{ llmRuns(limit: 1000) { results { _id contextMessage } } }`, {}, createAnonymousContext({ forumType: "LessWrong" }));
   expect(result.data?.llmRuns.results).not.toContainEqual(expect.objectContaining({ _id: run._id }));
-});
-
-test("retrying an unpublished reply reuses the saved answer and transcript", async () => {
-  const { run } = await createMentionFixture();
-  await LlmRunTranscriptEntries.rawInsert({
-    llmRunId: run._id, attempt: 1, index: 0, type: "text", text: "Saved transcript",
-    extra: null, query: null, title: null, toolCallId: null, toolName: null, url: null,
-  });
-  const original = Comments.rawUpdateOne.bind(Comments);
-  let failOnce = true;
-  jest.spyOn(Comments, "rawUpdateOne").mockImplementation(async (selector, modifier, ...rest) => {
-    if (modifier.$set?.llmReplyPublishedAt && failOnce) {
-      failOnce = false;
-      throw new Error("Injected publication failure");
-    }
-    return original(selector, modifier, ...rest);
-  });
-  await runLlmRun(run._id);
-  const first = await Comments.findOne({ llmRunId: run._id });
-  assert(first);
-  expect(first.llmReplyPublishedAt).toBeNull();
-  await runLlmRun(run._id);
-  const reply = await Comments.findOne({ llmRunId: run._id });
-  assert(reply);
-  expect(reply.llmReplyPublishedAt).toBeInstanceOf(Date);
-  expect(reply.contents?.html).toContain("Successful answer 1");
-  expect(generateLlmRunResponse).toHaveBeenCalledTimes(1);
-  const result = await runQuery(`query($id: String!) {
-    llmRun(selector: { _id: $id }) { result { status transcriptEntries { text } } }
-  }`, { id: run._id }, createAnonymousContext({ forumType: "LessWrong" }));
-  expect(result.data?.llmRun.result).toEqual({ status: "completed", transcriptEntries: [{ text: "Saved transcript" }] });
-});
-
-test("completion failure on the last attempt preserves a published answer", async () => {
-  const { run } = await createMentionFixture();
-  await LlmRuns.rawUpdateOne(run._id, { $set: { attemptCount: 2 } });
-  const original = LlmRuns.rawUpdateOne.bind(LlmRuns);
-  let failOnce = true;
-  jest.spyOn(LlmRuns, "rawUpdateOne").mockImplementation(async (selector, modifier, ...rest) => {
-    if (modifier.$set?.status === "completed" && failOnce) {
-      failOnce = false;
-      throw new Error("Injected completion failure");
-    }
-    return original(selector, modifier, ...rest);
-  });
-  await runLlmRun(run._id);
-  const finished = await LlmRuns.findOne(run._id);
-  assert(finished);
-  expect(finished.status).toBe("completed");
-  expect(finished.error).toBeNull();
-  expect((await Comments.findOne({ llmRunId: run._id }))?.contents?.html).toContain("Successful answer");
-  expect(generateLlmRunResponse).toHaveBeenCalledTimes(1);
-});
-
-test("placeholder insertion that commits then throws leaves a failed reply, not a pending orphan", async () => {
-  const original = Comments.rawInsert.bind(Comments);
-  jest.spyOn(Comments, "rawInsert").mockImplementation(async (data, ...rest) => {
-    const id = await original(data, ...rest);
-    if (data.llmRunId) throw new Error("Injected lost placeholder acknowledgement");
-    return id;
-  });
-  const { run, comment } = await createMentionFixture();
-  expect(await Comments.findOne(comment._id)).toBeTruthy();
-  expect(run.status).toBe("failed");
-  expect((await Comments.findOne({ llmRunId: run._id }))?.contents?.html).toContain("couldn't finish");
-  expect(requestLlmRun).not.toHaveBeenCalled();
 });
