@@ -1,6 +1,6 @@
 'use client';
 // EXPERIMENT (branch experiment/iframe-layout-ronny): try out author layout options on a post page.
-// ?textWidth=normal|wide|wider sets the post's text width; for the demo it's remembered per reader.
+// ?textWidth=normal|wide sets the post's text width; for the demo it's remembered per reader.
 // A real version would read an author-chosen field on the post instead.
 // As the window narrows, the table of contents gives way first, then the sidenote margin, and only
 // then does the text column shrink. (LessWrong today hides the margin below 1280px and the table
@@ -21,11 +21,13 @@ const TEXT_WIDTH_PARAM = 'textWidth';
 const TEXT_WIDTH_STORAGE_KEY = 'lwLayoutLabTextWidth';
 const RECORDING_PARAMS = ['layoutUi', 'scrollyUi'];
 
-// Room the side columns need beside the text track: the table of contents (200px at least, plus
-// its 35px gap) and the sidenote margin (300px plus a 10px gap). PAGE_SLACK covers the page edges.
-const TOC_SPACE = 235;
+// Room the side columns need beside the text track: the table of contents (200px at least, its
+// 35px gap, and 30px the grid gives the outer gaps when both side columns show) and the sidenote
+// margin (300px plus a 10px gap). PAGE_SLACK covers the page edges. Checked by sweeping window
+// widths: below these the text would get squeezed instead.
+const TOC_SPACE = 265;
 const MARGIN_SPACE = RIGHT_COLUMN_WIDTH_WITH_SIDENOTES + 10;
-const PAGE_SLACK = 100;
+const PAGE_SLACK = 56;
 // Below this LessWrong's own phone layout takes over.
 const PHONE_WIDTH = 600;
 
@@ -37,7 +39,6 @@ interface TextWidthOption {
 const TEXT_WIDTH_OPTIONS: TextWidthOption[] = [
   { width: 'normal', label: `Normal (${POST_TEXT_WIDTHS.normal})` },
   { width: 'wide', label: `Wide (${POST_TEXT_WIDTHS.wide})` },
-  { width: 'wider', label: `Wider (${POST_TEXT_WIDTHS.wider})` },
 ];
 
 const styles = defineStyles('LayoutLab', (theme: ThemeType) => ({
@@ -104,6 +105,10 @@ const styles = defineStyles('LayoutLab', (theme: ThemeType) => ({
     },
     'html[data-lw-margin="shown"] .FootnotePreview-footnoteMobileIndicator': {
       display: 'none !important',
+    },
+    // With no sidenotes beside it, the text can use the room the track keeps clear for them.
+    'html[data-lw-margin="hidden"] .PostsPage-postBody': {
+      maxWidth: `min(var(--post-text-width, ${POST_TEXT_WIDTHS.normal}px), 100%) !important`,
     },
     'html[data-lw-margin="hidden"] .PostsPage-reserveSpaceForSidenotes': {
       width: `${RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES}px !important`,

@@ -1,7 +1,7 @@
 // EXPERIMENT (branch experiment/iframe-layout-ronny): a stable, hard-to-guess link to the iframe layout
 // demo post, for sharing with the team.
 // Recreates the post if the dev database was reset, then redirects to it, keeping any query
-// parameters (?textWidth=wider, ?layoutUi=off).
+// parameters (?textWidth=wide, ?layoutUi=off).
 import { NextResponse, connection, type NextRequest } from "next/server";
 import { ensureLayoutDemoPost } from "@/server/layoutDemo/aiFuturesLayoutDemo";
 
