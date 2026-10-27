@@ -85,7 +85,12 @@ export async function addParticipantIfNew({ document, currentUser, context }: Af
 }
 
 export async function updateConversationActivity(message: DbMessage, context: ResolverContext) {
-  const { Conversations, Users } = context;
+  const { Conversations, Messages, Users } = context;
+
+  // Message creation callbacks can finish out of order. In particular, an
+  // automated reply must not mark a newer user message done.
+  const latestMessage = await Messages.findOne({ conversationId: message.conversationId }, { sort: { createdAt: -1, _id: -1 } });
+  if (latestMessage?._id !== message._id) return;
 
   // Update latest Activity timestamp on conversation when new message is added
   const user = await Users.findOne(message.userId);
@@ -93,11 +98,10 @@ export async function updateConversationActivity(message: DbMessage, context: Re
   if (!conversation) throw Error(`Can't find conversation for message ${message}`)
     
   // In moderator conversations, a message from the user puts the conversation in the
-  // moderator inbox and a moderator's reply marks it done. Messages from the team
-  // account itself (e.g. the automated appeal-link reply) leave the flag alone, so
-  // the user's message stays in the queue.
-  const teamInboxFields = conversation.moderator && message.userId !== await getAdminTeamAccountId(context)
-    ? { awaitingModeratorReply: !userIsAdminOrMod(user) }
+  // moderator inbox. Staff replies, including automated appeal-link replies from
+  // the team account, mark it done. A later user message reopens it.
+  const teamInboxFields = conversation.moderator
+    ? { awaitingModeratorReply: !userIsAdminOrMod(user) && message.userId !== await getAdminTeamAccountId(context) }
     : {};
 
   const userContext = await computeContextFromUser({ user: user, isSSR: false, forumType: context.forumType });

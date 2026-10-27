@@ -542,6 +542,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               AND c."userId" != $(userIdOrClientId)
               AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
+              AND p.unlisted IS NOT TRUE
               AND (CASE WHEN $(restrictCandidatesToSubscribed) THEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") ELSE TRUE END)
           ORDER BY 
               (CASE WHEN c."reviewingForReview" = $(reviewYear) THEN 0 ELSE 1 END),

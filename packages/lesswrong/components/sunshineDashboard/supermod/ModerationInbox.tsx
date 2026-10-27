@@ -166,14 +166,9 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     minHeight: 0,
   },
   teamInboxLayout: {
+    overflowX: 'auto',
     '& > $leftPanel': {
-      flex: '0 0 300px',
-    },
-    [theme.breakpoints.down('md')]: {
-      overflowX: 'auto',
-      '& > $leftPanel': {
-        flexBasis: 240,
-      },
+      flex: '0 0 360px',
     },
   },
   teamInboxThreadPanel: {

@@ -2847,6 +2847,7 @@ type Conversation {
   messageCount: Float!
   moderator: Boolean
   awaitingModeratorReply: Boolean
+  moderatorReplyWaitingSince: Date
   archivedByIds: [String!]!
   archivedBy: [User!]!
   latestMessage: Message
@@ -7906,6 +7907,7 @@ type User {
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
   hideIntercom: Boolean!
+  hailboxOptIn: Boolean
   markDownPostEditor: Boolean!
   hideElicitPredictions: Boolean
   hideAFNonMemberInitialWarning: Boolean
@@ -8038,6 +8040,7 @@ type User {
   reviewedByUserId: String
   reviewedByUser: User
   isReviewed: Boolean
+  hasApprovedContent: Boolean
   reviewedAt: Date
   afKarma: Float!
   voteCount: Float
@@ -10058,6 +10061,7 @@ input CreateUserDataInput {
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
   hideIntercom: Boolean
+  hailboxOptIn: Boolean
   noSingleLineComments: Boolean
   noCollapseCommentsPosts: Boolean
   noCollapseCommentsFrontpage: Boolean
@@ -10221,6 +10225,7 @@ input UpdateUserDataInput {
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
   hideIntercom: Boolean
+  hailboxOptIn: Boolean
   markDownPostEditor: Boolean
   hideElicitPredictions: Boolean
   hideAFNonMemberInitialWarning: Boolean

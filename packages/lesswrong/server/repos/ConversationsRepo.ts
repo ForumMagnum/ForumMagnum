@@ -35,6 +35,38 @@ class ConversationsRepo extends AbstractRepo<"Conversations"> {
     return conversationIds.map(id => messagesByConversation[id] ?? null);
   }
 
+  /** The first user message after the last staff or team-bot reply, batched across the inbox. */
+  async getModeratorReplyWaitingSince(conversationIds: string[], teamAccountId: string | null): Promise<(Date | null)[]> {
+    const results = await this.getRawDb().manyOrNone<{
+      conversationId: string;
+      waitingSince: Date;
+    }>(`
+      -- ConversationsRepo.getModeratorReplyWaitingSince
+      WITH messages AS (
+        SELECT m."_id", m."conversationId", m."createdAt",
+          (u."isAdmin" IS TRUE
+            OR COALESCE('sunshineRegiment' = ANY(u."groups"), FALSE)
+            OR u."_id" IS NOT DISTINCT FROM $(teamAccountId)) AS "isStaff"
+        FROM "Messages" m
+        JOIN "Users" u ON u."_id" = m."userId"
+        WHERE m."conversationId" IN ($(conversationIds:csv))
+      ), last_reply AS (
+        SELECT DISTINCT ON ("conversationId") "conversationId", "createdAt", "_id"
+        FROM messages
+        WHERE "isStaff"
+        ORDER BY "conversationId", "createdAt" DESC, "_id" DESC
+      )
+      SELECT m."conversationId", MIN(m."createdAt") AS "waitingSince"
+      FROM messages m
+      LEFT JOIN last_reply r ON r."conversationId" = m."conversationId"
+      WHERE NOT m."isStaff"
+        AND (r."_id" IS NULL OR (m."createdAt", m."_id") > (r."createdAt", r."_id"))
+      GROUP BY m."conversationId"
+    `, { conversationIds, teamAccountId });
+    const byConversation = keyBy(results, result => result.conversationId);
+    return conversationIds.map(id => byConversation[id]?.waitingSince ?? null);
+  }
+
   async getReadStatuses(
     userId: string,
     conversationIds: string[],
