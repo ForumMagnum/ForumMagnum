@@ -14173,6 +14173,7 @@ export type User = {
   groups: Maybe<Array<Scalars['String']['output']>>;
   hailboxOptIn: Maybe<Scalars['Boolean']['output']>;
   hasAnyBookmarks: Maybe<Scalars['Boolean']['output']>;
+  hasApprovedContent: Maybe<Scalars['Boolean']['output']>;
   hasAuth0Id: Maybe<Scalars['Boolean']['output']>;
   hasClaudeCodeOAuthToken: Maybe<Scalars['Boolean']['output']>;
   hasContinueReading: Maybe<Scalars['Boolean']['output']>;
@@ -17765,7 +17766,7 @@ export type PostsEditFormUserQueryVariables = Exact<{
 
 
 export type PostsEditFormUserQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
-      { __typename?: 'User' }
+      { __typename?: 'User', hasApprovedContent: boolean | null }
       & UsersCurrentPostRateLimit
     ) | null } | null };
 
@@ -24061,7 +24062,7 @@ export const multiVotePostsByVoteWrapperQueryDocument = _o1(_1,[_o11(_1026,_1035
 export const multiRevisionPostsCompareRevisionsQueryDocument = _o1(_1,[_o11(_1026,_1035,_o3(_3,"multiRevisionPostsCompareRevisionsQuery"),_1179,_1626),_601,_62,_740]) as unknown as DocumentNode<multiRevisionPostsCompareRevisionsQueryQuery, multiRevisionPostsCompareRevisionsQueryQueryVariables>;
 export const PostsCompareRevisionsDocument = _o1(_1,[_o11(_1026,_1035,_o3(_3,"PostsCompareRevisions"),_1628,_o5(_7,[_o7(_8,_219,_1047,_1629)])),_23,_136,_62,_145,_155,_167,_193,_201,_555,_207,_212,_216,_562,_235,_637,_239,_248,_619,_527,_530,_621,_625,_627,_642]) as unknown as DocumentNode<PostsCompareRevisionsQuery, PostsCompareRevisionsQueryVariables>;
 export const multiCommentPostsDialogItemNewCommentsListQueryDocument = _o1(_1,[_o11(_1026,_1035,_o3(_3,"multiCommentPostsDialogItemNewCommentsListQuery"),_1173,_1313),_155,_167,_62,_193]) as unknown as DocumentNode<multiCommentPostsDialogItemNewCommentsListQueryQuery, multiCommentPostsDialogItemNewCommentsListQueryQueryVariables>;
-export const PostsEditFormUserDocument = _o1(_1,[_o11(_1026,_1035,_o3(_3,"PostsEditFormUser"),[_1132,_o12(_1028,_895,_1058)],_o5(_7,[_o7(_8,_30,_1047,_o5(_7,[_o6(_8,_1048,_o5(_7,[_o4(_25,_893)]))]))])),_896]) as unknown as DocumentNode<PostsEditFormUserQuery, PostsEditFormUserQueryVariables>;
+export const PostsEditFormUserDocument = _o1(_1,[_o11(_1026,_1035,_o3(_3,"PostsEditFormUser"),[_1132,_o12(_1028,_895,_1058)],_o5(_7,[_o7(_8,_30,_1047,_o5(_7,[_o6(_8,_1048,_o5(_7,[_o4(_25,_893),_o4(_8,_o3(_3,"hasApprovedContent"))]))]))])),_896]) as unknown as DocumentNode<PostsEditFormUserQuery, PostsEditFormUserQueryVariables>;
 export const LinkSharingEditQueryDocument = _o1(_1,[_o11(_1026,_1035,_o3(_3,"LinkSharingEditQuery"),[_1406,_o12(_1028,_1133,_1032),_1301],_o5(_7,[_o7(_8,_o3(_3,"getLinkSharedPost"),[_890,_1137],_1302)])),_23,_136,_62,_145,_155,_167,_193,_201,_555,_207,_212,_216,_562,_235,_280,_646,_650]) as unknown as DocumentNode<LinkSharingEditQueryQuery, LinkSharingEditQueryQueryVariables>;
 export const PostsGroupDetailsDocument = _o1(_1,[_o11(_1026,_1035,_o3(_3,"PostsGroupDetails"),_1254,_o5(_7,[_o7(_8,_1142,_1047,_1565)])),_62,_471,_235,_474]) as unknown as DocumentNode<PostsGroupDetailsQuery, PostsGroupDetailsQueryVariables>;
 export const PostsHighlightDocument = _o1(_1,[_o11(_1026,_1035,_o3(_3,"PostsHighlight"),_1254,_1618),_596]) as unknown as DocumentNode<PostsHighlightQuery, PostsHighlightQueryVariables>;

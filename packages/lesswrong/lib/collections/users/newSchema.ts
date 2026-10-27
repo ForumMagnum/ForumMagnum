@@ -2826,6 +2826,15 @@ const schema = {
       resolver: (user, args, context) => !!user.reviewedByUserId,
     },
   },
+  hasApprovedContent: {
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return (await getPendingContentStats(context, user._id)).approvedContentCount > 0;
+      },
+    },
+  },
   reviewedAt: {
     database: {
       type: "TIMESTAMPTZ",

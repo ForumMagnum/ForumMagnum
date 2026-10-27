@@ -12134,6 +12134,7 @@ type User = {
   groups?: Maybe<Array<Scalars['String']['output']>>;
   hailboxOptIn?: Maybe<Scalars['Boolean']['output']>;
   hasAnyBookmarks?: Maybe<Scalars['Boolean']['output']>;
+  hasApprovedContent?: Maybe<Scalars['Boolean']['output']>;
   hasAuth0Id?: Maybe<Scalars['Boolean']['output']>;
   hasClaudeCodeOAuthToken?: Maybe<Scalars['Boolean']['output']>;
   hasContinueReading?: Maybe<Scalars['Boolean']['output']>;
@@ -17775,7 +17776,7 @@ type multiCommentPostsDialogItemNewCommentsListQueryQueryVariables = Exact<{
 type multiCommentPostsDialogItemNewCommentsListQueryQuery = multiCommentPostsDialogItemNewCommentsListQueryQuery_Query;
 
 type PostsEditFormUserQuery_user_SingleUserOutput_result_User = (
-  { __typename?: 'User' }
+  { __typename?: 'User', hasApprovedContent: boolean | null }
   & UsersCurrentPostRateLimit
 );
 
