@@ -144,7 +144,7 @@ async function startLlmReply({ comment, postId, modelUser, llm }: {
         parentCommentId: comment._id,
         af: comment.af,
         contents: {
-          originalContents: { type: "html", data: getLlmReplyHtml(llm.version.fullName, llmReplyPendingMarkdown(runId)) },
+          originalContents: { type: "html", data: getLlmReplyHtml(llm.version.fullName, llmReplyPendingMarkdown(llm.version.fullName, runId)) },
         },
         llmRunId: runId,
       },

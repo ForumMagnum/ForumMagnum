@@ -6,8 +6,8 @@ export function llmReplyStartsAsPreview(comment: { llmRunId: string | null, base
   return !!comment.llmRunId && (comment.baseScore ?? 0) < LLM_REPLY_EXPAND_KARMA;
 }
 
-export function llmReplyPendingMarkdown(runId: string): string {
-  return `*[Click to follow along](${llmRunGetPageUrl(runId)}).*`;
+export function llmReplyPendingMarkdown(modelName: string, runId: string): string {
+  return `*${modelName} is writing a reply. [Follow along](${llmRunGetPageUrl(runId)}).*`;
 }
 
 export function llmReplyFailedMarkdown(modelName: string, runId: string): string {
