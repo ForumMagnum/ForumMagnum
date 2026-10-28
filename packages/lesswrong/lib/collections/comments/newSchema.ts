@@ -18,6 +18,7 @@ import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_A
 import { customBaseScoreReadAccess } from "./voting";
 import { CommentsViews } from "./views";
 import { getWithLoader } from "../../loaders";
+import { getLlmFamilyBySlug } from "@/lib/languageModels/llmRegistry";
 
 function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
   return "postId" in data;
@@ -290,6 +291,33 @@ const schema = {
       outputType: "User",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
+    },
+  },
+  llmRunId: {
+    database: {
+      type: "VARCHAR(27)",
+      foreignKey: "LlmRuns",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canCreate: [(user) => !!user && !!getLlmFamilyBySlug(user.slug)],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  llmReplyPublishedAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      canRead: ["admins"],
+      canUpdate: [(user, comment) => !!user && userOwns(user, comment) && !!getLlmFamilyBySlug(user.slug)],
+      validation: { optional: true },
     },
   },
   userIP: {

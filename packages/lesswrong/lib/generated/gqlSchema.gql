@@ -2249,6 +2249,8 @@ type Comment {
   tagCommentType: TagCommentType!
   userId: String!
   user: User
+  llmRunId: String
+  llmReplyPublishedAt: Date
   userIP: String
   userAgent: String
   referrer: String
@@ -3338,6 +3340,22 @@ extend type Query {
   adminHomePageDesigns: [AdminHomePageDesign!]!
 }
 
+type LlmRunTranscriptEntry {
+  _id: String!
+  createdAt: Date!
+  llmRunId: String!
+  attempt: Int!
+  index: Int!
+  type: String!
+  text: String
+  toolCallId: String
+  toolName: String
+  query: String
+  url: String
+  title: String
+  extra: JSON
+}
+
 type RejectionAppeal {
   _id: String!
   createdAt: Date!
@@ -3657,6 +3675,42 @@ type LlmMessage {
   conversationId: String
   role: String
   content: String
+}
+
+type LlmRun {
+  _id: String!
+  createdAt: Date!
+  invocationContext: String!
+  post: Post
+  modelName: String!
+  gatewayModelId: String!
+  status: String!
+  systemPrompt: String!
+  contextMessage: String
+  transcriptEntries: [LlmRunTranscriptEntry!]!
+  response: String
+  error: String
+  completedAt: Date
+  triggerCommentId: String
+  replyCommentId: String
+}
+
+type SingleLlmRunOutput {
+  result: LlmRun
+}
+
+input LlmRunSelector {
+  default: EmptyViewInput
+}
+
+type MultiLlmRunOutput {
+  results: [LlmRun!]!
+  totalCount: Int
+}
+
+extend type Query {
+  llmRun(selector: SelectorInput): SingleLlmRunOutput
+  llmRuns(selector: LlmRunSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiLlmRunOutput
 }
 
 type Localgroup {
@@ -8455,6 +8509,7 @@ input CreateCommentDataInput {
   tagId: String
   tagCommentType: TagCommentType
   userId: String
+  llmRunId: String
   authorIsUnreviewed: Boolean
   answer: Boolean
   parentAnswerId: String
@@ -8503,6 +8558,7 @@ input UpdateCommentDataInput {
   postedAt: Date
   postId: String
   tagId: String
+  llmReplyPublishedAt: Date
   authorIsUnreviewed: Boolean
   answer: Boolean
   shortform: Boolean

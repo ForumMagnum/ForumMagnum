@@ -37,6 +37,7 @@ import CommentBottom from "./CommentBottom";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useNavigate } from '@/lib/routeUtil';
 import dynamic from 'next/dynamic';
+import { llmRunGetPageUrl } from '@/lib/collections/llmRuns/helpers';
 
 const RejectedReasonDisplay = dynamic(() => import("../../sunshineDashboard/RejectedReasonDisplay"));
 
@@ -334,6 +335,9 @@ export const CommentsItem = ({
   >
     {showInlineCancel ? "Cancel" : "Reply"}
   </a>), [replacementReplyButton, showInlineCancel, classes.replyLink, openReplyForm, closeReplyForm]);
+  const bottomButtons = comment.llmRunId
+    ? <>{replyButton}<Link to={llmRunGetPageUrl(comment.llmRunId)} className={classNames(classes.replyLink, "llm-view-run-link")}>View run</Link></>
+    : replyButton;
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -408,7 +412,7 @@ export const CommentsItem = ({
               votingSystem={votingSystem}
               voteProps={voteProps}
               commentBodyRef={commentBodyRef}
-              replyButton={replyButton}
+              replyButton={bottomButtons}
             />}
           </AnimatedCollapse>}
         </div>

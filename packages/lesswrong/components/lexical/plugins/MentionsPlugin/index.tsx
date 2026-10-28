@@ -301,7 +301,7 @@ export default function MentionsPlugin(): JSX.Element | null {
       const item = selectedOption.item;
       captureResultSelected({
         query: queryString ?? undefined,
-        resultId: item.hit._id,
+        resultId: item.type === "Models" ? item.model.version.name : item.hit._id,
         resultType: item.type,
         context: "mentionsEditor",
         marker: selectedOption.marker,

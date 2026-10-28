@@ -148,6 +148,8 @@ interface Query {
   lWEvents: MultiLWEventOutput | null;
   llmConversation: SingleLlmConversationOutput | null;
   llmConversations: MultiLlmConversationOutput | null;
+  llmRun: SingleLlmRunOutput | null;
+  llmRuns: MultiLlmRunOutput | null;
   localgroup: SingleLocalgroupOutput | null;
   localgroups: MultiLocalgroupOutput | null;
   message: SingleMessageOutput | null;
@@ -1990,6 +1992,8 @@ interface Comment {
   tagCommentType: TagCommentType;
   userId: string;
   user: User | null;
+  llmRunId: string | null;
+  llmReplyPublishedAt: Date | null;
   userIP: string | null;
   userAgent: string | null;
   referrer: string | null;
@@ -3009,6 +3013,22 @@ interface AdminHomePageDesign {
   ownerSlug: string;
 }
 
+interface LlmRunTranscriptEntry {
+  _id: string;
+  createdAt: Date;
+  llmRunId: string;
+  attempt: number;
+  index: number;
+  type: string;
+  text: string | null;
+  toolCallId: string | null;
+  toolName: string | null;
+  query: string | null;
+  url: string | null;
+  title: string | null;
+  extra: any;
+}
+
 interface RejectionAppeal {
   _id: string;
   createdAt: Date;
@@ -3292,6 +3312,37 @@ interface LlmMessage {
   conversationId: string | null;
   role: string | null;
   content: string | null;
+}
+
+interface LlmRun {
+  _id: string;
+  createdAt: Date;
+  invocationContext: string;
+  post: Post | null;
+  modelName: string;
+  gatewayModelId: string;
+  status: string;
+  systemPrompt: string;
+  contextMessage: string | null;
+  transcriptEntries: Array<LlmRunTranscriptEntry>;
+  response: string | null;
+  error: string | null;
+  completedAt: Date | null;
+  triggerCommentId: string | null;
+  replyCommentId: string | null;
+}
+
+interface SingleLlmRunOutput {
+  result: LlmRun | null;
+}
+
+interface LlmRunSelector {
+  default: EmptyViewInput | null;
+}
+
+interface MultiLlmRunOutput {
+  results: Array<LlmRun>;
+  totalCount: number | null;
 }
 
 interface Localgroup {
@@ -7747,6 +7798,7 @@ interface CreateCommentDataInput {
   tagId?: string | null;
   tagCommentType?: TagCommentType | null;
   userId?: string | null;
+  llmRunId?: string | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
   parentAnswerId?: string | null;
@@ -7795,6 +7847,7 @@ interface UpdateCommentDataInput {
   postedAt?: Date | null;
   postId?: string | null;
   tagId?: string | null;
+  llmReplyPublishedAt?: Date | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
   shortform?: boolean | null;
@@ -9806,6 +9859,7 @@ interface GraphQLTypeMap {
   HomePageDesignSummary: HomePageDesignSummary;
   MarketplaceHomePageDesign: MarketplaceHomePageDesign;
   AdminHomePageDesign: AdminHomePageDesign;
+  LlmRunTranscriptEntry: LlmRunTranscriptEntry;
   RejectionAppeal: RejectionAppeal;
   SingleRejectionAppealOutput: SingleRejectionAppealOutput;
   RejectionAppealSelector: RejectionAppealSelector;
@@ -9848,6 +9902,10 @@ interface GraphQLTypeMap {
   MultiLlmConversationInput: MultiLlmConversationInput;
   MultiLlmConversationOutput: MultiLlmConversationOutput;
   LlmMessage: LlmMessage;
+  LlmRun: LlmRun;
+  SingleLlmRunOutput: SingleLlmRunOutput;
+  LlmRunSelector: LlmRunSelector;
+  MultiLlmRunOutput: MultiLlmRunOutput;
   Localgroup: Localgroup;
   SingleLocalgroupInput: SingleLocalgroupInput;
   SingleLocalgroupOutput: SingleLocalgroupOutput;
@@ -10471,6 +10529,8 @@ interface CreateInputsByCollectionName {
   LinkPreviewCaches: never;
   LlmConversations: never;
   LlmMessages: never;
+  LlmRunTranscriptEntries: never;
+  LlmRuns: never;
   LoginTokens: never;
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
@@ -10572,6 +10632,8 @@ interface UpdateInputsByCollectionName {
   LegacyData: never;
   LinkPreviewCaches: never;
   LlmMessages: never;
+  LlmRunTranscriptEntries: never;
+  LlmRuns: never;
   LoginTokens: never;
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;

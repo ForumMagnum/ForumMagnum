@@ -777,9 +777,14 @@ export async function commentsAlignmentNew(comment: DbComment, context: Resolver
 export async function commentsNewNotifications(comment: DbComment, context: ResolverContext) {
   // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
   if (commentIsNotPublicForAnyReason(comment, context.forumType)) return
+  // Model replies are created as placeholders, and notify once the model has
+  // written them (see runCommentReply)
+  if (comment.llmRunId) return
   
   backgroundTask(utils.sendNewCommentNotifications(comment, context))
 }
+
+export const sendNewCommentNotifications = utils.sendNewCommentNotifications;
 
 /* UPDATE VALIDATE */
 

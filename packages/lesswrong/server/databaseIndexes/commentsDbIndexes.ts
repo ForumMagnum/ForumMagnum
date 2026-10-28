@@ -136,6 +136,12 @@ export function getDbIndexesOnComments() {
     partialFilterExpression: { rejectionConversationId: { $exists: true } },
   });
 
+  indexSet.addIndex("Comments", { llmRunId: 1 }, {
+    name: "comments.llmRunId",
+    concurrently: true,
+    partialFilterExpression: { llmRunId: { $exists: true } },
+  });
+
   indexSet.addCustomPgIndex(`
     CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_deletedDate"
     ON "Comments" ("deletedDate" DESC NULLS LAST)

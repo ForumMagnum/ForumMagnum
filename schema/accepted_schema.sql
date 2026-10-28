@@ -289,6 +289,8 @@ CREATE TABLE "Comments" (
   "tagId" VARCHAR(27),
   "tagCommentType" TEXT NOT NULL DEFAULT 'DISCUSSION',
   "userId" VARCHAR(27) NOT NULL,
+  "llmRunId" VARCHAR(27),
+  "llmReplyPublishedAt" TIMESTAMPTZ,
   "userIP" TEXT,
   "userAgent" TEXT,
   "referrer" TEXT,
@@ -606,6 +608,11 @@ CREATE INDEX IF NOT EXISTS "idx_Comments_userId_createdAt" ON "Comments" USING b
 CREATE INDEX IF NOT EXISTS "idx_comments_rejectionConversationId_createdAt" ON "Comments" USING btree ("rejectionConversationId", "createdAt")
 WHERE
   "rejectionConversationId" IS NOT NULL;
+
+-- Index "idx_comments_llmRunId"
+CREATE INDEX IF NOT EXISTS "idx_comments_llmRunId" ON "Comments" USING btree ("llmRunId")
+WHERE
+  "llmRunId" IS NOT NULL;
 
 -- Table "Conversations"
 CREATE TABLE "Conversations" (
@@ -1004,6 +1011,47 @@ CREATE TABLE "LlmMessages" (
 
 -- Index "idx_LlmMessages_conversationId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_LlmMessages_conversationId_createdAt" ON "LlmMessages" USING btree ("conversationId", "createdAt");
+
+-- Table "LlmRunTranscriptEntries"
+CREATE TABLE "LlmRunTranscriptEntries" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "llmRunId" VARCHAR(27) NOT NULL,
+  "attempt" INTEGER NOT NULL,
+  "index" INTEGER NOT NULL,
+  "type" TEXT NOT NULL,
+  "text" TEXT,
+  "toolCallId" TEXT,
+  "toolName" TEXT,
+  "query" TEXT,
+  "url" TEXT,
+  "title" TEXT,
+  "extra" JSONB
+);
+
+-- Index "idx_LlmRunTranscriptEntries_llmRunId_attempt_index"
+CREATE INDEX IF NOT EXISTS "idx_LlmRunTranscriptEntries_llmRunId_attempt_index" ON "LlmRunTranscriptEntries" USING btree ("llmRunId", "attempt", "index");
+
+-- Table "LlmRuns"
+CREATE TABLE "LlmRuns" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "invocationContext" TEXT NOT NULL,
+  "modelName" TEXT NOT NULL,
+  "gatewayModelId" TEXT NOT NULL,
+  "status" TEXT NOT NULL DEFAULT 'pending',
+  "systemPrompt" TEXT NOT NULL,
+  "contextMessage" TEXT,
+  "response" TEXT,
+  "error" TEXT,
+  "attemptCount" INTEGER NOT NULL DEFAULT 0,
+  "claimedAt" TIMESTAMPTZ,
+  "completedAt" TIMESTAMPTZ,
+  "triggerCommentId" VARCHAR(27)
+);
+
+-- Index "idx_LlmRuns_status_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_LlmRuns_status_createdAt" ON "LlmRuns" USING btree ("status", "createdAt");
 
 -- Table "Localgroups"
 CREATE TABLE "Localgroups" (

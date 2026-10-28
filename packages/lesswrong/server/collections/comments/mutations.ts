@@ -15,6 +15,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { updateCommentEmbeddings } from "@/server/voyage/client";
+import { assertLlmMentionAllowed, assertSubmittedLlmMentionAllowed, startLlmReplyForComment } from "@/server/llmReplies/startLlmReplies";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
@@ -123,6 +124,10 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   data = await handleReplyToAnswer(data, callbackProps);
   data = await setTopLevelCommentId(data, callbackProps);  
 
+  if (!data.draft) {
+    await assertSubmittedLlmMentionAllowed(data.postId ?? null, data.contents?.originalContents, context);
+  }
+
   data = await createInitialRevisionsForEditableFields({
     doc: data,
     props: callbackProps,
@@ -180,6 +185,8 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
     await invalidatePostPageCache(documentWithId.postId);
   }
 
+  await startLlmReplyForComment(documentWithId, context).catch(captureException);
+
   return documentWithId;
 }
 
@@ -208,6 +215,15 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   data = updatePostLastCommentPromotedAt(data, updateCallbackProperties);
   data = handleDraftState(data, updateCallbackProperties);
   data = await validateDeleteOperations(data, updateCallbackProperties);  
+
+  if (oldDocument.draft && data.draft === false) {
+    const newContents = data.contents?.originalContents;
+    if (newContents) {
+      await assertSubmittedLlmMentionAllowed(oldDocument.postId, newContents, context);
+    } else {
+      await assertLlmMentionAllowed(oldDocument.postId, oldDocument.contents?.html ?? "", context);
+    }
+  }
 
   data = await createRevisionsForEditableFields({
     docData: data,
@@ -257,6 +273,10 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
     filterNonnull([updatedDocument.postId, oldDocument.postId]),
     { hardDelete: commentVisibilityChanged(oldDocument, updatedDocument) },
   );
+
+  if (oldDocument.draft && !updatedDocument.draft) {
+    await startLlmReplyForComment(updatedDocument, context).catch(captureException);
+  }
 
   return updatedDocument;
 }
