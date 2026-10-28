@@ -1,7 +1,8 @@
-import { generateText, stepCountIs, type ContentPart, type LanguageModel, type ModelMessage, type ToolSet } from "ai";
+import { generateText, stepCountIs, type ContentPart, type ImagePart, type LanguageModel, type ModelMessage, type ToolSet } from "ai";
 import { z } from "zod";
 import LlmRuns from "@/server/collections/llmRuns/collection";
 import LlmRunTranscriptEntries from "@/server/collections/llmRunTranscriptEntries/collection";
+import type { LlmContextImage } from "./llmContextImages";
 
 const MAX_MODEL_STEPS = 20;
 /**
@@ -46,16 +47,20 @@ interface TranscriptEntryFields {
   extra: Record<string, unknown> | null,
 }
 
-export async function generateLlmRunResponse(run: DbLlmRun, { model, contextMessage, tools }: {
+export async function generateLlmRunResponse(run: DbLlmRun, { model, contextMessage, contextImages, tools }: {
   model: LanguageModel,
   contextMessage: string,
+  contextImages: LlmContextImage[],
   tools: ToolSet,
 }): Promise<string> {
   const selector = { _id: run._id, status: "running", attemptCount: run.attemptCount };
   if (!await LlmRuns.rawUpdateOne(selector, { $set: { contextMessage, response: null } })) {
     throw new Error("The model run is no longer claimed by this attempt");
   }
-  const response = await generateWithContinuations(run, model, tools, [{ role: "user", content: contextMessage }], MAX_CONTINUATIONS);
+  await saveTranscriptEntries(run, contextImages.map(({ url }) => makeEntry("image", { url })));
+  const imageParts = contextImages.map(({ url, mediaType }): ImagePart => ({ type: "image", image: new URL(url), mediaType }));
+  const messages: ModelMessage[] = [{ role: "user", content: [{ type: "text", text: contextMessage }, ...imageParts] }];
+  const response = await generateWithContinuations(run, model, tools, messages, MAX_CONTINUATIONS);
   if (!await LlmRuns.rawUpdateOne(selector, { $set: { response } })) {
     throw new Error("The model run is no longer claimed by this attempt");
   }
@@ -70,7 +75,7 @@ async function generateWithContinuations(run: DbLlmRun, model: LanguageModel, to
     tools,
     stopWhen: stepCountIs(MAX_MODEL_STEPS),
     providerOptions: REASONING_PROVIDER_OPTIONS,
-    onStepFinish: (step) => saveTranscriptEntries(run, step.content),
+    onStepFinish: (step) => saveTranscriptEntries(run, step.content.flatMap(toTranscriptEntries)),
   });
   if (result.finishReason === "length" || result.finishReason === "error"
     || result.finishReason === "content-filter"
@@ -87,8 +92,7 @@ async function generateWithContinuations(run: DbLlmRun, model: LanguageModel, to
   return await generateWithContinuations(run, model, tools, continuedMessages, continuationsLeft - 1);
 }
 
-async function saveTranscriptEntries(run: DbLlmRun, content: ContentPart<ToolSet>[]): Promise<void> {
-  const entries = content.flatMap(toTranscriptEntries);
+async function saveTranscriptEntries(run: DbLlmRun, entries: TranscriptEntryFields[]): Promise<void> {
   const firstIndex = await LlmRunTranscriptEntries.find({ llmRunId: run._id, attempt: run.attemptCount }).count();
   await Promise.all(entries.map((entry, offset) => LlmRunTranscriptEntries.rawInsert({
     ...entry,

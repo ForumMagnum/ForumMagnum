@@ -6,8 +6,20 @@ import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { getCommentAncestorIds } from "@/server/utils/commentTreeUtils";
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { commentIsPubliclyVisible } from "@/server/permissions/accessFilters";
+import { loadLlmContextImages, type LlmContextImage } from "@/server/languageModels/llmContextImages";
+import { cheerioParse } from "@/server/utils/htmlUtil";
 
-export async function buildThreadContextMessage(post: DbPost, triggerComment: DbComment, context: ResolverContext): Promise<string> {
+interface ThreadContext {
+  contextMessage: string,
+  contextImages: LlmContextImage[],
+}
+
+interface ThreadCommentSection {
+  markdown: string,
+  imageUrls: string[],
+}
+
+export async function buildThreadContext(post: DbPost, triggerComment: DbComment, context: ResolverContext): Promise<ThreadContext> {
   const { forumType } = context;
   const [postAuthor, postRevision] = await Promise.all([
     loadUser(post.userId, context),
@@ -17,34 +29,44 @@ export async function buildThreadContextMessage(post: DbPost, triggerComment: Db
     throw new Error(`Revision ${post.contents_latest} of post ${post._id} doesn't exist`);
   }
   const postUrl = combineUrls(siteUrlSetting.get(forumType), postGetPageUrl(post));
+  const postHtml = postRevision?.html ?? "";
 
   const ancestorIds = (await getCommentAncestorIds(triggerComment)).reverse();
   const ancestors = await Promise.all(ancestorIds.map((commentId) => loadComment(commentId, context)));
   const ancestorSections = await Promise.all(ancestors.map((comment) => formatThreadComment(comment, context)));
+  const commentSections = [...ancestorSections, await formatThreadComment(triggerComment, context, "the comment that mentioned you")];
 
-  return [
+  const contextMessage = [
     `# Post: ${post.title}`,
     `By ${formatAuthor(postAuthor, forumType)}, ${formatDate(post.postedAt)}. ${postUrl}`,
     "",
-    htmlToMarkdown(postRevision?.html ?? ""),
+    htmlToMarkdown(postHtml),
     "",
     "# Thread",
-    ...ancestorSections,
-    await formatThreadComment(triggerComment, context, "the comment that mentioned you"),
+    ...commentSections.map(({ markdown }) => markdown),
   ].join("\n");
+  const imageUrls = [...getImageUrls(postHtml), ...commentSections.flatMap(({ imageUrls }) => imageUrls)];
+  return { contextMessage, contextImages: await loadLlmContextImages(imageUrls) };
 }
 
-async function formatThreadComment(comment: DbComment, context: ResolverContext, label?: string): Promise<string> {
+async function formatThreadComment(comment: DbComment, context: ResolverContext, label?: string): Promise<ThreadCommentSection> {
   if (!(await commentIsPubliclyVisible(comment, context))) {
-    return "## [comment not publicly visible]\n";
+    return { markdown: "## [comment not publicly visible]\n", imageUrls: [] };
   }
   const author = await loadUser(comment.userId, context);
   const heading = `## ${formatAuthor(author, context.forumType)}, ${formatDate(comment.postedAt)}, ${comment.baseScore} karma`;
-  return [
+  const html = comment.contents?.html ?? "";
+  const markdown = [
     label ? `${heading}: ${label}` : heading,
-    htmlToMarkdown(comment.contents?.html ?? ""),
+    htmlToMarkdown(html),
     "",
   ].join("\n");
+  return { markdown, imageUrls: getImageUrls(html) };
+}
+
+function getImageUrls(html: string): string[] {
+  const $ = cheerioParse(html);
+  return $("img").toArray().flatMap((img) => $(img).attr("src") ?? []);
 }
 
 async function loadComment(commentId: string, context: ResolverContext): Promise<DbComment> {
