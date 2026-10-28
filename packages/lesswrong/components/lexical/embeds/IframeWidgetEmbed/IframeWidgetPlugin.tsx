@@ -1,36 +1,159 @@
 'use client';
-import React, { type JSX, useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect } from 'react';
+import React, { type JSX, useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect, useContext } from 'react';
 import { createPortal } from 'react-dom';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$insertNodeToNearestRoot, mergeRegister} from '@lexical/utils';
+import {$insertNodeToNearestRoot, IS_APPLE, mergeRegister} from '@lexical/utils';
 import {
+  $addUpdateTag,
+  $getEditor,
   $getNodeByKey,
+  $getRoot,
+  $getSelection,
   $createTextNode,
   $isLineBreakNode,
   $isElementNode,
+  $isRangeSelection,
+  $isRootNode,
+  $setSelection,
   COMMAND_PRIORITY_EDITOR,
   createCommand,
+  HISTORY_PUSH_TAG,
+  isExactShortcutMatch,
   LexicalCommand,
   LexicalEditor,
+  type LexicalNode,
+  REDO_COMMAND,
+  SKIP_DOM_SELECTION_TAG,
+  SKIP_SCROLL_INTO_VIEW_TAG,
+  UNDO_COMMAND,
 } from 'lexical';
 import {useMessages} from '@/components/common/withMessages';
 import { randomId } from '@/lib/random';
 
 import {$createIframeWidgetNode, $isIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
 import {
-  IframeWidgetLayout, IframeWidgetPosition, parseIframeWidgetLayout, setIframeWidgetLayout, shouldWrapWidget,
-  stripIframeWidgetLayout, widgetWidthPx, WRAP_GUTTER,
+  IframeWidgetLayout, IframeWidgetPosition, MIN_TEXT_BESIDE_WIDGET, offeredWidths,
+  parseIframeWidgetLayout, sameLayout, setIframeWidgetLayout, shouldWrapWidget, stripIframeWidgetLayout,
+  widgetWidthPx, wrappableWidths, WRAP_GUTTER,
 } from '@/components/contents/iframeWidgetLayout';
 import {injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT} from './iframeResizeScript';
 import {defineStyles, useStyles} from '@/components/hooks/useStyles';
 import ForumIcon from '@/components/common/ForumIcon';
 import { CodeIcon } from '../../icons/CodeIcon';
 import classNames from 'classnames';
+import { $isFootnoteSectionNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
+import { $reconcileSentinels } from '@/components/editor/lexicalPlugins/blockCursorNavigation/BlockCursorNavigationPlugin';
+import { SentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
+import { IframeWidgetDragContext } from './widgetDragContext';
+import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks } from './widgetDragDom';
+import {
+  adjacentSlot, type BlockBox, chooseDropSlot, type ColumnRect, type DropSlot, insertionKey, moveChipText,
+  resizeChipText, resizeTarget, type ResizeTarget, sideLabel, stepWidth, widgetSide, type WidgetSide,
+} from './widgetDragGeometry';
+import { type GesturePoint, startPointerGesture, visibleBottom } from './widgetGesture';
+import { type DragChip, type DragView, DragViewStore, type MoveDragView, primaryTint, WidgetDragLayer } from './WidgetDragLayer';
 
 export const INSERT_IFRAME_WIDGET_COMMAND: LexicalCommand<string | undefined> = createCommand(
   'INSERT_IFRAME_WIDGET_COMMAND',
 );
+
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): moves a widget among the post's top-level blocks
+// and/or sets its layout, as one undo step, without reloading its iframe (Lexical keeps the element).
+// beforeKey: the top-level block it goes before, or null for the end of the post (before any
+// footnotes); leave it out to keep the widget where it is. Used by dragging and the grip's keys.
+export type MoveIframeWidgetPayload = {
+  key: string,
+  beforeKey?: string | null,
+  layout?: IframeWidgetLayout,
+};
+
+export const MOVE_IFRAME_WIDGET_COMMAND: LexicalCommand<MoveIframeWidgetPayload> = createCommand(
+  'MOVE_IFRAME_WIDGET_COMMAND',
+);
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp2): one of the post's own top-level blocks, which is
+ * what dragging moves widgets among (not one inside columns, a table, a collapsible or a footnote).
+ */
+function $isTopLevelBlock(node: LexicalNode | null | undefined): node is LexicalNode {
+  return !!node && $isRootNode(node.getParent());
+}
+
+function $moveIframeWidget({ key, beforeKey, layout }: MoveIframeWidgetPayload): boolean {
+  const node = $getNodeByKey(key);
+  if (!$isIframeWidgetNode(node)) return false;
+  const root = $getRoot();
+  let moved = false;
+  let relaid = false;
+  // Where it already is, the empty caret sentinels around widgets (see below) don't count.
+  const next = $nextContentSibling(node);
+  if (beforeKey !== undefined && beforeKey !== key) {
+    // A widget inside another block stays there: taking it out would leave that block empty.
+    if (!$isTopLevelBlock(node)) return false;
+    if (beforeKey === null) {
+      const footnotes = root.getChildren().find($isFootnoteSectionNode);
+      if (footnotes) {
+        if (!next?.is(footnotes)) {
+          footnotes.insertBefore(node);
+          moved = true;
+        }
+      } else if (next !== null) {
+        root.append(node);
+        moved = true;
+      }
+    } else {
+      const target = $getNodeByKey(beforeKey);
+      // The block went away (or isn't top-level): leave everything as it is.
+      if (!$isTopLevelBlock(target)) return false;
+      if (!next?.is(target)) {
+        target.insertBefore(node);
+        moved = true;
+      }
+    }
+  }
+  if (layout) {
+    const html = node.getTextContent();
+    if (!sameLayout(layout, parseIframeWidgetLayout(html))) {
+      node.clear();
+      node.append($createTextNode(setIframeWidgetLayout(html, layout)));
+      relaid = true;
+    }
+  }
+  if (!moved && !relaid) return true;
+  // Put the caret sentinels back around the widget here, in this update, rather than in the
+  // BlockCursorNavigationPlugin's follow-up one, which would re-apply the DOM selection (focusing the
+  // editor, and maybe scrolling to the caret).
+  if (moved && $getEditor().hasNodes([SentinelParagraphNode])) {
+    $reconcileSentinels();
+  }
+  // A caret inside the widget's hidden code would drag the page to it.
+  const selection = $getSelection();
+  if ($isRangeSelection(selection) && [selection.anchor, selection.focus].some((point) => {
+    const pointNode = point.getNode();
+    return pointNode.is(node) || node.isParentOf(pointNode);
+  })) {
+    $setSelection(null);
+  }
+  $addUpdateTag(HISTORY_PUSH_TAG);
+  $addUpdateTag(SKIP_SCROLL_INTO_VIEW_TAG);
+  $addUpdateTag(SKIP_DOM_SELECTION_TAG);
+  return true;
+}
+
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): the editor's own undo and redo shortcuts (Lexical's
+// isUndo and isRedo, which it doesn't export), for keys pressed on a widget's grip.
+const CONTROL_OR_META = { ctrlKey: !IS_APPLE, metaKey: IS_APPLE };
+
+function isUndoShortcut(event: KeyboardEvent): boolean {
+  return isExactShortcutMatch(event, 'z', CONTROL_OR_META);
+}
+
+function isRedoShortcut(event: KeyboardEvent): boolean {
+  return IS_APPLE
+    ? isExactShortcutMatch(event, 'z', { metaKey: true, shiftKey: true })
+    : isExactShortcutMatch(event, 'y', { ctrlKey: true }) || isExactShortcutMatch(event, 'z', { ctrlKey: true, shiftKey: true });
+}
 
 const PREVIEW_MODE_CLASS = 'iframe-widget-preview-mode';
 
@@ -52,6 +175,15 @@ function updateWidgetGutter(key: string, editor: LexicalEditor): void {
     element.style.setProperty('--gutter-chars', String(String(count).length));
   });
 }
+
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): width of the strip along a widget's edge that resizes
+// it. The placement bar and the code toggle sit 2px further in from an edge that has one.
+const RESIZE_EDGE_WIDTH = 12;
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): after a drop, the page is scrolled to put the widget
+// where the preview showed it if it landed further away than this (px). After a keyboard move the
+// widget is scrolled to at least this far below the top of the window (clear of the site header).
+const DROP_SCROLL_TOLERANCE = 24;
+const KEY_MOVE_TOP_ROOM = 72;
 
 const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
   toggleButton: {
@@ -163,9 +295,193 @@ const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     whiteSpace: 'nowrap',
   },
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): drag-to-place controls, on the Experiment 2 demo
+  // editor only (see IframeWidgetDragContext): a grip tab on the top edge, resize edges, a bar grip.
+  // The keyboard focus shows them too, but not a focus the page moved (to the grip after a drag, for
+  // undo) or a mouse click left: those match :focus-within but not :focus-visible.
+  dragMode: {
+    '&:hover $gripTab, &:has(:focus-visible) $gripTab': {
+      opacity: 1,
+    },
+    '&:hover $resizeEdge': {
+      opacity: 1,
+    },
+    '&:has(:focus-visible) $layoutBar': {
+      opacity: 1,
+    },
+    // Below the grip tab, clear of the widget's first line (usually its title).
+    '& $layoutBar': {
+      top: 22,
+    },
+    // While the controls show, the grip tab shows whole across the top edge, and the placement bar of
+    // a short or narrow widget (which wraps onto more rows than fit) runs past the widget's bottom, over
+    // its neighbours, instead of being cut off. Hidden, it stays clipped, so it never catches clicks
+    // meant for the text below.
+    '&:hover, &:has(:focus-visible), &:has($layoutBar:focus-within)': {
+      overflow: 'visible',
+      zIndex: 2,
+    },
+  },
+  // The first-run hint shows the grip tab without hover: whole, across the top edge.
+  overlayHint: {
+    overflow: 'visible',
+  },
+  // While this widget's grip or edge is pressed, its controls stay as they were under the pointer.
+  controlsPinned: {
+    borderColor: theme.palette.greyAlpha(0.2),
+    overflow: 'visible',
+    zIndex: 2,
+    '& $gripTab, & $layoutBar, & $resizeEdge': {
+      opacity: 1,
+    },
+  },
+  // The widget being moved stays where it is, faded, until it's dropped.
+  overlayMoving: {
+    opacity: 0.35,
+    outline: `2px dashed ${theme.palette.primary.main}`,
+    outlineOffset: 2,
+  },
+  // Across the widget's top edge, so it doesn't cover the widget's own text (its title, usually).
+  gripTab: {
+    position: 'absolute',
+    zIndex: 3,
+    top: -7,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: 40,
+    height: 14,
+    padding: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxSizing: 'border-box',
+    borderRadius: 7,
+    border: theme.palette.greyBorder('1px', 0.2),
+    background: theme.palette.panelBackground.default,
+    boxShadow: `0 1px 3px ${theme.palette.boxShadowColor(0.12)}`,
+    cursor: 'grab',
+    touchAction: 'none',
+    opacity: 0,
+    transition: 'opacity 0.15s',
+    '&:focus-visible': {
+      opacity: 1,
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: 1,
+    },
+    // Touch screens can't hover, so the grip always shows there, faintly, inside the (clipped) frame.
+    '@media (hover: none)': {
+      opacity: 0.6,
+      top: 2,
+    },
+  },
+  // Until the first drag, the first widget's grip shows without hover and pulses three times.
+  gripHint: {
+    opacity: '1 !important',
+    borderColor: theme.palette.primary.main,
+    animation: '$lwGripPulse 1.2s ease-out 3',
+  },
+  '@keyframes lwGripPulse': {
+    '0%': {
+      boxShadow: `0 0 0 0 ${primaryTint(theme, 0.5)}`,
+    },
+    '70%': {
+      boxShadow: `0 0 0 6px ${primaryTint(theme, 0)}`,
+    },
+    '100%': {
+      boxShadow: `0 0 0 0 ${primaryTint(theme, 0)}`,
+    },
+  },
+  // Six dots, three across and two down.
+  gripDots: {
+    display: 'block',
+    width: 15,
+    height: 8,
+    backgroundImage: `radial-gradient(circle, ${theme.palette.grey[600]} 1.1px, transparent 1.6px)`,
+    backgroundSize: '5px 4px',
+    pointerEvents: 'none',
+  },
+  barGrip: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'stretch',
+    padding: '0 5px',
+    border: 'none',
+    borderRadius: 4,
+    background: 'transparent',
+    cursor: 'grab',
+    touchAction: 'none',
+    '&:hover': {
+      background: theme.palette.grey[200],
+    },
+    // Touch screens drag by the grip tab, which always shows there. The bar is hidden until the
+    // widget is tapped, and an unseen grip that won't let a swipe scroll the page is a trap.
+    '@media (hover: none)': {
+      display: 'none',
+    },
+  },
+  // Above the iframe. The placement bar and the code toggle are moved in to keep clear of it (see
+  // RESIZE_EDGE_WIDTH). A swipe up or down on it still scrolls the page; only a sideways pull resizes.
+  resizeEdge: {
+    position: 'absolute',
+    zIndex: 1,
+    top: 0,
+    bottom: 0,
+    width: RESIZE_EDGE_WIDTH,
+    cursor: 'ew-resize',
+    touchAction: 'pan-y',
+    opacity: 0,
+    transition: 'opacity 0.15s',
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: '50%',
+      left: 4,
+      width: 4,
+      height: 32,
+      marginTop: -16,
+      borderRadius: 2,
+      background: theme.palette.grey[500],
+    },
+    '@media (hover: none)': {
+      opacity: 0.6,
+    },
+  },
   '@global': {
     // As in the post, a new section starts below a widget the text wraps around.
     '.iframe-widget-code[data-lw-wraps] ~ h1, .iframe-widget-code[data-lw-wraps] ~ h2, .iframe-widget-code[data-lw-wraps] ~ h3': {
+      clear: 'both',
+    },
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp2): while a widget is dragged or resized (see
+    // widgetGesture.ts), nothing gets selected, scroll anchoring doesn't jump, iframes don't take the
+    // pointer, and the other controls step aside.
+    'body.lw-widget-dragging': {
+      userSelect: 'none',
+      overflowAnchor: 'none',
+    },
+    'body.lw-widget-dragging iframe': {
+      pointerEvents: 'none',
+    },
+    'body.lw-widget-dragging .lw-widget-control': {
+      visibility: 'hidden',
+    },
+    // The site header slides back in whenever the page scrolls up, which a drag's auto-scroll does,
+    // and would then cover the top of the window: the drop line, the chip and the slots under it.
+    // It stays tucked away until the drag ends (see .headroom--pinned in Header).
+    'body.lw-widget-dragging .headroom--pinned': {
+      transform: 'translateY(-100%)',
+    },
+    // On the Experiment 2 page a full-width widget goes below any float before it, as the 100%-wide
+    // iframe does in the post (instead of its preview covering the float).
+    '[data-lw-widget-drag] .iframe-widget-preview-mode:not([data-lw-wraps])': {
+      clear: 'both',
+    },
+    // A float dropped at the very end stays inside the editor.
+    '[data-lw-widget-drag] [data-lexical-editor]': {
+      display: 'flow-root',
+    },
+    // ...and the footnotes start below it, instead of beside it (their rule and numbers ran through it).
+    '[data-lw-widget-drag] [data-lexical-editor] > .footnote-section': {
       clear: 'both',
     },
   },
@@ -176,8 +492,6 @@ const LAYOUT_POSITIONS: Array<{ position: IframeWidgetPosition, label: string }>
   { position: 'left', label: 'Left' },
   { position: 'right', label: 'Right' },
 ];
-// Widths that leave room to wrap in LessWrong's normal 682px text column.
-const LAYOUT_WIDTHS = ['25%', '33%', '38%', '50%'];
 const DEFAULT_WRAP_WIDTH = '33%';
 
 interface WidgetState {
@@ -185,15 +499,13 @@ interface WidgetState {
   previewHeight: number;
   htmlContent: string;
   layout: IframeWidgetLayout;
+  widgetId: string | null;
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): a top-level block, so it can be dragged. */
+  topLevel: boolean;
 }
 
-/** Width of the editor's text column, which wrapped widgets are sized against. */
-function editorColumnWidth(editor: LexicalEditor): number {
-  const root = editor.getRootElement();
-  if (!root) return 0;
-  const cs = getComputedStyle(root);
-  return root.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
-}
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): a pressed grip or edge, then the drag it starts.
+type GesturePhase = 'pressed' | 'moving' | 'resizing';
 
 /**
  * Floats the preview spacer the way the post will float the widget, so the editor's text wraps
@@ -263,7 +575,7 @@ function usePositionTracking(
   editor: LexicalEditor,
   anchorElem: HTMLElement | undefined,
   widgets: Map<string, WidgetState>,
-): Map<string, OverlayPosition> {
+): [Map<string, OverlayPosition>, () => void] {
   const [positions, setPositions] = useState<Map<string, OverlayPosition>>(new Map());
 
   const measure = useCallback(() => {
@@ -332,7 +644,23 @@ function usePositionTracking(
     };
   }, [editor, anchorElem, measure]);
 
-  return positions;
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): for callers that restyle a spacer without an
+  // editor update (a live resize), which none of the observers above notice.
+  const measureRef = useRef(measure);
+  measureRef.current = measure;
+  const pendingFrame = useRef<number | null>(null);
+  const scheduleMeasure = useCallback(() => {
+    if (pendingFrame.current !== null) return;
+    pendingFrame.current = requestAnimationFrame(() => {
+      pendingFrame.current = null;
+      measureRef.current();
+    });
+  }, []);
+  useEffect(() => () => {
+    if (pendingFrame.current !== null) cancelAnimationFrame(pendingFrame.current);
+  }, []);
+
+  return [positions, scheduleMeasure];
 }
 
 function ToggleButton({
@@ -363,15 +691,24 @@ function ToggleButton({
   );
 }
 
-function LayoutControls({ layout, columnWidth, onChange }: {
+function LayoutControls({ layout, columnWidth, onChange, grip, style }: {
   layout: IframeWidgetLayout,
   columnWidth: number,
   onChange: (layout: IframeWidgetLayout) => void,
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): a drag grip, shown first. */
+  grip?: React.ReactNode,
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): where the bar sits (clear of resize edges). */
+  style?: React.CSSProperties,
 }) {
   const classes = useStyles(styles);
   const sided = layout.position === 'left' || layout.position === 'right';
   const width = layout.width ?? DEFAULT_WRAP_WIDTH;
-  const widths = LAYOUT_WIDTHS.includes(width) ? LAYOUT_WIDTHS : [...LAYOUT_WIDTHS, width];
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): only the widths not too narrow to use in this
+  // column (see MIN_WIDGET_WIDTH), plus the widget's own width, which it keeps.
+  const px = (w: string) => widgetWidthPx({ position: 'left', width: w }, columnWidth) ?? columnWidth;
+  const offered = offeredWidths(columnWidth);
+  const widths = offered.includes(width) ? offered : [...offered, width].sort((a, b) => px(a) - px(b));
+  const tooWide = columnWidth - px(width) - WRAP_GUTTER < MIN_TEXT_BESIDE_WIDGET;
   const button = (active: boolean, label: string, next: IframeWidgetLayout) => <button
     key={label}
     type="button"
@@ -381,7 +718,8 @@ function LayoutControls({ layout, columnWidth, onChange }: {
     onClick={(e) => { e.stopPropagation(); e.preventDefault(); onChange(next); }}
   >{label}</button>;
   return (
-    <div className={classes.layoutBar}>
+    <div className={classNames(classes.layoutBar, !!grip && 'lw-widget-control')} style={style}>
+      {grip}
       {LAYOUT_POSITIONS.map(({ position, label }) => button(
         layout.position === position || (position === 'inline' && layout.position === 'center'),
         label,
@@ -391,12 +729,14 @@ function LayoutControls({ layout, columnWidth, onChange }: {
         <span className={classes.layoutDivider}/>
         {widths.map(w => button(w === width, w, { position: layout.position, width: w }))}
         {!shouldWrapWidget(layout, columnWidth) && <span className={classes.layoutNote}>
-          too wide to wrap here
+          {tooWide ? 'too wide to wrap here' : 'too narrow to wrap here'}
         </span>}
       </>}
     </div>
   );
 }
+
+const preventDefault = (e: React.SyntheticEvent) => e.preventDefault();
 
 const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   nodeKey,
@@ -406,6 +746,12 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   onToggle,
   onIframeResize,
   onLayoutChange,
+  dragEnabled = false,
+  gesture = null,
+  hint = false,
+  onGripPointerDown,
+  onResizePointerDown,
+  onGripKeyDown,
 }: {
   nodeKey: string;
   state: WidgetState;
@@ -414,9 +760,34 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   onToggle: (nodeKey: string) => void;
   onIframeResize: (nodeKey: string, height: number) => void;
   onLayoutChange: (nodeKey: string, layout: IframeWidgetLayout) => void;
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): drag-to-place (see IframeWidgetDragContext).
+  dragEnabled?: boolean;
+  /** This widget's gesture, if one is under way. */
+  gesture?: GesturePhase | null;
+  /** Show the grip before any hover, pulsing (until the first drag on the page). */
+  hint?: boolean;
+  onGripPointerDown?: (nodeKey: string, e: React.PointerEvent<HTMLElement>) => void;
+  onResizePointerDown?: (nodeKey: string, edge: WidgetSide, e: React.PointerEvent<HTMLElement>) => void;
+  onGripKeyDown?: (nodeKey: string, e: React.KeyboardEvent<HTMLElement>) => void;
 }) {
   const classes = useStyles(styles);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const handleGripPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => onGripPointerDown?.(nodeKey, e),
+    [onGripPointerDown, nodeKey],
+  );
+  const handleGripKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLElement>) => onGripKeyDown?.(nodeKey, e),
+    [onGripKeyDown, nodeKey],
+  );
+  const handleResizeLeft = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => onResizePointerDown?.(nodeKey, 'left', e),
+    [onResizePointerDown, nodeKey],
+  );
+  const handleResizeRight = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => onResizePointerDown?.(nodeKey, 'right', e),
+    [onResizePointerDown, nodeKey],
+  );
 
   useEffect(() => {
     function handler(event: MessageEvent) {
@@ -442,18 +813,83 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
 
   if (state.viewMode !== 'preview' || !position) return null;
 
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): only a top-level widget is dragged (one inside
+  // columns, a table, a collapsible or a footnote keeps just the placement bar). A widget the text
+  // wraps around resizes from its text side; a full-width one from either edge (pulling an edge in
+  // makes it a float). No edges when no width can wrap in this column.
+  const draggable = dragEnabled && !!srcdoc && state.topLevel;
+  const resizeEdges: WidgetSide[] = !draggable || wrappableWidths(columnWidth).length === 0 ? []
+    : shouldWrapWidget(state.layout, columnWidth) ? [state.layout.position === 'left' ? 'right' : 'left']
+    : ['left', 'right'];
+  // The placement bar and the code toggle keep clear of the edges, so the whole strip (with its pill
+  // in the middle) can be grabbed, however short the widget or however many rows the bar wraps to.
+  const barLeft = resizeEdges.includes('left') ? RESIZE_EDGE_WIDTH + 2 : 4;
+  const toggleRight = resizeEdges.includes('right') ? RESIZE_EDGE_WIDTH + 2 : 4;
+  const barStyle: React.CSSProperties | undefined = draggable
+    ? { left: barLeft, maxWidth: `calc(100% - ${barLeft + toggleRight + 36}px)` }
+    : undefined;
+  const barGrip = draggable && <button
+    type="button"
+    tabIndex={-1}
+    className={classes.barGrip}
+    data-testid="widget-bar-grip"
+    data-widget-key={nodeKey}
+    aria-label="Move widget"
+    title="Drag to move"
+    onPointerDown={handleGripPointerDown}
+    onMouseDown={preventDefault}
+    onKeyDown={handleGripKeyDown}
+  ><span className={classes.gripDots}/></button>;
+
   return (
     <div
-      className={classes.previewOverlay}
+      className={classNames(
+        classes.previewOverlay,
+        draggable && classes.dragMode,
+        draggable && gesture && classes.controlsPinned,
+        gesture === 'moving' && classes.overlayMoving,
+        draggable && hint && classes.overlayHint,
+      )}
       style={{ top: position.top, left: position.left, width: position.width }}
+      data-testid={dragEnabled ? 'widget-overlay' : undefined}
+      data-widget-key={dragEnabled ? nodeKey : undefined}
+      data-widget-id={dragEnabled ? state.widgetId ?? undefined : undefined}
+      data-gesture={dragEnabled ? gesture ?? 'none' : undefined}
     >
       <ToggleButton
         viewMode="preview"
         onClick={handleToggleClick}
-        className={classes.toggleButton}
-        style={{ top: 4, right: 4 }}
+        className={classNames(classes.toggleButton, draggable && 'lw-widget-control')}
+        style={{ top: draggable ? 22 : 4, right: toggleRight }}
       />
-      {srcdoc && <LayoutControls layout={state.layout} columnWidth={columnWidth} onChange={handleLayoutChange} />}
+      {draggable && <button
+        type="button"
+        className={classNames(classes.gripTab, 'lw-widget-control', 'lw-widget-grip', hint && classes.gripHint)}
+        data-testid="widget-grip"
+        data-widget-key={nodeKey}
+        aria-label="Move widget"
+        title="Drag to move. Arrow keys move it too."
+        onPointerDown={handleGripPointerDown}
+        onMouseDown={preventDefault}
+        onKeyDown={handleGripKeyDown}
+      ><span className={classes.gripDots}/></button>}
+      {resizeEdges.map((edge) => <div
+        key={edge}
+        className={classNames(classes.resizeEdge, 'lw-widget-control')}
+        style={edge === 'left' ? { left: 0 } : { right: 0 }}
+        data-testid={`widget-resize-${edge}`}
+        data-widget-key={nodeKey}
+        title="Drag to resize"
+        onPointerDown={edge === 'left' ? handleResizeLeft : handleResizeRight}
+        onMouseDown={preventDefault}
+      />)}
+      {srcdoc && <LayoutControls
+        layout={state.layout}
+        columnWidth={columnWidth}
+        onChange={handleLayoutChange}
+        grip={barGrip || undefined}
+        style={barStyle}
+      />}
       {srcdoc ? (
         <iframe
           ref={iframeRef}
@@ -544,6 +980,10 @@ export default function IframeWidgetPlugin({
   const [widgets, setWidgets] = useState<Map<string, WidgetState>>(new Map);
   const widgetsRef = useRef(widgets);
   widgetsRef.current = widgets;
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): a live resize restyles the widget's spacer without
+  // touching the document. These layouts win over the stored ones until the resize ends, so an iframe
+  // reporting a new height mid-resize doesn't undo it.
+  const previewOverrides = useRef(new Map<string, IframeWidgetLayout>());
 
   useEffect(() => {
     if (!editor.hasNodes([IframeWidgetNode])) {
@@ -551,6 +991,12 @@ export default function IframeWidgetPlugin({
     }
 
     return mergeRegister(
+      // EXPERIMENT (experiment/iframe-layout-ronny-exp2)
+      editor.registerCommand<MoveIframeWidgetPayload>(
+        MOVE_IFRAME_WIDGET_COMMAND,
+        (payload) => !isSuggestionMode && $moveIframeWidget(payload),
+        COMMAND_PRIORITY_EDITOR,
+      ),
       editor.registerCommand<string | undefined>(
         INSERT_IFRAME_WIDGET_COMMAND,
         (payload) => {
@@ -575,6 +1021,11 @@ export default function IframeWidgetPlugin({
         const removed: string[] = [];
         const added: Array<{ key: string; state: WidgetState }> = [];
         const relaid: Array<{ key: string; htmlContent: string; layout: IframeWidgetLayout }> = [];
+        // EXPERIMENT (experiment/iframe-layout-ronny-exp2): previewed widgets whose element lost its
+        // preview styling (were Lexical ever to recreate it on a move, undo or redo), and widgets that
+        // went into or out of another block (columns, a table, a collapsible...).
+        const reapply: Array<{ key: string; state: WidgetState }> = [];
+        const reparented: Array<{ key: string; topLevel: boolean }> = [];
         editor.getEditorState().read(() => {
           for (const [key, type] of mutations) {
             if (type === 'destroyed') {
@@ -582,12 +1033,19 @@ export default function IframeWidgetPlugin({
             } else if (tracked.has(key)) {
               // A previewed widget's placement can change under it (undo, redo): keep the preview in step.
               const state = tracked.get(key)!;
-              const htmlContent = $getNodeByKey(key)?.getTextContent() ?? '';
+              const node = $getNodeByKey(key);
+              const htmlContent = node?.getTextContent() ?? '';
               const layout = parseIframeWidgetLayout(htmlContent);
               if (state.viewMode === 'preview'
                 && (layout.position !== state.layout.position || layout.width !== state.layout.width)) {
                 relaid.push({ key, htmlContent, layout });
               }
+              if (state.viewMode === 'preview'
+                && !editor.getElementByKey(key)?.classList.contains(PREVIEW_MODE_CLASS)) {
+                reapply.push({ key, state: { ...state, layout } });
+              }
+              const topLevel = $isTopLevelBlock(node);
+              if (topLevel !== state.topLevel) reparented.push({ key, topLevel });
             } else {
               const node = $getNodeByKey(key);
               const htmlContent = node ? node.getTextContent() : '';
@@ -599,28 +1057,40 @@ export default function IframeWidgetPlugin({
                   previewHeight: IFRAME_DEFAULT_HEIGHT,
                   htmlContent: hasContent ? htmlContent : '',
                   layout: parseIframeWidgetLayout(htmlContent),
+                  widgetId: $isIframeWidgetNode(node) ? node.getWidgetId() : null,
+                  topLevel: $isTopLevelBlock(node),
                 },
               });
             }
           }
         });
-        if (removed.length === 0 && added.length === 0 && relaid.length === 0) return;
-        setWidgets((prev) => {
-          const next = new Map(prev);
-          for (const key of removed) next.delete(key);
-          for (const { key, state } of added) {
-            if (!next.has(key)) next.set(key, state);
-          }
-          for (const { key, htmlContent, layout } of relaid) {
-            const state = next.get(key);
-            if (state) next.set(key, { ...state, htmlContent, layout });
-          }
-          return next;
-        });
+        if (removed.length === 0 && added.length === 0 && relaid.length === 0 && reapply.length === 0
+          && reparented.length === 0) return;
+        if (removed.length > 0 || added.length > 0 || relaid.length > 0 || reparented.length > 0) {
+          setWidgets((prev) => {
+            const next = new Map(prev);
+            for (const key of removed) next.delete(key);
+            for (const { key, state } of added) {
+              if (!next.has(key)) next.set(key, state);
+            }
+            for (const { key, htmlContent, layout } of relaid) {
+              const state = next.get(key);
+              if (state) next.set(key, { ...state, htmlContent, layout });
+            }
+            for (const { key, topLevel } of reparented) {
+              const state = next.get(key);
+              if (state) next.set(key, { ...state, topLevel });
+            }
+            return next;
+          });
+        }
         for (const { key, state } of added) {
           if (state.viewMode === 'preview') {
             applyPreviewModeToDOM(editor, key, state.previewHeight, state.layout);
           }
+        }
+        for (const { key, state } of reapply) {
+          applyPreviewModeToDOM(editor, key, state.previewHeight, previewOverrides.current.get(key) ?? state.layout);
         }
       }, {skipInitialization: false}),
       editor.registerMutationListener(IframeWidgetNode, (mutations) => {
@@ -652,7 +1122,7 @@ export default function IframeWidgetPlugin({
   useLayoutEffect(() => {
     for (const [key, state] of widgets) {
       if (state.viewMode === 'preview') {
-        applyPreviewModeToDOM(editor, key, state.previewHeight, state.layout);
+        applyPreviewModeToDOM(editor, key, state.previewHeight, previewOverrides.current.get(key) ?? state.layout);
       } else {
         removePreviewModeFromDOM(editor, key);
       }
@@ -660,7 +1130,7 @@ export default function IframeWidgetPlugin({
   }, [editor, widgets, columnWidth]);
 
   const widgetKeys = Array.from(widgets.keys());
-  const positions = usePositionTracking(editor, anchorElem, widgets);
+  const [positions, scheduleMeasure] = usePositionTracking(editor, anchorElem, widgets);
 
   const handleToggle = useCallback((key: string) => {
     // Switching to code view: mark the node dirty so the code highlighter (which skips previews)
@@ -691,7 +1161,7 @@ export default function IframeWidgetPlugin({
       next.set(key, { ...state, previewHeight: height });
       return next;
     });
-    if (current) applyPreviewModeToDOM(editor, key, height, current.layout);
+    if (current) applyPreviewModeToDOM(editor, key, height, previewOverrides.current.get(key) ?? current.layout);
   }, [editor]);
 
   // Writes the placement into the widget's own HTML (its <meta name="lw-layout"> tag), which is what
@@ -712,6 +1182,305 @@ export default function IframeWidgetPlugin({
       return next;
     });
   }, [editor]);
+
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): drag a widget by the grip on its top edge to move
+  // it (sideways to switch sides), pull its edges to resize it, or use the keys on a focused grip.
+  // Only where an IframeWidgetDragContext turns it on (the Experiment 2 demo editor).
+  const dragContext = useContext(IframeWidgetDragContext);
+  const [editable, setEditable] = useState(() => editor.isEditable());
+  useEffect(() => editor.registerEditableListener(setEditable), [editor]);
+  const dragEnabled = dragContext && editable && !isSuggestionMode;
+  const dragEnabledRef = useRef(dragEnabled);
+  dragEnabledRef.current = dragEnabled;
+  const [gesture, setGesture] = useState<{ key: string, phase: GesturePhase } | null>(null);
+  const cancelGesture = useRef<null | (() => void)>(null);
+  const [dragViewStore] = useState(() => new DragViewStore());
+  const [announcement, setAnnouncement] = useState('');
+  const [hintDone, setHintDone] = useState(false);
+
+  // The anchor's data-lw-drag (idle, moving or resizing) is a test hook. Leaving drag mode, or
+  // unmounting, mid-gesture cancels the gesture.
+  useEffect(() => {
+    if (!anchorElem || !dragEnabled) return;
+    anchorElem.dataset.lwDrag = 'idle';
+    return () => {
+      cancelGesture.current?.();
+      delete anchorElem.dataset.lwDrag;
+    };
+  }, [anchorElem, dragEnabled]);
+
+  /**
+   * Moves the widget before `beforeKey` (null: the end of the post; undefined: stays put) and/or gives
+   * it `layout`, as one undo step. Returns whether the editor took it.
+   */
+  const commitPlacement = useCallback((key: string, beforeKey: string | null | undefined, layout?: IframeWidgetLayout): boolean => {
+    const before = widgetsRef.current.get(key);
+    const handled = editor.dispatchCommand(MOVE_IFRAME_WIDGET_COMMAND, { key, beforeKey, layout });
+    if (handled && layout && before && !sameLayout(before.layout, layout)) {
+      // Show the new layout now rather than when the editor's update lands.
+      setWidgets((prev) => {
+        const next = new Map(prev);
+        const state = next.get(key);
+        if (!state) return prev;
+        next.set(key, { ...state, layout, htmlContent: setIframeWidgetLayout(state.htmlContent, layout) });
+        return next;
+      });
+      if (before.viewMode === 'preview') applyPreviewModeToDOM(editor, key, before.previewHeight, layout);
+    }
+    scheduleMeasure();
+    return handled;
+  }, [editor, scheduleMeasure]);
+
+  const endGesture = useCallback(() => {
+    cancelGesture.current = null;
+    setGesture(null);
+    dragViewStore.set(null);
+    if (anchorElem) anchorElem.dataset.lwDrag = 'idle';
+  }, [anchorElem, dragViewStore]);
+
+  /** A widget's grip tab, which takes the focus back after a gesture started from inside its iframe. */
+  const gripTabOf = useCallback(
+    (key: string) => anchorElem?.querySelector<HTMLElement>(`.lw-widget-grip[data-widget-key="${key}"]`) ?? null,
+    [anchorElem],
+  );
+
+  const startMove = useCallback((key: string, e: React.PointerEvent<HTMLElement>) => {
+    const start = widgetsRef.current.get(key);
+    if (cancelGesture.current || e.button !== 0 || !anchorElem || !dragEnabledRef.current || !start?.topLevel) return;
+    // Only a widget among the blocks a drop goes between (not one past the footnotes) can be moved.
+    const inPost = (blocks: BlockBox[]) => blocks.some(b => b.key === key && b.kind === 'widget');
+    if (!inPost(measureBlocks(editor).blocks)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const grip = e.currentTarget;
+    // As tall as the widget, so the ghost shows what the drop will cover or push down.
+    const ghostHeight = Math.round(start.previewHeight);
+    let slot: DropSlot | null = null;
+    let column: ColumnRect = editorColumnRect(editor);
+    setGesture({ key, phase: 'pressed' });
+    cancelGesture.current = startPointerGesture(e.nativeEvent, {
+      cursor: 'grabbing',
+      threshold: e.pointerType === 'touch' ? 8 : 4,
+      autoScroll: true,
+      onStart: () => {
+        setGesture({ key, phase: 'moving' });
+        setHintDone(true);
+        anchorElem.dataset.lwDrag = 'moving';
+      },
+      onFrame: (point) => {
+        // Measured fresh every frame: auto-scroll, wheel scrolling and window resizes just work.
+        const measured = measureBlocks(editor);
+        // The widget went away, or into another block, under the drag: drop nothing.
+        if (!inPost(measured.blocks)) {
+          slot = null;
+          cancelGesture.current?.();
+          return;
+        }
+        column = measured.column;
+        slot = chooseDropSlot({
+          blocks: measured.blocks,
+          draggedKey: key,
+          pointerX: point.x,
+          pointerY: point.y,
+          column,
+          layout: start.layout,
+          prevSide: slot ? widgetSide(slot.layout) : null,
+          ghostHeight,
+        });
+        dragViewStore.set(moveView(slot, start.layout, column, anchorElem, ghostHeight, renderedChipHeight(anchorElem)));
+      },
+      onCommit: () => {
+        if (!slot || slot.noOp) return false;
+        // Dropped on its own slot: only the side changes, the widget stays put.
+        const beforeKey = slot.sameSlot ? undefined : slot.beforeKey;
+        const description = describePlacement(editor, key, slot.layout, slot.sameSlot ? undefined : slot.slotKey, column.width);
+        // Where the preview showed it.
+        const shownAt = slot.ghostTop ?? slot.lineY;
+        if (!commitPlacement(key, beforeKey, slot.layout)) return false;
+        setAnnouncement(`Moved. ${description}`);
+        // The widget leaves its old place when it lands (so everything below that collapses), and
+        // scroll anchoring may pick a block on either side: once the drop has been laid out, scroll so
+        // the widget is where the preview was, rather than letting the page jump under the pointer.
+        // A drop that landed out of view (aimed at the dashed stand-in at the window's edge) is then
+        // scrolled into view, gently, its top below the site header.
+        requestAnimationFrame(() => {
+          const elem = editor.getElementByKey(key);
+          if (!elem) return;
+          let rect = elem.getBoundingClientRect();
+          if (Math.abs(rect.top - shownAt) > DROP_SCROLL_TOLERANCE) {
+            window.scrollBy(0, rect.top - shownAt);
+            rect = elem.getBoundingClientRect();
+          }
+          if (rect.bottom < KEY_MOVE_TOP_ROOM || rect.top > visibleBottom() - DROP_SCROLL_TOLERANCE) {
+            window.scrollBy({ top: rect.top - KEY_MOVE_TOP_ROOM, behavior: 'smooth' });
+          }
+        });
+        return true;
+      },
+      onCancel: () => {},
+      // A click on the grip changes nothing; it focuses the grip for the arrow keys.
+      onClick: () => grip.focus({ preventScroll: true }),
+      onEnd: endGesture,
+      refocus: () => gripTabOf(key),
+    });
+  }, [editor, anchorElem, commitPlacement, dragViewStore, endGesture, gripTabOf]);
+
+  const startResize = useCallback((key: string, edge: WidgetSide, e: React.PointerEvent<HTMLElement>) => {
+    const start = widgetsRef.current.get(key);
+    if (cancelGesture.current || e.button !== 0 || !anchorElem || !dragEnabledRef.current || !start?.topLevel) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const startWraps = shouldWrapWidget(start.layout, editorColumnWidth(editor));
+    let current = start.layout;
+    let columnWidth = editorColumnWidth(editor);
+    /**
+     * Restyles the widget for `layout` and scrolls by however far that moved it, so it stays under the
+     * pointer: a full-width widget that becomes a float stops clearing the floats before it, and may
+     * jump up beside one (and back down when it goes full width again).
+     */
+    const relayout = (previewHeight: number, layout: IframeWidgetLayout) => {
+      const spacer = editor.getElementByKey(key);
+      const before = spacer?.getBoundingClientRect().top;
+      applyPreviewModeToDOM(editor, key, previewHeight, layout);
+      const after = spacer?.getBoundingClientRect().top;
+      if (before !== undefined && after !== undefined && Math.abs(after - before) > 1) window.scrollBy(0, after - before);
+      scheduleMeasure();
+    };
+    const restore = () => {
+      previewOverrides.current.delete(key);
+      const state = widgetsRef.current.get(key);
+      if (state?.viewMode === 'preview') relayout(state.previewHeight, state.layout);
+      else scheduleMeasure();
+    };
+    setGesture({ key, phase: 'pressed' });
+    cancelGesture.current = startPointerGesture(e.nativeEvent, {
+      cursor: 'ew-resize',
+      // Only a sideways pull resizes: a vertical slip on the edge (or, on a touch screen, the start of
+      // a scroll) would otherwise snap an off-grid width (say 46%) to the nearest allowed one.
+      threshold: e.pointerType === 'touch' ? 8 : 3,
+      axis: 'x',
+      autoScroll: false,
+      onStart: () => {
+        setGesture({ key, phase: 'resizing' });
+        setHintDone(true);
+        anchorElem.dataset.lwDrag = 'resizing';
+      },
+      onFrame: (point) => {
+        const state = widgetsRef.current.get(key);
+        if (!state || state.viewMode !== 'preview') {
+          cancelGesture.current?.();
+          return;
+        }
+        const column = editorColumnRect(editor);
+        columnWidth = column.width;
+        const target = resizeTarget({ edge, startLayout: start.layout, startWraps, pointerX: point.x, column });
+        if (!sameLayout(target.layout, current)) {
+          // A style-only preview: the text reflows around the new size, the document is untouched.
+          current = target.layout;
+          previewOverrides.current.set(key, current);
+          relayout(state.previewHeight, current);
+        }
+        dragViewStore.set(resizeView(target, column, editor.getElementByKey(key), anchorElem, point));
+      },
+      onCommit: () => {
+        previewOverrides.current.delete(key);
+        if (sameLayout(current, start.layout)) {
+          restore();
+          return false;
+        }
+        const description = describePlacement(editor, key, current, undefined, columnWidth);
+        if (!commitPlacement(key, undefined, current)) {
+          restore();
+          return false;
+        }
+        setAnnouncement(`Resized. ${description}`);
+        return true;
+      },
+      onCancel: restore,
+      onEnd: endGesture,
+      refocus: () => gripTabOf(key),
+    });
+  }, [editor, anchorElem, commitPlacement, dragViewStore, endGesture, scheduleMeasure, gripTabOf]);
+
+  // On a focused grip: arrow up/down move to the previous/next slot, left/right set the side, [ and ]
+  // step the width. Each press is one undo step.
+  const handleGripKeyDown = useCallback((key: string, e: React.KeyboardEvent<HTMLElement>) => {
+    if (cancelGesture.current || !dragEnabledRef.current) return;
+    // The grips sit outside the editable text, so the editor never sees their keys: undo and redo
+    // (with the editor's own shortcuts) are passed on here.
+    const history = isUndoShortcut(e.nativeEvent) ? UNDO_COMMAND : isRedoShortcut(e.nativeEvent) ? REDO_COMMAND : null;
+    if (history) {
+      e.preventDefault();
+      e.stopPropagation();
+      editor.dispatchCommand(history, undefined);
+      // The editor commits that a moment later, together with this: as for a move from the grip, the
+      // caret stays put, so the grip keeps the focus and the page doesn't scroll to the caret.
+      editor.update(() => {
+        $addUpdateTag(SKIP_DOM_SELECTION_TAG);
+        $addUpdateTag(SKIP_SCROLL_INTO_VIEW_TAG);
+      });
+      return;
+    }
+    if (e.altKey || e.ctrlKey || e.metaKey || (e.shiftKey && e.key.startsWith('Arrow'))) return;
+    const state = widgetsRef.current.get(key);
+    if (!state || state.viewMode !== 'preview' || !state.topLevel) return;
+    const { layout } = state;
+    const side = widgetSide(layout);
+    const columnWidth = editorColumnWidth(editor);
+    let slotKey: string | null | undefined;
+    let beforeKey: string | null | undefined;
+    let nextLayout: IframeWidgetLayout | undefined;
+    switch (e.key) {
+      case 'ArrowUp':
+      case 'ArrowDown': {
+        const { blocks } = measureBlocks(editor);
+        const wraps = shouldWrapWidget(layout, columnWidth);
+        slotKey = adjacentSlot(blocks, key, e.key === 'ArrowUp' ? 'up' : 'down', wraps);
+        if (slotKey !== undefined) beforeKey = insertionKey(blocks, key, slotKey, wraps);
+        break;
+      }
+      case 'ArrowLeft':
+      case 'ArrowRight': {
+        const position: WidgetSide = e.key === 'ArrowLeft' ? 'left' : 'right';
+        if (side && side !== position) nextLayout = { ...layout, position };
+        break;
+      }
+      case '[':
+      case ']': {
+        const width = side ? stepWidth(layout.width, e.key === ']' ? 1 : -1, columnWidth) : null;
+        if (width) nextLayout = { ...layout, width };
+        break;
+      }
+      default:
+        return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    if (beforeKey === undefined && !nextLayout) return;
+    setHintDone(true);
+    const description = describePlacement(editor, key, nextLayout ?? layout, slotKey, columnWidth);
+    if (!commitPlacement(key, beforeKey, nextLayout)) return;
+    setAnnouncement(description);
+    // Keep the widget in view once it has moved: its top, and as much of it as fits above the demo's
+    // bottom bar (the grip alone, a 14px tab, would leave the widget itself below the window).
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const rect = editor.getElementByKey(key)?.getBoundingClientRect();
+      if (!rect) return;
+      const bottom = visibleBottom();
+      if (rect.top < KEY_MOVE_TOP_ROOM) {
+        window.scrollBy(0, rect.top - KEY_MOVE_TOP_ROOM);
+      } else if (rect.bottom > bottom) {
+        window.scrollBy(0, Math.min(rect.bottom - bottom, rect.top - KEY_MOVE_TOP_ROOM));
+      }
+    }));
+  }, [editor, commitPlacement]);
+
+  const hintKey = dragEnabled && !hintDone
+    ? widgetKeys.find((key) => {
+      const state = widgets.get(key)!;
+      return state.viewMode === 'preview' && state.topLevel && stripIframeWidgetLayout(state.htmlContent).trim().length > 0;
+    })
+    : undefined;
 
   if (!anchorElem) return null;
 
@@ -740,10 +1509,220 @@ export default function IframeWidgetPlugin({
             onToggle={handleToggle}
             onIframeResize={handleIframeResize}
             onLayoutChange={handleLayoutChange}
+            dragEnabled={dragEnabled}
+            gesture={gesture?.key === key ? gesture.phase : null}
+            hint={key === hintKey}
+            onGripPointerDown={startMove}
+            onResizePointerDown={startResize}
+            onGripKeyDown={handleGripKeyDown}
           />
         );
       })}
+      {dragEnabled && <WidgetDragLayer store={dragViewStore} announcement={announcement}/>}
     </>,
     anchorElem,
   );
+}
+
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): what the drag layer shows, in anchor coordinates.
+
+/** Gap between the pointer and the resize chip. */
+const RESIZE_CHIP_GAP = 20;
+/** Room the resize chip may need below the pointer (its longest text wraps to two lines). */
+const RESIZE_CHIP_ROOM = 48;
+/** Height of a one-line chip, until one has been drawn (see renderedChipHeight). */
+const CHIP_LINE_HEIGHT = 24;
+/** Room a move chip needs beyond its height; one placed lower goes above its point instead. */
+const MOVE_CHIP_MARGIN = 2;
+/** The chips keep this far from the top of the window (the site header is tucked away while dragging). */
+const CHIP_TOP_MARGIN = 8;
+/** A ghost cut off where a heading starts a new section keeps at least this much height. */
+const MIN_CUT_GHOST = 40;
+
+/**
+ * The height of the chip drawn on the last frame (its text wraps to more lines in a narrow ghost or
+ * column). Text that changes gets measured a frame later, and the chip placed again.
+ */
+function renderedChipHeight(anchorElem: HTMLElement): number {
+  return anchorElem.querySelector<HTMLElement>('[data-testid=widget-drag-chip]')?.offsetHeight || CHIP_LINE_HEIGHT;
+}
+
+function moveView(
+  slot: DropSlot,
+  storedLayout: IframeWidgetLayout,
+  column: ColumnRect,
+  anchorElem: HTMLElement,
+  ghostHeight: number,
+  chipHeight: number,
+): DragView {
+  const { dx, dy } = anchorOffset(anchorElem);
+  const left = Math.round(column.left + dx);
+  const width = Math.round(column.width);
+  let line = { top: Math.round(slot.lineY + dy), left, width };
+  const side = widgetSide(slot.layout);
+  const text = moveChipText(slot, storedLayout);
+  let ghost: MoveDragView['ghost'] = null;
+  // Client y of the line and of the chip's top: on the line, centered in the column...
+  let lineY = slot.lineY;
+  let chipY = slot.lineY - Math.round(chipHeight / 2);
+  let chip: Omit<DragChip, 'top'> = { text, x: Math.round(left + (width / 2)), align: 'center', maxWidth: Math.max(120, width - 12) };
+  if (slot.wraps && side && slot.ghostTop !== null && !slot.noOp) {
+    const ghostWidth = Math.min(width, widgetWidthPx(slot.layout, column.width) ?? width);
+    const ghostLeft = side === 'left' ? left : left + width - ghostWidth;
+    // It stops where a heading (or a full-width widget) starts the next section, which a taller widget
+    // pushes down (the chip says so when the widget, not the text beside it, is what pushes it): drawn
+    // across that block, it looked as if the block went beside it.
+    const sectionEnd = slot.sectionEnd !== null && slot.ghostTop + ghostHeight > slot.sectionEnd ? slot.sectionEnd : null;
+    const cut = sectionEnd !== null;
+    const height = cut ? Math.min(ghostHeight, Math.max(MIN_CUT_GHOST, sectionEnd - slot.ghostTop)) : ghostHeight;
+    ghost = { top: Math.round(slot.ghostTop + dy), left: ghostLeft, width: ghostWidth, height: Math.round(height), cut };
+    // The line only spans the side the widget takes, so it doesn't run through a widget on the other,
+    // and sits on the ghost's top when that is pushed below an earlier float on this side (at the gap
+    // it would run through that float).
+    if (slot.stacked) lineY = slot.ghostTop;
+    line = { top: Math.round(lineY + dy), left: ghostLeft, width: ghostWidth };
+    // ...or from the ghost's outer edge, inside it (on the line when the ghost is pushed below an
+    // earlier float, where the pointer is), and no wider than it.
+    chipY = slot.stacked ? slot.lineY + 6 : slot.ghostTop + 6;
+    const maxWidth = Math.max(120, ghostWidth - 12);
+    chip = side === 'left'
+      ? { text, x: ghostLeft + 6, align: 'start', maxWidth }
+      : { text, x: ghostLeft + ghostWidth - 6, align: 'end', maxWidth };
+  }
+  // Always readable: kept between the top of the window and the demo's bottom bar, even when the slot
+  // itself is scrolled out of view or under the bar.
+  const bottom = visibleBottom();
+  // Where the line itself is out of view (or under the bar), a dashed stand-in is drawn at that edge,
+  // the chip next to it says which way the drop lands, and auto-scroll (or the wheel) brings it in.
+  const offscreen: MoveDragView['offscreen'] = lineY > bottom - 3 ? 'below' : lineY < CHIP_TOP_MARGIN ? 'above' : null;
+  if (offscreen) {
+    line = { ...line, top: Math.round((offscreen === 'below' ? bottom - 3 : CHIP_TOP_MARGIN) + dy) };
+    if (!slot.noOp) chip = { ...chip, text: `${text} · ${offscreen === 'below' ? 'lands below ↓' : 'lands above ↑'}` };
+  }
+  // (And clear of that stand-in.)
+  const minY = CHIP_TOP_MARGIN + (offscreen === 'above' ? 6 : 0);
+  const maxY = bottom - (offscreen === 'below' ? 8 : 0);
+  const room = chipHeight + MOVE_CHIP_MARGIN;
+  const above = chipY + room > maxY;
+  if (above) {
+    let chipBottom = Math.min(chipY + room, maxY);
+    // Held up by the bottom of the window, a chip meant to sit below the line (in the ghost) would
+    // cover it: it goes just above the line instead.
+    if (ghost && !offscreen && chipBottom - chipHeight < lineY + 3) chipBottom = Math.min(chipBottom, lineY - 4);
+    chipY = Math.max(minY + room, chipBottom);
+  } else {
+    chipY = Math.max(minY, chipY);
+  }
+  return {
+    kind: 'move',
+    line,
+    ghost,
+    chip: { ...chip, top: Math.round(chipY + dy), above },
+    dim: slot.noOp,
+    offscreen,
+    attrs: {
+      slotKey: slot.slotKey,
+      beforeKey: slot.beforeKey,
+      atEnd: slot.atEnd,
+      position: slot.layout.position,
+      width: slot.layout.width,
+      wraps: slot.wraps,
+      sameSlot: slot.sameSlot,
+      noOp: slot.noOp,
+      headingSnapped: slot.headingSnapped,
+      besideOpposite: slot.besideOpposite,
+      pushesDown: slot.pushesDown,
+    },
+  };
+}
+
+function resizeView(
+  target: ResizeTarget,
+  column: ColumnRect,
+  spacer: HTMLElement | null,
+  anchorElem: HTMLElement,
+  point: GesturePoint,
+): DragView {
+  const { dx, dy } = anchorOffset(anchorElem);
+  const left = column.left + dx;
+  const width = column.width;
+  // Along the widget's top edge, kept on screen while a tall widget's top is scrolled away.
+  const rect = spacer?.getBoundingClientRect();
+  const rulerY = !rect ? point.y : rect.top >= 8 ? rect.top : Math.min(8, rect.bottom - 8);
+  // One tick per snap width offered here (none narrower than MIN_WIDGET_WIDTH), measured from the
+  // fixed edge; hollow where that width can't wrap here.
+  const ticks = target.snaps.map((fraction) => {
+    const tickWidth = fraction === 1 ? null : `${Math.round(fraction * 100)}%`;
+    const x = target.side === 'left' ? left + (fraction * width) : left + width - (fraction * width);
+    return {
+      x: Math.round(x),
+      fraction,
+      label: tickWidth ?? 'Full width',
+      filled: tickWidth === null || shouldWrapWidget({ position: target.side, width: tickWidth }, width),
+      active: fraction === target.snap,
+    };
+  });
+  // Below the pointer, over the current snap, kept inside the column. Near the bottom of the window,
+  // where it would go under the demo's bottom bar or off the screen, it goes above the pointer instead.
+  const maxWidth = Math.round(Math.min(260, width));
+  const activeX = ticks.find((tick) => tick.active)?.x ?? (point.x + dx);
+  const chipX = Math.min(Math.max(activeX, left + (maxWidth / 2)), left + width - (maxWidth / 2));
+  const bottomLimit = visibleBottom();
+  const above = point.y + RESIZE_CHIP_GAP + RESIZE_CHIP_ROOM > bottomLimit;
+  const chipTop = above ? Math.min(point.y - RESIZE_CHIP_GAP, bottomLimit) : point.y + RESIZE_CHIP_GAP;
+  return {
+    kind: 'resize',
+    ruler: { top: Math.round(rulerY + dy), left: Math.round(left), width: Math.round(width), ticks },
+    chip: { text: resizeChipText(target, target.wraps && besideOppositeFloat(spacer, target.side)), top: Math.round(chipTop + dy), x: Math.round(chipX), align: 'center', maxWidth, above },
+    attrs: {
+      position: target.layout.position,
+      width: target.layout.width,
+      fixedSide: target.side,
+      snap: target.snap,
+      wraps: target.wraps,
+    },
+  };
+}
+
+/**
+ * Whether a widget on the other side runs beside this one in the live (previewed) layout, squeezing
+ * the text between them. Moves warn about this too (DropSlot.besideOpposite).
+ */
+function besideOppositeFloat(spacer: HTMLElement | null, side: WidgetSide): boolean {
+  const parent = spacer?.parentElement;
+  if (!spacer || !parent) return false;
+  const rect = spacer.getBoundingClientRect();
+  return Array.from(parent.children).some((elem) => {
+    if (elem === spacer || !(elem instanceof HTMLElement)) return false;
+    const float = getComputedStyle(elem).float;
+    if (float !== 'left' && float !== 'right' || float === side) return false;
+    const other = elem.getBoundingClientRect();
+    return other.top < rect.bottom - 1 && other.bottom > rect.top + 1;
+  });
+}
+
+/** For screen readers, for example "Right, 33%, before 'One loop and one brake'". */
+function describePlacement(
+  editor: LexicalEditor,
+  key: string,
+  layout: IframeWidgetLayout,
+  beforeKey: string | null | undefined,
+  columnWidth: number,
+): string {
+  const side = widgetSide(layout);
+  const parts = [side ? sideLabel(side) : 'Full width'];
+  if (side && layout.width) parts.push(layout.width);
+  if (side && !shouldWrapWidget(layout, columnWidth)) parts.push('full width at this window size');
+  const where = editor.getEditorState().read(() => {
+    const widget = $getNodeByKey(key);
+    const next = beforeKey === undefined ? (widget && $nextContentSibling(widget))
+      : beforeKey === null ? null
+      : $getNodeByKey(beforeKey);
+    if (!next || $isFootnoteSectionNode(next)) return 'at the end of the post';
+    if ($isIframeWidgetNode(next)) return 'before another widget';
+    const text = next.getTextContent().replace(/\s+/g, ' ').trim();
+    if (!text) return 'before an empty line';
+    return `before '${text.length > 48 ? `${text.slice(0, 45).trimEnd()}…` : text}'`;
+  });
+  return `${parts.join(', ')}, ${where}`;
 }

@@ -134,8 +134,12 @@ function findNextContentNode(
  *
  * This function is designed to be idempotent: if sentinels are already
  * correctly placed, it makes no changes.
+ *
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp2): exported so moving an iframe widget can fix the
+ * sentinels in its own update. The follow-up reconcile below then has nothing to do and commits
+ * nothing, so it can't move the DOM selection, take focus from the widget's grip or scroll the page.
  */
-function $reconcileSentinels(): void {
+export function $reconcileSentinels(): void {
   const root = $getRoot();
   const children = root.getChildren();
 

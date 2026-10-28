@@ -1,0 +1,80 @@
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): what dragging a widget needs to read from the
+// editor's DOM (editorColumnWidth moved here from IframeWidgetPlugin). Measured fresh on every
+// animation frame of a drag (about 60 blocks for the demo post), so scrolling and window resizes need
+// no special handling.
+import { $getRoot, type LexicalEditor, type LexicalNode } from 'lexical';
+import { $isHeadingNode } from '@lexical/rich-text';
+import { $isFootnoteSectionNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
+import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
+import { $isIframeWidgetNode } from './IframeWidgetNode';
+import type { BlockBox, ColumnRect } from './widgetDragGeometry';
+
+/**
+ * The next sibling that is content, skipping the empty sentinel paragraphs the editor keeps around
+ * widgets for the caret (see BlockCursorNavigationPlugin).
+ */
+export function $nextContentSibling(node: LexicalNode): LexicalNode | null {
+  let next = node.getNextSibling();
+  while (next && $isSentinelParagraphNode(next)) next = next.getNextSibling();
+  return next;
+}
+
+/** Width of the editor's text column, which wrapped widgets are sized against. */
+export function editorColumnWidth(editor: LexicalEditor): number {
+  const root = editor.getRootElement();
+  if (!root) return 0;
+  const cs = getComputedStyle(root);
+  return root.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+}
+
+/** The editor's text column in client coordinates (same width as editorColumnWidth). */
+export function editorColumnRect(editor: LexicalEditor): ColumnRect {
+  const root = editor.getRootElement();
+  if (!root) return { left: 0, width: 0 };
+  const cs = getComputedStyle(root);
+  const paddingLeft = parseFloat(cs.paddingLeft) || 0;
+  const paddingRight = parseFloat(cs.paddingRight) || 0;
+  return {
+    left: root.getBoundingClientRect().left + root.clientLeft + paddingLeft,
+    width: root.clientWidth - paddingLeft - paddingRight,
+  };
+}
+
+/**
+ * The post's top-level blocks up to its footnotes section (drops never go after the footnotes), with
+ * their boxes and floats, plus the text column.
+ */
+export function measureBlocks(editor: LexicalEditor): { blocks: BlockBox[], column: ColumnRect } {
+  const blocks: BlockBox[] = [];
+  editor.getEditorState().read(() => {
+    const children = $getRoot().getChildren();
+    for (let index = 0; index < children.length; index++) {
+      const child = children[index];
+      if ($isFootnoteSectionNode(child)) break;
+      const key = child.getKey();
+      const elem = editor.getElementByKey(key);
+      if (!elem) continue;
+      const rect = elem.getBoundingClientRect();
+      const { float, clear } = getComputedStyle(elem);
+      blocks.push({
+        key,
+        index,
+        kind: $isHeadingNode(child) ? 'heading'
+          : $isIframeWidgetNode(child) ? 'widget'
+          : $isSentinelParagraphNode(child) ? 'sentinel'
+          : 'other',
+        float: float === 'left' || float === 'right' ? float : 'none',
+        clears: clear !== 'none',
+        top: rect.top,
+        bottom: rect.bottom,
+      });
+    }
+  });
+  return { blocks, column: editorColumnRect(editor) };
+}
+
+/** Adds these to client coordinates to get coordinates inside the anchor element (where overlays live). */
+export function anchorOffset(anchorElem: HTMLElement): { dx: number, dy: number } {
+  const rect = anchorElem.getBoundingClientRect();
+  return { dx: anchorElem.scrollLeft - rect.left, dy: anchorElem.scrollTop - rect.top };
+}

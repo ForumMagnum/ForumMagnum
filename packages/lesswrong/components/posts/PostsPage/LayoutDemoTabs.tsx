@@ -1,10 +1,12 @@
 'use client';
 // EXPERIMENT (branch experiment/iframe-layout-ronny): the layout demo's two tabs, the post as readers
 // see it and the editor with the same post, shown in the demo's bottom bar.
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): the Experiment 2 editor and, on this branch, the demo post pass
+// WIDGET_DRAG_EDITOR_PATH as editorPath. The first editor keeps the default.
 import React from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { LAYOUT_DEMO_PATH } from './constants';
+import { LAYOUT_DEMO_PATH, WIDGET_DRAG_DEMO_PATH } from './constants';
 
 const styles = defineStyles('LayoutDemoTabs', (theme: ThemeType) => ({
   tabs: {
@@ -57,18 +59,28 @@ const styles = defineStyles('LayoutDemoTabs', (theme: ThemeType) => ({
   },
 }));
 
-export function LayoutDemoTabs({ active }: { active: 'post' | 'editor' }) {
+export const WIDGET_DRAG_EDITOR_PATH = `${WIDGET_DRAG_DEMO_PATH}/editor`;
+
+export function LayoutDemoTabs({ active, editorPath = `${LAYOUT_DEMO_PATH}/editor` }: {
+  active: 'post' | 'editor',
+  editorPath?: string,
+}) {
   const classes = useStyles(styles);
   return <span className={classes.tabs}>
     <a href={`${LAYOUT_DEMO_PATH}?textWidth=normal`} className={classNames(classes.tab, active === 'post' && classes.active)}>Post</a>
-    <a href={`${LAYOUT_DEMO_PATH}/editor`} className={classNames(classes.tab, active === 'editor' && classes.active)}>Editor</a>
+    <a href={editorPath} className={classNames(classes.tab, active === 'editor' && classes.active)}>Editor</a>
   </span>;
 }
 
-export function LayoutDemoEditorBar() {
+export function LayoutDemoEditorBar({ editorPath, note = 'Normal text width (682)' }: {
+  editorPath?: string,
+  note?: string,
+}) {
   const classes = useStyles(styles);
-  return <div className={classes.bar}>
-    <LayoutDemoTabs active="editor"/>
-    <span className={classes.barNote}>Normal text width (682)</span>
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): data-lw-bottom-bar (Experiment 2 only): the widget
+  // drag controls keep their chips and their auto-scroll zone above this bar.
+  return <div className={classes.bar} data-lw-bottom-bar={editorPath === WIDGET_DRAG_EDITOR_PATH ? '' : undefined}>
+    <LayoutDemoTabs active="editor" editorPath={editorPath}/>
+    <span className={classes.barNote}>{note}</span>
   </div>;
 }

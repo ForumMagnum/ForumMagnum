@@ -21,3 +21,6 @@ export const sidenotesHiddenBreakpoint = (theme: ThemeType) => theme.breakpoints
 // EXPERIMENT (branch experiment/iframe-layout-ronny): the shareable layout demo (see LayoutDemoTabs).
 export const LAYOUT_DEMO_TITLE = "The AI Futures Model, explained with interactive widgets";
 export const LAYOUT_DEMO_PATH = "/experiment-iframe-layout-tuito7fob8u0rzrbib0v16i1";
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): Experiment 2, the demo editor where widgets are
+// placed by dragging (its /editor page; its Post tab is the demo post above).
+export const WIDGET_DRAG_DEMO_PATH = "/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut";

@@ -39,6 +39,9 @@ export function parseIframeWidgetLayout(srcdoc: string): IframeWidgetLayout {
 // 682px column). Otherwise it sits inline at full width. Shared by the reader and the editor.
 export const MIN_TEXT_BESIDE_WIDGET = 300;
 export const WRAP_GUTTER = 32;
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): nor does one narrower than this (px), which leaves
+// a widget too cramped to use; it too shows full width.
+export const MIN_WIDGET_WIDTH = 150;
 
 /** The widget's width in px for a text column of the given width (null: full width). */
 export function widgetWidthPx(layout: IframeWidgetLayout, columnWidth: number): number | null {
@@ -51,7 +54,57 @@ export function shouldWrapWidget(layout: IframeWidgetLayout, columnWidth: number
   if (layout.position !== 'left' && layout.position !== 'right') return false;
   if (!columnWidth) return false;
   const width = widgetWidthPx(layout, columnWidth) ?? columnWidth;
-  return columnWidth - width - WRAP_GUTTER >= MIN_TEXT_BESIDE_WIDGET;
+  return width >= MIN_WIDGET_WIDTH && columnWidth - width - WRAP_GUTTER >= MIN_TEXT_BESIDE_WIDGET;
+}
+
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): the widths the editor offers for a left/right
+// widget, and helpers for dragging and resizing widgets in the editor.
+/** Widths that leave room to wrap in LessWrong's normal 682px text column. */
+export const ALLOWED_WIDGET_WIDTHS: readonly string[] = ['25%', '33%', '38%', '50%'];
+/** What a resize snaps to, as fractions of the text column (1 = full width). */
+export const SNAP_FRACTIONS: readonly number[] = [0.25, 0.33, 0.38, 0.5, 1];
+
+/** The narrowest text column (px) in which a left/right widget of this width wraps. */
+export function minColumnToWrap(width: string): number {
+  const value = parseFloat(width);
+  if (!(value > 0)) return Infinity;
+  if (!width.endsWith('%')) return value < MIN_WIDGET_WIDTH ? Infinity : value + MIN_TEXT_BESIDE_WIDGET + WRAP_GUTTER;
+  const fraction = value / 100;
+  if (fraction >= 1) return Infinity;
+  // Start just below the answer and count up, so the rounding in widgetWidthPx is honoured exactly.
+  const layout: IframeWidgetLayout = { position: 'left', width };
+  let column = Math.max(1,
+    Math.floor((MIN_TEXT_BESIDE_WIDGET + WRAP_GUTTER - 1) / (1 - fraction)) - 1,
+    Math.floor((MIN_WIDGET_WIDTH - 1) / fraction) - 1);
+  while (!shouldWrapWidget(layout, column)) column++;
+  return column;
+}
+
+/** Whether this snap fraction (1 = full width) is offered in a text column of this width (unmeasured: all). */
+function offeredFraction(fraction: number, columnWidth: number): boolean {
+  return fraction >= 1 || !(columnWidth > 0) || Math.round(columnWidth * fraction) >= MIN_WIDGET_WIDTH;
+}
+
+/**
+ * The allowed widths the editor offers in a text column of this width: those at least
+ * MIN_WIDGET_WIDTH wide there. (A widget keeps a stored width that isn't offered.)
+ */
+export function offeredWidths(columnWidth: number): string[] {
+  return ALLOWED_WIDGET_WIDTHS.filter(width => offeredFraction(parseFloat(width) / 100, columnWidth));
+}
+
+/** The snap fractions a resize offers in a text column of this width (full width always). */
+export function offeredSnapFractions(columnWidth: number): number[] {
+  return SNAP_FRACTIONS.filter(fraction => offeredFraction(fraction, columnWidth));
+}
+
+/** The allowed widths that wrap in a text column of this width. */
+export function wrappableWidths(columnWidth: number): string[] {
+  return ALLOWED_WIDGET_WIDTHS.filter(width => shouldWrapWidget({ position: 'left', width }, columnWidth));
+}
+
+export function sameLayout(a: IframeWidgetLayout, b: IframeWidgetLayout): boolean {
+  return a.position === b.position && a.width === b.width;
 }
 
 /** The widget's HTML without its layout tag (the tag only places the frame; the widget never sees it). */

@@ -16,7 +16,7 @@ import {
   RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, TEXT_TRACK_EXTRA,
 } from './constants';
 import { LayoutLabColumns, setLayoutLabColumns } from './layoutLabColumns';
-import { LayoutDemoTabs } from './LayoutDemoTabs';
+import { LayoutDemoTabs, WIDGET_DRAG_EDITOR_PATH } from './LayoutDemoTabs';
 
 const TEXT_WIDTH_PARAM = 'textWidth';
 const TEXT_WIDTH_STORAGE_KEY = 'lwLayoutLabTextWidth';
@@ -248,7 +248,8 @@ export function LayoutLab({ isLayoutDemo = false }: { isLayoutDemo?: boolean }) 
   if (!mounted || recording) return null;
   return createPortal(
     <div className={classes.lab}>
-      {isLayoutDemo && <LayoutDemoTabs active="post"/>}
+      {/* EXPERIMENT (exp2): this branch deploys on its own, so the post's Editor tab opens Experiment 2. */}
+      {isLayoutDemo && <LayoutDemoTabs active="post" editorPath={WIDGET_DRAG_EDITOR_PATH}/>}
       <span className={classes.label}>Text width</span>
       {TEXT_WIDTH_OPTIONS.map(option => <button
         key={option.width}
