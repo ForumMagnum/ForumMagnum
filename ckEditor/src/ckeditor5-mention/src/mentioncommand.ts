@@ -7,9 +7,7 @@
  * @module mention/mentioncommand
  */
 
-import { Command } from 'ckeditor5/src/core';
-import { CKEditorError, toMap } from 'ckeditor5/src/utils';
-
+import { Command, CKEditorError, toMap } from 'ckeditor5';
 
 /**
  * The mention command.

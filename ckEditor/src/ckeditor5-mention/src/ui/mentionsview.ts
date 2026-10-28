@@ -7,9 +7,7 @@
  * @module mention/ui/mentionsview
  */
 
-import { ListView } from 'ckeditor5/src/ui';
-import { Rect } from 'ckeditor5/src/utils';
-import type { Locale } from "@ckeditor/ckeditor5-utils";
+import { ListView, Rect, type Locale } from 'ckeditor5';
 
 import '../../theme/mentionui.css';
 

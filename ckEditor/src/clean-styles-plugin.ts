@@ -1,4 +1,4 @@
-import type { Editor } from "@ckeditor/ckeditor5-core";
+import type { Editor } from 'ckeditor5';
 /* eslint-disable no-tabs */
 
 export function SanitizeTags(editor: Editor) {
