@@ -14,6 +14,7 @@ import { runQuery } from "@/server/vulcan-lib/query";
 import { runLlmRun } from "@/server/languageModels/llmRuns";
 import { generateLlmRunResponse } from "@/server/languageModels/llmRunResponse";
 import { waitForBackgroundTasks } from "@/server/utils/backgroundTask";
+import { llmMentionsEnabledSetting } from "@/lib/llmReplies/llmMentions";
 
 jest.mock("@/server/languageModels/requestLlmRun", () => ({ requestLlmRun: jest.fn(async () => {}) }));
 jest.mock("@/server/languageModels/llmRunResponse", () => ({ generateLlmRunResponse: jest.fn() }));
@@ -28,6 +29,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
   jest.restoreAllMocks();
+  jest.spyOn(llmMentionsEnabledSetting, "get").mockReturnValue(true);
   mocked(generateLlmRunResponse).mockReset().mockImplementation(async (run, options) => {
     const response = `Successful answer ${mocked(generateLlmRunResponse).mock.calls.length}`;
     await LlmRuns.rawUpdateOne(run._id, { $set: { contextMessage: options.contextMessage, response } });
