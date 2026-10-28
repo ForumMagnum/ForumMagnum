@@ -1,6 +1,5 @@
 import { loadMathJax } from './loadMathjax.js';
-import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
-import { Widget } from '@ckeditor/ckeditor5-widget/src/widget';
+import { Plugin, Widget } from 'ckeditor5';
 
 import MathUI from './mathui';
 import MathEditing from './mathediting';

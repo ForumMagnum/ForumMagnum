@@ -1,7 +1,4 @@
-import { Plugin } from "@ckeditor/ckeditor5-core/src/plugin";
-import { ButtonView } from "@ckeditor/ckeditor5-ui/src/button/buttonview";
-import { toWidget } from "@ckeditor/ckeditor5-widget/src/utils";
-import { Widget } from "@ckeditor/ckeditor5-widget/src/widget";
+import { Plugin, ButtonView, toWidget, Widget } from 'ckeditor5';
 import CTAButtonForm from "./cta-button-form";
 
 import buttonIcon from "./ckeditor5-cta-button.svg";
@@ -77,7 +74,7 @@ export default class CTAButton extends Plugin {
       allowWhere: "$block", // Allow where block elements (e.g. paragraphs) are allowed
       isBlock: true,
       isObject: true, // Required to make the whole block selectable (to delete) and the text content non-editable
-      allowContentOf: "$text",
+      allowChildren: "$text",
       allowIn: "$root",
       allowAttributes: ["id", "class", "href"],
     });
@@ -137,11 +134,6 @@ export default class CTAButton extends Plugin {
         if (viewClass.includes(CENTERED_CLASS)) {
           modelWriter.setAttribute("class", CENTERED_CLASS, ctaButton);
         }
-
-        // Map the text nodes from the view to the model
-        const innerText = (viewElement.getChild(0) as AnyBecauseTodo).data;
-        const textNode = modelWriter.createText(innerText);
-        modelWriter.append(textNode, ctaButton);
 
         return ctaButton;
       },

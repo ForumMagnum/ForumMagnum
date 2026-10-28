@@ -1,5 +1,5 @@
 /* eslint-disable no-tabs */
-import { Command } from '@ckeditor/ckeditor5-core/src/command';
+import { Command } from 'ckeditor5';
 import { getSelectedMathModelWidget } from './utils';
 
 export default class MathCommand extends Command {

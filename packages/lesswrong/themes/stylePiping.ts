@@ -919,10 +919,12 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '--ck-content-font-color': 'initial',
         '--ck-content-line-height': 'initial',
         '--ck-content-word-break': 'initial',
+        '--ck-content-overflow-wrap': 'initial',
 
         marginLeft: -8,
         '--ck-focus-outer-shadow-geometry': "none",
         '--ck-focus-ring': theme.palette.border.transparent,
+        '--ck-editor-editable-focus-border-color': 'transparent',
         '--ck-focus-outer-shadow': "none",
         '--ck-inner-shadow': "none",
         '& p': {
