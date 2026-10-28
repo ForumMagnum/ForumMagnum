@@ -8,7 +8,6 @@ import { renderEquation } from "./loadMathJax";
 const styles = defineStyles('MathComponent', (theme: ThemeType) => ({
   preview: {
     userSelect: 'none',
-    minWidth: '1em',
     minHeight: '1em',
     '& mjx-merror': {
       color: theme.palette.error.light,
@@ -17,6 +16,11 @@ const styles = defineStyles('MathComponent', (theme: ThemeType) => ({
   },
   inline: {
     display: 'inline-block',
+    // Empty equations, and equations that render to nothing (such as ones
+    // that only define macros), would otherwise be unclickable.
+    '&:empty, &:has(> mjx-container > mjx-math:empty)': {
+      minWidth: '1em',
+    },
   },
   display: {
     display: 'block',
