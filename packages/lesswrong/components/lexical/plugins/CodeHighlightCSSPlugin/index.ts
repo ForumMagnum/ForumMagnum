@@ -47,6 +47,13 @@ function applyHighlights(
         rangesPerBlock.delete(key);
         continue;
       }
+      // EXPERIMENT (experiment/iframe-layout-ronny): a widget shown as its preview has its code hidden,
+      // so skip tokenizing it (big widgets took seconds each); IframeWidgetPlugin marks the node
+      // dirty when it switches to code view, which brings it back here.
+      if (element.classList.contains('iframe-widget-preview-mode')) {
+        rangesPerBlock.delete(key);
+        continue;
+      }
       const blockRanges = new Map<string, Range[]>();
       const language = node.getLanguage();
       highlightCodeElement(element, language ?? undefined, blockRanges);

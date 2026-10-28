@@ -663,6 +663,11 @@ export default function IframeWidgetPlugin({
   const positions = usePositionTracking(editor, anchorElem, widgets);
 
   const handleToggle = useCallback((key: string) => {
+    // Switching to code view: mark the node dirty so the code highlighter (which skips previews)
+    // tokenizes it now.
+    if (widgetsRef.current.get(key)?.viewMode === 'preview') {
+      editor.update(() => { $getNodeByKey(key)?.markDirty(); });
+    }
     setWidgets((prev) => {
       const next = new Map(prev);
       const state = next.get(key);
