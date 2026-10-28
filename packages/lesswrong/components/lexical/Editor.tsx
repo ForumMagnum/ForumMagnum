@@ -233,6 +233,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       padding: '0 !important',
       minHeight: '0 !important',
       border: 'none !important',
+      // EXPERIMENT (experiment/iframe-layout-ronny): widgets are clear, so the code block's grey
+      // background would show through the preview.
+      background: 'transparent !important',
       // The collapsed block still contains the full syntax-highlighted code
       // DOM (thousands of token spans on big widgets). Skip its rendering
       // work (style/layout/paint) entirely — the element keeps its explicit
