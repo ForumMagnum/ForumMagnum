@@ -15,7 +15,7 @@ const schema = {
     database: {
       type: "TEXT",
       nullable: false,
-      typescriptType: "'unsubscribeAll' | 'verifyEmail' | 'resetPassword' | 'confirmClaudeAccess'",
+      typescriptType: "'unsubscribeAll' | 'unsubscribeFromAiDigest' | 'verifyEmail' | 'resetPassword' | 'confirmClaudeAccess'",
     },
   },
   userId: {

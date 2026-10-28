@@ -236,6 +236,8 @@ export const wrapAndRenderEmail = async ({
   body,
   utmParams,
   forumType,
+  backgroundColor,
+  includeUnsubscribeFooter = true,
 }: {
   forumType: ForumTypeString;
   user: DbUser | null;
@@ -244,9 +246,13 @@ export const wrapAndRenderEmail = async ({
   subject: string;
   body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
+  backgroundColor?: string;
+  includeUnsubscribeFooter?: boolean;
 }): Promise<RenderedEmail> => {
   const emailContext = await createEmailContext(user, forumType);
-  const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id, emailContext.resolverContext.forumType) : null;
+  const unsubscribeAllLink = user && includeUnsubscribeFooter
+    ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id, emailContext.resolverContext.forumType)
+    : null;
 
   return await generateEmail({
     user,
@@ -256,6 +262,8 @@ export const wrapAndRenderEmail = async ({
     bodyComponent: <EmailWrapper
       unsubscribeAllLink={unsubscribeAllLink}
       emailContext={emailContext}
+      backgroundColor={backgroundColor}
+      includeUnsubscribeFooter={includeUnsubscribeFooter}
     >
       {body(emailContext)}
     </EmailWrapper>,
@@ -273,6 +281,8 @@ export const wrapAndSendEmail = async ({
   body,
   utmParams,
   forumType,
+  backgroundColor,
+  includeUnsubscribeFooter,
 }: {
   forumType: ForumTypeString;
   user: DbUser | null;
@@ -282,6 +292,8 @@ export const wrapAndSendEmail = async ({
   subject: string;
   body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
+  backgroundColor?: string;
+  includeUnsubscribeFooter?: boolean;
 }): Promise<boolean> => {
   if (isE2E) {
     return true;
@@ -298,7 +310,7 @@ export const wrapAndSendEmail = async ({
   }
 
   try {
-    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams, forumType });
+    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams, forumType, backgroundColor, includeUnsubscribeFooter });
     const succeeded = await sendEmail(email);
     backgroundTask(logSentEmail(email, user, {succeeded}, forumType));
     return succeeded;

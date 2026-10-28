@@ -7,7 +7,7 @@ import {
   aiDigestEmailCadenceDaysSetting,
   aiDigestScheduledEmailsEnabledSetting,
 } from "@/server/databaseSettings";
-import { aiDigestEmailBody } from "@/server/emailComponents/AiDigestEmail";
+import { aiDigestEmailBody, aiDigestEmailWrapperOptions } from "@/server/emailComponents/AiDigestEmail";
 import { AI_DIGEST_UTM_PARAMS } from "@/server/emailComponents/aiDigestEmailLinks";
 import { wrapAndSendEmail } from "@/server/emails/renderEmail";
 import AiDigestSchedulesRepo from "@/server/repos/AiDigestSchedulesRepo";
@@ -54,6 +54,7 @@ async function sendAiDigestToReader(schedule: DbAiDigestSchedule): Promise<void>
     subject: spec.subject,
     body: aiDigestEmailBody(spec, issueId),
     utmParams: AI_DIGEST_UTM_PARAMS,
+    ...aiDigestEmailWrapperOptions,
   });
   if (!sent) {
     throw new Error(`Failed to send scheduled AI digest issue ${issueId} to ${user._id}`);
