@@ -27,6 +27,8 @@ const routesWithWhiteBackground = [
   "/editPost",
   "/events/[_id]/[slug]",
   "/events/[_id]",
+  // EXPERIMENT (branch experiment/iframe-layout-ronny): the layout demo's editor.
+  "/experiment-iframe-layout-tuito7fob8u0rzrbib0v16i1/editor",
   "/faq",
   "/g/[groupId]/p/[_id]",
   "/highlights/[slug]",

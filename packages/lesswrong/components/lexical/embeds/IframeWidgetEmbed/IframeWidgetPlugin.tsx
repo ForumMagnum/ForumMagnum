@@ -77,14 +77,19 @@ const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
   previewOverlay: {
     position: 'absolute',
     zIndex: 1,
-    // The placement bar shows while the widget is hovered (or the bar has focus).
+    // EXPERIMENT (experiment/iframe-layout-ronny): clear like the published widget; the outline and
+    // the placement bar show while the widget is hovered (or the bar has focus).
+    border: '1px solid transparent',
+    borderRadius: 4,
+    overflow: 'hidden',
+    background: 'transparent',
+    transition: 'border-color 0.15s',
+    '&:hover': {
+      borderColor: theme.palette.greyAlpha(0.2),
+    },
     '&:hover $layoutBar': {
       opacity: 1,
     },
-    border: theme.palette.greyBorder('1px', 0.2),
-    borderRadius: 4,
-    overflow: 'hidden',
-    background: theme.palette.background.default,
   },
   iframe: {
     display: 'block',
