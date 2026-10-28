@@ -17,6 +17,8 @@ export interface DragChip {
   maxWidth: number;
   /** The chip sits above `top` (near the bottom of the window), so its height doesn't matter. */
   above?: boolean;
+  /** A second line, in amber: the width leaves the widget too small (see shrinkWarning). */
+  warning?: string;
 }
 
 export interface MoveDragView {
@@ -92,6 +94,13 @@ export class DragViewStore {
   }
 }
 
+/** Amber, for the shrink warning (on the resize chip, and under a widget in the editor). */
+export const SHRINK_WARNING_COLORS = {
+  text: 'light-dark(#7a4a00, #ffd27a)',
+  border: 'light-dark(#d4951b, #b07a14)',
+  background: 'light-dark(#fff4da, #3a2b0c)',
+};
+
 /**
  * The primary color at this opacity. (The palette's primaryAlpha is its greyAlpha, so it gives grey.)
  */
@@ -153,6 +162,14 @@ const styles = defineStyles('WidgetDragLayer', (theme: ThemeType) => ({
     width: 'max-content',
     whiteSpace: 'normal',
   },
+  chipWarn: {
+    borderColor: SHRINK_WARNING_COLORS.border,
+  },
+  chipWarning: {
+    display: 'block',
+    color: SHRINK_WARNING_COLORS.text,
+    fontWeight: 600,
+  },
   // A thin line with a light halo, so it reads as a control rather than a line struck through the text
   // and the widget under it, while the text under it stays readable; only the ticks get a solid ring.
   ruler: {
@@ -202,11 +219,14 @@ function Chip({ chip }: { chip: DragChip }) {
   const classes = useStyles(styles);
   const shiftX = chip.align === 'end' ? '-100%' : chip.align === 'center' ? '-50%' : '0';
   return <div
-    className={classes.chip}
+    className={classNames(classes.chip, chip.warning && classes.chipWarn)}
     style={{ top: chip.top, left: chip.x, maxWidth: chip.maxWidth, transform: `translate(${shiftX}, ${chip.above ? '-100%' : '0'})` }}
     data-testid="widget-drag-chip"
     data-above={String(!!chip.above)}
-  >{chip.text}</div>;
+  >
+    {chip.text}
+    {chip.warning && <span className={classes.chipWarning} data-testid="widget-drag-chip-warning">⚠ {chip.warning}</span>}
+  </div>;
 }
 
 function MoveIndicator({ view }: { view: MoveDragView }) {
@@ -261,6 +281,7 @@ function ResizeIndicator({ view }: { view: ResizeDragView }) {
     data-snap={String(attrs.snap)}
     data-wraps={String(attrs.wraps)}
     data-chip={view.chip.text}
+    data-chip-warning={view.chip.warning ?? ''}
   >
     <div
       className={classes.ruler}

@@ -5,7 +5,8 @@
 //   node experiments/iframe-layout/widget-drag/drag-check.mjs
 //
 // BASE_URL (default http://localhost:3000) picks the server; OUT (default a temp folder) gets a
-// screenshot per window size. Uses the installed Chrome, headless and muted, and always closes it.
+// screenshot per window size; ONLY (say ONLY=shrink,main) runs just the check groups whose names start
+// with those words. Uses the installed Chrome, headless and muted, and always closes it.
 // Exits 1 if any check fails.
 //
 // Test hooks it relies on (see IframeWidgetPlugin and WidgetDragLayer):
@@ -30,6 +31,8 @@
 //                                           resize chip near the bottom of the window)
 //   [data-testid=widget-drag-announce]      aria-live text after keyboard moves and drops
 //   [data-lw-drag-shield]                   the pointer shield (only during a gesture)
+//   [data-testid=widget-shrink-warning]     under a widget its width leaves too small (data-widget-key);
+//                                           the resize indicator's data-chip-warning says the same mid-drag
 //   MOVE_IFRAME_WIDGET_COMMAND              found by type in editor._commands (see reviewChecks)
 import os from 'os';
 import path from 'path';
@@ -61,7 +64,10 @@ async function openEditor(browser, width, height = 900, contextOptions = null) {
   const context = contextOptions ? await browser.newContext({ viewport: { width, height }, ...contextOptions }) : null;
   const page = context ? await context.newPage() : await browser.newPage({ viewport: { width, height } });
   const errors = [];
-  page.on('console', m => { if (m.type() === 'error') errors.push(m.text().slice(0, 300)); });
+  // LessWrong's invisible reCAPTCHA frame (www.google.com) logs Google's own report-only CSP notice now
+  // and then, on a page left open long enough: not ours, so not counted.
+  const thirdParty = (text) => /^Framing 'https:\/\/www\.google\.com\/' violates the following report-only/.test(text);
+  page.on('console', m => { if (m.type() === 'error' && !thirdParty(m.text())) errors.push(m.text().slice(0, 300)); });
   page.on('pageerror', e => errors.push(`pageerror: ${e.message.slice(0, 300)}`));
   await page.goto(EDITOR, { waitUntil: 'domcontentloaded', timeout: 240000 });
   await page.waitForSelector('[data-testid=widget-overlay]', { state: 'attached', timeout: 240000 });
@@ -181,7 +187,7 @@ async function mainChecks(browser) {
   const col = await h.column();
   console.log(`\n== 1024px window, ${col.width}px column`);
   check('drag controls on the Experiment 2 page', await page.evaluate(() => !!document.querySelector('[data-lw-widget-drag]')
-    && document.querySelectorAll('[data-testid=widget-grip]').length === 6));
+    && document.querySelectorAll('[data-testid=widget-grip]').length === 7));
 
   // S7: a click on a grip changes nothing and focuses it.
   {
@@ -1338,6 +1344,113 @@ async function edgeChecks(browser) {
   await page.close();
 }
 
+// W1-W5: the shrink warning. A widget too wide for its width is zoomed down to fit, and the editor
+// tells its author when that (or a chart stretched to fit) leaves it too small. The Experiment 2 post has
+// one widget made for a 620px box, at right 50%, to show it.
+async function shrinkWarningChecks(browser) {
+  const h = await openEditor(browser, 1024);
+  const { page } = h;
+  const col = await h.column();
+  console.log(`\n== shrink warning, 1024px window, ${col.width}px column`);
+  const tags = () => page.evaluate(() => Object.fromEntries([...document.querySelectorAll('[data-testid=widget-shrink-warning]')]
+    .map(el => [el.dataset.widgetKey, el.textContent])));
+  const waitForTag = async (key, re, ms = 6000) => {
+    for (let t = 0; t < ms; t += 100) {
+      const text = (await tags())[key];
+      if (re ? re.test(text ?? '') : text === undefined) return text ?? null;
+      await page.waitForTimeout(100);
+    }
+    return (await tags())[key] ?? null;
+  };
+  const fixed = await h.widget(/position=right width=50%/);
+  const charts = content(await h.snapshot()).filter(c => c.type === 'iframe-widget' && /position=inline/.test(c.text));
+  const chart = charts[1]?.key;   // the time-horizon chart (the engine diagram is the first full-width widget)
+
+  // W1: on load, the fixed-width widget at 50% says it's shrunk. Of the demo's own widgets only the
+  // engine diagram may warn: drawn 940px wide, it shows its 10px labels at 72% in a 682px column.
+  const engine = charts[0]?.key;
+  const loaded = await waitForTag(fixed, /^⚠ Shrunk to \d+% · text [\d.]+px$/);
+  await page.waitForTimeout(1500);
+  const shown = await tags();
+  const others = Object.entries(shown).filter(([key]) => key !== fixed && key !== engine);
+  check('W1 the fixed-width widget warns on load; of the demo widgets at most the engine diagram does', !!loaded
+    && others.length === 0 && (!shown[engine] || /^⚠ Chart labels [\d.]+px$/.test(shown[engine])),
+    `${loaded} / engine ${shown[engine]} / others ${JSON.stringify(others)}`);
+  await h.scrollTo(h.overlay(fixed));
+  await h.frames(3);
+  await page.screenshot({ path: path.join(OUT, 'shrink-warning-1024.png') });
+
+  // W2: pulling its edge in to 25% warns on the chip before letting go; Escape changes nothing.
+  {
+    const edge = `[data-testid=widget-resize-left][data-widget-key="${fixed}"]`;
+    await h.scrollTo(edge);
+    await h.frames(2);
+    const e = await h.rect(edge);
+    const before = await h.widgetText(fixed);
+    await page.mouse.move(e.cx, e.cy);
+    await page.mouse.down();
+    await page.mouse.move(e.cx + 6, e.cy, { steps: 2 });
+    await page.mouse.move(col.left + col.width * 0.75, e.cy, { steps: 12 });
+    let ind = {};
+    for (let i = 0; i < 40 && !ind.chipWarning; i++) { await h.frames(2); ind = await h.indicator(); }
+    await page.screenshot({ path: path.join(OUT, 'shrink-warning-chip.png') });
+    await page.keyboard.press('Escape');
+    await page.mouse.up();
+    await h.frames(4);
+    check('W2 the resize chip warns at 25% before the drop', ind.snap === '0.25' && /^Shrunk to 2\d% · text [\d.]+px$/.test(ind.chipWarning ?? '')
+      && (await h.widgetText(fixed)) === before, `snap=${ind.snap} chip=${ind.chip} warning=${ind.chipWarning}`);
+    await h.invariants('W2');
+  }
+
+  // W3: at full width it fits, so the warning goes; undo brings both back.
+  {
+    await h.drag(`[data-testid=widget-resize-left][data-widget-key="${fixed}"]`, (s) => ({ x: col.left + 4, y: s.cy }));
+    const gone = await waitForTag(fixed, null);
+    const full = !/position=(left|right)/.test(await h.widgetText(fixed));
+    await page.keyboard.press(UNDO);
+    await h.frames(4);
+    const back = await waitForTag(fixed, /^⚠ Shrunk to/);
+    check('W3 full width clears the warning; undo brings it back', full && gone === null && !!back && /width=50%/.test(await h.widgetText(fixed)),
+      `full=${full} gone=${gone} back=${back}`);
+    await h.invariants('W3');
+  }
+
+  // W4: a chart is never zoomed, but its labels shrink with it: pulled in to 50%, it warns about them.
+  {
+    await h.drag(`[data-testid=widget-resize-right][data-widget-key="${chart}"]`, (s) => ({ x: col.left + col.width * 0.5, y: s.cy }));
+    const text = await waitForTag(chart, /^⚠ Chart labels [\d.]+px$/);
+    const layout = await h.widgetText(chart);
+    await page.keyboard.press(UNDO);
+    await h.frames(4);
+    const cleared = await waitForTag(chart, null);
+    check('W4 a chart pulled in to 50% warns about its labels; undo clears it', !!text && /position=left width=50%/.test(layout) && cleared === null,
+      `${text} / ${layout} / after undo ${cleared}`);
+    await h.invariants('W4');
+  }
+
+  // W5: the warning follows the window. Narrower, the 50% widget has no room to wrap and shows full
+  // width, where (if the column is wide enough) it fits again.
+  {
+    await page.setViewportSize({ width: 640, height: 900 });
+    await h.frames(6);
+    const c = (await h.column()).width;
+    const half = Math.round(c * 0.5);
+    const shown = half >= 150 && c - half - 32 >= 300 ? half : c;
+    const zoom = Math.min(1, shown / 620);
+    // Its smallest text is 13px, a note under the chart.
+    const warns = zoom < 0.85 || 13 * zoom < 8;
+    const text = await waitForTag(fixed, warns ? /^⚠ Shrunk to/ : null);
+    check('W5 a narrower window updates the warning', c < 682 && (warns ? !!text : text === null),
+      `${c}px column, shown ${shown}px, zoom ${zoom.toFixed(2)}: ${text}`);
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await h.frames(6);
+    await h.invariants('W5');
+  }
+
+  check('no console errors in the shrink warning checks', h.errors.length === 0, h.errors.join(' || '));
+  await h.close();
+}
+
 // T1-T3: an emulated touch screen (hover: none, as on a tablet).
 async function touchChecks(browser) {
   const h = await openEditor(browser, 768, 1024, { hasTouch: true, isMobile: true });
@@ -1376,15 +1489,14 @@ async function touchChecks(browser) {
 
 const browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--mute-audio'] });
 try {
-  await mainChecks(browser);
-  await reviewChecks(browser);
-  await landingChecks(browser);
-  await edgeChecks(browser);
-  await touchChecks(browser);
-  await narrowChecks(browser);
-  await phoneChecks(browser);
-  await wideChecks(browser);
-  await mvp1Checks(browser);
+  const groups = {
+    mainChecks, shrinkWarningChecks, reviewChecks, landingChecks, edgeChecks, touchChecks, narrowChecks, phoneChecks,
+    wideChecks, mvp1Checks,
+  };
+  const only = (process.env.ONLY || '').toLowerCase().split(',').filter(Boolean);
+  for (const [name, run] of Object.entries(groups)) {
+    if (!only.length || only.some(word => name.toLowerCase().startsWith(word))) await run(browser);
+  }
 } finally {
   await browser.close();
 }

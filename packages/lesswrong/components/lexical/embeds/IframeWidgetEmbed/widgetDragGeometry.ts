@@ -4,6 +4,7 @@
 import {
   IframeWidgetLayout, offeredSnapFractions, offeredWidths, sameLayout, shouldWrapWidget, widgetWidthPx, WRAP_GUTTER,
 } from '@/components/contents/iframeWidgetLayout';
+import type { IframeWidgetFit } from './iframeResizeScript';
 
 export type WidgetSide = 'left' | 'right';
 
@@ -468,4 +469,35 @@ export function resizeChipText(target: ResizeTarget, besideOpposite = false): st
   const label = `${sideLabel(target.side)} · ${Math.round(target.snap * 100)}%`;
   if (target.wraps) return besideOpposite ? `${label} · beside another widget: text gets narrow` : label;
   return `${label}: full width at this window size (wraps on wider screens)`;
+}
+
+/**
+ * A widget too wide for its width is zoomed down to fit (iframeResizeScript.ts), and a chart stretched to
+ * fit shrinks its labels with it. The editor warns the widget's author when either leaves it too small:
+ * zoomed below SHRINK_WARNING_ZOOM, or any text showing under SHRINK_WARNING_TEXT_PX.
+ */
+export const SHRINK_WARNING_ZOOM = 0.85;
+export const SHRINK_WARNING_TEXT_PX = 8;
+
+/** The warning for a widget shown this small, say "Shrunk to 36% · text 4.7px", or null. */
+export function shrinkWarning(fit: IframeWidgetFit | null | undefined): string | null {
+  if (!fit) return null;
+  const shrunk = fit.zoom < SHRINK_WARNING_ZOOM;
+  const tinyText = fit.minText !== null && fit.minText < SHRINK_WARNING_TEXT_PX;
+  if (!shrunk && !tinyText) return null;
+  const parts: string[] = [];
+  if (fit.zoom < 0.995) parts.push(`shrunk to ${Math.round(fit.zoom * 100)}%`);
+  if (fit.minText !== null) {
+    const size = fit.minText < 10 ? fit.minText.toFixed(1) : String(Math.round(fit.minText));
+    // After "shrunk to", plain "text" is enough (and fits under a 25% widget).
+    const what = fit.minTextInDrawing ? 'chart labels' : parts.length ? 'text' : 'smallest text';
+    parts.push(`${what} ${size}px`);
+  }
+  const text = parts.join(' · ');
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/** Whether a fit measured by the widget's frame still describes it at `width` px (borders aside). */
+export function fitMatchesWidth(fit: IframeWidgetFit, width: number): boolean {
+  return Math.abs(fit.width - width) <= 3;
 }

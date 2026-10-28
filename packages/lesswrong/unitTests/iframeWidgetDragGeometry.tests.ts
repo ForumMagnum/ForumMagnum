@@ -1,8 +1,9 @@
 // EXPERIMENT (experiment/iframe-layout-ronny-exp2): dragging and resizing iframe widgets in the editor.
 import {
-  BlockBox, ColumnRect, DropSlotInput, adjacentSlot, autoScrollStep, chooseDropSlot, chooseSide, insertionKey,
-  moveChipText, resizeChipText, resizeTarget, stepWidth,
+  BlockBox, ColumnRect, DropSlotInput, adjacentSlot, autoScrollStep, chooseDropSlot, chooseSide, fitMatchesWidth, insertionKey,
+  moveChipText, resizeChipText, resizeTarget, shrinkWarning, stepWidth,
 } from '../components/lexical/embeds/IframeWidgetEmbed/widgetDragGeometry';
+import { IframeWidgetFit, injectResizeScript, readIframeWidgetFit } from '../components/lexical/embeds/IframeWidgetEmbed/iframeResizeScript';
 import {
   IframeWidgetLayout, minColumnToWrap, offeredSnapFractions, offeredWidths, sameLayout, shouldWrapWidget, wrappableWidths,
 } from '../components/contents/iframeWidgetLayout';
@@ -521,5 +522,60 @@ describe('keyboard moves', () => {
     expect(stepWidth(null, -1, 682)).toBe('50%');
     // 25% of 528 is under 150px: never stepped to.
     expect(stepWidth('33%', -1, 528)).toBe(null);
+  });
+});
+
+describe('shrink warning', () => {
+  const fit = (zoom: number, minText: number | null, minTextInDrawing = false): IframeWidgetFit =>
+    ({ width: 225, zoom, minText, minTextInDrawing });
+
+  it('says nothing for a widget shown at a readable size', () => {
+    expect(shrinkWarning(null)).toBe(null);
+    expect(shrinkWarning(fit(1, 9.5))).toBe(null);
+    // Right at the limits is still fine.
+    expect(shrinkWarning(fit(0.85, 12))).toBe(null);
+    expect(shrinkWarning(fit(0.93, 8))).toBe(null);
+  });
+
+  it('warns about a widget zoomed down to fit, with its smallest text', () => {
+    // The fixed 620px widget at 33% of the normal column.
+    expect(shrinkWarning(fit(0.3629, 4.72))).toBe('Shrunk to 36% · text 4.7px');
+    expect(shrinkWarning(fit(0.8, 12.4))).toBe('Shrunk to 80% · text 12px');
+    expect(shrinkWarning(fit(0.5, null))).toBe('Shrunk to 50%');
+  });
+
+  it('warns about tiny text even when nothing was zoomed, naming chart labels', () => {
+    // The time-horizon chart at 50%: never zoomed, but its SVG labels shrink with the chart.
+    expect(shrinkWarning(fit(1, 4.8, true))).toBe('Chart labels 4.8px');
+    expect(shrinkWarning(fit(1, 7))).toBe('Smallest text 7.0px');
+    expect(shrinkWarning(fit(0.9, 6.81, true))).toBe('Shrunk to 90% · chart labels 6.8px');
+  });
+
+  it('only trusts a measurement taken at about the width shown', () => {
+    expect(fitMatchesWidth(fit(1, 10), 225)).toBe(true);
+    expect(fitMatchesWidth(fit(1, 10), 227)).toBe(true);
+    expect(fitMatchesWidth(fit(1, 10), 229)).toBe(false);
+  });
+
+  it('reads the fit a measuring frame sends, and ignores anything malformed', () => {
+    expect(readIframeWidgetFit({ type: 'iframe-widget-resize', height: 300 })).toBe(null);
+    expect(readIframeWidgetFit({ fit: { width: 225, zoom: 0.36, minText: 4.7, minTextInDrawing: false } }))
+      .toEqual({ width: 225, zoom: 0.36, minText: 4.7, minTextInDrawing: false });
+    expect(readIframeWidgetFit({ fit: { width: 341, zoom: 1, minText: null, minTextInDrawing: true } }))
+      .toEqual({ width: 341, zoom: 1, minText: null, minTextInDrawing: true });
+    // A widget can post anything: bad numbers are dropped, a zoom over 1 means no zoom.
+    expect(readIframeWidgetFit({ fit: { width: '225', zoom: 1 } })).toBe(null);
+    expect(readIframeWidgetFit({ fit: { width: 225, zoom: 0 } })).toBe(null);
+    expect(readIframeWidgetFit({ fit: { width: 225, zoom: NaN } })).toBe(null);
+    expect(readIframeWidgetFit({ fit: { width: 225, zoom: 3, minText: -1, minTextInDrawing: 'yes' } }))
+      .toEqual({ width: 225, zoom: 1, minText: null, minTextInDrawing: false });
+    expect(readIframeWidgetFit(null)).toBe(null);
+    expect(readIframeWidgetFit('iframe-widget-resize')).toBe(null);
+  });
+
+  it('measures only in frames that ask for it', () => {
+    expect(injectResizeScript('<p>hi</p>')).toContain('var MEASURE = false;');
+    expect(injectResizeScript('<p>hi</p>', { measure: true })).toContain('var MEASURE = true;');
+    expect(injectResizeScript('<p>hi</p>', { measure: true }).startsWith('<p>hi</p>')).toBe(true);
   });
 });

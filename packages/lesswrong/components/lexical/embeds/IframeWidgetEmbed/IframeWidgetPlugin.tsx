@@ -37,7 +37,9 @@ import {
   parseIframeWidgetLayout, sameLayout, setIframeWidgetLayout, shouldWrapWidget, stripIframeWidgetLayout,
   widgetWidthPx, wrappableWidths, WRAP_GUTTER,
 } from '@/components/contents/iframeWidgetLayout';
-import {injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT} from './iframeResizeScript';
+import {
+  injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT, type IframeWidgetFit, readIframeWidgetFit,
+} from './iframeResizeScript';
 import {defineStyles, useStyles} from '@/components/hooks/useStyles';
 import ForumIcon from '@/components/common/ForumIcon';
 import { CodeIcon } from '../../icons/CodeIcon';
@@ -48,11 +50,13 @@ import { SentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockC
 import { IframeWidgetDragContext } from './widgetDragContext';
 import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks } from './widgetDragDom';
 import {
-  adjacentSlot, type BlockBox, chooseDropSlot, type ColumnRect, type DropSlot, insertionKey, moveChipText,
-  resizeChipText, resizeTarget, type ResizeTarget, sideLabel, stepWidth, widgetSide, type WidgetSide,
+  adjacentSlot, type BlockBox, chooseDropSlot, type ColumnRect, type DropSlot, fitMatchesWidth, insertionKey, moveChipText,
+  resizeChipText, resizeTarget, type ResizeTarget, shrinkWarning, sideLabel, stepWidth, widgetSide, type WidgetSide,
 } from './widgetDragGeometry';
 import { type GesturePoint, startPointerGesture, visibleBottom } from './widgetGesture';
-import { type DragChip, type DragView, DragViewStore, type MoveDragView, primaryTint, WidgetDragLayer } from './WidgetDragLayer';
+import {
+  type DragChip, type DragView, DragViewStore, type MoveDragView, primaryTint, SHRINK_WARNING_COLORS, WidgetDragLayer,
+} from './WidgetDragLayer';
 
 export const INSERT_IFRAME_WIDGET_COMMAND: LexicalCommand<string | undefined> = createCommand(
   'INSERT_IFRAME_WIDGET_COMMAND',
@@ -341,6 +345,26 @@ const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
     outline: `2px dashed ${theme.palette.primary.main}`,
     outlineOffset: 2,
   },
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): just under the widget (in the margin below it, clear
+  // of the widget's own text and of the post's), when its width leaves it too small (shrinkWarning).
+  shrinkWarning: {
+    ...theme.typography.body2,
+    position: 'absolute',
+    zIndex: 3,
+    boxSizing: 'border-box',
+    height: 16,
+    padding: '0 6px',
+    borderRadius: 8,
+    border: `1px solid ${SHRINK_WARNING_COLORS.border}`,
+    background: SHRINK_WARNING_COLORS.background,
+    color: SHRINK_WARNING_COLORS.text,
+    fontSize: 10.5,
+    lineHeight: '14px',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    pointerEvents: 'none',
+  },
   // Across the widget's top edge, so it doesn't cover the widget's own text (its title, usually).
   gripTab: {
     position: 'absolute',
@@ -502,6 +526,8 @@ interface WidgetState {
   widgetId: string | null;
   /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): a top-level block, so it can be dragged. */
   topLevel: boolean;
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): how small its frame last said it shows (drag editor). */
+  fit?: IframeWidgetFit | null;
 }
 
 // EXPERIMENT (experiment/iframe-layout-ronny-exp2): a pressed grip or edge, then the drag it starts.
@@ -758,7 +784,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   position: OverlayPosition | undefined;
   columnWidth: number;
   onToggle: (nodeKey: string) => void;
-  onIframeResize: (nodeKey: string, height: number) => void;
+  onIframeResize: (nodeKey: string, height: number, fit: IframeWidgetFit | null) => void;
   onLayoutChange: (nodeKey: string, layout: IframeWidgetLayout) => void;
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): drag-to-place (see IframeWidgetDragContext).
   dragEnabled?: boolean;
@@ -793,7 +819,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
     function handler(event: MessageEvent) {
       if (event.source !== iframeRef.current?.contentWindow) return;
       if (event.data?.type !== 'iframe-widget-resize') return;
-      onIframeResize(nodeKey, clampIframeHeight(event.data.height));
+      onIframeResize(nodeKey, clampIframeHeight(event.data.height), readIframeWidgetFit(event.data));
     }
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
@@ -804,11 +830,13 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
 
   // The layout tag only places the frame, so changing it doesn't reload the widget.
   const widgetHtml = stripIframeWidgetLayout(state.htmlContent);
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): in the drag editor the frame also says how small
+  // the widget shows, for the shrink warning.
   const srcdoc = useMemo(
     () => widgetHtml.trim()
-      ? injectResizeScript(stripDeletedMarkupFromSrcdoc(widgetHtml))
+      ? injectResizeScript(stripDeletedMarkupFromSrcdoc(widgetHtml), { measure: dragEnabled })
       : '',
-    [widgetHtml],
+    [widgetHtml, dragEnabled],
   );
 
   if (state.viewMode !== 'preview' || !position) return null;
@@ -840,8 +868,13 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
     onMouseDown={preventDefault}
     onKeyDown={handleGripKeyDown}
   ><span className={classes.gripDots}/></button>;
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): says so when this width leaves the widget too small.
+  // Only from a measurement at its present width (none while it reflows to a new one), and not while
+  // it's being moved.
+  const warning = draggable && gesture !== 'moving' && state.fit && fitMatchesWidth(state.fit, position.width)
+    ? shrinkWarning(state.fit) : null;
 
-  return (
+  return (<>
     <div
       className={classNames(
         classes.previewOverlay,
@@ -904,7 +937,13 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
         <div className={classes.emptyPreview}>No HTML content</div>
       )}
     </div>
-  );
+    {warning && <div
+      className={classes.shrinkWarning}
+      style={{ top: position.top + state.previewHeight + 3, left: position.left + 4, maxWidth: Math.max(60, position.width - 8) }}
+      data-testid="widget-shrink-warning"
+      data-widget-key={nodeKey}
+    >⚠ {warning}</div>}
+  </>);
 });
 
 const IframeWidgetCodeToggle = React.memo(function IframeWidgetCodeToggle({
@@ -1132,12 +1171,17 @@ export default function IframeWidgetPlugin({
   const widgetKeys = Array.from(widgets.keys());
   const [positions, scheduleMeasure] = usePositionTracking(editor, anchorElem, widgets);
 
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): each widget's measurements by width (px), so the
+  // resize chip can say at once what a width it has already been shown at does to it.
+  const fitCache = useRef(new Map<string, Map<number, IframeWidgetFit>>());
   const handleToggle = useCallback((key: string) => {
     // Switching to code view: mark the node dirty so the code highlighter (which skips previews)
     // tokenizes it now.
     if (widgetsRef.current.get(key)?.viewMode === 'preview') {
       editor.update(() => { $getNodeByKey(key)?.markDirty(); });
     }
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp2): its code may change, and with it how small it shows.
+    fitCache.current.delete(key);
     setWidgets((prev) => {
       const next = new Map(prev);
       const state = next.get(key);
@@ -1152,13 +1196,18 @@ export default function IframeWidgetPlugin({
     });
   }, [editor]);
 
-  const handleIframeResize = useCallback((key: string, height: number) => {
+  const handleIframeResize = useCallback((key: string, height: number, fit: IframeWidgetFit | null) => {
     const current = widgetsRef.current.get(key);
+    if (fit) {
+      const byWidth = fitCache.current.get(key) ?? new Map<number, IframeWidgetFit>();
+      byWidth.set(Math.round(fit.width), fit);
+      fitCache.current.set(key, byWidth);
+    }
     setWidgets((prev) => {
       const next = new Map(prev);
       const state = next.get(key);
       if (!state) return prev;
-      next.set(key, { ...state, previewHeight: height });
+      next.set(key, { ...state, previewHeight: height, fit });
       return next;
     });
     if (current) applyPreviewModeToDOM(editor, key, height, previewOverrides.current.get(key) ?? current.layout);
@@ -1325,6 +1374,17 @@ export default function IframeWidgetPlugin({
     });
   }, [editor, anchorElem, commitPlacement, dragViewStore, endGesture, gripTabOf]);
 
+  /** The shrink warning for widget `key` shown `width` px wide, if its frame has reported at that width. */
+  const shrinkWarningAt = useCallback((key: string, width: number): string | null => {
+    let closest: IframeWidgetFit | null = null;
+    for (const fit of fitCache.current.get(key)?.values() ?? []) {
+      if (fitMatchesWidth(fit, width) && (!closest || Math.abs(fit.width - width) < Math.abs(closest.width - width))) {
+        closest = fit;
+      }
+    }
+    return shrinkWarning(closest);
+  }, []);
+
   const startResize = useCallback((key: string, edge: WidgetSide, e: React.PointerEvent<HTMLElement>) => {
     const start = widgetsRef.current.get(key);
     if (cancelGesture.current || e.button !== 0 || !anchorElem || !dragEnabledRef.current || !start?.topLevel) return;
@@ -1380,7 +1440,10 @@ export default function IframeWidgetPlugin({
           previewOverrides.current.set(key, current);
           relayout(state.previewHeight, current);
         }
-        dragViewStore.set(resizeView(target, column, editor.getElementByKey(key), anchorElem, point));
+        // The frame reports a few frames after the widget is restyled to a new width; until then the chip
+        // has no warning for a width the widget hasn't been shown at yet.
+        const shownWidth = target.wraps ? widgetWidthPx(target.layout, column.width) ?? column.width : column.width;
+        dragViewStore.set(resizeView(target, column, editor.getElementByKey(key), anchorElem, point, shrinkWarningAt(key, shownWidth)));
       },
       onCommit: () => {
         previewOverrides.current.delete(key);
@@ -1400,7 +1463,7 @@ export default function IframeWidgetPlugin({
       onEnd: endGesture,
       refocus: () => gripTabOf(key),
     });
-  }, [editor, anchorElem, commitPlacement, dragViewStore, endGesture, scheduleMeasure, gripTabOf]);
+  }, [editor, anchorElem, commitPlacement, dragViewStore, endGesture, scheduleMeasure, gripTabOf, shrinkWarningAt]);
 
   // On a focused grip: arrow up/down move to the previous/next slot, left/right set the side, [ and ]
   // step the width. Each press is one undo step.
@@ -1642,6 +1705,8 @@ function resizeView(
   spacer: HTMLElement | null,
   anchorElem: HTMLElement,
   point: GesturePoint,
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): this width leaves the widget too small. */
+  warning: string | null = null,
 ): DragView {
   const { dx, dy } = anchorOffset(anchorElem);
   const left = column.left + dx;
@@ -1668,12 +1733,16 @@ function resizeView(
   const activeX = ticks.find((tick) => tick.active)?.x ?? (point.x + dx);
   const chipX = Math.min(Math.max(activeX, left + (maxWidth / 2)), left + width - (maxWidth / 2));
   const bottomLimit = visibleBottom();
-  const above = point.y + RESIZE_CHIP_GAP + RESIZE_CHIP_ROOM > bottomLimit;
+  const above = point.y + RESIZE_CHIP_GAP + RESIZE_CHIP_ROOM + (warning ? CHIP_LINE_HEIGHT : 0) > bottomLimit;
   const chipTop = above ? Math.min(point.y - RESIZE_CHIP_GAP, bottomLimit) : point.y + RESIZE_CHIP_GAP;
   return {
     kind: 'resize',
     ruler: { top: Math.round(rulerY + dy), left: Math.round(left), width: Math.round(width), ticks },
-    chip: { text: resizeChipText(target, target.wraps && besideOppositeFloat(spacer, target.side)), top: Math.round(chipTop + dy), x: Math.round(chipX), align: 'center', maxWidth, above },
+    chip: {
+      text: resizeChipText(target, target.wraps && besideOppositeFloat(spacer, target.side)),
+      top: Math.round(chipTop + dy), x: Math.round(chipX), align: 'center', maxWidth, above,
+      ...(warning ? { warning } : {}),
+    },
     attrs: {
       position: target.layout.position,
       width: target.layout.width,
@@ -1695,7 +1764,7 @@ function besideOppositeFloat(spacer: HTMLElement | null, side: WidgetSide): bool
   return Array.from(parent.children).some((elem) => {
     if (elem === spacer || !(elem instanceof HTMLElement)) return false;
     const float = getComputedStyle(elem).float;
-    if (float !== 'left' && float !== 'right' || float === side) return false;
+    if ((float !== 'left' && float !== 'right') || float === side) return false;
     const other = elem.getBoundingClientRect();
     return other.top < rect.bottom - 1 && other.bottom > rect.top + 1;
   });

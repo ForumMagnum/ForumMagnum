@@ -43,3 +43,15 @@ export function buildLayoutDemoPostHtml(): string {
   const items = footnotes.map((text, i) => footnoteItem(`aifm${i + 1}`, i + 1, text)).join("");
   return `${body}\n<ol data-footnote-section="" role="doc-endnotes" class="footnote-section footnotes">${items}</ol>`;
 }
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp2): the Experiment 2 editor's post: the demo post plus one
+ * widget that isn't made to fit narrower widths (everything in it is sized for a 620px box), so the
+ * editor's shrink warning has something to show. The published demo post doesn't have it.
+ */
+export function buildWidgetDragDemoHtml(): string {
+  const html = buildLayoutDemoPostHtml();
+  const before = "<p>Two more details matter a lot.";
+  if (!html.includes(before)) throw new Error("The demo post changed: no place left for the fixed-width widget");
+  return html.replace(before, `${widgetIframe("fixed-width")}\n${before}`);
+}

@@ -1,0 +1,41 @@
+<meta name="lw-layout" content="position=right width=50%">
+<style>
+  body { margin: 0; font: 15px/1.4 Georgia, serif; color: #222; }
+  .wrap { width: 620px; padding: 6px 0; }
+  h3 { margin: 0 0 6px; font-size: 19px; }
+  .controls { display: flex; gap: 14px; align-items: center; font-size: 14px; }
+  .controls input { width: 220px; }
+  canvas { display: block; margin-top: 8px; }
+  .note { font-size: 13px; color: #555; margin: 6px 0 0; }
+</style>
+<div class="wrap">
+  <h3>Compute and capability, 2024 to 2032</h3>
+  <div class="controls"><label>Compute growth <input type="range" id="g" min="1" max="10" value="4"></label><span id="v">4x a year</span></div>
+  <canvas id="c" width="620" height="260"></canvas>
+  <p class="note">A typical first-draft widget: everything is sized in pixels for a 620px-wide box.</p>
+</div>
+<script>
+  const c = document.getElementById('c'), ctx = c.getContext('2d'), g = document.getElementById('g');
+  function draw() {
+    const rate = +g.value;
+    document.getElementById('v').textContent = rate + 'x a year';
+    ctx.clearRect(0, 0, 620, 260);
+    ctx.strokeStyle = '#ccc'; ctx.fillStyle = '#666'; ctx.font = '12px Georgia';
+    for (let i = 0; i <= 8; i++) {
+      const x = 50 + i * 68;
+      ctx.beginPath(); ctx.moveTo(x, 20); ctx.lineTo(x, 220); ctx.stroke();
+      ctx.fillText(String(2024 + i), x - 14, 240);
+    }
+    for (let j = 0; j <= 4; j++) {
+      const y = 220 - j * 50;
+      ctx.fillText('10^' + (24 + 2 * j), 4, y + 4);
+    }
+    ctx.strokeStyle = '#2a623d'; ctx.lineWidth = 2.5; ctx.beginPath();
+    for (let i = 0; i <= 80; i++) {
+      const t = i / 10, y = 220 - Math.min(200, t * Math.log10(rate) * 22);
+      i ? ctx.lineTo(50 + t * 68, y) : ctx.moveTo(50, y);
+    }
+    ctx.stroke();
+  }
+  g.addEventListener('input', draw); draw();
+</script>

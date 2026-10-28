@@ -8,19 +8,47 @@
  * always fits. The page and body can't scroll or be given a fixed height; the frame grows to the
  * full height of the content (including anything positioned outside the body's flow); and content
  * wider than the frame is zoomed down to fit instead of scrolling sideways.
+ *
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp2): with `measure` (the drag editor only), each message
+ * also reports that zoom and how small the widget's smallest text shows, so the editor can warn the
+ * author when a width leaves the widget too small (see IframeWidgetFit).
  */
 
 const FIT_STYLE = `<style>
 html, body { overflow: hidden !important; height: auto !important; min-height: 0 !important; max-height: none !important; }
 </style>`;
 
-const RESIZE_SCRIPT = `<script>
+function resizeScript(measure: boolean): string {
+  return `<script>
 (function() {
+  var MEASURE = ${measure ? 'true' : 'false'};
+  // The smallest text in px at zoom 1, counting text in an SVG at the size its drawing shows it (a
+  // chart stretched to fit its box shrinks its labels with it). Stops looking after 4000 elements.
+  function smallestText() {
+    var min = Infinity, inDrawing = false, checked = 0, last = null;
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    while (checked < 4000 && walker.nextNode()) {
+      var el = walker.currentNode.parentElement;
+      if (!el || el === last || !walker.currentNode.nodeValue.trim()) continue;
+      last = el;
+      checked++;
+      if (el.closest('script, style, noscript, template, title')) continue;
+      var cs = getComputedStyle(el);
+      if (cs.visibility === 'hidden' || !el.getClientRects().length) continue;
+      var size = parseFloat(cs.fontSize);
+      var svg = el instanceof SVGElement && typeof el.getScreenCTM === 'function';
+      if (svg) {
+        var m = el.getScreenCTM();
+        if (m) size *= Math.hypot(m.a, m.b);
+      }
+      if (size > 0 && size < min) { min = size; inDrawing = svg; }
+    }
+    return min === Infinity ? null : { size: min, inDrawing: inDrawing };
+  }
   // Zoom the body down if its content is wider than the frame. Measured at zoom 1 each time,
   // so the widget grows back to full size when the frame gets wider again.
   function fitWidth() {
     var body = document.body;
-    if (!body) return;
     var root = document.documentElement;
     body.style.zoom = '1';
     var cs = getComputedStyle(body);
@@ -28,7 +56,10 @@ const RESIZE_SCRIPT = `<script>
     // The page itself can't scroll, so it reports its own width; ask the body how wide its content is.
     var needed = Math.max(root.scrollWidth,
       body.scrollWidth + (parseFloat(cs.marginLeft) || 0) + (parseFloat(cs.marginRight) || 0));
-    body.style.zoom = needed > available + 1 ? String(available / needed) : '';
+    var zoom = needed > available + 1 ? available / needed : 1;
+    var text = MEASURE ? smallestText() : null;
+    body.style.zoom = zoom < 1 ? String(zoom) : '';
+    return { width: available, zoom: zoom, text: text };
   }
   function contentHeight() {
     var body = document.body;
@@ -41,8 +72,17 @@ const RESIZE_SCRIPT = `<script>
   }
   function postHeight() {
     if (!document.body) return;
-    fitWidth();
-    parent.postMessage({ type: 'iframe-widget-resize', height: Math.ceil(contentHeight()) }, '*');
+    var fit = fitWidth();
+    var message = { type: 'iframe-widget-resize', height: Math.ceil(contentHeight()) };
+    if (MEASURE) {
+      message.fit = {
+        width: fit.width,
+        zoom: fit.zoom,
+        minText: fit.text ? fit.text.size * fit.zoom : null,
+        minTextInDrawing: !!(fit.text && fit.text.inDrawing),
+      };
+    }
+    parent.postMessage(message, '*');
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', postHeight);
@@ -65,6 +105,10 @@ const RESIZE_SCRIPT = `<script>
   window.addEventListener('resize', postHeight);
 })();
 </script>`;
+}
+
+const RESIZE_SCRIPT = resizeScript(false);
+const MEASURING_RESIZE_SCRIPT = resizeScript(true);
 
 export const IFRAME_MIN_HEIGHT = 50;
 export const IFRAME_MAX_HEIGHT = 5000;
@@ -74,11 +118,38 @@ export function clampIframeHeight(h: number): number {
   return Math.max(IFRAME_MIN_HEIGHT, Math.min(IFRAME_MAX_HEIGHT, Math.round(h)));
 }
 
-export function injectResizeScript(htmlCode: string): string {
+export function injectResizeScript(htmlCode: string, options: { measure?: boolean } = {}): string {
   // Always append rather than trying to inject before </body> or </html>.
   // String replacement is unsafe: if "</body>" appears inside a <script> block
   // or string literal, the injected </script> tag would prematurely close the
   // user's script, breaking their code. Appending after the end is safe because
   // browsers implicitly re-open <body> for any trailing content.
-  return htmlCode + FIT_STYLE + RESIZE_SCRIPT;
+  return htmlCode + FIT_STYLE + (options.measure ? MEASURING_RESIZE_SCRIPT : RESIZE_SCRIPT);
+}
+
+/** EXPERIMENT (experiment/iframe-layout-ronny-exp2): what a measuring frame reports with its height. */
+export interface IframeWidgetFit {
+  /** The frame's width (px) when it measured. */
+  width: number;
+  /** How far the widget was zoomed down to fit (1: not at all). */
+  zoom: number;
+  /** The smallest text as shown (px, after the zoom), or null for a widget with no text. */
+  minText: number | null;
+  /** That text is in an SVG drawing stretched to fit (a chart's labels, say). */
+  minTextInDrawing: boolean;
+}
+
+/** The fit in a resize message, or null if it has none (or a widget's own message got it wrong). */
+export function readIframeWidgetFit(data: unknown): IframeWidgetFit | null {
+  const fit = (data && typeof data === 'object') ? (data as { fit?: unknown }).fit : null;
+  if (!fit || typeof fit !== 'object') return null;
+  const { width, zoom, minText, minTextInDrawing } = fit as Record<string, unknown>;
+  const finite = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
+  if (!finite(width) || !finite(zoom) || zoom <= 0) return null;
+  return {
+    width,
+    zoom: Math.min(1, zoom),
+    minText: finite(minText) && minText > 0 ? minText : null,
+    minTextInDrawing: minTextInDrawing === true,
+  };
 }
