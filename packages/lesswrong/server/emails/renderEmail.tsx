@@ -53,9 +53,10 @@ const emailGlobalCss = (forumType: ForumTypeString) => `
   table td {border-collapse:collapse;}
   .yshortcuts a {border-bottom: none !important;}
 
-  /* Constrain email width for small screens */
+  /* Constrain email width for small screens. Gmail and Outlook.com ignore
+     attribute selectors like table[class="container"], so these use classes. */
   @media screen and (max-width: 600px) {
-    table[class="container"] {
+    .container {
       width: 95% !important;
     }
     .wrapper{
@@ -65,7 +66,7 @@ const emailGlobalCss = (forumType: ForumTypeString) => `
 
   /* Give content more room on mobile */
   @media screen and (max-width: 480px) {
-    td[class="container-padding"] {
+    .container-padding {
       padding-left: 12px !important;
       padding-right: 12px !important;
     }
@@ -235,6 +236,8 @@ export const wrapAndRenderEmail = async ({
   body,
   utmParams,
   forumType,
+  backgroundColor,
+  includeUnsubscribeFooter = true,
 }: {
   forumType: ForumTypeString;
   user: DbUser | null;
@@ -243,9 +246,13 @@ export const wrapAndRenderEmail = async ({
   subject: string;
   body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
+  backgroundColor?: string;
+  includeUnsubscribeFooter?: boolean;
 }): Promise<RenderedEmail> => {
   const emailContext = await createEmailContext(user, forumType);
-  const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id, emailContext.resolverContext.forumType) : null;
+  const unsubscribeAllLink = user && includeUnsubscribeFooter
+    ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id, emailContext.resolverContext.forumType)
+    : null;
 
   return await generateEmail({
     user,
@@ -255,6 +262,8 @@ export const wrapAndRenderEmail = async ({
     bodyComponent: <EmailWrapper
       unsubscribeAllLink={unsubscribeAllLink}
       emailContext={emailContext}
+      backgroundColor={backgroundColor}
+      includeUnsubscribeFooter={includeUnsubscribeFooter}
     >
       {body(emailContext)}
     </EmailWrapper>,
@@ -272,6 +281,8 @@ export const wrapAndSendEmail = async ({
   body,
   utmParams,
   forumType,
+  backgroundColor,
+  includeUnsubscribeFooter,
 }: {
   forumType: ForumTypeString;
   user: DbUser | null;
@@ -281,6 +292,8 @@ export const wrapAndSendEmail = async ({
   subject: string;
   body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
+  backgroundColor?: string;
+  includeUnsubscribeFooter?: boolean;
 }): Promise<boolean> => {
   if (isE2E) {
     return true;
@@ -297,7 +310,7 @@ export const wrapAndSendEmail = async ({
   }
 
   try {
-    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams, forumType });
+    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams, forumType, backgroundColor, includeUnsubscribeFooter });
     const succeeded = await sendEmail(email);
     backgroundTask(logSentEmail(email, user, {succeeded}, forumType));
     return succeeded;
