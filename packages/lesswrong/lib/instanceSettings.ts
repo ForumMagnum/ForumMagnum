@@ -324,6 +324,8 @@ export const showSubscribeReminderInFeed = new PublicInstanceSetting<boolean>('f
 
 export const hasGoogleDocImportSetting = new PublicInstanceSetting<boolean>('googleDocImport.enabled', false, "optional");
 
+export const llmMentionsEnabledSetting = new PublicInstanceSetting<boolean>('llmMentions.enabled', false, "optional");
+
 export const recombeeEnabledSetting = new PublicInstanceSetting<boolean>('recombee.enabled', false, "optional");
 export const recommendationsTabManuallyStickiedPostIdsSetting = new PublicInstanceSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', [], "optional");
 

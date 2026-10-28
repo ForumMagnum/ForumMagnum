@@ -1,3 +1,4 @@
+import { llmMentionsEnabledSetting } from "@/lib/instanceSettings";
 import { getLlmFamilyBySlug, type LlmFamilyVersion } from "@/lib/languageModels/llmRegistry";
 import { llmReplyPendingMarkdown } from "@/lib/llmReplies/helpers";
 import { userMentionQueryString } from "@/lib/pingback";
@@ -79,6 +80,9 @@ export async function startLlmReplyForComment(comment: DbComment, context: Resol
 
 async function checkLlmSummon(currentUser: DbUser, postId: string | null, llm: LlmFamilyVersion, context: ResolverContext): Promise<LlmSummonCheck> {
   const modelName = llm.version.fullName;
+  if (!llmMentionsEnabledSetting.get(context)) {
+    return { allowed: false, reason: "LLM replies are currently turned off." };
+  }
   if (!postId) {
     return { allowed: false, reason: `${modelName} only replies to comments on posts.` };
   }

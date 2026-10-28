@@ -98,6 +98,9 @@ export const sharedSettings = {
   googleDocImport: {
     enabled: true
   },
+  llmMentions: {
+    enabled: true
+  },
   moderationEmail: "team@lesswrong.com",
   textReplacements: {
     "Less Wrong": "Down Bad",
