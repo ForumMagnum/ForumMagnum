@@ -177,7 +177,7 @@ const LAYOUT_POSITIONS: Array<{ position: IframeWidgetPosition, label: string }>
   { position: 'right', label: 'Right' },
 ];
 // Widths that leave room to wrap in LessWrong's normal 682px text column.
-const LAYOUT_WIDTHS = ['25%', '33%', '38%'];
+const LAYOUT_WIDTHS = ['25%', '33%', '38%', '50%'];
 const DEFAULT_WRAP_WIDTH = '33%';
 
 interface WidgetState {

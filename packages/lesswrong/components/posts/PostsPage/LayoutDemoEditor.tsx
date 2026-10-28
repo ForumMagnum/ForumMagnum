@@ -61,7 +61,7 @@ export function LayoutDemoEditor({ title, initialHtml }: {
     <div className={classes.note}>
       <b>Demo editor, nothing is saved.</b> Hover a widget to see its placement bar: <b>Full width</b>,
       or <b>Left</b>/<b>Right</b> with a width. Text wraps around a left or right widget when there's
-      room for about 50 characters beside it. The button on the widget's top right shows its code.
+      room for about 40 characters beside it. The button on the widget's top right shows its code.
     </div>
     <h1 className={classes.title}>{title}</h1>
     <ContentStyles contentType="post">

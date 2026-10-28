@@ -34,9 +34,10 @@ export function parseIframeWidgetLayout(srcdoc: string): IframeWidgetLayout {
   return { position, width: width && WIDTH_RE.test(width) ? width : null };
 }
 
-// A left/right widget only wraps if the text beside it stays at least this wide (about 50 characters
-// of post text). Otherwise it sits inline at full width. Shared by the reader and the editor.
-export const MIN_TEXT_BESIDE_WIDGET = 380;
+// A left/right widget only wraps if the text beside it stays at least this wide (about 40 characters
+// of post text, like a newspaper column; low enough that a half-width widget wraps in the normal
+// 682px column). Otherwise it sits inline at full width. Shared by the reader and the editor.
+export const MIN_TEXT_BESIDE_WIDGET = 300;
 export const WRAP_GUTTER = 32;
 
 /** The widget's width in px for a text column of the given width (null: full width). */
