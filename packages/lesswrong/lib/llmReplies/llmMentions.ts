@@ -11,12 +11,7 @@ export function getMentionedLlmVersion(family: LlmFamily, versionName: string | 
   return family.versions.find((version) => version.name === versionName && !version.retired);
 }
 
-const LLM_MENTION_SUGGESTIONS_ENABLED: boolean = false;
-
 export function getMentionableLlms(query: string): LlmFamilyVersion[] {
-  if (!LLM_MENTION_SUGGESTIONS_ENABLED) {
-    return [];
-  }
   const normalizedQuery = query.toLowerCase();
   const latestOfMatchingFamilies = LLM_FAMILIES
     .filter((family) => nameMatchesQuery(family.name, normalizedQuery))

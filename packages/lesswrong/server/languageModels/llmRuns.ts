@@ -1,3 +1,4 @@
+import { llmMentionsEnabledSetting } from "@/lib/instanceSettings";
 import { captureException } from "@/lib/sentryWrapper";
 import LlmRuns from "@/server/collections/llmRuns/collection";
 import Comments from "@/server/collections/comments/collection";
@@ -13,6 +14,9 @@ const LLM_RUN_GIVE_UP_AFTER_MS = 60 * 60 * 1000;
 
 export async function runLlmRun(runId: string): Promise<void> {
   const context = createAdminContext({ forumType: "LessWrong" });
+  if (!llmMentionsEnabledSetting.get(context)) {
+    return;
+  }
   const run = await context.repos.llmRuns.claimRun(
     runId,
     new Date(Date.now() - LLM_RUN_ATTEMPT_TIMEOUT_MS),

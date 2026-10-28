@@ -8,7 +8,7 @@ import { filterNonnull } from '../../../../lib/utils/typeGuardUtils';
 import { combineUrls, getSiteUrl } from '../../../../lib/vulcan-lib/utils';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
 import ForumIcon, { type ForumIconName } from '@/components/common/ForumIcon';
-import type { ForumTypeString } from '@/lib/instanceSettings';
+import { llmMentionsEnabledSetting, type ForumTypeString } from '@/lib/instanceSettings';
 import { LLM_FAMILIES, type LlmFamilyVersion } from '@/lib/languageModels/llmRegistry';
 import { getLlmMentionPath, getMentionableLlms } from '@/lib/llmReplies/llmMentions';
 
@@ -205,7 +205,8 @@ async function fetchMentionableSuggestions(forumType: ForumTypeString, searchStr
 }
 
 async function fetchMentionableSuggestionsWithModels(forumType: ForumTypeString, searchString: string): Promise<MentionItemWithHit[]> {
-  const modelItems = getMentionableLlms(searchString).map((model) => formatModelItem(model, forumType));
+  const mentionableLlms = llmMentionsEnabledSetting.get(forumType) ? getMentionableLlms(searchString) : [];
+  const modelItems = mentionableLlms.map((model) => formatModelItem(model, forumType));
   const searchItems = await fetchMentionableSuggestions(forumType, searchString);
   return [
     ...modelItems,
