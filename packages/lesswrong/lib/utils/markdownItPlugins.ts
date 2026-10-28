@@ -179,19 +179,22 @@ function applyCommonPlugins(mdi: markdownIt): void {
 //    `renderMathInHtml` to pre-render; "agent" renders `math-tex` spans (the
 //    editable dialect `MathNode.importDOM` consumes) and recognizes bare
 //    single-backslash delimiters, so agent-supplied math round-trips into real
-//    MathNodes.
+//    MathNodes; "editorImport" recognizes the same math as "reader" but
+//    renders `math-tex` spans, for converting markdown documents to Lexical.
 //  - `mentions`: whether `@[doc:...]` mention tokens are recognized (research
 //    surface only).
+const mathjaxOptionsByDialect = {
+  reader: {},
+  agent: { wrapInMathTex: true, singleBackslashDelimiters: true },
+  editorImport: { wrapInMathTex: true },
+};
+
 function buildFullMarkdownIt({ mathDialect, mentions }: {
-  mathDialect: "reader" | "agent"
+  mathDialect: keyof typeof mathjaxOptionsByDialect
   mentions: boolean
 }): markdownIt {
   const mdi = markdownIt({ linkify: true });
-  mdi.use(markdownItMathjax(
-    mathDialect === "agent"
-      ? { wrapInMathTex: true, singleBackslashDelimiters: true }
-      : {},
-  ));
+  mdi.use(markdownItMathjax(mathjaxOptionsByDialect[mathDialect]));
   applyCommonPlugins(mdi);
   mdi.use(markdownCollapsibleSections);
   if (mentions) {
@@ -216,6 +219,14 @@ export function getMarkdownItNoMathjax(): markdownIt {
     _mdiNoMathjax = mdi;
   }
   return _mdiNoMathjax;
+}
+
+let _mdiEditorImport: markdownIt|null = null;
+export function getMarkdownItForEditorImport(): markdownIt {
+  if (!_mdiEditorImport) {
+    _mdiEditorImport = buildFullMarkdownIt({ mathDialect: "editorImport", mentions: false });
+  }
+  return _mdiEditorImport;
 }
 
 let _mdiAgentPosts: markdownIt|null = null;
