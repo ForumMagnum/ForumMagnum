@@ -33,3 +33,35 @@ export function parseIframeWidgetLayout(srcdoc: string): IframeWidgetLayout {
   const width = settings.get('width');
   return { position, width: width && WIDTH_RE.test(width) ? width : null };
 }
+
+// A left/right widget only wraps if the text beside it stays at least this wide (about 50 characters
+// of post text). Otherwise it sits inline at full width. Shared by the reader and the editor.
+export const MIN_TEXT_BESIDE_WIDGET = 380;
+export const WRAP_GUTTER = 32;
+
+/** The widget's width in px for a text column of the given width (null: full width). */
+export function widgetWidthPx(layout: IframeWidgetLayout, columnWidth: number): number | null {
+  if (!layout.width) return null;
+  const value = parseFloat(layout.width);
+  return layout.width.endsWith('%') ? Math.round(columnWidth * value / 100) : value;
+}
+
+export function shouldWrapWidget(layout: IframeWidgetLayout, columnWidth: number | null): boolean {
+  if (layout.position !== 'left' && layout.position !== 'right') return false;
+  if (!columnWidth) return false;
+  const width = widgetWidthPx(layout, columnWidth) ?? columnWidth;
+  return columnWidth - width - WRAP_GUTTER >= MIN_TEXT_BESIDE_WIDGET;
+}
+
+/** The widget's HTML without its layout tag (the tag only places the frame; the widget never sees it). */
+export function stripIframeWidgetLayout(srcdoc: string): string {
+  return srcdoc.replace(new RegExp(LAYOUT_META_RE.source + '\\n?', 'i'), '');
+}
+
+/** The widget's HTML with its layout tag set to `layout` (no tag for a plain inline widget). */
+export function setIframeWidgetLayout(srcdoc: string, layout: IframeWidgetLayout): string {
+  const html = stripIframeWidgetLayout(srcdoc);
+  if (layout.position === 'inline' && !layout.width) return html;
+  const settings = [`position=${layout.position}`, layout.width && `width=${layout.width}`].filter(Boolean).join(' ');
+  return `<meta name="lw-layout" content="${settings}">\n${html}`;
+}

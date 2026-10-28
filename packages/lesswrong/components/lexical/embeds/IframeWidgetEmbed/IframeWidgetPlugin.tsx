@@ -17,11 +17,16 @@ import {
 import {useMessages} from '@/components/common/withMessages';
 import { randomId } from '@/lib/random';
 
-import {$createIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
+import {$createIframeWidgetNode, $isIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
+import {
+  IframeWidgetLayout, IframeWidgetPosition, parseIframeWidgetLayout, setIframeWidgetLayout, shouldWrapWidget,
+  stripIframeWidgetLayout, widgetWidthPx, WRAP_GUTTER,
+} from '@/components/contents/iframeWidgetLayout';
 import {injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT} from './iframeResizeScript';
 import {defineStyles, useStyles} from '@/components/hooks/useStyles';
 import ForumIcon from '@/components/common/ForumIcon';
 import { CodeIcon } from '../../icons/CodeIcon';
+import classNames from 'classnames';
 
 export const INSERT_IFRAME_WIDGET_COMMAND: LexicalCommand<string | undefined> = createCommand(
   'INSERT_IFRAME_WIDGET_COMMAND',
@@ -72,6 +77,10 @@ const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
   previewOverlay: {
     position: 'absolute',
     zIndex: 1,
+    // The placement bar shows while the widget is hovered (or the bar has focus).
+    '&:hover $layoutBar': {
+      opacity: 1,
+    },
     border: theme.palette.greyBorder('1px', 0.2),
     borderRadius: 4,
     overflow: 'hidden',
@@ -95,12 +104,104 @@ const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
     width: 16,
     height: 16,
   },
+  // EXPERIMENT (experiment/iframe-layout-ronny): placement controls on each widget preview.
+  layoutBar: {
+    position: 'absolute',
+    zIndex: 2,
+    top: 4,
+    left: 4,
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 2,
+    maxWidth: 'calc(100% - 44px)',
+    padding: 2,
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.greyBorder('1px', 0.15),
+    borderRadius: 6,
+    boxShadow: `0 1px 4px ${theme.palette.boxShadowColor(0.1)}`,
+    ...theme.typography.body2,
+    fontSize: 12,
+    opacity: 0,
+    transition: 'opacity 0.15s',
+    '&:focus-within': {
+      opacity: 1,
+    },
+  },
+  layoutButton: {
+    padding: '3px 7px',
+    border: 'none',
+    borderRadius: 4,
+    background: 'transparent',
+    color: theme.palette.text.normal,
+    cursor: 'pointer',
+    font: 'inherit',
+    '&:hover': {
+      background: theme.palette.grey[200],
+    },
+  },
+  layoutButtonActive: {
+    background: theme.palette.primary.main,
+    color: theme.palette.text.alwaysWhite,
+    '&:hover': {
+      background: theme.palette.primary.main,
+    },
+  },
+  layoutDivider: {
+    width: 1,
+    alignSelf: 'stretch',
+    margin: '2px 3px',
+    background: theme.palette.grey[300],
+  },
+  layoutNote: {
+    padding: '3px 6px',
+    color: theme.palette.grey[600],
+    whiteSpace: 'nowrap',
+  },
+  '@global': {
+    // As in the post, a new section starts below a widget the text wraps around.
+    '.iframe-widget-code[data-lw-wraps] ~ h1, .iframe-widget-code[data-lw-wraps] ~ h2, .iframe-widget-code[data-lw-wraps] ~ h3': {
+      clear: 'both',
+    },
+  },
 }));
+
+const LAYOUT_POSITIONS: Array<{ position: IframeWidgetPosition, label: string }> = [
+  { position: 'inline', label: 'Full width' },
+  { position: 'left', label: 'Left' },
+  { position: 'right', label: 'Right' },
+];
+// Widths that leave room to wrap in LessWrong's normal 682px text column.
+const LAYOUT_WIDTHS = ['25%', '33%', '38%'];
+const DEFAULT_WRAP_WIDTH = '33%';
 
 interface WidgetState {
   viewMode: 'code' | 'preview';
   previewHeight: number;
   htmlContent: string;
+  layout: IframeWidgetLayout;
+}
+
+/** Width of the editor's text column, which wrapped widgets are sized against. */
+function editorColumnWidth(editor: LexicalEditor): number {
+  const root = editor.getRootElement();
+  if (!root) return 0;
+  const cs = getComputedStyle(root);
+  return root.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+}
+
+/**
+ * Floats the preview spacer the way the post will float the widget, so the editor's text wraps
+ * around it (the preview overlay follows the spacer's box). Code view is always full width.
+ */
+function placeSpacer(elem: HTMLElement, layout: IframeWidgetLayout | null, columnWidth: number): void {
+  const wraps = !!layout && shouldWrapWidget(layout, columnWidth);
+  const side = layout?.position === 'left' ? 'left' : 'right';
+  elem.style.float = wraps ? side : '';
+  elem.style.clear = wraps ? side : '';
+  elem.style.width = wraps ? `${widgetWidthPx(layout!, columnWidth)}px` : '';
+  elem.style.margin = wraps ? (side === 'left' ? `6px ${WRAP_GUTTER}px 16px 0` : `6px 0 16px ${WRAP_GUTTER}px`) : '';
+  elem.toggleAttribute('data-lw-wraps', wraps);
 }
 
 function stripDeletedMarkupFromSrcdoc(srcdoc: string): string {
@@ -114,12 +215,14 @@ function applyPreviewModeToDOM(
   editor: LexicalEditor,
   nodeKey: string,
   previewHeight: number,
+  layout: IframeWidgetLayout,
 ): void {
   const elem = editor.getElementByKey(nodeKey);
   if (!elem) return;
   elem.classList.add(PREVIEW_MODE_CLASS);
   elem.dataset.view = 'preview';
   elem.style.height = `${previewHeight}px`;
+  placeSpacer(elem, layout, editorColumnWidth(editor));
 }
 
 function removePreviewModeFromDOM(
@@ -131,6 +234,7 @@ function removePreviewModeFromDOM(
   elem.classList.remove(PREVIEW_MODE_CLASS);
   delete elem.dataset.view;
   elem.style.removeProperty('height');
+  placeSpacer(elem, null, 0);
 }
 
 function readCodeContent(editor: LexicalEditor, nodeKey: string): string {
@@ -254,18 +358,57 @@ function ToggleButton({
   );
 }
 
+function LayoutControls({ layout, columnWidth, onChange }: {
+  layout: IframeWidgetLayout,
+  columnWidth: number,
+  onChange: (layout: IframeWidgetLayout) => void,
+}) {
+  const classes = useStyles(styles);
+  const sided = layout.position === 'left' || layout.position === 'right';
+  const width = layout.width ?? DEFAULT_WRAP_WIDTH;
+  const widths = LAYOUT_WIDTHS.includes(width) ? LAYOUT_WIDTHS : [...LAYOUT_WIDTHS, width];
+  const button = (active: boolean, label: string, next: IframeWidgetLayout) => <button
+    key={label}
+    type="button"
+    tabIndex={-1}
+    className={classNames(classes.layoutButton, active && classes.layoutButtonActive)}
+    onMouseDown={(e) => e.preventDefault()}
+    onClick={(e) => { e.stopPropagation(); e.preventDefault(); onChange(next); }}
+  >{label}</button>;
+  return (
+    <div className={classes.layoutBar}>
+      {LAYOUT_POSITIONS.map(({ position, label }) => button(
+        layout.position === position || (position === 'inline' && layout.position === 'center'),
+        label,
+        position === 'inline' ? { position: 'inline', width: null } : { position, width },
+      ))}
+      {sided && <>
+        <span className={classes.layoutDivider}/>
+        {widths.map(w => button(w === width, w, { position: layout.position, width: w }))}
+        {!shouldWrapWidget(layout, columnWidth) && <span className={classes.layoutNote}>
+          too wide to wrap here
+        </span>}
+      </>}
+    </div>
+  );
+}
+
 const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   nodeKey,
   state,
   position,
+  columnWidth,
   onToggle,
   onIframeResize,
+  onLayoutChange,
 }: {
   nodeKey: string;
   state: WidgetState;
   position: OverlayPosition | undefined;
+  columnWidth: number;
   onToggle: (nodeKey: string) => void;
   onIframeResize: (nodeKey: string, height: number) => void;
+  onLayoutChange: (nodeKey: string, layout: IframeWidgetLayout) => void;
 }) {
   const classes = useStyles(styles);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -281,12 +424,15 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   }, [nodeKey, onIframeResize]);
 
   const handleToggleClick = useCallback(() => onToggle(nodeKey), [onToggle, nodeKey]);
+  const handleLayoutChange = useCallback((layout: IframeWidgetLayout) => onLayoutChange(nodeKey, layout), [onLayoutChange, nodeKey]);
 
+  // The layout tag only places the frame, so changing it doesn't reload the widget.
+  const widgetHtml = stripIframeWidgetLayout(state.htmlContent);
   const srcdoc = useMemo(
-    () => state.htmlContent.trim()
-      ? injectResizeScript(stripDeletedMarkupFromSrcdoc(state.htmlContent))
+    () => widgetHtml.trim()
+      ? injectResizeScript(stripDeletedMarkupFromSrcdoc(widgetHtml))
       : '',
-    [state.htmlContent],
+    [widgetHtml],
   );
 
   if (state.viewMode !== 'preview' || !position) return null;
@@ -302,6 +448,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
         className={classes.toggleButton}
         style={{ top: 4, right: 4 }}
       />
+      {srcdoc && <LayoutControls layout={state.layout} columnWidth={columnWidth} onChange={handleLayoutChange} />}
       {srcdoc ? (
         <iframe
           ref={iframeRef}
@@ -422,11 +569,21 @@ export default function IframeWidgetPlugin({
         const tracked = widgetsRef.current;
         const removed: string[] = [];
         const added: Array<{ key: string; state: WidgetState }> = [];
+        const relaid: Array<{ key: string; htmlContent: string; layout: IframeWidgetLayout }> = [];
         editor.getEditorState().read(() => {
           for (const [key, type] of mutations) {
             if (type === 'destroyed') {
               if (tracked.has(key)) removed.push(key);
-            } else if (!tracked.has(key)) {
+            } else if (tracked.has(key)) {
+              // A previewed widget's placement can change under it (undo, redo): keep the preview in step.
+              const state = tracked.get(key)!;
+              const htmlContent = $getNodeByKey(key)?.getTextContent() ?? '';
+              const layout = parseIframeWidgetLayout(htmlContent);
+              if (state.viewMode === 'preview'
+                && (layout.position !== state.layout.position || layout.width !== state.layout.width)) {
+                relaid.push({ key, htmlContent, layout });
+              }
+            } else {
               const node = $getNodeByKey(key);
               const htmlContent = node ? node.getTextContent() : '';
               const hasContent = htmlContent.trim().length > 0;
@@ -436,23 +593,28 @@ export default function IframeWidgetPlugin({
                   viewMode: hasContent ? 'preview' : 'code',
                   previewHeight: IFRAME_DEFAULT_HEIGHT,
                   htmlContent: hasContent ? htmlContent : '',
+                  layout: parseIframeWidgetLayout(htmlContent),
                 },
               });
             }
           }
         });
-        if (removed.length === 0 && added.length === 0) return;
+        if (removed.length === 0 && added.length === 0 && relaid.length === 0) return;
         setWidgets((prev) => {
           const next = new Map(prev);
           for (const key of removed) next.delete(key);
           for (const { key, state } of added) {
             if (!next.has(key)) next.set(key, state);
           }
+          for (const { key, htmlContent, layout } of relaid) {
+            const state = next.get(key);
+            if (state) next.set(key, { ...state, htmlContent, layout });
+          }
           return next;
         });
         for (const { key, state } of added) {
           if (state.viewMode === 'preview') {
-            applyPreviewModeToDOM(editor, key, state.previewHeight);
+            applyPreviewModeToDOM(editor, key, state.previewHeight, state.layout);
           }
         }
       }, {skipInitialization: false}),
@@ -470,15 +632,27 @@ export default function IframeWidgetPlugin({
   // useLayoutEffect ensures this runs before position measurement
   // (declared in usePositionTracking below), so the overlay sees the
   // collapsed spacer dimensions rather than the full code block.
+  // The editor's text column width, for deciding which widgets have room to wrap.
+  const [columnWidth, setColumnWidth] = useState(0);
+  useEffect(() => {
+    const root = editor.getRootElement();
+    if (!root) return;
+    const measure = () => setColumnWidth(editorColumnWidth(editor));
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, [editor]);
+
   useLayoutEffect(() => {
     for (const [key, state] of widgets) {
       if (state.viewMode === 'preview') {
-        applyPreviewModeToDOM(editor, key, state.previewHeight);
+        applyPreviewModeToDOM(editor, key, state.previewHeight, state.layout);
       } else {
         removePreviewModeFromDOM(editor, key);
       }
     }
-  }, [editor, widgets]);
+  }, [editor, widgets, columnWidth]);
 
   const widgetKeys = Array.from(widgets.keys());
   const positions = usePositionTracking(editor, anchorElem, widgets);
@@ -490,7 +664,7 @@ export default function IframeWidgetPlugin({
       if (!state) return prev;
       if (state.viewMode === 'code') {
         const htmlContent = readCodeContent(editor, key);
-        next.set(key, { ...state, viewMode: 'preview', htmlContent });
+        next.set(key, { ...state, viewMode: 'preview', htmlContent, layout: parseIframeWidgetLayout(htmlContent) });
       } else {
         next.set(key, { ...state, viewMode: 'code' });
       }
@@ -499,6 +673,7 @@ export default function IframeWidgetPlugin({
   }, [editor]);
 
   const handleIframeResize = useCallback((key: string, height: number) => {
+    const current = widgetsRef.current.get(key);
     setWidgets((prev) => {
       const next = new Map(prev);
       const state = next.get(key);
@@ -506,7 +681,26 @@ export default function IframeWidgetPlugin({
       next.set(key, { ...state, previewHeight: height });
       return next;
     });
-    applyPreviewModeToDOM(editor, key, height);
+    if (current) applyPreviewModeToDOM(editor, key, height, current.layout);
+  }, [editor]);
+
+  // Writes the placement into the widget's own HTML (its <meta name="lw-layout"> tag), which is what
+  // the published post reads.
+  const handleLayoutChange = useCallback((key: string, layout: IframeWidgetLayout) => {
+    editor.update(() => {
+      const node = $getNodeByKey(key);
+      if (!$isIframeWidgetNode(node)) return;
+      const html = setIframeWidgetLayout(node.getTextContent(), layout);
+      node.clear();
+      node.append($createTextNode(html));
+    });
+    setWidgets((prev) => {
+      const next = new Map(prev);
+      const state = next.get(key);
+      if (!state) return prev;
+      next.set(key, { ...state, layout, htmlContent: setIframeWidgetLayout(state.htmlContent, layout) });
+      return next;
+    });
   }, [editor]);
 
   if (!anchorElem) return null;
@@ -532,8 +726,10 @@ export default function IframeWidgetPlugin({
             nodeKey={key}
             state={state}
             position={positions.get(key)}
+            columnWidth={columnWidth}
             onToggle={handleToggle}
             onIframeResize={handleIframeResize}
+            onLayoutChange={handleLayoutChange}
           />
         );
       })}
