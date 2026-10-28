@@ -1,4 +1,4 @@
-import { generateText, stepCountIs, type ContentPart, type ImagePart, type LanguageModel, type ModelMessage, type ToolSet } from "ai";
+import { generateText, stepCountIs, type ContentPart, type ImagePart, type LanguageModel, type ModelMessage, type TextPart, type ToolSet } from "ai";
 import { z } from "zod";
 import LlmRuns from "@/server/collections/llmRuns/collection";
 import LlmRunTranscriptEntries from "@/server/collections/llmRunTranscriptEntries/collection";
@@ -57,8 +57,11 @@ export async function generateLlmRunResponse(run: DbLlmRun, { model, contextMess
   if (!await LlmRuns.rawUpdateOne(selector, { $set: { contextMessage, response: null } })) {
     throw new Error("The model run is no longer claimed by this attempt");
   }
-  await saveTranscriptEntries(run, contextImages.map(({ url }) => makeEntry("image", { url })));
-  const imageParts = contextImages.map(({ url, mediaType }): ImagePart => ({ type: "image", image: new URL(url), mediaType }));
+  await saveTranscriptEntries(run, contextImages.map(({ sourceUrl, url }) => makeEntry("image", { text: sourceUrl, url })));
+  const imageParts = contextImages.flatMap(({ sourceUrl, url, mediaType }): Array<TextPart | ImagePart> => [
+    { type: "text", text: sourceUrl },
+    { type: "image", image: new URL(url), mediaType },
+  ]);
   const messages: ModelMessage[] = [{ role: "user", content: [{ type: "text", text: contextMessage }, ...imageParts] }];
   const response = await generateWithContinuations(run, model, tools, messages, MAX_CONTINUATIONS);
   if (!await LlmRuns.rawUpdateOne(selector, { $set: { response } })) {

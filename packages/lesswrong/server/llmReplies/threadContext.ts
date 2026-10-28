@@ -1,3 +1,4 @@
+import uniq from "lodash/uniq";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { siteUrlSetting, type ForumTypeString } from "@/lib/instanceSettings";
@@ -8,6 +9,8 @@ import { getLatestContentsRevision } from "@/server/collections/revisions/helper
 import { commentIsPubliclyVisible } from "@/server/permissions/accessFilters";
 import { loadLlmContextImages, type LlmContextImage } from "@/server/languageModels/llmContextImages";
 import { cheerioParse } from "@/server/utils/htmlUtil";
+
+const MAX_CONTEXT_IMAGES = 20;
 
 interface ThreadContext {
   contextMessage: string,
@@ -36,6 +39,15 @@ export async function buildThreadContext(post: DbPost, triggerComment: DbComment
   const ancestorSections = await Promise.all(ancestors.map((comment) => formatThreadComment(comment, context)));
   const commentSections = [...ancestorSections, await formatThreadComment(triggerComment, context, "the comment that mentioned you")];
 
+  const sectionImageUrls = [getImageUrls(postHtml), ...commentSections.map(({ imageUrls }) => imageUrls)];
+  const imageUrls = uniq(sectionImageUrls.flat());
+  const imageUrlsByPriority = uniq([...sectionImageUrls].reverse().flat());
+  const includedImageUrls = new Set(imageUrlsByPriority.slice(0, MAX_CONTEXT_IMAGES));
+  const contextImages = await loadLlmContextImages(imageUrls.filter((url) => includedImageUrls.has(url)));
+  const imageCapNote = imageUrls.length > MAX_CONTEXT_IMAGES
+    ? [`${contextImages.length} of the ${imageUrls.length} images in the post and thread are attached below.`]
+    : [];
+
   const contextMessage = [
     `# Post: ${post.title}`,
     `By ${formatAuthor(postAuthor, forumType)}, ${formatDate(post.postedAt)}. ${postUrl}`,
@@ -44,9 +56,9 @@ export async function buildThreadContext(post: DbPost, triggerComment: DbComment
     "",
     "# Thread",
     ...commentSections.map(({ markdown }) => markdown),
+    ...imageCapNote,
   ].join("\n");
-  const imageUrls = [...getImageUrls(postHtml), ...commentSections.flatMap(({ imageUrls }) => imageUrls)];
-  return { contextMessage, contextImages: await loadLlmContextImages(imageUrls) };
+  return { contextMessage, contextImages };
 }
 
 async function formatThreadComment(comment: DbComment, context: ResolverContext, label?: string): Promise<ThreadCommentSection> {
@@ -66,7 +78,9 @@ async function formatThreadComment(comment: DbComment, context: ResolverContext,
 
 function getImageUrls(html: string): string[] {
   const $ = cheerioParse(html);
-  return $("img").toArray().flatMap((img) => $(img).attr("src") ?? []);
+  return $("img").toArray()
+    .flatMap((img) => $(img).attr("src") ?? [])
+    .filter((src) => /^https?:\/\//i.test(src));
 }
 
 async function loadComment(commentId: string, context: ResolverContext): Promise<DbComment> {

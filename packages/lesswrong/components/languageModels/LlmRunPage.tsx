@@ -187,13 +187,14 @@ const styles = defineStyles("LlmRunPage", (theme: ThemeType) => ({
       marginTop: "1.5em",
     },
   },
-  promptImages: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 8,
-  },
   promptImage: {
+    "& + &": {
+      marginTop: 12,
+    },
+  },
+  promptImageThumbnail: {
     display: "block",
+    marginTop: 4,
     maxHeight: 120,
     maxWidth: "100%",
     borderRadius: theme.borderRadius.small,
@@ -282,7 +283,7 @@ export default function LlmRunPage({ runId }: { runId: string }) {
   const modelFullName = getLlmVersionFullName(run.modelName);
   const mention = `@${modelFullName}`;
   const promptParts = getPromptParts(run.systemPrompt, run.contextMessage);
-  const contextImageUrls = run.transcriptEntries.flatMap((entry) => entry.type === "image" && entry.url ? [entry.url] : []);
+  const contextImages = run.transcriptEntries.filter((entry) => entry.type === "image");
   const copyPrompt = async () => {
     await navigator.clipboard.writeText([run.systemPrompt, run.contextMessage].filter(Boolean).join("\n\n"));
     setPromptCopied(true);
@@ -316,7 +317,7 @@ export default function LlmRunPage({ runId }: { runId: string }) {
         {promptParts.map((part) => <a key={part.anchor} href={`#${part.anchor}`} onClick={() => setPromptExpanded(true)}>
           {part.label}
         </a>)}
-        {contextImageUrls.length > 0 && <a href={`#${IMAGES_ANCHOR}`} onClick={() => setPromptExpanded(true)}>Images</a>}
+        {contextImages.length > 0 && <a href={`#${IMAGES_ANCHOR}`} onClick={() => setPromptExpanded(true)}>Images</a>}
       </nav>}
       <div className={classes.promptBlock}>
         <LWTooltip title="Copy prompt" className={classes.copyButtonPosition}>
@@ -326,10 +327,13 @@ export default function LlmRunPage({ runId }: { runId: string }) {
         </LWTooltip>
         <div className={classNames(classes.promptText, !promptExpanded && classes.promptCollapsed)}>
           {promptParts.map((part) => <div key={part.anchor} id={part.anchor} className={classes.promptPart}>{part.text}</div>)}
-          {contextImageUrls.length > 0 && <div id={IMAGES_ANCHOR} className={classNames(classes.promptPart, classes.promptImages)}>
-            {contextImageUrls.map((url, index) => <a key={index} href={url} target="_blank" rel="noopener noreferrer">
-              <img src={url} alt="" loading="lazy" className={classes.promptImage} />
-            </a>)}
+          {contextImages.length > 0 && <div id={IMAGES_ANCHOR} className={classes.promptPart}>
+            {contextImages.map((image) => <div key={image._id} className={classes.promptImage}>
+              {image.text}
+              {image.url && <a href={image.url} target="_blank" rel="noopener noreferrer">
+                <img src={image.url} alt="" loading="lazy" className={classes.promptImageThumbnail} />
+              </a>}
+            </div>)}
           </div>}
         </div>
         {!promptExpanded && <button className={classes.readMore} onClick={() => setPromptExpanded(true)}>
