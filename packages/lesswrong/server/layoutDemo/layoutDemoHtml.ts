@@ -52,6 +52,12 @@ export function buildLayoutDemoPostHtml(): string {
 export function buildWidgetDragDemoHtml(): string {
   const html = buildLayoutDemoPostHtml();
   const before = "<p>Two more details matter a lot.";
-  if (!html.includes(before)) throw new Error("The demo post changed: no place left for the fixed-width widget");
-  return html.replace(before, `${widgetIframe("fixed-width")}\n${before}`);
+  const textWidthHint = "Resize your window and switch the text width at the bottom of the page to see how it adapts.";
+  if (!html.includes(before) || !html.includes(textWidthHint)) {
+    throw new Error("The demo post changed: buildWidgetDragDemoHtml needs updating");
+  }
+  return html
+    .replace(before, `${widgetIframe("fixed-width")}\n${before}`)
+    // (Experiment 2's post has LessWrong's normal text width only.)
+    .replace(textWidthHint, "Move and resize the widgets on the Editor tab, then see the result on the Post tab.");
 }

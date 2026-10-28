@@ -5,7 +5,8 @@ import {
 } from '../components/lexical/embeds/IframeWidgetEmbed/widgetDragGeometry';
 import { IframeWidgetFit, injectResizeScript, readIframeWidgetFit } from '../components/lexical/embeds/IframeWidgetEmbed/iframeResizeScript';
 import {
-  IframeWidgetLayout, minColumnToWrap, offeredSnapFractions, offeredWidths, sameLayout, shouldWrapWidget, wrappableWidths,
+  IframeWidgetLayout, alignOf, minColumnToWrap, offeredSnapFractions, offeredWidths, parseIframeWidgetLayout, sameLayout,
+  setIframeWidgetLayout, shouldWrapWidget, withAlign, wrappableWidths,
 } from '../components/contents/iframeWidgetLayout';
 
 const COLUMN: ColumnRect = { left: 0, width: 682 };
@@ -579,5 +580,65 @@ describe('shrink warning', () => {
     expect(injectResizeScript('<p>hi</p>')).toContain('var MEASURE = false;');
     expect(injectResizeScript('<p>hi</p>', { measure: true })).toContain('var MEASURE = true;');
     expect(injectResizeScript('<p>hi</p>', { measure: true }).startsWith('<p>hi</p>')).toBe(true);
+  });
+});
+
+describe('bottom alignment', () => {
+  const RIGHT_33_BOTTOM: IframeWidgetLayout = { position: 'right', width: '33%', align: 'bottom' };
+
+  it('reads and writes align=bottom, only for a left or right widget', () => {
+    expect(parseIframeWidgetLayout('<meta name="lw-layout" content="position=right width=33% align=bottom"><p>x</p>'))
+      .toEqual(RIGHT_33_BOTTOM);
+    expect(parseIframeWidgetLayout('<meta name="lw-layout" content="position=inline align=bottom"><p>x</p>'))
+      .toEqual(INLINE);
+    expect(setIframeWidgetLayout('<p>x</p>', RIGHT_33_BOTTOM))
+      .toBe('<meta name="lw-layout" content="position=right width=33% align=bottom">\n<p>x</p>');
+    expect(setIframeWidgetLayout('<p>x</p>', withAlign(RIGHT_33_BOTTOM, 'top')))
+      .toBe('<meta name="lw-layout" content="position=right width=33%">\n<p>x</p>');
+    expect(alignOf(withAlign(INLINE, 'bottom'))).toBe('top');
+    expect(sameLayout(RIGHT_33, RIGHT_33_BOTTOM)).toBe(false);
+    expect(sameLayout(RIGHT_33, withAlign(RIGHT_33_BOTTOM, 'top'))).toBe(true);
+  });
+
+  it('lines a wrapping widget up with the bottom of the paragraph whose lower half the pointer is over', () => {
+    // p3 runs from 400 to 480, with nothing beside it: its upper half means its top, its lower half its bottom.
+    const upper = slot({ layout: RIGHT_33, pointerX: 600, pointerY: 420, ghostHeight: 50 });
+    expect([upper.slotKey, alignOf(upper.layout)]).toEqual(['p3', 'top']);
+    const lower = slot({ layout: RIGHT_33, pointerX: 600, pointerY: 460, ghostHeight: 50 });
+    expect([lower.slotKey, lower.beforeKey, alignOf(lower.layout)]).toEqual(['p3', 'p3', 'bottom']);
+    // The ghost ends at the paragraph's bottom, where the line is.
+    expect([lower.ghostTop, lower.lineY]).toEqual([430, 480]);
+    expect(moveChipText(lower, RIGHT_33)).toBe('Right · 33% · bottom of the paragraph');
+    // In the gap after it, it's the top of the next paragraph again.
+    const gap = slot({ layout: RIGHT_33, pointerX: 600, pointerY: 486, ghostHeight: 50 });
+    expect([gap.slotKey, alignOf(gap.layout)]).toEqual(['p4', 'top']);
+  });
+
+  it('keeps a widget taller than the paragraph at its top, and never lines up with a heading', () => {
+    // Its top can't go above the paragraph's (the line between the heading and p3 is at 370).
+    const tall = slot({ layout: RIGHT_33, pointerX: 600, pointerY: 460, ghostHeight: 200 });
+    expect([alignOf(tall.layout), tall.ghostTop]).toEqual(['bottom', 370]);
+    // The heading (300 to 340) is never a bottom: below its middle means the paragraph after it.
+    const heading = slot({ layout: RIGHT_33, pointerX: 600, pointerY: 330, ghostHeight: 50 });
+    expect([heading.slotKey, alignOf(heading.layout)]).toEqual(['p3', 'top']);
+  });
+
+  it('gives a full-width widget no alignment', () => {
+    const full = slot({ layout: INLINE, pointerY: 160 });
+    expect([full.slotKey, alignOf(full.layout)]).toEqual(['p2', 'top']);
+  });
+
+  it('dropping on its own paragraph\'s bottom only changes the alignment', () => {
+    // w sits before p5 (700 to 780); as a right float there, dropped on p5's lower half.
+    const blocks = post({ float: 'right', top: 706, bottom: 756 });
+    const same = slot({ blocks, layout: RIGHT_33, pointerX: 600, pointerY: 760, ghostHeight: 50 });
+    expect([same.slotKey, same.sameSlot, same.noOp, alignOf(same.layout)]).toEqual(['p5', true, false, 'bottom']);
+    const again = slot({ blocks, layout: RIGHT_33_BOTTOM, pointerX: 600, pointerY: 760, ghostHeight: 50 });
+    expect(again.noOp).toBe(true);
+  });
+
+  it('keeps the alignment when the widget is resized', () => {
+    const target = resizeTarget({ edge: 'left', startLayout: RIGHT_33_BOTTOM, startWraps: true, pointerX: 682 - 260, column: COLUMN });
+    expect(target.layout).toEqual({ position: 'right', width: '38%', align: 'bottom' });
   });
 });

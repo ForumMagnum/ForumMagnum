@@ -44,6 +44,7 @@ import RSVPs from "./RSVPs";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import ContentStyles from "../../common/ContentStyles";
 import PostBody from "./PostBody";
+import { WidgetDragPostBody } from "./WidgetDragPostBody";
 import { CommentOnSelectionContentWrapper } from "../../comments/CommentOnSelection";
 import PermanentRedirect from "../../common/PermanentRedirect";
 import DebateBody from "../../comments/DebateBody";
@@ -636,12 +637,15 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
           <CommentOnSelectionContentWrapper post={post}>
           <div id="postContent">
             {htmlWithAnchors && <>
-              <PostBody
-                post={post}
-                html={htmlWithAnchors}
-                isOldVersion={isOldVersion}
-                voteProps={voteProps}
-              />
+              {/* EXPERIMENT (experiment/iframe-layout-ronny-exp2): Experiment 2's Post tab shows the Editor tab's edits. */}
+              {post.title === LAYOUT_DEMO_TITLE && query.widgetDrag === '1'
+                ? <WidgetDragPostBody post={post} isOldVersion={isOldVersion} voteProps={voteProps} />
+                : <PostBody
+                  post={post}
+                  html={htmlWithAnchors}
+                  isOldVersion={isOldVersion}
+                  voteProps={voteProps}
+                />}
               {post.isEvent && <p className={classes.dateAtBottom}>
                 Posted on: <PostsPageDate post={post} hasMajorRevision={false} />
               </p>}

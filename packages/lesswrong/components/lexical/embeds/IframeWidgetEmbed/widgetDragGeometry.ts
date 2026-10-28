@@ -2,7 +2,8 @@
 // widgets in the editor: where a drop lands, which side it takes, what a resize snaps to and what the
 // chips say. Pure (no DOM, no Lexical), so it is unit tested (unitTests/iframeWidgetDragGeometry.tests.ts).
 import {
-  IframeWidgetLayout, offeredSnapFractions, offeredWidths, sameLayout, shouldWrapWidget, widgetWidthPx, WRAP_GUTTER,
+  alignOf, IframeWidgetLayout, offeredSnapFractions, offeredWidths, sameLayout, shouldWrapWidget, widgetWidthPx, withAlign,
+  WRAP_GUTTER,
 } from '@/components/contents/iframeWidgetLayout';
 import type { IframeWidgetFit } from './iframeResizeScript';
 
@@ -194,6 +195,9 @@ export interface DropSlotInput {
  * Where a widget dragged to the pointer would land. Drops go between top-level blocks only, and only
  * blocks in the text flow count (floats are skipped), so the slot is before the block under the
  * pointer (above its middle) or before the one after it.
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp2): a widget the text wraps around, dragged over the lower
+ * half of a paragraph, lines up with that paragraph's bottom instead (align=bottom, still inserted
+ * before it); over the upper half, with its top.
  */
 export function chooseDropSlot({
   blocks, draggedKey, pointerX, pointerY, column, layout, prevSide, ghostHeight,
@@ -213,11 +217,19 @@ export function chooseDropSlot({
   if (!wraps) target = layout;
 
   let beforeIndex = 0;
+  let align: 'top' | 'bottom' = 'top';
   if (flow.length) {
     const nearest = nearestBlock(flow, pointerY);
     const block = flow[nearest];
-    beforeIndex = pointerY < (block.top + block.bottom) / 2 ? nearest : nearest + 1;
+    const lowerHalf = pointerY >= (block.top + block.bottom) / 2;
+    if (lowerHalf && wraps && block.kind === 'other' && !block.clears && pointerY <= block.bottom) {
+      beforeIndex = nearest;
+      align = 'bottom';
+    } else {
+      beforeIndex = lowerHalf ? nearest + 1 : nearest;
+    }
   }
+  if (wraps) target = withAlign(target, align);
   // A widget the text wraps around goes below a heading or a full-width widget, never just before it
   // (that block would clear it and leave it beside nothing).
   let snappedBelow: DropSlot['snappedBelow'] = null;
@@ -279,6 +291,12 @@ export function chooseDropSlot({
       if (b.float === side && b.index < landsBefore) {
         top = Math.max(top, b.bottom + FLOAT_BOTTOM_MARGIN);
       }
+    }
+    // Lined up with the paragraph's bottom: as far down as that allows (the paragraph grows a little as
+    // its text wraps around the widget, so the drop lands a little lower than this).
+    if (align === 'bottom' && before) {
+      top = Math.max(top, before.bottom - ghostHeight);
+      lineY = before.bottom;
     }
     // The next heading clears the widget once it's dropped (as does a full-width widget), so the
     // widget and whatever floats beside it stop there: a taller widget pushes that block, and every
@@ -380,7 +398,11 @@ export function resizeTarget({ edge, startLayout, startWraps, pointerX, column }
     // only can't use at this window size (say, right 50%) isn't lost.
     layout = startWraps ? { position: 'inline', width: null } : startLayout;
   } else {
-    layout = { position: side, width: snap === startWidth ? startLayout.width : `${Math.round(snap * 100)}%` };
+    // (A float keeps its alignment, top or bottom of its paragraph.)
+    layout = withAlign(
+      { position: side, width: snap === startWidth ? startLayout.width : `${Math.round(snap * 100)}%` },
+      startWraps ? alignOf(startLayout) : 'top',
+    );
   }
   return { layout, side, snap, snaps, fixedEdgeX, wraps: shouldWrapWidget(layout, column.width) };
 }
@@ -448,6 +470,7 @@ export function moveChipText(slot: DropSlot, storedLayout: IframeWidgetLayout): 
   if (slot.snappedBelow) parts.push(slot.snappedBelow === 'heading' ? 'Below the heading' : 'Below the widget');
   if (slot.wraps && side) {
     parts.push(`${sideLabel(side)} · ${slot.layout.width}`);
+    if (alignOf(slot.layout) === 'bottom') parts.push('bottom of the paragraph');
   } else if (widgetSide(storedLayout)) {
     parts.push('Full width here: no room to wrap');
   } else {

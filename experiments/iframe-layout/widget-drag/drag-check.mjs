@@ -18,10 +18,14 @@
 //                                           [ and ], and the editor's undo/redo shortcuts). Only on a
 //                                           top-level widget (not inside columns, a table, a collapsible
 //                                           or a footnote), in preview, with HTML
-//   [data-testid=widget-bar-grip]           the grip in the placement bar (hidden on touch screens)
+//   [data-testid=widget-options]            the gear button (beside the code toggle); it opens
+//   [data-testid=widget-options-menu]       its options: buttons with data-option full | left | right |
+//                                           top | bottom | 25% | 33% ... (the drag editor has no
+//                                           placement bar: this menu replaces it)
 //   [data-testid=widget-resize-left|right]  resize edges (top-level widgets only)
 //   [data-testid=widget-drop-indicator]     while dragging: data-kind, data-slot-key, data-before-key,
-//                                           data-side, data-width, data-noop, data-heading-snapped,
+//                                           data-side, data-width, data-align (top | bottom: the drop lines
+//                                           up with a paragraph's bottom), data-noop, data-heading-snapped,
 //                                           data-beside-opposite, data-pushes-down (heading | widget),
 //                                           data-offscreen (above | below: the line is a stand-in at
 //                                           that edge), data-at-end, data-chip, ...
@@ -508,19 +512,31 @@ async function mainChecks(browser) {
     await h.invariants('S17');
   }
 
-  // S19: the grip in the placement bar moves the widget too.
+  // S19: the gear opens the widget's options; each choice is one undo step; Escape closes them.
   {
-    const key = await h.widget(/position=inline/);
-    const before = content(await h.snapshot()).findIndex(c => c.key === key);
+    const key = await h.widget(/position=left/);
+    const gear = `[data-testid=widget-options][data-widget-key="${key}"]`;
+    await h.scrollTo(h.overlay(key));
+    await h.frames(2);
     await h.resetUpdates();
-    const mid = await h.drag(`[data-testid=widget-bar-grip][data-widget-key="${key}"]`, async (r) => {
-      // Down past the widget and the paragraph after it.
-      await h.scrollTo(h.overlay(key), 'start');
-      await h.frames(2);
-      return { x: r.cx, y: 760 };
-    }, { hover: h.overlay(key) });
-    const after = content(await h.snapshot()).findIndex(c => c.key === key);
-    check('S19 bar grip moves the widget', mid.state === 'moving' && after !== before && pushCount(await h.updates()) === 1, `${before} -> ${after} chip=${mid.ind.chip}`);
+    await page.click(gear);
+    await h.frames(2);
+    const opened = !!(await page.$('[data-testid=widget-options-menu]'));
+    await page.click('[data-testid=widget-options-menu] [data-option=right]');
+    await h.frames(3);
+    await page.click('[data-testid=widget-options-menu] [data-option=bottom]');
+    await h.frames(3);
+    const text = await h.widgetText(key);
+    const pushes = pushCount(await h.updates());
+    await page.keyboard.press('Escape');
+    await h.frames(2);
+    const closed = !(await page.$('[data-testid=widget-options-menu]'));
+    await page.keyboard.press(UNDO);
+    await page.keyboard.press(UNDO);
+    await h.frames(4);
+    check('S19 the gear sets the side and the alignment, one undo step each', opened && closed && /position=right/.test(text)
+      && /align=bottom/.test(text) && pushes === 2 && !/position=right|align=bottom/.test(await h.widgetText(key)),
+      `${text} pushes=${pushes} opened=${opened} closed=${closed}`);
     await h.invariants('S19');
   }
 
@@ -544,7 +560,7 @@ async function mainChecks(browser) {
   }
 
   const tabs = await page.evaluate(() => [...document.querySelectorAll('a')].filter(a => ['Post', 'Editor'].includes(a.textContent)).map(a => `${a.textContent}=${a.getAttribute('href')}`));
-  check('tabs: Post opens the demo post, Editor this page', tabs.includes('Post=/experiment-iframe-layout-tuito7fob8u0rzrbib0v16i1?textWidth=normal')
+  check('tabs: Post opens Experiment 2\'s post, Editor this page', tabs.includes('Post=/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut')
     && tabs.includes('Editor=/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut/editor'), tabs.join(' '));
   check('no console errors at 1024', h.errors.length === 0, h.errors.join(' || '));
   await page.screenshot({ path: path.join(OUT, 'drag-check-1024.png') });
@@ -750,11 +766,13 @@ async function narrowChecks(browser) {
       },
     });
   await h.scrollTo(h.overlay(key));
-  const overlay = await h.rect(h.overlay(key));
-  await page.mouse.move(overlay.cx, overlay.y + 40);
-  await h.frames(3);
-  const buttons = await page.evaluate((k) => [...document.querySelectorAll(`[data-testid=widget-overlay][data-widget-key="${k}"] [class*=layoutBar] button`)]
-    .map(b => b.textContent.trim()).filter(Boolean), key);
+  await h.frames(2);
+  await page.click(`[data-testid=widget-options][data-widget-key="${key}"]`);
+  await h.frames(2);
+  const buttons = await page.evaluate(() => [...document.querySelectorAll('[data-testid=widget-options-menu] [data-option]')]
+    .map(b => b.textContent.trim()).filter(Boolean));
+  await page.keyboard.press('Escape');
+  await h.frames(2);
   check('S13b no width under 150px: no 25% tick or button, snaps to 33%', col.width * 0.25 < 150 && !live.includes('25%')
     && live.includes('33%') && !buttons.includes('25%') && buttons.includes('33%') && narrowest.ind.width === '33%',
     `${col.width}px: ticks ${live.join(' ')} buttons ${buttons.join(' ')} snap ${narrowest.ind.width}`);
@@ -1038,7 +1056,7 @@ async function reviewChecks(browser) {
     }), key);
     await h.frames(4);
     const nested = await page.evaluate((key) => document.querySelectorAll([
-      `[data-testid=widget-grip][data-widget-key="${key}"]`, `[data-testid=widget-bar-grip][data-widget-key="${key}"]`,
+      `[data-testid=widget-grip][data-widget-key="${key}"]`, `[data-testid=widget-options][data-widget-key="${key}"]`,
       `[data-testid^=widget-resize][data-widget-key="${key}"]`,
     ].join(', ')).length, key);
     check('R4 a widget inside columns has no drag controls', nested === 0 && (await page.$$('[data-testid=widget-grip]')).length === grips - 1);
@@ -1203,12 +1221,11 @@ async function edgeChecks(browser) {
   // undoes it, the page doesn't move, and no focus ring or placement bar is left showing.
   const quiet = (key) => page.evaluate((key) => {
     const o = document.querySelector(`[data-testid=widget-overlay][data-widget-key="${key}"]`);
-    const bar = o.querySelector('[class*=layoutBar]');
     const grip = o.querySelector('[data-testid=widget-grip]');
     return {
       active: document.activeElement?.dataset?.testid ?? document.activeElement?.tagName,
       ring: grip.matches(':focus-visible'),
-      bar: getComputedStyle(bar).opacity,
+      bar: document.querySelector('[data-testid=widget-options-menu]') ? 'open' : '0',
     };
   }, key);
   const order = async () => content(await h.snapshot()).map(c => c.key).join(',');
@@ -1448,6 +1465,61 @@ async function shrinkWarningChecks(browser) {
   await h.close();
 }
 
+// B1-B3: a widget the text wraps around, dragged over the lower half of a paragraph, lines up with that
+// paragraph's bottom (align=bottom); over the upper half, with its top.
+async function bottomChecks(browser) {
+  const h = await openEditor(browser, 1024);
+  const { page } = h;
+  const col = await h.column();
+  console.log(`\n== bottom alignment, 1024px window, ${col.width}px column`);
+  const key = await h.widget(/position=right width=42%/);
+  const paragraph = content(await h.snapshot()).find((c, i, all) => all[i - 1]?.key === key || (c.type === 'paragraph' && all.findIndex(x => x.key === key) < i)).key;
+  const lineUp = () => page.evaluate(([key, paragraph]) => {
+    const { ed } = window.__dragCheck;
+    const w = ed.getElementByKey(key).getBoundingClientRect(), p = ed.getElementByKey(paragraph).getBoundingClientRect();
+    return { push: Number(ed.getElementByKey(key).dataset.lwBottomPush ?? 0), gap: Math.round(p.bottom - w.bottom), top: Math.round(w.top - p.top) };
+  }, [key, paragraph]);
+
+  // B1: into the lower half of its own paragraph: same place, now lined up with the paragraph's end.
+  await h.resetUpdates();
+  const mid = await h.drag(h.grip(key), async () => {
+    const r = await h.keyRect(paragraph);
+    return { x: col.left + col.width * 0.85, y: r.y + r.h * 0.8 };
+  });
+  await h.frames(6);
+  const text = await h.widgetText(key);
+  const lined = await lineUp();
+  await page.screenshot({ path: path.join(OUT, 'bottom-aligned.png') });
+  check('B1 dragged over a paragraph\'s lower half, it lines up with that paragraph\'s bottom', mid.ind.align === 'bottom'
+    && /bottom of the paragraph/.test(mid.ind.chip ?? '') && /align=bottom/.test(text) && lined.push > 0 && lined.gap >= -1 && lined.gap < 40
+    && pushCount(await h.updates()) === 1, `chip=${mid.ind.chip} ${text} ${JSON.stringify(lined)}`);
+  await h.invariants('B1');
+
+  // B2: the text keeps running beside it above (it isn't a box pushed down with empty space beside it).
+  const besideAbove = await page.evaluate(([key, paragraph]) => {
+    const { ed } = window.__dragCheck;
+    const w = ed.getElementByKey(key).getBoundingClientRect();
+    const range = document.createRange();
+    range.selectNodeContents(ed.getElementByKey(paragraph));
+    const lines = [...range.getClientRects()].filter(r => r.bottom < w.top - 4);
+    return lines.length ? Math.round(Math.max(...lines.map(r => r.right))) : null;
+  }, [key, paragraph]);
+  check('B2 above it the paragraph runs the full column width', besideAbove !== null && besideAbove > col.left + col.width - 120,
+    `lines above end at ${besideAbove}, column ends at ${Math.round(col.left + col.width)}`);
+
+  // B3: back over the upper half: its top again. Then undo twice to the start.
+  const mid3 = await h.drag(h.grip(key), async () => {
+    const r = await h.keyRect(paragraph);
+    return { x: col.left + col.width * 0.85, y: r.y + Math.min(30, r.h * 0.2) };
+  });
+  await h.frames(4);
+  check('B3 over a paragraph\'s upper half, it lines up with its top', mid3.ind.align === 'top' && !/align=bottom/.test(await h.widgetText(key))
+    && (await lineUp()).push === 0, `chip=${mid3.ind.chip} ${await h.widgetText(key)}`);
+  await h.invariants('B3');
+  check('no console errors in the bottom alignment checks', h.errors.length === 0, h.errors.join(' || '));
+  await h.close();
+}
+
 // T1-T3: an emulated touch screen (hover: none, as on a tablet).
 async function touchChecks(browser) {
   const h = await openEditor(browser, 768, 1024, { hasTouch: true, isMobile: true });
@@ -1459,11 +1531,10 @@ async function touchChecks(browser) {
     return;
   }
   const found = await page.evaluate(() => ({
-    barGrips: [...document.querySelectorAll('[data-testid=widget-bar-grip]')].map(el => getComputedStyle(el).display),
+    gears: [...document.querySelectorAll('[data-testid=widget-options]')].map(el => Number(getComputedStyle(el).opacity)),
     edges: [...document.querySelectorAll('[data-testid^=widget-resize]')].map(el => getComputedStyle(el).touchAction),
   }));
-  check('T1 no bar grip (an unseen grip would stop a swipe from scrolling)', found.barGrips.length > 0 && found.barGrips.every(d => d === 'none'),
-    JSON.stringify(found.barGrips));
+  check('T1 the gear shows without hover', found.gears.length > 0 && found.gears.every(o => o > 0.3), JSON.stringify(found.gears));
   check('T2 resize edges let a vertical swipe scroll the page', found.edges.length > 0 && found.edges.every(t => t === 'pan-y'), JSON.stringify(found.edges));
   // T3: a vertical swipe that starts on a float's resize edge scrolls; it doesn't resize the float.
   const w = content(await h.snapshot()).find(c => c.type === 'iframe-widget' && /width=4[246]%/.test(c.text));
@@ -1487,7 +1558,7 @@ async function touchChecks(browser) {
 const browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--mute-audio'] });
 try {
   const groups = {
-    mainChecks, shrinkWarningChecks, reviewChecks, landingChecks, edgeChecks, touchChecks, narrowChecks, phoneChecks,
+    mainChecks, shrinkWarningChecks, bottomChecks, reviewChecks, landingChecks, edgeChecks, touchChecks, narrowChecks, phoneChecks,
     wideChecks, mvp1Checks,
   };
   const only = (process.env.ONLY || '').toLowerCase().split(',').filter(Boolean);

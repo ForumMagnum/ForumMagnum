@@ -3,6 +3,8 @@
 //   <meta name="lw-layout" content="position=right width=40%">
 // position: inline (default, full text width), center, left or right (left/right float, so the
 // text wraps around the widget). width: a percentage of the text column, or pixels.
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): align=bottom lines a left/right widget up with the
+// bottom of the paragraph after it instead of its top (see bottomAlignOffset).
 // A real version would store these on the editor node and set them with toolbar buttons.
 
 export type IframeWidgetPosition = 'inline' | 'center' | 'left' | 'right';
@@ -10,6 +12,8 @@ export type IframeWidgetPosition = 'inline' | 'center' | 'left' | 'right';
 export interface IframeWidgetLayout {
   position: IframeWidgetPosition,
   width: string | null,
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): set only for a left/right widget aligned to the bottom. */
+  align?: 'bottom',
 }
 
 const POSITIONS: IframeWidgetPosition[] = ['inline', 'center', 'left', 'right'];
@@ -31,7 +35,9 @@ export function parseIframeWidgetLayout(srcdoc: string): IframeWidgetLayout {
   const settings = parseSettings(tag?.match(CONTENT_ATTRIBUTE_RE)?.[1] ?? '');
   const position = POSITIONS.find(p => p === settings.get('position')) ?? 'inline';
   const width = settings.get('width');
-  return { position, width: width && WIDTH_RE.test(width) ? width : null };
+  const layout: IframeWidgetLayout = { position, width: width && WIDTH_RE.test(width) ? width : null };
+  if ((position === 'left' || position === 'right') && settings.get('align') === 'bottom') layout.align = 'bottom';
+  return layout;
 }
 
 // A left/right widget only wraps if the text beside it stays at least this wide (about 40 characters
@@ -104,7 +110,18 @@ export function wrappableWidths(columnWidth: number): string[] {
 }
 
 export function sameLayout(a: IframeWidgetLayout, b: IframeWidgetLayout): boolean {
-  return a.position === b.position && a.width === b.width;
+  return a.position === b.position && a.width === b.width && alignOf(a) === alignOf(b);
+}
+
+/** EXPERIMENT (experiment/iframe-layout-ronny-exp2): which end of its paragraph a widget lines up with. */
+export function alignOf(layout: IframeWidgetLayout): 'top' | 'bottom' {
+  return layout.align === 'bottom' && (layout.position === 'left' || layout.position === 'right') ? 'bottom' : 'top';
+}
+
+/** The layout with this alignment (a full-width widget has none). */
+export function withAlign(layout: IframeWidgetLayout, align: 'top' | 'bottom'): IframeWidgetLayout {
+  const { align: _old, ...rest } = layout;
+  return align === 'bottom' && (layout.position === 'left' || layout.position === 'right') ? { ...rest, align } : rest;
 }
 
 /** The widget's HTML without its layout tag (the tag only places the frame; the widget never sees it). */
@@ -116,6 +133,10 @@ export function stripIframeWidgetLayout(srcdoc: string): string {
 export function setIframeWidgetLayout(srcdoc: string, layout: IframeWidgetLayout): string {
   const html = stripIframeWidgetLayout(srcdoc);
   if (layout.position === 'inline' && !layout.width) return html;
-  const settings = [`position=${layout.position}`, layout.width && `width=${layout.width}`].filter(Boolean).join(' ');
+  const settings = [
+    `position=${layout.position}`,
+    layout.width && `width=${layout.width}`,
+    alignOf(layout) === 'bottom' && 'align=bottom',
+  ].filter(Boolean).join(' ');
   return `<meta name="lw-layout" content="${settings}">\n${html}`;
 }

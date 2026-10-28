@@ -2,11 +2,13 @@
 // EXPERIMENT (branch experiment/iframe-layout-ronny): the layout demo's two tabs, the post as readers
 // see it and the editor with the same post, shown in the demo's bottom bar.
 // EXPERIMENT (experiment/iframe-layout-ronny-exp2): the Experiment 2 editor and, on this branch, the demo post pass
-// WIDGET_DRAG_EDITOR_PATH as editorPath. The first editor keeps the default.
+// WIDGET_DRAG_EDITOR_PATH as editorPath. The first editor keeps the default. Experiment 2's own Post tab
+// (postPath WIDGET_DRAG_DEMO_PATH) shows the edits made in its Editor tab, which a Reset button clears.
 import React from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { LAYOUT_DEMO_PATH, WIDGET_DRAG_DEMO_PATH } from './constants';
+import { clearEdits, editsSaved } from './widgetDragEdits';
 
 const styles = defineStyles('LayoutDemoTabs', (theme: ThemeType) => ({
   tabs: {
@@ -57,19 +59,50 @@ const styles = defineStyles('LayoutDemoTabs', (theme: ThemeType) => ({
     padding: '6px 8px',
     color: theme.palette.grey[600],
   },
+  reset: {
+    padding: '5px 10px',
+    border: 'none',
+    borderRadius: 5,
+    background: 'transparent',
+    color: theme.palette.grey[700],
+    cursor: 'pointer',
+    font: 'inherit',
+    '&:hover': {
+      background: theme.palette.grey[200],
+    },
+  },
 }));
 
 export const WIDGET_DRAG_EDITOR_PATH = `${WIDGET_DRAG_DEMO_PATH}/editor`;
 
-export function LayoutDemoTabs({ active, editorPath = `${LAYOUT_DEMO_PATH}/editor` }: {
+export function LayoutDemoTabs({ active, editorPath = `${LAYOUT_DEMO_PATH}/editor`, postPath = `${LAYOUT_DEMO_PATH}?textWidth=normal` }: {
   active: 'post' | 'editor',
   editorPath?: string,
+  postPath?: string,
 }) {
   const classes = useStyles(styles);
+  // Experiment 2: the editor's last change may still be on its way to storage (the editor batches its
+  // changes), so the Post tab waits for it.
+  const toPost = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (active !== 'editor' || postPath !== WIDGET_DRAG_DEMO_PATH || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault();
+    void editsSaved().then(() => { window.location.href = postPath; });
+  };
   return <span className={classes.tabs}>
-    <a href={`${LAYOUT_DEMO_PATH}?textWidth=normal`} className={classNames(classes.tab, active === 'post' && classes.active)}>Post</a>
+    <a href={postPath} onClick={toPost} className={classNames(classes.tab, active === 'post' && classes.active)}>Post</a>
     <a href={editorPath} className={classNames(classes.tab, active === 'editor' && classes.active)}>Editor</a>
   </span>;
+}
+
+/** EXPERIMENT (experiment/iframe-layout-ronny-exp2): puts Experiment 2's post back as it was. */
+export function ResetWidgetDragEdits() {
+  const classes = useStyles(styles);
+  const reset = () => {
+    if (!window.confirm('Put the demo post back as it was? Your edits in this browser will be lost.')) return;
+    clearEdits();
+    window.location.reload();
+  };
+  return <button type="button" className={classes.reset} onClick={reset} data-testid="widget-drag-reset">Reset</button>;
 }
 
 export function LayoutDemoEditorBar({ editorPath, note = 'Normal text width (682)' }: {
@@ -79,8 +112,10 @@ export function LayoutDemoEditorBar({ editorPath, note = 'Normal text width (682
   const classes = useStyles(styles);
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): data-lw-bottom-bar (Experiment 2 only): the widget
   // drag controls keep their chips and their auto-scroll zone above this bar.
-  return <div className={classes.bar} data-lw-bottom-bar={editorPath === WIDGET_DRAG_EDITOR_PATH ? '' : undefined}>
-    <LayoutDemoTabs active="editor" editorPath={editorPath}/>
+  const widgetDrag = editorPath === WIDGET_DRAG_EDITOR_PATH;
+  return <div className={classes.bar} data-lw-bottom-bar={widgetDrag ? '' : undefined}>
+    <LayoutDemoTabs active="editor" editorPath={editorPath} postPath={widgetDrag ? WIDGET_DRAG_DEMO_PATH : undefined}/>
     <span className={classes.barNote}>{note}</span>
+    {widgetDrag && <ResetWidgetDragEdits/>}
   </div>;
 }

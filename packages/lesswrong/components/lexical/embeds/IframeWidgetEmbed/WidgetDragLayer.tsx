@@ -39,6 +39,8 @@ export interface MoveDragView {
     atEnd: boolean,
     position: string,
     width: string | null,
+    /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): top or bottom of its paragraph. */
+    align: 'top' | 'bottom',
     wraps: boolean,
     sameSlot: boolean,
     noOp: boolean,
@@ -242,6 +244,7 @@ function MoveIndicator({ view }: { view: MoveDragView }) {
     data-position={attrs.position}
     data-side={attrs.position === 'left' || attrs.position === 'right' ? attrs.position : 'none'}
     data-width={attrs.width ?? ''}
+    data-align={attrs.align}
     data-wraps={String(attrs.wraps)}
     data-same-slot={String(attrs.sameSlot)}
     data-noop={String(attrs.noOp)}

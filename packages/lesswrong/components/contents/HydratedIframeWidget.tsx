@@ -1,11 +1,12 @@
 'use client';
-import React, { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { Suspense, createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT } from '@/components/lexical/embeds/IframeWidgetEmbed/iframeResizeScript';
 import classNames from 'classnames';
-import { parseIframeWidgetLayout, shouldWrapWidget } from './iframeWidgetLayout';
+import { alignOf, parseIframeWidgetLayout, shouldWrapWidget } from './iframeWidgetLayout';
+import { alignFloatBottom, alignedParagraph, clearFloatBottom } from './bottomAlign';
 
 /** Width of the text column the widget sits in, kept current as the window or text width changes. */
 function useColumnWidth(iframeRef: React.RefObject<HTMLIFrameElement | null>, enabled: boolean): number | null {
@@ -110,6 +111,32 @@ function InlineIframeWidget({ srcdoc, title }: {
     return () => window.removeEventListener('message', handleMessage);
   }, [handleMessage, requestResize]);
 
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): align=bottom lines the widget up with the end of the
+  // paragraph after it, again whenever that paragraph reflows (fonts loading, the window resizing).
+  const bottom = floated && alignOf(layout) === 'bottom';
+  useLayoutEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    if (!bottom) {
+      clearFloatBottom(iframe);
+      return;
+    }
+    const container = iframe.closest('.iframe-widget') ?? iframe;
+    alignFloatBottom(iframe, alignedParagraph(container), 6);
+    const paragraph = alignedParagraph(container);
+    if (!paragraph) return;
+    let frame = 0;
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => alignFloatBottom(iframe, alignedParagraph(container), 6));
+    });
+    observer.observe(paragraph);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [bottom, height, columnWidth]);
+
   return (
     <iframe
       srcDoc={injectResizeScript(srcdoc)}
@@ -147,11 +174,21 @@ function HydratedIframeWidgetInner({ widgetId, attribs }: {
   return <InlineIframeWidget srcdoc={srcdoc} title={attribs.title} />;
 }
 
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp2): widgets' HTML by placeholder id, for a post body that
+ * isn't saved (Experiment 2's Post tab shows the Editor tab's edits): used instead of fetching it.
+ */
+export const IframeWidgetSrcdocOverrides = createContext<Record<string, string> | null>(null);
+
 export function HydratedIframeWidget({ widgetId, attribs }: {
   widgetId: string,
   attribs: Record<string, any>,
 }) {
   const classes = useStyles(styles);
+  const overrides = useContext(IframeWidgetSrcdocOverrides);
+  if (overrides && Object.hasOwn(overrides, widgetId)) {
+    return <InlineIframeWidget srcdoc={overrides[widgetId]} title={attribs.title} />;
+  }
   return (
     <Suspense fallback={<div className={classes.fallback} />}>
       <HydratedIframeWidgetInner widgetId={widgetId} attribs={attribs} />

@@ -7,16 +7,18 @@
 // of contents below 960px, whatever the text width.)
 // ?layoutUi=off hides this switcher and Next's dev badge, for screen recordings (the scrollytelling
 // demo's ?scrollyUi=off works too).
+// EXPERIMENT (experiment/iframe-layout-ronny-exp2): ?widgetDrag=1 on the demo post is Experiment 2's Post
+// tab: LessWrong's normal text width only (no switcher), the post as its Editor tab left it, and Reset.
 import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {
   MAX_COLUMN_WIDTH, POST_TEXT_WIDTHS, PostTextWidth, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
-  RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, TEXT_TRACK_EXTRA,
+  RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, TEXT_TRACK_EXTRA, WIDGET_DRAG_DEMO_PATH,
 } from './constants';
 import { LayoutLabColumns, setLayoutLabColumns } from './layoutLabColumns';
-import { LayoutDemoTabs, WIDGET_DRAG_EDITOR_PATH } from './LayoutDemoTabs';
+import { LayoutDemoTabs, ResetWidgetDragEdits, WIDGET_DRAG_EDITOR_PATH } from './LayoutDemoTabs';
 
 const TEXT_WIDTH_PARAM = 'textWidth';
 const TEXT_WIDTH_STORAGE_KEY = 'lwLayoutLabTextWidth';
@@ -142,7 +144,9 @@ function readTextWidth(): PostTextWidth {
     }
     const stored = window.localStorage.getItem(TEXT_WIDTH_STORAGE_KEY);
     if (isPostTextWidth(stored)) return stored;
-  } catch {}
+  } catch {
+    // Storage can be unavailable (private windows, blocked site data): the URL still works.
+  }
   return isPostTextWidth(fromUrl) ? fromUrl : 'normal';
 }
 
@@ -210,12 +214,15 @@ export function LayoutLab({ isLayoutDemo = false }: { isLayoutDemo?: boolean }) 
   const [mounted, setMounted] = useState(false);
   const [recording, setRecording] = useState(false);
   const [textWidth, setTextWidthState] = useState<PostTextWidth>('normal');
+  const [widgetDrag, setWidgetDrag] = useState(false);
   const viewport = useViewportWidth(mounted);
   const columns = mounted ? columnsFor(viewport, textWidth) : null;
 
   useEffect(() => {
     setMounted(true);
-    setTextWidthState(readTextWidth());
+    const experiment2 = isLayoutDemo && new URLSearchParams(window.location.search).get('widgetDrag') === '1';
+    setWidgetDrag(experiment2);
+    setTextWidthState(experiment2 ? 'normal' : readTextWidth());
     if (isRecordingMode()) {
       setRecording(true);
       document.documentElement.dataset.lwLayoutRecording = 'true';
@@ -225,7 +232,7 @@ export function LayoutLab({ isLayoutDemo = false }: { isLayoutDemo?: boolean }) 
       applyColumns(null);
       delete document.documentElement.dataset.lwLayoutRecording;
     };
-  }, []);
+  }, [isLayoutDemo]);
 
   useEffect(() => {
     if (mounted) applyTextWidth(textWidth);
@@ -239,13 +246,25 @@ export function LayoutLab({ isLayoutDemo = false }: { isLayoutDemo?: boolean }) 
     setTextWidthState(width);
     try {
       window.localStorage.setItem(TEXT_WIDTH_STORAGE_KEY, width);
-    } catch {}
+    } catch {
+      // Storage can be unavailable (private windows, blocked site data): the URL still works.
+    }
     const url = new URL(window.location.href);
     url.searchParams.set(TEXT_WIDTH_PARAM, width);
     window.history.replaceState(window.history.state, '', url.toString());
   }, []);
 
   if (!mounted || recording) return null;
+  if (widgetDrag) {
+    return createPortal(
+      <div className={classes.lab} data-lw-bottom-bar="">
+        <LayoutDemoTabs active="post" editorPath={WIDGET_DRAG_EDITOR_PATH} postPath={WIDGET_DRAG_DEMO_PATH}/>
+        <span className={classes.label}>Experiment 2 · your edits from the Editor tab</span>
+        <ResetWidgetDragEdits/>
+      </div>,
+      document.body,
+    );
+  }
   return createPortal(
     <div className={classes.lab}>
       {/* EXPERIMENT (exp2): this branch deploys on its own, so the post's Editor tab opens Experiment 2. */}

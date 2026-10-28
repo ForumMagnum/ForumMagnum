@@ -32,8 +32,9 @@ import {useMessages} from '@/components/common/withMessages';
 import { randomId } from '@/lib/random';
 
 import {$createIframeWidgetNode, $isIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
+import { alignFloatBottom, alignedParagraph } from '@/components/contents/bottomAlign';
 import {
-  IframeWidgetLayout, IframeWidgetPosition, MIN_TEXT_BESIDE_WIDGET, offeredWidths,
+  alignOf, IframeWidgetLayout, IframeWidgetPosition, MIN_TEXT_BESIDE_WIDGET, offeredWidths,
   parseIframeWidgetLayout, sameLayout, setIframeWidgetLayout, shouldWrapWidget, stripIframeWidgetLayout,
   widgetWidthPx, wrappableWidths, WRAP_GUTTER,
 } from '@/components/contents/iframeWidgetLayout';
@@ -48,6 +49,7 @@ import { $isFootnoteSectionNode } from '@/components/editor/lexicalPlugins/footn
 import { $reconcileSentinels } from '@/components/editor/lexicalPlugins/blockCursorNavigation/BlockCursorNavigationPlugin';
 import { SentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
 import { IframeWidgetDragContext } from './widgetDragContext';
+import { OPTIONS_MENU_WIDTH, WidgetOptionsMenu } from './WidgetOptionsMenu';
 import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks } from './widgetDragDom';
 import {
   adjacentSlot, type BlockBox, chooseDropSlot, type ColumnRect, type DropSlot, fitMatchesWidth, insertionKey, moveChipText,
@@ -345,6 +347,11 @@ const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
     outline: `2px dashed ${theme.palette.primary.main}`,
     outlineOffset: 2,
   },
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): the gear button while its menu is open.
+  gearOpen: {
+    opacity: 1,
+    background: theme.palette.grey[300],
+  },
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): just under the widget (in the margin below it, clear
   // of the widget's own text and of the post's), when its width leaves it too small (shrinkWarning).
   shrinkWarning: {
@@ -423,26 +430,6 @@ const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
     backgroundImage: `radial-gradient(circle, ${theme.palette.grey[600]} 1.1px, transparent 1.6px)`,
     backgroundSize: '5px 4px',
     pointerEvents: 'none',
-  },
-  barGrip: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'stretch',
-    padding: '0 5px',
-    border: 'none',
-    borderRadius: 4,
-    background: 'transparent',
-    cursor: 'grab',
-    touchAction: 'none',
-    '&:hover': {
-      background: theme.palette.grey[200],
-    },
-    // Touch screens drag by the grip tab, which always shows there. The bar is hidden until the
-    // widget is tapped, and an unseen grip that won't let a swipe scroll the page is a trap.
-    '@media (hover: none)': {
-      display: 'none',
-    },
   },
   // Above the iframe. The placement bar and the code toggle are moved in to keep clear of it (see
   // RESIZE_EDGE_WIDTH). A swipe up or down on it still scrolls the page; only a sideways pull resizes.
@@ -545,6 +532,16 @@ function placeSpacer(elem: HTMLElement, layout: IframeWidgetLayout | null, colum
   elem.style.width = wraps ? `${widgetWidthPx(layout!, columnWidth)}px` : '';
   elem.style.margin = wraps ? (side === 'left' ? `6px ${WRAP_GUTTER}px 16px 0` : `6px 0 16px ${WRAP_GUTTER}px`) : '';
   elem.toggleAttribute('data-lw-wraps', wraps);
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): align=bottom pushes it down beside the end of its
+  // paragraph (see bottomAlign); otherwise any push from before goes (the margin above is set again).
+  const lastPush = elem.dataset.lwBottomPush;
+  elem.style.shapeOutside = '';
+  delete elem.dataset.lwBottomPush;
+  if (wraps && alignOf(layout!) === 'bottom') {
+    // (Starting from the last push, which is usually still right.)
+    if (lastPush) elem.dataset.lwBottomPush = lastPush;
+    alignFloatBottom(elem, alignedParagraph(elem), 6);
+  }
 }
 
 function stripDeletedMarkupFromSrcdoc(srcdoc: string): string {
@@ -689,6 +686,15 @@ function usePositionTracking(
   return [positions, scheduleMeasure];
 }
 
+/** EXPERIMENT (experiment/iframe-layout-ronny-exp2): the widget options button's icon (Feather's "settings"). */
+function GearIcon() {
+  return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+    strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>;
+}
+
 function ToggleButton({
   viewMode,
   onClick,
@@ -717,14 +723,10 @@ function ToggleButton({
   );
 }
 
-function LayoutControls({ layout, columnWidth, onChange, grip, style }: {
+function LayoutControls({ layout, columnWidth, onChange }: {
   layout: IframeWidgetLayout,
   columnWidth: number,
   onChange: (layout: IframeWidgetLayout) => void,
-  /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): a drag grip, shown first. */
-  grip?: React.ReactNode,
-  /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): where the bar sits (clear of resize edges). */
-  style?: React.CSSProperties,
 }) {
   const classes = useStyles(styles);
   const sided = layout.position === 'left' || layout.position === 'right';
@@ -744,8 +746,7 @@ function LayoutControls({ layout, columnWidth, onChange, grip, style }: {
     onClick={(e) => { e.stopPropagation(); e.preventDefault(); onChange(next); }}
   >{label}</button>;
   return (
-    <div className={classNames(classes.layoutBar, !!grip && 'lw-widget-control')} style={style}>
-      {grip}
+    <div className={classes.layoutBar}>
       {LAYOUT_POSITIONS.map(({ position, label }) => button(
         layout.position === position || (position === 'inline' && layout.position === 'center'),
         label,
@@ -778,6 +779,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   onGripPointerDown,
   onResizePointerDown,
   onGripKeyDown,
+  onOptionsChange,
 }: {
   nodeKey: string;
   state: WidgetState;
@@ -795,9 +797,22 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   onGripPointerDown?: (nodeKey: string, e: React.PointerEvent<HTMLElement>) => void;
   onResizePointerDown?: (nodeKey: string, edge: WidgetSide, e: React.PointerEvent<HTMLElement>) => void;
   onGripKeyDown?: (nodeKey: string, e: React.KeyboardEvent<HTMLElement>) => void;
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): a choice in the gear's menu (one undo step each). */
+  onOptionsChange?: (nodeKey: string, layout: IframeWidgetLayout) => void;
 }) {
   const classes = useStyles(styles);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): the gear button's options (WidgetOptionsMenu),
+  // closed when a drag of this widget starts.
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const gearRef = useRef<HTMLButtonElement>(null);
+  const closeOptions = useCallback((refocus?: boolean) => {
+    setOptionsOpen(false);
+    if (refocus) gearRef.current?.focus({ preventScroll: true });
+  }, []);
+  useEffect(() => {
+    if (gesture) setOptionsOpen(false);
+  }, [gesture]);
   const handleGripPointerDown = useCallback(
     (e: React.PointerEvent<HTMLElement>) => onGripPointerDown?.(nodeKey, e),
     [onGripPointerDown, nodeKey],
@@ -827,6 +842,15 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
 
   const handleToggleClick = useCallback(() => onToggle(nodeKey), [onToggle, nodeKey]);
   const handleLayoutChange = useCallback((layout: IframeWidgetLayout) => onLayoutChange(nodeKey, layout), [onLayoutChange, nodeKey]);
+  const handleOptionsChange = useCallback(
+    (layout: IframeWidgetLayout) => (onOptionsChange ?? onLayoutChange)(nodeKey, layout),
+    [onOptionsChange, onLayoutChange, nodeKey],
+  );
+  // The gear keeps the focus while its menu is open (the menu's buttons don't take it), so, like a grip,
+  // it passes the editor's undo and redo shortcuts on.
+  const handleGearKeyDown = useCallback((e: React.KeyboardEvent<HTMLElement>) => {
+    if (isUndoShortcut(e.nativeEvent) || isRedoShortcut(e.nativeEvent)) onGripKeyDown?.(nodeKey, e);
+  }, [onGripKeyDown, nodeKey]);
 
   // The layout tag only places the frame, so changing it doesn't reload the widget.
   const widgetHtml = stripIframeWidgetLayout(state.htmlContent);
@@ -849,25 +873,10 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   const resizeEdges: WidgetSide[] = !draggable || wrappableWidths(columnWidth).length === 0 ? []
     : shouldWrapWidget(state.layout, columnWidth) ? [state.layout.position === 'left' ? 'right' : 'left']
     : ['left', 'right'];
-  // The placement bar and the code toggle keep clear of the edges, so the whole strip (with its pill
-  // in the middle) can be grabbed, however short the widget or however many rows the bar wraps to.
-  const barLeft = resizeEdges.includes('left') ? RESIZE_EDGE_WIDTH + 2 : 4;
+  // The code toggle and the gear keep clear of the edges, so the whole strip can be grabbed. (In the drag
+  // editor the gear's menu takes the place of the placement bar.)
   const toggleRight = resizeEdges.includes('right') ? RESIZE_EDGE_WIDTH + 2 : 4;
-  const barStyle: React.CSSProperties | undefined = draggable
-    ? { left: barLeft, maxWidth: `calc(100% - ${barLeft + toggleRight + 36}px)` }
-    : undefined;
-  const barGrip = draggable && <button
-    type="button"
-    tabIndex={-1}
-    className={classes.barGrip}
-    data-testid="widget-bar-grip"
-    data-widget-key={nodeKey}
-    aria-label="Move widget"
-    title="Drag to move"
-    onPointerDown={handleGripPointerDown}
-    onMouseDown={preventDefault}
-    onKeyDown={handleGripKeyDown}
-  ><span className={classes.gripDots}/></button>;
+  const gearRight = toggleRight + 32;
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): says so when this width leaves the widget too small.
   // Only from a measurement at its present width (none while it reflows to a new one), and not while
   // it's being moved.
@@ -896,6 +905,20 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
         style={{ top: draggable ? 22 : 4, right: toggleRight }}
       />
       {draggable && <button
+        ref={gearRef}
+        type="button"
+        className={classNames(classes.toggleButton, 'lw-widget-control', optionsOpen && classes.gearOpen)}
+        style={{ top: 22, right: gearRight }}
+        title="Widget options"
+        aria-label="Widget options"
+        aria-haspopup="dialog"
+        aria-expanded={optionsOpen}
+        data-testid="widget-options"
+        data-widget-key={nodeKey}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOptionsOpen(open => !open); }}
+        onKeyDown={handleGearKeyDown}
+      ><GearIcon/></button>}
+      {draggable && <button
         type="button"
         className={classNames(classes.gripTab, 'lw-widget-control', 'lw-widget-grip', hint && classes.gripHint)}
         data-testid="widget-grip"
@@ -916,12 +939,10 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
         onPointerDown={edge === 'left' ? handleResizeLeft : handleResizeRight}
         onMouseDown={preventDefault}
       />)}
-      {srcdoc && <LayoutControls
+      {srcdoc && !draggable && <LayoutControls
         layout={state.layout}
         columnWidth={columnWidth}
         onChange={handleLayoutChange}
-        grip={barGrip || undefined}
-        style={barStyle}
       />}
       {srcdoc ? (
         <iframe
@@ -937,6 +958,16 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
         <div className={classes.emptyPreview}>No HTML content</div>
       )}
     </div>
+    {draggable && optionsOpen && <WidgetOptionsMenu
+      layout={state.layout}
+      columnWidth={columnWidth}
+      style={{
+        top: position.top + 22 + 32,
+        left: Math.max(0, position.left + position.width - gearRight - OPTIONS_MENU_WIDTH),
+      }}
+      onChange={handleOptionsChange}
+      onClose={closeOptions}
+    />}
     {warning && <div
       className={classes.shrinkWarning}
       style={{ top: position.top + state.previewHeight + 3, left: position.left + 4, maxWidth: Math.max(60, position.width - 8) }}
@@ -1170,6 +1201,20 @@ export default function IframeWidgetPlugin({
 
   const widgetKeys = Array.from(widgets.keys());
   const [positions, scheduleMeasure] = usePositionTracking(editor, anchorElem, widgets);
+
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): a widget aligned to the bottom of its paragraph moves
+  // whenever that paragraph's text changes, so it's lined up again after every edit.
+  useEffect(() => editor.registerUpdateListener(({ dirtyElements, dirtyLeaves }) => {
+    if (dirtyElements.size + dirtyLeaves.size === 0) return;
+    let moved = false;
+    for (const [key, state] of widgetsRef.current) {
+      const layout = previewOverrides.current.get(key) ?? state.layout;
+      if (state.viewMode !== 'preview' || alignOf(layout) !== 'bottom') continue;
+      applyPreviewModeToDOM(editor, key, state.previewHeight, layout);
+      moved = true;
+    }
+    if (moved) scheduleMeasure();
+  }), [editor, scheduleMeasure]);
 
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): each widget's measurements by width (px), so the
   // resize chip can say at once what a width it has already been shown at does to it.
@@ -1538,6 +1583,14 @@ export default function IframeWidgetPlugin({
     }));
   }, [editor, commitPlacement]);
 
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): the gear menu's choices, like the keys on a grip: one
+  // undo step each, announced for screen readers.
+  const handleOptionsChange = useCallback((key: string, layout: IframeWidgetLayout) => {
+    if (!dragEnabledRef.current) return;
+    const description = describePlacement(editor, key, layout, undefined, editorColumnWidth(editor));
+    if (commitPlacement(key, undefined, layout)) setAnnouncement(description);
+  }, [editor, commitPlacement]);
+
   const hintKey = dragEnabled && !hintDone
     ? widgetKeys.find((key) => {
       const state = widgets.get(key)!;
@@ -1578,6 +1631,7 @@ export default function IframeWidgetPlugin({
             onGripPointerDown={startMove}
             onResizePointerDown={startResize}
             onGripKeyDown={handleGripKeyDown}
+            onOptionsChange={handleOptionsChange}
           />
         );
       })}
@@ -1689,6 +1743,7 @@ function moveView(
       atEnd: slot.atEnd,
       position: slot.layout.position,
       width: slot.layout.width,
+      align: alignOf(slot.layout),
       wraps: slot.wraps,
       sameSlot: slot.sameSlot,
       noOp: slot.noOp,
@@ -1781,6 +1836,7 @@ function describePlacement(
   const side = widgetSide(layout);
   const parts = [side ? sideLabel(side) : 'Full width'];
   if (side && layout.width) parts.push(layout.width);
+  if (side && alignOf(layout) === 'bottom') parts.push('lined up with the bottom of its paragraph');
   if (side && !shouldWrapWidget(layout, columnWidth)) parts.push('full width at this window size');
   const where = editor.getEditorState().read(() => {
     const widget = $getNodeByKey(key);
