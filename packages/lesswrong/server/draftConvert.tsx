@@ -1,5 +1,6 @@
 import React from 'react';
 import { convertToHTML } from 'draft-convert';
+import { escapeHtml } from '@/lib/utils/sanitize';
 //const convertToHTML = (converters: AnyBecauseHard) => '';
 
 
@@ -30,8 +31,9 @@ export const draftToHTML = convertToHTML({
       return `<img src="${entity.data.src}" class="${className}" alt="${entity.data.alt}"/>`
     }
     if (entity.type === 'INLINETEX') {
-      if (entity.data.html) {
-        return `<span>${entity.data.css ? `<style>${entity.data.css}</style>` : ""}${entity.data.html}</span>`
+      if (entity.data.teX) {
+        const teX = entity.data.displaystyle ? `\\displaystyle{${entity.data.teX}}` : entity.data.teX;
+        return `<span class="math-tex">\\(${escapeHtml(teX)}\\)</span>`
       } else {
         return `<span class="draft-latex-placeholder"> &lt; refresh to render LaTeX &gt; </span>`
       }
@@ -50,8 +52,8 @@ export const draftToHTML = convertToHTML({
     if (type === 'atomic') {
       // @ts-ignore
       const data = block.data;
-      if (data && data.mathjax && data.html) {
-        return `<div>${data.css ? `<style>${data.css}</style>` : ""}${data.html}</div>`
+      if (data && data.mathjax && data.teX) {
+        return `<div><span class="math-tex">\\[${escapeHtml(data.teX)}\\]</span></div>`
       } else if (data && data.mathjax) {
         return `<div class="draft-latex-placeholder-block"> &lt;refresh to render LaTeX&gt; </div>`
       } else {
