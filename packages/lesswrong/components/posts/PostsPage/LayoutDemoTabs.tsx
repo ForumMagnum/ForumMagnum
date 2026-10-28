@@ -1,7 +1,8 @@
 'use client';
-// EXPERIMENT (branch experiment/iframe-layout-ronny): the layout demo's two tabs, the post as readers
-// see it and the editor with the same post, shown in the demo's bottom bar.
-import React from 'react';
+// EXPERIMENT (branch experiment/iframe-layout-ronny): the layout demo's tabs, shown in the demo's bottom
+// bar: the post as readers see it, the editor with the same post, and (claude-v1) writing a new draft with
+// Claude.
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { LAYOUT_DEMO_PATH } from './constants';
@@ -57,18 +58,46 @@ const styles = defineStyles('LayoutDemoTabs', (theme: ThemeType) => ({
   },
 }));
 
-export function LayoutDemoTabs({ active }: { active: 'post' | 'editor' }) {
+type LayoutDemoTab = 'post' | 'editor' | 'write';
+
+const WRITER_DRAFT_STORAGE_KEY = 'lwLayoutDemoWriterDraft';
+
+/** The write page remembers its draft, so the Write tab returns to it instead of starting a new one. */
+export function rememberWriterDraft(path: string) {
+  try {
+    window.localStorage.setItem(WRITER_DRAFT_STORAGE_KEY, path);
+  } catch {}
+}
+
+function useWriterHref(): string {
+  const [href, setHref] = useState(`${LAYOUT_DEMO_PATH}/write`);
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(WRITER_DRAFT_STORAGE_KEY);
+      if (stored?.startsWith(`${LAYOUT_DEMO_PATH}/write?`)) setHref(stored);
+    } catch {}
+  }, []);
+  return href;
+}
+
+export function LayoutDemoTabs({ active }: { active: LayoutDemoTab }) {
   const classes = useStyles(styles);
+  const writerHref = useWriterHref();
   return <span className={classes.tabs}>
     <a href={`${LAYOUT_DEMO_PATH}?textWidth=normal`} className={classNames(classes.tab, active === 'post' && classes.active)}>Post</a>
     <a href={`${LAYOUT_DEMO_PATH}/editor`} className={classNames(classes.tab, active === 'editor' && classes.active)}>Editor</a>
+    <a href={writerHref} className={classNames(classes.tab, active === 'write' && classes.active)}>Write with Claude</a>
   </span>;
 }
 
-export function LayoutDemoEditorBar() {
+export function LayoutDemoBar({ active, note }: { active: LayoutDemoTab, note: string }) {
   const classes = useStyles(styles);
   return <div className={classes.bar}>
-    <LayoutDemoTabs active="editor"/>
-    <span className={classes.barNote}>Normal text width (682)</span>
+    <LayoutDemoTabs active={active}/>
+    <span className={classes.barNote}>{note}</span>
   </div>;
+}
+
+export function LayoutDemoEditorBar() {
+  return <LayoutDemoBar active="editor" note="Normal text width (682)" />;
 }

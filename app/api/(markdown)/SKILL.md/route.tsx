@@ -1,6 +1,27 @@
 import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 import { NextRequest } from "next/server";
 
+// EXPERIMENT (branch experiment/iframe-layout-ronny-claude-v1): on an experimental copy of LessWrong the
+// docs say so, and point agents at this server rather than www.lesswrong.com.
+function hostOf(urlPrefix: string): string {
+  try {
+    return new URL(urlPrefix).host;
+  } catch {
+    return "www.lesswrong.com";
+  }
+}
+
+function experimentalServerNote(urlPrefix: string): string {
+  if (hostOf(urlPrefix) === "www.lesswrong.com") return "";
+  return `
+NOTE: this is an experimental copy of LessWrong at ${urlPrefix}, not the real
+site. Send every request (reading pages and all /api/agent/ calls) to
+${urlPrefix}, not to www.lesswrong.com: drafts shared from this server exist
+only here. It also supports placing widgets beside the text (see "Widget
+placement" below).
+`;
+}
+
 export const markdownApiDocumentationMarkdown = (urlPrefix: string) => `---
 name: lesswrong
 version: 2.0.0
@@ -9,7 +30,7 @@ homepage: https://www.lesswrong.com
 ---
 LessWrong: A site dedicated to improving the art of rationality
 ===============================================================
-
+${experimentalServerNote(urlPrefix)}
 Most pages on LessWrong have an HTML version and a Markdown version. Routes
 starting with /api/ are either Markdown or JSON. For routes not starting with
 /api, you can control which version you get with the Accept header or with a
@@ -87,7 +108,7 @@ at https://www.lesswrong.com/api/post/KXujJjnmP85u8eM6B [without the /api in the
 path if providing a link to the user]. Before using our API to leave feedback,
 you should check whether you have network access to our domain.  You can do this by
 checking the "Allowed Domains" list in your network configuration's settings, or by
-making an empty test POST via curl to https://www.lesswrong.com/api/agent/ping and
+making an empty test POST via curl to ${urlPrefix}/api/agent/ping and
 checking if you get a 403 with x-deny-reason: host_not_allowed. If so, see the
 "Setup & Usage Instructions" section below for what the user needs to do to
 add our domain to their list of allowed domains; the API will be unusable otherwise.)
@@ -125,9 +146,9 @@ for harnesses like Claude Code, Codex, Cursor, etc.
 
 If you are Claude, operating from a chat interface like claude.ai, you should have
 access to your network configuration's Allowed Domains list. If that list doesn't
-contain www.lesswrong.com, your user will need to add it to enable you to make
+contain ${hostOf(urlPrefix)}, your user will need to add it to enable you to make
 API requests to our domain by going to https://claude.ai/settings/capabilities
-and adding www.lesswrong.com to "Additional allowed domains" in the "Code execution
+and adding ${hostOf(urlPrefix)} to "Additional allowed domains" in the "Code execution
 and file creation" section, and then starting a new chat session (since the change
 won't take effect until they do so).  If you are ChatGPT, operating from a chat interface
 like chatgpt.com, you may not have a similar domain allowlist. (If this is false,
@@ -150,7 +171,7 @@ lexical editor, which is the default editor for new posts, but old posts might
 still be using a different editor. To give an AI agent access, the user needs
 to set the permissions for "Anyone with the link can" to "Edit", then copy the
 edit-post URL for you. The URL will look like this:
-    https://www.lesswrong.com/editPost?postId=XYZXYZ&key=XYZXYZ
+    ${urlPrefix}/editPost?postId=XYZXYZ&key=XYZXYZ
 The key in the URL is called the "link sharing key"; do not share this key with
 anyone unless the user is asking you to give that person permission to edit
 the post. Once you have the post URL, read the post at:
@@ -373,8 +394,8 @@ Custom widgets are represented in markdown with fenced code blocks using:
     \`\`\`
 Newly inserted widgets will have a unique widgetId in the bracket.
 
-Widget layout. Widget iframes always render at 100% of the post-content
-column, whose width varies from ~340px on mobile up to ~700px on desktop.
+Widget layout. Widget iframes render at 100% of the post-content column
+(unless placed to one side; see "Widget placement" below), whose width varies from ~340px on mobile up to ~700px on desktop.
 Strongly prefer responsive layouts (width: 100%, height: auto, flexbox or
 grid that adapts) over hard-coded pixel widths — a fixed pixel layout that
 fits one viewport almost certainly breaks the other.
@@ -401,6 +422,33 @@ narrow strips of the iframe's background above and below your content.
 If your widget has contrasting body styling (colored background, rounded
 card, etc.) and you want it edge-to-edge, reset \`html, body { margin: 0 }\`
 in the widget's CSS.
+
+Widget placement (experimental). On this server a widget doesn't have to
+span the text column: it can sit to one side, with the post's text wrapping
+around it. Put a layout tag as the first line of the widget's HTML:
+    <meta name="lw-layout" content="position=right width=33%">
+ * position: "inline" (the default: full column width), "center", "left" or
+   "right". Left and right widgets float, so the paragraphs after them wrap
+   beside them and then continue at full width below.
+ * width: a percent of the text column. The editor offers 25%, 33%, 38% and
+   50%; use one of those.
+ * A left/right widget only wraps when at least 300px of text fits beside it.
+   Otherwise (phones, narrow windows, or a widget too wide for the column) it
+   is shown full width, inline. Design side widgets to work both narrow
+   (about 170-350px) and at the full column width (about 340-700px).
+ * Readers may choose a wider text column (682, 744 or 820px), so percent
+   widths are the reliable way to size a side widget.
+ * Good side widgets are compact: a key-numbers card, a small chart, a short
+   list of definitions. Keep big interactive charts inline.
+ * The paragraphs right after a side widget should run past its bottom, so
+   the text visibly flows from beside the widget to under it; a heading
+   right after a short paragraph leaves a gap instead.
+ * To move or resize a widget later, change its layout tag with
+   replaceWidget. The author can also use the placement bar that appears
+   when they hover a widget in the editor.
+ * Keep widget code small: don't inline big fonts or images as base64 (link
+   them from a CDN instead); the editor syntax-highlights widget code, and
+   very large widgets make it slow.
 
 To replace the HTML/JS contents of a widget, make a POST request to:
     POST /api/agent/replaceWidget
