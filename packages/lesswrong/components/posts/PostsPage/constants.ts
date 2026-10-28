@@ -17,3 +17,7 @@ export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
 
 export const sidenotesHiddenBreakpoint = (theme: ThemeType) => theme.breakpoints.down('md');
 
+
+// EXPERIMENT (branch experiment/iframe-layout-ronny): the shareable layout demo (see LayoutDemoTabs).
+export const LAYOUT_DEMO_TITLE = "The AI Futures Model, explained with interactive widgets";
+export const LAYOUT_DEMO_PATH = "/experiment-iframe-layout-tuito7fob8u0rzrbib0v16i1";

@@ -8,6 +8,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from '@/components/common/ContentStyles';
 import LexicalEditor from '@/components/editor/LexicalEditor';
 import { CENTRAL_COLUMN_WIDTH } from './constants';
+import { LayoutDemoEditorBar } from './LayoutDemoTabs';
 
 const styles = defineStyles('LayoutDemoEditor', (theme: ThemeType) => ({
   root: {
@@ -66,5 +67,6 @@ export function LayoutDemoEditor({ title, initialHtml }: {
     <ContentStyles contentType="post">
       <LexicalEditor data={initialHtml} commentEditor={false} placeholder="Write something..." keepFocusOnLoad />
     </ContentStyles>
+    <LayoutDemoEditorBar/>
   </div>;
 }

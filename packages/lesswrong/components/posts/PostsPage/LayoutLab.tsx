@@ -16,6 +16,7 @@ import {
   RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, TEXT_TRACK_EXTRA,
 } from './constants';
 import { LayoutLabColumns, setLayoutLabColumns } from './layoutLabColumns';
+import { LayoutDemoTabs } from './LayoutDemoTabs';
 
 const TEXT_WIDTH_PARAM = 'textWidth';
 const TEXT_WIDTH_STORAGE_KEY = 'lwLayoutLabTextWidth';
@@ -204,7 +205,7 @@ function useViewportWidth(enabled: boolean): number {
   return viewport;
 }
 
-export function LayoutLab() {
+export function LayoutLab({ isLayoutDemo = false }: { isLayoutDemo?: boolean }) {
   const classes = useStyles(styles);
   const [mounted, setMounted] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -247,6 +248,7 @@ export function LayoutLab() {
   if (!mounted || recording) return null;
   return createPortal(
     <div className={classes.lab}>
+      {isLayoutDemo && <LayoutDemoTabs active="post"/>}
       <span className={classes.label}>Text width</span>
       {TEXT_WIDTH_OPTIONS.map(option => <button
         key={option.width}

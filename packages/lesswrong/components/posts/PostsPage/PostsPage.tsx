@@ -63,7 +63,7 @@ import FundraisingThermometer from "../../common/FundraisingThermometer";
 import PostPageReviewButton from "./PostPageReviewButton";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHeading';
-import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, TEXT_TRACK_EXTRA, sidenotesHiddenBreakpoint } from './constants';
+import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, TEXT_TRACK_EXTRA, sidenotesHiddenBreakpoint, LAYOUT_DEMO_TITLE } from './constants';
 import { getPostDescription, getStructuredData } from './structuredData';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { StructuredData } from '@/components/common/StructuredData';
@@ -596,7 +596,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const rightColumnChildren = <>
     <div className={classes.reserveSpaceForSidenotes}/>
     <SideItemsSidebar/>
-    {!preview && <LayoutLab/>}
+    {!preview && <LayoutLab isLayoutDemo={post.title === LAYOUT_DEMO_TITLE}/>}
   </>;
 
   const postsPageContext = useMemo(() => ({fullPost: fullPost ?? null, postPreload: postPreload ?? null}), [fullPost, postPreload]);

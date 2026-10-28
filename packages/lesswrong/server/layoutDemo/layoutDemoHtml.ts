@@ -5,7 +5,7 @@ import {
   AI_FUTURES_DEMO_POST_HTML, AI_FUTURES_DEMO_WIDGETS,
 } from "../../../../experiments/iframe-layout/ai-futures-model/fixture.generated";
 
-export const LAYOUT_DEMO_TITLE = "The AI Futures Model, explained with interactive widgets";
+export { LAYOUT_DEMO_TITLE } from "@/components/posts/PostsPage/constants";
 
 function escapeAttribute(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
