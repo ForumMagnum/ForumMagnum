@@ -534,7 +534,9 @@ describe('shrink warning', () => {
     expect(shrinkWarning(fit(1, 9.5))).toBe(null);
     // Right at the limits is still fine.
     expect(shrinkWarning(fit(0.85, 12))).toBe(null);
-    expect(shrinkWarning(fit(0.93, 8))).toBe(null);
+    expect(shrinkWarning(fit(0.93, 7))).toBe(null);
+    // The engine diagram's labels at normal width.
+    expect(shrinkWarning(fit(1, 7.2, true))).toBe(null);
   });
 
   it('warns about a widget zoomed down to fit, with its smallest text', () => {
@@ -547,7 +549,7 @@ describe('shrink warning', () => {
   it('warns about tiny text even when nothing was zoomed, naming chart labels', () => {
     // The time-horizon chart at 50%: never zoomed, but its SVG labels shrink with the chart.
     expect(shrinkWarning(fit(1, 4.8, true))).toBe('Chart labels 4.8px');
-    expect(shrinkWarning(fit(1, 7))).toBe('Smallest text 7.0px');
+    expect(shrinkWarning(fit(1, 6.5))).toBe('Smallest text 6.5px');
     expect(shrinkWarning(fit(0.9, 6.81, true))).toBe('Shrunk to 90% · chart labels 6.8px');
   });
 

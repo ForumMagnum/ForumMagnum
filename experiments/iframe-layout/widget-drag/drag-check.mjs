@@ -1366,16 +1366,13 @@ async function shrinkWarningChecks(browser) {
   const charts = content(await h.snapshot()).filter(c => c.type === 'iframe-widget' && /position=inline/.test(c.text));
   const chart = charts[1]?.key;   // the time-horizon chart (the engine diagram is the first full-width widget)
 
-  // W1: on load, the fixed-width widget at 50% says it's shrunk. Of the demo's own widgets only the
-  // engine diagram may warn: drawn 940px wide, it shows its 10px labels at 72% in a 682px column.
-  const engine = charts[0]?.key;
+  // W1: on load, the fixed-width widget at 50% says it's shrunk, and none of the demo's own widgets warns
+  // (the smallest, the engine diagram's labels, show at 7.2px: under 7px warns).
   const loaded = await waitForTag(fixed, /^⚠ Shrunk to \d+% · text [\d.]+px$/);
   await page.waitForTimeout(1500);
-  const shown = await tags();
-  const others = Object.entries(shown).filter(([key]) => key !== fixed && key !== engine);
-  check('W1 the fixed-width widget warns on load; of the demo widgets at most the engine diagram does', !!loaded
-    && others.length === 0 && (!shown[engine] || /^⚠ Chart labels [\d.]+px$/.test(shown[engine])),
-    `${loaded} / engine ${shown[engine]} / others ${JSON.stringify(others)}`);
+  const others = Object.entries(await tags()).filter(([key]) => key !== fixed);
+  check('W1 the fixed-width widget warns on load, no other widget does', !!loaded && others.length === 0,
+    `${loaded} / others ${JSON.stringify(others)}`);
   await h.scrollTo(h.overlay(fixed));
   await h.frames(3);
   await page.screenshot({ path: path.join(OUT, 'shrink-warning-1024.png') });
@@ -1438,7 +1435,7 @@ async function shrinkWarningChecks(browser) {
     const shown = half >= 150 && c - half - 32 >= 300 ? half : c;
     const zoom = Math.min(1, shown / 620);
     // Its smallest text is 13px, a note under the chart.
-    const warns = zoom < 0.85 || 13 * zoom < 8;
+    const warns = zoom < 0.85 || 13 * zoom < 7;
     const text = await waitForTag(fixed, warns ? /^⚠ Shrunk to/ : null);
     check('W5 a narrower window updates the warning', c < 682 && (warns ? !!text : text === null),
       `${c}px column, shown ${shown}px, zoom ${zoom.toFixed(2)}: ${text}`);

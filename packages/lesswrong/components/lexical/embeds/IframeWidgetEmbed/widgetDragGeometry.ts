@@ -477,7 +477,8 @@ export function resizeChipText(target: ResizeTarget, besideOpposite = false): st
  * zoomed below SHRINK_WARNING_ZOOM, or any text showing under SHRINK_WARNING_TEXT_PX.
  */
 export const SHRINK_WARNING_ZOOM = 0.85;
-export const SHRINK_WARNING_TEXT_PX = 8;
+// 7, not 8: Ronny found the engine diagram's 7.2px bold labels fine (Oct 28 2026).
+export const SHRINK_WARNING_TEXT_PX = 7;
 
 /** The warning for a widget shown this small, say "Shrunk to 36% · text 4.7px", or null. */
 export function shrinkWarning(fit: IframeWidgetFit | null | undefined): string | null {
