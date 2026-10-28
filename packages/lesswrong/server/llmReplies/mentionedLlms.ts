@@ -3,13 +3,13 @@ import { userMentionQuery, userMentionQueryString, userMentionValue } from "@/li
 import { classifyHost } from "@/lib/routeUtil";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { getLlmFamilyBySlug, type LlmFamilyVersion } from "@/lib/languageModels/llmRegistry";
-import { getMentionedLlmVersion, LLM_MENTION_VERSION_QUERY } from "@/lib/llmReplies/llmMentions";
+import { getMentionedLlmVersion, LLM_MENTION_VERSION_QUERY, llmMentionsEnabledSetting } from "@/lib/llmReplies/llmMentions";
 import { extractLinks } from "@/server/pingbacks";
 
 const USER_PAGE_PATH = /^\/users\/([^/]+)\/?$/;
 
 export function getFirstMentionedLlm(html: string, forumType: ForumTypeString): LlmFamilyVersion | null {
-  if (!html.includes(userMentionQueryString)) {
+  if (!llmMentionsEnabledSetting.get(forumType) || !html.includes(userMentionQueryString)) {
     return null;
   }
   for (const link of extractLinks(html)) {

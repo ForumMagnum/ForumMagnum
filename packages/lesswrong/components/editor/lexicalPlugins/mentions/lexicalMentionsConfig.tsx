@@ -205,7 +205,7 @@ async function fetchMentionableSuggestions(forumType: ForumTypeString, searchStr
 }
 
 async function fetchMentionableSuggestionsWithModels(forumType: ForumTypeString, searchString: string): Promise<MentionItemWithHit[]> {
-  const modelItems = getMentionableLlms(searchString).map((model) => formatModelItem(model, forumType));
+  const modelItems = getMentionableLlms(searchString, forumType).map((model) => formatModelItem(model, forumType));
   const searchItems = await fetchMentionableSuggestions(forumType, searchString);
   return [
     ...modelItems,
