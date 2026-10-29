@@ -24,6 +24,9 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useFootnoteHTML } from './useFootnoteHTML';
 
 export const footnotePreviewStyles = defineStyles("FootnotePreview", (theme: ThemeType) => ({
+  popper: {
+    width: "max-content",
+  },
   hovercard: {
     padding: 16,
     ...theme.typography.body2,
@@ -252,7 +255,7 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
           open={anchorHovered && !sidenoteIsVisible}
           anchorEl={anchorEl}
           placement="bottom-start"
-          allowOverflow
+          className={classes.popper}
           flip
           clickable
         >
