@@ -15,6 +15,10 @@ Updated: Oct 28 2026, evening PT (Mac Studio session "Lw variable widget width (
   (through the stored-edits key), injects candidate CSS, screenshots each section, and reports overlaps.
   Run through `tools/with-slot.sh` (3 shared browser slots).
 
+## Checks so far
+- new-features-check and drag-check (main, mvp1, narrow, phone, wide, touch, shrink, bottom) pass on
+  both the Exp 3 and Exp 2 editors on this branch.
+
 ## Gotchas found on the Studio
 - Editing route files while a browser check runs can put the dev server in a reload loop; restart it.
 - zsh: never name a variable `path` (it is tied to PATH).
@@ -27,8 +31,8 @@ Updated: Oct 28 2026, evening PT (Mac Studio session "Lw variable widget width (
 | Editor column = reader column at every width | done (columns-check.mjs: 0 differences 312 to 1300px) |
 | Reader phone override only for centered widgets | done (editor and reader now agree under 600px) |
 | Second post scaffolding (routes, ensure code) | done, content placeholder |
-| Inventory of block types | not started |
-| Decisions (prototype, judge) | not started |
+| Inventory of block types | running (workflow; 6 surveys done, merge + completeness critics running) |
+| Decisions (prototype, judge) | running (workflow: 14 block groups, designer + 2 judges each; scratch in ~/lw-exp3-proto/design/, shots in ~/lw-exp3-shots/design/) |
 | Implementation (editor + reader) | not started |
 | Second demo post + post switch | not started |
 | Checks (width sweep) + deploy | not started |
