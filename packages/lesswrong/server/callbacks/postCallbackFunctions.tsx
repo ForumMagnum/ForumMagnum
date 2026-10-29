@@ -172,6 +172,7 @@ export async function onPostPublished(post: DbPost, context: ResolverContext, ol
     await triggerReviewIfNeeded(post.userId, 'publishedPost', context);
   }
   await maybeAutoFrontpagePost(post._id, context);
+  backgroundTask(utils.applyAutoTags(post, context));
 }
 
 const utils = {
@@ -625,13 +626,6 @@ export async function triggerReviewForNewPostIfNeeded({ document, context }: Aft
   }
 }
 
-export async function autoTagNewPost({ document, context }: AfterCreateCallbackProperties<"Posts">) {
-  if (!document.draft) {
-    // Post created (and is not a draft)
-    backgroundTask(utils.applyAutoTags(document, context));
-  }
-}
-
 /* NEW ASYNC */
 export async function sendUsersSharedOnPostNotifications(post: DbPost, context: ResolverContext) {
   const { _id, shareWithUsers = [], coauthorUserIds } = post;
@@ -795,14 +789,6 @@ export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDoc
 
   if (coauthorIdsToNotify.length) {
     await createNotifications({ context, userIds: coauthorIdsToNotify, notificationType: "addedAsCoauthor", documentType: "post", documentId: newPost._id });
-  }
-}
-
-// TODO: maybe combine with autoReviewNewPost and put it into the onPostPublished function
-export async function autoTagUndraftedPost({oldDocument, newDocument, context}: UpdateCallbackProperties<'Posts'>) {
-  if (oldDocument.draft && !newDocument.draft) {
-    // Post was undrafted
-    backgroundTask(utils.applyAutoTags(newDocument, context));
   }
 }
 
