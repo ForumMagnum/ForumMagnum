@@ -555,6 +555,12 @@ const baseBodyStyles = (theme: ThemeType) => ({
     // leaving `pre` (and its ::before) as content-box inside collapsible sections. That widens
     // the gutter pseudo-element past the pre's padding-left and clips the first code character.
     boxSizing: 'border-box',
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the editor's export wraps each line's text in a span
+    // with an inline `white-space: pre-wrap`, so long lines wrapped after all: a line more than in the
+    // editor (which scrolls them), and out of step with the line numbers.
+    '& span': {
+      whiteSpace: 'inherit !important',
+    },
   },
   '& pre.code-block::before, & pre[data-highlight-language]::before': {
     content: 'attr(data-gutter)',

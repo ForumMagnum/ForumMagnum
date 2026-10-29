@@ -170,6 +170,10 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       whiteSpace: 'pre',
       position: 'relative',
       tabSize: 2,
+      // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the post's code block has this border (from
+      // `theme.typography.codeblock`), so the editor's was 2px shorter.
+      border: `solid 1px ${theme.palette.grey[300]}`,
+      borderRadius: 5,
     },
     '& .code-block::before': {
       content: 'attr(data-gutter)',
@@ -500,14 +504,31 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     '& .nested-list-item': {
       listStyleType: 'none',
     },
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the post nests a sublist inside its parent item,
+    // whose bottom margin comes after the sublist; the editor keeps the sublist in a wrapper item of its
+    // own, so the parent's margin also opened a gap above the sublist (6.5px per level).
+    '& li:has(+ .nested-list-item)': {
+      marginBottom: 0,
+    },
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): figures as in the post (it was 0em auto): its 1em
+    // margins (the comment editor keeps none, below), and the image on the line's baseline, as the post's
+    // img is, which leaves the same gap (about 9px) between the image and its caption.
     '& figure': {
-      margin: '0em auto',
+      margin: '1em auto',
+    },
+    '& figure .lw-image-container': {
+      display: 'inline-flex',
+      verticalAlign: 'baseline',
     },
   },
   editorContainerComment: {
     background: 'transparent',
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): (the figure margin the comment editor had before)
+    '& figure': {
+      margin: '0em auto',
+    },
   },
   treeView: {
     borderRadius: 0,

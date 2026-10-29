@@ -220,3 +220,21 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
 - The editor always opens on the original post. Reopening saved edits garbled every widget's code: each
   widget showed a long run of escaped code under it, worse with each reload. It happened in Experiment
   2's editor too (its live deployment is frozen; Reset there clears it).
+- The editor's spacing now matches the post's (you asked me to fix it). At 1280px, 11 blocks differed
+  in height or gap; now only the collapsible section does (open in the editor, closed in the post).
+  - Gaps: the editor's gaps around spoilers, equations, embeds, collapsible sections, headings, the
+    footnotes and widgets were up to about 18px bigger than the post's. Fixed.
+  - Code: long lines wrapped in the post (a line taller, and out of step with the line numbers) but
+    scrolled in the editor; now they scroll in both. The editor's code block also gets the post's 1px
+    border.
+  - Equations: the editor's were about 18px taller.
+  - Images: the editor had no margin around images and no gap between an image and its caption; now
+    both match the post.
+  - Lists: a nested list sat 6.5px lower in the editor.
+  - A widget placed in the middle of a list item's text started one line lower in the post.
+  - Full-width widgets had a 9px gap under them in the post only. Gone.
+- Two small differences are left on purpose:
+  - The editor breaks a line one word earlier when the line would fit with under about 4px to spare
+    (Chrome does that in anything editable).
+  - An equation wider than the whole column (only in narrow windows) gets about 55px more space in the
+    post, from LessWrong's scroll box for wide content.

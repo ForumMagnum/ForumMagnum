@@ -21,6 +21,10 @@ const styles = defineStyles('MathComponent', (theme: ThemeType) => ({
   display: {
     display: 'block',
     textAlign: 'center',
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a rendered equation is as tall as itself, as in the post.
+    '&:has(> mjx-container)': {
+      minHeight: 0,
+    },
   },
   // The vertical margin goes outside the scrolling area, so that it collapses
   // with the margins of adjacent blocks.
@@ -34,6 +38,12 @@ const styles = defineStyles('MathComponent', (theme: ThemeType) => ({
     marginBottom: '0 !important',
     paddingTop: '0 !important',
     paddingBottom: '0 !important',
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): nor MathJax's own 1em display margin, which the
+    // scrolling area held inside it (the scroll block's margin above is the equation's margin): the
+    // editor's equations were about 18px taller than the post's.
+    '& mjx-container[display="true"]': {
+      margin: '0 !important',
+    },
   },
   placeholder: {
     color: theme.palette.text.dim,

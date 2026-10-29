@@ -333,9 +333,30 @@ can run it over `ssh studio`, or use your own copy).
 - **Doubled gaps next to sentinels (fixed Oct 29):** see the sentinel note above. vertical-compare (scratch
   script: every top-level block's gap and height, editor vs post) finds no gap differences that don't come
   from a height difference above them.
-- **To do (Ronny: "remember that"):** the editor/post HEIGHT differences: code (the post's `pre` has a 1px
-  border; one long-line block is a line taller in the post), display equations (MathJax's 1em display
-  margin is trapped inside the editor's scroll box), figures (editor `figure { margin: 0 auto }` vs the
-  post's `1em auto`; the post's inline img leaves a ~9px line gap under it), lists (plus or minus 13px,
-  two `li` margins). See the memory note / REPORT.md.
+- **Editor/post block heights (fixed Oct 29, Ronny: "fix if you can"):** vertical-compare at 1280 went from
+  11 differing blocks to the 2 expected ones (a collapsible section starts open in the editor and closed
+  in the post, which moves the spoiler after it). Causes and fixes:
+  - Code: the export wraps each line in a span with an inline `white-space: pre-wrap`, so long lines
+    wrapped in the post (a line taller, out of step with the line numbers): stylePiping `pre.code-block
+    span { white-space: inherit !important }`. And the post's code block has a 1px border
+    (`theme.typography.codeblock`): the editor's `.code-block` gets the same.
+  - Display equations: MathJax's own `margin: 1em 0` was held inside the editor's scroll box (MathComponent
+    `displayScrollContents` zeroes it; a rendered equation drops the 1em min-height).
+  - Figures: the editor's `figure { margin: 0em auto }` is `1em auto` as in the post (the comment editor
+    keeps 0), and its image box sits on the line's baseline like the post's inline img (the same ~9px
+    above the caption; widgetNeighbours' after-widget image rule too).
+  - Nested lists: the editor keeps a sublist in a wrapper `li.nested-list-item` after its parent item, so
+    the parent's 6.5px margin also opened above the sublist: `li:has(+ .nested-list-item) { margin-bottom: 0 }`.
+  - A widget mid-text in a list item: the post's `div.iframe-widget` broke the line, so the widget started
+    a line lower than in the editor: `li > .iframe-widget:has(> .lwFloatedWidget) { display: inline }`.
+  - Full-width widgets: the post's iframe was inline (a 9px baseline gap under every full-width widget)
+    and is a block now; the editor's full-width placeholder has no margin (it had the code block's 8px,
+    which showed inside a list item).
+- **Known editor/post differences left alone:** (1) the editor's contenteditable has Chrome's
+  `line-break: after-white-space`, so a line that would fit within a space's width (~4px) breaks a word
+  earlier than in the post (width sweep: the first demo paragraph at 736/752px before the sweep stopped
+  measuring inline math as the first line); overriding it would change how trailing spaces behave while
+  typing. (2) An equation wider than the column (the second demo equation below ~700px): the post wraps
+  it in HorizScrollBlock, whose touch target (-1em margin, 2em padding) plus MathJax's trapped margin
+  puts it ~55px lower than the editor (LessWrong-wide behavior for wide content).
 

@@ -48,6 +48,10 @@ const styles = defineStyles('HydratedIframeWidget', (theme: ThemeType) => ({
     width: '100%',
     border: 'none',
     borderRadius: 4,
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a block, not an inline frame on a line of text,
+    // which left a 9px gap under every full-width widget (the line's room below the baseline) that the
+    // editor doesn't have.
+    display: 'block',
   },
   // EXPERIMENT (experiment/iframe-layout-ronny): author-chosen placement, see iframeWidgetLayout.ts.
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a centered widget gets a row of its own, below any

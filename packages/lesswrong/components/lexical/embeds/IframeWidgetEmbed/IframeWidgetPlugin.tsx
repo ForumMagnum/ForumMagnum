@@ -530,8 +530,10 @@ function placeSpacer(elem: HTMLElement, layout: IframeWidgetLayout | null, colum
   elem.style.float = wraps ? side : '';
   elem.style.clear = wraps ? side : centered ? 'both' : '';
   elem.style.width = wraps ? `${widgetWidthPx(layout!, columnWidth)}px` : centered ? `${widgetWidthPx(layout!, columnWidth)}px` : '';
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a full-width widget has no margin of its own, as in the
+  // post (the code block's 8px showed inside a list item, or next to a quote). The code view keeps it.
   elem.style.margin = wraps ? (side === 'left' ? `6px ${WRAP_GUTTER}px 16px 0` : `6px 0 16px ${WRAP_GUTTER}px`)
-    : centered ? '0 auto' : '';
+    : centered ? '0 auto' : layout ? '0' : '';
   elem.toggleAttribute('data-lw-wraps', wraps);
   if (wraps) elem.dataset.lwSide = side;
   else delete elem.dataset.lwSide;

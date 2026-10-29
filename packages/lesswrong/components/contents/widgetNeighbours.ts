@@ -133,7 +133,8 @@ const RULES: NeighbourRule[] = [
   // the post's img does, and the image toolbar stays over the image.
   {
     editorAfter: ['figure .lw-image-container'],
-    style: { display: 'inline-flex', width: 'auto', maxWidth: '100%', verticalAlign: 'top' },
+    // (On the baseline, like the post's img: see Editor.tsx's figure rules.)
+    style: { display: 'inline-flex', width: 'auto', maxWidth: '100%', verticalAlign: 'baseline' },
   },
   { editorAfter: ['div:has(> figure > button)'], style: { textAlign: 'center' } },
   { editorAfter: ['div > figure:has(> button)'], style: { display: 'inline-block', verticalAlign: 'top', margin: '1em 0' } },
@@ -165,6 +166,10 @@ const RULES: NeighbourRule[] = [
     post: ['li:has(> .iframe-widget > .lwFloatedWidget)'], editor: [`li:has(> ${EDITOR_FLOAT})`],
     style: { fallbacks: { display: 'list-item' }, display: 'flow-root list-item' },
   },
+  // A widget placed mid-text in a list item starts on the line it was placed on, as in the editor (where
+  // the widget itself floats among the text): the post's div around it broke the line, so the widget
+  // started a line lower there and the item was a line taller.
+  { post: ['li > .iframe-widget:has(> .lwFloatedWidget)'], style: { display: 'inline' } },
   // AI content: flows beside like paragraphs. Its model label rides with the text: a block that doesn't
   // start with a paragraph shows the label on a line of its own (as a block it sat under a left widget,
   // with its rule running down the widget's height).
