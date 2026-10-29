@@ -9,12 +9,20 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const BASE = process.env.BASE_URL || 'http://localhost:3000';
-const EDITOR = `${BASE}/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut/editor`;
+// EDITOR_PATH (exp3): which drag editor to check. Experiment 2's by default; Experiment 3's AI Futures
+// editor is /experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/editor. Its Post tab is the same path without /editor.
+const EDITOR_PATH = process.env.EDITOR_PATH || '/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut/editor';
+const POST_PATH = EDITOR_PATH.replace(/\/editor$/, '');
+const EDITOR = `${BASE}${EDITOR_PATH}`;
 const OUT = process.env.OUT || fs.mkdtempSync(path.join(os.tmpdir(), 'widget-new-features-'));
 let failed = 0;
 const check = (name, ok, detail = '') => { if (!ok) failed++; console.log(`${ok ? 'PASS' : 'FAIL'} ${name}${detail ? ` :: ${detail}` : ''}`); };
 
-const browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--mute-audio'] });
+const browser = await chromium.launch({
+  // PW_CHROMIUM (exp3): a Chrome binary to use instead of Google Chrome (the Mac Studio has Chrome for Testing).
+  ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : { channel: 'chrome' }),
+  headless: true, args: ['--mute-audio'],
+});
 try {
   const context = await browser.newContext({ viewport: { width: 1024, height: 900 } });
   const page = await context.newPage();
@@ -78,7 +86,7 @@ try {
 
   // The Post tab shows the edit.
   await page.waitForTimeout(800);
-  await Promise.all([page.waitForURL(/widgetDrag=1/, { timeout: 240000 }), page.click('a:text-is("Post")')]);
+  await Promise.all([page.waitForURL(/widgetDrag=1|widgetBlocks=/, { timeout: 240000 }), page.click('a:text-is("Post")')]);
   await page.waitForSelector('[data-testid=widget-drag-post-body] iframe[data-lexical-iframe-widget]', { timeout: 240000 });
   await page.waitForTimeout(5000);
   const post = await page.evaluate(() => {

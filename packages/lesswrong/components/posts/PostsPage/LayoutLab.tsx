@@ -9,6 +9,9 @@
 // demo's ?scrollyUi=off works too).
 // EXPERIMENT (experiment/iframe-layout-ronny-exp2): ?widgetDrag=1 on the demo post is Experiment 2's Post
 // tab: LessWrong's normal text width only (no switcher), the post as its Editor tab left it, and Reset.
+// EXPERIMENT (experiment/iframe-layout-ronny-exp3): an Experiment 3 demo post (widgetBlocksDemo) works the
+// same way, with Experiment 3's bar (a switch between its two posts). This branch deploys as Experiment 3,
+// so the plain demo post's Editor tab opens Experiment 3's editor.
 import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
@@ -18,7 +21,8 @@ import {
   RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, TEXT_TRACK_EXTRA, WIDGET_DRAG_DEMO_PATH,
 } from './constants';
 import { LayoutLabColumns, setLayoutLabColumns } from './layoutLabColumns';
-import { LayoutDemoTabs, ResetWidgetDragEdits, WIDGET_DRAG_EDITOR_PATH } from './LayoutDemoTabs';
+import { LayoutDemoTabs, ResetWidgetDragEdits, WidgetBlocksDemoBar } from './LayoutDemoTabs';
+import { WIDGET_BLOCKS_DEMOS, type WidgetBlocksDemoId } from './widgetBlocksDemo';
 
 const TEXT_WIDTH_PARAM = 'textWidth';
 const TEXT_WIDTH_STORAGE_KEY = 'lwLayoutLabTextWidth';
@@ -209,7 +213,11 @@ function useViewportWidth(enabled: boolean): number {
   return viewport;
 }
 
-export function LayoutLab({ isLayoutDemo = false }: { isLayoutDemo?: boolean }) {
+export function LayoutLab({ isLayoutDemo = false, widgetBlocksDemo }: {
+  isLayoutDemo?: boolean,
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): this page is one of Experiment 3's demo posts. */
+  widgetBlocksDemo?: WidgetBlocksDemoId,
+}) {
   const classes = useStyles(styles);
   const [mounted, setMounted] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -222,7 +230,7 @@ export function LayoutLab({ isLayoutDemo = false }: { isLayoutDemo?: boolean }) 
     setMounted(true);
     const experiment2 = isLayoutDemo && new URLSearchParams(window.location.search).get('widgetDrag') === '1';
     setWidgetDrag(experiment2);
-    setTextWidthState(experiment2 ? 'normal' : readTextWidth());
+    setTextWidthState(experiment2 || widgetBlocksDemo ? 'normal' : readTextWidth());
     if (isRecordingMode()) {
       setRecording(true);
       document.documentElement.dataset.lwLayoutRecording = 'true';
@@ -232,7 +240,7 @@ export function LayoutLab({ isLayoutDemo = false }: { isLayoutDemo?: boolean }) 
       applyColumns(null);
       delete document.documentElement.dataset.lwLayoutRecording;
     };
-  }, [isLayoutDemo]);
+  }, [isLayoutDemo, widgetBlocksDemo]);
 
   useEffect(() => {
     if (mounted) applyTextWidth(textWidth);
@@ -255,10 +263,13 @@ export function LayoutLab({ isLayoutDemo = false }: { isLayoutDemo?: boolean }) 
   }, []);
 
   if (!mounted || recording) return null;
+  if (widgetBlocksDemo) {
+    return createPortal(<WidgetBlocksDemoBar demo={widgetBlocksDemo} active="post" className={classes.lab}/>, document.body);
+  }
   if (widgetDrag) {
     return createPortal(
       <div className={classes.lab} data-lw-bottom-bar="">
-        <LayoutDemoTabs active="post" editorPath={WIDGET_DRAG_EDITOR_PATH} postPath={WIDGET_DRAG_DEMO_PATH}/>
+        <LayoutDemoTabs active="post" editorPath={`${WIDGET_DRAG_DEMO_PATH}/editor`} postPath={WIDGET_DRAG_DEMO_PATH}/>
         <span className={classes.label}>Experiment 2 · your edits from the Editor tab</span>
         <ResetWidgetDragEdits/>
       </div>,
@@ -267,8 +278,8 @@ export function LayoutLab({ isLayoutDemo = false }: { isLayoutDemo?: boolean }) 
   }
   return createPortal(
     <div className={classes.lab}>
-      {/* EXPERIMENT (exp2): this branch deploys on its own, so the post's Editor tab opens Experiment 2. */}
-      {isLayoutDemo && <LayoutDemoTabs active="post" editorPath={WIDGET_DRAG_EDITOR_PATH}/>}
+      {/* EXPERIMENT (exp3): this branch deploys as Experiment 3, so the post's Editor tab opens Experiment 3. */}
+      {isLayoutDemo && <LayoutDemoTabs active="post" editorPath={WIDGET_BLOCKS_DEMOS['ai-futures'].editorPath}/>}
       <span className={classes.label}>Text width</span>
       {TEXT_WIDTH_OPTIONS.map(option => <button
         key={option.width}

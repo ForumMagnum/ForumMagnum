@@ -44,7 +44,8 @@ import RSVPs from "./RSVPs";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import ContentStyles from "../../common/ContentStyles";
 import PostBody from "./PostBody";
-import { WidgetDragPostBody } from "./WidgetDragPostBody";
+import { WidgetBlocksPostBody, WidgetDragPostBody, useWidgetBlocksContent } from "./WidgetDragPostBody";
+import { WIDGET_BLOCKS_QUERY_PARAM, widgetBlocksDemoFor } from "./widgetBlocksDemo";
 import { CommentOnSelectionContentWrapper } from "../../comments/CommentOnSelection";
 import PermanentRedirect from "../../common/PermanentRedirect";
 import DebateBody from "../../comments/DebateBody";
@@ -449,9 +450,19 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const isOldVersion = !!(query.revision && post.contents);
   
   const sequenceId = getSequenceId();
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): an Experiment 3 demo post shows its Editor tab's edits,
+  // and its table of contents and heading anchors come from that same HTML (not the saved post's).
+  const widgetBlocksDemo = widgetBlocksDemoFor(post.title, query[WIDGET_BLOCKS_QUERY_PARAM]);
+  const widgetBlocksContent = useWidgetBlocksContent(widgetBlocksDemo);
+  const postForToc = useMemo(
+    () => (widgetBlocksDemo ? { ...post, tableOfContents: undefined, tableOfContentsRevision: undefined } : post),
+    [widgetBlocksDemo, post],
+  );
   const sectionData = useDynamicTableOfContents({
-    html: (post as PostsWithNavigationAndRevision)?.contents?.html ?? post?.contents?.htmlHighlight ?? "",
-    post,
+    html: widgetBlocksDemo
+      ? (widgetBlocksContent?.html ?? "")
+      : (post as PostsWithNavigationAndRevision)?.contents?.html ?? post?.contents?.htmlHighlight ?? "",
+    post: postForToc,
     answers,
   });
   const htmlWithAnchors = sectionData?.html || fullPost?.contents?.html || postPreload?.contents?.htmlHighlight || "";
@@ -597,7 +608,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const rightColumnChildren = <>
     <div className={classes.reserveSpaceForSidenotes}/>
     <SideItemsSidebar/>
-    {!preview && <LayoutLab isLayoutDemo={post.title === LAYOUT_DEMO_TITLE}/>}
+    {!preview && <LayoutLab isLayoutDemo={post.title === LAYOUT_DEMO_TITLE} widgetBlocksDemo={widgetBlocksDemo?.id}/>}
   </>;
 
   const postsPageContext = useMemo(() => ({fullPost: fullPost ?? null, postPreload: postPreload ?? null}), [fullPost, postPreload]);
@@ -638,7 +649,15 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
           <div id="postContent">
             {htmlWithAnchors && <>
               {/* EXPERIMENT (experiment/iframe-layout-ronny-exp2): Experiment 2's Post tab shows the Editor tab's edits. */}
-              {post.title === LAYOUT_DEMO_TITLE && query.widgetDrag === '1'
+              {widgetBlocksDemo
+                ? <WidgetBlocksPostBody
+                  post={post}
+                  html={widgetBlocksContent ? (sectionData?.html || widgetBlocksContent.html) : null}
+                  srcdocs={widgetBlocksContent?.srcdocs ?? {}}
+                  isOldVersion={isOldVersion}
+                  voteProps={voteProps}
+                />
+                : post.title === LAYOUT_DEMO_TITLE && query.widgetDrag === '1'
                 ? <WidgetDragPostBody post={post} isOldVersion={isOldVersion} voteProps={voteProps} />
                 : <PostBody
                   post={post}

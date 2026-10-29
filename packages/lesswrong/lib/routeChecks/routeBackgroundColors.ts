@@ -31,6 +31,8 @@ const routesWithWhiteBackground = [
   "/experiment-iframe-layout-tuito7fob8u0rzrbib0v16i1/editor",
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): the drag-to-place demo editor (Experiment 2).
   "/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut/editor",
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): Experiment 3's editors, one per demo post.
+  "/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/editor",
   "/faq",
   "/g/[groupId]/p/[_id]",
   "/highlights/[slug]",

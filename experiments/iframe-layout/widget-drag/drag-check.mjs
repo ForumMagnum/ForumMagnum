@@ -47,7 +47,11 @@ const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 
 const BASE = process.env.BASE_URL || 'http://localhost:3000';
-const EDITOR = `${BASE}/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut/editor`;
+// EDITOR_PATH (exp3): which drag editor to check. Experiment 2's by default; Experiment 3's AI Futures
+// editor is /experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/editor. Its Post tab is the same path without /editor.
+const EDITOR_PATH = process.env.EDITOR_PATH || '/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut/editor';
+const POST_PATH = EDITOR_PATH.replace(/\/editor$/, '');
+const EDITOR = `${BASE}${EDITOR_PATH}`;
 const MVP1_EDITOR = `${BASE}/experiment-iframe-layout-tuito7fob8u0rzrbib0v16i1/editor`;
 const OUT = process.env.OUT || fs.mkdtempSync(path.join(os.tmpdir(), 'widget-drag-check-'));
 
@@ -560,8 +564,8 @@ async function mainChecks(browser) {
   }
 
   const tabs = await page.evaluate(() => [...document.querySelectorAll('a')].filter(a => ['Post', 'Editor'].includes(a.textContent)).map(a => `${a.textContent}=${a.getAttribute('href')}`));
-  check('tabs: Post opens Experiment 2\'s post, Editor this page', tabs.includes('Post=/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut')
-    && tabs.includes('Editor=/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut/editor'), tabs.join(' '));
+  check('tabs: Post opens this experiment\'s post, Editor this page', tabs.includes(`Post=${POST_PATH}`)
+    && tabs.includes(`Editor=${EDITOR_PATH}`), tabs.join(' '));
   check('no console errors at 1024', h.errors.length === 0, h.errors.join(' || '));
   await page.screenshot({ path: path.join(OUT, 'drag-check-1024.png') });
   await page.close();
@@ -829,11 +833,11 @@ async function mvp1Checks(browser) {
   }));
   check('S20 first editor: no drag controls', found.controls === 0 && found.dragAttributes === 0
     && found.editorTab === '/experiment-iframe-layout-tuito7fob8u0rzrbib0v16i1/editor', JSON.stringify(found));
-  // On this branch the demo post's Editor tab opens Experiment 2 (the branch deploys to its own project).
+  // On this branch the demo post's Editor tab opens Experiment 3 (the branch deploys to its own project).
   await page.goto(`${BASE}/experiment-iframe-layout-tuito7fob8u0rzrbib0v16i1?textWidth=normal`, { waitUntil: 'domcontentloaded', timeout: 240000 });
   await page.waitForFunction(() => [...document.querySelectorAll('a')].some(a => a.textContent === 'Editor'), null, { timeout: 240000 });
   const postTab = await page.evaluate(() => [...document.querySelectorAll('a')].find(a => a.textContent === 'Editor')?.getAttribute('href'));
-  check('S20 the demo post\'s Editor tab opens Experiment 2', postTab === '/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut/editor', String(postTab));
+  check('S20 the demo post\'s Editor tab opens Experiment 3', postTab === '/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/editor', String(postTab));
   await page.close();
 }
 
@@ -1555,7 +1559,11 @@ async function touchChecks(browser) {
   await h.close();
 }
 
-const browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--mute-audio'] });
+const browser = await chromium.launch({
+  // PW_CHROMIUM (exp3): a Chrome binary to use instead of Google Chrome (the Mac Studio has Chrome for Testing).
+  ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : { channel: 'chrome' }),
+  headless: true, args: ['--mute-audio'],
+});
 try {
   const groups = {
     mainChecks, shrinkWarningChecks, bottomChecks, reviewChecks, landingChecks, edgeChecks, touchChecks, narrowChecks, phoneChecks,

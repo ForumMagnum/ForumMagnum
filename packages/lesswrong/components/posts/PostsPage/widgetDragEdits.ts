@@ -2,7 +2,9 @@
 // Post tab shows what was done in the Editor tab and the Editor tab picks up where it was left. Nothing
 // is sent anywhere. Edits made to an older version of the demo post (before a redeploy) are dropped.
 
-const STORAGE_KEY = 'lwWidgetDragEdits';
+// EXPERIMENT (experiment/iframe-layout-ronny-exp3): Experiment 3 keeps each of its demo posts' edits
+// under its own key (see widgetBlocksDemo.ts); Experiment 2 keeps this one.
+export const WIDGET_DRAG_STORAGE_KEY = 'lwWidgetDragEdits';
 
 interface StoredEdits {
   /** Fingerprint of the demo post the edits started from (see demoFingerprint). */
@@ -18,9 +20,9 @@ export function demoFingerprint(html: string): string {
 }
 
 /** The edited post's HTML (as the editor exports it), or null if there are no edits to this version. */
-export function loadEdits(base: string): string | null {
+export function loadEdits(base: string, storageKey = WIDGET_DRAG_STORAGE_KEY): string | null {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(storageKey);
     if (!raw) return null;
     const stored = JSON.parse(raw) as Partial<StoredEdits>;
     return stored.base === base && typeof stored.html === 'string' ? stored.html : null;
@@ -32,9 +34,9 @@ export function loadEdits(base: string): string | null {
 let unsavedSince = 0;
 let waiting: Array<() => void> = [];
 
-export function saveEdits(base: string, html: string): void {
+export function saveEdits(base: string, html: string, storageKey = WIDGET_DRAG_STORAGE_KEY): void {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ base, html } satisfies StoredEdits));
+    window.localStorage.setItem(storageKey, JSON.stringify({ base, html } satisfies StoredEdits));
   } catch {
     // Storage can be unavailable (private windows, blocked site data): edits just aren't kept.
   }
@@ -43,9 +45,9 @@ export function saveEdits(base: string, html: string): void {
   waiting = [];
 }
 
-export function clearEdits(): void {
+export function clearEdits(storageKey = WIDGET_DRAG_STORAGE_KEY): void {
   try {
-    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(storageKey);
   } catch {
     // Storage can be unavailable (private windows, blocked site data): edits just aren't kept.
   }

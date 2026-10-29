@@ -6,6 +6,8 @@
 // EXPERIMENT (experiment/iframe-layout-ronny-exp2): with `widgetDrag` (the Experiment 2 page), widgets
 // are placed by dragging them and pulling their edges (see IframeWidgetDragContext), and the edits are
 // kept in this browser for the Post tab (see widgetDragEdits).
+// EXPERIMENT (experiment/iframe-layout-ronny-exp3): with `blocksDemo` (Experiment 3's pages), the same,
+// with that demo post's own stored edits and Experiment 3's bar.
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -13,8 +15,9 @@ import ContentStyles from '@/components/common/ContentStyles';
 import LexicalEditor from '@/components/editor/LexicalEditor';
 import { IframeWidgetDragContext } from '@/components/lexical/embeds/IframeWidgetEmbed/widgetDragContext';
 import { CENTRAL_COLUMN_WIDTH, LAYOUT_DEMO_PATH } from './constants';
-import { LayoutDemoEditorBar, WIDGET_DRAG_EDITOR_PATH } from './LayoutDemoTabs';
-import { demoFingerprint, loadEdits, markEditsUnsaved, saveEdits } from './widgetDragEdits';
+import { LayoutDemoEditorBar, WIDGET_DRAG_EDITOR_PATH, WidgetBlocksDemoBar } from './LayoutDemoTabs';
+import { WIDGET_DRAG_STORAGE_KEY, demoFingerprint, loadEdits, markEditsUnsaved, saveEdits } from './widgetDragEdits';
+import { WIDGET_BLOCKS_DEMOS, type WidgetBlocksDemoId } from './widgetBlocksDemo';
 
 const styles = defineStyles('LayoutDemoEditor', (theme: ThemeType) => ({
   root: {
@@ -51,21 +54,25 @@ function UnsavedEditsPlugin() {
   return null;
 }
 
-export function LayoutDemoEditor({ title, initialHtml, widgetDrag = false }: {
+export function LayoutDemoEditor({ title, initialHtml, widgetDrag: widgetDragProp = false, blocksDemo }: {
   title: string,
   initialHtml: string,
   /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): place widgets by dragging (Experiment 2). */
   widgetDrag?: boolean,
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): which of Experiment 3's demo posts this is. */
+  blocksDemo?: WidgetBlocksDemoId,
 }) {
   const classes = useStyles(styles);
+  const widgetDrag = widgetDragProp || !!blocksDemo;
+  const storageKey = blocksDemo ? WIDGET_BLOCKS_DEMOS[blocksDemo].storageKey : WIDGET_DRAG_STORAGE_KEY;
   // Experiment 2 starts from this browser's edits, if it has any to this version of the post. (Read
   // once, on the client: the editor only renders there anyway.)
   const base = useMemo(() => demoFingerprint(initialHtml), [initialHtml]);
   const [startHtml, setStartHtml] = useState<string | null>(widgetDrag ? null : initialHtml);
   useEffect(() => {
-    if (widgetDrag) setStartHtml(loadEdits(base) ?? initialHtml);
-  }, [widgetDrag, base, initialHtml]);
-  const saveChange = useCallback((html: string) => saveEdits(base, html), [base]);
+    if (widgetDrag) setStartHtml(loadEdits(base, storageKey) ?? initialHtml);
+  }, [widgetDrag, base, initialHtml, storageKey]);
+  const saveChange = useCallback((html: string) => saveEdits(base, html, storageKey), [base, storageKey]);
   // Loading the post moves the selection to its end, which scrolls the page there. Keep the page at
   // the top while it loads, until the reader scrolls or clicks themselves. (Pressing a widget's grip
   // sends no mousedown, so pointerdown counts too, caught before the grip stops it.)
@@ -109,7 +116,9 @@ export function LayoutDemoEditor({ title, initialHtml, widgetDrag = false }: {
         </LexicalEditor>}
       </IframeWidgetDragContext.Provider>
     </ContentStyles>
-    {widgetDrag
+    {blocksDemo
+      ? <WidgetBlocksDemoBar demo={blocksDemo} active="editor"/>
+      : widgetDrag
       ? <LayoutDemoEditorBar editorPath={WIDGET_DRAG_EDITOR_PATH} note="Experiment 2: drag to place"/>
       : <LayoutDemoEditorBar editorPath={`${LAYOUT_DEMO_PATH}/editor`}/>}
   </div>;
