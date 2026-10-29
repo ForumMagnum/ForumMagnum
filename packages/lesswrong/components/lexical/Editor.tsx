@@ -285,17 +285,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       top: 2,
       left: COLLAPSIBLE_MARKER_GUTTER,
     },
-    // Sentinels' <br> line box blocks margin collapsing, doubling the
-    // gaps around collapsible sections vs the rendered page. Only zero
-    // margins next to neighbours that have their own margin.
-    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): not a blockquote, which has none (its spacing is
-    // padding): next to a quote the editor lost the section's 0.75em gap that the rendered page keeps.
-    '& :is(p:not(.sentinel-paragraph), h1, h2, h3, h4, h5, h6, ul, ol, .detailsBlock) + .sentinel-paragraph + .detailsBlock': {
-      marginTop: 0,
-    },
-    '& .detailsBlock:has(+ .sentinel-paragraph + h1, + .sentinel-paragraph + h2, + .sentinel-paragraph + h3, + .sentinel-paragraph + h4, + .sentinel-paragraph + h5, + .sentinel-paragraph + h6)': {
-      marginBottom: 0,
-    },
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the rules that zeroed a collapsible section's margins
+    // next to a sentinel are gone: sentinels are out of the flow now (see .sentinel-paragraph below), so
+    // margins collapse across them as on the rendered page, for every kind of block.
     '& .footnote-content': {
       flex: 1,
     },
@@ -478,7 +470,15 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       padding: 0,
       lineHeight: 0,
       fontSize: 0,
-      position: 'relative',
+      // EXPERIMENT (experiment/iframe-layout-ronny-exp3): out of the flow, so the margins of the blocks on
+      // either side collapse as they do on the rendered page. In the flow, its empty line box kept them
+      // apart, which doubled the gaps around spoilers, equations, embeds, collapsible sections, headings
+      // and the footnotes. It stays where it was (the static position), across the column (the editor
+      // root is positioned), so the block cursor below still shows there. (Beside a widget, only across
+      // the text beside it: widgetSliverGuard sets its left or right.)
+      position: 'absolute',
+      left: 0,
+      right: 0,
       minHeight: 0,
       caretColor: 'transparent',
       outline: 'none',

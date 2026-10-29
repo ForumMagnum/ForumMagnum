@@ -110,9 +110,15 @@ All paths under `packages/lesswrong/`.
   stand-in line for a widget in a footnote (they copied the spacer's source code).
 - Stable class names added for the rules: `spoiler-block` (SpoilerBlock), `horiz-scroll-block` +
   `horiz-scroll-block-contents` (HorizScrollBlock), `lw-image-container` (editor ImageComponent).
-- Editor spacing fix in the rule table: `[data-lexical-editor] > EDITOR_FLOAT + .sentinel-paragraph +
-  :not(h1..h6) { margin-top: 0 }` (the caret sentinels stopped margins collapsing, so the block after a
-  widget started ~1em lower than in the post); sentinels after a float are flow-root (caret line only beside).
+- Editor caret sentinels are out of the flow (`.sentinel-paragraph { position: absolute; left: 0; right: 0 }`
+  in Editor.tsx, Oct 29): in the flow, their empty line box stopped the margins on either side collapsing,
+  so the editor's gaps around spoilers, equations, embeds, collapsible sections, headings, the footnotes and
+  every top-level widget were up to ~1em taller than the post's. That replaced three narrower fixes (two of
+  LessWrong's collapsible-section margin rules in Editor.tsx, and the rule table's `EDITOR_FLOAT +
+  .sentinel-paragraph + :not(h1..h6) { margin-top: 0 }`). Out of the flow a sentinel no longer narrows
+  beside a widget, so `narrowCaretLines` (widgetSliverGuard.ts, run with the sliver guard, and again when
+  the caret moves into a sentinel) sets its left or right to the widget's margin edge: the caret line spans
+  only the text beside a widget, as before (`data-lw-beside` marks one it narrowed).
 - Post body ends below its last widget: `:has(> .iframe-widget > .lwFloatedWidget)::after` clearfix.
 - Demo plumbing: `components/posts/PostsPage/widgetBlocksDemo.ts` (paths, titles, storage keys; the blocks
   post opens in Exp 3 mode always, the AI Futures post only with `?widgetBlocks=ai-futures`);
@@ -324,7 +330,12 @@ can run it over `ssh studio`, or use your own copy).
   Check: `nested-check.mjs` (gear 25%, edge drag to 38%, Post tab widths). Open question for Ronny: 50% can't
   wrap inside these blocks at the normal width (quote 647px leaves 291px beside, list item 289, section 296,
   under the 300px rule), so it shows full width with the gear's note.
-- **To do (Ronny: "remember that"):** the other editor/post spacing differences (doubled gaps next to sentinel
-  paragraphs after spoilers, equations and embeds; code, equation, list and caption heights). See the memory
-  note / REPORT.md.
+- **Doubled gaps next to sentinels (fixed Oct 29):** see the sentinel note above. vertical-compare (scratch
+  script: every top-level block's gap and height, editor vs post) finds no gap differences that don't come
+  from a height difference above them.
+- **To do (Ronny: "remember that"):** the editor/post HEIGHT differences: code (the post's `pre` has a 1px
+  border; one long-line block is a line taller in the post), display equations (MathJax's 1em display
+  margin is trapped inside the editor's scroll box), figures (editor `figure { margin: 0 auto }` vs the
+  post's `1em auto`; the post's inline img leaves a ~9px line gap under it), lists (plus or minus 13px,
+  two `li` margins). See the memory note / REPORT.md.
 

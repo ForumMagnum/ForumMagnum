@@ -34,7 +34,7 @@ import { randomId } from '@/lib/random';
 import {$createIframeWidgetNode, $isIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
 import { alignFloatBottom, alignedParagraph } from '@/components/contents/bottomAlign';
 import { widgetNeighbourGlobals } from '@/components/contents/widgetNeighbours';
-import { WIDGET_LAYOUT_EVENT, mayRealignAfterGuard, scheduleSliverGuard, widgetContainerWidth } from '@/components/contents/widgetSliverGuard';
+import { CARET_BESIDE_ATTR, WIDGET_LAYOUT_EVENT, mayRealignAfterGuard, scheduleSliverGuard, widgetContainerWidth } from '@/components/contents/widgetSliverGuard';
 import {
   alignOf, IframeWidgetLayout, IframeWidgetPosition, MIN_TEXT_BESIDE_WIDGET, offeredWidths,
   parseIframeWidgetLayout, sameLayout, setIframeWidgetLayout, shouldWrapWidget, stripIframeWidgetLayout,
@@ -49,7 +49,7 @@ import { CodeIcon } from '../../icons/CodeIcon';
 import classNames from 'classnames';
 import { $isFootnoteSectionNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
 import { $reconcileSentinels } from '@/components/editor/lexicalPlugins/blockCursorNavigation/BlockCursorNavigationPlugin';
-import { SentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
+import { $isSentinelParagraphNode, SentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
 import { IframeWidgetDragContext } from './widgetDragContext';
 import { OPTIONS_MENU_WIDTH, WidgetOptionsMenu } from './WidgetOptionsMenu';
 import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks, widgetColumnRect } from './widgetDragDom';
@@ -546,6 +546,14 @@ function placeSpacer(elem: HTMLElement, layout: IframeWidgetLayout | null, colum
     if (lastPush) elem.dataset.lwBottomPush = lastPush;
     alignFloatBottom(elem, alignedParagraph(elem), 6);
   }
+}
+
+/** EXPERIMENT (experiment/iframe-layout-ronny-exp3): whether the caret is in a sentinel (the gap between two blocks). */
+function $selectionInSentinel(): boolean {
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection) || !selection.isCollapsed()) return false;
+  const node = selection.anchor.getNode();
+  return $isSentinelParagraphNode(node) || $isSentinelParagraphNode(node.getParent());
 }
 
 function stripDeletedMarkupFromSrcdoc(srcdoc: string): string {
@@ -1223,10 +1231,17 @@ export default function IframeWidgetPlugin({
 
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): a widget aligned to the bottom of its paragraph moves
   // whenever that paragraph's text changes, so it's lined up again after every edit.
-  useEffect(() => editor.registerUpdateListener(({ dirtyElements, dirtyLeaves }) => {
-    if (dirtyElements.size + dirtyLeaves.size === 0) return;
-    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the text reflowed, so check the boxes beside widgets.
-    if (widgetsRef.current.size) scheduleSliverGuard(editor.getRootElement());
+  useEffect(() => editor.registerUpdateListener(({ editorState, dirtyElements, dirtyLeaves }) => {
+    const root = editor.getRootElement();
+    if (dirtyElements.size + dirtyLeaves.size === 0) {
+      // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the caret moved into the gap between two blocks:
+      // narrow its line beside a widget for the layout as it is now (an image may have loaded since).
+      if (widgetsRef.current.size && editorState.read($selectionInSentinel)) scheduleSliverGuard(root);
+      return;
+    }
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the text reflowed, so check the boxes beside widgets
+    // (and widen a caret line left narrowed beside a widget that is gone).
+    if (widgetsRef.current.size || root?.querySelector(`[${CARET_BESIDE_ATTR}]`)) scheduleSliverGuard(root);
     let moved = false;
     for (const [key, state] of widgetsRef.current) {
       const layout = previewOverrides.current.get(key) ?? state.layout;

@@ -12,6 +12,8 @@
 // A collapsible section is measured as it looks open, open or not (Ronny, Oct 29 2026: "if the open state
 // would not fit, then the closed state should not fit either"), so opening or closing it never moves it.
 // Text needs no guard: only its lines beside the widget are shortened.
+//
+// The same pass narrows the editor's caret lines beside a widget (narrowCaretLines).
 
 /** A box that starts with less than this much of a widget beside it goes below the widget. */
 export const SLIVER_PX = 48;
@@ -57,6 +59,7 @@ export function guardSlivers(root: HTMLElement): void {
   const before = Array.from(root.querySelectorAll(OWN_MARKS));
   for (const el of before) el.removeAttribute('data-lw-below');
   markSlivers(root);
+  narrowCaretLines(root);
   const after = Array.from(root.querySelectorAll(OWN_MARKS));
   if (after.length !== before.length || after.some((el, i) => el !== before[i])) {
     root.dispatchEvent(new Event(WIDGET_LAYOUT_EVENT));
@@ -150,6 +153,52 @@ function markSlivers(root: HTMLElement): void {
       }
     }
   }
+}
+
+/** Marks an editor caret paragraph narrowed by narrowCaretLines (so it is widened again once it isn't beside a widget). */
+export const CARET_BESIDE_ATTR = 'data-lw-beside';
+
+/**
+ * The editor's caret line between two blocks is drawn by a sentinel paragraph, which is out of the flow
+ * (so the margins around it collapse as in the post) and spans the column. Beside a wrapped widget it
+ * spans only the text beside the widget, like the blocks there: it starts (or ends) at the widget's
+ * margin edge. (The post has no sentinels.)
+ */
+function narrowCaretLines(root: HTMLElement): void {
+  const sentinels = Array.from(root.querySelectorAll<HTMLElement>(':scope > .sentinel-paragraph'));
+  if (!sentinels.length) return;
+  const cs = getComputedStyle(root);
+  const rootBox = root.getBoundingClientRect();
+  const paddingLeft = rootBox.left + (parseFloat(cs.borderLeftWidth) || 0);
+  const paddingRight = rootBox.right - (parseFloat(cs.borderRightWidth) || 0);
+  // Each widget's margin box (what text and boxes beside it keep clear of).
+  const widgets = rootFloats(root).map(float => {
+    const fcs = getComputedStyle(float);
+    const box = float.getBoundingClientRect();
+    return {
+      float, side: fcs.float,
+      top: box.top - (parseFloat(fcs.marginTop) || 0), bottom: box.bottom + (parseFloat(fcs.marginBottom) || 0),
+      left: box.left - (parseFloat(fcs.marginLeft) || 0), right: box.right + (parseFloat(fcs.marginRight) || 0),
+    };
+  });
+  // (Measure them all, then set them all.)
+  const insets = sentinels.map(sentinel => {
+    const top = sentinel.getBoundingClientRect().top;
+    let left = 0, right = 0;
+    for (const w of widgets) {
+      if (!(w.float.compareDocumentPosition(sentinel) & Node.DOCUMENT_POSITION_FOLLOWING)) continue;
+      if (top < w.top || top >= w.bottom) continue;
+      if (w.side === 'left') left = Math.max(left, w.right - paddingLeft);
+      else if (w.side === 'right') right = Math.max(right, paddingRight - w.left);
+    }
+    return { left, right };
+  });
+  sentinels.forEach((sentinel, i) => {
+    const { left, right } = insets[i];
+    sentinel.style.left = left > 0 ? `${Math.round(left)}px` : '';
+    sentinel.style.right = right > 0 ? `${Math.round(right)}px` : '';
+    sentinel.toggleAttribute(CARET_BESIDE_ATTR, left > 0 || right > 0);
+  });
 }
 
 const scheduled = new WeakMap<HTMLElement, number>();

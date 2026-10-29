@@ -6,9 +6,10 @@
 //   3. agreement: every top-level block starts at the same x, has the same width and the same first-line
 //      start in the editor and the post (blocks are matched by their text);
 //   4. wraps: the same number of widgets float in both views.
-// Differences that come only from the editor's known vertical drift (sentinel paragraphs make the gaps
-// around a top-level widget about 1em taller in the editor) are reported apart, as "drift": a block whose
-// top is within 40px of a widget's bottom in either view.
+// Differences that come only from vertical drift (a block above is a little taller in one view, so a block
+// near a widget's bottom lands beside it in one and below it in the other) are reported apart, as "drift":
+// a block whose top is within 40px of a widget's bottom in either view. (The sentinel gaps that used to
+// cause most of it are fixed, Oct 29 2026; the remaining block-height differences are in HANDOFF.md.)
 //
 // Usage (Studio: through the browser slot lock):
 //   ~/lw-exp3-proto/with-slot.sh node width-sweep.mjs [--demo blocks|ai-futures] [--from 320] [--to 2560]
@@ -57,7 +58,8 @@ const MEASURE = (view) => {
   const R = r => ({ x: Math.round(r.left - colLeft), y: Math.round(r.top + scrollY), w: Math.round(r.width), h: Math.round(r.height) });
   const overlaps = [];
   // (Nothing inside a closed collapsible section shows.)
-  const skip = el => el.closest('.iframe-widget-code, .iframe-widget, iframe[data-lexical-iframe-widget], .sentinel-paragraph, details:not([open]) > :not(summary)');
+  // (Nor MathJax's copy of an equation for screen readers: it is clipped to nothing.)
+  const skip = el => el.closest('.iframe-widget-code, .iframe-widget, iframe[data-lexical-iframe-widget], .sentinel-paragraph, details:not([open]) > :not(summary), mjx-assistive-mml');
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
     if (!n.textContent.trim()) continue;
@@ -112,8 +114,9 @@ const MEASURE = (view) => {
     const base = text || `<${el.tagName.toLowerCase()}>`;
     seen[base] = (seen[base] ?? 0) + 1;
     let firstLineX = null;
-    // An equation draws its glyphs from CSS, so it has no text to measure: take where it starts.
-    const equation = el.querySelector('mjx-math');
+    // A display equation draws its glyphs from CSS, so it has no text to measure: take where it starts.
+    // (Not inline math in a paragraph: its first line starts with the paragraph's text.)
+    const equation = el.matches('.math-tex') ? el.querySelector('mjx-math') : null;
     const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     let t = tw.nextNode(); while (t && (!t.textContent.trim() || t.parentElement.closest('.iframe-widget-code, .llm-content-block-header'))) t = tw.nextNode();
     if (equation) {
@@ -138,7 +141,8 @@ const MEASURE = (view) => {
 };
 
 const browser = await playwright[engine].launch({
-  ...(engine === 'chromium' && process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}),
+  // (Like the other checks: the installed Chrome, or PW_CHROMIUM where there is none.)
+  ...(engine === 'chromium' ? (process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : { channel: 'chrome' }) : {}),
   headless: true,
   ...(engine === 'chromium' ? { args: ['--mute-audio'] } : {}),
 });

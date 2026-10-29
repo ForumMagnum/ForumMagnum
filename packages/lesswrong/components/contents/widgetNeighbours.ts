@@ -143,13 +143,8 @@ const RULES: NeighbourRule[] = [
   { post: POST_EMBEDS.map(e => `${POST_FLOAT} ~ * ${e}`), editor: EDITOR_EMBEDS.map(e => `${EDITOR_FLOAT} ~ * ${e}`), style: CLEARS_BELOW },
   // The editor's page break marker (posts get an empty figure): its grey band narrows beside the widget.
   { editorAfter: ['figure[type="page-break"]'], style: { display: 'flow-root', width: 'auto' } },
-  // The editor's caret line between blocks spans only the text beside the widget, not the widget.
-  { editorAfter: ['.sentinel-paragraph'], style: { display: 'flow-root' } },
-  // The editor keeps an empty caret paragraph on each side of a widget, which stops the margins around
-  // it from collapsing: the block after a widget started about 1em lower than in the post, so different
-  // lines wrapped beside the widget. Its top margin goes, as it collapses away in the post. (Not for
-  // headings, whose own top margin is bigger than a paragraph's gap.)
-  { editor: [`[data-lexical-editor] > ${EDITOR_FLOAT} + .sentinel-paragraph + :not(h1, h2, h3, h4, h5, h6)`], style: { marginTop: 0 } },
+  // (The editor's caret paragraphs between blocks are out of the flow, so the margins around them collapse
+  // as in the post; beside a widget, widgetSliverGuard narrows their caret line to the text beside it.)
   // A widget inside a quote, a list item, an open collapsible section or an AI content block floats
   // inside it (sized and wrapped against its width), and the container holds it: its bar, rule or end
   // runs past the widget instead of the widget hanging out into the blocks after it.
