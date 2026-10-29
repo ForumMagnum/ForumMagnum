@@ -113,11 +113,6 @@ function validateSettings(registeredSettings: Record<string, "server" | "public"
 export const openAIOrganizationId: string|null = null;
 
 export const tagBotAccountSlug = new ServerSetting<string|null>('languageModels.autoTagging.taggerAccountSlug', null);
-export const tagBotActiveTimeSetting = new ServerSetting<"always" | "weekends">('languageModels.autoTagging.activeTime', "always");
-
-export const autoFrontpageSetting = new ParsedServerSetting<boolean>('languageModels.autoTagging.autoFrontpage', false);
-export const autoFrontpageModelSetting = new ServerSetting<string|null>('languageModels.autoTagging.autoFrontpageModel', "gpt-4o-mini");
-export const autoFrontpagePromptSetting = new ServerSetting<string | null>("languageModels.autoTagging.autoFrontpagePrompt", null);
 
 export const profileSpamAutoPurgeSetting = new ParsedServerSetting<boolean>('languageModels.profileSpamAutoPurge', false);
 export const llmRejectionTriageSetting = new ParsedServerSetting<boolean>('languageModels.llmRejectionTriage', false);
