@@ -1,6 +1,6 @@
 /* eslint-disable no-tabs */
 
-import type { ModelDocumentSelection as DocumentSelection } from "@ckeditor/ckeditor5-engine";
+import type { ModelDocumentSelection as DocumentSelection } from 'ckeditor5';
 import type { MathConfig } from "./math";
 
 declare global {

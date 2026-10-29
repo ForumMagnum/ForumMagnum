@@ -5,7 +5,7 @@ import { postGetPageUrl, postGetEditUrl, isNotHostedHere } from '../../lib/colle
 import {useCurrentUser} from "../common/withUser";
 import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
-import type { Editor } from '@ckeditor/ckeditor5-core';
+import type { Editor } from 'ckeditor5';
 import DeferRender from '../common/DeferRender';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
