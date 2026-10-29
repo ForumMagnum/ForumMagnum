@@ -335,7 +335,7 @@ export default function LlmRunPage({ runId }: { runId: string }) {
         comment={triggerComment}
         childComments={isCompleted && replyComment ? [{ item: replyComment, children: [] }] : []}
         treeOptions={{ showPostTitle: false, forceNotSingleLine: true }}
-        forceUnTruncated
+        expandAllThreads
         forceUnCollapsed
         noAutoScroll
       />}
