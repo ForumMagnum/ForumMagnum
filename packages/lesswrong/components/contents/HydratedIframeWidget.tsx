@@ -144,7 +144,10 @@ function InlineIframeWidget({ srcdoc, title }: {
       scrolling="no"
       title={title ?? 'Embedded widget'}
       data-lexical-iframe-widget="true"
-      className={classNames(classes.iframe, layout.position !== 'inline' && classes.narrowScreenFullWidth, {
+      // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the phone override is for centered widgets only. A
+      // left/right widget follows the one wrap rule (300px of text beside it) at every width, as in the
+      // editor; on a phone no width leaves that much room, so it shows full width there anyway.
+      className={classNames(classes.iframe, layout.position === 'center' && classes.narrowScreenFullWidth, {
         [classes.center]: layout.position === 'center',
         [classes.floatLeft]: floated && layout.position === 'left',
         [classes.floatRight]: floated && layout.position === 'right',
