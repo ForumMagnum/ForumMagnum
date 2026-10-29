@@ -1007,6 +1007,9 @@ export const routeTrie = {
     "library": {
       "hasPage": true
     },
+    "llmReplies": {
+      "hasPage": true
+    },
     "llmRuns": {
       "dynamicChild": {
         "paramName": "runId",
@@ -1521,6 +1524,7 @@ export const routeTrie = {
     "item": "item",
     "leaderboard": "leaderboard",
     "library": "library",
+    "llmreplies": "llmReplies",
     "llmruns": "llmRuns",
     "login": "login",
     "loginnotice": "loginNotice",

@@ -706,6 +706,17 @@ function moderatorComments(terms: CommentsViewTerms) {
   },
 }};
 
+function llmReplies(terms: CommentsViewTerms) {
+  return {
+    selector: {
+      llmRunId: { $exists: true },
+    },
+    options: {
+      sort: {postedAt: -1},
+    },
+  };
+}
+
 function debateResponses(terms: CommentsViewTerms) {
   return {
   selector: {
@@ -791,6 +802,7 @@ export const CommentsViews = new CollectionViewSet('Comments', {
   reviews,
   tagDiscussionComments,
   moderatorComments,
+  llmReplies,
   debateResponses,
   recentDebateResponses,
   alignmentSuggestedComments,

@@ -2723,6 +2723,7 @@ export type CommentSelector = {
   draftComments?: InputMaybe<CommentsDraftCommentsInput>;
   latestSubforumDiscussion?: InputMaybe<CommentsLatestSubforumDiscussionInput>;
   legacyIdComment?: InputMaybe<CommentsLegacyIdCommentInput>;
+  llmReplies?: InputMaybe<CommentsLlmRepliesInput>;
   moderatorComments?: InputMaybe<CommentsModeratorCommentsInput>;
   nominations2018?: InputMaybe<CommentsNominations2018Input>;
   nominations2019?: InputMaybe<CommentsNominations2019Input>;
@@ -2877,6 +2878,13 @@ export type CommentsLegacyIdCommentInput = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   legacyId?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentsLlmRepliesInput = {
+  authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
+  commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };

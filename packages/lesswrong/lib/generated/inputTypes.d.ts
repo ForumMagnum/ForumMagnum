@@ -2451,6 +2451,13 @@ interface CommentsModeratorCommentsInput {
   authorIsUnreviewed?: boolean | null;
 }
 
+interface CommentsLlmRepliesInput {
+  userId?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
+}
+
 interface CommentsDebateResponsesInput {
   userId?: string | null;
   commentIds?: Array<string> | null;
@@ -2537,6 +2544,7 @@ interface CommentSelector {
   tagSubforumComments: CommentsTagSubforumCommentsInput | null;
   latestSubforumDiscussion: CommentsLatestSubforumDiscussionInput | null;
   moderatorComments: CommentsModeratorCommentsInput | null;
+  llmReplies: CommentsLlmRepliesInput | null;
   debateResponses: CommentsDebateResponsesInput | null;
   recentDebateResponses: CommentsRecentDebateResponsesInput | null;
   alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput | null;
@@ -9786,6 +9794,7 @@ interface GraphQLTypeMap {
   CommentsTagSubforumCommentsInput: CommentsTagSubforumCommentsInput;
   CommentsLatestSubforumDiscussionInput: CommentsLatestSubforumDiscussionInput;
   CommentsModeratorCommentsInput: CommentsModeratorCommentsInput;
+  CommentsLlmRepliesInput: CommentsLlmRepliesInput;
   CommentsDebateResponsesInput: CommentsDebateResponsesInput;
   CommentsRecentDebateResponsesInput: CommentsRecentDebateResponsesInput;
   CommentsAlignmentSuggestedCommentsInput: CommentsAlignmentSuggestedCommentsInput;
