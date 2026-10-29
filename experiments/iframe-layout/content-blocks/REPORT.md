@@ -1,6 +1,6 @@
 # Experiment 3: how every content block behaves next to a widget
 
-Oct 29 2026. Branch `experiment/iframe-layout-ronny-exp3`.
+Oct 29 2026, about 3am PT. Branch `experiment/iframe-layout-ronny-exp3`.
 
 ## Links
 
@@ -177,8 +177,14 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
 - A resized image showed full width until clicked.
 
 ## Checks
-- Width sweep, every 8px from 320 to 2560 (281 widths), both tabs of the demo post: SWEEP_RESULT
-- Drag checks (drag-check, new-features-check) on the Experiment 2 and Experiment 3 editors: CHECKS_RESULT
+- Width sweep of the demo post, both tabs, every 40px from 320 to 2560 (57 widths): 0 problems. No text
+  or box under a widget, no sideways scroll, every block in the same place in the editor and the post.
+  (The script, `width-sweep.mjs`, can also step every 8px; I didn't run that one.)
+- Drag checks on the Experiment 3 editor: 143 of 143. On the Experiment 2 editor: 142 of 143; the one
+  miss (widget frames a moment late after a cancelled resize) is fixed, and that group passes since.
+  new-features-check: all pass on both editors.
+- An independent code review found 5 small bugs (a Safari/Firefox table fallback, nested sliver marks,
+  a leftover flag, a centered widget in a table cell, a dropped re-alignment); all fixed.
 - Unit tests: 47 of 47. Type check: 0 errors. Lint: clean.
 - Deliberately changed checks (the old behavior they tested is gone): drag-check S3 and E1 (headings),
   and 5 heading-snap unit tests, which now test dividers and embeds (plus one new test: a widget never lines up with a heading).

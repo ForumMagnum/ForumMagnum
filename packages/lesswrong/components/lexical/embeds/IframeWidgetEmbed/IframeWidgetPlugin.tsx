@@ -526,7 +526,7 @@ function placeSpacer(elem: HTMLElement, layout: IframeWidgetLayout | null, colum
   const side = layout?.position === 'left' ? 'left' : 'right';
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a centered widget (hand-written meta only) shows at its
   // width in a row of its own, as in the post (which shows it full width on phones).
-  const centered = !wraps && layout?.position === 'center' && !!layout.width && window.innerWidth >= 600;
+  const centered = !wraps && layout?.position === 'center' && !!layout.width && columnWidth > 0 && window.innerWidth >= 600;
   elem.style.float = wraps ? side : '';
   elem.style.clear = wraps ? side : centered ? 'both' : '';
   elem.style.width = wraps ? `${widgetWidthPx(layout!, columnWidth)}px` : centered ? `${widgetWidthPx(layout!, columnWidth)}px` : '';
@@ -540,6 +540,7 @@ function placeSpacer(elem: HTMLElement, layout: IframeWidgetLayout | null, colum
   const lastPush = elem.dataset.lwBottomPush;
   elem.style.shapeOutside = '';
   delete elem.dataset.lwBottomPush;
+  elem.removeAttribute('data-lw-pushed');
   if (wraps && alignOf(layout!) === 'bottom') {
     // (Starting from the last push, which is usually still right.)
     if (lastPush) elem.dataset.lwBottomPush = lastPush;
@@ -1237,14 +1238,16 @@ export default function IframeWidgetPlugin({
   useEffect(() => {
     const root = editor.getRootElement();
     if (!root) return;
-    const realign = (event: Event) => {
-      if (!mayRealignAfterGuard(root, event)) return;
+    const realignAll = () => {
       for (const [key, state] of widgetsRef.current) {
         const layout = previewOverrides.current.get(key) ?? state.layout;
         if (state.viewMode === 'preview' && alignOf(layout) === 'bottom') {
           applyPreviewModeToDOM(editor, key, state.previewHeight, layout);
         }
       }
+    };
+    const realign = (event: Event) => {
+      if (mayRealignAfterGuard(root, event, realignAll)) realignAll();
     };
     root.addEventListener(WIDGET_LAYOUT_EVENT, realign);
     return () => root.removeEventListener(WIDGET_LAYOUT_EVENT, realign);

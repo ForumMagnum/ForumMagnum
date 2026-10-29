@@ -209,7 +209,13 @@ export function widgetNeighbourGlobals(view: 'post' | 'editor'): Record<string, 
       : [...(rule.editorAfter ?? []).map(s => `${EDITOR_FLOAT} ~ ${s}`), ...(rule.editor ?? [])];
     if (!selectors.length) continue;
     const key = selectors.join(', ');
-    globals[key] = { ...globals[key], ...rule.style };
+    // (Two rules can make the same selector: their fallbacks are merged, not replaced.)
+    const before = globals[key] ?? {};
+    const merged: Declarations = { ...before, ...rule.style };
+    if (before.fallbacks && rule.style.fallbacks) {
+      merged.fallbacks = { ...before.fallbacks as Record<string, string>, ...rule.style.fallbacks as Record<string, string> };
+    }
+    globals[key] = merged;
   }
   return globals;
 }

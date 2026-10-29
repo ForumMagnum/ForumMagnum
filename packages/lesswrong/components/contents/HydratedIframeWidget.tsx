@@ -143,7 +143,7 @@ function InlineIframeWidget({ srcdoc, title }: {
     // paragraph (without changing its size).
     const column = container.parentElement;
     const realignAfterGuard = (event: Event) => {
-      if (column && mayRealignAfterGuard(column, event)) realign();
+      if (column && mayRealignAfterGuard(column, event, realign)) realign();
     };
     column?.addEventListener(WIDGET_LAYOUT_EVENT, realignAfterGuard);
     return () => {

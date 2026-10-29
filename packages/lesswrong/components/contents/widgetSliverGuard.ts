@@ -46,11 +46,15 @@ function alignedBlock(float: HTMLElement): Element | null {
  */
 export const WIDGET_LAYOUT_EVENT = 'lw-widget-layout';
 
+/** The blocks a root's guard may mark: its own children, and the items of its lists (not deeper: a nested
+ * container with a widget in it has a guard of its own, and a nested item is held by its parent item). */
+const OWN_MARKS = ':scope > [data-lw-below], :scope > :is(ul, ol) > li[data-lw-below]';
+
 export function guardSlivers(root: HTMLElement): void {
-  const before = Array.from(root.querySelectorAll('[data-lw-below]'));
+  const before = Array.from(root.querySelectorAll(OWN_MARKS));
   for (const el of before) el.removeAttribute('data-lw-below');
   markSlivers(root);
-  const after = Array.from(root.querySelectorAll('[data-lw-below]'));
+  const after = Array.from(root.querySelectorAll(OWN_MARKS));
   if (after.length !== before.length || after.some((el, i) => el !== before[i])) {
     root.dispatchEvent(new Event(WIDGET_LAYOUT_EVENT));
   }
@@ -62,17 +66,28 @@ const recentEvents = new WeakMap<HTMLElement, number[]>();
 /**
  * Whether bottom-aligned widgets in `root` may line up again after `event` (a WIDGET_LAYOUT_EVENT): not
  * after more than 4 such events within a second, so the guard and bottom alignment can't keep setting
- * each other off. Each event counts once, however many widgets ask. (Measuring the editor's widget frames
- * again is always fine.)
+ * each other off. Each event counts once, however many widgets ask; a widget turned down gets
+ * `realignLater` called a second later. (Measuring the editor's widget frames again is always fine.)
  */
-export function mayRealignAfterGuard(root: HTMLElement, event: Event): boolean {
+export function mayRealignAfterGuard(root: HTMLElement, event: Event, realignLater: () => void): boolean {
   const times = recentEvents.get(root) ?? [];
   if (!times.includes(event.timeStamp)) {
     times.push(event.timeStamp);
     recentEvents.set(root, times.filter(t => event.timeStamp - t < 1000));
   }
-  return times.filter(t => event.timeStamp - t < 1000 && t <= event.timeStamp).length <= 4;
+  if (times.filter(t => event.timeStamp - t < 1000 && t <= event.timeStamp).length <= 4) return true;
+  // Too often: once things settle, line up once more, so the last change isn't lost.
+  if (!trailing.has(realignLater)) {
+    trailing.add(realignLater);
+    setTimeout(() => {
+      trailing.delete(realignLater);
+      realignLater();
+    }, 1000);
+  }
+  return false;
 }
+
+const trailing = new Set<() => void>();
 
 function markSlivers(root: HTMLElement): void {
   const floats = rootFloats(root);
@@ -85,7 +100,7 @@ function markSlivers(root: HTMLElement): void {
     if (!(el instanceof HTMLElement) || el.matches('.iframe-widget, .iframe-widget-code, .sentinel-paragraph')) continue;
     if (aligned.some(a => a === el)) continue;
     candidates.push(el);
-    if (el.matches('ul, ol')) candidates.push(...Array.from(el.querySelectorAll<HTMLElement>('li')));
+    if (el.matches('ul, ol')) candidates.push(...Array.from(el.querySelectorAll<HTMLElement>(':scope > li')));
   }
   for (const el of candidates) {
     const box = el.getBoundingClientRect();
@@ -123,7 +138,8 @@ export function scheduleSliverGuard(root: HTMLElement | null | undefined): void 
   scheduled.set(root, requestAnimationFrame(() => {
     scheduled.delete(root);
     if (document.body.classList.contains('lw-widget-dragging')) {
-      setTimeout(() => scheduleSliverGuard(root), 150);
+      // Checked again every frame, so it runs in the first frame after the gesture.
+      scheduleSliverGuard(root);
       return;
     }
     guardSlivers(root);
