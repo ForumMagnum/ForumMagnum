@@ -1069,10 +1069,9 @@ type CommentsRssInput = {
 type CommentsShortformFrontpageInput = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  filterSettings?: InputMaybe<Scalars['JSON']['input']>;
   maxAgeDays?: InputMaybe<Scalars['Int']['input']>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
-  relevantTagId?: InputMaybe<Scalars['String']['input']>;
-  showCommunity?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -14413,25 +14412,6 @@ type multiCommentuseCommentQueryQueryVariables = Exact<{
 
 type multiCommentuseCommentQueryQuery = multiCommentuseCommentQueryQuery_Query;
 
-type multiCommentCommentsListCondensedQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & ShortformComments
-);
-
-type multiCommentCommentsListCondensedQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentCommentsListCondensedQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type multiCommentCommentsListCondensedQueryQuery_Query = { __typename?: 'Query', comments: multiCommentCommentsListCondensedQueryQuery_comments_MultiCommentOutput | null };
-
-
-type multiCommentCommentsListCondensedQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiCommentCommentsListCondensedQueryQuery = multiCommentCommentsListCondensedQueryQuery_Query;
-
 type MyHomePageDesignSummariesQuery_myHomePageDesignSummaries_HomePageDesignSummary = { __typename?: 'HomePageDesignSummary', publicId: string, title: string, createdAt: string };
 
 type MyHomePageDesignSummariesQuery_Query = { __typename?: 'Query', myHomePageDesignSummaries: Array<MyHomePageDesignSummariesQuery_myHomePageDesignSummaries_HomePageDesignSummary> };
@@ -15021,6 +15001,24 @@ type CommentActionsQueryVariables = Exact<{
 
 
 type CommentActionsQuery = CommentActionsQuery_Query;
+
+type updateCommentEditQuickTakeTagsDialogMutation_updateComment_CommentOutput_data_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type updateCommentEditQuickTakeTagsDialogMutation_updateComment_CommentOutput = { __typename?: 'CommentOutput', data: updateCommentEditQuickTakeTagsDialogMutation_updateComment_CommentOutput_data_Comment | null };
+
+type updateCommentEditQuickTakeTagsDialogMutation_Mutation = { __typename?: 'Mutation', updateComment: updateCommentEditQuickTakeTagsDialogMutation_updateComment_CommentOutput | null };
+
+
+type updateCommentEditQuickTakeTagsDialogMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateCommentDataInput;
+}>;
+
+
+type updateCommentEditQuickTakeTagsDialogMutation = updateCommentEditQuickTakeTagsDialogMutation_Mutation;
 
 type lockThreadMutation_Mutation = { __typename?: 'Mutation', lockThread: boolean };
 
@@ -24862,7 +24860,7 @@ type CommentsList_Comment_tag_Tag = { __typename?: 'Tag', _id: string, slug: str
 
 type CommentsList_Comment_relevantTags_Tag = (
   { __typename?: 'Tag' }
-  & TagPreviewFragment
+  & TagBasicInfo
 );
 
 type CommentsList_Comment_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null, plaintextMainText: string, wordCount: number };
@@ -24904,13 +24902,8 @@ type ShortformComments_Comment_post_Post = (
   & PostsMinimumInfo
 );
 
-type ShortformComments_Comment_relevantTags_Tag = (
-  { __typename?: 'Tag' }
-  & TagPreviewFragment
-);
-
 type ShortformComments = (
-  { __typename?: 'Comment', post: ShortformComments_Comment_post_Post | null, relevantTags: Array<ShortformComments_Comment_relevantTags_Tag> }
+  { __typename?: 'Comment', post: ShortformComments_Comment_post_Post | null }
   & CommentsList
 );
 
