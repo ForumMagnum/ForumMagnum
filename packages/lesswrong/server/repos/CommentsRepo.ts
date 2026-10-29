@@ -7,7 +7,8 @@ import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import type { ForumTypeString } from "../../lib/instanceSettings";
-import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
+import { getTagFilterMultiplierSql, getTagFilterSelector, getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
+import type { ClassifiedTagFilters } from "@/lib/filterSettings";
 import { joinReaderUpvote, readerFollowedAuthorIds, readerSeesLessOf } from "./aiDigestSqlHelpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
 import { REVIEW_YEAR } from "@/lib/reviewUtils";
@@ -503,6 +504,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     maxTotalComments = 1000,
     initialCandidateLookbackDays: number,
     commentServedEventRecencyHours: number,
+    tagFilters: ClassifiedTagFilters,
     restrictCandidatesToSubscribed = false,
   ): Promise<FeedCommentFromDb[]> {
     const initialCandidateLimit = 500;
@@ -534,7 +536,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
               c."postedAt",
               c.shortform,
-              c."userId" AS "authorId"
+              c."userId" AS "authorId",
+              ${getTagFilterMultiplierSql(tagFilters, 'p')}::FLOAT8 AS "postTagFilterMultiplier"
           FROM "Comments" c
           INNER JOIN "Posts" p ON c."postId" = p._id
           WHERE
@@ -543,6 +546,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
               AND p.unlisted IS NOT TRUE
+              AND ${getTagFilterSelector(tagFilters, 'p')}
               AND (CASE WHEN $(restrictCandidatesToSubscribed) THEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") ELSE TRUE END)
           ORDER BY 
               (CASE WHEN c."reviewingForReview" = $(reviewYear) THEN 0 ELSE 1 END),
@@ -550,7 +554,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           LIMIT $(initialCandidateLimit)
       ),
       "CandidateThreadTopLevelIds" AS (
-          SELECT DISTINCT "threadTopLevelId" FROM "InitialCandidates"
+          SELECT DISTINCT "threadTopLevelId", "postTagFilterMultiplier" FROM "InitialCandidates"
       ),
       "AllRelevantComments" AS (
           -- Fetch all comments belonging to the candidate threads using the distinct IDs
@@ -571,7 +575,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
                 ELSE 'recentComments'
               END AS "primarySource",
               CASE WHEN sa."authorId" IS NOT NULL THEN TRUE ELSE FALSE END AS "fromSubscribedUser",
-              (ic."commentId" IS NOT NULL) AS "isInitialCandidate"
+              (ic."commentId" IS NOT NULL) AS "isInitialCandidate",
+              ct."postTagFilterMultiplier"
           FROM "Comments" c
           JOIN "CandidateThreadTopLevelIds" ct
               ON c."topLevelCommentId" = ct."threadTopLevelId"
@@ -640,6 +645,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           c."primarySource",
           c."fromSubscribedUser",
           c."isInitialCandidate",
+          c."postTagFilterMultiplier",
           ce."lastServed",
           ce."lastViewed",
           ce."lastInteracted",
@@ -687,6 +693,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         lastInteracted: comment.lastInteracted ?? null,
         isRead: !!comment.isRead,
         reviewingForReview: comment.reviewingForReview ?? null,
+        postTagFilterMultiplier: comment.postTagFilterMultiplier,
       };
     });
   }

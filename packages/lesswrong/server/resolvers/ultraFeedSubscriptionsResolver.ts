@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { randomId } from '@/lib/random';
 import { buildDistinctLinearThreads, generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
-import { FilterSettings } from '@/lib/filterSettings';
+import { classifyTagFilters, FilterSettings } from '@/lib/filterSettings';
 import { FeedPostMetaInfo, FeedCommentMetaInfo, UltraFeedResolverType, FeedItemSourceType } from '@/components/ultraFeed/ultraFeedTypes';
 import { backgroundTask } from '../utils/backgroundTask';
 import { 
@@ -205,6 +205,7 @@ export const ultraFeedSubscriptionsQueries = {
         2000, 
         SUBSCRIBED_FEED_DATE_CUTOFFS.initialCommentCandidateLookbackDays,
         SUBSCRIBED_FEED_DATE_CUTOFFS.commentServedEventRecencyHours,
+        classifyTagFilters(subscribedPostFilterSettings.tags, context.forumType),
         true
       )
     ]);
