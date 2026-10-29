@@ -17,8 +17,9 @@ function placedWidget(html: string, layout: string): string {
 }
 
 /**
- * A plain demo widget: a thin outline, a title and a small bar chart, `height` px tall. No background, as
- * for every widget. (It can't say where it is placed: the editor shows widgets without their placement tag.)
+ * A plain demo widget: a title and a small bar chart, `height` px tall. Fully clear, as for every widget: no
+ * background and no outline (Ronny, Oct 29 2026; the outline's right edge also looked cut off, falling on a
+ * fraction of a pixel). (It can't say where it is placed: the editor shows widgets without their placement tag.)
  */
 function demoWidget(layout: string, height: number): string {
   const bars = [40, 70, 55, 90, 65].map((h, i) => `<rect x="${6 + (i * 19)}" y="${100 - h}" width="13" height="${h}" rx="1.5"/>`).join('');
@@ -26,10 +27,10 @@ function demoWidget(layout: string, height: number): string {
     layout ? `<meta name="lw-layout" content="${layout}">` : '',
     '<style>',
     'body{margin:0;font:13px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif;color:#2e6a4b}',
-    `.w{box-sizing:border-box;height:${height}px;border:1.5px solid #5f9b7a;border-radius:6px;padding:10px 12px;display:flex;flex-direction:column}`,
+    `.w{box-sizing:border-box;height:${height}px;display:flex;flex-direction:column}`,
     '.t{font-weight:600}',
     'svg{flex:1;min-height:0;width:100%;margin-top:8px}rect{fill:#5f9b7a;opacity:.7}',
-    '@media (prefers-color-scheme: dark){body{color:#9fd3b4}.w{border-color:#7fbf9a}rect{fill:#7fbf9a}}',
+    '@media (prefers-color-scheme: dark){body{color:#9fd3b4}rect{fill:#7fbf9a}}',
     '</style>',
     `<div class="w"><div class="t">Demo widget</div><svg viewBox="0 0 100 100" preserveAspectRatio="none">${bars}</svg></div>`,
   ].join('\n');
