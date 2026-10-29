@@ -7,30 +7,40 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getLogoUrl } from '../../lib/vulcan-lib/utils';
 import { forumTitleSetting, isEAForum } from '../../lib/instanceSettings';
-import { lightbulbIcon } from '../icons/lightbulbIcon';
+import { eaForumSymbolIcon } from '../icons/eaForumSymbolIcon';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    height: isEAForum ? 34 : 48,
-    [theme.breakpoints.down('sm')]: {
-      height: isEAForum ? 30 : 48,
-    },
+    height: 48,
   },
-  icon: {
-    width: 34,
-    [theme.breakpoints.down("sm")]: {
-      width: 30,
-    },
-  }
+  // The EA Forum symbol is drawn next to the wordmark, which is rendered as
+  // text in the header. 24px tall matches the official logo files.
+  eaSymbol: {
+    display: "block",
+    height: 24,
+    width: "auto",
+  },
+  eaSymbolContrast: {
+    display: "block",
+    height: 24,
+    width: 15,
+  },
 })
 
 const SiteLogo = ({eaContrast, classes}: {
   eaContrast?: boolean,
   classes: ClassesType<typeof styles>;
 }) => {
-  // Use this icon when we want version of the EAF logo with an editable (usually white) color
-  if (isEAForum && eaContrast) {
-    return <div className={classes.icon}>{lightbulbIcon}</div>
+  if (isEAForum) {
+    // Single-colour version for headers with a coloured background
+    if (eaContrast) {
+      return <div className={classes.eaSymbolContrast}>{eaForumSymbolIcon}</div>
+    }
+    return <img
+      className={classes.eaSymbol}
+      src="/ea-forum/ea-forum-symbol.svg"
+      alt=""
+    />
   }
 
   if (!getLogoUrl()) return null
@@ -47,5 +57,3 @@ SiteLogo.displayName = "SiteLogo";
 export default registerComponent(
   'SiteLogo', SiteLogo, {styles}
 );
-
-

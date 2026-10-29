@@ -64,6 +64,9 @@ const textColorOverrideStyles = ({
   "& .Header-titleLink": {
     color,
   },
+  "& .Header-titleForum": {
+    color,
+  },
   "& .SearchBar-searchIcon": {
     color,
   },
@@ -181,10 +184,22 @@ export const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     fontWeight: isFriendlyUI ? 400 : undefined,
     height: isFriendlyUI ? undefined : '19px',
-    
+
     ...(isAF && {
       top: 0,
     }),
+    // The EA Forum wordmark is Inter SemiBold. This matches the official
+    // logo files at 24px tall.
+    ...(isEAForum && {
+      fontSize: 21,
+      fontWeight: 600,
+      letterSpacing: "-0.035em",
+      whiteSpace: "nowrap",
+      color: theme.palette.type === "dark" ? "#fcf8f4" : "#231f1b",
+    }),
+  },
+  titleForum: {
+    color: theme.palette.type === "dark" ? "#8c8681" : "#625d59",
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -301,6 +316,18 @@ export const styles = (theme: ThemeType) => ({
 });
 
 const VOTING_PORTAL_PRIMARY_COLOR = requireCssVar("palette", "givingSeason", "votingPortalPrimary");
+
+/** On the EA Forum, "Forum" is a lighter colour in the wordmark */
+const renderTitle = (title: string, classes: ClassesType<typeof styles>) => {
+  const forumSuffix = " Forum";
+  if (!isEAForum || !title.endsWith(forumSuffix)) {
+    return title;
+  }
+  return <>
+    {title.slice(0, -forumSuffix.length)}{" "}
+    <span className={classes.titleForum}>Forum</span>
+  </>;
+}
 
 const Header = ({
   standaloneNavigationPresent,
@@ -569,7 +596,7 @@ const Header = ({
                     <div className={classes.titleFundraiserContainer}>
                       <Link to="/" className={classes.titleLink}>
                         {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
-                        {forumHeaderTitleSetting.get()}
+                        {renderTitle(forumHeaderTitleSetting.get(), classes)}
                       </Link>
                     </div>
                   </div>
@@ -577,7 +604,7 @@ const Header = ({
                 <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
                   <Link to="/" className={classes.titleLink}>
                     {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
-                    {forumShortTitleSetting.get()}
+                    {renderTitle(forumShortTitleSetting.get(), classes)}
                   </Link>
                 </div>
               </Typography>
