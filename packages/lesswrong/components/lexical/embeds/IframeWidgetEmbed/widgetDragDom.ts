@@ -5,6 +5,7 @@
 import { $getRoot, type LexicalEditor, type LexicalNode } from 'lexical';
 import { $isHeadingNode } from '@lexical/rich-text';
 import { $isFootnoteSectionNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
+import { $isCollapsibleSectionContainerNode } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode';
 import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
 import { $isIframeWidgetNode } from './IframeWidgetNode';
 import type { BlockBox, ColumnRect } from './widgetDragGeometry';
@@ -65,6 +66,7 @@ export function measureBlocks(editor: LexicalEditor): { blocks: BlockBox[], colu
         key,
         index,
         kind: $isHeadingNode(child) ? 'heading'
+          : $isCollapsibleSectionContainerNode(child) ? 'section'
           : $isIframeWidgetNode(child) ? 'widget'
           : $isSentinelParagraphNode(child) ? 'sentinel'
           : clearing ? (elem.matches('hr') ? 'divider' : 'embed')

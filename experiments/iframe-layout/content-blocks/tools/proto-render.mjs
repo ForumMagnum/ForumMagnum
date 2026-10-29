@@ -116,10 +116,11 @@ const all = [];
 try {
   for (const view of views) {
     const ctx = await browser.newContext({ viewport: { width: widths[0], height: 1000 } });
-    await ctx.addInitScript(([key, value]) => { try { localStorage.setItem(key, value); } catch { /* none */ } },
+    // The editor opens on stored edits only with ?specimen (it otherwise always opens on the original post).
+    await ctx.addInitScript(([key, value]) => { try { sessionStorage.setItem(key, value); } catch { /* none */ } },
       [STORAGE_KEY, JSON.stringify({ base, html: specimen })]);
     const page = await ctx.newPage();
-    const url = view === 'editor' ? `${BASE}${ROUTE}/editor` : `${BASE}${ROUTE}`;
+    const url = view === 'editor' ? `${BASE}${ROUTE}/editor?specimen` : `${BASE}${ROUTE}`;
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 240000 });
     await page.waitForSelector(view === 'editor' ? '[data-lexical-editor]' : '[data-testid=widget-drag-post-body]', { timeout: 240000 });
     await page.waitForTimeout(view === 'editor' ? 7000 : 4000);

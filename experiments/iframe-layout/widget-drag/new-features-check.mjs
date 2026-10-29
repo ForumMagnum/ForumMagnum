@@ -107,21 +107,27 @@ try {
   await page.waitForTimeout(500);
   await page.screenshot({ path: path.join(OUT, 'post-bottom.png') });
 
-  // Back in the editor the edit is still there; Reset puts the post back.
+  // Back in the editor it opens on the original post: edits aren't kept (Ronny, Oct 29 2026, Experiment
+  // 3; reloading them into the editor used to garble every widget's code). Reset still reloads it.
   await Promise.all([page.waitForURL(/\/editor/, { timeout: 240000 }), page.click('a:text-is("Editor")')]);
   await page.waitForSelector('[data-testid=widget-overlay]', { state: 'attached', timeout: 240000 });
   await page.waitForTimeout(4000);
-  const kept = await page.evaluate(() => {
+  const reopened = await page.evaluate(() => {
     const ed = document.querySelector('[data-lexical-editor]').__lexicalEditor;
     let text = null;
+    let garbled = 0;
     ed.getEditorState().read(() => {
       for (const [, node] of ed._editorState._nodeMap) {
-        if (node.getType?.() === 'iframe-widget' && /620px-wide box/.test(node.getTextContent())) text = node.getTextContent().split('\n')[0];
+        if (node.getType?.() !== 'iframe-widget') continue;
+        const code = node.getTextContent();
+        if (/&lt;|white-space: pre-wrap/.test(code)) garbled++;
+        if (/620px-wide box/.test(code)) text = code.split('\n')[0];
       }
     });
-    return text;
+    return { text, garbled };
   });
-  check('the editor still has the edit', /position=left width=25% align=bottom/.test(kept ?? ''), String(kept));
+  check('the editor opens on the original post again', /content="position=right width=50%"/.test(reopened.text ?? ''), JSON.stringify(reopened));
+  check('every widget\'s code is intact', reopened.garbled === 0, JSON.stringify(reopened));
   await Promise.all([page.waitForEvent('load', { timeout: 240000 }), page.click('[data-testid=widget-drag-reset]')]);
   await page.waitForSelector('[data-testid=widget-overlay]', { state: 'attached', timeout: 240000 });
   await page.waitForTimeout(4000);

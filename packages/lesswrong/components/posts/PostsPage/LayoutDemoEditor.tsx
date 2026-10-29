@@ -16,7 +16,7 @@ import LexicalEditor from '@/components/editor/LexicalEditor';
 import { IframeWidgetDragContext } from '@/components/lexical/embeds/IframeWidgetEmbed/widgetDragContext';
 import { CENTRAL_COLUMN_WIDTH, LAYOUT_DEMO_PATH } from './constants';
 import { LayoutDemoEditorBar, WIDGET_DRAG_EDITOR_PATH, WidgetBlocksDemoBar } from './LayoutDemoTabs';
-import { WIDGET_DRAG_STORAGE_KEY, demoFingerprint, loadEdits, markEditsUnsaved, saveEdits } from './widgetDragEdits';
+import { WIDGET_DRAG_STORAGE_KEY, clearEdits, demoFingerprint, loadEdits, markEditsUnsaved, saveEdits } from './widgetDragEdits';
 import { WIDGET_BLOCKS_DEMOS, type WidgetBlocksDemoId } from './widgetBlocksDemo';
 
 const styles = defineStyles('LayoutDemoEditor', (theme: ThemeType) => ({
@@ -71,12 +71,18 @@ export function LayoutDemoEditor({ title, initialHtml, widgetDrag: widgetDragPro
   const classes = useStyles(styles);
   const widgetDrag = widgetDragProp || !!blocksDemo;
   const storageKey = blocksDemo ? WIDGET_BLOCKS_DEMOS[blocksDemo].storageKey : WIDGET_DRAG_STORAGE_KEY;
-  // Experiment 2 starts from this browser's edits, if it has any to this version of the post. (Read
-  // once, on the client: the editor only renders there anyway.)
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the editor always opens on the original post, so the
+  // Post tab shows the original too until something is edited here (see widgetDragEdits.ts). The one
+  // exception is for test harnesses (content-blocks/width-sweep.mjs --specimen, tools/proto-render.mjs):
+  // with ?specimen in the URL it opens on the HTML they stored as this tab's edits. (Decided on the
+  // client: the editor only renders there anyway.)
   const base = useMemo(() => demoFingerprint(initialHtml), [initialHtml]);
   const [startHtml, setStartHtml] = useState<string | null>(widgetDrag ? null : initialHtml);
   useEffect(() => {
-    if (widgetDrag) setStartHtml(loadEdits(base, storageKey) ?? initialHtml);
+    if (!widgetDrag) return;
+    const specimen = new URLSearchParams(window.location.search).has('specimen') ? loadEdits(base, storageKey) : null;
+    if (!specimen) clearEdits(storageKey);
+    setStartHtml(specimen ?? initialHtml);
   }, [widgetDrag, base, initialHtml, storageKey]);
   const saveChange = useCallback((html: string) => saveEdits(base, html, storageKey), [base, storageKey]);
   // Loading the post moves the selection to its end, which scrolls the page there. Keep the page at
@@ -101,7 +107,7 @@ export function LayoutDemoEditor({ title, initialHtml, widgetDrag: widgetDragPro
       ? <div className={classes.note}>
         <b>Demo editor.</b> Drag the tab on a widget's top edge to move it. Drag sideways to switch sides.
         Pull a widget's edge to resize it; pull a full-width widget's edge inward to wrap text around it.
-        Your edits stay in this browser and show on the Post tab; Reset puts the post back.
+        Your edits show on the Post tab. The editor always opens on the original post.
       </div>
       : <div className={classes.note}>
         <b>Demo editor, nothing is saved.</b> Hover a widget to see its placement bar: <b>Full width</b>,

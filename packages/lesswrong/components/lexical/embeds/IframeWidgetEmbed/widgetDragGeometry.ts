@@ -19,8 +19,10 @@ export interface BlockBox {
    * caret (BlockCursorNavigationPlugin). Never a drop target; the editor re-adds them after a move.
    * EXPERIMENT (experiment/iframe-layout-ronny-exp3): 'divider' and 'embed' start below a widget the text
    * wraps around (they clear it); a heading sits beside it, but a widget never lines up with one.
+   * 'section': a collapsible section. A widget never lines up with its bottom either: opening or closing
+   * the section would move the widget.
    */
-  kind: 'heading' | 'widget' | 'sentinel' | 'divider' | 'embed' | 'other';
+  kind: 'heading' | 'widget' | 'sentinel' | 'divider' | 'embed' | 'section' | 'other';
   float: 'none' | 'left' | 'right';
   /**
    * It clears the floats before it, so nothing wraps around a float just before it: a full-width

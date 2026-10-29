@@ -10,7 +10,8 @@ Oct 29 2026, about 3am PT. Branch `experiment/iframe-layout-ronny-exp3`.
 | AI Futures post (Experiment 2's post, with Experiment 3's rules) | https://lw-experiment-widget-blocks-c4b9cuhv8val44y0-lesswrong.vercel.app/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e | https://lw-experiment-widget-blocks-c4b9cuhv8val44y0-lesswrong.vercel.app/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/editor |
 
 The bar at the bottom of every page switches between the two posts and between Post and Editor. Your
-edits stay in your browser (each post separately); Reset puts the post back.
+edits show on the Post tab; the editor always opens on the original post (your call, Oct 29: nothing is
+saved between visits). Reset puts the post back.
 
 ## The whole thing in four rules
 
@@ -77,6 +78,12 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   again below the widget.
 - The box rule: if more of it would hang below the widget (still narrow) than sit beside it, it starts
   below the widget.
+- **A collapsible section is placed as it looks open, open or not** (your call, Oct 29: "if the open
+  state would not fit, then the closed state should not fit either"). A section that would hang below
+  the widget when open starts below the widget even while closed. So opening or closing a section never
+  moves it.
+- A widget never lines its bottom up with a collapsible section (it would move whenever the section is
+  opened or closed); dragging over a section's lower half drops the widget after it.
 - A widget inside a quote or section floats inside it, sized against the quote's own width, and the quote
   holds it (the bar runs down past it). In the post, collapsible sections start closed, and a widget
   inside hides with the section.
@@ -197,3 +204,11 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
    CDN). Say yes and I'll install it and run the width sweep in WebKit. Or open the demo in Safari.
 3. **Quotes, sections and lists beside a right widget** flow like text (my call, by eye). If you'd rather
    have one rule for both sides, it's a one-line change.
+4. **Enter in the editor jumps to the footnotes.** Pressing Enter anywhere in the content blocks editor
+   moves the cursor into the footnotes at the end of the post (found Oct 29, not fixed). Investigate?
+
+## Changes on Oct 29 (MacBook session)
+- Collapsible sections are placed as they look open (see above).
+- The editor always opens on the original post. Reopening saved edits garbled every widget's code: each
+  widget showed a long run of escaped code under it, worse with each reload. It happened in Experiment
+  2's editor too (its live deployment is frozen; Reset there clears it).

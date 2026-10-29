@@ -1,6 +1,9 @@
 // EXPERIMENT (experiment/iframe-layout-ronny-exp2): Experiment 2's edits, kept in this browser, so the
-// Post tab shows what was done in the Editor tab and the Editor tab picks up where it was left. Nothing
-// is sent anywhere. Edits made to an older version of the demo post (before a redeploy) are dropped.
+// Post tab shows what was done in the Editor tab. Nothing is sent anywhere. Edits made to an older version
+// of the demo post (before a redeploy) are dropped.
+// EXPERIMENT (experiment/iframe-layout-ronny-exp3): kept for this browser tab only (sessionStorage), and the
+// editor always opens on the original post (Ronny, Oct 29 2026: "no need to save the edits, the default
+// should be the original"). Loading saved edits back into the editor also garbled every widget's code.
 
 // EXPERIMENT (experiment/iframe-layout-ronny-exp3): Experiment 3 keeps each of its demo posts' edits
 // under its own key (see widgetBlocksDemo.ts); Experiment 2 keeps this one.
@@ -19,10 +22,19 @@ export function demoFingerprint(html: string): string {
   return `${html.length.toString(36)}-${hash.toString(36)}`;
 }
 
+/**
+ * This browser tab's storage. Also drops the copy that versions before Oct 29 2026 kept in localStorage
+ * (it outlived the visit, and could hold garbled widget code). Throws where storage is blocked.
+ */
+function tabStorage(storageKey: string): Storage {
+  window.localStorage.removeItem(storageKey);
+  return window.sessionStorage;
+}
+
 /** The edited post's HTML (as the editor exports it), or null if there are no edits to this version. */
 export function loadEdits(base: string, storageKey = WIDGET_DRAG_STORAGE_KEY): string | null {
   try {
-    const raw = window.localStorage.getItem(storageKey);
+    const raw = tabStorage(storageKey).getItem(storageKey);
     if (!raw) return null;
     const stored = JSON.parse(raw) as Partial<StoredEdits>;
     return stored.base === base && typeof stored.html === 'string' ? stored.html : null;
@@ -36,7 +48,7 @@ let waiting: Array<() => void> = [];
 
 export function saveEdits(base: string, html: string, storageKey = WIDGET_DRAG_STORAGE_KEY): void {
   try {
-    window.localStorage.setItem(storageKey, JSON.stringify({ base, html } satisfies StoredEdits));
+    tabStorage(storageKey).setItem(storageKey, JSON.stringify({ base, html } satisfies StoredEdits));
   } catch {
     // Storage can be unavailable (private windows, blocked site data): edits just aren't kept.
   }
@@ -47,7 +59,7 @@ export function saveEdits(base: string, html: string, storageKey = WIDGET_DRAG_S
 
 export function clearEdits(storageKey = WIDGET_DRAG_STORAGE_KEY): void {
   try {
-    window.localStorage.removeItem(storageKey);
+    tabStorage(storageKey).removeItem(storageKey);
   } catch {
     // Storage can be unavailable (private windows, blocked site data): edits just aren't kept.
   }

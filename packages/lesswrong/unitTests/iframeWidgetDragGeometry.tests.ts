@@ -648,6 +648,17 @@ describe('bottom alignment', () => {
     expect([heading.slotKey, alignOf(heading.layout)]).toEqual(['p3', 'top']);
   });
 
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): opening or closing a section would move the widget.
+  it('never lines a widget up with a collapsible section', () => {
+    const blocks = post().map(b => b.key === 'p3' ? { ...b, kind: 'section' as const } : b);
+    // p3 (400 to 480) is now a section: its lower half means the slot after it, at the top of p4.
+    const lower = slot({ blocks, layout: RIGHT_33, pointerX: 600, pointerY: 460, ghostHeight: 50 });
+    expect([lower.slotKey, alignOf(lower.layout)]).toEqual(['p4', 'top']);
+    // Its upper half is still the slot before it.
+    const upper = slot({ blocks, layout: RIGHT_33, pointerX: 600, pointerY: 420, ghostHeight: 50 });
+    expect([upper.slotKey, alignOf(upper.layout)]).toEqual(['p3', 'top']);
+  });
+
   it('gives a full-width widget no alignment', () => {
     const full = slot({ layout: INLINE, pointerY: 160 });
     expect([full.slotKey, alignOf(full.layout)]).toEqual(['p2', 'top']);

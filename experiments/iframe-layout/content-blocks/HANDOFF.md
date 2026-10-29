@@ -218,7 +218,8 @@ folder; their CSS/specimens: tarball `lw-exp3-proto/design/<group>/`.)
   the float at its top), E1 (float before a heading runs on beside it; opposite float warns), S5 (aims below
   every widget at the end of the post, because the AI Futures post's last section now runs beside widgets).
 - `experiments/iframe-layout/content-blocks/tools/`: `proto-render.mjs` (render any specimen HTML in the real
-  editor + Post tab via the localStorage edits key `lwWidgetBlocksEdits:blocks`, inject CSS, per-section
+  editor + Post tab via the edits key `lwWidgetBlocksEdits:blocks`, in sessionStorage since Oct 29, with
+  `?specimen` on the editor URL, the only case where the editor opens on stored edits; inject CSS, per-section
   screenshots + overlap metrics), `widget.mjs`, `with-slot.sh` (4 browser slots; on the MacBook drop it or
   point PW_CHROMIUM at Chrome). `columns-check.mjs` (editor vs post column widths).
 - Tarball `lw-exp3-proto/impl/`: `gen-css.mjs` (prints the CSS the rule table makes, via esbuild + JSS),
@@ -279,3 +280,26 @@ can run it over `ssh studio`, or use your own copy).
 6. Left-only rules match after any earlier left widget (CSS can't see which widget is beside a block); a JS
    mark from the guard could make it exact if Ronny cares.
 7. Columns block: needs importDOM/sanitize/theme work before any widget rule matters.
+
+## 11. Changes on Oct 29 2026 (MacBook session, after the handoff)
+
+- **Collapsible sections are placed as they look open** (Ronny: "if the open state would not fit, then the
+  closed state should not fit either"). `widgetSliverGuard.ts` `openBottom()` opens a closed section
+  (`<details>` in posts, `.detailsBlockClosed`/`.closed` divs in editors) for the measurement and closes it
+  again before anything is drawn; nothing listens for sections toggling. `bottomAlign.ts` never lines a
+  widget up with a `.detailsBlock`, and the drag classifies sections as kind `'section'`
+  (`widgetDragDom.ts`), so it never offers "bottom of" one (unit test added: 48/48). Check:
+  `section-open-check.mjs` in this folder (short section beside, long one below, open and closed, editor and
+  post, 1280/1024/900): all pass.
+- **The editor always opens on the original post; edits live in sessionStorage** (Ronny: "no need to save
+  the edits, the default should be the original"). Cause of the bug he saw: loading exported HTML back
+  into the editor garbled every widget's code (an escaped copy of itself appended, growing with each
+  reload; the Post tab then drew it under each widget). Exports are clean (srcdoc equals the editor's
+  code); the import of exported srcdoc is what breaks. Probable cause: Chrome now escapes `<`/`>` in
+  serialized attributes and the import path doesn't decode them (not confirmed). It affected Exp 2's
+  editor too (frozen live; Reset clears it). `widgetDragEdits.ts` also deletes the old localStorage copies
+  on first use. `?specimen` keeps the test tools working (width-sweep `--specimen`, proto-render).
+  new-features-check now expects the original post (and intact widget code) back in the editor.
+- **Open bug, not fixed:** Enter anywhere in the content blocks editor (paragraph, quote, section) moves
+  the caret into the footnotes section (`OL.footnote-section`) and types there. Not caused by Exp 3's only
+  footnote change (side note HTML). Not yet checked on the AI Futures editors or on exp2/master.

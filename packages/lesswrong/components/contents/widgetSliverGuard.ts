@@ -9,6 +9,8 @@
 // - more of it would hang below the widget, still narrow, than sit beside it. Going below leaves less
 //   empty space (beside the widget) than staying would (under it). List items only get the first check:
 //   one long item going below would leave a hole in the middle of its list.
+// A collapsible section is measured as it looks open, open or not (Ronny, Oct 29 2026: "if the open state
+// would not fit, then the closed state should not fit either"), so opening or closing it never moves it.
 // Text needs no guard: only its lines beside the widget are shortened.
 
 /** A box that starts with less than this much of a widget beside it goes below the widget. */
@@ -89,6 +91,29 @@ export function mayRealignAfterGuard(root: HTMLElement, event: Event, realignLat
 
 const trailing = new Set<() => void>();
 
+/**
+ * Where `el` (whose box is `box`) ends for the guard: a collapsible section where it would end open,
+ * anything else where it ends now. A closed section (the post's <details>, or the editors' div marked
+ * closed) is opened for the measurement and closed again before anything is drawn. Nothing listens for
+ * sections opening, so that has no other effect.
+ */
+function openBottom(el: HTMLElement, box: DOMRect): number {
+  if (!el.matches('.detailsBlock')) return box.bottom;
+  if (el instanceof HTMLDetailsElement) {
+    if (el.open) return box.bottom;
+    el.open = true;
+    const bottom = el.getBoundingClientRect().bottom;
+    el.open = false;
+    return bottom;
+  }
+  const closedClass = ['detailsBlockClosed', 'closed'].find(c => el.classList.contains(c));
+  if (!closedClass) return box.bottom;
+  el.classList.remove(closedClass);
+  const bottom = el.getBoundingClientRect().bottom;
+  el.classList.add(closedClass);
+  return bottom;
+}
+
 function markSlivers(root: HTMLElement): void {
   const floats = rootFloats(root);
   if (!floats.length) return;
@@ -117,7 +142,7 @@ function markSlivers(root: HTMLElement): void {
       const narrowed = side === 'left' ? box.left >= widget.right - 1 : side === 'right' && box.right <= widget.left + 1;
       if (!narrowed) continue;
       const beside = widget.bottom - box.top;
-      const hanging = box.bottom - (widget.bottom + marginBottom);
+      const hanging = openBottom(el, box) - (widget.bottom + marginBottom);
       if (beside < SLIVER_PX || (el.tagName !== 'LI' && hanging > beside)) {
         el.setAttribute('data-lw-below', '');
         break;

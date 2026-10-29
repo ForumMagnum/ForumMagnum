@@ -149,11 +149,12 @@ try {
   const open = async (view) => {
     const ctx = await browser.newContext({ viewport: { width: widths[0], height: 1000 } });
     if (specimen) {
-      await ctx.addInitScript(([key, value]) => { try { localStorage.setItem(key, value); } catch { /* none */ } },
+      // The editor opens on stored edits only with ?specimen (it otherwise always opens on the original post).
+      await ctx.addInitScript(([key, value]) => { try { sessionStorage.setItem(key, value); } catch { /* none */ } },
         [storageKey, JSON.stringify({ base, html: specimen })]);
     }
     const page = await ctx.newPage();
-    await page.goto(`${BASE}${route}${view === 'editor' ? '/editor' : ''}`, { waitUntil: 'domcontentloaded', timeout: 240000 });
+    await page.goto(`${BASE}${route}${view === 'editor' ? `/editor${specimen ? '?specimen' : ''}` : ''}`, { waitUntil: 'domcontentloaded', timeout: 240000 });
     await page.waitForSelector(view === 'editor' ? '[data-lexical-editor]' : '[data-testid=widget-drag-post-body] p', { timeout: 240000 });
     await page.waitForTimeout(view === 'editor' ? 7000 : 5000);
     if (css) await page.addStyleTag({ content: css });

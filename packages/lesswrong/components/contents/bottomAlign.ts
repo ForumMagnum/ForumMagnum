@@ -37,10 +37,13 @@ export function alignFloatBottom(float: HTMLElement, paragraph: HTMLElement | nu
   // up with. One that starts below it (it clears the widget, or doesn't fit beside it) would only move
   // down with every push, so the widget stays at the top of its place. Headings aren't lined up with
   // either: the drag never offers it, and a widget ending on a heading reads as part of the next section.
+  // Nor are collapsible sections: lined up with a section's end, the widget would move whenever a reader
+  // opened or closed it (and posts start them closed, editors open).
   const lastPush = Number(float.dataset.lwBottomPush) || 0;
   apply(0);
   const startTop = paragraph.getBoundingClientRect().top;
-  if (/^H[1-6]$/.test(paragraph.tagName) || getComputedStyle(paragraph).clear !== 'none'
+  if (/^H[1-6]$/.test(paragraph.tagName) || paragraph.matches('.detailsBlock')
+    || getComputedStyle(paragraph).clear !== 'none'
     || contentTop(paragraph) >= float.getBoundingClientRect().bottom - 1) {
     return 0;
   }
