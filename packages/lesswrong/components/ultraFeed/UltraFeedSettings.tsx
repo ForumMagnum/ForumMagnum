@@ -38,6 +38,7 @@ import {
   AdvancedTruncationSettings,
   MultipliersSettings,
   MiscSettings,
+  TagFiltersSettings,
   ExploreExploitBiasSettings,
   ThreadInterestTuningSettings,
   UnifiedScoringSettings,
@@ -216,6 +217,7 @@ const SimpleView: React.FC<SimpleViewProps> = ({
   miscSettingsProps,
 }) => (
   <>
+    <TagFiltersSettings />
     {algorithm === 'scoring' && (
       <UnifiedScoringSettings
         formValues={unifiedScoringFormValues}
@@ -275,6 +277,7 @@ const AdvancedView: React.FC<AdvancedViewProps> = ({
   miscSettingsProps,
 }) => (
   <>
+    <TagFiltersSettings />
     {algorithm === 'scoring' && (
       <UnifiedScoringSettings
         formValues={unifiedScoringFormValues}

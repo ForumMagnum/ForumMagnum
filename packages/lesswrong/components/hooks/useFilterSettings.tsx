@@ -4,7 +4,7 @@ import { useBackgroundQuery, useReadQuery } from '@/lib/crud/useQuery';
 import { getDefaultFilterSettings, FilterSettings, FilterMode, filterModeIsSubscribed, FilterTag } from '@/lib/filterSettings';
 import findIndex from 'lodash/findIndex';
 import filter from 'lodash/filter';
-import { useState, useCallback } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -40,6 +40,42 @@ export const useReadSuggestedTags = (
 }
 
 
+interface FilterSettingsContextValue {
+  filterSettings: FilterSettings,
+  setFilterSettings: (newSettings: FilterSettings) => void,
+}
+
+const FilterSettingsContext = createContext<FilterSettingsContextValue|null>(null);
+
+/**
+ * Holds the frontpage filter settings for the whole app, so that every place
+ * they can be edited (the Recent posts filters, the feed settings, tag
+ * subscribe buttons) stays in sync.
+ */
+export const FilterSettingsContextProvider = ({children}: {
+  children: React.ReactNode
+}) => {
+  const { forumType } = useForumType();
+  const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
+  const [locallySetFilterSettings, setLocallySetFilterSettings] = useState<FilterSettings|null>(null);
+  const defaultFilterSettings = useMemo(() => getDefaultFilterSettings(forumType), [forumType]);
+  const filterSettings = locallySetFilterSettings ?? currentUser?.frontpageFilterSettings ?? defaultFilterSettings;
+
+  const setFilterSettings = useCallback((newSettings: FilterSettings) => {
+    setLocallySetFilterSettings(newSettings);
+    void updateCurrentUser({
+      frontpageFilterSettings: newSettings,
+    });
+  }, [updateCurrentUser]);
+
+  const contextValue = useMemo(() => ({ filterSettings, setFilterSettings }), [filterSettings, setFilterSettings]);
+
+  return <FilterSettingsContext.Provider value={contextValue}>
+    {children}
+  </FilterSettingsContext.Provider>
+}
+
 /**
  * Get the users frontpage tag filter settings, and methods to update them
  *
@@ -59,13 +95,12 @@ export const useReadSuggestedTags = (
  * which we don't wait for.
  */
 export const useFilterSettings = () => {
-  const { forumType } = useForumType();
-  const currentUser = useCurrentUser()
-  const updateCurrentUser = useUpdateCurrentUser()
+  const filterSettingsContext = useContext(FilterSettingsContext);
+  if (!filterSettingsContext) {
+    throw new Error("useFilterSettings must be used inside a FilterSettingsContextProvider");
+  }
+  const { filterSettings, setFilterSettings } = filterSettingsContext;
   const { captureEvent } = useTracking()
-  
-  const defaultSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(forumType)
-  let [filterSettings, setFilterSettingsLocally] = useState<FilterSettings>(defaultSettings)
   
   const [suggestedTagsQueryRef] = useBackgroundQuery(TagBasicInfoMultiQuery, {
     variables: {
@@ -75,15 +110,6 @@ export const useFilterSettings = () => {
     },
   });
 
-  
-  /** Set the whole mess */
-  const setFilterSettings = useCallback((newSettings: FilterSettings) => {
-    setFilterSettingsLocally(newSettings)
-    void updateCurrentUser({
-      frontpageFilterSettings: newSettings,
-    })
-  }, [updateCurrentUser])
-  
   const setPersonalBlogFilter = useCallback((mode: FilterMode) => {
     setFilterSettings({
       personalBlog: mode,

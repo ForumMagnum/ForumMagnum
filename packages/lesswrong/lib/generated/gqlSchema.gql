@@ -1543,7 +1543,7 @@ type UltraFeedEntry {
 }
 
 extend type Query {
-  UltraFeed(limit: Int, cutoff: Date, offset: Int, sessionId: String, settings: JSON): UltraFeedQueryResults!
+  UltraFeed(limit: Int, cutoff: Date, offset: Int, sessionId: String, settings: JSON, filterSettings: JSON): UltraFeedQueryResults!
 }
 
 extend type Query {

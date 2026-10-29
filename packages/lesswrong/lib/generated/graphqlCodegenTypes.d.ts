@@ -8001,6 +8001,7 @@ type QueryTagsByCoreTagIdArgs = {
 
 type QueryUltraFeedArgs = {
   cutoff?: InputMaybe<Scalars['Date']['input']>;
+  filterSettings?: InputMaybe<Scalars['JSON']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   sessionId?: InputMaybe<Scalars['String']['input']>;
@@ -14786,6 +14787,7 @@ type UltraFeedQueryVariables = Exact<{
   offset: InputMaybe<Scalars['Int']['input']>;
   sessionId: InputMaybe<Scalars['String']['input']>;
   settings: InputMaybe<Scalars['JSON']['input']>;
+  filterSettings: InputMaybe<Scalars['JSON']['input']>;
 }>;
 
 

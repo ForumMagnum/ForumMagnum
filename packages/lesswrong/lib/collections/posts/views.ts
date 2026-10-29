@@ -1,8 +1,8 @@
 import moment from 'moment';
 import { timeSeriesIndexExpr, TimeSeries } from './karmaInflation';
 import { getKarmaInflationSeries } from '@/server/karmaInflation/cache';
-import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
-import { adminAccountSetting, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
+import { classifyTagFilters, filterModeToAdditiveKarmaModifier, filterModeToMultiplicativeKarmaModifier, type FilterSettings } from '../../filterSettings';
+import { adminAccountSetting, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
@@ -307,17 +307,11 @@ export function buildInflationAdjustedField(karmaInflationSeries: TimeSeries): a
 }
 
 function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, visitorActivity: DbUserActivity|null, context: ResolverContext): any {
-  // We get the default tag relevance from the database config
-  const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags?.map(t =>
-    t.filterMode === "TagDefault" ? {
-      tagId: t.tagId,
-      tagName: t.tagName,
-      filterMode: defaultVisibilityTags.get(context).find(dft => dft.tagId === t.tagId)?.filterMode || 'Default',
-    } :
-    t
-  ) ?? [];
-  const tagsRequired = tagFilterSettingsWithDefaults.filter(t=>t.filterMode==="Required");
-  const tagsExcluded = tagFilterSettingsWithDefaults.filter(t=>t.filterMode==="Hidden");
+  const {
+    required: tagsRequired,
+    hidden: tagsExcluded,
+    softFiltered: tagsSoftFiltered,
+  } = classifyTagFilters(filterSettings.tags ?? [], context.forumType);
   
   const frontpageFiltering = getFrontpageFilter(filterSettings)
   
@@ -333,10 +327,6 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
       {[`tagRelevance.${tag.tagId}`]: {$exists: false}},
     ]});
   }
-  
-  const tagsSoftFiltered = tagFilterSettingsWithDefaults.filter(
-    t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
-  );
 
   const useSlowerFrontpage = visitorGetsDynamicFrontpage(context.currentUser, context.forumType);
 
@@ -381,32 +371,6 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     },
     syntheticFields,
   };
-}
-
-function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
-  if (typeof mode === "number" && (mode <= 0 || 1 <= mode)) {
-    return mode;
-  } else switch(mode) {
-    default:
-    case "Default": return 0;
-    case "Subscribed": return 25;
-  }
-}
-
-function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
-  // Example: "x10.0" is a multiplier of 10
-  const match = typeof mode === "string" && mode.match(/^x(\d+(?:\.\d+)?)$/);
-  if (match) {
-    return parseFloat(match[1]);
-  } else if (typeof mode === "number" && 0 < mode && mode < 1) {
-    return mode;
-  } else {
-    switch(mode) {
-      default:
-      case "Default": return 1;
-      case "Reduced": return 0.5;
-    }
-  }
 }
 
 // Define standalone view functions

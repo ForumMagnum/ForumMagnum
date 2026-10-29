@@ -1,5 +1,5 @@
 import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
-import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
+import { classifyTagFilters, FilterSettings } from "@/lib/filterSettings";
 import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
 import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendationSettings";
 import { UltraFeedResolverSettings } from "@/components/ultraFeed/ultraFeedSettingsTypes";
@@ -19,6 +19,7 @@ const UNVIEWED_RECOMBEE_CONFIG = {
 export async function getRecommendedPostsForUltraFeed(
   context: ResolverContext,
   limit: number,
+  filterSettings: FilterSettings,
   scenarioId = 'recombee-lesswrong-ultrafeed',
   additionalExcludedIds: string[] = []
 ): Promise<FeedFullPost[]> {
@@ -40,7 +41,8 @@ export async function getRecommendedPostsForUltraFeed(
       userIdOrClientId,
       scenarioId,
       UNVIEWED_RECOMBEE_CONFIG.lookbackDays,
-      limit
+      limit,
+      classifyTagFilters(filterSettings.tags, context.forumType),
     );
     
     const unviewedRatio = unviewedRecombeePostIds.length / limit;
@@ -68,25 +70,13 @@ export async function getRecommendedPostsForUltraFeed(
     }
   }
 
-  let exclusionFilterString: string | undefined = undefined;
-  const allExcludedIds = [
-    ...(currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? []),
-    ...additionalExcludedIds,
-    ...unviewedRecombeePostIds
-  ];
-  
-  if (allExcludedIds.length > 0) {
-    const exclusionFilter = allExcludedIds.map(id => `"${id}"`).join(',');
-    exclusionFilterString = `'itemId' NOT IN {${exclusionFilter}}`;
-  }
-
   const lwAlgoSettings: RecombeeRecommendationArgs = {
     scenario: scenarioId,
-    filterSettings: currentUser?.frontpageFilterSettings,
+    filterSettings,
     skipTopOfListPosts: true,
     rotationRate: 0.5,
     rotationTime: 24 * 30, // 30 days
-    ...(exclusionFilterString && { filter: exclusionFilterString }),
+    excludedPostIds: [...additionalExcludedIds, ...unviewedRecombeePostIds],
   };
 
   const recommendedResults = await recombeeApi.getRecommendationsForUser(recombeeUser, adjustedLimit, lwAlgoSettings, context);
@@ -153,13 +143,10 @@ export async function getLatestAndSubscribedPosts(
   context: ResolverContext,
   limit: number,
   maxAgeDays: number,
+  filterSettings: FilterSettings,
   restrictToFollowedAuthors = false,
 ): Promise<FeedFullPost[]> {
-  const { currentUser, repos } = context;
-
-  const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(context.forumType);
-
-  return await repos.posts.getLatestAndSubscribedFeedPosts(
+  return await context.repos.posts.getLatestAndSubscribedFeedPosts(
     context,
     {
       filterSettings,
@@ -178,17 +165,18 @@ export async function getUltraFeedPostThreads(
   recommendedPostsLimit: number,
   latestAndSubscribedPostsLimit: number,
   settings: UltraFeedResolverSettings,
-  maxAgeDays: number
+  maxAgeDays: number,
+  filterSettings: FilterSettings,
 ): Promise<FeedFullPost[]> {
 
   const recombeeScenario = 'recombee-lesswrong-ultrafeed';
 
   const [recommendedPostItems, latestAndSubscribedPostItems] = await Promise.all([
     (recommendedPostsLimit > 0)
-      ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario)
+      ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, filterSettings, recombeeScenario)
       : Promise.resolve([]),
     (latestAndSubscribedPostsLimit > 0)
-      ? getLatestAndSubscribedPosts(context, latestAndSubscribedPostsLimit, maxAgeDays)
+      ? getLatestAndSubscribedPosts(context, latestAndSubscribedPostsLimit, maxAgeDays, filterSettings)
       : Promise.resolve([]),
   ]);
 
