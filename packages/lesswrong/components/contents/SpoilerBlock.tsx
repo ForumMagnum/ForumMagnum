@@ -193,6 +193,8 @@ const SpoilerBlock = ({ attributes, children, inline = false, hasBlockChildren =
       className={classNames(
         attributes.className,
         inline ? classes.inlineRoot : classes.root,
+        // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a stable name for the widget rules (widgetNeighbours.ts).
+        !inline && 'spoiler-block',
         !inline && !hasBlockChildren && classes.wholeBlockRoot,
         wholeBlockRevealed && classes.revealed,
         inline && !wholeBlockRevealed && classes.inlineHidden,

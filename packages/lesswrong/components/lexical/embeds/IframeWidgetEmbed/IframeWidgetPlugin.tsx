@@ -33,6 +33,8 @@ import { randomId } from '@/lib/random';
 
 import {$createIframeWidgetNode, $isIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
 import { alignFloatBottom, alignedParagraph } from '@/components/contents/bottomAlign';
+import { widgetNeighbourGlobals } from '@/components/contents/widgetNeighbours';
+import { scheduleSliverGuard, widgetContainerWidth } from '@/components/contents/widgetSliverGuard';
 import {
   alignOf, IframeWidgetLayout, IframeWidgetPosition, MIN_TEXT_BESIDE_WIDGET, offeredWidths,
   parseIframeWidgetLayout, sameLayout, setIframeWidgetLayout, shouldWrapWidget, stripIframeWidgetLayout,
@@ -459,10 +461,9 @@ const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
     },
   },
   '@global': {
-    // As in the post, a new section starts below a widget the text wraps around.
-    '.iframe-widget-code[data-lw-wraps] ~ h1, .iframe-widget-code[data-lw-wraps] ~ h2, .iframe-widget-code[data-lw-wraps] ~ h3': {
-      clear: 'both',
-    },
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): how each kind of block behaves next to a widget the
+    // text wraps around, from the same table as the post's rules.
+    ...widgetNeighbourGlobals('editor'),
     // EXPERIMENT (experiment/iframe-layout-ronny-exp2): while a widget is dragged or resized (see
     // widgetGesture.ts), nothing gets selected, scroll anchoring doesn't jump, iframes don't take the
     // pointer, and the other controls step aside.
@@ -490,10 +491,6 @@ const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
     // A float dropped at the very end stays inside the editor.
     '[data-lw-widget-drag] [data-lexical-editor]': {
       display: 'flow-root',
-    },
-    // ...and the footnotes start below it, instead of beside it (their rule and numbers ran through it).
-    '[data-lw-widget-drag] [data-lexical-editor] > .footnote-section': {
-      clear: 'both',
     },
   },
 }));
@@ -527,11 +524,17 @@ type GesturePhase = 'pressed' | 'moving' | 'resizing';
 function placeSpacer(elem: HTMLElement, layout: IframeWidgetLayout | null, columnWidth: number): void {
   const wraps = !!layout && shouldWrapWidget(layout, columnWidth);
   const side = layout?.position === 'left' ? 'left' : 'right';
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a centered widget (hand-written meta only) shows at its
+  // width in a row of its own, as in the post (which shows it full width on phones).
+  const centered = !wraps && layout?.position === 'center' && !!layout.width && window.innerWidth >= 600;
   elem.style.float = wraps ? side : '';
-  elem.style.clear = wraps ? side : '';
-  elem.style.width = wraps ? `${widgetWidthPx(layout!, columnWidth)}px` : '';
-  elem.style.margin = wraps ? (side === 'left' ? `6px ${WRAP_GUTTER}px 16px 0` : `6px 0 16px ${WRAP_GUTTER}px`) : '';
+  elem.style.clear = wraps ? side : centered ? 'both' : '';
+  elem.style.width = wraps ? `${widgetWidthPx(layout!, columnWidth)}px` : centered ? `${widgetWidthPx(layout!, columnWidth)}px` : '';
+  elem.style.margin = wraps ? (side === 'left' ? `6px ${WRAP_GUTTER}px 16px 0` : `6px 0 16px ${WRAP_GUTTER}px`)
+    : centered ? '0 auto' : '';
   elem.toggleAttribute('data-lw-wraps', wraps);
+  if (wraps) elem.dataset.lwSide = side;
+  else delete elem.dataset.lwSide;
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): align=bottom pushes it down beside the end of its
   // paragraph (see bottomAlign); otherwise any push from before goes (the margin above is set again).
   const lastPush = elem.dataset.lwBottomPush;
@@ -562,7 +565,12 @@ function applyPreviewModeToDOM(
   elem.classList.add(PREVIEW_MODE_CLASS);
   elem.dataset.view = 'preview';
   elem.style.height = `${previewHeight}px`;
-  placeSpacer(elem, layout, editorColumnWidth(editor));
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget inside a quote, list item or other block is
+  // sized against that block's text; in a table cell, footnote or column it never wraps.
+  const root = editor.getRootElement();
+  const parent = elem.parentElement;
+  placeSpacer(elem, layout, !parent || parent === root ? editorColumnWidth(editor) : widgetContainerWidth(parent));
+  scheduleSliverGuard(root);
 }
 
 function removePreviewModeFromDOM(
@@ -1206,6 +1214,8 @@ export default function IframeWidgetPlugin({
   // whenever that paragraph's text changes, so it's lined up again after every edit.
   useEffect(() => editor.registerUpdateListener(({ dirtyElements, dirtyLeaves }) => {
     if (dirtyElements.size + dirtyLeaves.size === 0) return;
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the text reflowed, so check the boxes beside widgets.
+    if (widgetsRef.current.size) scheduleSliverGuard(editor.getRootElement());
     let moved = false;
     for (const [key, state] of widgetsRef.current) {
       const layout = previewOverrides.current.get(key) ?? state.layout;
@@ -1653,7 +1663,7 @@ const CHIP_LINE_HEIGHT = 24;
 const MOVE_CHIP_MARGIN = 2;
 /** The chips keep this far from the top of the window (the site header is tucked away while dragging). */
 const CHIP_TOP_MARGIN = 8;
-/** A ghost cut off where a heading starts a new section keeps at least this much height. */
+/** A ghost cut off where a block that clears it starts keeps at least this much height. */
 const MIN_CUT_GHOST = 40;
 
 /**
@@ -1686,7 +1696,7 @@ function moveView(
   if (slot.wraps && side && slot.ghostTop !== null && !slot.noOp) {
     const ghostWidth = Math.min(width, widgetWidthPx(slot.layout, column.width) ?? width);
     const ghostLeft = side === 'left' ? left : left + width - ghostWidth;
-    // It stops where a heading (or a full-width widget) starts the next section, which a taller widget
+    // It stops where a divider, an embed or a full-width widget starts below it, which a taller widget
     // pushes down (the chip says so when the widget, not the text beside it, is what pushes it): drawn
     // across that block, it looked as if the block went beside it.
     const sectionEnd = slot.sectionEnd !== null && slot.ghostTop + ghostHeight > slot.sectionEnd ? slot.sectionEnd : null;
@@ -1747,7 +1757,7 @@ function moveView(
       wraps: slot.wraps,
       sameSlot: slot.sameSlot,
       noOp: slot.noOp,
-      headingSnapped: slot.headingSnapped,
+      snapped: slot.snapped,
       besideOpposite: slot.besideOpposite,
       pushesDown: slot.pushesDown,
     },

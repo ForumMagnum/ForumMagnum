@@ -6,6 +6,7 @@
 import React, { useSyncExternalStore } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import type { ClearingKind } from './widgetDragGeometry';
 
 export interface DragChip {
   text: string;
@@ -44,9 +45,10 @@ export interface MoveDragView {
     wraps: boolean,
     sameSlot: boolean,
     noOp: boolean,
-    headingSnapped: boolean,
+    /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): moved below a divider, embed or full-width widget. */
+    snapped: boolean,
     besideOpposite: boolean,
-    pushesDown: 'heading' | 'widget' | null,
+    pushesDown: ClearingKind | null,
   };
 }
 
@@ -248,7 +250,7 @@ function MoveIndicator({ view }: { view: MoveDragView }) {
     data-wraps={String(attrs.wraps)}
     data-same-slot={String(attrs.sameSlot)}
     data-noop={String(attrs.noOp)}
-    data-heading-snapped={String(attrs.headingSnapped)}
+    data-snapped={String(attrs.snapped)}
     data-beside-opposite={String(attrs.besideOpposite)}
     data-pushes-down={attrs.pushesDown ?? ''}
     data-offscreen={view.offscreen ?? ''}

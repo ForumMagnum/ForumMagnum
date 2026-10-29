@@ -108,7 +108,9 @@ export const HorizScrollBlock = ({children, className, contentsClassName}: {
     };
   }, [updateScrollBounds]);
 
-  return <div className={classNames(classes.scrollIndicatorWrapper, className)}>
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): 'horiz-scroll-block' is a stable name for the widget
+  // rules (widgetNeighbours.ts).
+  return <div className={classNames(classes.scrollIndicatorWrapper, 'horiz-scroll-block', className)}>
     <div
       className={classNames(
         classes.scrollIndicator, classes.scrollIndicatorLeft,
@@ -120,7 +122,7 @@ export const HorizScrollBlock = ({children, className, contentsClassName}: {
       }}
     />
     <div
-      className={classNames(classes.scrollableContents, contentsClassName)}
+      className={classNames(classes.scrollableContents, 'horiz-scroll-block-contents', contentsClassName)}
       ref={scrollableContentsRef}
       onScroll={updateScrollBounds}
     >

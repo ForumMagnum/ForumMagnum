@@ -120,21 +120,42 @@ describe('chooseDropSlot', () => {
     expect(slot({ pointerY: 220, pointerX: 50 }).slotKey).toBe('p2');
   });
 
-  it('moves a widget that wraps below a heading', () => {
-    const snapped = slot({ pointerY: 305, layout: LEFT_33, pointerX: 50 });
-    expect(snapped.beforeKey).toBe('p3');
-    expect(snapped.headingSnapped).toBe(true);
-    // A full-width widget may sit before a heading.
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a heading sits beside a widget instead of clearing it.
+  it('lets a widget that wraps sit right before a heading, but never line up with one', () => {
+    const before = slot({ pointerY: 305, layout: LEFT_33, pointerX: 50 });
+    expect(before.beforeKey).toBe('h');
+    expect(before.snapped).toBe(false);
+    expect(alignOf(before.layout)).toBe('top');
+    // Over the heading's lower half: the slot after it (a heading is no bottom-align target).
+    const after = slot({ pointerY: 335, layout: LEFT_33, pointerX: 50 });
+    expect(after.beforeKey).toBe('p3');
+    expect(alignOf(after.layout)).toBe('top');
     const inline = slot({ pointerY: 305 });
     expect(inline.beforeKey).toBe('h');
-    expect(inline.headingSnapped).toBe(false);
+    expect(inline.snapped).toBe(false);
   });
 
-  it('snaps past consecutive headings', () => {
+  it('moves a widget that wraps below a divider', () => {
+    const blocks = post().map(b => b.key === 'h' ? { ...b, kind: 'divider' as const, clears: true } : b);
+    const snapped = chooseDropSlot({
+      blocks, draggedKey: 'w', pointerX: 50, pointerY: 305, column: COLUMN, layout: LEFT_33, prevSide: null, ghostHeight: 100,
+    });
+    expect(snapped.beforeKey).toBe('p3');
+    expect(snapped.snapped).toBe(true);
+    expect(moveChipText(snapped, LEFT_33)).toBe('Below the divider · Left · 33%');
+    // A full-width widget may sit before a divider.
+    const inline = chooseDropSlot({
+      blocks, draggedKey: 'w', pointerX: 100, pointerY: 305, column: COLUMN, layout: INLINE, prevSide: null, ghostHeight: 100,
+    });
+    expect(inline.beforeKey).toBe('h');
+    expect(inline.snapped).toBe(false);
+  });
+
+  it('snaps past consecutive dividers and embeds', () => {
     const blocks = [
       block('p0', 0, 0),
-      block('h1', 1, 100, 40, 'heading'),
-      block('h2', 2, 160, 40, 'heading'),
+      { ...block('d', 1, 100, 40, 'divider'), clears: true },
+      { ...block('e', 2, 160, 40, 'embed'), clears: true },
       block('p1', 3, 220),
       { ...block('w', 4, 320), kind: 'widget' as const },
     ];
@@ -142,7 +163,8 @@ describe('chooseDropSlot', () => {
       blocks, draggedKey: 'w', pointerX: 50, pointerY: 105, column: COLUMN, layout: LEFT_33, prevSide: null, ghostHeight: 100,
     });
     expect(snapped.beforeKey).toBe('p1');
-    expect(snapped.headingSnapped).toBe(true);
+    expect(snapped.snapped).toBe(true);
+    expect(snapped.snappedBelow).toBe('embed');
   });
 
   it('switches sides from the pointer, keeping the side in the middle band', () => {
@@ -271,12 +293,12 @@ describe('chooseDropSlot', () => {
     expect(slot({ pointerY: 405, layout: LEFT_33, pointerX: 50, ghostHeight: 400 }).besideOpposite).toBe(true);
   });
 
-  it('stops at the next heading or full-width widget, which a taller widget pushes down', () => {
-    // p0 p1 h (a right float at its top) p2 fw p3; w is a left float at the end.
+  it('stops at the next divider or full-width widget, which a taller widget pushes down', () => {
+    // p0 p1 h (a divider, a right float at its top) p2 fw p3; w is a left float at the end.
     const blocks: BlockBox[] = [
       block('p0', 0, 0),
       block('p1', 1, 100),
-      block('h', 2, 200, 40, 'heading'),
+      { ...block('h', 2, 200, 40, 'divider'), clears: true },
       float('fr', 3, 'right', 246, 600),
       block('p2', 4, 240),
       { ...block('fw', 5, 400, 200, 'widget'), clears: true },
@@ -286,32 +308,32 @@ describe('chooseDropSlot', () => {
     const drop = (pointerY: number, ghostHeight: number) => chooseDropSlot({
       blocks, draggedKey: 'w', pointerX: 50, pointerY, column: COLUMN, layout: LEFT_33, prevSide: null, ghostHeight,
     });
-    // Before p1 (line at 90), 400px tall: the right float after the heading would overlap the ghost,
-    // but the heading clears the widget, so that float lands below it and nothing gets narrow.
+    // Before p1 (line at 90), 400px tall: the right float after the divider would overlap the ghost,
+    // but the divider clears the widget, so that float lands below it and nothing gets narrow.
     const tall = drop(105, 400);
     expect(tall.slotKey).toBe('p1');
     expect(tall.besideOpposite).toBe(false);
     expect(tall.sectionEnd).toBe(200);
-    expect(tall.pushesDown).toBe('heading');
-    expect(moveChipText(tall, LEFT_33)).toBe('Left · 33% · pushes the heading down');
+    expect(tall.pushesDown).toBe('divider');
+    expect(moveChipText(tall, LEFT_33)).toBe('Left · 33% · pushes the divider down');
     // A short one fits in its section.
     const short = drop(105, 80);
     expect(short.pushesDown).toBe(null);
     expect(moveChipText(short, LEFT_33)).toBe('Left · 33%');
-    // One that reaches past the heading's top, but not past the end of the text narrowed beside it
-    // (p1's 100px at 62% of the column run to about 251), leaves the heading to the text.
+    // One that reaches past the divider's top, but not past the end of the text narrowed beside it
+    // (p1's 100px at 62% of the column run to about 251), leaves the divider to the text.
     const textDecides = drop(105, 150);
     expect(textDecides.sectionEnd).toBe(200);
     expect(textDecides.pushesDown).toBe(null);
     expect(moveChipText(textDecides, LEFT_33)).toBe('Left · 33%');
-    expect(drop(105, 200).pushesDown).toBe('heading');
-    // Below the heading, the right float at its top is beside it, up to the full-width widget.
+    expect(drop(105, 200).pushesDown).toBe('divider');
+    // Below the divider, the right float at its top is beside it, up to the full-width widget.
     const below = drop(205, 300);
     expect(below.slotKey).toBe('p2');
     expect(below.besideOpposite).toBe(true);
     expect(below.sectionEnd).toBe(400);
     expect(below.pushesDown).toBe('widget');
-    expect(moveChipText(below, LEFT_33)).toBe('Below the heading · Left · 33% · beside another widget: text gets narrow · pushes the widget below down');
+    expect(moveChipText(below, LEFT_33)).toBe('Below the divider · Left · 33% · beside another widget: text gets narrow · pushes the widget below down');
     // A full-width drop stops nothing.
     expect(chooseDropSlot({
       blocks, draggedKey: 'w', pointerX: 50, pointerY: 105, column: COLUMN, layout: INLINE, prevSide: null, ghostHeight: 400,
@@ -343,7 +365,7 @@ describe('chooseDropSlot', () => {
       blocks, draggedKey: 'w', pointerX: 50, pointerY: 205, column: COLUMN, layout: LEFT_33, prevSide: null, ghostHeight: 100,
     });
     expect(below.slotKey).toBe('p2');
-    expect(below.headingSnapped).toBe(true);
+    expect(below.snapped).toBe(true);
     expect(moveChipText(below, LEFT_33)).toBe('Below the widget · Left · 33%');
     // A full-width one may go right before it.
     const full = chooseDropSlot({
@@ -407,7 +429,7 @@ describe('chooseDropSlot', () => {
 
   it('writes the chips', () => {
     const heading = slot({ pointerY: 305, layout: RIGHT_33, pointerX: 600 });
-    expect(moveChipText(heading, RIGHT_33)).toBe('Below the heading · Right · 33%');
+    expect(moveChipText(heading, RIGHT_33)).toBe('Right · 33%');
     expect(moveChipText(slot({ pointerY: 760 }), INLINE)).toBe('End of post · Full width');
     expect(moveChipText(slot({ pointerY: 10 }), INLINE)).toBe('Full width');
   });
@@ -490,24 +512,27 @@ describe('auto-scroll', () => {
 });
 
 describe('keyboard moves', () => {
-  it('steps through the slots, skipping before-heading slots for a widget that wraps', () => {
+  it('steps through the slots, skipping before-divider slots for a widget that wraps', () => {
     const blocks = post();
     // w sits before p5.
     expect(adjacentSlot(blocks, 'w', 'down', false)).toBe(null);
     expect(adjacentSlot(blocks, 'w', 'up', false)).toBe('p4');
     const atTop = post().map(b => b.key === 'w' ? { ...b, index: -1 } : b);
     expect(adjacentSlot(atTop, 'w', 'up', false)).toBe(undefined);
-    // A wrapping widget just below the heading: up skips the slot before the heading.
-    const belowHeading: BlockBox[] = [
+    // A wrapping widget just below a divider: up skips the slot before the divider...
+    const belowDivider: BlockBox[] = [
       block('p0', 0, 0),
-      block('h', 1, 100, 40, 'heading'),
+      { ...block('d', 1, 100, 40, 'divider'), clears: true },
       float('w', 2, 'left', 150, 300),
       block('p1', 3, 150),
       block('p2', 4, 250),
     ];
-    expect(adjacentSlot(belowHeading, 'w', 'up', true)).toBe('p0');
-    expect(adjacentSlot(belowHeading, 'w', 'up', false)).toBe('h');
-    expect(adjacentSlot(belowHeading, 'w', 'down', true)).toBe('p2');
+    expect(adjacentSlot(belowDivider, 'w', 'up', true)).toBe('p0');
+    expect(adjacentSlot(belowDivider, 'w', 'up', false)).toBe('d');
+    expect(adjacentSlot(belowDivider, 'w', 'down', true)).toBe('p2');
+    // ...but not the one before a heading (EXPERIMENT experiment/iframe-layout-ronny-exp3: it sits beside).
+    const belowHeading = belowDivider.map(b => b.key === 'd' ? { ...b, kind: 'heading' as const, clears: false } : b);
+    expect(adjacentSlot(belowHeading, 'w', 'up', true)).toBe('d');
     // At the end there is no further down.
     const last = [...post().filter(b => b.key !== 'p5')];
     expect(adjacentSlot(last, 'w', 'down', false)).toBe(undefined);

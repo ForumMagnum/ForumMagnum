@@ -7,6 +7,8 @@ import { injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT } from '@/
 import classNames from 'classnames';
 import { alignOf, parseIframeWidgetLayout, shouldWrapWidget } from './iframeWidgetLayout';
 import { alignFloatBottom, alignedParagraph, clearFloatBottom } from './bottomAlign';
+import { widgetNeighbourGlobals } from './widgetNeighbours';
+import { scheduleSliverGuard, widgetContainerWidth } from './widgetSliverGuard';
 
 /** Width of the text column the widget sits in, kept current as the window or text width changes. */
 function useColumnWidth(iframeRef: React.RefObject<HTMLIFrameElement | null>, enabled: boolean): number | null {
@@ -14,7 +16,10 @@ function useColumnWidth(iframeRef: React.RefObject<HTMLIFrameElement | null>, en
   useEffect(() => {
     const column = iframeRef.current?.closest('.iframe-widget')?.parentElement;
     if (!enabled || !column) return;
-    const measure = () => setColumnWidth(column.clientWidth);
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget inside a quote, list item or other block is
+    // sized and wrapped against that block's text (its content box); one in a table cell, a footnote or a
+    // column never wraps (see widgetContainerWidth).
+    const measure = () => setColumnWidth(widgetContainerWidth(column));
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(column);
@@ -45,19 +50,28 @@ const styles = defineStyles('HydratedIframeWidget', (theme: ThemeType) => ({
     borderRadius: 4,
   },
   // EXPERIMENT (experiment/iframe-layout-ronny): author-chosen placement, see iframeWidgetLayout.ts.
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a centered widget gets a row of its own, below any
+  // widget the text wraps around (as a full-width one does).
   center: {
     display: 'block',
     margin: '16px auto',
+    clear: 'both',
   },
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): positioned, so a block beside it that makes its own
+  // layer (AI content's opacity, an embed's positioned frame) can't paint over it or take its clicks.
   floatLeft: {
     float: 'left',
     clear: 'left',
     margin: '6px 32px 16px 0',
+    position: 'relative',
+    zIndex: 1,
   },
   floatRight: {
     float: 'right',
     clear: 'right',
     margin: '6px 0 16px 32px',
+    position: 'relative',
+    zIndex: 1,
   },
   // On phones there's no room to wrap text, so every widget goes back to full width.
   narrowScreenFullWidth: {
@@ -67,16 +81,9 @@ const styles = defineStyles('HydratedIframeWidget', (theme: ThemeType) => ({
       margin: '16px 0',
     },
   },
-  '@global': {
-    // A new section starts below any floated widget instead of wrapping beside it. The widget is
-    // rendered inside the post's `.iframe-widget` div, so match the headings after that div.
-    [[
-      '.iframe-widget:has(> .lwFloatedWidget) ~ h1',
-      '.iframe-widget:has(> .lwFloatedWidget) ~ h2',
-    ].join(', ')]: {
-      clear: 'both',
-    },
-  },
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): how each kind of block behaves next to a floated
+  // widget (the same table makes the editor's rules).
+  '@global': widgetNeighbourGlobals('post'),
 }));
 
 function InlineIframeWidget({ srcdoc, title }: {
@@ -137,6 +144,20 @@ function InlineIframeWidget({ srcdoc, title }: {
     };
   }, [bottom, height, columnWidth]);
 
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): boxes that start beside only the widget's last few
+  // pixels go below it (widgetSliverGuard), checked again whenever the post's text reflows.
+  useLayoutEffect(() => {
+    const column = iframeRef.current?.closest('.iframe-widget')?.parentElement;
+    if (!floated || !column) return;
+    scheduleSliverGuard(column);
+    const observer = new ResizeObserver(() => scheduleSliverGuard(column));
+    observer.observe(column);
+    return () => {
+      observer.disconnect();
+      scheduleSliverGuard(column);
+    };
+  }, [floated, height, columnWidth]);
+
   return (
     <iframe
       srcDoc={injectResizeScript(srcdoc)}
@@ -144,6 +165,7 @@ function InlineIframeWidget({ srcdoc, title }: {
       scrolling="no"
       title={title ?? 'Embedded widget'}
       data-lexical-iframe-widget="true"
+      data-lw-side={floated ? layout.position : undefined}
       // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the phone override is for centered widgets only. A
       // left/right widget follows the one wrap rule (300px of text beside it) at every width, as in the
       // editor; on a phone no width leaves that much room, so it shows full width there anyway.

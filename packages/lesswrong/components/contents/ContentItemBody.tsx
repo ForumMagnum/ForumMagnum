@@ -430,10 +430,14 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
           {result}
         </WrappedStrawPoll>
       }
+      // EXPERIMENT (experiment/iframe-layout-ronny-exp3): set when a widget placeholder (which has no children
+      // of its own) is replaced, so a widget inside a quote, list or other block renders too.
+      let hydratedWidget = false;
       if (classNames.includes("iframe-widget")) {
         const widgetId = attribs['data-iframe-widget-id'];
         if (widgetId) {
           result = <HydratedIframeWidget widgetId={widgetId} attribs={attribs} />;
+          hydratedWidget = true;
         }
       }
       if (classNames.includes("ck-cta-button")) {
@@ -492,7 +496,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
         >
           {result}
         </HoverPreviewLink>
-      } else if (parsedHtml.childNodes.length > 0) {
+      } else if (parsedHtml.childNodes.length > 0 || hydratedWidget) {
         return <TagName {...attribs}>
           {result}
         </TagName>

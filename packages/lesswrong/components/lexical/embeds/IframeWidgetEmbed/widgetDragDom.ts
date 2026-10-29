@@ -8,6 +8,7 @@ import { $isFootnoteSectionNode } from '@/components/editor/lexicalPlugins/footn
 import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
 import { $isIframeWidgetNode } from './IframeWidgetNode';
 import type { BlockBox, ColumnRect } from './widgetDragGeometry';
+import { EDITOR_CLEARING_BLOCKS } from '@/components/contents/widgetNeighbours';
 
 /**
  * The next sibling that is content, skipping the empty sentinel paragraphs the editor keeps around
@@ -56,15 +57,20 @@ export function measureBlocks(editor: LexicalEditor): { blocks: BlockBox[], colu
       if (!elem) continue;
       const rect = elem.getBoundingClientRect();
       const { float, clear } = getComputedStyle(elem);
+      // EXPERIMENT (experiment/iframe-layout-ronny-exp3): dividers and embeds start below a widget the text
+      // wraps around, but only once one floats before them, so they're known by kind, not by their style
+      // now. (A box the sliver guard moved below a widget doesn't count: that depends on where it is now.)
+      const clearing = elem.matches(EDITOR_CLEARING_BLOCKS);
       blocks.push({
         key,
         index,
         kind: $isHeadingNode(child) ? 'heading'
           : $isIframeWidgetNode(child) ? 'widget'
           : $isSentinelParagraphNode(child) ? 'sentinel'
+          : clearing ? (elem.matches('hr') ? 'divider' : 'embed')
           : 'other',
         float: float === 'left' || float === 'right' ? float : 'none',
-        clears: clear !== 'none',
+        clears: clearing || (clear !== 'none' && !elem.hasAttribute('data-lw-below')),
         top: rect.top,
         bottom: rect.bottom,
       });

@@ -626,12 +626,11 @@ export default function ImageComponent({
   const showToolbar = isFocused && !isResizing && isEditable;
   const isCaptionButtonActive = showCaption && captionsEnabled;
 
-  useEffect(() => {
-    const imageElement = imageRef.current;
-    if (!imageElement) {
-      return;
-    }
-    const figureElement = imageElement.closest('figure');
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a ref callback rather than an effect, because the
+  // image loads in a Suspense boundary: an effect ran before the image was there and never again, so an
+  // image resized by its author showed at full width when the post was opened.
+  const applyFigureWidth = useCallback((elem: HTMLElement | null) => {
+    const figureElement = elem?.closest('figure');
     if (!figureElement) {
       return;
     }
@@ -670,7 +669,8 @@ export default function ImageComponent({
   return (
     <Suspense fallback={null}>
       {modal}
-      <div className={classes.imageContainer}>
+      {/* EXPERIMENT (experiment/iframe-layout-ronny-exp3): 'lw-image-container' is a stable name for the widget rules (widgetNeighbours.ts). */}
+      <div className={classNames(classes.imageContainer, 'lw-image-container')} ref={applyFigureWidth}>
         {showToolbar && (
           <div className={classes.toolbar}>
             <button

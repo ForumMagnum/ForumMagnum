@@ -535,6 +535,11 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     flex: 'auto',
     // Account for the -50px left margin so content fills the full container width
     maxWidth: 'calc(100% + 50px)',
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a flex item grows to fit its widest content by
+    // default, so a long equation or code line made the text column up to 50px wider than the post's
+    // (and widgets wrapped at window widths where the post shows them full width). Wide content scrolls
+    // in its own box instead, as in the post.
+    minWidth: 0,
     position: 'relative',
     resize: 'vertical',
     minHeight: '100%',

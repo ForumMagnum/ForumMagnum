@@ -17,12 +17,14 @@ export interface BlockBox {
   /**
    * 'sentinel': an empty, zero-height paragraph the editor keeps on each side of a widget for the
    * caret (BlockCursorNavigationPlugin). Never a drop target; the editor re-adds them after a move.
+   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): 'divider' and 'embed' start below a widget the text
+   * wraps around (they clear it); a heading sits beside it, but a widget never lines up with one.
    */
-  kind: 'heading' | 'widget' | 'sentinel' | 'other';
+  kind: 'heading' | 'widget' | 'sentinel' | 'divider' | 'embed' | 'other';
   float: 'none' | 'left' | 'right';
   /**
    * It clears the floats before it, so nothing wraps around a float just before it: a full-width
-   * widget on the Experiment 2 page, or a heading after a widget the text wraps around.
+   * widget on the Experiment 2 and 3 pages, or a divider or embed after a widget the text wraps around.
    */
   clears?: boolean;
   top: number;
@@ -61,12 +63,12 @@ export interface DropSlot {
   /** Same slot and same layout: dropping changes nothing. */
   noOp: boolean;
   /**
-   * Aimed just before a heading or a full-width widget, so moved below it (and any more of them right
-   * after it).
+   * Aimed just before a block that clears it (a divider, an embed, a full-width widget), so moved below
+   * it (and any more of them right after it).
    */
-  headingSnapped: boolean;
+  snapped: boolean;
   /** What it was moved below, for the chip (the last of them). */
-  snappedBelow: 'heading' | 'widget' | null;
+  snappedBelow: ClearingKind | null;
   /**
    * A full-width drop lands below a float that still runs beside the gap (it clears it), so lineY is
    * moved down to there.
@@ -77,21 +79,28 @@ export interface DropSlot {
   /** A float on the other side would sit beside it, squeezing the text between them. */
   besideOpposite: boolean;
   /**
-   * Client y of the first block after the slot that starts a new section below the widget (a heading,
-   * which then clears it, or a full-width widget): the ghost stops there. Null if there is none, or
-   * the widget doesn't wrap.
+   * Client y of the first block after the slot that starts below the widget (a divider, an embed or a
+   * full-width widget, which clear it): the ghost stops there. Null if there is none, or the widget
+   * doesn't wrap.
    */
   sectionEnd: number | null;
   /**
    * The widget that wraps reaches below where its section's text (narrowed beside it) ends, so the
    * widget itself pushes that block down.
    */
-  pushesDown: 'heading' | 'widget' | null;
+  pushesDown: ClearingKind | null;
   /** The pointer is in the left or right zone of the column (see chooseSide), or neither. */
   pointerSide: WidgetSide | null;
   atEnd: boolean;
   /** Client y of the top of the ghost box, for a drop that wraps. */
   ghostTop: number | null;
+}
+
+/** What a block that clears a widget is, for the chips. */
+export type ClearingKind = 'divider' | 'embed' | 'widget';
+
+function clearingKind(block: BlockBox): ClearingKind {
+  return block.kind === 'divider' || block.kind === 'embed' ? block.kind : 'widget';
 }
 
 /** Floats keep this much space below them (their bottom margin). */
@@ -230,12 +239,12 @@ export function chooseDropSlot({
     }
   }
   if (wraps) target = withAlign(target, align);
-  // A widget the text wraps around goes below a heading or a full-width widget, never just before it
-  // (that block would clear it and leave it beside nothing).
+  // A widget the text wraps around goes below a block that clears it (a divider, an embed, a full-width
+  // widget), never just before it (it would sit beside nothing).
   let snappedBelow: DropSlot['snappedBelow'] = null;
   if (wraps) {
-    while (beforeIndex < flow.length && (flow[beforeIndex].kind === 'heading' || flow[beforeIndex].clears)) {
-      snappedBelow = flow[beforeIndex].kind === 'heading' ? 'heading' : 'widget';
+    while (beforeIndex < flow.length && flow[beforeIndex].clears) {
+      snappedBelow = clearingKind(flow[beforeIndex]);
       beforeIndex++;
     }
   }
@@ -298,10 +307,10 @@ export function chooseDropSlot({
       top = Math.max(top, before.bottom - ghostHeight);
       lineY = before.bottom;
     }
-    // The next heading clears the widget once it's dropped (as does a full-width widget), so the
-    // widget and whatever floats beside it stop there: a taller widget pushes that block, and every
-    // float after it, down below itself.
-    const end = flow.slice(beforeIndex + 1).find(b => b.kind === 'heading' || b.clears);
+    // The next divider, embed or full-width widget clears the widget once it's dropped, so the widget and
+    // whatever floats beside it stop there: a taller widget pushes that block, and every float after it,
+    // down below itself.
+    const end = flow.slice(beforeIndex + 1).find(b => b.clears);
     const bottom = top + ghostHeight;
     besideOpposite = others.some(b => b.float !== 'none' && b.float !== side && (!end || b.index < end.index)
       && b.top < bottom && b.bottom > top);
@@ -314,7 +323,7 @@ export function chooseDropSlot({
       const beside = column.width - (widgetWidthPx(target, column.width) ?? column.width) - WRAP_GUTTER;
       const share = column.width > 0 ? clamp(beside / column.width, 0, 1) : 1;
       if (top + (ghostHeight * share) > end.top) {
-        pushesDown = end.kind === 'heading' ? 'heading' : 'widget';
+        pushesDown = clearingKind(end);
       }
     }
     ghostTop = top;
@@ -329,7 +338,7 @@ export function chooseDropSlot({
     wraps,
     sameSlot,
     noOp,
-    headingSnapped: snappedBelow !== null,
+    snapped: snappedBelow !== null,
     snappedBelow,
     clearsFloat,
     stacked: ghostTop !== null && ghostTop > lineY + 1,
@@ -423,15 +432,15 @@ export function autoScrollStep(clientY: number, viewportHeight: number): number 
 /**
  * The slot one step up or down from the widget's current one, for keyboard moves: the key of the flow
  * block it is above (see insertionKey for where the widget then goes), or null for the end of the
- * post; undefined if there's nowhere to go. For a widget that wraps, slots just before a heading or a
- * full-width widget are skipped (as in chooseDropSlot).
+ * post; undefined if there's nowhere to go. For a widget that wraps, slots just before a block that
+ * clears it are skipped (as in chooseDropSlot).
  */
 export function adjacentSlot(blocks: BlockBox[], draggedKey: string, direction: 'up' | 'down', wraps: boolean): string | null | undefined {
   const dragged = blocks.find(b => b.key === draggedKey);
   if (!dragged) return undefined;
   const flow = flowBlocks(blocks, draggedKey);
   const candidates: Array<{ key: string | null, index: number }> = [
-    ...flow.filter(b => !(wraps && (b.kind === 'heading' || b.clears))).map(b => ({ key: b.key, index: b.index })),
+    ...flow.filter(b => !(wraps && b.clears)).map(b => ({ key: b.key, index: b.index })),
     { key: null, index: Infinity },
   ];
   const current = flow.find(b => b.index > dragged.index)?.index ?? Infinity;
@@ -467,7 +476,7 @@ export function moveChipText(slot: DropSlot, storedLayout: IframeWidgetLayout): 
   const side = widgetSide(slot.layout);
   const parts: string[] = [];
   if (slot.atEnd) parts.push('End of post');
-  if (slot.snappedBelow) parts.push(slot.snappedBelow === 'heading' ? 'Below the heading' : 'Below the widget');
+  if (slot.snappedBelow) parts.push(`Below the ${slot.snappedBelow}`);
   if (slot.wraps && side) {
     parts.push(`${sideLabel(side)} · ${slot.layout.width}`);
     if (alignOf(slot.layout) === 'bottom') parts.push('bottom of the paragraph');
@@ -479,7 +488,7 @@ export function moveChipText(slot: DropSlot, storedLayout: IframeWidgetLayout): 
   if (slot.stacked) parts.push('below the widget on that side');
   if (slot.clearsFloat) parts.push('below the widget beside it');
   if (slot.besideOpposite) parts.push('beside another widget: text gets narrow');
-  if (slot.pushesDown) parts.push(slot.pushesDown === 'heading' ? 'pushes the heading down' : 'pushes the widget below down');
+  if (slot.pushesDown) parts.push(slot.pushesDown === 'widget' ? 'pushes the widget below down' : `pushes the ${slot.pushesDown} down`);
   return parts.join(' · ');
 }
 
