@@ -14,8 +14,13 @@
  * author when a width leaves the widget too small (see IframeWidgetFit).
  */
 
+// EXPERIMENT (experiment/iframe-layout-ronny-exp3): the content sits 1px inside the frame on every side.
+// At a fractional zoom (90% on a 2x screen, say) a frame's edges fall between device pixels, and Chrome
+// trims the partial pixel at the frame's edge: a border drawn at the widget's edge showed a third thinner
+// on the right than on the left (Ronny, Oct 29 2026). That pixel now falls in the 1px gap instead.
 const FIT_STYLE = `<style>
 html, body { overflow: hidden !important; height: auto !important; min-height: 0 !important; max-height: none !important; }
+html { padding: 1px !important; }
 </style>`;
 
 function resizeScript(measure: boolean): string {
@@ -52,14 +57,17 @@ function resizeScript(measure: boolean): string {
     var root = document.documentElement;
     body.style.zoom = '1';
     var cs = getComputedStyle(body);
-    var available = root.clientWidth;
+    var rootStyle = getComputedStyle(root);
+    // The page's own padding (the 1px inset in FIT_STYLE) isn't room for content.
+    var inset = (parseFloat(rootStyle.paddingLeft) || 0) + (parseFloat(rootStyle.paddingRight) || 0);
+    var available = root.clientWidth - inset;
     // The page itself can't scroll, so it reports its own width; ask the body how wide its content is.
-    var needed = Math.max(root.scrollWidth,
+    var needed = Math.max(root.scrollWidth - inset,
       body.scrollWidth + (parseFloat(cs.marginLeft) || 0) + (parseFloat(cs.marginRight) || 0));
     var zoom = needed > available + 1 ? available / needed : 1;
     var text = MEASURE ? smallestText() : null;
     body.style.zoom = zoom < 1 ? String(zoom) : '';
-    return { width: available, zoom: zoom, text: text };
+    return { width: root.clientWidth, zoom: zoom, text: text };
   }
   function contentHeight() {
     var body = document.body;

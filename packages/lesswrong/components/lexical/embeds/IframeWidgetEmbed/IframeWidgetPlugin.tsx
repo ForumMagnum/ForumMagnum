@@ -1491,8 +1491,21 @@ export default function IframeWidgetPlugin({
     const restore = () => {
       previewOverrides.current.delete(key);
       const state = widgetsRef.current.get(key);
-      if (state?.viewMode === 'preview') relayout(state.previewHeight, state.layout);
-      else scheduleMeasure();
+      if (state?.viewMode !== 'preview') {
+        scheduleMeasure();
+        return;
+      }
+      // EXPERIMENT (experiment/iframe-layout-ronny-exp3): back at its starting width, the widget is as tall
+      // as when the gesture started. Its frame reported the preview width's height meanwhile; keeping that
+      // until the frame reported again moved everything below the widget a few frames after Escape.
+      relayout(start.previewHeight, state.layout);
+      setWidgets((prev) => {
+        const now = prev.get(key);
+        if (!now || (now.previewHeight === start.previewHeight && now.fit === start.fit)) return prev;
+        const next = new Map(prev);
+        next.set(key, { ...now, previewHeight: start.previewHeight, fit: start.fit });
+        return next;
+      });
     };
     setGesture({ key, phase: 'pressed' });
     cancelGesture.current = startPointerGesture(e.nativeEvent, {

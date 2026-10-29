@@ -303,3 +303,15 @@ can run it over `ssh studio`, or use your own copy).
 - **Open bug, not fixed:** Enter anywhere in the content blocks editor (paragraph, quote, section) moves
   the caret into the footnotes section (`OL.footnote-section`) and types there. Not caused by Exp 3's only
   footnote change (side note HTML). Not yet checked on the AI Futures editors or on exp2/master.
+- **S8 (drag-check) was flaky, fixed:** after Escape on a resize, the widget kept the height its frame had
+  reported at the narrow preview width, so everything below it moved again a few frames later when the frame
+  reported its real height (overlays 15px off for ~100ms; failed about 1 run in 5). `restore()` in
+  `startResize` now puts back the height and fit from the gesture's start. 8/8 runs pass.
+- **Widget content sits 1px inside its frame** (`FIT_STYLE` in iframeResizeScript.ts; `fitWidth` subtracts the
+  inset): at fractional zooms (90% on a 2x screen) Chrome trims the partial device pixel at a frame's edge, so
+  a border at the widget's edge was a third thinner on the right. Measured at scale 1.8: right/left border
+  width 1.29/1.81 device px before, 1.81/1.75 after; also fixed at 1.5, unchanged at 1 and 2.
+- **Known editor/post mismatch (not fixed):** a paragraph plus a quote beside a widget are about 14px taller
+  in the post than in the editor, so a box near a widget's bottom can land beside it in one and below it in
+  the other (width-sweep "drift": the first collapsible section at 560, 640, 680px).
+

@@ -209,6 +209,10 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
 
 ## Changes on Oct 29 (MacBook session)
 - Collapsible sections are placed as they look open (see above).
+- Widget borders render whole: a widget's content now sits 1px inside its frame, so at zooms like 90%
+  the right edge is no longer trimmed (it was a third thinner than the left). The demo widgets are clear,
+  with no outline, as you asked.
+- Escape during a resize puts the widget back exactly, with no jump a moment later.
 - The editor always opens on the original post. Reopening saved edits garbled every widget's code: each
   widget showed a long run of escaped code under it, worse with each reload. It happened in Experiment
   2's editor too (its live deployment is frozen; Reset there clears it).
