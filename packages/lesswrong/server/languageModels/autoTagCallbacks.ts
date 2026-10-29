@@ -59,6 +59,10 @@ const autoTagDecisionSchema = z.object({
 const autoTagDecisionsSchema = z.object(mapValues(AUTO_TAG_RUBRICS, () => autoTagDecisionSchema));
 export type AutoTagDecisions = z.infer<typeof autoTagDecisionsSchema>;
 
+export function isAutoTaggablePost(post: Pick<DbPost, "isEvent" | "shortform">): boolean {
+  return !post.isEvent && !post.shortform;
+}
+
 export async function classifyAutoTags(
   post: Pick<DbPost, "title" | "url" | "contents_latest">,
   context: ResolverContext,

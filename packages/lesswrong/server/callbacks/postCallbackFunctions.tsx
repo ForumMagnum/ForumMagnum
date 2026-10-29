@@ -17,7 +17,7 @@ import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from 
 import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { updatePostEmbeddings } from "../embeddings";
-import { getAutoTagsToApply, getTagBotAccount } from "../languageModels/autoTagCallbacks";
+import { getAutoTagsToApply, getTagBotAccount, isAutoTaggablePost } from "../languageModels/autoTagCallbacks";
 import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { createNotifications, getSubscribedUsers, getUsersWhereLocationIsInNotificationRadius } from "../notificationCallbacksHelpers";
@@ -202,6 +202,9 @@ const utils = {
   },
 
   applyAutoTags: async (post: DbPost, context: ResolverContext) => {
+    if (!isAutoTaggablePost(post)) {
+      return;
+    }
     const tagBot = await getTagBotAccount(context);
     if (!tagBot) {
       if (!isAnyTest && !isE2E) {
