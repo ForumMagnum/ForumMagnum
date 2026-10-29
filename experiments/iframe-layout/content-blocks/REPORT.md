@@ -204,8 +204,9 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
    CDN). Say yes and I'll install it and run the width sweep in WebKit. Or open the demo in Safari.
 3. **Quotes, sections and lists beside a right widget** flow like text (my call, by eye). If you'd rather
    have one rule for both sides, it's a one-line change.
-4. **Enter in the editor jumps to the footnotes.** Pressing Enter anywhere in the content blocks editor
-   moves the cursor into the footnotes at the end of the post (found Oct 29, not fixed). Investigate?
+4. **50% inside a quote, list item or section.** It can't wrap there at the normal width (a quote leaves
+   291px of text beside it, a list item 289, a section 296, under the 300px rule), so it shows full width.
+   Keep the rule, or lower it to about 285px?
 
 ## Changes on Oct 29 (MacBook session)
 - Collapsible sections are placed as they look open (see above).
@@ -213,6 +214,9 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   the right edge is no longer trimmed (it was a third thinner than the left). The demo widgets are clear,
   with no outline, as you asked.
 - Escape during a resize puts the widget back exactly, with no jump a moment later.
+- Widgets inside a quote, list item or collapsible section have the gear and resize edges like any other
+  widget, sized against that block's text. (They still can't be dragged out of their block.)
+- The editor keeps the gap between a quote and a collapsible section, as the post does.
 - The editor always opens on the original post. Reopening saved edits garbled every widget's code: each
   widget showed a long run of escaped code under it, worse with each reload. It happened in Experiment
   2's editor too (its live deployment is frozen; Reset there clears it).

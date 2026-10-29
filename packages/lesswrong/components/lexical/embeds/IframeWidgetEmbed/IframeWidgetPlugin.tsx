@@ -52,7 +52,7 @@ import { $reconcileSentinels } from '@/components/editor/lexicalPlugins/blockCur
 import { SentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
 import { IframeWidgetDragContext } from './widgetDragContext';
 import { OPTIONS_MENU_WIDTH, WidgetOptionsMenu } from './WidgetOptionsMenu';
-import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks } from './widgetDragDom';
+import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks, widgetColumnRect } from './widgetDragDom';
 import {
   adjacentSlot, type BlockBox, chooseDropSlot, type ColumnRect, type DropSlot, fitMatchesWidth, insertionKey, moveChipText,
   resizeChipText, resizeTarget, type ResizeTarget, shrinkWarning, sideLabel, stepWidth, widgetSide, type WidgetSide,
@@ -877,12 +877,16 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
 
   if (state.viewMode !== 'preview' || !position) return null;
 
-  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): only a top-level widget is dragged (one inside
-  // columns, a table, a collapsible or a footnote keeps just the placement bar). A widget the text
-  // wraps around resizes from its text side; a full-width one from either edge (pulling an edge in
-  // makes it a float). No edges when no width can wrap in this column.
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): only a top-level widget is dragged to another place
+  // (taking one out of the block holding it would leave that block empty). A widget the text wraps
+  // around resizes from its text side; a full-width one from either edge (pulling an edge in makes it a
+  // float). No edges when no width can wrap in this column.
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget inside a quote, list item or section gets the
+  // gear and the resize edges too, going by that block's text width (`columnWidth` is the width this widget
+  // is sized against). One in a table cell, footnote or column (width 0: it never wraps) gets neither.
   const draggable = dragEnabled && !!srcdoc && state.topLevel;
-  const resizeEdges: WidgetSide[] = !draggable || wrappableWidths(columnWidth).length === 0 ? []
+  const adjustable = dragEnabled && !!srcdoc && (state.topLevel || columnWidth > 0);
+  const resizeEdges: WidgetSide[] = !adjustable || wrappableWidths(columnWidth).length === 0 ? []
     : shouldWrapWidget(state.layout, columnWidth) ? [state.layout.position === 'left' ? 'right' : 'left']
     : ['left', 'right'];
   // The code toggle and the gear keep clear of the edges, so the whole strip can be grabbed. (In the drag
@@ -892,15 +896,15 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): says so when this width leaves the widget too small.
   // Only from a measurement at its present width (none while it reflows to a new one), and not while
   // it's being moved.
-  const warning = draggable && gesture !== 'moving' && state.fit && fitMatchesWidth(state.fit, position.width)
+  const warning = adjustable && gesture !== 'moving' && state.fit && fitMatchesWidth(state.fit, position.width)
     ? shrinkWarning(state.fit) : null;
 
   return (<>
     <div
       className={classNames(
         classes.previewOverlay,
-        draggable && classes.dragMode,
-        draggable && gesture && classes.controlsPinned,
+        adjustable && classes.dragMode,
+        adjustable && gesture && classes.controlsPinned,
         gesture === 'moving' && classes.overlayMoving,
         draggable && hint && classes.overlayHint,
       )}
@@ -913,10 +917,10 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
       <ToggleButton
         viewMode="preview"
         onClick={handleToggleClick}
-        className={classNames(classes.toggleButton, draggable && 'lw-widget-control')}
-        style={{ top: draggable ? 22 : 4, right: toggleRight }}
+        className={classNames(classes.toggleButton, adjustable && 'lw-widget-control')}
+        style={{ top: adjustable ? 22 : 4, right: toggleRight }}
       />
-      {draggable && <button
+      {adjustable && <button
         ref={gearRef}
         type="button"
         className={classNames(classes.toggleButton, 'lw-widget-control', optionsOpen && classes.gearOpen)}
@@ -951,7 +955,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
         onPointerDown={edge === 'left' ? handleResizeLeft : handleResizeRight}
         onMouseDown={preventDefault}
       />)}
-      {srcdoc && !draggable && <LayoutControls
+      {srcdoc && !adjustable && <LayoutControls
         layout={state.layout}
         columnWidth={columnWidth}
         onChange={handleLayoutChange}
@@ -970,7 +974,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
         <div className={classes.emptyPreview}>No HTML content</div>
       )}
     </div>
-    {draggable && optionsOpen && <WidgetOptionsMenu
+    {adjustable && optionsOpen && <WidgetOptionsMenu
       layout={state.layout}
       columnWidth={columnWidth}
       style={{
@@ -1469,12 +1473,14 @@ export default function IframeWidgetPlugin({
 
   const startResize = useCallback((key: string, edge: WidgetSide, e: React.PointerEvent<HTMLElement>) => {
     const start = widgetsRef.current.get(key);
-    if (cancelGesture.current || e.button !== 0 || !anchorElem || !dragEnabledRef.current || !start?.topLevel) return;
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget inside a quote, list item or section resizes
+    // too, against that block's text (widgetColumnRect); one where widgets never wrap has no edges.
+    if (cancelGesture.current || e.button !== 0 || !anchorElem || !dragEnabledRef.current || !start) return;
     e.preventDefault();
     e.stopPropagation();
-    const startWraps = shouldWrapWidget(start.layout, editorColumnWidth(editor));
+    const startWraps = shouldWrapWidget(start.layout, widgetColumnRect(editor, key).width);
     let current = start.layout;
-    let columnWidth = editorColumnWidth(editor);
+    let columnWidth = widgetColumnRect(editor, key).width;
     /**
      * Restyles the widget for `layout` and scrolls by however far that moved it, so it stays under the
      * pointer: a full-width widget that becomes a float stops clearing the floats before it, and may
@@ -1526,7 +1532,7 @@ export default function IframeWidgetPlugin({
           cancelGesture.current?.();
           return;
         }
-        const column = editorColumnRect(editor);
+        const column = widgetColumnRect(editor, key);
         columnWidth = column.width;
         const target = resizeTarget({ edge, startLayout: start.layout, startWraps, pointerX: point.x, column });
         if (!sameLayout(target.layout, current)) {
@@ -1637,7 +1643,7 @@ export default function IframeWidgetPlugin({
   // undo step each, announced for screen readers.
   const handleOptionsChange = useCallback((key: string, layout: IframeWidgetLayout) => {
     if (!dragEnabledRef.current) return;
-    const description = describePlacement(editor, key, layout, undefined, editorColumnWidth(editor));
+    const description = describePlacement(editor, key, layout, undefined, widgetColumnRect(editor, key).width);
     if (commitPlacement(key, undefined, layout)) setAnnouncement(description);
   }, [editor, commitPlacement]);
 
@@ -1671,7 +1677,7 @@ export default function IframeWidgetPlugin({
             nodeKey={key}
             state={state}
             position={positions.get(key)}
-            columnWidth={columnWidth}
+            columnWidth={state.topLevel ? columnWidth : widgetColumnRect(editor, key).width}
             onToggle={handleToggle}
             onIframeResize={handleIframeResize}
             onLayoutChange={handleLayoutChange}

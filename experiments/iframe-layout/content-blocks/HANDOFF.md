@@ -300,9 +300,9 @@ can run it over `ssh studio`, or use your own copy).
   editor too (frozen live; Reset clears it). `widgetDragEdits.ts` also deletes the old localStorage copies
   on first use. `?specimen` keeps the test tools working (width-sweep `--specimen`, proto-render).
   new-features-check now expects the original post (and intact widget code) back in the editor.
-- **Open bug, not fixed:** Enter anywhere in the content blocks editor (paragraph, quote, section) moves
-  the caret into the footnotes section (`OL.footnote-section`) and types there. Not caused by Exp 3's only
-  footnote change (side note HTML). Not yet checked on the AI Futures editors or on exp2/master.
+- **Not a bug (test gotcha):** keys sent within ~50ms of a click (Playwright's default speed) land at the
+  editor's caret from load, which is the end of the post (the footnotes): the editor takes the click's
+  selection a moment later. Wait 50ms or more after clicking before typing in tests. At human speed Enter works.
 - **S8 (drag-check) was flaky, fixed:** after Escape on a resize, the widget kept the height its frame had
   reported at the narrow preview width, so everything below it moved again a few frames later when the frame
   reported its real height (overlays 15px off for ~100ms; failed about 1 run in 5). `restore()` in
@@ -314,4 +314,17 @@ can run it over `ssh studio`, or use your own copy).
 - **Known editor/post mismatch (not fixed):** a paragraph plus a quote beside a widget are about 14px taller
   in the post than in the editor, so a box near a widget's bottom can land beside it in one and below it in
   the other (width-sweep "drift": the first collapsible section at 560, 640, 680px).
+- **Editor/post gap after a quote (fixed):** LessWrong's `Editor.tsx` zeroes a collapsible section's margin next
+  to a neighbour "that has its own margin", but its list included blockquote, which has none. Blockquote is
+  out of both rules (commit 9b48019aa4); the width sweep has no drift at any width now.
+- **Widgets inside a quote, list item or section work like top-level ones (Ronny, Oct 29):** they get the gear
+  and resize edges (no grip: a widget can't be moved out of its block), sized against the block's text
+  (`widgetColumnRect` in widgetDragDom.ts; the overlay's `columnWidth` is now the width the widget is sized
+  against). One in a table cell, footnote or column (never wraps) still gets no controls (drag-check R4).
+  Check: `nested-check.mjs` (gear 25%, edge drag to 38%, Post tab widths). Open question for Ronny: 50% can't
+  wrap inside these blocks at the normal width (quote 647px leaves 291px beside, list item 289, section 296,
+  under the 300px rule), so it shows full width with the gear's note.
+- **To do (Ronny: "remember that"):** the other editor/post spacing differences (doubled gaps next to sentinel
+  paragraphs after spoilers, equations and embeds; code, equation, list and caption heights). See the memory
+  note / REPORT.md.
 

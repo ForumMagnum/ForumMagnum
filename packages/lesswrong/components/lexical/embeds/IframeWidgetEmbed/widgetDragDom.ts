@@ -10,6 +10,7 @@ import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blo
 import { $isIframeWidgetNode } from './IframeWidgetNode';
 import type { BlockBox, ColumnRect } from './widgetDragGeometry';
 import { EDITOR_CLEARING_BLOCKS } from '@/components/contents/widgetNeighbours';
+import { widgetContainerWidth } from '@/components/contents/widgetSliverGuard';
 
 /**
  * The next sibling that is content, skipping the empty sentinel paragraphs the editor keeps around
@@ -39,6 +40,22 @@ export function editorColumnRect(editor: LexicalEditor): ColumnRect {
   return {
     left: root.getBoundingClientRect().left + root.clientLeft + paddingLeft,
     width: root.clientWidth - paddingLeft - paddingRight,
+  };
+}
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): the text column the widget with `key` is sized and
+ * resized against: the editor's for a top-level widget, or the text of the block holding it (a quote, list
+ * item, section...). Width 0 where a widget never wraps (a table cell, footnote or column).
+ */
+export function widgetColumnRect(editor: LexicalEditor, key: string): ColumnRect {
+  const root = editor.getRootElement();
+  const parent = editor.getElementByKey(key)?.parentElement;
+  if (!root || !parent || parent === root) return editorColumnRect(editor);
+  const cs = getComputedStyle(parent);
+  return {
+    left: parent.getBoundingClientRect().left + parent.clientLeft + (parseFloat(cs.paddingLeft) || 0),
+    width: widgetContainerWidth(parent),
   };
 }
 

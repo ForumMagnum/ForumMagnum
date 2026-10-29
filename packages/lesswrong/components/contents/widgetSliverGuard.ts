@@ -22,7 +22,8 @@ export const SLIVER_PX = 48;
  * at the full width of the cell, footnote or column).
  */
 export function widgetContainerWidth(column: HTMLElement): number {
-  if (column.closest('td, th, .footnote-content, .footnotes, .footnote-section, .layout-column')) return 0;
+  // (The editor's layout column is a div marked data-lexical-layout-item; the post's has .layout-column.)
+  if (column.closest('td, th, .footnote-content, .footnotes, .footnote-section, .layout-column, [data-lexical-layout-item]')) return 0;
   const cs = getComputedStyle(column);
   return column.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
 }
