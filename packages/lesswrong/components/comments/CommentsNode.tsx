@@ -126,6 +126,9 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
   }, [childComments, comment, scrollToCommentId])
 
   const shouldExpandAndScrollTo = !noDOMId && !noAutoScroll && comment && scrollToCommentId === comment._id
+  // A comment that summoned a model starts truncated whatever the thread size, even at the top level,
+  // so it and everything beneath it start as one line unless they have 10+ karma
+  const isLlmQuery = commentHasLlmReply(comment._id, childComments ?? [])
 
   const beginCollapsed = useCallback(() => {
     return !shouldUncollapseForAutoScroll() && !forceUnCollapsed && (comment.deleted || (comment.baseScore ?? 0) < karmaCollapseThreshold)
@@ -137,6 +140,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
     const lowKarmaOrCondensed = ((comment.baseScore ?? 0) < 10 || !!condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
     const postPageAndTop = (nestingLevel === 1) && postPage
+    const topLevelStaysOpen = (shortformAndTop || postPageAndTop) && !isLlmQuery
 
     if (expandOnlyCommentIds)
       return !expandOnlyCommentIds.has(comment._id);
@@ -148,18 +152,17 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
     return (
       !shouldExpandAndScrollTo &&
       !expandAllThreads &&
-      !!(truncated || startThreadTruncated) &&
+      !!(truncated || startThreadTruncated || isLlmQuery) &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
-      !shortformAndTop &&
-      !postPageAndTop &&
+      !topLevelStaysOpen &&
       !forceNotSingleLine
     )
-  }, [comment._id, comment.baseScore, condensed, expandAllThreads, expandOnlyCommentIds, forceNotSingleLine, forceSingleLine, lastCommentId, nestingLevel, postPage, shortform, shouldExpandAndScrollTo, startThreadTruncated, treeOptions.isSideComment, truncated]);
+  }, [comment._id, comment.baseScore, condensed, expandAllThreads, expandOnlyCommentIds, forceNotSingleLine, forceSingleLine, isLlmQuery, lastCommentId, nestingLevel, postPage, shortform, shouldExpandAndScrollTo, startThreadTruncated, treeOptions.isSideComment, truncated]);
 
   const beginTruncated = useCallback(() => {
-    return !shouldExpandAndScrollTo && !!startThreadTruncated
-  }, [shouldExpandAndScrollTo, startThreadTruncated])
+    return !shouldExpandAndScrollTo && (!!startThreadTruncated || isLlmQuery)
+  }, [isLlmQuery, shouldExpandAndScrollTo, startThreadTruncated])
 
   // Whether the comment is completely hidden (with the toggle arrow closed)
   const [collapsed, setCollapsed] = useState<boolean>(beginCollapsed);
@@ -258,9 +261,6 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
 
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
 
-  // Replies to a comment that summoned a model start truncated, whatever the thread size, until the reader expands that comment
-  const isLlmQuery = commentHasLlmReply(comment._id, childComments ?? [])
-  const childrenTruncated = isTruncated || (isLlmQuery && !truncatedStateSet && !expandAllThreads)
   
   const childrenSection = childComments && childComments.length > 0 && <div className={classes.children}>
     <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")} />
@@ -275,7 +275,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
       parentCommentId={comment._id}
       parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
       nestingLevel={updatedNestingLevel + 1}
-      truncated={childrenTruncated}
+      truncated={isTruncated}
       expandAllThreads={expandAllThreads}
       childComments={child.children}
       key={child.item._id}
