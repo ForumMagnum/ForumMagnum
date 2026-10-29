@@ -83,12 +83,12 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
 }
 
 const utils = {
-  enforceCommentRateLimit: async ({user, comment, context}: {
+  enforceCommentRateLimit: async ({user, postId, context}: {
     user: DbUser,
-    comment: CreateCommentDataInput,
+    postId: string | null,
     context: ResolverContext,
   }) => {
-    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId ?? null, context);
+    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, postId, context);
     if (rateLimit) {
       const {nextEligible, rateLimitType:_} = rateLimit;
       if (nextEligible === null) throw new Error('Rate limit: You cannot comment until your restriction is lifted.');
@@ -491,11 +491,11 @@ export function newCommentsEmptyCheck(comment: CreateCommentDataInput) {
   }
 }
 
-export async function newCommentsRateLimit(newComment: CreateCommentDataInput, currentUser: DbUser, context: ResolverContext) {
+export async function commentsRateLimit(postId: string | null, currentUser: DbUser, context: ResolverContext) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
   }
-  await utils.enforceCommentRateLimit({user: currentUser, comment: newComment, context});
+  await utils.enforceCommentRateLimit({user: currentUser, postId, context});
 }
 
 /* CREATE BEFORE */
@@ -740,7 +740,7 @@ export async function newCommentTriggerReview({document, context}: AfterCreateCa
   await triggerReviewIfNeeded(document.userId, 'newComment', context);
 }
 
-export async function trackCommentRateLimitHit({document, context}: AfterCreateCallbackProperties<'Comments'>) {
+export async function trackCommentRateLimitHit(document: DbComment, context: ResolverContext) {
   const { loaders } = context;
   const user = await loaders.Users.load(document.userId)
   
