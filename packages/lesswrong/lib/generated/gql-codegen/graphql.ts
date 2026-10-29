@@ -889,7 +889,7 @@ const _869=_o2(_2,_867,_147,_o5(_7,[_868,_856]))
 const _870=_o3(_3,"TagFullContributorsList")
 const _871=_o2(_2,_870,_147,_o5(_7,[_o6(_8,_839,_846)]))
 const _872=_o3(_3,"TagEditFragment")
-const _873=_o2(_2,_872,_147,_o5(_7,[_757,_o4(_8,_o3(_3,"isPostType")),_o4(_8,_o3(_3,"parentTagId")),_160,_o4(_8,_o3(_3,"subforumIntroPostId")),_828,_835,_o4(_8,_o3(_3,"introSequenceId")),_165,_o4(_8,_o3(_3,"removalResistant")),_166,_o4(_8,_o3(_3,"autoTagModel")),_o4(_8,_o3(_3,"autoTagPrompt")),_805,_o6(_8,_837,_283),_655]))
+const _873=_o2(_2,_872,_147,_o5(_7,[_757,_o4(_8,_o3(_3,"isPostType")),_o4(_8,_o3(_3,"parentTagId")),_160,_o4(_8,_o3(_3,"subforumIntroPostId")),_828,_835,_o4(_8,_o3(_3,"introSequenceId")),_165,_o4(_8,_o3(_3,"removalResistant")),_166,_805,_o6(_8,_837,_283),_655]))
 const _874=_o3(_3,"SunshineTagFragment")
 const _875=_o2(_2,_874,_147,_o5(_7,[_763,_69]))
 const _876=_o3(_3,"ExplorePageTagFragment")
@@ -23172,7 +23172,7 @@ export type TagFullContributorsList = { __typename?: 'Tag', contributors: { __ty
       ) | null }> } };
 
 export type TagEditFragment = (
-  { __typename?: 'Tag', isPostType: boolean, parentTagId: string | null, subforumIntroPostId: string | null, tagFlagsIds: Array<string>, postsDefaultSortOrder: string | null, introSequenceId: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, removalResistant: boolean, authorOnly: boolean, autoTagModel: string | null, autoTagPrompt: string | null, parentTag: (
+  { __typename?: 'Tag', isPostType: boolean, parentTagId: string | null, subforumIntroPostId: string | null, tagFlagsIds: Array<string>, postsDefaultSortOrder: string | null, introSequenceId: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, removalResistant: boolean, authorOnly: boolean, parentTag: (
     { __typename?: 'Tag' }
     & TagBasicInfo
   ) | null, description: (

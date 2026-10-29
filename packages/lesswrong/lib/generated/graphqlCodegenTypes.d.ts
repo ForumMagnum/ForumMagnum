@@ -26478,7 +26478,7 @@ type TagEditFragment_Tag_moderationGuidelines_Revision = (
 );
 
 type TagEditFragment = (
-  { __typename?: 'Tag', isPostType: boolean, parentTagId: string | null, subforumIntroPostId: string | null, tagFlagsIds: Array<string>, postsDefaultSortOrder: string | null, introSequenceId: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, removalResistant: boolean, authorOnly: boolean, autoTagModel: string | null, autoTagPrompt: string | null, parentTag: TagEditFragment_Tag_parentTag_Tag | null, description: TagEditFragment_Tag_description_Revision | null, subforumWelcomeText: TagEditFragment_Tag_subforumWelcomeText_Revision | null, moderationGuidelines: TagEditFragment_Tag_moderationGuidelines_Revision | null }
+  { __typename?: 'Tag', isPostType: boolean, parentTagId: string | null, subforumIntroPostId: string | null, tagFlagsIds: Array<string>, postsDefaultSortOrder: string | null, introSequenceId: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, removalResistant: boolean, authorOnly: boolean, parentTag: TagEditFragment_Tag_parentTag_Tag | null, description: TagEditFragment_Tag_description_Revision | null, subforumWelcomeText: TagEditFragment_Tag_subforumWelcomeText_Revision | null, moderationGuidelines: TagEditFragment_Tag_moderationGuidelines_Revision | null }
   & TagDetailsFragment
 );
 
