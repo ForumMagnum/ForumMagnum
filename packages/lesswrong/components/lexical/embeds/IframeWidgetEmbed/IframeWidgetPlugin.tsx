@@ -34,7 +34,7 @@ import { randomId } from '@/lib/random';
 import {$createIframeWidgetNode, $isIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
 import { alignFloatBottom, alignedParagraph } from '@/components/contents/bottomAlign';
 import { widgetNeighbourGlobals } from '@/components/contents/widgetNeighbours';
-import { scheduleSliverGuard, widgetContainerWidth } from '@/components/contents/widgetSliverGuard';
+import { WIDGET_LAYOUT_EVENT, mayRealignAfterGuard, scheduleSliverGuard, widgetContainerWidth } from '@/components/contents/widgetSliverGuard';
 import {
   alignOf, IframeWidgetLayout, IframeWidgetPosition, MIN_TEXT_BESIDE_WIDGET, offeredWidths,
   parseIframeWidgetLayout, sameLayout, setIframeWidgetLayout, shouldWrapWidget, stripIframeWidgetLayout,
@@ -667,8 +667,11 @@ function usePositionTracking(
     resizeObserver.observe(anchorElem);
     const rootElem = editor.getRootElement();
     if (rootElem) resizeObserver.observe(rootElem);
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the sliver guard moved a block below a widget.
+    rootElem?.addEventListener(WIDGET_LAYOUT_EVENT, scheduleMeasure);
     return () => {
       unregister();
+      rootElem?.removeEventListener(WIDGET_LAYOUT_EVENT, scheduleMeasure);
       window.removeEventListener('resize', scheduleMeasure);
       resizeObserver.disconnect();
       if (scheduledFrame !== null) cancelAnimationFrame(scheduledFrame);
@@ -1024,8 +1027,11 @@ const IframeWidgetCodeToggle = React.memo(function IframeWidgetCodeToggle({
     resizeObserver.observe(anchorElem);
     const rootElem = editor.getRootElement();
     if (rootElem) resizeObserver.observe(rootElem);
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the sliver guard moved a block below a widget.
+    rootElem?.addEventListener(WIDGET_LAYOUT_EVENT, scheduleMeasure);
     return () => {
       unregister();
+      rootElem?.removeEventListener(WIDGET_LAYOUT_EVENT, scheduleMeasure);
       window.removeEventListener('resize', scheduleMeasure);
       resizeObserver.disconnect();
       if (scheduledFrame !== null) cancelAnimationFrame(scheduledFrame);
@@ -1225,6 +1231,24 @@ export default function IframeWidgetPlugin({
     }
     if (moved) scheduleMeasure();
   }), [editor, scheduleMeasure]);
+
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): ...and when the sliver guard moved a block below a
+  // widget, which can move the paragraph a later widget lines up with.
+  useEffect(() => {
+    const root = editor.getRootElement();
+    if (!root) return;
+    const realign = (event: Event) => {
+      if (!mayRealignAfterGuard(root, event)) return;
+      for (const [key, state] of widgetsRef.current) {
+        const layout = previewOverrides.current.get(key) ?? state.layout;
+        if (state.viewMode === 'preview' && alignOf(layout) === 'bottom') {
+          applyPreviewModeToDOM(editor, key, state.previewHeight, layout);
+        }
+      }
+    };
+    root.addEventListener(WIDGET_LAYOUT_EVENT, realign);
+    return () => root.removeEventListener(WIDGET_LAYOUT_EVENT, realign);
+  }, [editor]);
 
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): each widget's measurements by width (px), so the
   // resize chip can say at once what a width it has already been shown at does to it.

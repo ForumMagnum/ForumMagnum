@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { alignOf, parseIframeWidgetLayout, shouldWrapWidget } from './iframeWidgetLayout';
 import { alignFloatBottom, alignedParagraph, clearFloatBottom } from './bottomAlign';
 import { widgetNeighbourGlobals } from './widgetNeighbours';
-import { scheduleSliverGuard, widgetContainerWidth } from './widgetSliverGuard';
+import { WIDGET_LAYOUT_EVENT, mayRealignAfterGuard, scheduleSliverGuard, widgetContainerWidth } from './widgetSliverGuard';
 
 /** Width of the text column the widget sits in, kept current as the window or text width changes. */
 function useColumnWidth(iframeRef: React.RefObject<HTMLIFrameElement | null>, enabled: boolean): number | null {
@@ -133,14 +133,23 @@ function InlineIframeWidget({ srcdoc, title }: {
     const paragraph = alignedParagraph(container);
     if (!paragraph) return;
     let frame = 0;
-    const observer = new ResizeObserver(() => {
+    const realign = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => alignFloatBottom(iframe, alignedParagraph(container), 6));
-    });
+    };
+    const observer = new ResizeObserver(realign);
     observer.observe(paragraph);
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the sliver guard moved a block, which can move the
+    // paragraph (without changing its size).
+    const column = container.parentElement;
+    const realignAfterGuard = (event: Event) => {
+      if (column && mayRealignAfterGuard(column, event)) realign();
+    };
+    column?.addEventListener(WIDGET_LAYOUT_EVENT, realignAfterGuard);
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
+      column?.removeEventListener(WIDGET_LAYOUT_EVENT, realignAfterGuard);
     };
   }, [bottom, height, columnWidth]);
 

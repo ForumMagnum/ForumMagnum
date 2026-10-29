@@ -72,10 +72,28 @@ function collectSidenotes(rootElement: HTMLElement): LexicalFootnoteSidenote[] {
       key: `${footnoteId}:${index}`,
       anchorEl: referenceEl,
       footnoteHref: `#fn${footnoteId}`,
-      footnoteHTML: footnoteContentElement.outerHTML,
+      footnoteHTML: sidenoteHTML(footnoteContentElement),
       footnoteIndex: referenceEl.getAttribute(FOOTNOTE_ATTRIBUTES.footnoteIndex),
     }];
   });
+}
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): the footnote as its side note shows it. A widget in the
+ * footnote is, in the editor's DOM, a code block holding the widget's source (the frame is drawn over it),
+ * so the copy shows a one-line stand-in instead; the widget itself runs in the footnotes at the end.
+ */
+function sidenoteHTML(footnoteContentElement: HTMLElement): string {
+  if (!footnoteContentElement.querySelector('.iframe-widget-code')) {
+    return footnoteContentElement.outerHTML;
+  }
+  const copy = footnoteContentElement.cloneNode(true) as HTMLElement;
+  copy.querySelectorAll('.iframe-widget-code').forEach((widget) => {
+    const standIn = document.createElement('p');
+    standIn.textContent = '(A widget: see this footnote at the end of the post.)';
+    widget.replaceWith(standIn);
+  });
+  return copy.outerHTML;
 }
 
 function sidenotesAreEqual(

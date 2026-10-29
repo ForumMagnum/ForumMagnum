@@ -193,6 +193,9 @@ const RULES: NeighbourRule[] = [
     post: ['.iframe-widget:has(> .lwFloatedWidget[data-lw-side="left"][data-lw-pushed]) + .llm-content-block::before'],
     style: { float: 'none', display: 'inline-block', width: 'auto', margin: '0 0 0.5em', verticalAlign: 'top' },
   },
+  // The post body ends below its last widget, so a widget at the very end doesn't hang into what follows
+  // the post's text (an event's date line, the subscribe buttons). The editor pages hold theirs already.
+  { post: [':has(> .iframe-widget > .lwFloatedWidget)::after'], style: { content: '""', display: 'block', clear: 'both' } },
   // A block the sliver guard (widgetSliverGuard.ts) moved below a widget it barely touched.
   { post: ['[data-lw-below]'], editor: ['[data-lw-below]'], style: CLEARS_BELOW },
 ];

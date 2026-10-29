@@ -25,7 +25,7 @@
 //   [data-testid=widget-resize-left|right]  resize edges (top-level widgets only)
 //   [data-testid=widget-drop-indicator]     while dragging: data-kind, data-slot-key, data-before-key,
 //                                           data-side, data-width, data-align (top | bottom: the drop lines
-//                                           up with a paragraph's bottom), data-noop, data-heading-snapped,
+//                                           up with a paragraph's bottom), data-noop, data-snapped,
 //                                           data-beside-opposite, data-pushes-down (heading | widget),
 //                                           data-offscreen (above | below: the line is a stand-in at
 //                                           that edge), data-at-end, data-chip, ...
@@ -274,7 +274,9 @@ async function mainChecks(browser) {
     await h.invariants('S2');
   }
 
-  // S3: aimed just before a heading, a float goes below it; a full-width widget may sit before it.
+  // S3: aimed just before a heading, a float lands right before it (Experiment 3: a heading sits beside a
+  // widget instead of clearing it, so nothing snaps below it); so does a full-width widget, before the
+  // float now at the heading's top (a full-width widget goes before the floats at its slot).
   {
     const snap = content(await h.snapshot());
     const floatKey = await h.widget(/position=left/);
@@ -291,8 +293,8 @@ async function mainChecks(browser) {
     });
     let after = content(await h.snapshot());
     let at = after.findIndex(c => c.key === floatKey);
-    check('S3 float snaps below the heading', mid.ind.headingSnapped === 'true' && /Below the heading/.test(mid.ind.chip ?? '')
-      && after[at - 1]?.key === heading.key, `chip=${mid.ind.chip} prev=${after[at - 1]?.type}`);
+    check('S3 float lands right before the heading', mid.ind.snapped === 'false' && !/Below the/.test(mid.ind.chip ?? '')
+      && after[at + 1]?.key === heading.key, `chip=${mid.ind.chip} next=${after[at + 1]?.type}`);
     await h.resetUpdates();
     const mid2 = await h.drag(h.grip(fullKey), async () => {
       await h.scrollToKey(heading.key);
@@ -302,7 +304,8 @@ async function mainChecks(browser) {
     });
     after = content(await h.snapshot());
     at = after.findIndex(c => c.key === fullKey);
-    check('S3 full-width widget lands right before the heading', mid2.ind.headingSnapped === 'false' && after[at + 1]?.key === heading.key,
+    check('S3 full-width widget lands right before the heading', mid2.ind.snapped === 'false'
+      && (after[at + 1]?.key === heading.key || (after[at + 1]?.key === floatKey && after[at + 2]?.key === heading.key)),
       `next=${after[at + 1]?.type}`);
     await h.invariants('S3');
   }
@@ -544,17 +547,30 @@ async function mainChecks(browser) {
     await h.invariants('S19');
   }
 
-  // S5: drop at the end of the post (before the footnotes).
+  // S5: drop at the end of the post (before the footnotes), below the last block and any widget still
+  // beside it (Experiment 3: headings no longer clear widgets, so the last section's text can run beside
+  // widgets placed before its heading).
   {
     const key = await h.widget(/position=left|position=right/);
     const snap = content(await h.snapshot());
     const last = snap.filter(c => c.type !== 'footnote-section').at(-1).key;
     await h.resetUpdates();
+    const endOfPost = () => page.evaluate(([last, dragged]) => {
+      const { ed } = window.__dragCheck;
+      const floats = [...document.querySelectorAll('[data-lexical-editor] > .iframe-widget-code[data-lw-wraps]')]
+        .filter(f => f !== ed.getElementByKey(dragged)).map(f => f.getBoundingClientRect().bottom + 16);
+      return Math.max(ed.getElementByKey(last).getBoundingClientRect().bottom, ...floats);
+    }, [last, key]);
     const mid = await h.drag(h.grip(key), async () => {
       await h.scrollToKey(last);
       await h.frames(2);
-      const r = await h.keyRect(last);
-      return { x: col.left + 100, y: Math.min(r.bottom + 40, 860) };
+      let end = await endOfPost();
+      if (end + 40 > 860) {
+        await page.mouse.wheel(0, end + 40 - 700);
+        await h.frames(4);
+        end = await endOfPost();
+      }
+      return { x: col.left + 100, y: Math.min(end + 40, 860) };
     });
     const after = content(await h.snapshot());
     const at = after.findIndex(c => c.key === key);
@@ -1142,9 +1158,9 @@ async function edgeChecks(browser) {
   };
   const barTop = async () => (await h.rect('[data-lw-bottom-bar]')).y;
 
-  // E1: a float dropped in a short section before a heading: the heading clears it, so a float after
-  // the heading on the other side is not beside it (no warning); the ghost stops at the heading and the
-  // chip says the heading is pushed down.
+  // E1: a float dropped in a short section before a heading. Experiment 3: the heading sits beside it
+  // instead of clearing it, so the ghost runs on past the heading (not cut, nothing pushed down), and a
+  // float on the other side after the heading is beside it, which the chip warns about.
   {
     const key = await h.widget(/position=left width=38%/);
     const para = await keyOf(/^Watch the gap/);
@@ -1159,9 +1175,9 @@ async function edgeChecks(browser) {
     const ghost = await R('[data-testid=widget-drop-ghost]');
     const hr = await h.keyRect(heading);
     await cancel();
-    check('E1 a float before a heading: no false narrow-text warning, ghost stops at the heading', ind.besideOpposite === 'false'
-      && ind.pushesDown === 'heading' && /pushes the heading down/.test(ind.chip ?? '') && !/beside another widget/.test(ind.chip ?? '')
-      && ghost?.cut === 'true' && ghost.bottom <= hr.y + 1, `chip=${ind.chip} ghost bottom ${Math.round(ghost?.bottom)} heading ${Math.round(hr.y)}`);
+    check('E1 a float before a heading runs on beside it, with the other side\'s float beside it too', ind.besideOpposite === 'true'
+      && !ind.pushesDown && /beside another widget/.test(ind.chip ?? '') && !/pushes/.test(ind.chip ?? '')
+      && ghost?.cut !== 'true' && ghost.bottom > hr.y, `chip=${ind.chip} ghost bottom ${Math.round(ghost?.bottom)} heading ${Math.round(hr.y)}`);
     await h.invariants('E1');
   }
 

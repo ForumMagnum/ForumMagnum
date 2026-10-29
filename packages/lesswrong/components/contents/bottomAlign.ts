@@ -44,11 +44,17 @@ export function alignFloatBottom(float: HTMLElement, paragraph: HTMLElement | nu
     || contentTop(paragraph) >= float.getBoundingClientRect().bottom - 1) {
     return 0;
   }
+  // The largest push that keeps the widget's bottom within the paragraph (none when the paragraph is
+  // shorter than the widget). Each step moves the widget down by how far it is from the paragraph's
+  // bottom; but lines come in whole steps (pushed lower, the widget can let a whole line move up out of
+  // the paragraph), so a step can overshoot. EXPERIMENT (experiment/iframe-layout-ronny-exp3): then it
+  // halves the range between the largest push known to fit and the smallest known not to, so it always
+  // closes in instead of giving up at the first overshoot.
+  let good = 0;
+  let bad = Infinity;
   // Start from the last push, which is usually still right.
   let push = lastPush;
-  // push -> how far the paragraph's bottom is below the widget's
-  const tried = new Map<number, number>();
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 12; i++) {
     apply(push);
     // A block that moves with the widget is below it after all (a box that no longer fits beside it).
     if (Math.abs(paragraph.getBoundingClientRect().top - startTop) > 1) {
@@ -56,19 +62,22 @@ export function alignFloatBottom(float: HTMLElement, paragraph: HTMLElement | nu
       return 0;
     }
     const gap = paragraph.getBoundingClientRect().bottom - float.getBoundingClientRect().bottom;
-    tried.set(push, gap);
-    const next = Math.max(0, Math.round(push + gap));
-    if (tried.has(next)) break;
+    if (gap >= -1) {
+      good = Math.max(good, push);
+      if (gap <= 1) break;
+    } else {
+      bad = Math.min(bad, push);
+    }
+    let next = Math.max(0, Math.round(push + gap));
+    if (next >= bad || next <= good) {
+      next = bad === Infinity ? good + Math.max(1, Math.round(gap)) : Math.floor((good + bad) / 2);
+    }
+    // Nothing left between the two.
+    if (next <= good || next >= bad) break;
     push = next;
   }
-  // Lines come in whole steps, so the two can go back and forth: take the largest push that keeps the
-  // widget's bottom within the paragraph (none when the paragraph is shorter than the widget).
-  let best = 0;
-  for (const [tryPush, gap] of tried) {
-    if (gap >= -1 && tryPush > best) best = tryPush;
-  }
-  apply(best);
-  return best;
+  apply(good);
+  return good;
 }
 
 /**

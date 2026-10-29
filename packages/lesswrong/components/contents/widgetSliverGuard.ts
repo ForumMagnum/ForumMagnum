@@ -40,8 +40,41 @@ function alignedBlock(float: HTMLElement): Element | null {
   return el;
 }
 
+/**
+ * Fired on the root when the guard moved a block (it changes where everything after it sits), so that
+ * whatever was measured before can measure again: the editor's widget frames, bottom alignment.
+ */
+export const WIDGET_LAYOUT_EVENT = 'lw-widget-layout';
+
 export function guardSlivers(root: HTMLElement): void {
-  for (const el of Array.from(root.querySelectorAll('[data-lw-below]'))) el.removeAttribute('data-lw-below');
+  const before = Array.from(root.querySelectorAll('[data-lw-below]'));
+  for (const el of before) el.removeAttribute('data-lw-below');
+  markSlivers(root);
+  const after = Array.from(root.querySelectorAll('[data-lw-below]'));
+  if (after.length !== before.length || after.some((el, i) => el !== before[i])) {
+    root.dispatchEvent(new Event(WIDGET_LAYOUT_EVENT));
+  }
+}
+
+/** When the last few WIDGET_LAYOUT_EVENTs on each root fired (their timeStamps). */
+const recentEvents = new WeakMap<HTMLElement, number[]>();
+
+/**
+ * Whether bottom-aligned widgets in `root` may line up again after `event` (a WIDGET_LAYOUT_EVENT): not
+ * after more than 4 such events within a second, so the guard and bottom alignment can't keep setting
+ * each other off. Each event counts once, however many widgets ask. (Measuring the editor's widget frames
+ * again is always fine.)
+ */
+export function mayRealignAfterGuard(root: HTMLElement, event: Event): boolean {
+  const times = recentEvents.get(root) ?? [];
+  if (!times.includes(event.timeStamp)) {
+    times.push(event.timeStamp);
+    recentEvents.set(root, times.filter(t => event.timeStamp - t < 1000));
+  }
+  return times.filter(t => event.timeStamp - t < 1000 && t <= event.timeStamp).length <= 4;
+}
+
+function markSlivers(root: HTMLElement): void {
   const floats = rootFloats(root);
   if (!floats.length) return;
   const aligned = floats.map(alignedBlock).filter((el): el is Element => !!el);
@@ -80,11 +113,19 @@ export function guardSlivers(root: HTMLElement): void {
 
 const scheduled = new WeakMap<HTMLElement, number>();
 
-/** Runs guardSlivers on `root` in the next frame, once however often it is asked for. */
+/**
+ * Runs guardSlivers on `root` in the next frame, once however often it is asked for. Not while a widget is
+ * being dragged or resized in the editor (body.lw-widget-dragging): moving blocks then would move the drop
+ * targets under the pointer. It runs once the gesture ends.
+ */
 export function scheduleSliverGuard(root: HTMLElement | null | undefined): void {
   if (!root || scheduled.has(root)) return;
   scheduled.set(root, requestAnimationFrame(() => {
     scheduled.delete(root);
+    if (document.body.classList.contains('lw-widget-dragging')) {
+      setTimeout(() => scheduleSliverGuard(root), 150);
+      return;
+    }
     guardSlivers(root);
   }));
 }
