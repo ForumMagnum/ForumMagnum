@@ -33,6 +33,7 @@ const routesWithWhiteBackground = [
   "/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut/editor",
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): Experiment 3's editors, one per demo post.
   "/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/editor",
+  "/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/blocks/editor",
   "/faq",
   "/g/[groupId]/p/[_id]",
   "/highlights/[slug]",

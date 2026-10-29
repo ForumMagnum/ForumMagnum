@@ -20,12 +20,18 @@ import { WIDGET_DRAG_STORAGE_KEY, demoFingerprint, loadEdits, markEditsUnsaved, 
 import { WIDGET_BLOCKS_DEMOS, type WidgetBlocksDemoId } from './widgetBlocksDemo';
 
 const styles = defineStyles('LayoutDemoEditor', (theme: ThemeType) => ({
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the same text column as the post page at every
+  // window width, so a widget wraps in the editor exactly when it wraps for readers. The post page's
+  // column is its container less 112px from 600px windows up (the side columns' room) and less 10px
+  // below 600 (measured by experiments/iframe-layout/content-blocks/columns-check.mjs).
   root: {
+    width: 'calc(100% - 112px)',
     maxWidth: CENTRAL_COLUMN_WIDTH,
     margin: '0 auto',
     padding: '32px 0 160px',
     [theme.breakpoints.down('xs')]: {
-      padding: '20px 16px 120px',
+      width: 'calc(100% - 10px)',
+      padding: '20px 0 120px',
     },
   },
   note: {
