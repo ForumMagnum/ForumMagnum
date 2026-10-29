@@ -288,10 +288,12 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     // Sentinels' <br> line box blocks margin collapsing, doubling the
     // gaps around collapsible sections vs the rendered page. Only zero
     // margins next to neighbours that have their own margin.
-    '& :is(p:not(.sentinel-paragraph), h1, h2, h3, h4, h5, h6, blockquote, ul, ol, .detailsBlock) + .sentinel-paragraph + .detailsBlock': {
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): not a blockquote, which has none (its spacing is
+    // padding): next to a quote the editor lost the section's 0.75em gap that the rendered page keeps.
+    '& :is(p:not(.sentinel-paragraph), h1, h2, h3, h4, h5, h6, ul, ol, .detailsBlock) + .sentinel-paragraph + .detailsBlock': {
       marginTop: 0,
     },
-    '& .detailsBlock:has(+ .sentinel-paragraph + h1, + .sentinel-paragraph + h2, + .sentinel-paragraph + h3, + .sentinel-paragraph + h4, + .sentinel-paragraph + h5, + .sentinel-paragraph + h6, + .sentinel-paragraph + blockquote)': {
+    '& .detailsBlock:has(+ .sentinel-paragraph + h1, + .sentinel-paragraph + h2, + .sentinel-paragraph + h3, + .sentinel-paragraph + h4, + .sentinel-paragraph + h5, + .sentinel-paragraph + h6)': {
       marginBottom: 0,
     },
     '& .footnote-content': {
