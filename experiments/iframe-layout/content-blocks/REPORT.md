@@ -6,8 +6,8 @@ Oct 29 2026. Branch `experiment/iframe-layout-ronny-exp3`.
 
 | | Post tab | Editor tab |
 |---|---|---|
-| New demo post: "How content blocks behave next to widgets" | LINK_BLOCKS_POST | LINK_BLOCKS_EDITOR |
-| AI Futures post (Experiment 2's post, with Experiment 3's rules) | LINK_AI_POST | LINK_AI_EDITOR |
+| New demo post: "How content blocks behave next to widgets" | https://lw-experiment-widget-blocks-c4b9cuhv8val44y0-lesswrong.vercel.app/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/blocks | https://lw-experiment-widget-blocks-c4b9cuhv8val44y0-lesswrong.vercel.app/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/blocks/editor |
+| AI Futures post (Experiment 2's post, with Experiment 3's rules) | https://lw-experiment-widget-blocks-c4b9cuhv8val44y0-lesswrong.vercel.app/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e | https://lw-experiment-widget-blocks-c4b9cuhv8val44y0-lesswrong.vercel.app/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/editor |
 
 The bar at the bottom of every page switches between the two posts and between Post and Editor. Your
 edits stay in your browser (each post separately); Reset puts the post back.
