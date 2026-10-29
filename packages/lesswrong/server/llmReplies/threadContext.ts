@@ -7,10 +7,8 @@ import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { getCommentAncestorIds } from "@/server/utils/commentTreeUtils";
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { commentIsPubliclyVisible } from "@/server/permissions/accessFilters";
-import { loadLlmContextImages, type LlmContextImage } from "@/server/languageModels/llmContextImages";
+import { loadLlmContextImages, MAX_LLM_CONTEXT_IMAGES, type LlmContextImage } from "@/server/languageModels/llmContextImages";
 import { cheerioParse } from "@/server/utils/htmlUtil";
-
-const MAX_CONTEXT_IMAGES = 20;
 
 interface ThreadContext {
   contextMessage: string,
@@ -42,9 +40,9 @@ export async function buildThreadContext(post: DbPost, triggerComment: DbComment
   const sectionImageUrls = [getImageUrls(postHtml), ...commentSections.map(({ imageUrls }) => imageUrls)];
   const imageUrls = uniq(sectionImageUrls.flat());
   const imageUrlsByPriority = uniq([...sectionImageUrls].reverse().flat());
-  const includedImageUrls = new Set(imageUrlsByPriority.slice(0, MAX_CONTEXT_IMAGES));
+  const includedImageUrls = new Set(imageUrlsByPriority.slice(0, MAX_LLM_CONTEXT_IMAGES));
   const contextImages = await loadLlmContextImages(imageUrls.filter((url) => includedImageUrls.has(url)));
-  const imageCapNote = imageUrls.length > MAX_CONTEXT_IMAGES
+  const imageCapNote = imageUrls.length > MAX_LLM_CONTEXT_IMAGES
     ? [`${contextImages.length} of the ${imageUrls.length} images in the post and thread are attached below.`]
     : [];
 
