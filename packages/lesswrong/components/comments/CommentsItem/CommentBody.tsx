@@ -1,7 +1,7 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import classNames from 'classnames';
-import { calculateTruncationStatus, commentExcerptFromHTML, truncateWithGrace } from '../../../lib/editor/ellipsize'
+import { calculateTruncationStatus, commentExcerptFromHTML, truncate } from '../../../lib/editor/ellipsize'
 import { llmRunGetPageUrl } from '@/lib/collections/llmRuns/helpers';
 import { useLocation } from '@/lib/routeUtil';
 import { useFilteredCurrentUser } from '../../common/withUser'
@@ -57,27 +57,24 @@ const LLM_REPLY_EXCERPT_WORD_LIMIT = 120;
 const LLM_REPLY_EXPANDED_WORD_LIMIT = 480;
 const LLM_REPLY_GRACE_WORDS = 20;
 
-function llmReplyMoreWords(wordCount: number, wordLimit: number): string {
-  const { wordsRemaining } = calculateTruncationStatus(wordCount, wordLimit, LLM_REPLY_GRACE_WORDS);
-  return `${wordsRemaining.toLocaleString("en-US")} more words`;
+function truncateLlmReply(html: string, wordCount: number, wordLimit: number, readMoreLabel: (moreWords: string) => string): string {
+  const { willTruncate, wordsRemaining } = calculateTruncationStatus(wordCount, wordLimit, LLM_REPLY_GRACE_WORDS);
+  if (!willTruncate) {
+    return html;
+  }
+  const moreWords = `${wordsRemaining.toLocaleString("en-US")} more words`;
+  return truncate(html, wordLimit, "words", `... <span class="read-more-button">${readMoreLabel(moreWords)}</span>`);
 }
 
-function getLlmReplyHtml(comment: CommentsList, showExcerpt: boolean, pathname: string): string | null {
-  const html = comment.contents?.html;
-  if (!comment.llmRunId || !html) {
-    return null;
-  }
-  const wordCount = comment.contents?.wordCount ?? 0;
+function getLlmReplyHtml(html: string, wordCount: number, llmRunId: string, showExcerpt: boolean, pathname: string): string {
   if (showExcerpt) {
-    const suffix = `... <span class="read-more-button">(${llmReplyMoreWords(wordCount, LLM_REPLY_EXCERPT_WORD_LIMIT)})</span>`;
-    return truncateWithGrace(html, LLM_REPLY_EXCERPT_WORD_LIMIT, LLM_REPLY_GRACE_WORDS, wordCount, suffix).truncatedHtml;
+    return truncateLlmReply(html, wordCount, LLM_REPLY_EXCERPT_WORD_LIMIT, (moreWords) => `(${moreWords})`);
   }
-  const runPageUrl = llmRunGetPageUrl(comment.llmRunId);
+  const runPageUrl = llmRunGetPageUrl(llmRunId);
   if (pathname === runPageUrl) {
     return html;
   }
-  const suffix = `... <span class="read-more-button"><a href="${runPageUrl}">View full output (${llmReplyMoreWords(wordCount, LLM_REPLY_EXPANDED_WORD_LIMIT)})</a></span>`;
-  return truncateWithGrace(html, LLM_REPLY_EXPANDED_WORD_LIMIT, LLM_REPLY_GRACE_WORDS, wordCount, suffix).truncatedHtml;
+  return truncateLlmReply(html, wordCount, LLM_REPLY_EXPANDED_WORD_LIMIT, (moreWords) => `<a href="${runPageUrl}">View full output (${moreWords})</a>`);
 }
 
 const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, voteProps, className}: {
@@ -95,7 +92,7 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
 
   // Do not truncate for users who have disabled it in their user settings
   const truncationDisabledByUserConfig = useFilteredCurrentUser((u) => u && (postPage ? u.noCollapseCommentsPosts : u.noCollapseCommentsFrontpage));
-  const { html = "" } = comment.contents || {}
+  const { html = "", wordCount = 0 } = comment.contents || {}
 
   const bodyClasses = classNames(
     className,
@@ -108,8 +105,14 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
   if (collapsed) { return null }
 
   const showExcerpt = !!truncated && !truncationDisabledByUserConfig;
-  const innerHtml = getLlmReplyHtml(comment, showExcerpt, pathname)
-    ?? (showExcerpt ? commentExcerptFromHTML(comment, postPage) : (html ?? ''))
+  let innerHtml: string;
+  if (comment.llmRunId) {
+    innerHtml = getLlmReplyHtml(html ?? '', wordCount, comment.llmRunId, showExcerpt, pathname);
+  } else if (showExcerpt) {
+    innerHtml = commentExcerptFromHTML(comment, postPage);
+  } else {
+    innerHtml = html ?? '';
+  }
 
   let contentType: ContentStyleType;
   if (comment.answer) {

@@ -151,6 +151,7 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
       truncatedText = truncatedText.trimEnd();
     }
 
+    let suffixAdded = false;
     while(tagStack.length > 0){
       const tag = tagStack.pop();
       if(tag && tag.name!=="!--"){
@@ -160,19 +161,23 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
           const attributesStart = tag.start + tag.name.length;
           truncatedText = truncatedText.substring(0, attributesStart)
             + ' data-truncated="true"' + truncatedText.substring(attributesStart);
+          if (!suffixAdded && (tag.name === "p" || tag.name === "li")) {
+            truncatedText += Suffix;
+            suffixAdded = true;
+          }
         }
         truncatedText += "</"+tag.name+">";
       }
     }
 
     if(pointer < text.length-1) {
-      const trailingClosingTags = /(?:<\/[^>]+>)+$/.exec(truncatedText);
-      const blockClosingTag = trailingClosingTags && /<\/(?:p|li)>/i.exec(trailingClosingTags[0]);
-      if (trailingClosingTags && blockClosingTag) {
-        const suffixPosition = trailingClosingTags.index + blockClosingTag.index;
-        return truncatedText.substring(0, suffixPosition) + Suffix + truncatedText.substring(suffixPosition);
+      if (suffixAdded) {
+        return truncatedText;
+      } else if(truncatedText.endsWith("</p>") || truncatedText.endsWith("</P>")) {
+        return truncatedText.substring(0, truncatedText.length - 4) + Suffix + "</p>";
+      } else {
+        return truncatedText + Suffix;
       }
-      return truncatedText + Suffix;
     } else {
       return truncatedText.trim();
     }
