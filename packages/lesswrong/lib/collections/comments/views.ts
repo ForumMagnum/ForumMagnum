@@ -6,7 +6,7 @@ import { TupleSet } from '@/lib/utils/typeGuardUtils';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 import type { ApolloClient } from '@apollo/client';
-import { classifyTagFilters, filterModeToMultiplicativeKarmaModifier, getDefaultFilterSettings, type FilterSettings } from '@/lib/filterSettings';
+import { classifyTagFilters, filterModeToMultiplicativeKarmaModifier, type FilterSettings } from '@/lib/filterSettings';
 
 /**
  * Comment sorting mode, a string which gets translated into a mongodb sort
@@ -548,10 +548,12 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context: 
   const twoHoursAgo = moment().subtract(2, 'hours').toDate();
   const maxAgeDays = terms.maxAgeDays ?? 5;
   const currentUserId = context.currentUser?._id;
-  const filterSettings: FilterSettings = terms.filterSettings
-    ?? context.currentUser?.frontpageFilterSettings
-    ?? getDefaultFilterSettings(context.forumType);
-  const tagFilters = classifyTagFilters(filterSettings.tags ?? [], context.forumType);
+  const tagFilters = classifyTagFilters(terms.filterSettings?.tags ?? [], context.forumType);
+  const tagMultipliers = tagFilters.softFiltered.map(tag => ({$cond: {
+    if: {relevantTagIds: tag.tagId},
+    then: filterModeToMultiplicativeKarmaModifier(tag.filterMode),
+    else: 1,
+  }}));
   return {
     selector: {
       shortform: true,
@@ -584,14 +586,13 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context: 
       ],
     },
     syntheticFields: {
-      filteredScore: {$multiply: [
-        "$score",
-        ...tagFilters.softFiltered.map(tag => ({$cond: {
-          if: {relevantTagIds: tag.tagId},
-          then: filterModeToMultiplicativeKarmaModifier(tag.filterMode),
-          else: 1,
-        }})),
-      ]},
+      // score is negative for quick takes with negative karma, and multiplying
+      // it would invert the effect of the tag multipliers
+      filteredScore: {$cond: {
+        if: {$gt: ["$score", 0]},
+        then: {$multiply: ["$score", ...tagMultipliers]},
+        else: "$score",
+      }},
     },
     options: {sort: {filteredScore: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };
