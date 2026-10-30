@@ -880,9 +880,23 @@ const legacyHtmlColorAttributes = ["bgcolor"];
 const cssAttributesNeedingTransform: Record<string,boolean> = {
   "background": true,
   "backgroundColor": true,
-  "borderColor": true,
   "color": true,
 };
+
+const borderAttributesNeedingTransform: Record<string,boolean> = {
+  "border": true,
+  "borderTop": true,
+  "borderRight": true,
+  "borderBottom": true,
+  "borderLeft": true,
+  "borderColor": true,
+  "borderTopColor": true,
+  "borderRightColor": true,
+  "borderBottomColor": true,
+  "borderLeftColor": true,
+};
+
+const colorTokenRegex = /rgba?\([^)]*\)|#[0-9a-f]+|[a-z]+/gi;
 
 function transformStylesForDarkMode(styles: Record<string,string>, themeName: UserThemeSetting): Record<string,string> {
   if (themeName === 'dark' || themeName === 'auto') {
@@ -894,6 +908,8 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
         } else {
           return [attribute, darkModeValue];
         }
+      } else if (borderAttributesNeedingTransform[attribute]) {
+        return [attribute, transformBorderValueForDarkMode(value, themeName)];
       } else {
         return [attribute, value];
       }
@@ -904,22 +920,30 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
 }
 
 function transformAttributeValueForDarkMode(attributeValue: string): string {
-  const normalized = attributeValue.trim().toLowerCase();
-  if (!getColorReplacementsCache()[normalized]) {
-    const parsedColor = parseColor(normalized);
-    if (parsedColor) {
-      const invertedColor = invertColorPreservingHue(parsedColor);
-      getColorReplacementsCache()[normalized] = colorToString(invertedColor);
-    } else {
-      // If unable to parse a color (eg an unsupported color format), use black
-      // as a safe dark-mode background color
-      getColorReplacementsCache()[normalized] = "#000000";
+  // If unable to parse a color (eg an unsupported color format), use black
+  // as a safe dark-mode background color
+  return invertColorForDarkMode(attributeValue) ?? "#000000";
+}
+
+function transformBorderValueForDarkMode(attributeValue: string, themeName: UserThemeSetting): string {
+  return attributeValue.replace(colorTokenRegex, (token) => {
+    const darkModeColor = invertColorForDarkMode(token);
+    if (!darkModeColor) {
+      return token;
     }
+    return themeName === "auto" ? `light-dark(${token},${darkModeColor})` : darkModeColor;
+  });
+}
+
+function invertColorForDarkMode(color: string): string|null {
+  const normalized = color.trim().toLowerCase();
+  const colorReplacements = getColorReplacementsCache();
+  if (!colorReplacements[normalized]) {
+    const parsedColor = parseColor(normalized);
+    if (!parsedColor) {
+      return null;
+    }
+    colorReplacements[normalized] = colorToString(invertColorPreservingHue(parsedColor));
   }
-  
-  if (getColorReplacementsCache()[normalized]) {
-    return getColorReplacementsCache()[normalized];
-  } else {
-    return attributeValue;
-  }
+  return colorReplacements[normalized];
 }
