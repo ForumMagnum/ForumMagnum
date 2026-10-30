@@ -471,4 +471,16 @@ can run it over `ssh studio`, or use your own copy).
     states); `content-blocks/one-height-check.mjs` (16: the three states by drag, ArrowUp x3, the gear and
     a resize on a full-width widget beside the right widget's end, the Post tab); width-sweep's new
     "shared" check (pairs of widgets, any kind, sharing a height, in either view) at every width.
+- **Quotes/sections/lists beside a right widget after an earlier left one (Ronny, Oct 30: "A quote on the
+  left beside a widget on the right. if it gets longer, it does not flow"):** widgetNeighbours' box rule was
+  `LEFT_FLOAT ~ blockquote` (and `.detailsBlock`, list items), i.e. after ANY earlier left widget, so the
+  blocks demo's right-widget quote was a flow-root box and stayed narrow below the widget. Pure CSS can't say
+  "the nearest preceding float is left" (`~` can't exclude a right float in between without also excluding
+  the left-quote-then-right-quote case), so the sliver guard now marks them: `markAfterLeftWidget`
+  (widgetSliverGuard.ts) walks the root's children, tracks the last widget's side (a full-width widget or a
+  block with `clear` resets it) and sets `data-lw-after-left` (AFTER_LEFT_WIDGET_ATTR) on blockquote,
+  .detailsBlock, ul and ol; the rules select `blockquote[data-lw-after-left]` etc. It runs before
+  markSlivers (which measures the boxes), and a change fires WIDGET_LAYOUT_EVENT. The editor's update
+  listener also schedules the guard while any marked block is left (all widgets deleted). One-height makes
+  "nearest widget above" the only one that can be beside a block. Check: `content-blocks/quote-flow-check.mjs`.
 

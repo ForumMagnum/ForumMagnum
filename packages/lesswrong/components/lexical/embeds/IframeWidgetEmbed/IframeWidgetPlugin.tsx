@@ -40,7 +40,9 @@ import { randomId } from '@/lib/random';
 import {$createIframeWidgetNode, $isIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
 import { alignFloatBottom, alignedParagraph } from '@/components/contents/bottomAlign';
 import { widgetNeighbourGlobals } from '@/components/contents/widgetNeighbours';
-import { CARET_BESIDE_ATTR, WIDGET_LAYOUT_EVENT, mayRealignAfterGuard, scheduleSliverGuard } from '@/components/contents/widgetSliverGuard';
+import {
+  AFTER_LEFT_WIDGET_ATTR, CARET_BESIDE_ATTR, WIDGET_LAYOUT_EVENT, mayRealignAfterGuard, scheduleSliverGuard,
+} from '@/components/contents/widgetSliverGuard';
 import {
   alignOf, IframeWidgetLayout, IframeWidgetPosition, MIN_TEXT_BESIDE_WIDGET, offeredWidths,
   parseIframeWidgetLayout, sameLayout, setIframeWidgetLayout, shouldWrapWidget, stripIframeWidgetLayout,
@@ -1294,8 +1296,8 @@ export default function IframeWidgetPlugin({
       return;
     }
     // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the text reflowed, so check the boxes beside widgets
-    // (and widen a caret line left narrowed beside a widget that is gone).
-    if (widgetsRef.current.size || root?.querySelector(`[${CARET_BESIDE_ATTR}]`)) scheduleSliverGuard(root);
+    // (and widen a caret line, or unbox a quote, left marked beside a widget that is gone).
+    if (widgetsRef.current.size || root?.querySelector(`[${CARET_BESIDE_ATTR}], [${AFTER_LEFT_WIDGET_ATTR}]`)) scheduleSliverGuard(root);
     let moved = false;
     for (const [key, state] of widgetsRef.current) {
       const layout = previewOverrides.current.get(key) ?? state.layout;

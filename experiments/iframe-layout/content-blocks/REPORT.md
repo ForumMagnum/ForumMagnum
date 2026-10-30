@@ -281,3 +281,9 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
     from 320 to 2560px: no two widgets at one height anywhere, in the editor or the post. (The AI Futures
     sweep still flags its known tie at 576 and 672px: the paragraph after the milestones widget ends level
     with the widget, so which view puts its first line beside the widget flips from run to run.)
+- **Fixed Oct 30 (you found it): a quote beside a right widget stayed narrow below the widget once it got
+  longer.** The rule that makes quotes, collapsible sections and lists a box beside a left widget applied
+  to every one after any left widget in the post, so in the demo it caught the quote beside the right
+  widget too. It now goes by the nearest widget above the block: beside a right widget they flow like text
+  wherever they are in the post. Test: `quote-flow-check.mjs` (types the quote longer in the editor, then
+  checks the editor and the Post tab).

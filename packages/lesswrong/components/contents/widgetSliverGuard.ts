@@ -13,7 +13,8 @@
 // would not fit, then the closed state should not fit either"), so opening or closing it never moves it.
 // Text needs no guard: only its lines beside the widget are shortened.
 //
-// The same pass narrows the editor's caret lines beside a widget (narrowCaretLines).
+// The same pass narrows the editor's caret lines beside a widget (narrowCaretLines), and marks the quotes,
+// collapsible sections and lists whose nearest widget above is a left one (markAfterLeftWidget).
 
 /** A box that starts with less than this much of a widget beside it goes below the widget. */
 export const SLIVER_PX = 48;
@@ -57,13 +58,44 @@ export const WIDGET_LAYOUT_EVENT = 'lw-widget-layout';
 const OWN_MARKS = ':scope > [data-lw-below], :scope > :is(ul, ol) > li[data-lw-below]';
 
 export function guardSlivers(root: HTMLElement): void {
-  const before = Array.from(root.querySelectorAll(OWN_MARKS));
+  const marked = (selector: string) => Array.from(root.querySelectorAll(selector));
+  const before = marked(OWN_MARKS);
+  const beforeLeft = marked(`:scope > [${AFTER_LEFT_WIDGET_ATTR}]`);
   for (const el of before) el.removeAttribute('data-lw-below');
+  markAfterLeftWidget(root);
   markSlivers(root);
   narrowCaretLines(root);
-  const after = Array.from(root.querySelectorAll(OWN_MARKS));
-  if (after.length !== before.length || after.some((el, i) => el !== before[i])) {
+  const after = marked(OWN_MARKS);
+  const afterLeft = marked(`:scope > [${AFTER_LEFT_WIDGET_ATTR}]`);
+  const changed = (a: Element[], b: Element[]) => a.length !== b.length || a.some((el, i) => el !== b[i]);
+  if (changed(after, before) || changed(afterLeft, beforeLeft)) {
     root.dispatchEvent(new Event(WIDGET_LAYOUT_EVENT));
+  }
+}
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): marks the quotes, collapsible sections and lists in
+ * `root` whose nearest widget above is a left one: the last widget before them, with nothing between that
+ * starts below it (a full-width widget, a divider, an embed). Beside a left widget those are boxes
+ * (widgetNeighbours). No two widgets share a height, so that widget is the only one that can be beside
+ * them: after a right widget they flow like text, also when a left widget came before it. (The CSS rule
+ * this replaces, "after any left widget", made the quote beside a right widget a box too, so a long one
+ * stayed narrow below the widget: Ronny, Oct 30 2026.)
+ */
+export const AFTER_LEFT_WIDGET_ATTR = 'data-lw-after-left';
+
+function markAfterLeftWidget(root: HTMLElement): void {
+  let side: string | null = null;
+  for (const el of Array.from(root.children)) {
+    if (!(el instanceof HTMLElement) || el.matches('.sentinel-paragraph')) continue;
+    if (el.matches('.iframe-widget, .iframe-widget-code')) {
+      // A widget the text wraps around, or a full-width one (which starts below the ones before it).
+      const float = el.matches('[data-lw-wraps]') ? el : el.querySelector<HTMLElement>(':scope > iframe.lwFloatedWidget');
+      side = float ? getComputedStyle(float).float : null;
+      continue;
+    }
+    if (side && getComputedStyle(el).clear !== 'none') side = null;
+    if (el.matches('blockquote, .detailsBlock, ul, ol')) el.toggleAttribute(AFTER_LEFT_WIDGET_ATTR, side === 'left');
   }
 }
 

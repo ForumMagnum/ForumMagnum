@@ -12,13 +12,17 @@
 // - clears below: blocks that need the whole column or end a section start below the widget.
 // - a widget inside a container stays inside it (or shows full width there).
 
+import { AFTER_LEFT_WIDGET_ATTR } from './widgetSliverGuard';
+
 /** A floated widget in the post: the `.iframe-widget` div holding the floated iframe. */
 export const POST_FLOAT = '.iframe-widget:has(> .lwFloatedWidget)';
 /** A floated widget in the editor: its preview spacer (the visible frame is an overlay on top of it). */
 export const EDITOR_FLOAT = '.iframe-widget-code[data-lw-wraps]';
-/** The same, floated left only. */
-const POST_LEFT_FLOAT = '.iframe-widget:has(> .lwFloatedWidget[data-lw-side="left"])';
-const EDITOR_LEFT_FLOAT = '.iframe-widget-code[data-lw-wraps][data-lw-side="left"]';
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): a quote, collapsible section or list whose nearest widget
+ * above is a left one (the sliver guard marks them: see markAfterLeftWidget).
+ */
+const afterLeft = (selector: string) => `${selector}[${AFTER_LEFT_WIDGET_ATTR}]`;
 
 type Declarations = Record<string, string | number | Record<string, string | number>>;
 
@@ -83,24 +87,23 @@ const RULES: NeighbourRule[] = [
   },
   // Quotes and collapsible sections: box beside a LEFT widget, else below, so the bar, or the triangle
   // and rule, stay out of it. Beside a right widget nothing runs under it, so they flow like text there
-  // (a box would stay narrow for its whole length). (The `~` means any left widget before them, so after
-  // a left widget AND a later right one they are boxes beside the right one too.)
+  // (a box would stay narrow for its whole length), also after an earlier left widget.
   {
-    post: ['blockquote', '.detailsBlock'].map(s => `${POST_LEFT_FLOAT} ~ ${s}`),
-    editor: ['blockquote', '.detailsBlock'].map(s => `${EDITOR_LEFT_FLOAT} ~ ${s}`),
+    post: ['blockquote', '.detailsBlock'].map(afterLeft),
+    editor: ['blockquote', '.detailsBlock'].map(afterLeft),
     style: BOX_BESIDE,
   },
   // Lists: beside a left widget each item is its own box, so the markers and indents (nested levels too)
   // sit beside the widget instead of under it, and the items below it get the whole width back.
   {
-    post: [`${POST_LEFT_FLOAT} ~ ${LISTS} li`], editor: [`${EDITOR_LEFT_FLOAT} ~ ${LISTS} li`],
+    post: [`${afterLeft(LISTS)} li`], editor: [`${afterLeft(LISTS)} li`],
     style: { fallbacks: { display: 'list-item' }, display: 'flow-root list-item' },
   },
   {
     // A box doesn't let its last child's bottom margin through, so a nested list's last item drops its
     // own (the parent item's margin keeps the spacing as it was).
-    post: [`${POST_LEFT_FLOAT} ~ ${LISTS} li > :is(ul, ol) > li:last-child`],
-    editor: [`${EDITOR_LEFT_FLOAT} ~ ${LISTS} li > :is(ul, ol) > li:last-child`],
+    post: [`${afterLeft(LISTS)} li > :is(ul, ol) > li:last-child`],
+    editor: [`${afterLeft(LISTS)} li > :is(ul, ol) > li:last-child`],
     style: { marginBottom: 0 },
   },
   // Code: beside only if every line fits there, else below at full width (a widget never makes code

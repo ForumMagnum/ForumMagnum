@@ -77,14 +77,24 @@ const MEASURE = (view) => {
     if (skip(el)) continue;
     const s = getComputedStyle(el);
     if (s.visibility === 'hidden' || s.display === 'none') continue;
-    const visible = (s.backgroundColor !== 'rgba(0, 0, 0, 0)' && s.backgroundColor !== 'transparent')
-      || ['Top', 'Right', 'Bottom', 'Left'].some(side => parseFloat(s[`border${side}Width`]) > 0 && s[`border${side}Style`] !== 'none' && !/rgba\(\d+, \d+, \d+, 0\)/.test(s[`border${side}Color`]))
+    const filled = (s.backgroundColor !== 'rgba(0, 0, 0, 0)' && s.backgroundColor !== 'transparent')
       || /^(IMG|IFRAME|SVG|VIDEO|CANVAS|HR|MJX-CONTAINER)$/i.test(el.tagName);
-    if (!visible) continue;
+    const borders = ['Top', 'Right', 'Bottom', 'Left'].filter(side => parseFloat(s[`border${side}Width`]) > 0
+      && s[`border${side}Style`] !== 'none' && !/rgba\(\d+, \d+, \d+, 0\)/.test(s[`border${side}Color`]));
+    if (!filled && !borders.length) continue;
     // An equation's container is as wide as its line; what shows is the equation itself.
     const r = (el.tagName === 'MJX-CONTAINER' ? el.querySelector('mjx-math') ?? el : el).getBoundingClientRect();
     if (r.width < 1 || r.height < 1) continue;
-    if (hits(el, r)) overlaps.push({ kind: 'box', tag: el.tagName, cls: el.className?.toString?.().slice(0, 50), text: (el.textContent || '').trim().slice(0, 40), rect: R(r) });
+    // What shows: the whole box when it has a background (or is an image, a frame...), else only its border
+    // lines. (A quote that flows beside a right widget runs under it, but its bar is on its left: Oct 30 2026.)
+    const shown = filled ? [r] : borders.map((side) => {
+      const w = parseFloat(s[`border${side}Width`]);
+      return side === 'Top' ? { left: r.left, right: r.right, top: r.top, bottom: r.top + w }
+        : side === 'Bottom' ? { left: r.left, right: r.right, top: r.bottom - w, bottom: r.bottom }
+        : side === 'Left' ? { left: r.left, right: r.left + w, top: r.top, bottom: r.bottom }
+        : { left: r.right - w, right: r.right, top: r.top, bottom: r.bottom };
+    });
+    if (shown.some(part => hits(el, part))) overlaps.push({ kind: 'box', tag: el.tagName, cls: el.className?.toString?.().slice(0, 50), text: (el.textContent || '').trim().slice(0, 40), rect: R(r) });
   }
   for (const li of root.querySelectorAll('li')) {
     if (skip(li)) continue;
