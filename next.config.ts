@@ -52,6 +52,17 @@ const nextConfig: NextConfig = {
   // Lets a second dev instance run from the same checkout (next dev holds a
   // lock under distDir): NEXT_DIST_DIR=.next-profile yarn start dev -p 3005
   ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
+  // `next dev` refuses cross-origin requests to /_next/* (chunks, HMR) unless
+  // the browser's origin is listed here. When the dev server is reached through
+  // a tunnel or a research-sandbox preview URL rather than localhost, the page
+  // SSRs but never hydrates without this. SANDBOX_PUBLIC_URL is injected by the
+  // research sandbox; NEXT_ALLOWED_DEV_ORIGINS is a comma-separated list of
+  // extra hostnames for other tunnels.
+  ...((() => {
+    const hosts = (process.env.NEXT_ALLOWED_DEV_ORIGINS ?? "").split(",").map(h => h.trim()).filter(Boolean);
+    if (process.env.SANDBOX_PUBLIC_URL) hosts.push(new URL(process.env.SANDBOX_PUBLIC_URL).host);
+    return hosts.length ? { allowedDevOrigins: hosts } : {};
+  })()),
 
   compiler: {
     define: {
