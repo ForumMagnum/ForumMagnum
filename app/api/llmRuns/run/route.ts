@@ -1,6 +1,5 @@
-import type { NextRequest } from "next/server";
+import { after, type NextRequest } from "next/server";
 import { z } from "zod";
-import { backgroundTask } from "@/server/utils/backgroundTask";
 import { runLlmRun } from "@/server/languageModels/llmRuns";
 
 export const maxDuration = 800;
@@ -13,6 +12,6 @@ export async function POST(request: NextRequest) {
     return new Response("Unauthorized", { status: 401 });
   }
   const { runId } = requestSchema.parse(await request.json());
-  backgroundTask(runLlmRun(runId));
+  after(runLlmRun.bind(null, runId));
   return new Response(null, { status: 202 });
 }
