@@ -43,7 +43,7 @@ export function parseColor(color: string): ColorTuple|null
       return [r/15.0, g/15.0, b/15.0, 1.0];
     }
   } else {
-    const match = /rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(,\s*\d+)?\)/.exec(color);
+    const match = /rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(,\s*(?:\d*\.)?\d+)?\s*\)/.exec(color);
     if (match) {
       const [color,r,g,b,a] = match;
       const parsedR = parseFloat(r) / 255.0;
@@ -84,7 +84,7 @@ const invertChannel = (channel: number) => {
 export function invertColor(color: ColorTuple): ColorTuple
 {
   const [r,g,b,a] = color;
-  return [invertChannel(r),invertChannel(g),invertChannel(b),1];
+  return [invertChannel(r),invertChannel(g),invertChannel(b),a];
 }
 
 function rgbToHsl(r: number, g: number, b: number): [number, number, number]
@@ -120,9 +120,10 @@ function rgbToHsl(r: number, g: number, b: number): [number, number, number]
 
 export function invertColorPreservingHue(color: ColorTuple): ColorTuple
 {
-  const [r,g,b] = color;
+  const [r,g,b,a] = color;
   const [h,s,l] = rgbToHsl(r, g, b);
-  return hslToRgb(h, s, 1 - l);
+  const [invertedR,invertedG,invertedB] = hslToRgb(h, s, 1 - l);
+  return [invertedR,invertedG,invertedB,a];
 }
 
 function validateColor(color: ColorTuple) {
