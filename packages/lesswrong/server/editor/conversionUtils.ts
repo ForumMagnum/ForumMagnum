@@ -7,7 +7,7 @@ import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import { sanitize } from "@/lib/utils/sanitize";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
-import { getMarkdownIt, getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
+import { getMarkdownIt, getMarkdownItForEditorImport, getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
 import { formatMathToken } from '@/lib/utils/mathTokens';
 import type { Cheerio, CheerioAPI, Element as CheerioElement } from 'cheerio';
 import type { DataNode } from 'domhandler';
@@ -977,6 +977,13 @@ export function markdownToHtml(markdown: string, options?: {
   }
 }
 
+// Lexical can't import MathJax's pre-rendered output, so math is left as the
+// `math-tex` spans that `MathNode.importDOM` reads.
+function markdownToLexicalHtml(markdown: string): string {
+  const renderedMarkdown = getMarkdownItForEditorImport().render(markdown, {docId: randomId()})
+  return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
+}
+
 async function ckEditorMarkupToHtml(markup: string, context: ResolverContext, skipMathjax?: boolean): Promise<string> {
   // Sanitized CKEditor markup is just html
   const html = sanitize(markup)
@@ -1092,6 +1099,13 @@ export async function dataToHTML(data: AnyBecauseTodo, type: string, context: Re
       return markdownToHtml(data, { skipMathjax: options?.skipMathjax })
     default: throw new Error(`Unrecognized format: ${type}`);
   }
+}
+
+export async function dataToLexicalHtml(data: AnyBecauseTodo, type: string, context: ResolverContext) {
+  if (type === "markdown") {
+    return markdownToLexicalHtml(data)
+  }
+  return dataToHTML(data, type, context)
 }
 
 export function dataToMarkdown(data: AnyBecauseTodo, type: string) {
