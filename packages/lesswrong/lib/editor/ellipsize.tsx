@@ -21,11 +21,13 @@ export const highlightFromHTML = (html: string | null): string => {
   });
 };
 
+const getTruncatedLength = (truncateLength: number) => Math.floor(truncateLength - (truncateLength/4)) || truncateLength;
+
 export const truncate = (
   html: string|null|undefined,
   truncateLength: number,
   truncateBy?: "words" | "characters" | "paragraphs",
-  suffix?: string | ((truncatedHtml: string) => string),
+  suffix?: string,
   allowTruncationMidWord = true,
 ) => {
   const newTruncateBy = truncateBy || "characters"
@@ -37,25 +39,12 @@ export const truncate = (
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
 
   const truncatedHtml = truncatise(htmlRemovedStyles, {
-    TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
+    TruncateLength: getTruncatedLength(truncateLength),
     TruncateBy: newTruncateBy,
-    Suffix: newSuffix,
+    Suffix: `${newSuffix}`,
     Strict: allowTruncationMidWord,
   });
   return uniqueStyles.join("") + truncatedHtml;
-}
-
-const countWordsInHtml = (html: string): number => {
-  const text = html.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<[^>]*>/g, ' ').trim();
-  return text ? text.split(/\s+/).length : 0;
-}
-
-export const wordsRemainingSuffix = (html: string, formatSuffix: (moreWords: string) => string) => {
-  const totalWordCount = countWordsInHtml(html);
-  return (truncatedHtml: string) => {
-    const wordsRemaining = totalWordCount - countWordsInHtml(truncatedHtml);
-    return formatSuffix(`${wordsRemaining.toLocaleString("en-US")} more ${wordsRemaining === 1 ? "word" : "words"}`);
-  };
 }
 
 export const calculateTruncationStatus = (
@@ -72,7 +61,7 @@ export const calculateTruncationStatus = (
     return { willTruncate: false, wordsRemaining: 0 };
   }
   
-  return { willTruncate: true, wordsRemaining: wordsLeft };
+  return { willTruncate: true, wordsRemaining: totalWordCount - getTruncatedLength(maxLengthWords) };
 };
 
 export const truncateWithGrace = (html: string, maxLengthWords: number, graceWords: number, rawWordCount: number, suffix?: string): {
@@ -114,7 +103,6 @@ export const truncateWithGrace = (html: string, maxLengthWords: number, graceWor
 export function getTruncationCharCount (comment: CommentsList, postPage?: boolean) {
   const commentIsByGPT2 = !!(comment && comment.user && comment.user.displayName === "GPT2")
   if (commentIsByGPT2) return GTP2_TRUNCATION_CHAR_COUNT
-  if (comment.llmRunId) return SMALL_TRUNCATION_CHAR_COUNT
 
   const commentIsRecent = new Date(comment.postedAt) > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
   const commentIsHighKarma = typeof comment.baseScore === 'number' && comment.baseScore >= TRUNCATION_KARMA_THRESHOLD
@@ -153,16 +141,13 @@ export function commentExcerptFromHTML (comment: CommentsList, postPage?: boolea
   const truncationCharCount = getTruncationCharCount(comment, postPage)
 
   if (htmlRemovedStyles.length > truncationCharCount) {
-    const readMoreSuffix = comment.llmRunId
-      ? wordsRemainingSuffix(htmlRemovedStyles, (moreWords) => `... <span class="read-more-button">(${moreWords})</span>${styles}`)
-      : `... <span class="read-more-button">(read more)</span>${styles}`;
     return truncatise(htmlRemovedStyles, {
       // We want the amount comments get truncated to to be less than the threshold at which they are truncated, so that users don't have the experience of expanding a comment only to see a couple more words (which just feels silly).
   
       // This varies by the size of the comment or truncation amount, and reducing it by 1/4th seems about right.
       TruncateLength: Math.floor(truncationCharCount - (truncationCharCount/4)),
       TruncateBy: "characters",
-      Suffix: readMoreSuffix,
+      Suffix: `... <span class="read-more-button">(read more)</span>${styles}`,
     });
   } else {
     return htmlRemovedStyles

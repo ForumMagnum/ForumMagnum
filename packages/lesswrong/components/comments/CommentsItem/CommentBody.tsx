@@ -1,7 +1,7 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import classNames from 'classnames';
-import { commentExcerptFromHTML, getTruncationCharCount, truncate, wordsRemainingSuffix } from '../../../lib/editor/ellipsize'
+import { calculateTruncationStatus, commentExcerptFromHTML, truncateWithGrace } from '../../../lib/editor/ellipsize'
 import { llmRunGetPageUrl } from '@/lib/collections/llmRuns/helpers';
 import { useLocation } from '@/lib/routeUtil';
 import { useFilteredCurrentUser } from '../../common/withUser'
@@ -53,23 +53,31 @@ const styles = defineStyles('CommentBody', (theme: ThemeType) => ({
   },
 }))
 
-const LLM_REPLY_EXPANDED_LENGTH_MULTIPLE = 4;
+const LLM_REPLY_EXCERPT_WORD_LIMIT = 120;
+const LLM_REPLY_EXPANDED_WORD_LIMIT = 480;
+const LLM_REPLY_GRACE_WORDS = 20;
 
-const STYLE_TAG_PATTERN = /<style[\s\S]*?<\/style>/g;
+function llmReplyMoreWords(wordCount: number, wordLimit: number): string {
+  const { wordsRemaining } = calculateTruncationStatus(wordCount, wordLimit, LLM_REPLY_GRACE_WORDS);
+  return `${wordsRemaining.toLocaleString("en-US")} more words`;
+}
 
-function getLlmReplyExcerpt(comment: CommentsList, postPage: boolean | undefined, pathname: string): string | null {
+function getLlmReplyHtml(comment: CommentsList, showExcerpt: boolean, pathname: string): string | null {
   const html = comment.contents?.html;
   if (!comment.llmRunId || !html) {
     return null;
   }
-  const runPageUrl = llmRunGetPageUrl(comment.llmRunId);
-  const maxLength = LLM_REPLY_EXPANDED_LENGTH_MULTIPLE * getTruncationCharCount(comment, postPage);
-  const lengthWithoutStyles = html.replace(STYLE_TAG_PATTERN, "").length;
-  if (pathname === runPageUrl || lengthWithoutStyles <= maxLength) {
-    return null;
+  const wordCount = comment.contents?.wordCount ?? 0;
+  if (showExcerpt) {
+    const suffix = `... <span class="read-more-button">(${llmReplyMoreWords(wordCount, LLM_REPLY_EXCERPT_WORD_LIMIT)})</span>`;
+    return truncateWithGrace(html, LLM_REPLY_EXCERPT_WORD_LIMIT, LLM_REPLY_GRACE_WORDS, wordCount, suffix).truncatedHtml;
   }
-  const viewFullOutputSuffix = wordsRemainingSuffix(html, (moreWords) => `... <span class="read-more-button"><a href="${runPageUrl}">View full output (${moreWords})</a></span>`);
-  return truncate(html, maxLength, "characters", viewFullOutputSuffix);
+  const runPageUrl = llmRunGetPageUrl(comment.llmRunId);
+  if (pathname === runPageUrl) {
+    return html;
+  }
+  const suffix = `... <span class="read-more-button"><a href="${runPageUrl}">View full output (${llmReplyMoreWords(wordCount, LLM_REPLY_EXPANDED_WORD_LIMIT)})</a></span>`;
+  return truncateWithGrace(html, LLM_REPLY_EXPANDED_WORD_LIMIT, LLM_REPLY_GRACE_WORDS, wordCount, suffix).truncatedHtml;
 }
 
 const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, voteProps, className}: {
@@ -99,9 +107,9 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
   if (collapsed) { return null }
 
-  const innerHtml = (truncated && !truncationDisabledByUserConfig)
-    ? commentExcerptFromHTML(comment, postPage)
-    : (getLlmReplyExcerpt(comment, postPage, pathname) ?? html ?? '')
+  const showExcerpt = !!truncated && !truncationDisabledByUserConfig;
+  const innerHtml = getLlmReplyHtml(comment, showExcerpt, pathname)
+    ?? (showExcerpt ? commentExcerptFromHTML(comment, postPage) : (html ?? ''))
 
   let contentType: ContentStyleType;
   if (comment.answer) {
