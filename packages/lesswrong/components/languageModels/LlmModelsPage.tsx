@@ -19,7 +19,7 @@ const LlmModelsPage = () => {
   return <SingleColumnSection>
     <SectionTitle title="AI Models" />
     <div className={classes.root}>
-      <p>These are the AI models you can mention in a comment on a post: type @ followed by a model's name, and it will reply to your comment.</p>
+      <p>These are the AI models you can mention in a comment: type @ followed by a model's name, and it will reply to your comment.</p>
       <ul>
         {getAvailableLlms().map(({ family, version }) => <li key={version.name}>
           <Link to={userGetProfileUrlFromSlug(family.accountSlug)}>{version.fullName}</Link>
