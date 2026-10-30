@@ -501,5 +501,8 @@ can run it over `ssh studio`, or use your own copy).
     that clear (ClearingKind gained 'heading': "Below the heading", "pushes the heading down").
   - drag-check: snapshot carries a heading's `tag`; S3 uses only h3+ headings (and probes for snapped=false);
     E1 now expects the float to stop at the H2 (cut ghost or "pushes the heading down").
-  - Check: `content-blocks/start-below-check.mjs` (12).
+  - One per widget (Ronny, Oct 30): `$startBelow` removes later markers up to the next widget
+    (`$removeLaterClears`), and a node transform (`$dropRepeatedClear`) drops a marker with another one before
+    it since the last widget (paste, undo mixes).
+  - Check: `content-blocks/start-below-check.mjs` (14).
 

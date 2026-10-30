@@ -1,11 +1,11 @@
 // EXPERIMENT (experiment/iframe-layout-ronny-exp3): "Start below widget" in the editor (see WidgetClearNode):
 // where the chip that adds one shows, adding it, and Backspace or Delete taking it out again.
-import { $getNodeByKey, $getSelection, $isRangeSelection, $isRootNode, type LexicalEditor } from 'lexical';
+import { $getNodeByKey, $getSelection, $isRangeSelection, $isRootNode, type LexicalEditor, type LexicalNode } from 'lexical';
 import { $isHeadingNode } from '@lexical/rich-text';
 import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
 import { EDITOR_FLOAT } from '@/components/contents/widgetNeighbours';
 import { $atCaret, $contentSibling } from './widgetDeleteGuard';
-import { $createWidgetClearNode, $isWidgetClearNode } from './WidgetClearNode';
+import { $createWidgetClearNode, $isWidgetClearNode, type WidgetClearNode } from './WidgetClearNode';
 import { WIDGET_CLEAR_CLASS } from './widgetClearClass';
 import { $isIframeWidgetNode } from './IframeWidgetNode';
 import { anchorOffset, editorColumnRect } from './widgetDragDom';
@@ -60,6 +60,31 @@ export function $startBelow(key: string): void {
   const node = $getNodeByKey(key);
   if (node && $isRootNode(node.getParent()) && !$isWidgetClearNode($contentSibling(node, 'backward'))) {
     node.insertBefore($createWidgetClearNode());
+    $removeLaterClears(node);
+  }
+}
+
+/**
+ * Only one "Start below widget" per widget (Ronny, Oct 30 2026): the first one after a widget already starts
+ * everything after it below the widget, so another one before the next widget would do nothing. Adding one
+ * above an existing one removes that one.
+ */
+function $removeLaterClears(from: LexicalNode): void {
+  let next = from.getNextSibling();
+  while (next && !$isIframeWidgetNode(next)) {
+    const after: LexicalNode | null = next.getNextSibling();
+    if ($isWidgetClearNode(next)) next.remove();
+    next = after;
+  }
+}
+
+/** A node transform: a "Start below widget" with another one before it, since the last widget, goes (a paste, say). */
+export function $dropRepeatedClear(node: WidgetClearNode): void {
+  for (let prev = node.getPreviousSibling(); prev && !$isIframeWidgetNode(prev); prev = prev.getPreviousSibling()) {
+    if ($isWidgetClearNode(prev)) {
+      node.remove();
+      return;
+    }
   }
 }
 

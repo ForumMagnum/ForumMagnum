@@ -96,6 +96,75 @@ try {
   await page.click('[data-testid=widget-start-below]');
   await frames(6);
 
+  // One per widget (Ronny, Oct 30 2026): in the Lists section, add one to a later block beside the left widget
+  // first, then to an earlier one: only the earlier one stays. A pasted second one goes too.
+  {
+    const keysWithChip = [];
+    const candidates = await page.evaluate(() => {
+      const root = document.querySelector('[data-lexical-editor]');
+      const editor = root.__lexicalEditor;
+      const heading = [...root.querySelectorAll(':scope > h2')].find(h => h.textContent.trim() === 'Lists');
+      const keys = [];
+      for (let el = heading.nextElementSibling; el && !el.matches('h2'); el = el.nextElementSibling) {
+        if (el.matches('.sentinel-paragraph, .iframe-widget-code, .lw-widget-clear')) continue;
+        keys.push(el[`__lexicalKey_${editor._key}`]);
+      }
+      return keys;
+    });
+    for (const key of candidates) {
+      await page.evaluate((key) => {
+        const root = document.querySelector('[data-lexical-editor]');
+        const editor = root.__lexicalEditor;
+        editor.getElementByKey(key).scrollIntoView({ block: 'center' });
+        root.focus();
+        editor.update(() => editor.getEditorState()._nodeMap.get(key).getLatest().selectStart());
+      }, key);
+      await frames(6);
+      if (await chip()) keysWithChip.push(key);
+    }
+    const markersInLists = () => page.evaluate(() => {
+      const root = document.querySelector('[data-lexical-editor]');
+      const heading = [...root.querySelectorAll(':scope > h2')].find(h => h.textContent.trim() === 'Lists');
+      let n = 0;
+      for (let el = heading.nextElementSibling; el && !el.matches('h2'); el = el.nextElementSibling) if (el.matches('.lw-widget-clear')) n++;
+      return n;
+    });
+    const addFor = async (key) => {
+      await page.evaluate((key) => {
+        const root = document.querySelector('[data-lexical-editor]');
+        const editor = root.__lexicalEditor;
+        root.focus();
+        editor.update(() => editor.getEditorState()._nodeMap.get(key).getLatest().selectStart());
+      }, key);
+      await frames(6);
+      await page.click('[data-testid=widget-start-below]');
+      await frames(6);
+    };
+    if (keysWithChip.length < 2) {
+      check('the Lists section has two blocks beside its widget to try this on', false, keysWithChip);
+    } else {
+      await addFor(keysWithChip[1]);
+      await addFor(keysWithChip[0]);
+      const one = await markersInLists();
+      const before = await page.evaluate((key) => {
+        const root = document.querySelector('[data-lexical-editor]');
+        let el = root.__lexicalEditor.getElementByKey(key).previousElementSibling;
+        while (el?.matches('.sentinel-paragraph')) el = el.previousElementSibling;
+        return !!el?.matches('.lw-widget-clear');
+      }, keysWithChip[0]);
+      check('adding one above an existing one leaves only one, the upper one', one === 1 && before, { one, before });
+      // A second one put in by other means (a paste, say) goes.
+      await page.evaluate((key) => {
+        const root = document.querySelector('[data-lexical-editor]');
+        const editor = root.__lexicalEditor;
+        const Klass = editor._nodes.get('widget-clear').klass;
+        editor.update(() => editor.getEditorState()._nodeMap.get(key).getLatest().insertBefore(new Klass()));
+      }, keysWithChip[1]);
+      await frames(6);
+      check('a second one after it is dropped', (await markersInLists()) === 1, await markersInLists());
+    }
+  }
+
   const h2sBelow = (view) => page.evaluate((view) => {
     const root = view === 'editor' ? document.querySelector('[data-lexical-editor]') : document.querySelector('[data-testid=widget-drag-post-body] .iframe-widget')?.parentElement;
     const bad = [];

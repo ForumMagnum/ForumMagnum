@@ -61,7 +61,8 @@ import { $isSentinelParagraphNode, SentinelParagraphNode } from '@/components/ed
 import { IframeWidgetDragContext } from './widgetDragContext';
 import { OPTIONS_MENU_WIDTH, WidgetOptionsMenu } from './WidgetOptionsMenu';
 import { $deleteWidget, $guardWidgetsFromDeleteKey } from './widgetDeleteGuard';
-import { $removeClearAtCaret } from './widgetClear';
+import { $dropRepeatedClear, $removeClearAtCaret } from './widgetClear';
+import { WidgetClearNode } from './WidgetClearNode';
 import { StartBelowChip } from './StartBelowChip';
 import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks } from './widgetDragDom';
 import {
@@ -1146,6 +1147,8 @@ export default function IframeWidgetPlugin({
 
     return mergeRegister(
       editor.registerNodeTransform(IframeWidgetNode, $hoistWidget),
+      // EXPERIMENT (experiment/iframe-layout-ronny-exp3): one "Start below widget" per widget (widgetClear.ts).
+      editor.registerNodeTransform(WidgetClearNode, $dropRepeatedClear),
       editor.registerCommand(KEY_BACKSPACE_COMMAND, guardKey('backward'), COMMAND_PRIORITY_NORMAL),
       editor.registerCommand(KEY_DELETE_COMMAND, guardKey('forward'), COMMAND_PRIORITY_NORMAL),
       editor.registerCommand(DELETE_CHARACTER_COMMAND, guardDelete, COMMAND_PRIORITY_NORMAL),

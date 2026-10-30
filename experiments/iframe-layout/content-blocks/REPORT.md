@@ -306,5 +306,8 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
     per-image "wrap or break text" choice; WordPress never solved it (no clear option; themes clear headings
     in CSS); Substack, Medium and most newer editors avoid wrapping altogether.
   - Demo: the blocks post has a new "Starting below a widget" section, and its text says H1/H2 start below.
-  - Test: `start-below-check.mjs` (chip, Backspace, ✕, Post tab, phone, every H2 below the widgets before it).
+  - Only one per widget (your call): adding one above an existing one removes the lower one (it did nothing
+    any more), and a second one pasted in after it is dropped.
+  - Test: `start-below-check.mjs` (chip, Backspace, ✕, one per widget, Post tab, phone, every H2 below the
+    widgets before it).
 
