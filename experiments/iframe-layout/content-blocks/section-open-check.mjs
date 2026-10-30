@@ -95,9 +95,11 @@ try {
     // ...and stays below when closed (click the marker at the title's left edge).
     // The marker sits in the title's left gutter, outside the title's text.
     const title = section.locator(':scope > .detailsBlockTitle');
-    await title.scrollIntoViewIfNeeded();
-    // (Once the title has stopped moving: in one run in about eight, all three widths, the click left the
-    // section open; it never did when run again. What was under the pointer goes in the report.)
+    // In the middle of the window: scrolled just into view from below, the title sat under LessWrong's
+    // header, which shows again when the page scrolls up, and the click hit the header (one run in about
+    // eight). Then once it has stopped moving; what was under the pointer goes in the report.
+    await title.evaluate(el => el.scrollIntoView({ block: 'center' }));
+    await page.waitForTimeout(400);
     let tb = await title.boundingBox();
     for (let i = 0; i < 20; i++) {
       await page.waitForTimeout(150);

@@ -17,8 +17,14 @@ import {
   $isRootNode,
   $setSelection,
   COMMAND_PRIORITY_EDITOR,
+  COMMAND_PRIORITY_NORMAL,
   createCommand,
+  DELETE_CHARACTER_COMMAND,
+  DELETE_LINE_COMMAND,
+  DELETE_WORD_COMMAND,
   HISTORY_PUSH_TAG,
+  KEY_BACKSPACE_COMMAND,
+  KEY_DELETE_COMMAND,
   isExactShortcutMatch,
   LexicalCommand,
   LexicalEditor,
@@ -52,6 +58,7 @@ import { $reconcileSentinels } from '@/components/editor/lexicalPlugins/blockCur
 import { $isSentinelParagraphNode, SentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
 import { IframeWidgetDragContext } from './widgetDragContext';
 import { OPTIONS_MENU_WIDTH, WidgetOptionsMenu } from './WidgetOptionsMenu';
+import { $deleteWidget, $guardWidgetsFromDeleteKey } from './widgetDeleteGuard';
 import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks, widgetColumnRect } from './widgetDragDom';
 import {
   adjacentSlot, type BlockBox, chooseDropSlot, type ColumnRect, type DropSlot, fitMatchesWidth, insertionKey, moveChipText,
@@ -328,6 +335,17 @@ const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
     '&:hover, &:has(:focus-visible), &:has($layoutBar:focus-within)': {
       overflow: 'visible',
       zIndex: 2,
+    },
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget whose grip was clicked is selected: it gets
+    // a ring, and Backspace or Delete removes it (the only keys that delete a widget; widgetDeleteGuard.ts).
+    '&:has($gripTab:focus)': {
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: 2,
+      overflow: 'visible',
+      zIndex: 2,
+    },
+    '&:has($gripTab:focus) $gripTab': {
+      opacity: 1,
     },
   },
   // The first-run hint shows the grip tab without hover: whole, across the top edge.
@@ -802,6 +820,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   onResizePointerDown,
   onGripKeyDown,
   onOptionsChange,
+  onDelete,
 }: {
   nodeKey: string;
   state: WidgetState;
@@ -821,6 +840,8 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   onGripKeyDown?: (nodeKey: string, e: React.KeyboardEvent<HTMLElement>) => void;
   /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): a choice in the gear's menu (one undo step each). */
   onOptionsChange?: (nodeKey: string, layout: IframeWidgetLayout) => void;
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): the gear menu's Delete, for a widget inside a block. */
+  onDelete?: (nodeKey: string) => void;
 }) {
   const classes = useStyles(styles);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -950,7 +971,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
         data-testid="widget-grip"
         data-widget-key={nodeKey}
         aria-label="Move widget"
-        title="Drag to move. Arrow keys move it too."
+        title="Drag to move. Or click it: then the arrow keys move it, and Backspace deletes it."
         onPointerDown={handleGripPointerDown}
         onMouseDown={preventDefault}
         onKeyDown={handleGripKeyDown}
@@ -988,6 +1009,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
       layout={state.layout}
       columnWidth={columnWidth}
       onlyWrapping={!state.topLevel}
+      onDelete={!state.topLevel && onDelete ? () => onDelete(nodeKey) : undefined}
       style={{
         top: position.top + 22 + 32,
         left: Math.max(0, position.left + position.width - gearRight - OPTIONS_MENU_WIDTH),
@@ -1090,7 +1112,22 @@ export default function IframeWidgetPlugin({
       throw new Error('IframeWidgetPlugin: IframeWidgetNode not registered on editor');
     }
 
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): Backspace and Delete next to a widget join the text
+    // around it and never delete or change it (widgetDeleteGuard.ts). Ahead of the caret-gap plugin's
+    // Backspace (LOW) and the rich text defaults; the delete commands cover input that skips the keys.
+    const guardKey = (direction: 'backward' | 'forward') => (event: KeyboardEvent | null) => {
+      if (!$guardWidgetsFromDeleteKey(direction, !isSuggestionMode)) return false;
+      event?.preventDefault();
+      return true;
+    };
+    const guardDelete = (isBackward: boolean) => $guardWidgetsFromDeleteKey(isBackward ? 'backward' : 'forward', !isSuggestionMode);
+
     return mergeRegister(
+      editor.registerCommand(KEY_BACKSPACE_COMMAND, guardKey('backward'), COMMAND_PRIORITY_NORMAL),
+      editor.registerCommand(KEY_DELETE_COMMAND, guardKey('forward'), COMMAND_PRIORITY_NORMAL),
+      editor.registerCommand(DELETE_CHARACTER_COMMAND, guardDelete, COMMAND_PRIORITY_NORMAL),
+      editor.registerCommand(DELETE_WORD_COMMAND, guardDelete, COMMAND_PRIORITY_NORMAL),
+      editor.registerCommand(DELETE_LINE_COMMAND, guardDelete, COMMAND_PRIORITY_NORMAL),
       // EXPERIMENT (experiment/iframe-layout-ronny-exp2)
       editor.registerCommand<MoveIframeWidgetPayload>(
         MOVE_IFRAME_WIDGET_COMMAND,
@@ -1587,6 +1624,14 @@ export default function IframeWidgetPlugin({
 
   // On a focused grip: arrow up/down move to the previous/next slot, left/right set the side, [ and ]
   // step the width. Each press is one undo step.
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget deleted on purpose: its grip selected and
+  // Backspace or Delete, or a nested widget's gear menu. One undo step; the editor gets the focus back.
+  const deleteWidget = useCallback((key: string) => {
+    if (isSuggestionMode) return;
+    editor.update(() => $deleteWidget(key));
+    editor.focus();
+  }, [editor, isSuggestionMode]);
+
   const handleGripKeyDown = useCallback((key: string, e: React.KeyboardEvent<HTMLElement>) => {
     if (cancelGesture.current || !dragEnabledRef.current) return;
     // The grips sit outside the editable text, so the editor never sees their keys: undo and redo
@@ -1634,6 +1679,13 @@ export default function IframeWidgetPlugin({
         if (width) nextLayout = { ...layout, width };
         break;
       }
+      // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the grip clicked (the widget selected).
+      case 'Backspace':
+      case 'Delete':
+        e.preventDefault();
+        e.stopPropagation();
+        deleteWidget(key);
+        return;
       default:
         return;
     }
@@ -1656,7 +1708,7 @@ export default function IframeWidgetPlugin({
         window.scrollBy(0, Math.min(rect.bottom - bottom, rect.top - KEY_MOVE_TOP_ROOM));
       }
     }));
-  }, [editor, commitPlacement]);
+  }, [editor, commitPlacement, deleteWidget]);
 
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): the gear menu's choices, like the keys on a grip: one
   // undo step each, announced for screen readers.
@@ -1707,6 +1759,7 @@ export default function IframeWidgetPlugin({
             onResizePointerDown={startResize}
             onGripKeyDown={handleGripKeyDown}
             onOptionsChange={handleOptionsChange}
+            onDelete={deleteWidget}
           />
         );
       })}

@@ -395,9 +395,27 @@ can run it over `ssh studio`, or use your own copy).
   paragraph's first line beside the widget flips from run to run (width-sweep "line 239/0" or "0/239";
   not seen in a short sweep). (4) Full-width widget frames can be 1px taller in the post: both views
   apply the height the frame reports, and the two frames round differently.
-- **Test notes (Oct 29):** section-open-check once failed at all three widths in a full run (the arrow
-  click left the long section open) and passed 8 runs since, alone, after nested-check and under a
-  concurrent sweep; it now waits for the title to stop moving and reports what was under the pointer.
+- **Backspace/Delete never delete or change a widget from text (Ronny's rule, Oct 29):**
+  `IframeWidgetEmbed/widgetDeleteGuard.ts`, registered in IframeWidgetPlugin at COMMAND_PRIORITY_NORMAL on
+  KEY_BACKSPACE/KEY_DELETE (ahead of BlockCursorNavigationPlugin's LOW Backspace, which stepped into the
+  gap and then deleted the block before it) and on DELETE_CHARACTER/WORD/LINE (input that skips the keys).
+  A collapsed caret at a text edge, or in a gap, whose neighbour (skipping gaps) is a widget: if the blocks
+  on both sides of the widget run are paragraphs or headings, the far one's text is joined onto the near
+  one (backward: onto the block before), floated widgets go in front of the joined block, full-width ones
+  after it, caret at the seam; an empty paragraph on either side is just removed; otherwise nothing.
+  Suggestion mode only blocks. Range selections are untouched (they delete the widget). Found on the way:
+  inside a quote, list item or section (no gaps) Backspace right after a widget merged the paragraph into
+  the widget's hidden code (quote +160 chars, section +120) or emptied it (list item). Deleting on purpose
+  (Ronny: "Grip, then Delete"): a plain click on the grip already focused it (the move gesture's onClick);
+  that focus is the selection now: `dragMode`'s `&:has($gripTab:focus)` rings the widget, and
+  `handleGripKeyDown` deletes it on Backspace or Delete (`deleteWidget` -> `$deleteWidget` in
+  widgetDeleteGuard.ts: one undo step, caret onto the text next to it, editor focused so Cmd+Z works). A
+  nested widget (no grip) gets a "Delete widget" button in its gear menu (WidgetOptionsMenu `onDelete`,
+  nested only). Check: `content-blocks/delete-key-check.mjs` (29 checks).
+- **Test notes (Oct 29):** section-open-check sometimes failed (the arrow click left the long section open,
+  about one run in eight). Cause, found by its pointer report: `scrollIntoViewIfNeeded` scrolled up to the
+  title, LessWrong's header (headroom) reappeared on the scroll up and covered the title, so the click hit
+  the header. It now scrolls the title to the middle of the window and waits for it to settle.
   width-sweep's display-equation check now also covers the post's scroll box around a wide equation (it
   was measuring MathJax's hidden screen-reader copy there: 236 false "drift" widths).
 

@@ -72,7 +72,7 @@ const styles = defineStyles('WidgetOptionsMenu', (theme: ThemeType) => ({
 
 const preventDefault = (e: React.SyntheticEvent) => e.preventDefault();
 
-export function WidgetOptionsMenu({ layout, columnWidth, onlyWrapping = false, style, onChange, onClose }: {
+export function WidgetOptionsMenu({ layout, columnWidth, onlyWrapping = false, onDelete, style, onChange, onClose }: {
   layout: IframeWidgetLayout,
   columnWidth: number,
   /**
@@ -82,6 +82,8 @@ export function WidgetOptionsMenu({ layout, columnWidth, onlyWrapping = false, s
    * wide as the column. Measured, so it follows the window.
    */
   onlyWrapping?: boolean,
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): a Delete button (a widget inside a block, which has no grip to select it by). */
+  onDelete?: () => void,
   style: React.CSSProperties,
   onChange: (layout: IframeWidgetLayout) => void,
   /** refocus: closed with Escape, so the gear gets the focus back. */
@@ -146,5 +148,17 @@ export function WidgetOptionsMenu({ layout, columnWidth, onlyWrapping = false, s
     {side && !shouldWrapWidget(layout, columnWidth) && <div className={classes.note}>
       Full width at this window size: no room for text beside it.
     </div>}
+    {onDelete && <>
+      <div className={classes.label}>Widget</div>
+      <div className={classes.buttons}>
+        <button
+          type="button"
+          className={classes.button}
+          data-option="delete"
+          onMouseDown={preventDefault}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(); }}
+        >Delete widget</button>
+      </div>
+    </>}
   </div>;
 }

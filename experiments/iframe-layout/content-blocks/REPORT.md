@@ -209,6 +209,10 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
    the window. At the normal width a quote, list item or collapsible section offers 25%, 33% and 38%, and
    dragging an edge wider goes straight to full width. AI content is as wide as the column, so it still
    offers 50%. A widget that already has a width that can't wrap there keeps it, and shows full width.
+5. ~~**How to delete a widget on purpose.**~~ Answered Oct 29: "Grip, then Delete". Click a widget's grip
+   (the handle on its top edge) and it's selected, with a ring; Backspace or Delete then removes it. A
+   widget inside a quote, list item, section or AI content (no grip) has a Delete button in its gear menu.
+   One undo brings either back.
 
 ## Changes on Oct 29 (MacBook session)
 - Collapsible sections are placed as they look open (see above).
@@ -239,6 +243,14 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   - Lists: a nested list sat 6.5px lower in the editor.
   - A widget placed in the middle of a list item's text started one line lower in the post.
   - Full-width widgets had a 9px gap under them in the post only. Gone.
+- Backspace and Delete never delete a widget from text (your rule). Next to a widget they join the text
+  on either side instead: Backspace before the first letter of the paragraph after a widget puts that
+  paragraph onto the end of the one before the widget. A left or right widget then sits in front of the
+  joined paragraph (so it stays beside that text, and one lined up with a paragraph's end still is); a
+  full-width one sits after it. One undo puts it all back. Where there's nothing to join (inside a quote,
+  list item or section that starts with the widget), the key does nothing. Before, the second Backspace
+  deleted the widget, and inside a quote, list item or section the first one merged the paragraph into
+  the widget's hidden code, or emptied it. A text selection that runs across a widget still deletes it.
 - Two small differences are left on purpose:
   - The editor breaks a line one word earlier when the line would fit with under about 4px to spare
     (Chrome does that in anything editable).
