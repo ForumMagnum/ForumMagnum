@@ -57,13 +57,6 @@ export function getLatestLlmVersion(family: LlmFamily): LlmVersion | undefined {
   return family.versions.find((version) => !version.retired);
 }
 
-export function getAvailableLlms(): LlmFamilyVersion[] {
-  return LLM_FAMILIES.flatMap((family) => family.versions
-    .filter((version) => !version.retired)
-    .map((version) => ({ family, version })),
-  );
-}
-
 export function getLlmVersionFullName(versionName: string): string {
   const version = LLM_FAMILIES.flatMap((family) => family.versions).find(({ name }) => name === versionName);
   if (!version) {

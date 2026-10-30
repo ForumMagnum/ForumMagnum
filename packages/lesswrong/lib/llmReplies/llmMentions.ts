@@ -1,6 +1,6 @@
 import uniqBy from "lodash/uniqBy";
 import { userMentionQueryString } from "@/lib/pingback";
-import { getAvailableLlms, getLatestLlmVersion, LLM_FAMILIES, type LlmFamily, type LlmFamilyVersion, type LlmVersion } from "@/lib/languageModels/llmRegistry";
+import { getLatestLlmVersion, LLM_FAMILIES, type LlmFamily, type LlmFamilyVersion, type LlmVersion } from "@/lib/languageModels/llmRegistry";
 
 export const LLM_MENTION_VERSION_QUERY = "model";
 
@@ -19,8 +19,10 @@ export function getMentionableLlms(query: string): LlmFamilyVersion[] {
       const version = getLatestLlmVersion(family);
       return version ? [{ family, version }] : [];
     });
-  const matchingVersions = getAvailableLlms()
-    .filter(({ version }) => nameMatchesQuery(version.name, normalizedQuery) || nameMatchesQuery(version.fullName, normalizedQuery));
+  const matchingVersions = LLM_FAMILIES.flatMap((family) => family.versions
+    .filter((version) => !version.retired && (nameMatchesQuery(version.name, normalizedQuery) || nameMatchesQuery(version.fullName, normalizedQuery)))
+    .map((version) => ({ family, version })),
+  );
   return uniqBy([...latestOfMatchingFamilies, ...matchingVersions], ({ version }) => version.name);
 }
 
