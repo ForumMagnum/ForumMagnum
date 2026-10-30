@@ -2,46 +2,53 @@
  * Page background color. These classnames get set on the <body> tag in
  * <PageBackgroundWrapper>. They currently have to be in this CSS rather than
  * in JSS styles because it's static-prerendered.
+ *
+ * The color is exposed as --page-background so that elements which need to
+ * blend into whatever is behind them (eg the fade at the bottom of a truncated
+ * sidenote) can match it.
 */
+body {
+  background: var(--page-background);
+}
 body.whiteBackground.theme-default {
   color-scheme: light only;
-  background: white;
+  --page-background: white;
 }
 body.greyBackground.theme-default{
   color-scheme: light only;
-  background: #f8f4ee;
+  --page-background: #f8f4ee;
 }
 body.creamBackground.theme-default {
   color-scheme: light only;
-  background: #fcfbf8;
+  --page-background: #fcfbf8;
 }
 body.creamBackground.theme-default header {
   background-color: rgba(252, 251, 248, 0.65) !important;
 }
 body.whiteBackground.theme-dark {
   color-scheme: dark only;
-  background: black;
+  --page-background: black;
 }
 body.greyBackground.theme-dark {
   color-scheme: dark only;
-  background: #262626;
+  --page-background: #262626;
 }
 body.creamBackground.theme-dark {
   color-scheme: dark only;
-  background: #262626;
+  --page-background: #262626;
 }
 @media (prefers-color-scheme: light) {
   body.theme-auto {
     color-scheme: light only;
   }
   body.whiteBackground.theme-auto {
-    background: white;
+    --page-background: white;
   }
   body.greyBackground.theme-auto {
-    background: #f8f4ee;
+    --page-background: #f8f4ee;
   }
   body.creamBackground.theme-auto {
-    background: #fcfbf8;
+    --page-background: #fcfbf8;
   }
   body.creamBackground.theme-auto header {
     background-color: rgba(252, 251, 248, 0.65) !important;
@@ -52,12 +59,12 @@ body.creamBackground.theme-dark {
     color-scheme: dark only;
   }
   body.whiteBackground.theme-auto {
-    background: black;
+    --page-background: black;
   }
   body.greyBackground.theme-auto {
-    background: #262626;
+    --page-background: #262626;
   }
   body.creamBackground.theme-auto {
-    background: #262626;
+    --page-background: #262626;
   }
 }
