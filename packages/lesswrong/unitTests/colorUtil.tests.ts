@@ -1,4 +1,4 @@
-import { colorToString, invertColorPreservingHue, invertHexColor } from '../themes/colorUtil';
+import { colorToString, invertColorPreservingHue, invertHexColor, parseColor } from '../themes/colorUtil';
 
 describe('colorUtil', () => {
   it('keeps the old channel-wise inversion for theme colors', () => {
@@ -12,5 +12,10 @@ describe('colorUtil', () => {
 
   it('inverts greyscale lightness when preserving hue', () => {
     expect(colorToString(invertColorPreservingHue([0.2, 0.2, 0.2, 1]))).toBe('#cccccc');
+  });
+
+  it('preserves transparency when inverting content colors', () => {
+    expect(colorToString(invertColorPreservingHue(parseColor('transparent')!))).toBe('rgba(255,255,255,0)');
+    expect(colorToString(invertColorPreservingHue(parseColor('rgba(0, 0, 0, 0.5)')!))).toBe('rgba(255,255,255,0.5)');
   });
 });
