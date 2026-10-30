@@ -308,6 +308,8 @@ export const sanitize = function(s: string): string {
         'table-cell-resizer',
         'llm-content-block',
         'llm-content-block-content',
+        // EXPERIMENT (experiment/iframe-layout-ronny-exp3): "Start below widget" (WidgetClearNode).
+        'lw-widget-clear',
         /arb-custom-script-[a-zA-Z0-9]*/,
       ],
       table: [

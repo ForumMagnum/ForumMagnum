@@ -485,4 +485,20 @@ can run it over `ssh studio`, or use your own copy).
   markSlivers (which measures the boxes), and a change fires WIDGET_LAYOUT_EVENT. The editor's update
   listener also schedules the guard while any marked block is left (all widgets deleted). One-height makes
   "nearest widget above" the only one that can be beside a block. Check: `content-blocks/quote-flow-check.mjs`.
+- **"Start below widget" + section headings clear (Oct 30, after Jim/Oliver in #lesswrong-2026):**
+  - `WidgetClearNode` (IframeWidgetEmbed/WidgetClearNode.tsx; its editor label + ✕ in WidgetClearMarker.tsx,
+    'use client', since PlaygroundNodes is loaded on the server): a block DecoratorNode exported as
+    `<div class="lw-widget-clear">` (class in widgetClearClass.ts; allowed in lib/utils/sanitize.ts div
+    classes; registered in PlaygroundNodes; no caret gaps: BlockCursorNavigationPlugin's $needsBlockCursor
+    returns false for it). widgetNeighbours: `.lw-widget-clear { clear: both }` (editor adds position:
+    relative for the hanging label).
+  - The chip: StartBelowChip.tsx + widgetClear.ts `startBelowSpot` (caret block beside the nearest preceding
+    float, below the block it lines up with, not an H1/H2, no marker already; needs 110px of left margin) and
+    `$startBelow`. `$removeClearAtCaret` runs first in the plugin's Backspace/Delete handlers.
+  - Section headings: widgetNeighbours `SECTION_HEADINGS = :is(h1, h2)` → CLEARS_BELOW; `HEADINGS` (box
+    beside) is h3-h6 now. EDITOR_CLEARING_BLOCKS has h1, h2 and the marker, so the drag treats them as blocks
+    that clear (ClearingKind gained 'heading': "Below the heading", "pushes the heading down").
+  - drag-check: snapshot carries a heading's `tag`; S3 uses only h3+ headings (and probes for snapped=false);
+    E1 now expects the float to stop at the H2 (cut ghost or "pushes the heading down").
+  - Check: `content-blocks/start-below-check.mjs` (12).
 

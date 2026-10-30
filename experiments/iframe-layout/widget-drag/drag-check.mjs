@@ -103,6 +103,7 @@ async function openEditor(browser, width, height = 900, contextOptions = null) {
       return ed.getEditorState().toJSON().root.children.map((c, i) => ({
         key: keys[i],
         type: c.type,
+        tag: c.tag ?? null,
         widgetId: c.widgetId ?? null,
         // A widget's first line (its lw-layout tag, if any); a block's first words.
         text: c.type === 'iframe-widget'
@@ -283,51 +284,67 @@ async function mainChecks(browser) {
     await h.invariants('S2');
   }
 
-  // S3: aimed just before a heading, a float lands right before it (Experiment 3: a heading sits beside a
-  // widget instead of clearing it, so nothing snaps below it); so does a full-width widget, before the
-  // float now at the heading's top (a full-width widget goes before the floats at its slot).
+  // S3: aimed just before a section heading (H1, H2), a float goes below it, lined up with the section's first
+  // paragraph (section headings start below a widget: Oct 30 2026), and the chip says "Below the heading"; a
+  // full-width widget lands right before it. (Before a smaller heading, which sits beside a widget, a float
+  // lands right before it, where the post has one between two paragraphs.)
   {
     const snap = content(await h.snapshot());
     const floatKey = await h.widget(/position=left/);
     const fullKey = await h.widget(/position=inline/);
-    const headings = snap.map((c, i) => ({ ...c, i })).filter((c, i) => c.type === 'heading' && snap[i - 1]?.type === 'paragraph'
-      && snap[i + 1]?.type === 'paragraph' && snap[i + 1]?.key !== floatKey && snap[i - 1]?.key !== floatKey);
-    // (Experiment 3: one where no other widget is in the way, found by aiming at each, last first.)
-    let heading = null;
-    for (const candidate of [...headings].reverse()) {
-      await h.drag(h.grip(floatKey), async () => {
-        await h.scrollToKey(candidate.key);
-        await h.frames(2);
-        const r = await h.keyRect(candidate.key);
-        return { x: col.left + 60, y: r.y + 3 };
-      }, { onMid: async (m) => { if (!m.ind.moved) heading = candidate; await page.keyboard.press('Escape'); } });
-      if (heading) break;
+    const between = (c, i) => c.type === 'heading' && snap[i - 1]?.type === 'paragraph' && snap[i + 1]?.type === 'paragraph'
+      && snap[i + 1]?.key !== floatKey && snap[i - 1]?.key !== floatKey;
+    const sections = snap.filter((c, i) => between(c, i) && ['h1', 'h2'].includes(c.tag));
+    const smaller = snap.filter((c, i) => between(c, i) && !['h1', 'h2'].includes(c.tag));
+    const aimAt = (heading) => async () => {
+      await h.scrollToKey(heading.key);
+      await h.frames(2);
+      const r = await h.keyRect(heading.key);
+      return { x: col.left + 60, y: r.y + 3 };
+    };
+    // Where the float would go if dropped there (Escape: nothing changes). Candidates last first, skipping any
+    // with another widget in the way.
+    const probe = async (heading) => {
+      let ind = null;
+      await h.drag(h.grip(floatKey), aimAt(heading), { onMid: async (m) => { ind = m.ind; await page.keyboard.press('Escape'); } });
+      return ind;
+    };
+    let section = null;
+    for (const candidate of [...sections].reverse()) {
+      const ind = await probe(candidate);
+      if (ind && !ind.moved && ind.snapped === 'true' && /^Below the heading/.test(ind.chip ?? '')) { section = candidate; break; }
     }
-    check('S3 there is a heading with room for the float', !!heading);
-    heading ??= headings.at(-1);
-    await h.resetUpdates();
-    const mid = await h.drag(h.grip(floatKey), async () => {
-      await h.scrollToKey(heading.key);
-      await h.frames(2);
-      const r = await h.keyRect(heading.key);
-      return { x: col.left + 60, y: r.y + 3 };
-    });
-    let after = content(await h.snapshot());
-    let at = after.findIndex(c => c.key === floatKey);
-    check('S3 float lands right before the heading', mid.ind.snapped === 'false' && !/Below the/.test(mid.ind.chip ?? '')
-      && after[at + 1]?.key === heading.key, `chip=${mid.ind.chip} next=${after[at + 1]?.type}`);
-    await h.resetUpdates();
-    const mid2 = await h.drag(h.grip(fullKey), async () => {
-      await h.scrollToKey(heading.key);
-      await h.frames(2);
-      const r = await h.keyRect(heading.key);
-      return { x: col.left + 60, y: r.y + 3 };
-    });
-    after = content(await h.snapshot());
-    at = after.findIndex(c => c.key === fullKey);
-    check('S3 full-width widget lands right before the heading', mid2.ind.snapped === 'false'
-      && (after[at + 1]?.key === heading.key || (after[at + 1]?.key === floatKey && after[at + 2]?.key === heading.key)),
-      `next=${after[at + 1]?.type}`);
+    check('S3 a float aimed before a section heading goes below it ("Below the heading")', !!section);
+    if (section) {
+      await h.resetUpdates();
+      await h.drag(h.grip(floatKey), aimAt(section));
+      const after = content(await h.snapshot());
+      const at = after.findIndex(c => c.key === floatKey);
+      check('S3 ...and lands just after the heading', after[at - 1]?.key === section.key, `prev=${after[at - 1]?.type}`);
+    }
+    let small = null;
+    for (const candidate of [...smaller].reverse()) {
+      const ind = await probe(candidate);
+      if (ind && !ind.moved && ind.snapped === 'false') { small = candidate; break; }
+    }
+    if (small) {
+      await h.drag(h.grip(floatKey), aimAt(small));
+      const after = content(await h.snapshot());
+      const at = after.findIndex(c => c.key === floatKey);
+      check('S3 a float lands right before a smaller heading', after[at + 1]?.key === small.key, `next=${after[at + 1]?.type}`);
+    } else {
+      console.log('  (S3: this post has no smaller heading between two paragraphs with room beside it)');
+    }
+    const target = section ?? sections.at(-1);
+    if (target) {
+      await h.resetUpdates();
+      const mid2 = await h.drag(h.grip(fullKey), aimAt(target));
+      const after = content(await h.snapshot());
+      const at = after.findIndex(c => c.key === fullKey);
+      check('S3 full-width widget lands right before the heading', mid2.ind.snapped === 'false'
+        && (after[at + 1]?.key === target.key || (after[at + 1]?.key === floatKey && after[at + 2]?.key === target.key)),
+        `next=${after[at + 1]?.type}`);
+    }
     await h.invariants('S3');
   }
 
@@ -336,6 +353,8 @@ async function mainChecks(browser) {
   {
     const leftKey = await h.widget(/position=left/);
     const rightKey = await h.widget(/position=right/);
+    const home = content(await h.snapshot());
+    const homeNext = home[home.findIndex(c => c.key === rightKey) + 1]?.key ?? null;
     await h.resetUpdates();
     const mid = await h.drag(h.grip(rightKey), async () => {
       await h.scrollToKey(leftKey);
@@ -349,6 +368,10 @@ async function mainChecks(browser) {
     check('S4 aimed beside another widget: moved down, clear of it', mid.ind.moved === 'down' && /moved down, clear of the widget above/.test(mid.ind.chip ?? '')
       && after[at - 1]?.key !== leftKey && r.y >= l.bottom && pushCount(await h.updates()) === 1,
       `chip=${mid.ind.chip} prev=${after[at - 1]?.key} left ${Math.round(l.y)}-${Math.round(l.bottom)} right ${Math.round(r.y)}`);
+    // (Back where it was: the first spot clear of the left widget can be the end of the post, which the later
+    // checks need free.)
+    await dispatchMove(page, { key: rightKey, beforeKey: homeNext });
+    await h.frames(4);
     await h.invariants('S4');
   }
 
@@ -491,7 +514,8 @@ async function mainChecks(browser) {
     await h.scrollTo(h.overlay(key));
     await h.resetUpdates();
     await h.drag(`[data-testid=widget-resize-right][data-widget-key="${key}"]`, (r) => ({ x: col.left + (0.33 * col.width), y: r.cy }));
-    check('S12 right edge in: left 33%', /position=left width=33%/.test(await h.widgetText(key)) && pushCount(await h.updates()) === 1);
+    check('S12 right edge in: left 33%', /position=left width=33%/.test(await h.widgetText(key)) && pushCount(await h.updates()) === 1,
+      `${await h.widgetText(key)} pushes=${pushCount(await h.updates())} next=${(c => c[c.findIndex(x => x.key === key) + 1]?.type)(content(await h.snapshot()))}`);
     await page.keyboard.press('Meta+z');
     await h.frames(4);
     await h.scrollTo(h.overlay(key));
@@ -1190,10 +1214,10 @@ async function edgeChecks(browser) {
   };
   const barTop = async () => (await h.rect('[data-lw-bottom-bar]')).y;
 
-  // E1: a float dropped in a short section before a heading. Experiment 3: the heading sits beside it
-  // instead of clearing it, so the ghost runs on past the heading (not cut, nothing pushed down). (The
-  // widget after the heading goes to the end of the post meanwhile: no two widgets share a height, so the
-  // dragged one would move down past it.)
+  // E1: a float dropped in a short section before a section heading (H2). Experiment 3, Oct 30 2026: section
+  // headings start below a widget, so the ghost stops at the heading or pushes it down (smaller headings sit
+  // beside). (The widget after the heading goes to the end of the post meanwhile: no two widgets share a
+  // height, so the dragged one would move down past it.)
   {
     const key = await h.widget(/position=left width=38%/);
     const para = await keyOf(/^Watch the gap/);
@@ -1214,8 +1238,8 @@ async function edgeChecks(browser) {
     const ghost = await R('[data-testid=widget-drop-ghost]');
     const hr = await h.keyRect(heading);
     await cancel();
-    check('E1 a float before a heading runs on beside it', ind.slotKey === para && !ind.moved && !ind.pushesDown
-      && !/pushes/.test(ind.chip ?? '') && ghost?.cut !== 'true' && ghost.bottom > hr.y,
+    check('E1 a float before a section heading stops there: the heading starts below it', ind.slotKey === para && !ind.moved
+      && (ind.pushesDown === 'heading' || (ghost?.cut === 'true' && ghost.bottom <= hr.y + 1)),
       `chip=${ind.chip} slot=${ind.slotKey} ghost bottom ${Math.round(ghost?.bottom)} heading ${Math.round(hr.y)}`);
     if (other) await dispatchMove(page, { key: other.key, beforeKey: otherNext });
     await h.frames(4);

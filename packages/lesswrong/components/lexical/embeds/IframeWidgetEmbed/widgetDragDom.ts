@@ -10,6 +10,7 @@ import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blo
 import { $isIframeWidgetNode } from './IframeWidgetNode';
 import type { BlockBox, ColumnRect } from './widgetDragGeometry';
 import { EDITOR_CLEARING_BLOCKS } from '@/components/contents/widgetNeighbours';
+import { WIDGET_CLEAR_CLASS } from './widgetClearClass';
 
 /**
  * The next sibling that is content, skipping the empty sentinel paragraphs the editor keeps around
@@ -69,7 +70,8 @@ export function measureBlocks(editor: LexicalEditor): { blocks: BlockBox[], colu
           : $isCollapsibleSectionContainerNode(child) ? 'section'
           : $isIframeWidgetNode(child) ? 'widget'
           : $isSentinelParagraphNode(child) ? 'sentinel'
-          : clearing ? (elem.matches('hr') ? 'divider' : 'embed')
+          // (EXPERIMENT (experiment/iframe-layout-ronny-exp3): a "Start below widget" block clears too.)
+          : clearing ? (elem.matches('hr') ? 'divider' : elem.matches(`.${WIDGET_CLEAR_CLASS}`) ? 'other' : 'embed')
           : 'other',
         float: float === 'left' || float === 'right' ? float : 'none',
         clears: clearing || (clear !== 'none' && !elem.hasAttribute('data-lw-below')),

@@ -287,3 +287,24 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   widget too. It now goes by the nearest widget above the block: beside a right widget they flow like text
   wherever they are in the post. Test: `quote-flow-check.mjs` (types the quote longer in the editor, then
   checks the editor and the Post tab).
+- **"Start below widget" and section headings (Oct 30, after the #lesswrong-2026 thread on clearing floats).**
+  Jim's concern: with no way to say "start below the widget here", authors press Enter until their text drops
+  below it, and those blank lines only fit their own window width. Oliver: "give the elements a clear float
+  setting". So:
+  - **Any paragraph, list, quote or smaller heading beside a widget can start below it.** Click in it and a
+    "↓ Below widget" chip shows in the margin to its left; click that. A dashed line under the widget says
+    "Starts below the widget", with a ✕ to undo; Backspace at the block's start undoes it too. It works at every
+    window width and does nothing on phones (widgets are full width there). Saved as an empty clearing block,
+    like Word's text wrapping break or Wikipedia's {{clear}}. Not offered for the block the widget lines up
+    with (that would leave the widget beside nothing).
+  - **Section headings (H1, H2) start below a widget**, so a new section never begins beside the last one's
+    widget. Smaller headings still sit beside it as one box. (A widget can't be dropped right before an H2
+    any more: it goes below it, lined up with the section's first paragraph.)
+  - Blank lines: nothing automatic (an earlier attempt at turning them into "start below" is parked in
+    `~/Downloads/widget-clear-attempt-2026-10-30.patch`, not on the branch).
+  - Research behind it: Word and Wikipedia give authors an explicit clear; Google Docs and CKEditor make it a
+    per-image "wrap or break text" choice; WordPress never solved it (no clear option; themes clear headings
+    in CSS); Substack, Medium and most newer editors avoid wrapping altogether.
+  - Demo: the blocks post has a new "Starting below a widget" section, and its text says H1/H2 start below.
+  - Test: `start-below-check.mjs` (chip, Backspace, ✕, Post tab, phone, every H2 below the widgets before it).
+

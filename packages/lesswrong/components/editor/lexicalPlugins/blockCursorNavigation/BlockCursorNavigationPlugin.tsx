@@ -46,6 +46,7 @@ import {
   SentinelParagraphNode,
 } from './SentinelParagraphNode';
 import { $isIframeWidgetNode } from '@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode';
+import { $isWidgetClearNode } from '@/components/lexical/embeds/IframeWidgetEmbed/WidgetClearNode';
 
 /**
  * Tag used to identify updates caused by sentinel reconciliation, so we
@@ -86,6 +87,11 @@ function $needsBlockCursor(
   }
   if ($isIframeWidgetNode(node)) {
     return true;
+  }
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a "Start below widget" block is invisible and has no
+  // height; the caret goes from the text above it to the text below it without a gap of its own.
+  if ($isWidgetClearNode(node)) {
+    return false;
   }
   return $isElementNode(node) && !node.canBeEmpty() && !node.isInline();
 }

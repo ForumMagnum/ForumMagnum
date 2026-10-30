@@ -33,7 +33,7 @@ const step = (node: LexicalNode, direction: Direction) =>
   direction === 'backward' ? node.getPreviousSibling() : node.getNextSibling();
 
 /** The sibling before or after `node`, skipping the caret gaps (sentinel paragraphs). */
-function $contentSibling(node: LexicalNode, direction: Direction): LexicalNode | null {
+export function $contentSibling(node: LexicalNode, direction: Direction): LexicalNode | null {
   let sibling = step(node, direction);
   while (sibling && $isSentinelParagraphNode(sibling)) sibling = step(sibling, direction);
   return sibling;
@@ -49,7 +49,7 @@ function $isJoinable(node: LexicalNode | null): node is ElementNode {
  * (`near`: the block whose edge the caret is at; for a caret gap, the block on the gap's far side; null when
  * the caret is inside a block that holds the widget). Null when the key stays inside text.
  */
-function $atCaret(selection: RangeSelection, direction: Direction): { neighbour: LexicalNode | null, near: LexicalNode | null } | null {
+export function $atCaret(selection: RangeSelection, direction: Direction): { neighbour: LexicalNode | null, near: LexicalNode | null } | null {
   const anchor = selection.anchor;
   let node: LexicalNode = anchor.getNode();
   const gap = $isSentinelParagraphNode(node) ? node : $isSentinelParagraphNode(node.getParent()) ? node.getParent() : null;

@@ -14,15 +14,15 @@ const image = (text: string, width: number, height: number, style = '', caption 
 export const BLOCKS_DEMO_POST_HTML = String.raw`<p>This post shows how each kind of content block behaves next to a widget that text wraps around. Every section puts a demo widget next to one kind of block.</p>
 <p>The Editor tab shows the same layout while you edit, and you can drag the widgets around there. Try any window width: each behavior holds at every width. Where less than 300 pixels of text would fit beside a widget, the widget shows full width instead, and every block simply follows it.</p>
 <p>There are four behaviors:</p>
-<ul><li><strong>Flows beside.</strong> Text: its lines get shorter beside the widget and run the full width below it.</li><li><strong>Sits beside as one box.</strong> Headings, spoilers, and, beside a left widget, quotes, collapsible sections and list items. The whole block moves over, so nothing runs under the widget. If less than 300 pixels is left beside the widget, the block starts below it.</li><li><strong>Sits beside only if it fits at its own size.</strong> Code, tables, images and equations keep their size: beside the widget when they fit there, below it when they don't.</li><li><strong>Starts below the widget.</strong> Dividers, embeds (videos, forecasts, polls) and the footnotes.</li></ul>
+<ul><li><strong>Flows beside.</strong> Text: its lines get shorter beside the widget and run the full width below it.</li><li><strong>Sits beside as one box.</strong> Smaller headings (H3 and below), spoilers, and, beside a left widget, quotes, collapsible sections and list items. The whole block moves over, so nothing runs under the widget. If less than 300 pixels is left beside the widget, the block starts below it.</li><li><strong>Sits beside only if it fits at its own size.</strong> Code, tables, images and equations keep their size: beside the widget when they fit there, below it when they don't.</li><li><strong>Starts below the widget.</strong> Section headings (H1 and H2), dividers, embeds (videos, forecasts, polls) and the footnotes, and any block you choose (see "Starting below a widget" at the end).</li></ul>
 <h2>Text flows beside a widget</h2>
 <!--demo:right 33% h240-->
 <p>A paragraph's lines get shorter while the widget is beside them and run the full width of the column below it. Everything inside a paragraph comes along: <strong>bold</strong> and <em>italic</em> text, <a href="https://www.lesswrong.com/">links</a>, <code>inline code</code>, inline math like <span class="math-tex">\(p(H \mid E)\)</span>, and footnote markers${footnoteRef(1)}. A word, link or equation too long for the room beside the widget moves to the next line that has room, like any long word.</p>
 <div class="llm-content-block" data-model-name="Claude Opus 5.5"><div class="llm-content-block-content"><p>AI content flows like any other text. Its label stays at the start of its text, wherever that text starts, and nothing of the block runs under the widget.</p></div></div>
 <p>This last paragraph runs on long enough to pass the bottom of the widget, so you can see the lines get longer again once the widget ends. Below the widget, text simply uses the whole column, the same as in a post with no widgets at all.</p>
-<h2>Headings sit beside a widget in one piece</h2>
+<h2>Smaller headings sit beside a widget in one piece</h2>
 <!--demo:left 33% h320-->
-<p>A heading no longer jumps below a widget. That used to leave a hole beside the widget whenever the section before the heading was shorter than the widget.</p>
+<p>A section heading (H1 or H2) starts below a widget, so a new section never begins beside the last one's widget. A smaller heading sits beside it instead of jumping below, which used to leave a hole beside the widget whenever the text before the heading was shorter than the widget.</p>
 <h3>A heading beside a widget keeps all its lines at the same edge, however long it gets</h3>
 <p>The heading moves over as one box, so a long heading breaks evenly instead of wrapping around the widget's corner. If less than 300 pixels is left beside the widget, it starts below the widget.</p>
 <h3>A heading near the widget's bottom edge</h3>
@@ -77,6 +77,11 @@ ${image('Full-size image', 1200, 500, '', 'A full-size image starts below the wi
 <p>A widget can also line up with the bottom of the paragraph after it (in the editor, drag it over the lower half of a paragraph). It only lines up with a block that runs beside it: never with a heading, a divider or anything else that starts below it.</p>
 <!--demo:left 33% h160 bottom-->
 <p>This paragraph ends level with the bottom of the widget beside it. The widget is pushed down until its bottom meets the paragraph's last line, so the text runs past its top. However wide the window, the two stay lined up as the text wraps differently.</p>
+<h2>Starting below a widget</h2>
+<!--demo:right 33% h220-->
+<p>Text beside a widget keeps flowing beside it until the widget ends. To start a paragraph, or any other block, below the widget instead, click in it while it sits beside the widget and click <strong>↓ Below widget</strong> in the margin to its left (in the editor). It then starts below the widget at every window width, unlike blank lines, which only push it down the right amount at one width.</p>
+<p>This paragraph starts beside the widget. Click in it, then click the button to see it move below.</p>
+<p>To put it back beside the widget, click the ✕ on its "Starts below the widget" line, or press Backspace at its start.</p>
 <p>That's every kind of block. Blocks this post doesn't show (page breaks, columns, polls) either can't be used in a post's editor yet or behave like one of the blocks above.</p>
 <ol data-footnote-section="" role="doc-endnotes" class="footnote-section footnotes">${footnote(1, '<p>Footnote markers are part of the text, so they flow with it.</p>')}${footnote(2, '<p>The footnotes clear any widget that would still run beside them.</p>')}</ol>
 `;

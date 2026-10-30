@@ -13,6 +13,7 @@
 // - a widget inside a container stays inside it (or shows full width there).
 
 import { AFTER_LEFT_WIDGET_ATTR } from './widgetSliverGuard';
+import { WIDGET_CLEAR_CLASS } from '@/components/lexical/embeds/IframeWidgetEmbed/widgetClearClass';
 
 /** A floated widget in the post: the `.iframe-widget` div holding the floated iframe. */
 export const POST_FLOAT = '.iframe-widget:has(> .lwFloatedWidget)';
@@ -70,7 +71,13 @@ export const EDITOR_EMBEDS = [
   '.elicit-binary-prediction-wrapper',
 ];
 
-const HEADINGS = ':is(h1, h2, h3, h4, h5, h6)';
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): section headings start below a widget, so a new section
+ * never begins beside the last one's widget (Oct 30 2026, after the #lesswrong-2026 thread on clearing).
+ */
+const SECTION_HEADINGS = ':is(h1, h2)';
+/** The smaller headings sit beside a widget, as one box. */
+const HEADINGS = ':is(h3, h4, h5, h6)';
 const LISTS = ':is(ul, ol):not(.footnote-section, .footnotes)';
 
 const RULES: NeighbourRule[] = [
@@ -78,6 +85,7 @@ const RULES: NeighbourRule[] = [
   // at the same edge) instead of clearing it, which left a hole beside the widget whenever a section was
   // shorter than the widget.
   { postAfter: [HEADINGS], editorAfter: [HEADINGS], style: BOX_BESIDE },
+  { postAfter: [SECTION_HEADINGS], editorAfter: [SECTION_HEADINGS], style: CLEARS_BELOW },
   // Spoilers (and the legacy bordered blocks): box beside, else below. The black cover and the borders
   // stay out of the widget (which is see-through: anything under it shows).
   {
@@ -177,6 +185,10 @@ const RULES: NeighbourRule[] = [
   // The post body ends below its last widget, so a widget at the very end doesn't hang into what follows
   // the post's text (an event's date line, the subscribe buttons). The editor pages hold theirs already.
   { post: [':has(> .iframe-widget > .lwFloatedWidget)::after'], style: { content: '""', display: 'block', clear: 'both' } },
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): "Start below widget" (WidgetClearNode): an empty block
+  // that makes what follows it start below the widgets before it. (In the editor its label hangs from it.)
+  { post: [`.${WIDGET_CLEAR_CLASS}`], style: CLEARS_BELOW },
+  { editor: [`.${WIDGET_CLEAR_CLASS}`], style: { ...CLEARS_BELOW, position: 'relative' } },
   // A block the sliver guard (widgetSliverGuard.ts) moved below a widget it barely touched.
   { post: ['[data-lw-below]'], editor: ['[data-lw-below]'], style: CLEARS_BELOW },
 ];
@@ -205,4 +217,4 @@ export function widgetNeighbourGlobals(view: 'post' | 'editor'): Record<string, 
  * Editor blocks that start below a floated widget before them (clears below), for the drag: a widget the
  * text wraps around dropped just before one would sit beside nothing, so it goes below it instead.
  */
-export const EDITOR_CLEARING_BLOCKS = ['hr', ...EDITOR_EMBEDS].join(', ');
+export const EDITOR_CLEARING_BLOCKS = ['hr', 'h1', 'h2', `.${WIDGET_CLEAR_CLASS}`, ...EDITOR_EMBEDS].join(', ');

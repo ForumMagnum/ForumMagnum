@@ -61,6 +61,8 @@ import { $isSentinelParagraphNode, SentinelParagraphNode } from '@/components/ed
 import { IframeWidgetDragContext } from './widgetDragContext';
 import { OPTIONS_MENU_WIDTH, WidgetOptionsMenu } from './WidgetOptionsMenu';
 import { $deleteWidget, $guardWidgetsFromDeleteKey } from './widgetDeleteGuard';
+import { $removeClearAtCaret } from './widgetClear';
+import { StartBelowChip } from './StartBelowChip';
 import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks } from './widgetDragDom';
 import {
   adjacentSlot, type BlockBox, chooseDropSlot, type ColumnRect, type DropSlot, fitMatchesWidth, insertionKey, moveChipText,
@@ -1130,12 +1132,17 @@ export default function IframeWidgetPlugin({
     // EXPERIMENT (experiment/iframe-layout-ronny-exp3): Backspace and Delete next to a widget join the text
     // around it and never delete or change it (widgetDeleteGuard.ts). Ahead of the caret-gap plugin's
     // Backspace (LOW) and the rich text defaults; the delete commands cover input that skips the keys.
+    // (First, Backspace at the start of the block after a "Start below widget", or Delete at the end of the one
+    // before it, removes that: widgetClear.ts.)
     const guardKey = (direction: 'backward' | 'forward') => (event: KeyboardEvent | null) => {
-      if (!$guardWidgetsFromDeleteKey(direction, !isSuggestionMode)) return false;
+      if (!(!isSuggestionMode && $removeClearAtCaret(direction)) && !$guardWidgetsFromDeleteKey(direction, !isSuggestionMode)) return false;
       event?.preventDefault();
       return true;
     };
-    const guardDelete = (isBackward: boolean) => $guardWidgetsFromDeleteKey(isBackward ? 'backward' : 'forward', !isSuggestionMode);
+    const guardDelete = (isBackward: boolean) => {
+      const direction = isBackward ? 'backward' : 'forward';
+      return (!isSuggestionMode && $removeClearAtCaret(direction)) || $guardWidgetsFromDeleteKey(direction, !isSuggestionMode);
+    };
 
     return mergeRegister(
       editor.registerNodeTransform(IframeWidgetNode, $hoistWidget),
@@ -1793,6 +1800,8 @@ export default function IframeWidgetPlugin({
         );
       })}
       {dragEnabled && <WidgetDragLayer store={dragViewStore} announcement={announcement}/>}
+      {/* EXPERIMENT (experiment/iframe-layout-ronny-exp3): "Start below widget" (widgetClear.ts). */}
+      {dragEnabled && !isSuggestionMode && <StartBelowChip anchorElem={anchorElem}/>}
     </>,
     anchorElem,
   );

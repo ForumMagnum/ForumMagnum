@@ -61,6 +61,7 @@ import { FootnoteSectionNode } from '@/components/editor/lexicalPlugins/footnote
 import { ProtonNode } from '@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode';
 import { ReviewResultsTableNode } from '../embeds/ReviewResultsEmbed/ReviewResultsTableNode';
 import { IframeWidgetNode } from '../embeds/IframeWidgetEmbed/IframeWidgetNode';
+import { WidgetClearNode } from '../embeds/IframeWidgetEmbed/WidgetClearNode';
 import { SentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
 import { LLMContentBlockNode } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockNode';
 import { LLMContentBlockHeaderNode } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode';
@@ -140,6 +141,8 @@ const PlaygroundNodes: Array<LexicalNodeConfig> = validateLexicalNodes({
   SentinelParagraphNode,
   ReviewResultsTableNode,
   IframeWidgetNode,
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): "Start below widget".
+  WidgetClearNode,
   LLMContentBlockNode,
   LLMContentBlockHeaderNode,
   LLMContentBlockContentNode,

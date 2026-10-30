@@ -120,10 +120,11 @@ export interface DropSlot {
 }
 
 /** What a block that clears a widget is, for the chips. */
-export type ClearingKind = 'divider' | 'embed' | 'widget';
+export type ClearingKind = 'divider' | 'embed' | 'heading' | 'widget';
 
 function clearingKind(block: BlockBox): ClearingKind {
-  return block.kind === 'divider' || block.kind === 'embed' ? block.kind : 'widget';
+  // (EXPERIMENT (experiment/iframe-layout-ronny-exp3): a section heading clears widgets too.)
+  return block.kind === 'divider' || block.kind === 'embed' || block.kind === 'heading' ? block.kind : 'widget';
 }
 
 /** Floats keep this much space below them (their bottom margin). */
