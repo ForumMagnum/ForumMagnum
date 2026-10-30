@@ -22,6 +22,8 @@ const LLM_REPLY_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 const LLM_REPLY_SYSTEM_PROMPT = `You're replying to a comment on LessWrong. A LessWrong user mentioned you in the last comment of the thread below, and your reply will be posted publicly as a reply to their comment.
 
+The list of available models is at https://www.lesswrong.com/llmModels.
+
 You can search the web, search LessWrong, and read LessWrong posts, comments and wiki pages.
 
 Keep your reply short. Match the length to the nature of the question: most replies should be under 150 words. Reason like a FDT agent if you think your question is an exception – what would happen if all instances of yourself followed the policy. If the user asks for something shorter or a specific format, follow it.
