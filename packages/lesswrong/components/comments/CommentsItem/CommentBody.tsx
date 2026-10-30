@@ -1,8 +1,8 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import classNames from 'classnames';
-import { calculateTruncationStatus, commentExcerptFromHTML, truncate } from '../../../lib/editor/ellipsize'
-import { llmRunGetPageUrl } from '@/lib/collections/llmRuns/helpers';
+import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
+import { getLlmReplyHtml } from '@/lib/llmReplies/helpers';
 import { useLocation } from '@/lib/routeUtil';
 import { useFilteredCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
@@ -41,41 +41,11 @@ const styles = defineStyles('CommentBody', (theme: ThemeType) => ({
       color: theme.palette.grey[600],
       cursor: "pointer",
     },
-    '&& .llm-content-block': {
-      margin: 0,
-    },
-    '& .llm-content-block[data-truncated] .llm-content-block-content::after, & .llm-content-block[data-truncated] .llm-content-block-content > p:last-child::after': {
-      display: "none !important",
-    },
   },
   retracted: {
     textDecoration: "line-through",
   },
 }))
-
-const LLM_REPLY_EXCERPT_WORD_LIMIT = 120;
-const LLM_REPLY_EXPANDED_WORD_LIMIT = 480;
-const LLM_REPLY_GRACE_WORDS = 20;
-
-function truncateLlmReply(html: string, wordCount: number, wordLimit: number, readMoreLabel: (moreWords: string) => string): string {
-  const { willTruncate, wordsRemaining } = calculateTruncationStatus(wordCount, wordLimit, LLM_REPLY_GRACE_WORDS);
-  if (!willTruncate) {
-    return html;
-  }
-  const moreWords = `${wordsRemaining.toLocaleString("en-US")} more words`;
-  return truncate(html, wordLimit, "words", `... <span class="read-more-button">${readMoreLabel(moreWords)}</span>`);
-}
-
-function getLlmReplyHtml(html: string, wordCount: number, llmRunId: string, showExcerpt: boolean, pathname: string): string {
-  if (showExcerpt) {
-    return truncateLlmReply(html, wordCount, LLM_REPLY_EXCERPT_WORD_LIMIT, (moreWords) => `(${moreWords})`);
-  }
-  const runPageUrl = llmRunGetPageUrl(llmRunId);
-  if (pathname === runPageUrl) {
-    return html;
-  }
-  return truncateLlmReply(html, wordCount, LLM_REPLY_EXPANDED_WORD_LIMIT, (moreWords) => `<a href="${runPageUrl}">View full output (${moreWords})</a>`);
-}
 
 const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, voteProps, className}: {
   comment: CommentsList,
@@ -92,7 +62,7 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
 
   // Do not truncate for users who have disabled it in their user settings
   const truncationDisabledByUserConfig = useFilteredCurrentUser((u) => u && (postPage ? u.noCollapseCommentsPosts : u.noCollapseCommentsFrontpage));
-  const { html = "", wordCount = 0 } = comment.contents || {}
+  const { html = "" } = comment.contents || {}
 
   const bodyClasses = classNames(
     className,
@@ -107,7 +77,7 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
   const showExcerpt = !!truncated && !truncationDisabledByUserConfig;
   let innerHtml: string;
   if (comment.llmRunId) {
-    innerHtml = getLlmReplyHtml(html ?? '', wordCount, comment.llmRunId, showExcerpt, pathname);
+    innerHtml = getLlmReplyHtml(comment, comment.llmRunId, showExcerpt, pathname);
   } else if (showExcerpt) {
     innerHtml = commentExcerptFromHTML(comment, postPage);
   } else {
