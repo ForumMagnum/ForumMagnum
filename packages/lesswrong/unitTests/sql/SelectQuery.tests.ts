@@ -185,7 +185,7 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with array length filter",
       getQuery: () => new SelectQuery(testTable, {a: {$size: 2}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY_LENGTH("a", 1) = $1',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE CARDINALITY("a") = $1',
       expectedArgs: [2],
     },
     {

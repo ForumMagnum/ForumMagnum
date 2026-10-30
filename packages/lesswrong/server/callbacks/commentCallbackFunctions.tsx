@@ -1,5 +1,5 @@
 import React from "react";
-import { commentIsHiddenPendingReview, commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
+import { commentIsHiddenPendingReview, commentIsNotPublicForAnyReason, commentIsTopLevelQuickTake } from "@/lib/collections/comments/helpers";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetAbsoluteDiscussionUrl } from "@/lib/collections/tags/helpers";
 import { userIsApproved, userShortformPostTitle } from "@/lib/collections/users/helpers";
@@ -41,6 +41,7 @@ import { EmailComment } from "../emailComponents/EmailComment";
 import { PostsRevision } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "@/server/collections/automatedContentEvaluations/helpers";
+import { getQuickTakeAutoTagsToApply, getTagBotUserId } from "../languageModels/autoTagCallbacks";
 
 interface SendModerationPMParams {
   messageContents: string,
@@ -785,6 +786,24 @@ export async function commentsNewNotifications(comment: DbComment, context: Reso
 }
 
 export const sendNewCommentNotifications = utils.sendNewCommentNotifications;
+
+export async function applyQuickTakeAutoTags(comment: DbComment, context: ResolverContext): Promise<DbTag[]> {
+  if (!commentIsTopLevelQuickTake(comment) || comment.relevantTagIds.length > 0) {
+    return [];
+  }
+  if (!await getTagBotUserId(context)) {
+    return [];
+  }
+  const tags = await getQuickTakeAutoTagsToApply(comment, context);
+  if (tags.length) {
+    // Only fill in tags if the author hasn't set some while the classifier was running
+    await context.Comments.rawUpdateOne(
+      { _id: comment._id, relevantTagIds: { $size: 0 } },
+      { $set: { relevantTagIds: tags.map(tag => tag._id) } },
+    );
+  }
+  return tags;
+}
 
 /* UPDATE VALIDATE */
 

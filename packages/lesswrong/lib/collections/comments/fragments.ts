@@ -11,7 +11,7 @@ export const CommentsList = gql(`
     }
     relevantTagIds
     relevantTags {
-      ...TagPreviewFragment
+      ...TagBasicInfo
     }
     tagCommentType
     parentCommentId
@@ -103,9 +103,6 @@ export const ShortformComments = gql(`
     ...CommentsList
     post {
       ...PostsMinimumInfo
-    }
-    relevantTags {
-      ...TagPreviewFragment
     }
   }
 `)

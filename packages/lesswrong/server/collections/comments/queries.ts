@@ -299,8 +299,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     minimumKarma: Int
     authorIsUnreviewed: Boolean
     maxAgeDays: Int
-    showCommunity: Boolean
-    relevantTagId: String
+    filterSettings: JSON
   }
   
   input CommentsRepliesToCommentThreadInput {
