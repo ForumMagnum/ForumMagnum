@@ -155,7 +155,7 @@ const styles = defineStyles("GlossarySidebar", (theme: ThemeType) => ({
     top: 160,
     height: 40,
     width: "100%",
-    background: `linear-gradient(0deg,${theme.palette.background.pageActiveAreaBackground},transparent)`,
+    background: "linear-gradient(0deg,var(--page-background),transparent)",
     opacity: 1,
     pointerEvents: 'none',
   },

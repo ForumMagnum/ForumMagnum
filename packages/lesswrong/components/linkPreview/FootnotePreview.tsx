@@ -124,7 +124,7 @@ export const footnotePreviewStyles = defineStyles("FootnotePreview", (theme: The
     top: 160,
     height: 40,
     width: "100%",
-    background: `linear-gradient(0deg,${theme.palette.background.pageActiveAreaBackground},transparent)`,
+    background: "linear-gradient(0deg,var(--page-background),transparent)",
   },
   
   sidenoteHover: {
