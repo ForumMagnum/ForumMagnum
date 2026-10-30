@@ -30,4 +30,13 @@ describe('truncatise', () => {
       '<p data-truncated="true">one <b data-truncated="true"><a data-truncated="true" href="www.example.com">two three</a></b>...</p>'
     );
   });
+  it('places the suffix inside the cut paragraph when it is nested in other elements', () => {
+    chai.assert.equal(
+      truncatise("<div><blockquote><p>one two three four</p></blockquote></div>", {
+        TruncateLength: 2,
+        Suffix: "..."
+      }),
+      '<div data-truncated="true"><blockquote data-truncated="true"><p data-truncated="true">one two...</p></blockquote></div>'
+    );
+  });
 });

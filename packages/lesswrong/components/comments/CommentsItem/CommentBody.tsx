@@ -1,7 +1,7 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import classNames from 'classnames';
-import { commentExcerptFromHTML, getTruncationCharCount, truncate } from '../../../lib/editor/ellipsize'
+import { commentExcerptFromHTML, getTruncationCharCount, truncate, wordsRemainingSuffix } from '../../../lib/editor/ellipsize'
 import { llmRunGetPageUrl } from '@/lib/collections/llmRuns/helpers';
 import { useLocation } from '@/lib/routeUtil';
 import { useFilteredCurrentUser } from '../../common/withUser'
@@ -44,7 +44,7 @@ const styles = defineStyles('CommentBody', (theme: ThemeType) => ({
     '&& .llm-content-block': {
       margin: 0,
     },
-    '& .llm-content-block:has(+ .read-more-button) .llm-content-block-content::after, & .llm-content-block:has(+ .read-more-button) .llm-content-block-content > p:last-child::after': {
+    '& .llm-content-block[data-truncated] .llm-content-block-content::after, & .llm-content-block[data-truncated] .llm-content-block-content > p:last-child::after': {
       display: "none !important",
     },
   },
@@ -68,8 +68,8 @@ function getLlmReplyExcerpt(comment: CommentsList, postPage: boolean | undefined
   if (pathname === runPageUrl || lengthWithoutStyles <= maxLength) {
     return null;
   }
-  const viewFullOutputLink = `<span class="read-more-button"><a href="${runPageUrl}">View full output</a></span>`;
-  return truncate(html, maxLength, "characters", viewFullOutputLink);
+  const viewFullOutputSuffix = wordsRemainingSuffix(html, (moreWords) => `... <span class="read-more-button"><a href="${runPageUrl}">View full output (${moreWords})</a></span>`);
+  return truncate(html, maxLength, "characters", viewFullOutputSuffix);
 }
 
 const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, voteProps, className}: {

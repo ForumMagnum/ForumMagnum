@@ -32,7 +32,7 @@ interface TruncatiseOptions {
   TruncateBy?: "words"|"characters"|"paragraphs",
   TruncateLength?: number,
   Strict?: boolean,
-  Suffix?: string,
+  Suffix?: string | ((truncatedText: string) => string),
 }
 
 /**
@@ -44,13 +44,15 @@ interface TruncatiseOptions {
  *          TruncateBy : 'words',   // Options are 'words', 'characters' or 'paragraphs'
  *          TruncateLength : 50,    // The count to be used with TruncatedBy
  *          Strict : true,          // When set to false the truncated text finish at the end of the word
- *          Suffix : '...'          // Text to be appended to the end of the truncated text
+ *          Suffix : '...'          // Text to be appended to the end of the truncated text, inside the
+ *                                  // paragraph or list item that was cut; or a function of the
+ *                                  // truncated text that returns it
  *      }
  * @return {string} This returns the provided string truncated to the
  *      length provided by the options. HTML tags may be stripped based
  *      on the given options.
  */
-export const truncatise = function(text: string, {TruncateBy="words", TruncateLength=50, Strict=true, Suffix="..."}: TruncatiseOptions): string {
+export const truncatise = function(text: string, {TruncateBy="words", TruncateLength=50, Strict=true, Suffix: suffixOption="..."}: TruncatiseOptions): string {
     var text            = (text || "").trim();
     var currentState    = 0;
     var currentTagStart = 0;
@@ -166,11 +168,14 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
     }
 
     if(pointer < text.length-1) {
-      if(truncatedText.endsWith("</p>") || truncatedText.endsWith("</P>")) {
-        return truncatedText.substring(0, truncatedText.length - 4) + Suffix + "</p>";
-      } else {
-        return truncatedText + Suffix;
+      const suffix = typeof suffixOption === "function" ? suffixOption(truncatedText) : suffixOption;
+      const trailingClosingTags = /(?:<\/[^>]+>)+$/.exec(truncatedText);
+      const blockClosingTag = trailingClosingTags && /<\/(?:p|li)>/i.exec(trailingClosingTags[0]);
+      if (trailingClosingTags && blockClosingTag) {
+        const suffixPosition = trailingClosingTags.index + blockClosingTag.index;
+        return truncatedText.substring(0, suffixPosition) + suffix + truncatedText.substring(suffixPosition);
       }
+      return truncatedText + suffix;
     } else {
       return truncatedText.trim();
     }

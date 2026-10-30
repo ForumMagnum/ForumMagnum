@@ -25,7 +25,7 @@ export const truncate = (
   html: string|null|undefined,
   truncateLength: number,
   truncateBy?: "words" | "characters" | "paragraphs",
-  suffix?: string,
+  suffix?: string | ((truncatedHtml: string) => string),
   allowTruncationMidWord = true,
 ) => {
   const newTruncateBy = truncateBy || "characters"
@@ -39,10 +39,23 @@ export const truncate = (
   const truncatedHtml = truncatise(htmlRemovedStyles, {
     TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
     TruncateBy: newTruncateBy,
-    Suffix: `${newSuffix}`,
+    Suffix: newSuffix,
     Strict: allowTruncationMidWord,
   });
   return uniqueStyles.join("") + truncatedHtml;
+}
+
+const countWordsInHtml = (html: string): number => {
+  const text = html.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<[^>]*>/g, ' ').trim();
+  return text ? text.split(/\s+/).length : 0;
+}
+
+export const wordsRemainingSuffix = (html: string, formatSuffix: (moreWords: string) => string) => {
+  const totalWordCount = countWordsInHtml(html);
+  return (truncatedHtml: string) => {
+    const wordsRemaining = totalWordCount - countWordsInHtml(truncatedHtml);
+    return formatSuffix(`${wordsRemaining.toLocaleString("en-US")} more ${wordsRemaining === 1 ? "word" : "words"}`);
+  };
 }
 
 export const calculateTruncationStatus = (
@@ -140,13 +153,16 @@ export function commentExcerptFromHTML (comment: CommentsList, postPage?: boolea
   const truncationCharCount = getTruncationCharCount(comment, postPage)
 
   if (htmlRemovedStyles.length > truncationCharCount) {
+    const readMoreSuffix = comment.llmRunId
+      ? wordsRemainingSuffix(htmlRemovedStyles, (moreWords) => `... <span class="read-more-button">(${moreWords})</span>${styles}`)
+      : `... <span class="read-more-button">(read more)</span>${styles}`;
     return truncatise(htmlRemovedStyles, {
       // We want the amount comments get truncated to to be less than the threshold at which they are truncated, so that users don't have the experience of expanding a comment only to see a couple more words (which just feels silly).
   
       // This varies by the size of the comment or truncation amount, and reducing it by 1/4th seems about right.
       TruncateLength: Math.floor(truncationCharCount - (truncationCharCount/4)),
       TruncateBy: "characters",
-      Suffix: `... <span class="read-more-button">(read more)</span>${styles}`,
+      Suffix: readMoreSuffix,
     });
   } else {
     return htmlRemovedStyles
