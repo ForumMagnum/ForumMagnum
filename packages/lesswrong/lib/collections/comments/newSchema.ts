@@ -10,7 +10,7 @@ import {
   getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
-import { commentGetAbsolutePageUrlFromDB, commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
+import { commentGetAbsolutePageUrlFromDB, commentGetPageUrlFromDB, getVotingSystemNameForDocument, userCanEditCommentRelevantTags } from "./helpers";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
@@ -1089,7 +1089,7 @@ const schema = {
       outputType: "[String!]!",
       inputType: "[String!]",
       canRead: ["guests"],
-      canUpdate: [userOwns, "admins", "sunshineRegiment"],
+      canUpdate: userCanEditCommentRelevantTags,
       canCreate: ["members", "admins", "sunshineRegiment"],
       onCreate: arrayOfForeignKeysOnCreate,
       validation: {

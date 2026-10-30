@@ -2347,8 +2347,7 @@ interface CommentsShortformFrontpageInput {
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
   maxAgeDays?: number | null;
-  showCommunity?: boolean | null;
-  relevantTagId?: string | null;
+  filterSettings?: any;
 }
 
 interface CommentsRepliesToCommentThreadInput {
