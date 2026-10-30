@@ -47,7 +47,9 @@ export interface MoveDragView {
     noOp: boolean,
     /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): moved below a divider, embed or full-width widget. */
     snapped: boolean,
-    besideOpposite: boolean,
+    /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): moved past another widget in the way (see WidgetRoom). */
+    moved: 'down' | 'up' | null,
+    noRoom: boolean,
     pushesDown: ClearingKind | null,
   };
 }
@@ -68,6 +70,8 @@ export interface ResizeDragView {
     fixedSide: string,
     snap: number,
     wraps: boolean,
+    /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): no room to wrap here: letting go changes nothing. */
+    noRoom: boolean,
   };
 }
 
@@ -251,7 +255,8 @@ function MoveIndicator({ view }: { view: MoveDragView }) {
     data-same-slot={String(attrs.sameSlot)}
     data-noop={String(attrs.noOp)}
     data-snapped={String(attrs.snapped)}
-    data-beside-opposite={String(attrs.besideOpposite)}
+    data-moved={attrs.moved ?? ''}
+    data-no-room={String(attrs.noRoom)}
     data-pushes-down={attrs.pushesDown ?? ''}
     data-offscreen={view.offscreen ?? ''}
     data-chip={view.chip.text}
@@ -284,6 +289,7 @@ function ResizeIndicator({ view }: { view: ResizeDragView }) {
     data-width={attrs.width ?? ''}
     data-fixed-side={attrs.fixedSide}
     data-snap={String(attrs.snap)}
+    data-no-room={String(attrs.noRoom)}
     data-wraps={String(attrs.wraps)}
     data-chip={view.chip.text}
     data-chip-warning={view.chip.warning ?? ''}

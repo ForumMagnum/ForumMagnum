@@ -31,11 +31,28 @@ export interface BlockBox {
   clears?: boolean;
   top: number;
   bottom: number;
+  /**
+   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): its bottom margin. A float right after it starts
+   * below that, before the next block's top margin (so after a block with none, such as AI content, a
+   * float starts above the next block's top). Unknown: at the next block's top.
+   */
+  marginBottom?: number;
 }
 
 /** Blocks in the text flow (floats and sentinels skipped), without the dragged widget. */
 function flowBlocks(blocks: BlockBox[], draggedKey: string): BlockBox[] {
   return blocks.filter(b => b.float === 'none' && b.kind !== 'sentinel' && b.key !== draggedKey);
+}
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): whether a widget other than the dragged one already
+ * lines up with flow block `i` (floats in front of it, after the flow block before it), or, past the last
+ * one, sits at the end. One widget per paragraph (Ronny, Oct 29 2026).
+ */
+export function widgetLinedUpWith(blocks: BlockBox[], flow: BlockBox[], i: number, draggedKey: string): boolean {
+  const from = i > 0 ? flow[i - 1].index : -1;
+  const to = i < flow.length ? flow[i].index : Infinity;
+  return blocks.some(b => b.float !== 'none' && b.key !== draggedKey && b.index > from && b.index < to);
 }
 
 /** The editor's text column, in client coordinates. */
@@ -72,14 +89,18 @@ export interface DropSlot {
   /** What it was moved below, for the chip (the last of them). */
   snappedBelow: ClearingKind | null;
   /**
+   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): aimed where another widget is in the way (see
+   * WidgetRoom), so moved down to the first spot below that has room, or, with none below, up to the
+   * nearest one above.
+   */
+  moved: 'down' | 'up' | null;
+  /** No spot in the post has room for it: dropping it changes nothing. */
+  noRoom: boolean;
+  /**
    * A full-width drop lands below a float that still runs beside the gap (it clears it), so lineY is
    * moved down to there.
    */
   clearsFloat: boolean;
-  /** A drop that wraps stacks below an earlier float on its side, so the ghost is below the line. */
-  stacked: boolean;
-  /** A float on the other side would sit beside it, squeezing the text between them. */
-  besideOpposite: boolean;
   /**
    * Client y of the first block after the slot that starts below the widget (a divider, an embed or a
    * full-width widget, which clear it): the ghost stops there. Null if there is none, or the widget
@@ -107,6 +128,11 @@ function clearingKind(block: BlockBox): ClearingKind {
 
 /** Floats keep this much space below them (their bottom margin). */
 const FLOAT_BOTTOM_MARGIN = 16;
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): a float starts this far below the top of the block it
+ * lines up with (its top margin).
+ */
+const FLOAT_TOP_MARGIN = 6;
 
 export function widgetSide(layout: IframeWidgetLayout): WidgetSide | null {
   return layout.position === 'left' || layout.position === 'right' ? layout.position : null;
@@ -133,24 +159,152 @@ function sideZone(x: number, column: ColumnRect): WidgetSide | null {
 
 /**
  * The other blocks as they will be once the dragged widget, a float, has left its place (unless it
- * stays: same slot, same side). A float that was stacked below it on its side moves up, to the top of
- * the block it is anchored at or below the float before it on that side, so it may end up beside the
- * dropped widget.
+ * stays in its slot). A float that was stacked below it moves up, to the top of the block it is anchored
+ * at or below the float before it (EXPERIMENT (experiment/iframe-layout-ronny-exp3): on either side, as
+ * floats clear both).
  */
 function afterLeaving(others: BlockBox[], dragged: BlockBox | undefined, stays: boolean): BlockBox[] {
   if (!dragged || dragged.float === 'none' || stays) return others;
-  const lowest = { left: -Infinity, right: -Infinity };
+  let lowest = -Infinity;
   return others.map((b) => {
     if (b.float === 'none') return b;
     let moved = b;
-    if (b.float === dragged.float && b.index > dragged.index) {
-      const anchor = others.find(o => o.float === 'none' && o.index > b.index)?.top ?? b.top;
-      const top = Math.min(b.top, Math.max(anchor, lowest[b.float] + FLOAT_BOTTOM_MARGIN));
+    if (b.index > dragged.index) {
+      const anchor = (others.find(o => o.float === 'none' && o.index > b.index)?.top ?? b.top) + FLOAT_TOP_MARGIN;
+      const top = Math.min(b.top, Math.max(anchor, lowest + FLOAT_BOTTOM_MARGIN + FLOAT_TOP_MARGIN));
       moved = { ...b, top, bottom: b.bottom - b.top + top };
     }
-    lowest[b.float] = Math.max(lowest[b.float], moved.bottom);
+    lowest = Math.max(lowest, moved.bottom);
     return moved;
   });
+}
+
+/** The share of the column the text beside a widget with this layout keeps (narrowed, it grows taller by 1 / share). */
+function besideShare(layout: IframeWidgetLayout, columnWidth: number): number {
+  const beside = columnWidth - (widgetWidthPx(layout, columnWidth) ?? columnWidth) - WRAP_GUTTER;
+  return columnWidth > 0 ? clamp(beside / columnWidth, 0, 1) : 1;
+}
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): no two widgets ever share a height (Ronny, Oct 29 2026:
+ * "if you passed a horizontal line down the post, it would only ever intersect one widget at a time"). A
+ * widget the text wraps around lines up with the top or the bottom of the block after it, and goes only
+ * where that leaves it clear of the other widgets the text wraps around: none of them lines up with that
+ * block too, one before it has ended by its top, and one after it starts below its bottom. (A full-width
+ * widget is a block of its own, which the wrapped text above it ends before.) Everything a widget needs
+ * to know about the post for that, measured once per drag frame or key press.
+ */
+export interface WidgetRoom {
+  blocks: BlockBox[];
+  key: string;
+  /** The text flow without the widget (see flowBlocks). */
+  flow: BlockBox[];
+  /** The other widgets the text wraps around, where they will be once this one has left its place. */
+  floats: BlockBox[];
+  height: number;
+  /** See besideShare. */
+  share: number;
+}
+
+/** `stays`: the widget keeps its place (the gear changes how it sits there). */
+export function widgetRoom(
+  blocks: BlockBox[], key: string, layout: IframeWidgetLayout, columnWidth: number, height: number, stays = false,
+): WidgetRoom {
+  const others = blocks.filter(b => b.key !== key && b.kind !== 'sentinel');
+  return {
+    blocks,
+    key,
+    flow: flowBlocks(blocks, key),
+    floats: afterLeaving(others, blocks.find(b => b.key === key), stays).filter(b => b.float !== 'none'),
+    height,
+    share: besideShare(layout, columnWidth),
+  };
+}
+
+/**
+ * Where a widget the text wraps around lines up: the top or the bottom of flow block `index` (past the
+ * last one: the end of the post, beside nothing).
+ */
+export interface Spot {
+  index: number;
+  align: 'top' | 'bottom';
+}
+
+/**
+ * Why a widget can't line up at a spot: it is just before a block that clears it (it would sit beside
+ * nothing), the block's bottom isn't a paragraph's, or another widget is in the way. Null: it can.
+ */
+export function spotProblem(room: WidgetRoom, { index, align }: Spot): 'clears' | 'notParagraph' | 'widget' | null {
+  const { blocks, key, flow, floats, height, share } = room;
+  const block = flow[index];
+  if (block?.clears) return 'clears';
+  if (block && align === 'bottom' && block.kind !== 'other') return 'notParagraph';
+  if (widgetLinedUpWith(blocks, flow, index, key)) return 'widget';
+  // At the end of the post it goes below everything.
+  if (!block) return null;
+  const before = flow[index - 1];
+  const start = (before?.marginBottom !== undefined ? Math.min(before.bottom + before.marginBottom, block.top) : block.top) + FLOAT_TOP_MARGIN;
+  const top = align === 'bottom' ? Math.max(start, block.bottom - height) : start;
+  // A widget after it starts below it once the text between them wraps around it (narrowed to `share` of
+  // the column, that text grows taller). After the next block that clears it, one always does.
+  const end = flow.slice(index + 1).find(b => b.clears)?.index ?? Infinity;
+  const inTheWay = floats.some(f => f.index < block.index
+    ? f.bottom > top + 1
+    : f.index < end && f.top - top < height * share);
+  return inTheWay ? 'widget' : null;
+}
+
+function nextSpot(flow: BlockBox[], { index, align }: Spot): Spot | null {
+  if (index >= flow.length) return null;
+  return align === 'top' ? { index, align: 'bottom' } : { index: index + 1, align: 'top' };
+}
+
+function previousSpot({ index, align }: Spot): Spot | null {
+  if (align === 'bottom') return { index, align: 'top' };
+  return index > 0 ? { index: index - 1, align: 'bottom' } : null;
+}
+
+/**
+ * Where a widget aimed at `aim` goes: the first spot from there on down the post that has room for it
+ * (below any block that clears it, past any other widget in the way), or with none, the nearest above.
+ */
+function findSpot(room: WidgetRoom, aim: Spot): { spot: Spot, snappedBelow: ClearingKind | null, moved: DropSlot['moved'] } | null {
+  let snappedBelow: ClearingKind | null = null;
+  let moved: DropSlot['moved'] = null;
+  for (let spot: Spot | null = aim; spot; spot = nextSpot(room.flow, spot)) {
+    const problem = spotProblem(room, spot);
+    if (!problem) return { spot, snappedBelow, moved };
+    if (problem === 'clears') snappedBelow = clearingKind(room.flow[spot.index]);
+    if (problem === 'widget') moved = 'down';
+  }
+  for (let spot = previousSpot(aim); spot; spot = previousSpot(spot)) {
+    if (!spotProblem(room, spot)) return { spot, snappedBelow: null, moved: 'up' };
+  }
+  return null;
+}
+
+/**
+ * Whether widget `key`, with `layout` (one the text wraps around), has room where it is: no other widget is
+ * in the way (see WidgetRoom). For the gear's Left and Right on a full-width widget, its Top and Bottom, and
+ * a resize that makes a full-width widget wrap.
+ */
+export function roomInPlace(blocks: BlockBox[], key: string, layout: IframeWidgetLayout, columnWidth: number, height: number): boolean {
+  const self = blocks.find(b => b.key === key);
+  if (!self) return true;
+  // A full-width widget is a block of its own (below any float still running beside the block before it):
+  // once it floats, everything after it moves up into its place.
+  let placed = blocks;
+  if (self.float === 'none') {
+    const before = blocks.filter(b => b.index < self.index && b.float === 'none' && b.kind !== 'sentinel').pop();
+    const shift = self.bottom - (before?.bottom ?? self.top);
+    placed = blocks.map(b => b.index > self.index ? { ...b, top: b.top - shift, bottom: b.bottom - shift } : b);
+  }
+  const room = widgetRoom(placed, key, layout, columnWidth, height, true);
+  const next = room.flow.findIndex(b => b.index > self.index);
+  const index = next < 0 ? room.flow.length : next;
+  // (Its own block's bottom only if that is a paragraph's: otherwise it stays at the top, see bottomAlign.)
+  const align = alignOf(layout) === 'bottom' && room.flow[index]?.kind === 'other' ? 'bottom' : 'top';
+  return spotProblem(room, { index, align }) !== 'widget';
 }
 
 /**
@@ -240,15 +394,23 @@ export function chooseDropSlot({
       beforeIndex = lowerHalf ? nearest + 1 : nearest;
     }
   }
-  if (wraps) target = withAlign(target, align);
   // A widget the text wraps around goes below a block that clears it (a divider, an embed, a full-width
   // widget), never just before it (it would sit beside nothing).
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): and only where no other widget is in the way (see
+  // WidgetRoom): aimed at a spot without room, it moves down to the first one with room.
   let snappedBelow: DropSlot['snappedBelow'] = null;
+  let moved: DropSlot['moved'] = null;
+  let noRoom = false;
   if (wraps) {
-    while (beforeIndex < flow.length && flow[beforeIndex].clears) {
-      snappedBelow = clearingKind(flow[beforeIndex]);
-      beforeIndex++;
+    const found = findSpot(widgetRoom(blocks, draggedKey, target, column.width, ghostHeight), { index: beforeIndex, align });
+    if (found) {
+      ({ snappedBelow, moved } = found);
+      beforeIndex = found.spot.index;
+      align = found.spot.align;
+    } else {
+      noRoom = true;
     }
+    target = withAlign(target, align);
   }
   const before = flow[beforeIndex] ?? null;
   const prevFlow = beforeIndex > 0 ? flow[beforeIndex - 1] : null;
@@ -270,9 +432,9 @@ export function chooseDropSlot({
   // The block the widget sits before now (null at the end); unknown if it isn't a top-level block.
   const origNext = draggedIndex < 0 ? undefined : (flow.find(b => b.index > draggedIndex) ?? null);
   const sameSlot = origNext !== undefined && slotKey === (origNext?.key ?? null);
-  const noOp = sameSlot && sameLayout(target, layout);
+  const noOp = noRoom || (sameSlot && sameLayout(target, layout));
   // The floats where they will be after the drop (one stacked below the widget may move up).
-  const others = afterLeaving(unsettled, dragged, sameSlot && dragged?.float === widgetSide(target));
+  const others = afterLeaving(unsettled, dragged, sameSlot);
   // Dropped back on its own slot it doesn't move (only its side changes), so the floats before it are
   // the ones before it now.
   const landsBefore = sameSlot ? draggedIndex : insertIndex;
@@ -291,18 +453,12 @@ export function chooseDropSlot({
   }
 
   let ghostTop: number | null = null;
-  let besideOpposite = false;
   let sectionEnd: number | null = null;
   let pushesDown: DropSlot['pushesDown'] = null;
   const side = widgetSide(target);
   if (wraps && side) {
-    // It clears earlier floats on its own side, so it stacks below them.
+    // (No widget before it reaches down beside it: see WidgetRoom.)
     let top = lineY;
-    for (const b of others) {
-      if (b.float === side && b.index < landsBefore) {
-        top = Math.max(top, b.bottom + FLOAT_BOTTOM_MARGIN);
-      }
-    }
     // Lined up with the paragraph's bottom: as far down as that allows (the paragraph grows a little as
     // its text wraps around the widget, so the drop lands a little lower than this).
     if (align === 'bottom' && before) {
@@ -313,18 +469,13 @@ export function chooseDropSlot({
     // whatever floats beside it stop there: a taller widget pushes that block, and every float after it,
     // down below itself.
     const end = flow.slice(beforeIndex + 1).find(b => b.clears);
-    const bottom = top + ghostHeight;
-    besideOpposite = others.some(b => b.float !== 'none' && b.float !== side && (!end || b.index < end.index)
-      && b.top < bottom && b.bottom > top);
     if (end) {
       sectionEnd = end.top;
       // Only where the widget, not the text wrapping beside it, decides where that block lands. The
       // section's text below the widget's top (now ending at end.top) gets longer beside it, narrowed
       // to `share` of the column: it then ends at top + (end.top - top) / share, and the widget pushes
       // the block down only if it reaches lower than that.
-      const beside = column.width - (widgetWidthPx(target, column.width) ?? column.width) - WRAP_GUTTER;
-      const share = column.width > 0 ? clamp(beside / column.width, 0, 1) : 1;
-      if (top + (ghostHeight * share) > end.top) {
+      if (top + (ghostHeight * besideShare(target, column.width)) > end.top) {
         pushesDown = clearingKind(end);
       }
     }
@@ -342,9 +493,9 @@ export function chooseDropSlot({
     noOp,
     snapped: snappedBelow !== null,
     snappedBelow,
+    moved,
+    noRoom,
     clearsFloat,
-    stacked: ghostTop !== null && ghostTop > lineY + 1,
-    besideOpposite,
     sectionEnd,
     pushesDown,
     pointerSide: sideZone(pointerX, column),
@@ -434,16 +585,22 @@ export function autoScrollStep(clientY: number, viewportHeight: number): number 
 /**
  * The slot one step up or down from the widget's current one, for keyboard moves: the key of the flow
  * block it is above (see insertionKey for where the widget then goes), or null for the end of the
- * post; undefined if there's nowhere to go. For a widget that wraps, slots just before a block that
- * clears it are skipped (as in chooseDropSlot).
+ * post; undefined if there's nowhere to go. For a widget that wraps (`room`, with its alignment kept),
+ * slots just before a block that clears it, or where another widget is in the way, are skipped (as in
+ * chooseDropSlot).
  */
-export function adjacentSlot(blocks: BlockBox[], draggedKey: string, direction: 'up' | 'down', wraps: boolean): string | null | undefined {
+export function adjacentSlot(
+  blocks: BlockBox[], draggedKey: string, direction: 'up' | 'down', room: WidgetRoom | null, align: 'top' | 'bottom' = 'top',
+): string | null | undefined {
   const dragged = blocks.find(b => b.key === draggedKey);
   if (!dragged) return undefined;
   const flow = flowBlocks(blocks, draggedKey);
+  // (Below a block whose bottom isn't a paragraph's, a widget lined up with bottoms sits at its top, see
+  // bottomAlign.)
+  const hasRoom = (i: number) => !room || !spotProblem(room, { index: i, align: align === 'bottom' && flow[i]?.kind === 'other' ? 'bottom' : 'top' });
   const candidates: Array<{ key: string | null, index: number }> = [
-    ...flow.filter(b => !(wraps && b.clears)).map(b => ({ key: b.key, index: b.index })),
-    { key: null, index: Infinity },
+    ...flow.flatMap((b, i) => hasRoom(i) ? [{ key: b.key, index: b.index }] : []),
+    ...(hasRoom(flow.length) ? [{ key: null, index: Infinity }] : []),
   ];
   const current = flow.find(b => b.index > dragged.index)?.index ?? Infinity;
   const next = direction === 'down'
@@ -471,6 +628,7 @@ export function sideLabel(side: WidgetSide): string {
 
 /** What the chip says while a widget is dragged to `slot`. */
 export function moveChipText(slot: DropSlot, storedLayout: IframeWidgetLayout): string {
+  if (slot.noRoom) return 'No room: every paragraph it could go beside has another widget beside it';
   if (slot.noOp) {
     // Pulled sideways, a full-width widget stays full width: say how to make the text wrap instead.
     return !widgetSide(storedLayout) && slot.pointerSide ? 'Full width · drag an edge to wrap text' : 'No change';
@@ -487,9 +645,8 @@ export function moveChipText(slot: DropSlot, storedLayout: IframeWidgetLayout): 
   } else {
     parts.push('Full width');
   }
-  if (slot.stacked) parts.push('below the widget on that side');
+  if (slot.moved) parts.push(slot.moved === 'down' ? 'moved down, clear of the widget above' : 'moved up, clear of the widget below');
   if (slot.clearsFloat) parts.push('below the widget beside it');
-  if (slot.besideOpposite) parts.push('beside another widget: text gets narrow');
   if (slot.pushesDown) parts.push(slot.pushesDown === 'widget' ? 'pushes the widget below down' : `pushes the ${slot.pushesDown} down`);
   return parts.join(' · ');
 }
@@ -497,11 +654,14 @@ export function moveChipText(slot: DropSlot, storedLayout: IframeWidgetLayout): 
 /**
  * What the chip says while a widget is resized to `target`. It names the side, which pulling an edge
  * in can change even where the widget still shows full width.
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): `noRoom`: wrapping here would put it beside another
+ * widget (see WidgetRoom), so letting go leaves it full width.
  */
-export function resizeChipText(target: ResizeTarget, besideOpposite = false): string {
+export function resizeChipText(target: ResizeTarget, noRoom = false): string {
   if (target.snap === 1) return 'Full width';
   const label = `${sideLabel(target.side)} · ${Math.round(target.snap * 100)}%`;
-  if (target.wraps) return besideOpposite ? `${label} · beside another widget: text gets narrow` : label;
+  if (noRoom) return `${label}: no room, another widget is beside the text here`;
+  if (target.wraps) return label;
   return `${label}: full width at this window size (wraps on wider screens)`;
 }
 

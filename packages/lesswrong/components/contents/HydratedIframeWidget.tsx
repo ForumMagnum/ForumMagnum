@@ -62,17 +62,19 @@ const styles = defineStyles('HydratedIframeWidget', (theme: ThemeType) => ({
     clear: 'both',
   },
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): positioned, so a block beside it that makes its own
-  // layer (AI content's opacity, an embed's positioned frame) can't paint over it or take its clicks.
+  // layer (AI content's opacity, an embed's positioned frame) can't paint over it or take its clicks. And
+  // clearing both sides: no two widgets ever share a height on the page (Ronny, Oct 29 2026: "No two
+  // widgets should ever share a Y coordinate"), so one on the other side starts below this one too.
   floatLeft: {
     float: 'left',
-    clear: 'left',
+    clear: 'both',
     margin: '6px 32px 16px 0',
     position: 'relative',
     zIndex: 1,
   },
   floatRight: {
     float: 'right',
-    clear: 'right',
+    clear: 'both',
     margin: '6px 0 16px 32px',
     position: 'relative',
     zIndex: 1,

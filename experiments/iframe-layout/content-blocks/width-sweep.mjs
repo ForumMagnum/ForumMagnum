@@ -5,7 +5,9 @@
 //   2. hscroll: the page never scrolls sideways;
 //   3. agreement: every top-level block starts at the same x, has the same width and the same first-line
 //      start in the editor and the post (blocks are matched by their text);
-//   4. wraps: the same number of widgets float in both views.
+//   4. wraps: the same number of widgets float in both views;
+//   5. shared: no two widgets share a height (in either view): a horizontal line across the post never
+//      crosses two of them (Ronny, Oct 29 2026).
 // Differences that come only from vertical drift (a block above is a little taller in one view, so a block
 // near a widget's bottom lands beside it in one and below it in the other) are reported apart, as "drift":
 // a block whose top is within 40px of a widget's bottom in either view. (The sentinel gaps that used to
@@ -14,8 +16,8 @@
 // Usage (Studio: through the browser slot lock):
 //   ~/lw-exp3-proto/with-slot.sh node width-sweep.mjs [--demo blocks|ai-futures] [--from 320] [--to 2560]
 //     [--step 8] [--specimen spec.html] [--css extra.css] [--engine chromium|webkit] [--out result.json]
-// Exit code 1 if any width has an overlap, horizontal scroll, a wrap-count difference or a hard
-// disagreement.
+// Exit code 1 if any width has an overlap, two widgets sharing a height, horizontal scroll, a wrap-count
+// difference or a hard disagreement.
 import { createRequire } from 'module';
 import fs from 'fs';
 
@@ -137,6 +139,18 @@ const MEASURE = (view) => {
     // (Not counting widgets in collapsible sections: the editor shows those open, the post closed.)
     wraps: widgetEls.filter(w => !w.closest('.detailsBlock')).length,
     overlaps,
+    // Pairs of widgets, floated or not, whose boxes share a height.
+    shared: (() => {
+      const all = [...root.querySelectorAll(isEditor ? ':scope > .iframe-widget-code' : 'iframe[data-lexical-iframe-widget]')]
+        .map(w => w.getBoundingClientRect()).filter(r => r.height > 0 && r.width > 0);
+      const pairs = [];
+      for (let i = 0; i < all.length; i++) {
+        for (let j = i + 1; j < all.length; j++) {
+          if (all[i].top < all[j].bottom - 1 && all[j].top < all[i].bottom - 1) pairs.push(`${Math.round(all[i].top + scrollY)}-${Math.round(all[i].bottom + scrollY)} & ${Math.round(all[j].top + scrollY)}-${Math.round(all[j].bottom + scrollY)}`);
+        }
+      }
+      return pairs;
+    })(),
     blocks,
   };
 };
@@ -199,10 +213,12 @@ try {
       width: w, column: [e.column, p.column], wraps: [e.wraps, p.wraps],
       hscroll: [e.hscroll, p.hscroll],
       overlaps: { editor: e.overlaps, post: p.overlaps },
+      shared: { editor: e.shared, post: p.shared },
       hard, drift,
       unmatched: e.blocks.filter(b => !pByKey[b.key]).map(b => b.key.slice(0, 40)),
     };
-    const bad = e.overlaps.length || p.overlaps.length || e.hscroll || p.hscroll || e.wraps !== p.wraps || hard.length;
+    const bad = e.overlaps.length || p.overlaps.length || e.shared.length || p.shared.length || e.hscroll || p.hscroll
+      || e.wraps !== p.wraps || hard.length;
     if (bad) failures++;
     report.widths.push(row);
     if (bad || drift.length) {
@@ -210,6 +226,8 @@ try {
         + `${e.hscroll || p.hscroll ? ` HSCROLL ${e.hscroll}/${p.hscroll}` : ''}`
         + `${e.overlaps.length ? ` editorOverlaps ${e.overlaps.map(o => `${o.kind}:${o.tag}:${o.text.slice(0, 20)}`).join(' | ')}` : ''}`
         + `${p.overlaps.length ? ` postOverlaps ${p.overlaps.map(o => `${o.kind}:${o.tag}:${o.text.slice(0, 20)}`).join(' | ')}` : ''}`
+        + `${e.shared.length ? ` editorShared ${e.shared.join(' | ')}` : ''}`
+        + `${p.shared.length ? ` postShared ${p.shared.join(' | ')}` : ''}`
         + `${hard.length ? ` DIFF ${hard.join(' ; ')}` : ''}`
         + `${drift.length ? ` drift ${drift.length}` : ''}`);
     }

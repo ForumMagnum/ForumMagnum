@@ -72,9 +72,14 @@ const styles = defineStyles('WidgetOptionsMenu', (theme: ThemeType) => ({
 
 const preventDefault = (e: React.SyntheticEvent) => e.preventDefault();
 
-export function WidgetOptionsMenu({ layout, columnWidth, style, onChange, onClose }: {
+export function WidgetOptionsMenu({ layout, columnWidth, canPlace, style, onChange, onClose }: {
   layout: IframeWidgetLayout,
   columnWidth: number,
+  /**
+   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): whether the widget, laid out so, has room where it is:
+   * no other widget in the way (see WidgetRoom in widgetDragGeometry).
+   */
+  canPlace?: (layout: IframeWidgetLayout) => boolean,
   style: React.CSSProperties,
   onChange: (layout: IframeWidgetLayout) => void,
   /** refocus: closed with Escape, so the gear gets the focus back. */
@@ -108,6 +113,13 @@ export function WidgetOptionsMenu({ layout, columnWidth, style, onChange, onClos
   const px = (w: string) => widgetWidthPx({ position: 'left', width: w }, columnWidth) ?? columnWidth;
   const offered = offeredWidths(columnWidth);
   const widths = !side || offered.includes(width) ? offered : [...offered, width].sort((a, b) => px(a) - px(b));
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): no two widgets share a height (Ronny, Oct 29 2026), so
+  // a placement or alignment that would put it beside another widget is off. (Widths aren't checked: the
+  // widget's height at a new width isn't known until it has been shown at it.)
+  const noRoom = (next: IframeWidgetLayout) => !!canPlace && shouldWrapWidget(next, columnWidth) && !canPlace(next);
+  const sideBlocked = !side && noRoom({ ...layout, position: 'left', width });
+  const topBlocked = !!side && alignOf(layout) !== 'top' && noRoom(withAlign(layout, 'top'));
+  const bottomBlocked = !!side && alignOf(layout) !== 'bottom' && noRoom(withAlign(layout, 'bottom'));
   const button = (option: string, label: string, active: boolean, next: IframeWidgetLayout, disabled = false) => <button
     key={option}
     type="button"
@@ -123,13 +135,13 @@ export function WidgetOptionsMenu({ layout, columnWidth, style, onChange, onClos
     <div className={classes.label}>Placement</div>
     <div className={classes.buttons}>
       {button('full', 'Full width', !side, { position: 'inline', width: null })}
-      {button('left', 'Left', side === 'left', { ...layout, position: 'left', width })}
-      {button('right', 'Right', side === 'right', { ...layout, position: 'right', width })}
+      {button('left', 'Left', side === 'left', { ...layout, position: 'left', width }, sideBlocked)}
+      {button('right', 'Right', side === 'right', { ...layout, position: 'right', width }, sideBlocked)}
     </div>
     <div className={classes.label}>Lines up with its paragraph's</div>
     <div className={classes.buttons}>
-      {button('top', 'Top', !!side && alignOf(layout) === 'top', withAlign(layout, 'top'), !side)}
-      {button('bottom', 'Bottom', !!side && alignOf(layout) === 'bottom', withAlign(layout, 'bottom'), !side)}
+      {button('top', 'Top', !!side && alignOf(layout) === 'top', withAlign(layout, 'top'), !side || topBlocked)}
+      {button('bottom', 'Bottom', !!side && alignOf(layout) === 'bottom', withAlign(layout, 'bottom'), !side || bottomBlocked)}
     </div>
     <div className={classes.label}>Width</div>
     <div className={classes.buttons}>
@@ -137,6 +149,9 @@ export function WidgetOptionsMenu({ layout, columnWidth, style, onChange, onClos
     </div>
     {side && !shouldWrapWidget(layout, columnWidth) && <div className={classes.note}>
       Full width at this window size: no room for text beside it.
+    </div>}
+    {(sideBlocked || topBlocked || bottomBlocked) && <div className={classes.note} data-testid="widget-options-no-room">
+      Greyed out: that would put it beside another widget. No two widgets share a height.
     </div>}
   </div>;
 }

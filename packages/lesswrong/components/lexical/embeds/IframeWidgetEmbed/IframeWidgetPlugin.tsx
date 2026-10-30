@@ -62,7 +62,8 @@ import { $deleteWidget, $guardWidgetsFromDeleteKey } from './widgetDeleteGuard';
 import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks } from './widgetDragDom';
 import {
   adjacentSlot, type BlockBox, chooseDropSlot, type ColumnRect, type DropSlot, fitMatchesWidth, insertionKey, moveChipText,
-  resizeChipText, resizeTarget, type ResizeTarget, shrinkWarning, sideLabel, stepWidth, widgetSide, type WidgetSide,
+  resizeChipText, resizeTarget, type ResizeTarget, roomInPlace, shrinkWarning, sideLabel, stepWidth, widgetRoom, widgetSide,
+  type WidgetSide,
 } from './widgetDragGeometry';
 import { type GesturePoint, startPointerGesture, visibleBottom } from './widgetGesture';
 import {
@@ -560,7 +561,9 @@ function placeSpacer(elem: HTMLElement, layout: IframeWidgetLayout | null, colum
   // width in a row of its own, as in the post (which shows it full width on phones).
   const centered = !wraps && layout?.position === 'center' && !!layout.width && columnWidth > 0 && window.innerWidth >= 600;
   elem.style.float = wraps ? side : '';
-  elem.style.clear = wraps ? side : centered ? 'both' : '';
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): both sides, so no two widgets ever share a height (see
+  // HydratedIframeWidget's floatLeft).
+  elem.style.clear = wraps || centered ? 'both' : '';
   elem.style.width = wraps ? `${widgetWidthPx(layout!, columnWidth)}px` : centered ? `${widgetWidthPx(layout!, columnWidth)}px` : '';
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a full-width widget has no margin of its own, as in the
   // post (the code block's 8px showed inside a list item, or next to a quote). The code view keeps it.
@@ -826,6 +829,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   dragEnabled = false,
   gesture = null,
   hint = false,
+  canPlace,
   onGripPointerDown,
   onResizePointerDown,
   onGripKeyDown,
@@ -844,6 +848,11 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   gesture?: GesturePhase | null;
   /** Show the grip before any hover, pulsing (until the first drag on the page). */
   hint?: boolean;
+  /**
+   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): whether the widget, laid out so, has room where it is
+   * (no other widget in the way, see WidgetRoom), for the gear's choices.
+   */
+  canPlace?: (nodeKey: string, layout: IframeWidgetLayout) => boolean;
   onGripPointerDown?: (nodeKey: string, e: React.PointerEvent<HTMLElement>) => void;
   onResizePointerDown?: (nodeKey: string, edge: WidgetSide, e: React.PointerEvent<HTMLElement>) => void;
   onGripKeyDown?: (nodeKey: string, e: React.KeyboardEvent<HTMLElement>) => void;
@@ -896,6 +905,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
     (layout: IframeWidgetLayout) => (onOptionsChange ?? onLayoutChange)(nodeKey, layout),
     [onOptionsChange, onLayoutChange, nodeKey],
   );
+  const handleCanPlace = useCallback((layout: IframeWidgetLayout) => canPlace?.(nodeKey, layout) ?? true, [canPlace, nodeKey]);
   // The gear keeps the focus while its menu is open (the menu's buttons don't take it), so, like a grip,
   // it passes the editor's undo and redo shortcuts on.
   const handleGearKeyDown = useCallback((e: React.KeyboardEvent<HTMLElement>) => {
@@ -1012,6 +1022,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
     {adjustable && optionsOpen && <WidgetOptionsMenu
       layout={state.layout}
       columnWidth={columnWidth}
+      canPlace={handleCanPlace}
       style={{
         top: position.top + 22 + 32,
         left: Math.max(0, position.left + position.width - gearRight - OPTIONS_MENU_WIDTH),
@@ -1536,6 +1547,12 @@ export default function IframeWidgetPlugin({
     e.stopPropagation();
     const startWraps = shouldWrapWidget(start.layout, editorColumnWidth(editor));
     let current = start.layout;
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a width it wraps at must leave it room where it is
+    // (see WidgetRoom), judged against the post as it was before the resize: in the preview, a widget below
+    // it is already pushed out of its way.
+    const startBlocks = measureBlocks(editor).blocks;
+    const hasRoom = (layout: IframeWidgetLayout, columnWidth: number) => !shouldWrapWidget(layout, columnWidth)
+      || roomInPlace(startBlocks, key, layout, columnWidth, editor.getElementByKey(key)?.getBoundingClientRect().height ?? 0);
     let columnWidth = editorColumnWidth(editor);
     /**
      * Restyles the widget for `layout` and scrolls by however far that moved it, so it stays under the
@@ -1600,11 +1617,13 @@ export default function IframeWidgetPlugin({
         // The frame reports a few frames after the widget is restyled to a new width; until then the chip
         // has no warning for a width the widget hasn't been shown at yet.
         const shownWidth = target.wraps ? widgetWidthPx(target.layout, column.width) ?? column.width : column.width;
-        dragViewStore.set(resizeView(target, column, editor.getElementByKey(key), anchorElem, point, shrinkWarningAt(key, shownWidth)));
+        dragViewStore.set(resizeView(
+          target, column, editor.getElementByKey(key), anchorElem, point, shrinkWarningAt(key, shownWidth), !hasRoom(target.layout, column.width),
+        ));
       },
       onCommit: () => {
         previewOverrides.current.delete(key);
-        if (sameLayout(current, start.layout)) {
+        if (sameLayout(current, start.layout) || !hasRoom(current, columnWidth)) {
           restore();
           return false;
         }
@@ -1663,7 +1682,9 @@ export default function IframeWidgetPlugin({
       case 'ArrowDown': {
         const { blocks } = measureBlocks(editor);
         const wraps = shouldWrapWidget(layout, columnWidth);
-        slotKey = adjacentSlot(blocks, key, e.key === 'ArrowUp' ? 'up' : 'down', wraps);
+        const height = editor.getElementByKey(key)?.getBoundingClientRect().height ?? 0;
+        const room = wraps ? widgetRoom(blocks, key, layout, columnWidth, height) : null;
+        slotKey = adjacentSlot(blocks, key, e.key === 'ArrowUp' ? 'up' : 'down', room, alignOf(layout));
         if (slotKey !== undefined) beforeKey = insertionKey(blocks, key, slotKey, wraps);
         break;
       }
@@ -1710,6 +1731,12 @@ export default function IframeWidgetPlugin({
     }));
   }, [editor, commitPlacement, deleteWidget]);
 
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): whether widget `key`, laid out so, has room where it is
+  // (see WidgetRoom), for the gear menu's choices.
+  const canPlace = useCallback((key: string, layout: IframeWidgetLayout) => roomInPlace(
+    measureBlocks(editor).blocks, key, layout, editorColumnWidth(editor), editor.getElementByKey(key)?.getBoundingClientRect().height ?? 0,
+  ), [editor]);
+
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): the gear menu's choices, like the keys on a grip: one
   // undo step each, announced for screen readers.
   const handleOptionsChange = useCallback((key: string, layout: IframeWidgetLayout) => {
@@ -1755,6 +1782,7 @@ export default function IframeWidgetPlugin({
             dragEnabled={dragEnabled}
             gesture={gesture?.key === key ? gesture.phase : null}
             hint={key === hintKey}
+            canPlace={canPlace}
             onGripPointerDown={startMove}
             onResizePointerDown={startResize}
             onGripKeyDown={handleGripKeyDown}
@@ -1807,7 +1835,7 @@ function moveView(
   const text = moveChipText(slot, storedLayout);
   let ghost: MoveDragView['ghost'] = null;
   // Client y of the line and of the chip's top: on the line, centered in the column...
-  let lineY = slot.lineY;
+  const lineY = slot.lineY;
   let chipY = slot.lineY - Math.round(chipHeight / 2);
   let chip: Omit<DragChip, 'top'> = { text, x: Math.round(left + (width / 2)), align: 'center', maxWidth: Math.max(120, width - 12) };
   if (slot.wraps && side && slot.ghostTop !== null && !slot.noOp) {
@@ -1820,14 +1848,10 @@ function moveView(
     const cut = sectionEnd !== null;
     const height = cut ? Math.min(ghostHeight, Math.max(MIN_CUT_GHOST, sectionEnd - slot.ghostTop)) : ghostHeight;
     ghost = { top: Math.round(slot.ghostTop + dy), left: ghostLeft, width: ghostWidth, height: Math.round(height), cut };
-    // The line only spans the side the widget takes, so it doesn't run through a widget on the other,
-    // and sits on the ghost's top when that is pushed below an earlier float on this side (at the gap
-    // it would run through that float).
-    if (slot.stacked) lineY = slot.ghostTop;
+    // The line only spans the side the widget takes.
     line = { top: Math.round(lineY + dy), left: ghostLeft, width: ghostWidth };
-    // ...or from the ghost's outer edge, inside it (on the line when the ghost is pushed below an
-    // earlier float, where the pointer is), and no wider than it.
-    chipY = slot.stacked ? slot.lineY + 6 : slot.ghostTop + 6;
+    // ...or from the ghost's outer edge, inside it, and no wider than it.
+    chipY = slot.ghostTop + 6;
     const maxWidth = Math.max(120, ghostWidth - 12);
     chip = side === 'left'
       ? { text, x: ghostLeft + 6, align: 'start', maxWidth }
@@ -1875,7 +1899,8 @@ function moveView(
       sameSlot: slot.sameSlot,
       noOp: slot.noOp,
       snapped: slot.snapped,
-      besideOpposite: slot.besideOpposite,
+      moved: slot.moved,
+      noRoom: slot.noRoom,
       pushesDown: slot.pushesDown,
     },
   };
@@ -1889,6 +1914,8 @@ function resizeView(
   point: GesturePoint,
   /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): this width leaves the widget too small. */
   warning: string | null = null,
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): this width puts it beside another widget (see WidgetRoom). */
+  noRoom = false,
 ): DragView {
   const { dx, dy } = anchorOffset(anchorElem);
   const left = column.left + dx;
@@ -1921,7 +1948,7 @@ function resizeView(
     kind: 'resize',
     ruler: { top: Math.round(rulerY + dy), left: Math.round(left), width: Math.round(width), ticks },
     chip: {
-      text: resizeChipText(target, target.wraps && besideOppositeFloat(spacer, target.side)),
+      text: resizeChipText(target, noRoom),
       top: Math.round(chipTop + dy), x: Math.round(chipX), align: 'center', maxWidth, above,
       ...(warning ? { warning } : {}),
     },
@@ -1931,25 +1958,9 @@ function resizeView(
       fixedSide: target.side,
       snap: target.snap,
       wraps: target.wraps,
+      noRoom,
     },
   };
-}
-
-/**
- * Whether a widget on the other side runs beside this one in the live (previewed) layout, squeezing
- * the text between them. Moves warn about this too (DropSlot.besideOpposite).
- */
-function besideOppositeFloat(spacer: HTMLElement | null, side: WidgetSide): boolean {
-  const parent = spacer?.parentElement;
-  if (!spacer || !parent) return false;
-  const rect = spacer.getBoundingClientRect();
-  return Array.from(parent.children).some((elem) => {
-    if (elem === spacer || !(elem instanceof HTMLElement)) return false;
-    const float = getComputedStyle(elem).float;
-    if ((float !== 'left' && float !== 'right') || float === side) return false;
-    const other = elem.getBoundingClientRect();
-    return other.top < rect.bottom - 1 && other.bottom > rect.top + 1;
-  });
 }
 
 /** For screen readers, for example "Right, 33%, before 'One loop and one brake'". */

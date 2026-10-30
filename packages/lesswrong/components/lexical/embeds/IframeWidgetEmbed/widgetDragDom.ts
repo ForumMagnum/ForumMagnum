@@ -57,7 +57,7 @@ export function measureBlocks(editor: LexicalEditor): { blocks: BlockBox[], colu
       const elem = editor.getElementByKey(key);
       if (!elem) continue;
       const rect = elem.getBoundingClientRect();
-      const { float, clear } = getComputedStyle(elem);
+      const { float, clear, marginBottom } = getComputedStyle(elem);
       // EXPERIMENT (experiment/iframe-layout-ronny-exp3): dividers and embeds start below a widget the text
       // wraps around, but only once one floats before them, so they're known by kind, not by their style
       // now. (A box the sliver guard moved below a widget doesn't count: that depends on where it is now.)
@@ -75,6 +75,7 @@ export function measureBlocks(editor: LexicalEditor): { blocks: BlockBox[], colu
         clears: clearing || (clear !== 'none' && !elem.hasAttribute('data-lw-below')),
         top: rect.top,
         bottom: rect.bottom,
+        marginBottom: parseFloat(marginBottom) || 0,
       });
     }
   });

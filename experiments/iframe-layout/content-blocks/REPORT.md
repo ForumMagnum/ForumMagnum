@@ -149,9 +149,8 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
 
 ### Other widgets
 - Full width: starts below any widget beside it (unchanged).
-- Same side: stacks below (unchanged).
-- Opposite sides: still sit level, with the drag chip's "text gets narrow" warning (unchanged; see
-  "Needs you").
+- No two widgets ever share a height (your rule, Oct 29): a horizontal line across the post never crosses
+  two widgets, on either side. See "No two widgets at one height" below.
 - Centered (only from hand-written HTML): its own row, at its width. The editor now shows it at its width
   too (it showed it full width).
 
@@ -194,9 +193,8 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   and 5 heading-snap unit tests, which now test dividers and embeds (plus one new test: a widget never lines up with a heading).
 
 ## Needs you
-1. **Widgets on opposite sides.** They still sit level (Experiment 2). A designer recommends stacking
-   them, because two level widgets always leave under 300px of text between them (even 25% + 25% leaves
-   277px). It's a one-line change. Keep level, or stack?
+1. ~~**Widgets on opposite sides.**~~ Answered Oct 29: never level. No two widgets share a height, on
+   either side (see the changes below).
 2. **Safari.** Not tested: Playwright's WebKit isn't installed on the Studio (a download from Microsoft's
    CDN). Say yes and I'll install it and run the width sweep in WebKit. Or open the demo in Safari.
 3. **Quotes, sections and lists beside a right widget** flow like text (my call, by eye). If you'd rather
@@ -253,3 +251,33 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
     (Chrome does that in anything editable).
   - An equation wider than the whole column (only in narrow windows) gets about 55px more space in the
     post, from LessWrong's scroll box for wide content.
+- **No two widgets at one height (your rule).** A horizontal line across the post never crosses two
+  widgets. Each left or right widget lines up with the top or the bottom of one paragraph, and:
+  - no other widget lines up with that paragraph;
+  - no other widget is still beside that spot. Your example: paragraph 1 is short and its widget runs on
+    beside paragraph 2, so paragraph 2 can't get a widget at its top either. Its bottom can, if the widget
+    fits below the other one's end.
+  - Dragging: aimed at a spot without room, the widget moves down to the first spot with room (the chip
+    says "moved down, clear of the widget above"). With none below, it goes up to the nearest one ("moved
+    up, clear of the widget below"). With none anywhere, the drop does nothing ("No room").
+  - The arrow keys skip spots without room.
+  - The gear greys out Left and Right on a full-width widget that would land beside another widget, and
+    Top or Bottom where switching would, with a note saying why.
+  - Pulling a full-width widget's edge in where there's no room: the chip says so, and letting go leaves it
+    full width. (Width changes of a left or right widget aren't checked: its height at a new width isn't
+    known until it's shown at it.)
+  - Display, as a safety net: every left or right widget clears both sides, in the editor and the post.
+    So if text edits or another window width bring two widgets together, the later one starts below the
+    earlier one instead of beside it. (A wider window makes paragraphs shorter, so widgets that fit apart
+    at one width can meet at another.)
+  - The room check counts the text between two widgets getting taller as it wraps around the new one,
+    and where a widget really starts (right after the block before it, which after AI content is up to
+    18px above the next paragraph's top).
+  - Your three screenshots are now a test (`one-height-check.mjs`): states 1 and 2 move down to the last
+    paragraph; state 3 stays.
+  - Checks: unit tests 54 of 54; the new browser test 16 of 16; drag checks on both editors all pass (six
+    old ones rewritten for the rule; R4 rewritten because widgets now move out of other blocks), with a new
+    "no two widgets at one height" check after every scenario; width sweeps of both posts at every width
+    from 320 to 2560px: no two widgets at one height anywhere, in the editor or the post. (The AI Futures
+    sweep still flags its known tie at 576 and 672px: the paragraph after the milestones widget ends level
+    with the widget, so which view puts its first line beside the widget flips from run to run.)

@@ -26,9 +26,10 @@ Read REPORT.md (same folder) for the Ronny-facing write-up; this file is the eng
     (`dpl_DFpM7sSeshJ6XmrbyRTzbu45uBDr`, commit 3a8eb637ce) was READY and is what Ronny first looked at.
     Ronny said not to verify the live build ("just let me look at it"), so the live site was not checked
     beyond a curl that the alias serves the new demo HTML.
-- Ronny has 3 open questions (REPORT.md "Needs you"): opposite-side widgets level or stacked; Safari test
-  (needs `npx playwright install webkit`, a download: ask him first); quotes/sections/lists beside a RIGHT
-  widget flow like text (my call) vs one rule for both sides.
+- Ronny has 2 open questions (REPORT.md "Needs you"): Safari test (needs `npx playwright install webkit`, a
+  download: ask him first); quotes/sections/lists beside a RIGHT widget flow like text (my call) vs one rule
+  for both sides. (Opposite-side widgets: answered Oct 29, never level: see "No two widgets at one height"
+  in section 11.)
 - Dev server on the Studio: stopped. Nothing else running there.
 
 Commits on the branch since Exp 2's tip 6a5a86cf1c (oldest first):
@@ -273,6 +274,10 @@ can run it over `ssh studio`, or use your own copy).
 - Update the play copy only when a batch of changes passes all checks: tell Ronny first in one line, then
   `git -C ~/Github\ Repos/ForumMagnum-layout-play checkout --detach <commit>` and restart `lw-layout`
   (about a minute).
+- Every state the play copy has been on keeps a local tag, so Ronny can go back to it (his ask, Oct 29:
+  "keep 3000 committed so we can go back to it"): `play-before-one-height` = 7b504ba034 (Backspace rule;
+  before "no widgets inside blocks" and the one-height rule). Tag each new state when updating. Going back
+  is the same checkout with the tag, then restart `lw-layout`.
 - Its `node_modules` is an APFS clone of this one (`cp -cR`, about 30s, no extra disk): Turbopack refuses
   a `node_modules` symlink that points outside its workspace. Re-clone after a dependency change. Its
   `.env.local` and `.vercel/` are copies (never print them), plus `excalidraw/dist` and
@@ -431,4 +436,38 @@ can run it over `ssh studio`, or use your own copy).
   the header. It now scrolls the title to the middle of the window and waits for it to settle.
   width-sweep's display-equation check now also covers the post's scroll box around a wide equation (it
   was measuring MathJax's hidden screen-reader copy there: 236 false "drift" widths).
+- **No two widgets at one height (Ronny, Oct 29: "if you passed a horizontal line down the post, it would
+  only ever intersect one widget at a time"; his three screenshots: a widget beside another at one
+  paragraph's top, and one lined up with the AI content the other still ran beside, are not allowed; one
+  below the other's end is fine).** Two layers:
+  - Display: every float clears both sides (HydratedIframeWidget `floatLeft`/`floatRight`, the editor's
+    `placeSpacer`), so two floats never share a height on the page, whatever the width or the text.
+  - Editor: `WidgetRoom` / `spotProblem` / `findSpot` / `roomInPlace` in widgetDragGeometry.ts. A spot is
+    a flow block's top or bottom (or the end of the post). It has room if no other float lines up with that
+    block (`widgetLinedUpWith`: floats between it and the flow block before it), every float before it has
+    ended by the widget's top, and every float after it (up to the next block that clears it) starts below
+    the widget's bottom once the text between them has wrapped around it: `f.top - top >= height * share`,
+    share = the column fraction left beside the widget (`besideShare`). The widget's top: right after the
+    block before it, i.e. `before.bottom + before.marginBottom` (BlockBox.marginBottom, measured in
+    measureBlocks; Chrome puts a float there, before the next block's top margin, so after AI content, with
+    no bottom margin, a float starts 12px above the paragraph's text box) + 6px (its top margin).
+    `chooseDropSlot` aims as before, then `findSpot` takes the first spot from the aim on down with room
+    (spot order: top, bottom, next block's top...), else the nearest above; none: `noRoom` (noOp).
+    DropSlot `moved: 'down'|'up'|null` and `noRoom` replace `passedTaken`/`stacked`/`besideOpposite`;
+    chips "moved down, clear of the widget above" / "moved up, clear of the widget below" / "No room: ...".
+    `adjacentSlot(blocks, key, dir, room|null, align)` skips spots without room (keeping the alignment; a
+    bottom-aligned widget is checked at a non-paragraph's top). The gear (`canPlace` -> `roomInPlace`)
+    greys out Left/Right on a full-width widget and Top/Bottom on a float where they'd put it beside
+    another widget (note `data-testid=widget-options-no-room`); widths aren't checked (height unknown
+    until shown). `roomInPlace` for a full-width widget first moves everything after it up by
+    `self.bottom - before.bottom` (it's no longer a block). Resize: `hasRoom` against the blocks measured
+    when the resize started (in the live preview the floats below are already pushed by clearance), with
+    the widget's current height; no room: chip "no room, another widget is beside the text here", and
+    letting go restores the start layout. `$sideTaken` and `besideOppositeFloat` are gone.
+  - Not covered (the display layer handles them): text edits that bring two widgets together, other window
+    widths, and a left/right widget's width change making it taller.
+  - Checks: unit tests 54 (the old stacking/besideOpposite tests became room-rule tests, plus Ronny's three
+    states); `content-blocks/one-height-check.mjs` (16: the three states by drag, ArrowUp x3, the gear and
+    a resize on a full-width widget beside the right widget's end, the Post tab); width-sweep's new
+    "shared" check (pairs of widgets, any kind, sharing a height, in either view) at every width.
 

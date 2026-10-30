@@ -179,10 +179,16 @@ async function openEditor(browser, width, height = 900, contextOptions = null) {
           indicator: !!document.querySelector('[data-testid=widget-drop-indicator]'),
           iframeReloads: loads,
           mismatches,
+          // EXPERIMENT (experiment/iframe-layout-ronny-exp3): no two widgets share a height (Ronny, Oct 29 2026).
+          sharedHeights: (() => {
+            const boxes = [...document.querySelectorAll('[data-lexical-editor] > .iframe-widget-code')]
+              .map(w => w.getBoundingClientRect()).filter(r => r.height > 0);
+            return boxes.flatMap((a, i) => boxes.slice(i + 1).filter(b => a.top < b.bottom - 1 && b.top < a.bottom - 1)).length;
+          })(),
         };
       });
       const ok = !inv.shield && !inv.bodyClass && inv.state === 'idle' && !inv.iframesBlocked && !inv.indicator
-        && inv.iframeReloads === 0 && inv.mismatches.length === 0;
+        && inv.iframeReloads === 0 && inv.mismatches.length === 0 && inv.sharedHeights === 0;
       check(`  invariants after ${label}`, ok, ok ? '' : JSON.stringify(inv));
     },
   };
@@ -268,8 +274,11 @@ async function mainChecks(browser) {
       });
       const after = content(await h.snapshot());
       const at = after.findIndex(c => c.key === key);
-      const moved = mid.ind.noop === 'true' || after[at + 1]?.key === lower;
-      check(`S2 float lands before paragraph ${lower}`, mid.ind.slotKey === lower && moved, `slot=${mid.ind.slotKey} next=${after[at + 1]?.key}`);
+      // (Experiment 3: where another widget is in the way, it moves down past it, and the chip says so.)
+      const aimed = mid.ind.slotKey === lower || (mid.ind.moved === 'down' && /moved down/.test(mid.ind.chip ?? ''));
+      const landed = mid.ind.noop === 'true' || after[at + 1]?.key === mid.ind.slotKey;
+      check(`S2 float lands before paragraph ${lower}, or past a widget in the way`, aimed && landed,
+        `slot=${mid.ind.slotKey} moved=${mid.ind.moved} next=${after[at + 1]?.key}`);
     }
     await h.invariants('S2');
   }
@@ -283,7 +292,19 @@ async function mainChecks(browser) {
     const fullKey = await h.widget(/position=inline/);
     const headings = snap.map((c, i) => ({ ...c, i })).filter((c, i) => c.type === 'heading' && snap[i - 1]?.type === 'paragraph'
       && snap[i + 1]?.type === 'paragraph' && snap[i + 1]?.key !== floatKey && snap[i - 1]?.key !== floatKey);
-    const heading = headings.at(-1);
+    // (Experiment 3: one where no other widget is in the way, found by aiming at each, last first.)
+    let heading = null;
+    for (const candidate of [...headings].reverse()) {
+      await h.drag(h.grip(floatKey), async () => {
+        await h.scrollToKey(candidate.key);
+        await h.frames(2);
+        const r = await h.keyRect(candidate.key);
+        return { x: col.left + 60, y: r.y + 3 };
+      }, { onMid: async (m) => { if (!m.ind.moved) heading = candidate; await page.keyboard.press('Escape'); } });
+      if (heading) break;
+    }
+    check('S3 there is a heading with room for the float', !!heading);
+    heading ??= headings.at(-1);
     await h.resetUpdates();
     const mid = await h.drag(h.grip(floatKey), async () => {
       await h.scrollToKey(heading.key);
@@ -310,7 +331,8 @@ async function mainChecks(browser) {
     await h.invariants('S3');
   }
 
-  // S4: a right float dropped next to a left float: allowed, with the warning.
+  // S4: a right float aimed beside a left float: no two widgets at one height (Experiment 3, Ronny, Oct 29
+  // 2026), so it moves down to the first spot clear of it, and the chip says so.
   {
     const leftKey = await h.widget(/position=left/);
     const rightKey = await h.widget(/position=right/);
@@ -323,8 +345,10 @@ async function mainChecks(browser) {
     });
     const after = content(await h.snapshot());
     const at = after.findIndex(c => c.key === rightKey);
-    check('S4 beside another widget: allowed, warned', mid.ind.besideOpposite === 'true' && /beside another widget/.test(mid.ind.chip ?? '')
-      && after[at - 1]?.key === leftKey && pushCount(await h.updates()) === 1, `chip=${mid.ind.chip} prev=${after[at - 1]?.key}`);
+    const [l, r] = [await h.keyRect(leftKey), await h.keyRect(rightKey)];
+    check('S4 aimed beside another widget: moved down, clear of it', mid.ind.moved === 'down' && /moved down, clear of the widget above/.test(mid.ind.chip ?? '')
+      && after[at - 1]?.key !== leftKey && r.y >= l.bottom && pushCount(await h.updates()) === 1,
+      `chip=${mid.ind.chip} prev=${after[at - 1]?.key} left ${Math.round(l.y)}-${Math.round(l.bottom)} right ${Math.round(r.y)}`);
     await h.invariants('S4');
   }
 
@@ -397,7 +421,9 @@ async function mainChecks(browser) {
   {
     await page.setViewportSize({ width: 1024, height: 700 });
     await h.frames(3);
-    const key = content(await h.snapshot()).find(c => c.type === 'iframe-widget').key;
+    // (A full-width one: a widget the text wraps around skips the spots where another widget is in the way,
+    // which can be a long stretch.)
+    const key = await h.widget(/position=inline/);
     await page.evaluate(() => window.scrollTo(0, 0));
     await h.scrollTo(h.grip(key));
     await h.frames(2);
@@ -455,8 +481,13 @@ async function mainChecks(browser) {
   }
 
   // S12: a full-width widget pulled in from either edge becomes a float; back to full width is no change.
+  // (Experiment 3: at the end of the post, where nothing is in its way as a float; it goes back after.)
   {
     const key = await h.widget(/position=inline/);
+    const home = content(await h.snapshot());
+    const homeNext = home[home.findIndex(c => c.key === key) + 1]?.key ?? null;
+    await dispatchMove(page, { key, beforeKey: null });
+    await h.frames(4);
     await h.scrollTo(h.overlay(key));
     await h.resetUpdates();
     await h.drag(`[data-testid=widget-resize-right][data-widget-key="${key}"]`, (r) => ({ x: col.left + (0.33 * col.width), y: r.cy }));
@@ -472,6 +503,8 @@ async function mainChecks(browser) {
     await h.resetUpdates();
     await h.drag(`[data-testid=widget-resize-right][data-widget-key="${key}"]`, (r) => ({ x: col.left + col.width - 4, y: r.cy }));
     check('S12 released at full width: no updates', (await h.updates()).length === 0);
+    await dispatchMove(page, { key, beforeKey: homeNext });
+    await h.frames(4);
     await h.invariants('S12');
   }
 
@@ -1054,14 +1087,16 @@ async function reviewChecks(browser) {
     await h.invariants('R8');
   }
 
-  // R4: a widget inside another block (here a column of a two-column layout) can't be dragged, and a
-  // move of it is refused, which would otherwise leave that block empty.
+  // R4: a widget put inside another block (here a column of a two-column layout) moves straight out, to
+  // just before that block, and keeps its drag controls (Experiment 3, Oct 29 2026: widgets never go inside
+  // other blocks).
   {
     const grips = (await page.$$('[data-testid=widget-grip]')).length;
     const key = content(await h.snapshot()).find(c => c.type === 'iframe-widget').key;
     // The same node (same key) moves into the first column of a new two-column layout.
-    await page.evaluate((key) => new Promise((resolve) => {
+    const containerKey = await page.evaluate((key) => new Promise((resolve) => {
       const { ed } = window.__dragCheck;
+      let made = null;
       ed.update(() => {
         const widget = ed._pendingEditorState._nodeMap.get(key).getLatest();
         const make = (type, ...args) => new (ed._nodes.get(type).klass)(...args);
@@ -1072,30 +1107,27 @@ async function reviewChecks(browser) {
         container.append(first, second);
         second.append(make('paragraph'));
         first.append(widget);
-      }, { onUpdate: resolve });
+        made = container.getKey();
+      }, { onUpdate: () => resolve(made) });
     }), key);
     await h.frames(4);
-    const nested = await page.evaluate((key) => document.querySelectorAll([
-      `[data-testid=widget-grip][data-widget-key="${key}"]`, `[data-testid=widget-options][data-widget-key="${key}"]`,
-      `[data-testid^=widget-resize][data-widget-key="${key}"]`,
-    ].join(', ')).length, key);
-    check('R4 a widget inside columns has no drag controls', nested === 0 && (await page.$$('[data-testid=widget-grip]')).length === grips - 1);
-    const json = () => page.evaluate(() => JSON.stringify(window.__dragCheck.ed.getEditorState().toJSON()));
-    const before = await json();
-    const firstBlock = content(await h.snapshot())[0].key;
-    const handled = [await dispatchMove(page, { key, beforeKey: firstBlock }), await dispatchMove(page, { key, beforeKey: null })];
-    check('R4 ...and a move of it is refused', handled.every(x => x === false) && (await json()) === before, JSON.stringify(handled));
-    await page.evaluate((key) => new Promise((resolve) => {
+    const placed = await page.evaluate(([key, containerKey]) => {
       const { ed } = window.__dragCheck;
-      ed.update(() => {
-        const widget = ed._pendingEditorState._nodeMap.get(key).getLatest();
-        const container = widget.getParent().getParent();
-        container.insertBefore(widget);
-        container.remove();
-      }, { onUpdate: resolve });
-    }), key);
+      return ed.getEditorState().read(() => {
+        const widget = ed.getEditorState()._nodeMap.get(key);
+        let next = widget.getNextSibling();
+        while (next?.getType() === 'sentinel-paragraph') next = next.getNextSibling();
+        return { topLevel: widget.getParent()?.getType() === 'root', beforeColumns: next?.getKey() === containerKey };
+      });
+    }, [key, containerKey]);
+    check('R4 a widget put inside columns moves out, to just before them', placed.topLevel && placed.beforeColumns, placed);
+    check('R4 ...with its drag controls', (await page.$$(h.grip(key))).length === 1
+      && (await page.$$('[data-testid=widget-grip]')).length === grips);
+    await page.evaluate((containerKey) => new Promise((resolve) => {
+      const { ed } = window.__dragCheck;
+      ed.update(() => { ed._pendingEditorState._nodeMap.get(containerKey).getLatest().remove(); }, { onUpdate: resolve });
+    }), containerKey);
     await h.frames(4);
-    check('R4 back at the top level it has its grip again', (await page.$$(h.grip(key))).length === 1);
   }
 
   // R7: on a short, narrow float the resize strip is clear of the placement bar and the code toggle
@@ -1159,12 +1191,19 @@ async function edgeChecks(browser) {
   const barTop = async () => (await h.rect('[data-lw-bottom-bar]')).y;
 
   // E1: a float dropped in a short section before a heading. Experiment 3: the heading sits beside it
-  // instead of clearing it, so the ghost runs on past the heading (not cut, nothing pushed down), and a
-  // float on the other side after the heading is beside it, which the chip warns about.
+  // instead of clearing it, so the ghost runs on past the heading (not cut, nothing pushed down). (The
+  // widget after the heading goes to the end of the post meanwhile: no two widgets share a height, so the
+  // dragged one would move down past it.)
   {
     const key = await h.widget(/position=left width=38%/);
     const para = await keyOf(/^Watch the gap/);
     const heading = await keyOf(/^Takeoff/);
+    const blocks = content(await h.snapshot());
+    const atHeading = blocks.findIndex(c => c.key === heading);
+    const other = blocks.slice(atHeading).find(c => c.type === 'iframe-widget' && /position=(left|right)/.test(c.text));
+    const otherNext = blocks[blocks.findIndex(c => c.key === other?.key) + 1]?.key ?? null;
+    if (other) await dispatchMove(page, { key: other.key, beforeKey: null });
+    await h.frames(4);
     await press(key);
     await h.scrollToKey(para);
     await h.frames(2);
@@ -1175,15 +1214,17 @@ async function edgeChecks(browser) {
     const ghost = await R('[data-testid=widget-drop-ghost]');
     const hr = await h.keyRect(heading);
     await cancel();
-    check('E1 a float before a heading runs on beside it, with the other side\'s float beside it too', ind.besideOpposite === 'true'
-      && !ind.pushesDown && /beside another widget/.test(ind.chip ?? '') && !/pushes/.test(ind.chip ?? '')
-      && ghost?.cut !== 'true' && ghost.bottom > hr.y, `chip=${ind.chip} ghost bottom ${Math.round(ghost?.bottom)} heading ${Math.round(hr.y)}`);
+    check('E1 a float before a heading runs on beside it', ind.slotKey === para && !ind.moved && !ind.pushesDown
+      && !/pushes/.test(ind.chip ?? '') && ghost?.cut !== 'true' && ghost.bottom > hr.y,
+      `chip=${ind.chip} slot=${ind.slotKey} ghost bottom ${Math.round(ghost?.bottom)} heading ${Math.round(hr.y)}`);
+    if (other) await dispatchMove(page, { key: other.key, beforeKey: otherNext });
+    await h.frames(4);
     await h.invariants('E1');
   }
 
-  // E2: aimed just under a heading with a float on the same side at its top, the widget stacks below
-  // that float, out of view: a dashed stand-in line at the bottom edge, above the bar, and the chip
-  // (on screen) says so.
+  // E2: aimed just under a heading with a float at its top, the widget moves down past that float (no two
+  // widgets share a height), out of view: a dashed stand-in line at the bottom edge, above the bar, and the
+  // chip (on screen) says so.
   {
     const key = await h.widget(/position=left width=44%/);
     const heading = await keyOf(/^Five milestones/);
