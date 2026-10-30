@@ -22,8 +22,10 @@ Read REPORT.md (same folder) for the Ronny-facing write-up; this file is the eng
   READY deployment):
   - Content blocks post: https://lw-experiment-widget-blocks-c4b9cuhv8val44y0-lesswrong.vercel.app/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/blocks (and `/blocks/editor`)
   - AI Futures post with Exp 3 rules: https://lw-experiment-widget-blocks-c4b9cuhv8val44y0-lesswrong.vercel.app/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e (and `/editor`)
-  - Latest deployment: `dpl_5zGrZgMmDp16uiQ9ocBRtkr3SeuZ` (commit c4851c65bb, Oct 30 2026 afternoon, Ronny:
-    "ship it to the experiment page"): one-height rule, no widgets inside blocks, the quote fix.
+  - Latest deployment: `dpl_GQ7gkJqGV8HJWYrwRnhF6ZVC3Dgz` (commit 881934fdba, Oct 30 2026 ~4pm, Ronny: "push
+    it"): adds "Start below widget" (one per widget) and section headings starting below widgets.
+  - Before: `dpl_5zGrZgMmDp16uiQ9ocBRtkr3SeuZ` (commit c4851c65bb, Oct 30 afternoon): one-height rule, no widgets
+    inside blocks, the quote fix.
   - Earlier: `dpl_4rGcPLtu5WxgJG4ZxVnkjkhGe2Xw` (commit 9667c1586f), started Oct 29 3:05am; the one before
     (`dpl_DFpM7sSeshJ6XmrbyRTzbu45uBDr`, commit 3a8eb637ce) was READY and is what Ronny first looked at.
     Ronny said not to verify the live build ("just let me look at it"), so the live site was not checked
