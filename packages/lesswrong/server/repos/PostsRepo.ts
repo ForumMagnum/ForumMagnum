@@ -1,14 +1,13 @@
 import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
-import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
+import { getTagFilterAdditiveKarmaSql, getTagFilterMultiplierSql, getTagFilterSelector, getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
 import { joinReaderUpvote, readerFollowedAuthorIds, readerSeesLessOf } from "./aiDigestSqlHelpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import type { ForumTypeString } from "../../lib/instanceSettings";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
-import { FilterSettings, FilterMode } from "@/lib/filterSettings";
+import { type ClassifiedTagFilters, classifyTagFilters, FilterSettings } from "@/lib/filterSettings";
 import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 import { TIME_DECAY_FACTOR, SCORE_BIAS } from "@/lib/scoring";
-import { getPgPromiseLib } from "@/server/sqlConnection";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
 type DbPostWithContents = DbPost & {contents?: DbRevision | null};
@@ -156,47 +155,13 @@ const constructFilters = (
   return [filters, params]
 }
 
-function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
-  if (typeof mode === 'number') return mode;
-  if (mode === 'Subscribed') return 25;
-  return 0;
-}
-
-function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
-  if (typeof mode === 'string' && mode.startsWith('x')) {
-    return parseFloat(mode.substring(1)) || 1;
-  }
-  return 1;
-}
-
-function sqlValue(value: string): string {
-  return `'${getPgPromiseLib().as.value(value)}'`;
-}
-
 /**
  * Constructs a SQL expression for calculating the filteredScore based on filterSettings
  * This mirrors the logic in the "magic" view's filterSettingsToParams function
  */
-function constructFilteredScoreSql(filterSettings: FilterSettings, forumType: ForumTypeString): string {
-  const tagsSoftFiltered = filterSettings.tags.filter(
-    t => t.filterMode !== "Hidden" && t.filterMode !== "Required" && t.filterMode !== "Default"
-  );
-
-  const additiveModifiersSql = tagsSoftFiltered.map(tag => `
-    (CASE
-      WHEN COALESCE((p."tagRelevance"->${sqlValue(tag.tagId)})::INTEGER, 0) > 0
-      THEN ${filterModeToAdditiveKarmaModifier(tag.filterMode)}
-      ELSE 0
-    END)`
-  ).join(' + ');
-
-  const multiplicativeModifiersSql = tagsSoftFiltered.map(tag => `
-    (CASE
-      WHEN COALESCE((p."tagRelevance"->${sqlValue(tag.tagId)})::INTEGER, 0) > 0
-      THEN ${filterModeToMultiplicativeKarmaModifier(tag.filterMode)}
-      ELSE 1
-    END)`
-  ).join(' * ');
+function constructFilteredScoreSql(tagFilters: ClassifiedTagFilters, forumType: ForumTypeString): string {
+  const additiveModifiersSql = getTagFilterAdditiveKarmaSql(tagFilters, 'p');
+  const multiplicativeModifiersSql = getTagFilterMultiplierSql(tagFilters, 'p');
 
   const frontpageBonus = 10;
   const curatedBonus = 10;
@@ -220,10 +185,10 @@ function constructFilteredScoreSql(filterSettings: FilterSettings, forumType: Fo
     (
       (
         p."baseScore"
-        ${additiveModifiersSql ? ` + ${additiveModifiersSql}` : ''}
+        + ${additiveModifiersSql}
         ${standardScoreModifiers}
       ) -- Numerator End (before multiplication)
-      ${multiplicativeModifiersSql ? ` * ${multiplicativeModifiersSql}` : ''}
+      * ${multiplicativeModifiersSql}
     ) / ${timeDecayDenominatorSql}
   `;
 }
@@ -967,27 +932,13 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     const { currentUser, clientId } = context;
     const userIdOrClientId = currentUser?._id ?? clientId;
 
-    const tagsRequired = filterSettings.tags.filter(t => t.filterMode === "Required");
-    const tagsExcluded = filterSettings.tags.filter(t => t.filterMode === "Hidden");
-    
-    const tagRequiredConditions = tagsRequired.map(tag => 
-      `COALESCE((p."tagRelevance"->${sqlValue(tag.tagId)})::INTEGER, 0) >= 1`
-    ).join(' AND ');
-    
-    const tagExcludedConditions = tagsExcluded.map(tag => 
-      `COALESCE((p."tagRelevance"->${sqlValue(tag.tagId)})::INTEGER, 0) < 1`
-    ).join(' AND ');
-    
-    const tagFilterClause = [
-      tagRequiredConditions ? `(${tagRequiredConditions})` : null,
-      tagExcludedConditions ? `(${tagExcludedConditions})` : null,
-    ].filter(Boolean).join(' AND ');
-    
+    const tagFilters = classifyTagFilters(filterSettings.tags, context.forumType);
+
     const personalBlogFilter = filterSettings.personalBlog === "Hidden" 
       ? 'AND p."frontpageDate" IS NOT NULL' 
       : '';
 
-    const filteredScoreSql = constructFilteredScoreSql(filterSettings, context.forumType);
+    const filteredScoreSql = constructFilteredScoreSql(tagFilters, context.forumType);
     const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
     const hiddenPostIdsCondition = hiddenPostIds.length > 0 
       ? `AND p."_id" NOT IN ($(hiddenPostIds:csv))` 
@@ -1056,7 +1007,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         AND (CASE WHEN $(restrictToFollowedAuthors) THEN fa."userId" IS NOT NULL ELSE TRUE END)
         ${personalBlogFilter}
         ${hiddenPostIdsCondition}
-        ${tagFilterClause ? `AND ${tagFilterClause}` : ''}
+        AND ${getTagFilterSelector(tagFilters, 'p')}
       ORDER BY 
         (CASE WHEN fa."userId" IS NOT NULL THEN 1 ELSE 0 END) DESC,
         ${restrictToFollowedAuthors ? '"postedAt"' : '"initialFilteredScore"'} DESC

@@ -9,9 +9,6 @@
 /* eslint-env node */
 
 const path = require( 'path' );
-const webpack = require( 'webpack' );
-const { bundler, styles } = require( '@ckeditor/ckeditor5-dev-utils' );
-const { CKEditorTranslationsPlugin } = require( '@ckeditor/ckeditor5-dev-translations' );
 const UglifyJsWebpackPlugin = require( 'uglifyjs-webpack-plugin' );
 
 /**
@@ -36,19 +33,7 @@ function getWebpackConfig(mode) {
 			libraryTarget: 'umd',
 			libraryExport: (mode==="cloud") ? 'default' : 'Editors'
 		},
-	
-		plugins: [
-			new CKEditorTranslationsPlugin( {
-				// UI language. Language codes follow the https://en.wikipedia.org/wiki/ISO_639-1 format.
-				// When changing the built-in language, remember to also change it in the editor's configuration (src/ckeditor.js).
-				language: 'en'
-			} ),
-			new webpack.BannerPlugin( {
-				banner: bundler.getLicenseBanner(),
-				raw: true
-			} )
-		],
-	
+
 		resolve: {
 			extensions: [ '.ts', '.js', '.json' ],
 			extensionAlias: {
@@ -75,19 +60,6 @@ function getWebpackConfig(mode) {
 							}
 						},
 						'css-loader',
-						{
-							loader: 'postcss-loader',
-							options: {
-								postcssOptions: {
-									...styles.getPostCssConfig({
-										themeImporter: {
-											themePath: require.resolve( '@ckeditor/ckeditor5-theme-lark' )
-										},
-										minify: true
-									})
-								}
-							}
-						},
 					]
 				}
 			]

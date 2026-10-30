@@ -1,5 +1,5 @@
 import type CKEditor from "@/lib/vendor/ckeditor5-react/ckeditor";
-import type { Editor } from "@ckeditor/ckeditor5-core";
+import type { Editor } from 'ckeditor5';
 import type { RefObject } from "react";
 import type { CommandPaletteItem } from "../common/CommandPalette";
 import { KeystrokeInfo, parseKeystroke } from "@/lib/vendor/ckeditor5-util/keyboard";

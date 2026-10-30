@@ -19,6 +19,8 @@ import { ZodFormattedError } from 'zod';
 import LWTooltip from '@/components/common/LWTooltip';
 import ForumIcon from '@/components/common/ForumIcon';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import TagFilterSettings from '@/components/tagging/TagFilterSettings';
+import { useFilterSettings } from '@/components/hooks/useFilterSettings';
 
 const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) => ({
   settingGroup: {
@@ -266,6 +268,25 @@ const CollapsibleSettingGroup: React.FC<CollapsibleSettingGroupProps> = ({
       </div>
       {isExpanded && <>{children}</>}
     </div>
+  );
+};
+
+export const TagFiltersSettings = ({ defaultOpen = true }: { defaultOpen?: boolean }) => {
+  const classes = useStyles(styles);
+  const { filterSettings, suggestedTagsQueryRef, setPersonalBlogFilter, setTagFilter, removeTagFilter } = useFilterSettings();
+  return (
+    <CollapsibleSettingGroup title="Tag Filters" defaultOpen={defaultOpen} className={classes.settingGroup}>
+      <p className={classes.groupDescription}>
+        Shared with the Recent posts list; changes take effect immediately in both. In this feed, Hidden and Required also filter recommendations and comment threads, and Reduced lowers their ranking. Karma adjustments only affect recent posts.
+      </p>
+      <TagFilterSettings
+        filterSettings={filterSettings}
+        suggestedTagsQueryRef={suggestedTagsQueryRef}
+        setPersonalBlogFilter={setPersonalBlogFilter}
+        setTagFilter={setTagFilter}
+        removeTagFilter={removeTagFilter}
+      />
+    </CollapsibleSettingGroup>
   );
 };
 

@@ -906,7 +906,7 @@ const isEmptyParagraphOrBreak = (elem: CheerioElement) => {
 export async function draftJSToHtmlWithLatex(draftJS: AnyBecauseTodo) {
   const html = draftToHTML(convertFromRaw(draftJS))
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
-  return wrapSpoilerTags(trimmedHtml)
+  return sanitize(wrapSpoilerTags(trimmedHtml))
 }
 
 // Fold non-breaking spaces in TEXT content to plain spaces. Turndown's
@@ -1253,6 +1253,7 @@ export async function buildRevisionWithUser({ originalContents, user, isAdmin, d
   if (!originalContents) throw new Error ("Can't build revision without originalContents")
 
   const { data, type } = originalContents;
+  if (type === "draftJS") throw new Error("Can't build new revisions in draftJS format")
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
   const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !isAdmin || originalContents.type !== "html" })
   const wordCount = await dataToWordCount(readerVisibleData, type, context)

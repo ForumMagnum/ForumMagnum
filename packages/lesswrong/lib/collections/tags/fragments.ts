@@ -365,9 +365,6 @@ export const TagEditFragment = gql(`
     removalResistant
     authorOnly
     
-    autoTagModel
-    autoTagPrompt
-    
     description {
       ...RevisionEdit
     }

@@ -1543,7 +1543,7 @@ type UltraFeedEntry {
 }
 
 extend type Query {
-  UltraFeed(limit: Int, cutoff: Date, offset: Int, sessionId: String, settings: JSON): UltraFeedQueryResults!
+  UltraFeed(limit: Int, cutoff: Date, offset: Int, sessionId: String, settings: JSON, filterSettings: JSON): UltraFeedQueryResults!
 }
 
 extend type Query {
@@ -2725,6 +2725,13 @@ input CommentsModeratorCommentsInput {
   authorIsUnreviewed: Boolean
 }
 
+input CommentsLlmRepliesInput {
+  userId: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
+}
+
 input CommentsDebateResponsesInput {
   userId: String
   commentIds: [String!]
@@ -2811,6 +2818,7 @@ input CommentSelector {
   tagSubforumComments: CommentsTagSubforumCommentsInput
   latestSubforumDiscussion: CommentsLatestSubforumDiscussionInput
   moderatorComments: CommentsModeratorCommentsInput
+  llmReplies: CommentsLlmRepliesInput
   debateResponses: CommentsDebateResponsesInput
   recentDebateResponses: CommentsRecentDebateResponsesInput
   alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput

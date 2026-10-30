@@ -1,13 +1,12 @@
 import { llmRunGetPageUrl } from "@/lib/collections/llmRuns/helpers";
+import type { CommentTreeNode } from "@/lib/utils/unflatten";
 
-const LLM_REPLY_EXPAND_KARMA = 10;
-
-export function llmReplyStartsAsPreview(comment: { llmRunId: string | null, baseScore: number | null }): boolean {
-  return !!comment.llmRunId && (comment.baseScore ?? 0) < LLM_REPLY_EXPAND_KARMA;
+export function commentHasLlmReply(commentId: string, replies: Array<CommentTreeNode<CommentsList>>): boolean {
+  return replies.some(({ item }) => !!item.llmRunId && item.parentCommentId === commentId);
 }
 
-export function llmReplyPendingMarkdown(runId: string): string {
-  return `*[Click to follow along](${llmRunGetPageUrl(runId)}).*`;
+export function llmReplyPendingMarkdown(modelName: string, runId: string): string {
+  return `*${modelName} is writing a reply. [Follow along](${llmRunGetPageUrl(runId)}).*`;
 }
 
 export function llmReplyFailedMarkdown(modelName: string, runId: string): string {

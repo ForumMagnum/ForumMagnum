@@ -7,7 +7,7 @@ import { captureException } from "@/lib/sentryWrapper";
 import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { addReferrerToComment, assignPostVersion, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleReplyToAnswer, lwCommentsNewUpvoteOwnComment, maybeCreateAutomatedContentEvaluationForComment, moveToAnswers, newCommentsEmptyCheck, newCommentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
+import { addReferrerToComment, assignPostVersion, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleReplyToAnswer, lwCommentsNewUpvoteOwnComment, maybeCreateAutomatedContentEvaluationForComment, moveToAnswers, newCommentsEmptyCheck, commentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
@@ -62,7 +62,9 @@ async function newCheck(user: DbUser | null, document: CreateCommentDataInput | 
   await applyParentCommentContext(document, context, user);
   
   newCommentsEmptyCheck(document);
-  await newCommentsRateLimit(document, user, context);
+  if (!document.draft) {
+    await commentsRateLimit(document.postId ?? null, user, context);
+  }
 
   if (!document.postId) return userCanDo(user, 'comments.new')
   const post = await context.loaders.Posts.load(document.postId)
@@ -83,8 +85,11 @@ async function newCheck(user: DbUser | null, document: CreateCommentDataInput | 
   return userCanDo(user, 'comments.new')
 }
 
-async function editCheck(user: DbUser | null, document: DbComment | null, context: ResolverContext) {
+async function editCheck(user: DbUser | null, document: DbComment | null, context: ResolverContext, previewDocument: DbComment) {
   if (!user || !document) return false;
+  if (document.draft && !previewDocument.draft) {
+    await commentsRateLimit(document.postId, user, context);
+  }
   if (userCanDo(user, 'comments.alignment.move.all') ||
       userCanDo(user, 'comments.alignment.suggest')) {
     return true
@@ -162,7 +167,9 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   };
 
   await newCommentTriggerReview(asyncProperties);
-  await trackCommentRateLimitHit(asyncProperties);
+  if (!documentWithId.draft) {
+    await trackCommentRateLimitHit(documentWithId, context);
+  }
 
   if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Comments', documentWithId._id));
@@ -275,6 +282,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   );
 
   if (oldDocument.draft && !updatedDocument.draft) {
+    await trackCommentRateLimitHit(updatedDocument, context);
     await startLlmReplyForComment(updatedDocument, context).catch(captureException);
   }
 

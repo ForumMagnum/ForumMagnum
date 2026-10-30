@@ -141,6 +141,7 @@ export interface FeedCommentFromDb {
   fromSubscribedUser?: boolean;
   isRead?: boolean;
   reviewingForReview: string | null;
+  postTagFilterMultiplier: number;
 }
 
 export interface PreDisplayFeedComment {

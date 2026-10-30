@@ -403,6 +403,13 @@ export const graphqlCommentQueryTypeDefs = gql`
     authorIsUnreviewed: Boolean
   }
   
+  input CommentsLlmRepliesInput {
+    userId: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
+  }
+
   input CommentsDebateResponsesInput {
     userId: String
     commentIds: [String!]
@@ -489,6 +496,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     tagSubforumComments: CommentsTagSubforumCommentsInput
     latestSubforumDiscussion: CommentsLatestSubforumDiscussionInput
     moderatorComments: CommentsModeratorCommentsInput
+    llmReplies: CommentsLlmRepliesInput
     debateResponses: CommentsDebateResponsesInput
     recentDebateResponses: CommentsRecentDebateResponsesInput
     alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput

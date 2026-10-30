@@ -1,3 +1,4 @@
+import { llmMentionsEnabledSetting } from "@/lib/instanceSettings";
 import { getLlmFamilyBySlug, type LlmFamilyVersion } from "@/lib/languageModels/llmRegistry";
 import { llmReplyPendingMarkdown } from "@/lib/llmReplies/helpers";
 import { userMentionQueryString } from "@/lib/pingback";
@@ -23,7 +24,11 @@ const LLM_REPLY_SYSTEM_PROMPT = `You're replying to a comment on LessWrong. A Le
 
 You can search the web, search LessWrong, and read LessWrong posts, comments and wiki pages.
 
-Keep your reply short: usually one to three paragraphs, under about 400 words. Content beyond this will require a user to click through to a separate page (few will) so please respect the length guidance, unless it's really necessary.
+Keep your reply short. Match the length to the nature of the question: most replies should be under 150 words. Reason like a FDT agent if you think your question is an exception – what would happen if all instances of yourself followed the policy. If the user asks for something shorter or a specific format, follow it.
+
+Readers see only the first hundred or so words before they have to click to read more, so lead with your answer. Answer what was asked. Leave out caveats, tangents and suggestions nobody asked for, unless they change the answer.
+
+Write it like a LessWrong comment: plain prose without headings or bold lead-ins, and a list only when the content is a list.
 
 Write your reply in Markdown. Your final message is posted as the reply.
 `;
@@ -79,6 +84,9 @@ export async function startLlmReplyForComment(comment: DbComment, context: Resol
 
 async function checkLlmSummon(currentUser: DbUser, postId: string | null, llm: LlmFamilyVersion, context: ResolverContext): Promise<LlmSummonCheck> {
   const modelName = llm.version.fullName;
+  if (!llmMentionsEnabledSetting.get(context)) {
+    return { allowed: false, reason: "LLM replies are currently turned off." };
+  }
   if (!postId) {
     return { allowed: false, reason: `${modelName} only replies to comments on posts.` };
   }
@@ -140,7 +148,7 @@ async function startLlmReply({ comment, postId, modelUser, llm }: {
         parentCommentId: comment._id,
         af: comment.af,
         contents: {
-          originalContents: { type: "html", data: getLlmReplyHtml(llm.version.fullName, llmReplyPendingMarkdown(runId)) },
+          originalContents: { type: "html", data: getLlmReplyHtml(llm.version.fullName, llmReplyPendingMarkdown(llm.version.fullName, runId)) },
         },
         llmRunId: runId,
       },

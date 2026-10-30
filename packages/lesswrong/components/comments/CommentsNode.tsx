@@ -11,7 +11,7 @@ import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { useCommentLinkState } from './CommentsItem/useCommentLink';
 import SingleLineComment from "./SingleLineComment";
-import { llmReplyStartsAsPreview } from "@/lib/llmReplies/helpers";
+import { commentHasLlmReply } from "@/lib/llmReplies/helpers";
 import CommentsItem from "./CommentsItem/CommentsItem";
 import RepliesToCommentList from "../shortform/RepliesToCommentList";
 import AnalyticsTracker from "../common/AnalyticsTracker";
@@ -126,11 +126,9 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
   }, [childComments, comment, scrollToCommentId])
 
   const shouldExpandAndScrollTo = !noDOMId && !noAutoScroll && comment && scrollToCommentId === comment._id
-  // Model replies start as a one-line preview, unless the reader followed a
-  // link to this reply or the caller forces comments open (e.g. permalinks)
-  const readerLinkedToComment = scrollToCommentId === comment._id || linkedCommentId === comment._id
-  const startsAsLlmReplyPreview = llmReplyStartsAsPreview(comment)
-    && !readerLinkedToComment && !forceUnTruncated && !forceNotSingleLine && !expandAllThreads
+  // A comment that summoned a model starts truncated whatever the thread size, even at the top level,
+  // so it and everything beneath it start as one line unless they have 10+ karma
+  const isLlmQuery = commentHasLlmReply(comment._id, childComments ?? [])
 
   const beginCollapsed = useCallback(() => {
     return !shouldUncollapseForAutoScroll() && !forceUnCollapsed && (comment.deleted || (comment.baseScore ?? 0) < karmaCollapseThreshold)
@@ -142,6 +140,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
     const lowKarmaOrCondensed = ((comment.baseScore ?? 0) < 10 || !!condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
     const postPageAndTop = (nestingLevel === 1) && postPage
+    const topLevelStaysOpen = (shortformAndTop || postPageAndTop) && !isLlmQuery
 
     if (expandOnlyCommentIds)
       return !expandOnlyCommentIds.has(comment._id);
@@ -149,24 +148,21 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
       return true;
     if (treeOptions.isSideComment && nestingLevel>1)
       return true;
-    if (startsAsLlmReplyPreview)
-      return true;
 
     return (
       !shouldExpandAndScrollTo &&
       !expandAllThreads &&
-      !!(truncated || startThreadTruncated) &&
+      !!(truncated || startThreadTruncated || isLlmQuery) &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
-      !shortformAndTop &&
-      !postPageAndTop &&
+      !topLevelStaysOpen &&
       !forceNotSingleLine
     )
-  }, [comment._id, comment.baseScore, condensed, expandAllThreads, expandOnlyCommentIds, forceNotSingleLine, forceSingleLine, lastCommentId, nestingLevel, postPage, shortform, shouldExpandAndScrollTo, startThreadTruncated, startsAsLlmReplyPreview, treeOptions.isSideComment, truncated]);
+  }, [comment._id, comment.baseScore, condensed, expandAllThreads, expandOnlyCommentIds, forceNotSingleLine, forceSingleLine, isLlmQuery, lastCommentId, nestingLevel, postPage, shortform, shouldExpandAndScrollTo, startThreadTruncated, treeOptions.isSideComment, truncated]);
 
   const beginTruncated = useCallback(() => {
-    return !shouldExpandAndScrollTo && !!startThreadTruncated
-  }, [shouldExpandAndScrollTo, startThreadTruncated])
+    return !shouldExpandAndScrollTo && (!!startThreadTruncated || isLlmQuery)
+  }, [isLlmQuery, shouldExpandAndScrollTo, startThreadTruncated])
 
   // Whether the comment is completely hidden (with the toggle arrow closed)
   const [collapsed, setCollapsed] = useState<boolean>(beginCollapsed);
@@ -235,7 +231,6 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
     if (!singleLine || currentUserNoSingleLineCommentsSetting) return false;
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
-    if (startsAsLlmReplyPreview) return true;
 
     return isTruncated && !(expandNewComments && isNewComment);
   })();
@@ -281,6 +276,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
       parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
       nestingLevel={updatedNestingLevel + 1}
       truncated={isTruncated}
+      expandAllThreads={expandAllThreads}
       childComments={child.children}
       key={child.item._id}
       expandNewComments={expandNewComments}
@@ -306,8 +302,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
     if (isTruncated || isSingleLine) {
       heightBeforeExpansionRef.current = animateWholeThread ? null : scrollTargetRef.current?.getBoundingClientRect().height ?? null;
       captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id, draft: comment.draft });
-      // A model reply opens from its one-line preview to the usual excerpt, and only expands further from "(read more)"
-      setTruncated(isSingleLine && startsAsLlmReplyPreview);
+      setTruncated(false);
       setSingleLine(false);
       setTruncatedStateSet(true);
     }
@@ -315,7 +310,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
     if (scroll) {
       scrollIntoView(scrollBehaviour);
     }
-  }, [isTruncated, isSingleLine, startsAsLlmReplyPreview, animateWholeThread, comment.postId, comment._id, comment.draft, captureEvent, scrollIntoView]);
+  }, [isTruncated, isSingleLine, animateWholeThread, comment.postId, comment._id, comment.draft, captureEvent, scrollIntoView]);
 
   const onClickFrame = useCallback((event: React.MouseEvent) => {
     handleExpand({ event, scroll: scrollOnExpand });

@@ -43,6 +43,8 @@ import {
 import { scoreAllUltraFeedItems } from '../ultraFeed/ultraFeedRanking';
 import { buildRankingConfigFromSettings } from '../ultraFeed/ultraFeedRankingConfig';
 import UltraFeedEvents from "../collections/ultraFeedEvents/collection";
+import { validateFrontpageFilterSettings } from '../users/validateFrontpageFilterSettings';
+import { classifyTagFilters, getDefaultFilterSettings } from '@/lib/filterSettings';
 
 const ultraFeedLog = loggerConstructor('ultrafeed');
 
@@ -132,7 +134,8 @@ export const ultraFeedGraphQLTypeDefs = gql`
       cutoff: Date,
       offset: Int,
       sessionId: String,
-      settings: JSON
+      settings: JSON,
+      filterSettings: JSON
     ): UltraFeedQueryResults!
   }
 `;
@@ -551,6 +554,7 @@ interface UltraFeedArgs {
   offset?: number;
   sessionId: string;
   settings: string;
+  filterSettings?: unknown;
 }
 
 const calculateFetchLimits = (
@@ -627,6 +631,9 @@ export const ultraFeedGraphQLQueries = {
     const parsedSettings = parseUltraFeedSettings(settingsJson);
     const sourceWeights = parsedSettings.sourceWeights;
     const incognitoMode = parsedSettings.incognitoMode;
+    const filterSettings = await validateFrontpageFilterSettings(args.filterSettings, context)
+      ?? currentUser?.frontpageFilterSettings
+      ?? getDefaultFilterSettings(context.forumType);
 
     try {
       const spotlightsRepo = context.repos.spotlights;
@@ -668,7 +675,8 @@ export const ultraFeedGraphQLQueries = {
               recombeePostFetchLimit, 
               latestAndSubscribedPostLimit,
               parsedSettings,
-              ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays
+              ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays,
+              filterSettings,
             ) 
           : Promise.resolve<FeedFullPost[]>([]),
         commentFetchLimit > 0 
@@ -679,6 +687,7 @@ export const ultraFeedGraphQLQueries = {
               ULTRA_FEED_DATE_CUTOFFS.initialCommentCandidateLookbackDays,
               ULTRA_FEED_DATE_CUTOFFS.commentServedEventRecencyHours,
               ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays,
+              classifyTagFilters(filterSettings.tags, context.forumType),
               sessionId
             ) 
           : Promise.resolve<FeedCommentsThread[]>([]),

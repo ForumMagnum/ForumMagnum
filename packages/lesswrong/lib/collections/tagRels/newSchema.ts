@@ -107,7 +107,9 @@ const schema = {
       },
     },
   },
-  // Indicates that a tagRel was applied via the script backfillParentTags.ts
+  // Indicates that a tagRel was applied by a backfill script (backfillParentTags.ts or
+  // backfillAutoTags.ts) rather than when it was tagged in the normal course of
+  // things. Backfilled tagRels don't notify the tag's subscribers.
   backfilled: {
     database: {
       type: "BOOL",
