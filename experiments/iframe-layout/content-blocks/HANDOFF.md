@@ -276,8 +276,8 @@ can run it over `ssh studio`, or use your own copy).
   (about a minute).
 - Every state the play copy has been on keeps a local tag, so Ronny can go back to it (his ask, Oct 29:
   "keep 3000 committed so we can go back to it"): `play-before-one-height` = 7b504ba034 (Backspace rule;
-  before "no widgets inside blocks" and the one-height rule); `play-one-height` = a4d03487bb (on 3000 since
-  Oct 30 2026, ~1am). Tag each new state when updating. Going back
+  before "no widgets inside blocks" and the one-height rule); `play-one-height` = a4d03487bb (on 3000 from
+  Oct 30 2026, ~1am); `play-quote-flow` = b3b1a48b2d (on 3000 since Oct 30, ~2pm). Tag each new state when updating. Going back
   is the same checkout with the tag, then restart `lw-layout`.
 - Its `node_modules` is an APFS clone of this one (`cp -cR`, about 30s, no extra disk): Turbopack refuses
   a `node_modules` symlink that points outside its workspace. Re-clone after a dependency change. Its
