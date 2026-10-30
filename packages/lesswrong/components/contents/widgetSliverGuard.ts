@@ -20,12 +20,13 @@ export const SLIVER_PX = 48;
 
 /**
  * The width a widget inside `column` (the element holding it) is sized and wrapped against: the column's
- * text width. 0 inside a table cell, a footnote or a layout column, where a widget never wraps (it shows
- * at the full width of the cell, footnote or column).
+ * text width. 0 inside any other block (a quote, list item, collapsible section, AI content, table cell,
+ * footnote or layout column), where a widget never wraps: widgets don't go inside other blocks (Ronny, Oct
+ * 29 2026; the editor moves them out), so one there comes from old HTML and shows at the block's width.
  */
 export function widgetContainerWidth(column: HTMLElement): number {
   // (The editor's layout column is a div marked data-lexical-layout-item; the post's has .layout-column.)
-  if (column.closest('td, th, .footnote-content, .footnotes, .footnote-section, .layout-column, [data-lexical-layout-item]')) return 0;
+  if (column.closest('blockquote, li, .detailsBlock, .llm-content-block, td, th, .footnote-content, .footnotes, .footnote-section, .layout-column, [data-lexical-layout-item]')) return 0;
   const cs = getComputedStyle(column);
   return column.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
 }

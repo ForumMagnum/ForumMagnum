@@ -16,9 +16,9 @@ function useColumnWidth(iframeRef: React.RefObject<HTMLIFrameElement | null>, en
   useEffect(() => {
     const column = iframeRef.current?.closest('.iframe-widget')?.parentElement;
     if (!enabled || !column) return;
-    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget inside a quote, list item or other block is
-    // sized and wrapped against that block's text (its content box); one in a table cell, a footnote or a
-    // column never wraps (see widgetContainerWidth).
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): only a widget in the post's own column wraps: one
+    // inside any other block (old HTML; the editor moves widgets out of blocks) never does (see
+    // widgetContainerWidth).
     const measure = () => setColumnWidth(widgetContainerWidth(column));
     measure();
     const observer = new ResizeObserver(measure);

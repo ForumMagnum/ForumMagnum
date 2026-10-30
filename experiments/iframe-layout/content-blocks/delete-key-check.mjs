@@ -7,11 +7,9 @@
 //   joined paragraph, still lined up with its end; the caret is where they meet; one undo puts it back;
 // - Backspace in the gap after that widget, and Delete after the last letter of the paragraph before it,
 //   do the same;
-// - right after a widget inside a quote, list item, collapsible section or AI content, Backspace leaves
-//   the widget's code and the text as they were;
 // - a full-width widget (AI Futures demo) ends up after the joined paragraph;
 // - a click on a widget's grip selects it (focus, a ring), and Backspace or Delete then removes it, one
-//   undo bringing it back; a widget inside a block is deleted from its gear menu instead;
+//   undo bringing it back (the gear menu has no Delete);
 // - a text selection that runs across a widget still deletes it.
 // Needs the dev server (BASE_URL, default http://localhost:3001, the working copy; 3000 is Ronny's play
 // copy, never tested against). Uses the installed Chrome, headless and muted; set PW_CHROMIUM to a Chrome
@@ -67,20 +65,6 @@ const caretInGapAfter = (tag) => {
   editor.update(() => { editor.getEditorState()._nodeMap.get(key).selectStart(); });
   return true;
 };
-// The caret just after the widget inside the block matching `holder`.
-const caretAfterNested = (holder) => {
-  const root = document.querySelector('[data-lexical-editor]');
-  const w = [...root.querySelectorAll('.iframe-widget-code')].find(s => s.parentElement !== root && s.parentElement.closest(holder));
-  const walker = document.createTreeWalker(w.parentElement, NodeFilter.SHOW_TEXT);
-  let t = walker.nextNode();
-  while (t && (w.contains(t) || !t.textContent.trim())) t = walker.nextNode();
-  t.parentElement.scrollIntoView({ block: 'center' });
-  const range = document.createRange(); range.setStart(t, 0); range.collapse(true);
-  const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
-  root.focus();
-  return w.parentElement.closest(holder).textContent;
-};
-
 const browser = await chromium.launch({
   ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : { channel: 'chrome' }),
   headless: true,
@@ -129,26 +113,6 @@ try {
     await page.context().close();
   }
 
-  // Inside a quote, list item, section or AI content: Backspace right after the widget changes nothing.
-  for (const [label, holder] of [['quote', 'blockquote'], ['list item', 'li'], ['section', '.detailsBlock'], ['AI content', '.llm-content-block']]) {
-    const page = await open(BLOCKS);
-    const before = await page.evaluate(snapshot);
-    const textBefore = await page.evaluate(caretAfterNested, holder);
-    await page.waitForTimeout(300);
-    await page.keyboard.press('Backspace');
-    await page.waitForTimeout(800);
-    const after = await page.evaluate(snapshot);
-    const textAfter = await page.evaluate((holder) => {
-      const root = document.querySelector('[data-lexical-editor]');
-      const w = [...root.querySelectorAll('.iframe-widget-code')].find(s => s.parentElement !== root && s.parentElement.closest(holder));
-      return w?.parentElement.closest(holder).textContent;
-    }, holder);
-    check(`${label}: Backspace right after its widget leaves the widget and the text as they were`,
-      JSON.stringify(after.codes) === JSON.stringify(before.codes) && textAfter === textBefore,
-      { codes: after.codes.map((c, i) => c.length - before.codes[i]?.length), same: textAfter === textBefore });
-    await page.context().close();
-  }
-
   // A full-width widget ends up after the joined paragraph (the text after it moves up to the text before).
   {
     const page = await open(AI_FUTURES);
@@ -177,10 +141,9 @@ try {
 
   // Deleting on purpose (Ronny: "Grip, then Delete"): a click on the grip selects the widget (focus and a
   // ring), and then Backspace or Delete removes it, and only it; one undo brings it back.
-  const overlayKeyOf = (match) => {
+  const overlayKeyOf = () => {
     const root = document.querySelector('[data-lexical-editor]');
-    const w = [...root.querySelectorAll('.iframe-widget-code')].find(s => match === 'bottom' ? s.parentElement === root && /align=bottom/.test(s.textContent)
-      : s.parentElement !== root && s.parentElement.closest(match));
+    const w = [...root.querySelectorAll(':scope > .iframe-widget-code')].find(s => /align=bottom/.test(s.textContent));
     w.scrollIntoView({ block: 'center' });
     const s = w.getBoundingClientRect();
     const overlay = [...document.querySelectorAll('[data-testid=widget-overlay]')].find(o => {
@@ -191,7 +154,7 @@ try {
   for (const key of ['Backspace', 'Delete']) {
     const page = await open(BLOCKS);
     const before = await page.evaluate(snapshot);
-    const widget = await page.evaluate(overlayKeyOf, 'bottom');
+    const widget = await page.evaluate(overlayKeyOf);
     await page.locator(`[data-testid=widget-overlay][data-widget-key="${widget.key}"]`).hover();
     await page.locator(`[data-testid=widget-grip][data-widget-key="${widget.key}"]`).click();
     await page.waitForTimeout(400);
@@ -214,37 +177,15 @@ try {
     await page.context().close();
   }
 
-  // A widget inside a block (no grip) is deleted from its gear menu; a top-level widget's menu has no Delete.
+  // The gear menu has no Delete: the grip does that.
   {
     const page = await open(BLOCKS);
-    const before = await page.evaluate(snapshot);
-    const gearOptions = async (key) => {
-      await page.locator(`[data-testid=widget-overlay][data-widget-key="${key}"]`).hover();
-      await page.locator(`[data-testid=widget-options][data-widget-key="${key}"]`).click();
-      await page.waitForTimeout(300);
-      return page.locator('[data-testid=widget-options-menu] [data-option]').evaluateAll(bs => bs.map(b => b.dataset.option));
-    };
-    const top = await page.evaluate(overlayKeyOf, 'bottom');
-    const topOptions = await gearOptions(top.key);
-    await page.keyboard.press('Escape');
+    const top = await page.evaluate(overlayKeyOf);
+    await page.locator(`[data-testid=widget-overlay][data-widget-key="${top.key}"]`).hover();
+    await page.locator(`[data-testid=widget-options][data-widget-key="${top.key}"]`).click();
     await page.waitForTimeout(300);
-    check('a top-level widget\'s gear menu has no Delete (its grip does that)', !topOptions.includes('delete'), topOptions);
-    const nested = await page.evaluate(overlayKeyOf, 'li');
-    const nestedOptions = await gearOptions(nested.key);
-    check('a list item widget\'s gear menu has Delete', nestedOptions.includes('delete'), nestedOptions);
-    await page.locator('[data-testid=widget-options-menu] [data-option="delete"]').click();
-    await page.waitForTimeout(1000);
-    const after = await page.evaluate(snapshot);
-    const itemText = await page.evaluate(() => [...document.querySelectorAll('[data-lexical-editor] li')].find(li => li.textContent.includes('This item holds a widget'))?.textContent ?? null);
-    // (Counted: the section's widget has the same code.)
-    const copies = codes => codes.filter(c => c === nested.code).length;
-    check('its Delete removes that widget, and the list item keeps its text',
-      after.codes.length === before.codes.length - 1 && copies(after.codes) === copies(before.codes) - 1
-      && itemText?.startsWith('This item holds a widget') && !(await page.evaluate(() => !![...document.querySelectorAll('[data-lexical-editor] li')].find(li => li.textContent.includes('This item holds a widget'))?.querySelector('.iframe-widget-code'))),
-      { after: after.codes.length, itemText });
-    await page.keyboard.press(UNDO);
-    await page.waitForTimeout(1200);
-    check('one undo brings it back', JSON.stringify((await page.evaluate(snapshot)).codes) === JSON.stringify(before.codes));
+    const options = await page.locator('[data-testid=widget-options-menu] [data-option]').evaluateAll(bs => bs.map(b => b.dataset.option));
+    check('the gear menu has no Delete (the grip does that)', options.length > 0 && !options.includes('delete'), options);
     await page.context().close();
   }
 

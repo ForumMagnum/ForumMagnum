@@ -84,9 +84,7 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   moves it.
 - A widget never lines its bottom up with a collapsible section (it would move whenever the section is
   opened or closed); dragging over a section's lower half drops the widget after it.
-- A widget inside a quote or section floats inside it, sized against the quote's own width, and the quote
-  holds it (the bar runs down past it). In the post, collapsible sections start closed, and a widget
-  inside hides with the section.
+- (Widgets can't go inside other blocks since Oct 29: see the changes below.)
 - **My change from the designers' pick** (box beside on both sides): I saw long quotes staying narrow
   for hundreds of pixels below a right widget. Known limit: the rule looks for any left widget earlier in
   the post, so a quote beside a right widget that comes after a left one is a box (with the rule above).
@@ -101,7 +99,7 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   Items below the widget get the full width back.
 - Beside a right widget, lists flow like text (markers are on the left, away from it).
 - An item that would only touch the widget's last 48px starts below it.
-- A widget inside a list item floats inside the item; the item ends below it.
+- (Widgets can't go inside other blocks since Oct 29: see the changes below.)
 - Fixed: nested lists used to flatten beside a left widget, and bullets were drawn over text beside a
   bottom-aligned widget. Limit: two-digit numbers sit about 5px from the widget, three-digit ones would
   touch it.
@@ -117,7 +115,7 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
 - A table sits beside the widget, filling the room, when its narrowest layout fits there; otherwise it
   starts below at full width.
 - A table wider than the whole column (it scrolls) always starts below.
-- A widget inside a table cell shows at the full width of the cell.
+- (Widgets can't go inside other blocks since Oct 29: see the changes below.)
 - Fixed: the editor and the post disagreed for every table. (Safari and Firefox: same fallback as code.)
 
 ### Images: keep their size
@@ -147,8 +145,7 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
 ### Footnotes: start below
 - The footnotes at the end of the post start below the last widget (the editor already did; the post now
   matches). Footnote markers flow with the text; side notes are in the margin and don't interact.
-- A widget inside a footnote shows at the footnote's full width. In the editor its side note shows a
-  one-line stand-in instead of the widget's source code.
+- (Widgets can't go inside other blocks since Oct 29: see the changes below.)
 
 ### Other widgets
 - Full width: starts below any widget beside it (unchanged).
@@ -204,15 +201,15 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
    CDN). Say yes and I'll install it and run the width sweep in WebKit. Or open the demo in Safari.
 3. **Quotes, sections and lists beside a right widget** flow like text (my call, by eye). If you'd rather
    have one rule for both sides, it's a one-line change.
-4. ~~**50% inside a quote, list item or section.**~~ Answered Oct 29: keep the 300px rule. Inside a block,
+4. ~~**50% inside a quote, list item or section.**~~ Answered Oct 29, then moot: widgets can't go inside other
+   blocks anymore. (The answer was: keep the 300px rule. Inside a block,
    a widget only offers the widths that leave 300px of text beside it there, measured, so it changes with
    the window. At the normal width a quote, list item or collapsible section offers 25%, 33% and 38%, and
    dragging an edge wider goes straight to full width. AI content is as wide as the column, so it still
-   offers 50%. A widget that already has a width that can't wrap there keeps it, and shows full width.
+   offers 50%. A widget that already has a width that can't wrap there keeps it, and shows full width.)
 5. ~~**How to delete a widget on purpose.**~~ Answered Oct 29: "Grip, then Delete". Click a widget's grip
-   (the handle on its top edge) and it's selected, with a ring; Backspace or Delete then removes it. A
-   widget inside a quote, list item, section or AI content (no grip) has a Delete button in its gear menu.
-   One undo brings either back.
+   (the handle on its top edge) and it's selected, with a ring; Backspace or Delete then removes it. One
+   undo brings it back.
 
 ## Changes on Oct 29 (MacBook session)
 - Collapsible sections are placed as they look open (see above).
@@ -220,12 +217,12 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   the right edge is no longer trimmed (it was a third thinner than the left). The demo widgets are clear,
   with no outline, as you asked.
 - Escape during a resize puts the widget back exactly, with no jump a moment later.
-- Widgets inside a quote, list item or collapsible section have the gear and resize edges like any other
-  widget, sized against that block's text. (They still can't be dragged out of their block.)
-- Inside a block, a widget only offers widths that wrap there (your call: keep the 300px rule). The gear
-  lists only those, and an edge pulled past the widest one goes straight to full width; 50% never shows
-  as a mark or label in a quote, list item or section at the normal width. The demo post's "Widgets
-  inside other blocks" section says so, and it now has a widget inside AI content at 50%.
+- Widgets can't go inside other blocks anymore (your call): not inside a quote, list item, collapsible
+  section, AI content, table or footnote. One pasted or imported into a block moves out to just before it,
+  and the block then sits beside it like any other block. (This replaced the earlier work that let widgets
+  inside blocks have the gear, resize edges and their own widths; an old post with a widget inside a block
+  shows it at the block's full width.) The demo's "Widgets inside other blocks" section is now a short
+  note, "Widgets stay out of other blocks".
 - The editor keeps the gap between a quote and a collapsible section, as the post does.
 - The editor always opens on the original post. Reopening saved edits garbled every widget's code: each
   widget showed a long run of escaped code under it, worse with each reload. It happened in Experiment
@@ -247,8 +244,8 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   on either side instead: Backspace before the first letter of the paragraph after a widget puts that
   paragraph onto the end of the one before the widget. A left or right widget then sits in front of the
   joined paragraph (so it stays beside that text, and one lined up with a paragraph's end still is); a
-  full-width one sits after it. One undo puts it all back. Where there's nothing to join (inside a quote,
-  list item or section that starts with the widget), the key does nothing. Before, the second Backspace
+  full-width one sits after it. One undo puts it all back. Where there's nothing to join (a list or a quote
+  on the other side), the key does nothing. Before, the second Backspace
   deleted the widget, and inside a quote, list item or section the first one merged the paragraph into
   the widget's hidden code, or emptied it. A text selection that runs across a widget still deletes it.
 - Two small differences are left on purpose:

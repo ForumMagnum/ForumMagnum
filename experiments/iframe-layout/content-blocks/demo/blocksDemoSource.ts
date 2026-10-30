@@ -71,13 +71,8 @@ ${image('Full-size image', 1200, 500, '', 'A full-size image starts below the wi
 <p>The video starts below this widget.</p>
 <div class="youtube-preview"><iframe src="https://www.youtube-nocookie.com/embed/aircAruvnKk" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="YouTube video"></iframe></div>
 <p>The footnotes at the end of the post start below the last widget too${footnoteRef(2)}.</p>
-<h2>Widgets inside other blocks</h2>
-<p>A widget can sit inside a quote, a list item, a collapsible section or AI content. It floats inside that block, sized against the block's own width, and the block holds it: a quote's bar runs past it. Inside a table cell or a footnote, a widget always shows at the full width of the cell or footnote.</p>
-<p>Inside a quote, list item or collapsible section, a widget only offers widths that leave at least 300 pixels of text beside it. At the normal column that means 25%, 33% or 38%. 50% isn't offered there, and dragging wider goes straight to full width. A wider block, like an AI content block, can still offer 50% if it fits.</p>
-<blockquote><!--demo:left 38% h160--><p>A widget inside a quote. The quote's text wraps beside it, and the quote's bar runs down past it. It follows the same 300 pixel rule, measured inside the quote.</p></blockquote>
-<ul><li>A list item before the one holding a widget.</li><li><!--demo:right 33% h140-->This item holds a widget. Its text wraps beside the widget, and the item ends below it.</li><li>An item after it.</li></ul>
-<details class="detailsBlock" open><summary class="detailsBlockTitle"><p>A collapsible section holding a widget</p></summary><div class="detailsBlockContent"><!--demo:right 33% h140--><p>The section's text wraps beside the widget, and the section ends below it. Closing the section hides the widget with it.</p></div></details>
-<div class="llm-content-block" data-model-name="Claude Opus 5.5"><div class="llm-content-block-content"><!--demo:right 50% h140--><p>A widget inside AI content. This block is as wide as the column, so the widget can take half of it and still leave more than 300 pixels of text beside it. In a narrow window, 50% stops being offered here too.</p></div></div>
+<h2>Widgets stay out of other blocks</h2>
+<p>A widget can't go inside a quote, a list item, a collapsible section, AI content, a table or a footnote. One pasted into a block moves out to just before it, and the block then sits beside the widget the way the sections above show.</p>
 <h2>Lining up with the end of a paragraph</h2>
 <p>A widget can also line up with the bottom of the paragraph after it (in the editor, drag it over the lower half of a paragraph). It only lines up with a block that runs beside it: never with a heading, a divider or anything else that starts below it.</p>
 <!--demo:left 33% h160 bottom-->

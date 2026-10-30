@@ -496,39 +496,6 @@ describe('resizeTarget', () => {
     // Only the widget's own width is added, and only while it wraps.
     expect(resizeTarget({ edge: 'right', startLayout: start, startWraps: false, pointerX: 0.44 * 682, column: COLUMN }).snaps).not.toContain(0.44);
   });
-
-  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget inside a block offers only widths that wrap there.
-  describe('inside a block (onlyWrapping)', () => {
-    // A quote at the normal width: 647px of text, where 50% (324px) leaves 291px beside it, under 300.
-    const QUOTE = { left: 0, width: 647 };
-    const pull = (fraction: number, column = QUOTE) =>
-      resizeTarget({ edge: 'right', startLayout: LEFT_33, startWraps: true, pointerX: fraction * column.width, column, onlyWrapping: true });
-
-    it('snaps to the widths that wrap, and never marks 50%', () => {
-      expect([0.25, 0.33, 0.38, 0.42].map(f => pull(f).layout.width)).toEqual(['25%', '33%', '38%', '38%']);
-      expect(pull(0.3).snaps).toEqual([0.25, 0.33, 0.38, 1]);
-    });
-
-    it('goes straight to full width once pulled toward 50%', () => {
-      for (const f of [0.46, 0.5, 0.6, 0.9]) {
-        const target = pull(f);
-        expect(target.snap).toBe(1);
-        expect(target.layout).toEqual(INLINE);
-        expect(resizeChipText(target)).toBe('Full width');
-      }
-    });
-
-    it('keeps 50% where it wraps (AI content is as wide as the column)', () => {
-      expect(pull(0.5, COLUMN).layout.width).toBe('50%');
-      expect(pull(0.5, COLUMN).snaps).toContain(0.5);
-    });
-
-    it('leaves a top-level widget as it was', () => {
-      const topLevel = resizeTarget({ edge: 'right', startLayout: LEFT_33, startWraps: true, pointerX: 0.5 * 647, column: QUOTE });
-      expect(topLevel.layout.width).toBe('50%');
-      expect(topLevel.snaps).toContain(0.5);
-    });
-  });
 });
 
 describe('auto-scroll', () => {

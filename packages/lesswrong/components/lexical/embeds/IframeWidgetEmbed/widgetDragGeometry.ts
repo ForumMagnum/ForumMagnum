@@ -379,19 +379,15 @@ export function nearestSnap(fraction: number, snaps: readonly number[]): number 
  * The layout for a widget whose `edge` is pulled to pointerX. A float keeps its outer edge and
  * resizes from the text side. A full-width widget pulled in from its right edge becomes a left float,
  * from its left edge a right float. Widths snap to 25/33/38/50% or full width (past 75%), skipping any
- * narrower than MIN_WIDGET_WIDTH in this column. With `onlyWrapping` (a widget inside a quote, list item,
- * collapsible section or AI content), only the widths that wrap in this column: pulled to one that can't
- * (50% in a quote at the normal width), the widget goes straight to full width.
+ * narrower than MIN_WIDGET_WIDTH in this column.
  */
-export function resizeTarget({ edge, startLayout, startWraps, pointerX, column, onlyWrapping = false }: {
+export function resizeTarget({ edge, startLayout, startWraps, pointerX, column }: {
   edge: WidgetSide,
   startLayout: IframeWidgetLayout,
   /** The widget wrapped (floated) at this column when the resize started. */
   startWraps: boolean,
   pointerX: number,
   column: ColumnRect,
-  /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): offer only the widths that wrap here (Ronny, Oct 29 2026). */
-  onlyWrapping?: boolean,
 }): ResizeTarget {
   const startSide = widgetSide(startLayout);
   const side: WidgetSide = startWraps && startSide ? startSide : (edge === 'right' ? 'left' : 'right');
@@ -406,12 +402,7 @@ export function resizeTarget({ edge, startLayout, startWraps, pointerX, column, 
     snaps.push(startWidth);
     snaps.sort((a, b) => a - b);
   }
-  let snap = nearestSnap(fraction, snaps);
-  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a width that can't wrap here still has its stretch of
-  // the ruler (so 38% isn't held all the way out), but that stretch is full width, and it isn't marked.
-  const wrapsHere = (f: number) => f >= 1 || shouldWrapWidget({ position: side, width: `${Math.round(f * 100)}%` }, column.width);
-  if (onlyWrapping && !wrapsHere(snap)) snap = 1;
-  const shown = onlyWrapping ? snaps.filter(wrapsHere) : snaps;
+  const snap = nearestSnap(fraction, snaps);
   let layout: IframeWidgetLayout;
   if (snap === 1) {
     // Back to full width. A widget that was already full width keeps its stored layout, so a width it
@@ -424,7 +415,7 @@ export function resizeTarget({ edge, startLayout, startWraps, pointerX, column, 
       startWraps ? alignOf(startLayout) : 'top',
     );
   }
-  return { layout, side, snap, snaps: shown, fixedEdgeX, wraps: shouldWrapWidget(layout, column.width) };
+  return { layout, side, snap, snaps, fixedEdgeX, wraps: shouldWrapWidget(layout, column.width) };
 }
 
 export const AUTO_SCROLL_ZONE = 56;

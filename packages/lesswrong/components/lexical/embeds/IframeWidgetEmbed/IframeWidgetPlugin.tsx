@@ -40,7 +40,7 @@ import { randomId } from '@/lib/random';
 import {$createIframeWidgetNode, $isIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
 import { alignFloatBottom, alignedParagraph } from '@/components/contents/bottomAlign';
 import { widgetNeighbourGlobals } from '@/components/contents/widgetNeighbours';
-import { CARET_BESIDE_ATTR, WIDGET_LAYOUT_EVENT, mayRealignAfterGuard, scheduleSliverGuard, widgetContainerWidth } from '@/components/contents/widgetSliverGuard';
+import { CARET_BESIDE_ATTR, WIDGET_LAYOUT_EVENT, mayRealignAfterGuard, scheduleSliverGuard } from '@/components/contents/widgetSliverGuard';
 import {
   alignOf, IframeWidgetLayout, IframeWidgetPosition, MIN_TEXT_BESIDE_WIDGET, offeredWidths,
   parseIframeWidgetLayout, sameLayout, setIframeWidgetLayout, shouldWrapWidget, stripIframeWidgetLayout,
@@ -59,7 +59,7 @@ import { $isSentinelParagraphNode, SentinelParagraphNode } from '@/components/ed
 import { IframeWidgetDragContext } from './widgetDragContext';
 import { OPTIONS_MENU_WIDTH, WidgetOptionsMenu } from './WidgetOptionsMenu';
 import { $deleteWidget, $guardWidgetsFromDeleteKey } from './widgetDeleteGuard';
-import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks, widgetColumnRect } from './widgetDragDom';
+import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks } from './widgetDragDom';
 import {
   adjacentSlot, type BlockBox, chooseDropSlot, type ColumnRect, type DropSlot, fitMatchesWidth, insertionKey, moveChipText,
   resizeChipText, resizeTarget, type ResizeTarget, shrinkWarning, sideLabel, stepWidth, widgetSide, type WidgetSide,
@@ -93,6 +93,20 @@ export const MOVE_IFRAME_WIDGET_COMMAND: LexicalCommand<MoveIframeWidgetPayload>
  */
 function $isTopLevelBlock(node: LexicalNode | null | undefined): node is LexicalNode {
   return !!node && $isRootNode(node.getParent());
+}
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): widgets never sit inside another block (Ronny, Oct 29
+ * 2026: "get rid of any functionality for putting widgets inside of other content blocks... use the beside
+ * a widget interactions"). One that lands in a quote, list item, collapsible section, AI content, table,
+ * column or footnote (pasted, imported or inserted there) moves out to just before the post's block that
+ * holds it, where that block sits beside it like any other. A node transform: it runs in the same update.
+ */
+function $hoistWidget(node: IframeWidgetNode): void {
+  let top: LexicalNode = node;
+  for (let parent = top.getParent(); parent && !$isRootNode(parent); parent = top.getParent()) top = parent;
+  if (top.is(node) || !$isRootNode(top.getParent())) return;
+  top.insertBefore(node);
 }
 
 function $moveIframeWidget({ key, beforeKey, layout }: MoveIframeWidgetPayload): boolean {
@@ -594,12 +608,8 @@ function applyPreviewModeToDOM(
   elem.classList.add(PREVIEW_MODE_CLASS);
   elem.dataset.view = 'preview';
   elem.style.height = `${previewHeight}px`;
-  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget inside a quote, list item or other block is
-  // sized against that block's text; in a table cell, footnote or column it never wraps.
-  const root = editor.getRootElement();
-  const parent = elem.parentElement;
-  placeSpacer(elem, layout, !parent || parent === root ? editorColumnWidth(editor) : widgetContainerWidth(parent));
-  scheduleSliverGuard(root);
+  placeSpacer(elem, layout, editorColumnWidth(editor));
+  scheduleSliverGuard(editor.getRootElement());
 }
 
 function removePreviewModeFromDOM(
@@ -820,7 +830,6 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   onResizePointerDown,
   onGripKeyDown,
   onOptionsChange,
-  onDelete,
 }: {
   nodeKey: string;
   state: WidgetState;
@@ -840,8 +849,6 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
   onGripKeyDown?: (nodeKey: string, e: React.KeyboardEvent<HTMLElement>) => void;
   /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): a choice in the gear's menu (one undo step each). */
   onOptionsChange?: (nodeKey: string, layout: IframeWidgetLayout) => void;
-  /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): the gear menu's Delete, for a widget inside a block. */
-  onDelete?: (nodeKey: string) => void;
 }) {
   const classes = useStyles(styles);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -908,15 +915,12 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
 
   if (state.viewMode !== 'preview' || !position) return null;
 
-  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): only a top-level widget is dragged to another place
-  // (taking one out of the block holding it would leave that block empty). A widget the text wraps
-  // around resizes from its text side; a full-width one from either edge (pulling an edge in makes it a
-  // float). No edges when no width can wrap in this column.
-  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget inside a quote, list item or section gets the
-  // gear and the resize edges too, going by that block's text width (`columnWidth` is the width this widget
-  // is sized against). One in a table cell, footnote or column (width 0: it never wraps) gets neither.
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp2): a widget is dragged among the post's blocks. A widget
+  // the text wraps around resizes from its text side; a full-width one from either edge (pulling an edge
+  // in makes it a float). No edges when no width can wrap in this column. (Every widget is top-level:
+  // $hoistWidget moves one out of any block.)
   const draggable = dragEnabled && !!srcdoc && state.topLevel;
-  const adjustable = dragEnabled && !!srcdoc && (state.topLevel || columnWidth > 0);
+  const adjustable = draggable;
   const resizeEdges: WidgetSide[] = !adjustable || wrappableWidths(columnWidth).length === 0 ? []
     : shouldWrapWidget(state.layout, columnWidth) ? [state.layout.position === 'left' ? 'right' : 'left']
     : ['left', 'right'];
@@ -1008,8 +1012,6 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
     {adjustable && optionsOpen && <WidgetOptionsMenu
       layout={state.layout}
       columnWidth={columnWidth}
-      onlyWrapping={!state.topLevel}
-      onDelete={!state.topLevel && onDelete ? () => onDelete(nodeKey) : undefined}
       style={{
         top: position.top + 22 + 32,
         left: Math.max(0, position.left + position.width - gearRight - OPTIONS_MENU_WIDTH),
@@ -1123,6 +1125,7 @@ export default function IframeWidgetPlugin({
     const guardDelete = (isBackward: boolean) => $guardWidgetsFromDeleteKey(isBackward ? 'backward' : 'forward', !isSuggestionMode);
 
     return mergeRegister(
+      editor.registerNodeTransform(IframeWidgetNode, $hoistWidget),
       editor.registerCommand(KEY_BACKSPACE_COMMAND, guardKey('backward'), COMMAND_PRIORITY_NORMAL),
       editor.registerCommand(KEY_DELETE_COMMAND, guardKey('forward'), COMMAND_PRIORITY_NORMAL),
       editor.registerCommand(DELETE_CHARACTER_COMMAND, guardDelete, COMMAND_PRIORITY_NORMAL),
@@ -1528,14 +1531,12 @@ export default function IframeWidgetPlugin({
 
   const startResize = useCallback((key: string, edge: WidgetSide, e: React.PointerEvent<HTMLElement>) => {
     const start = widgetsRef.current.get(key);
-    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget inside a quote, list item or section resizes
-    // too, against that block's text (widgetColumnRect); one where widgets never wrap has no edges.
-    if (cancelGesture.current || e.button !== 0 || !anchorElem || !dragEnabledRef.current || !start) return;
+    if (cancelGesture.current || e.button !== 0 || !anchorElem || !dragEnabledRef.current || !start?.topLevel) return;
     e.preventDefault();
     e.stopPropagation();
-    const startWraps = shouldWrapWidget(start.layout, widgetColumnRect(editor, key).width);
+    const startWraps = shouldWrapWidget(start.layout, editorColumnWidth(editor));
     let current = start.layout;
-    let columnWidth = widgetColumnRect(editor, key).width;
+    let columnWidth = editorColumnWidth(editor);
     /**
      * Restyles the widget for `layout` and scrolls by however far that moved it, so it stays under the
      * pointer: a full-width widget that becomes a float stops clearing the floats before it, and may
@@ -1587,10 +1588,9 @@ export default function IframeWidgetPlugin({
           cancelGesture.current?.();
           return;
         }
-        const column = widgetColumnRect(editor, key);
+        const column = editorColumnRect(editor);
         columnWidth = column.width;
-        // EXPERIMENT (experiment/iframe-layout-ronny-exp3): inside a block, only the widths that wrap there.
-        const target = resizeTarget({ edge, startLayout: start.layout, startWraps, pointerX: point.x, column, onlyWrapping: !start.topLevel });
+        const target = resizeTarget({ edge, startLayout: start.layout, startWraps, pointerX: point.x, column });
         if (!sameLayout(target.layout, current)) {
           // A style-only preview: the text reflows around the new size, the document is untouched.
           current = target.layout;
@@ -1714,7 +1714,7 @@ export default function IframeWidgetPlugin({
   // undo step each, announced for screen readers.
   const handleOptionsChange = useCallback((key: string, layout: IframeWidgetLayout) => {
     if (!dragEnabledRef.current) return;
-    const description = describePlacement(editor, key, layout, undefined, widgetColumnRect(editor, key).width);
+    const description = describePlacement(editor, key, layout, undefined, editorColumnWidth(editor));
     if (commitPlacement(key, undefined, layout)) setAnnouncement(description);
   }, [editor, commitPlacement]);
 
@@ -1748,7 +1748,7 @@ export default function IframeWidgetPlugin({
             nodeKey={key}
             state={state}
             position={positions.get(key)}
-            columnWidth={state.topLevel ? columnWidth : widgetColumnRect(editor, key).width}
+            columnWidth={columnWidth}
             onToggle={handleToggle}
             onIframeResize={handleIframeResize}
             onLayoutChange={handleLayoutChange}
@@ -1759,7 +1759,6 @@ export default function IframeWidgetPlugin({
             onResizePointerDown={startResize}
             onGripKeyDown={handleGripKeyDown}
             onOptionsChange={handleOptionsChange}
-            onDelete={deleteWidget}
           />
         );
       })}

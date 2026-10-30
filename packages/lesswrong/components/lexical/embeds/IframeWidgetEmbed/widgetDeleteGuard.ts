@@ -15,8 +15,8 @@
 // across a widget still deletes it: it was selected.
 //
 // A widget is deleted on purpose by clicking its grip (which selects it: it gets a ring) and pressing
-// Backspace or Delete, or, for one inside a block (no grip there), with its gear menu's Delete button
-// (Ronny, Oct 29 2026: "Grip, then Delete"). See $deleteWidget.
+// Backspace or Delete (Ronny, Oct 29 2026: "Grip, then Delete"). See $deleteWidget. (Widgets never sit
+// inside other blocks: IframeWidgetPlugin's $hoistWidget moves them out; the guard still handles one there.)
 import {
   $getNodeByKey, $getSelection, $isElementNode, $isParagraphNode, $isRangeSelection, $isRootOrShadowRoot,
   $isTextNode, type ElementNode, type LexicalNode, type RangeSelection,
@@ -100,7 +100,7 @@ function $joinAcross(first: ElementNode, second: ElementNode, widgets: IframeWid
 }
 
 /**
- * Deletes the widget `key` on purpose (its grip selected and Backspace or Delete, or its gear menu's Delete):
+ * Deletes the widget `key` on purpose (its grip selected, then Backspace or Delete):
  * one undo step. The caret goes to the text next to where it was, so the editor has it and the undo is a
  * keypress away.
  */

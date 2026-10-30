@@ -342,14 +342,15 @@ can run it over `ssh studio`, or use your own copy).
 - **Editor/post gap after a quote (fixed):** LessWrong's `Editor.tsx` zeroes a collapsible section's margin next
   to a neighbour "that has its own margin", but its list included blockquote, which has none. Blockquote is
   out of both rules (commit 9b48019aa4); the width sweep has no drift at any width now.
-- **Widgets inside a quote, list item or section work like top-level ones (Ronny, Oct 29):** they get the gear
+- **(SUPERSEDED the same day: widgets can't go inside blocks, see "No widgets inside other blocks".)**
+  **Widgets inside a quote, list item or section work like top-level ones (Ronny, Oct 29):** they get the gear
   and resize edges (no grip: a widget can't be moved out of its block), sized against the block's text
   (`widgetColumnRect` in widgetDragDom.ts; the overlay's `columnWidth` is now the width the widget is sized
   against). One in a table cell, footnote or column (never wraps) still gets no controls (drag-check R4).
   Check: `nested-check.mjs` (gear 25%, edge drag to 38%, Post tab widths). 50% can't wrap inside these
   blocks at the normal width (quote 647px leaves 291px beside, list item 289, section 296, under the 300px
   rule).
-- **Inside a block, only widths that wrap (Ronny, Oct 29: keep the 300px rule, don't lower it to 285):** a
+- **(SUPERSEDED, code removed:)** **Inside a block, only widths that wrap (Ronny, Oct 29: keep the 300px rule, don't lower it to 285):** a
   nested widget's gear lists `wrappableWidths(columnWidth)` (WidgetOptionsMenu `onlyWrapping`), not
   `offeredWidths`, plus its own stored width (kept, never rewritten; it shows full width with the note).
   Its edge drag uses `resizeTarget({ onlyWrapping })`: the nearest snap is still chosen among all the
@@ -395,6 +396,18 @@ can run it over `ssh studio`, or use your own copy).
   paragraph's first line beside the widget flips from run to run (width-sweep "line 239/0" or "0/239";
   not seen in a short sweep). (4) Full-width widget frames can be 1px taller in the post: both views
   apply the height the frame reports, and the two frames round differently.
+- **No widgets inside other blocks (Ronny, Oct 29: "get rid of any functionality for putting widgets inside
+  of other content blocks... use the beside a widget interactions"):** `$hoistWidget` (IframeWidgetPlugin, a
+  node transform on IframeWidgetNode) moves a widget whose parent isn't the root to just before its
+  top-level ancestor (a quote, list, section, AI content, table, layout columns, the footnotes), in the
+  same update, so a paste or an import never leaves one nested and the block sits beside it. Removed: the
+  nested gear/resize (`adjustable` is top-level only again), `widgetColumnRect`, `resizeTarget`'s
+  `onlyWrapping` and WidgetOptionsMenu's `onlyWrapping`/`onDelete` (and their 4 unit tests: 48 again),
+  widgetNeighbours' container rules (quote/section/AI content holding a float, the li ones), the demo's
+  four nested widgets, `nested-check.mjs`. In the post, `widgetContainerWidth` is 0 inside any block, so a
+  widget left inside one in old HTML never floats. Check: `content-blocks/no-nesting-check.mjs` (10: the
+  demo HTML with widgets put in a quote, list item, section, AI content and table cell, opened in the
+  editor; a widget moved into a quote by the editor; the same HTML in the Post tab).
 - **Backspace/Delete never delete or change a widget from text (Ronny's rule, Oct 29):**
   `IframeWidgetEmbed/widgetDeleteGuard.ts`, registered in IframeWidgetPlugin at COMMAND_PRIORITY_NORMAL on
   KEY_BACKSPACE/KEY_DELETE (ahead of BlockCursorNavigationPlugin's LOW Backspace, which stepped into the

@@ -146,30 +146,8 @@ const RULES: NeighbourRule[] = [
   { editorAfter: ['figure[type="page-break"]'], style: { display: 'flow-root', width: 'auto' } },
   // (The editor's caret paragraphs between blocks are out of the flow, so the margins around them collapse
   // as in the post; beside a widget, widgetSliverGuard narrows their caret line to the text beside it.)
-  // A widget inside a quote, a list item, an open collapsible section or an AI content block floats
-  // inside it (sized and wrapped against its width), and the container holds it: its bar, rule or end
-  // runs past the widget instead of the widget hanging out into the blocks after it.
-  {
-    post: [
-      'blockquote:has(> .iframe-widget > .lwFloatedWidget)',
-      '.detailsBlock:not(.closed) > .detailsBlockContent:has(> .iframe-widget > .lwFloatedWidget)',
-      '.llm-content-block:has(> .llm-content-block-content > .iframe-widget > .lwFloatedWidget)',
-    ],
-    editor: [
-      `blockquote:has(> ${EDITOR_FLOAT})`,
-      `.detailsBlock:not(.detailsBlockClosed) > .detailsBlockContent:has(> ${EDITOR_FLOAT})`,
-      `.llm-content-block:has(> .llm-content-block-content > ${EDITOR_FLOAT})`,
-    ],
-    style: { display: 'flow-root' },
-  },
-  {
-    post: ['li:has(> .iframe-widget > .lwFloatedWidget)'], editor: [`li:has(> ${EDITOR_FLOAT})`],
-    style: { fallbacks: { display: 'list-item' }, display: 'flow-root list-item' },
-  },
-  // A widget placed mid-text in a list item starts on the line it was placed on, as in the editor (where
-  // the widget itself floats among the text): the post's div around it broke the line, so the widget
-  // started a line lower there and the item was a line taller.
-  { post: ['li > .iframe-widget:has(> .lwFloatedWidget)'], style: { display: 'inline' } },
+  // (No rules for a widget inside another block: widgets don't go there. The editor moves one out, and in old
+  // HTML one never floats: see widgetContainerWidth.)
   // AI content: flows beside like paragraphs. Its model label rides with the text: a block that doesn't
   // start with a paragraph shows the label on a line of its own (as a block it sat under a left widget,
   // with its rule running down the widget's height).
