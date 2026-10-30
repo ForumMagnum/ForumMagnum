@@ -506,5 +506,12 @@ can run it over `ssh studio`, or use your own copy).
   - One per widget (Ronny, Oct 30): `$startBelow` removes later markers up to the next widget
     (`$removeLaterClears`), and a node transform (`$dropRepeatedClear`) drops a marker with another one before
     it since the last widget (paste, undo mixes).
-  - Check: `content-blocks/start-below-check.mjs` (14).
+  - Blank-lines hint (Ronny's spec, Oct 30: "Use Below Widget to move text below a widget", only when Enter was
+    pressed on a blank line beside a widget, or blank lines pushed content below one): widgetClear.ts
+    `blankLineHints` (runs of empty top-level paragraphs whose first starts beside the nearest preceding float;
+    hint if 2+ of them, or the block after them starts below the widget's margin end) and `$replaceBlankLines`
+    (removes the run; `$startBelow` on the next block unless it clears anyway: a widget or EDITOR_CLEARING_BLOCKS;
+    at the end of the post, marker + an empty line for the caret). BlankLinesHint.tsx draws it in the first blank
+    line (pointer-events only on its button). `startBelowSpot` skips blank paragraphs.
+  - Check: `content-blocks/start-below-check.mjs` (18).
 

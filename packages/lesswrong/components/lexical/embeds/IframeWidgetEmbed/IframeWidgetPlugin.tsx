@@ -64,6 +64,7 @@ import { $deleteWidget, $guardWidgetsFromDeleteKey } from './widgetDeleteGuard';
 import { $dropRepeatedClear, $removeClearAtCaret } from './widgetClear';
 import { WidgetClearNode } from './WidgetClearNode';
 import { StartBelowChip } from './StartBelowChip';
+import { BlankLinesHint } from './BlankLinesHint';
 import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks } from './widgetDragDom';
 import {
   adjacentSlot, type BlockBox, chooseDropSlot, type ColumnRect, type DropSlot, fitMatchesWidth, insertionKey, moveChipText,
@@ -1805,6 +1806,7 @@ export default function IframeWidgetPlugin({
       {dragEnabled && <WidgetDragLayer store={dragViewStore} announcement={announcement}/>}
       {/* EXPERIMENT (experiment/iframe-layout-ronny-exp3): "Start below widget" (widgetClear.ts). */}
       {dragEnabled && !isSuggestionMode && <StartBelowChip anchorElem={anchorElem}/>}
+      {dragEnabled && !isSuggestionMode && <BlankLinesHint anchorElem={anchorElem}/>}
     </>,
     anchorElem,
   );

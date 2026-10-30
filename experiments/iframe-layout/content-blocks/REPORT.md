@@ -308,6 +308,11 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   - Demo: the blocks post has a new "Starting below a widget" section, and its text says H1/H2 start below.
   - Only one per widget (your call): adding one above an existing one removes the lower one (it did nothing
     any more), and a second one pasted in after it is dropped.
+  - **The blank-lines hint (your spec):** "Use ↓ Below widget to move text below a widget" shows in the editor,
+    in the first of the blank lines, only when someone has pressed Enter on a blank line beside a widget (2+
+    blank lines starting beside it) or when blank lines have pushed the next block below a widget. Its button
+    removes those blank lines and starts the next block below the widget (with the marker). Nothing happens on
+    its own: the author clicks. The margin chip no longer shows on blank lines (the hint covers them).
   - Test: `start-below-check.mjs` (chip, Backspace, ✕, one per widget, Post tab, phone, every H2 below the
     widgets before it).
 

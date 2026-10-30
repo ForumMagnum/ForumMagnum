@@ -1,9 +1,14 @@
 // EXPERIMENT (experiment/iframe-layout-ronny-exp3): "Start below widget" in the editor (see WidgetClearNode):
-// where the chip that adds one shows, adding it, and Backspace or Delete taking it out again.
-import { $getNodeByKey, $getSelection, $isRangeSelection, $isRootNode, type LexicalEditor, type LexicalNode } from 'lexical';
+// where the chip that adds one shows, adding it, Backspace or Delete taking it out again, and the hint about
+// blank lines beside a widget.
+import {
+  $createParagraphNode, $getNodeByKey, $getRoot, $getSelection, $isParagraphNode, $isRangeSelection, $isRootNode,
+  type LexicalEditor, type LexicalNode, type ParagraphNode,
+} from 'lexical';
 import { $isHeadingNode } from '@lexical/rich-text';
 import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
-import { EDITOR_FLOAT } from '@/components/contents/widgetNeighbours';
+import { EDITOR_CLEARING_BLOCKS, EDITOR_FLOAT } from '@/components/contents/widgetNeighbours';
+import { WRAP_GUTTER } from '@/components/contents/iframeWidgetLayout';
 import { $atCaret, $contentSibling } from './widgetDeleteGuard';
 import { $createWidgetClearNode, $isWidgetClearNode, type WidgetClearNode } from './WidgetClearNode';
 import { WIDGET_CLEAR_CLASS } from './widgetClearClass';
@@ -22,6 +27,11 @@ function floatBefore(elem: Element): HTMLElement | null {
   return null;
 }
 
+/** A blank line: an empty paragraph (not a caret gap). */
+function isBlank(node: LexicalNode | null | undefined): node is ParagraphNode {
+  return $isParagraphNode(node) && !$isSentinelParagraphNode(node) && node.getChildrenSize() === 0;
+}
+
 /** The room the chip needs in the margin left of the column. */
 const CHIP_ROOM = 110;
 
@@ -37,6 +47,8 @@ export function startBelowSpot(editor: LexicalEditor, anchorElem: HTMLElement): 
     if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
     const block = selection.anchor.getNode().getTopLevelElement();
     if (!block || $isIframeWidgetNode(block) || $isSentinelParagraphNode(block) || $isWidgetClearNode(block)) return null;
+    // (Blank lines get the hint instead: blankLineHints.)
+    if (isBlank(block)) return null;
     // (Section headings start below widgets anyway.)
     if ($isHeadingNode(block) && (block.getTag() === 'h1' || block.getTag() === 'h2')) return null;
     if ($isWidgetClearNode($contentSibling(block, 'backward'))) return null;
@@ -97,3 +109,83 @@ export function $removeClearAtCaret(direction: 'backward' | 'forward'): boolean 
   neighbour.remove();
   return true;
 }
+
+/**
+ * Blank lines beside a widget, which the editor points at "Start below widget" (Ronny, Oct 30 2026: "Use Below
+ * Widget to move text below a widget", shown only when someone has pressed Enter on a blank line beside a widget,
+ * or has moved content below a widget with Enter). A run of blank lines that starts beside a widget gets the hint
+ * when it has two lines or more, or when the block after it starts below the widget (the blank lines pushed it
+ * there, which only works at this window width).
+ */
+export interface BlankLineHint {
+  keys: string[];
+  /** The block after the blank lines, or null at the end of the post. */
+  nextKey: string | null;
+  /** Where the hint goes, in the anchor element's coordinates: on the first blank line, beside the widget. */
+  top: number;
+  left: number;
+  width: number;
+}
+
+export function blankLineHints(editor: LexicalEditor, anchorElem: HTMLElement): BlankLineHint[] {
+  if (document.body.classList.contains('lw-widget-dragging')) return [];
+  const runs = editor.getEditorState().read(() => {
+    const out: Array<{ keys: string[], nextKey: string | null }> = [];
+    let run: string[] = [];
+    for (const child of $getRoot().getChildren()) {
+      if ($isSentinelParagraphNode(child)) continue;
+      if (isBlank(child)) {
+        run.push(child.getKey());
+        continue;
+      }
+      if (run.length) out.push({ keys: run, nextKey: child.getKey() });
+      run = [];
+    }
+    if (run.length) out.push({ keys: run, nextKey: null });
+    return out;
+  });
+  const hints: BlankLineHint[] = [];
+  const column = editorColumnRect(editor);
+  const { dx, dy } = anchorOffset(anchorElem);
+  for (const { keys, nextKey } of runs) {
+    const first = editor.getElementByKey(keys[0]);
+    const float = first && floatBefore(first);
+    if (!first || !float) continue;
+    const widget = float.getBoundingClientRect();
+    const widgetEnd = widget.bottom + (parseFloat(getComputedStyle(float).marginBottom) || 0);
+    const top = first.getBoundingClientRect().top;
+    if (top >= widgetEnd) continue;
+    const next = nextKey ? editor.getElementByKey(nextKey) : null;
+    const pushedBelow = !!next && next.getBoundingClientRect().top >= widgetEnd - 1;
+    if (keys.length < 2 && !pushedBelow) continue;
+    const left = getComputedStyle(float).float === 'left' ? widget.right + WRAP_GUTTER : column.left;
+    const right = getComputedStyle(float).float === 'left' ? column.left + column.width : widget.left - WRAP_GUTTER;
+    hints.push({ keys, nextKey, top: Math.round(top + dy), left: Math.round(left + dx), width: Math.max(0, Math.round(right - left)) });
+  }
+  return hints;
+}
+
+/**
+ * The hint's button: the blank lines go, and what follows them starts below the widget instead. (Nothing to add
+ * when that already starts below it: a section heading, a divider, an embed, a widget, or another "Start below
+ * widget". At the end of the post, the caret gets a line of its own below the widget.)
+ */
+export function $replaceBlankLines(editor: LexicalEditor, keys: string[], nextKey: string | null): void {
+  const blanks = keys.map(key => $getNodeByKey(key)).filter(isBlank);
+  if (!blanks.length) return;
+  const next = nextKey ? $getNodeByKey(nextKey) : null;
+  const before = blanks[0];
+  if (next && $isRootNode(next.getParent())) {
+    const startsBelow = $isIframeWidgetNode(next) || !!editor.getElementByKey(next.getKey())?.matches(EDITOR_CLEARING_BLOCKS);
+    for (const blank of blanks) blank.remove();
+    if (!startsBelow) $startBelow(next.getKey());
+    next.selectStart();
+    return;
+  }
+  const line = $createParagraphNode();
+  before.insertBefore($createWidgetClearNode());
+  before.insertBefore(line);
+  for (const blank of blanks) blank.remove();
+  line.select();
+}
+

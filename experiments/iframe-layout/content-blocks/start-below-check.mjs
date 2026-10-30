@@ -90,6 +90,61 @@ try {
   await frames(8);
   const crossed = await state(TARGET);
   check('the marker\'s ✕ removes it too', crossed && !crossed.marked && crossed.top < crossed.widgetBottom, crossed);
+  // The blank-lines hint, in "Text flows beside a widget" (a right widget, its first paragraph lined up with it):
+  // Enter at the end of that paragraph. One blank line beside the widget: no hint (unless it pushed the next block
+  // below the widget). Two: the hint. Its button: the blank lines go and the next block starts below the widget.
+  {
+    const P1 = "A paragraph's lines get shorter";
+    const hints = () => page.evaluate(() => [...document.querySelectorAll('[data-testid=widget-blank-lines-hint]')]
+      .map(h => h.textContent.replace(/\s+/g, ' ').trim()));
+    const nextBelow = () => page.evaluate(() => {
+      const root = document.querySelector('[data-lexical-editor]');
+      const ai = root.querySelector(':scope > .llm-content-block');
+      let w = ai.previousElementSibling;
+      while (w && !w.matches('.iframe-widget-code[data-lw-wraps]')) w = w.previousElementSibling;
+      const r = w.getBoundingClientRect();
+      let prev = ai.previousElementSibling;
+      while (prev?.matches('.sentinel-paragraph')) prev = prev.previousElementSibling;
+      return { below: ai.getBoundingClientRect().top >= r.bottom + 15, marked: !!prev?.matches('.lw-widget-clear') };
+    });
+    await caretIn(P1, false);
+    await page.keyboard.press('Enter');
+    await frames(8);
+    const one = { hints: await hints(), ...(await nextBelow()) };
+    check('one blank line beside the widget: a hint only if it pushed the next block below the widget', one.hints.length === (one.below ? 1 : 0), one);
+    await page.keyboard.press('Enter');
+    await frames(8);
+    const two = await hints();
+    check('two blank lines beside the widget: "Use ↓ Below widget to move text below a widget"',
+      two.length === 1 && /^Use ↓ Below widget to move text below a widget$/.test(two[0]), two);
+    for (let i = 0; i < 8 && !(await nextBelow()).below; i++) {
+      await page.keyboard.press('Enter');
+      await frames(6);
+    }
+    check('blank lines that pushed the next block below the widget: the hint stays', (await nextBelow()).below && (await hints()).length === 1, await hints());
+    await page.click('[data-testid=widget-blank-lines-hint] button');
+    await frames(8);
+    const fixed = { hints: await hints(), ...(await nextBelow()) };
+    const blanksLeft = await page.evaluate((start) => {
+      const root = document.querySelector('[data-lexical-editor]');
+      const p = [...root.querySelectorAll(':scope > p')].find(el => el.textContent.trim().startsWith(start));
+      let el = p.nextElementSibling, n = 0;
+      while (el && !el.matches('.llm-content-block')) { if (el.matches('p:not(.sentinel-paragraph)') && !el.textContent.trim()) n++; el = el.nextElementSibling; }
+      return n;
+    }, P1);
+    check('its button: blank lines gone, the next block starts below the widget after a marker, no hint',
+      fixed.hints.length === 0 && fixed.below && fixed.marked && blanksLeft === 0, { ...fixed, blanksLeft });
+    // (Clean up: the marker's ✕.)
+    await page.evaluate(() => {
+      const root = document.querySelector('[data-lexical-editor]');
+      const ai = root.querySelector(':scope > .llm-content-block');
+      let prev = ai.previousElementSibling;
+      while (prev?.matches('.sentinel-paragraph')) prev = prev.previousElementSibling;
+      prev?.querySelector('button')?.click();
+    });
+    await frames(6);
+  }
+
   // Keep one for the Post tab.
   await caretIn(TARGET);
   await frames(6);
