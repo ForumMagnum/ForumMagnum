@@ -62,7 +62,11 @@ export async function generateLlmRunResponse(run: DbLlmRun, { model, contextMess
     { type: "text", text: sourceUrl },
     { type: "image", image: new URL(url), mediaType },
   ]);
-  const messages: ModelMessage[] = [{ role: "user", content: [{ type: "text", text: contextMessage }, ...imageParts] }];
+  const messages: ModelMessage[] = [{
+    role: "user",
+    content: [{ type: "text", text: contextMessage }, ...imageParts],
+    providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } },
+  }];
   const response = await generateWithContinuations(run, model, tools, messages, MAX_CONTINUATIONS);
   if (!await LlmRuns.rawUpdateOne(selector, { $set: { response } })) {
     throw new Error("The model run is no longer claimed by this attempt");

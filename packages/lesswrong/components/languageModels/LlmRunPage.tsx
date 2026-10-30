@@ -16,6 +16,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getLlmVersionFullName } from "@/lib/languageModels/llmRegistry";
+import { makeCloudinaryFetchUrl } from "@/components/common/cloudinaryHelpers";
 
 const POLL_INTERVAL_MS = 3000;
 const COPIED_INDICATOR_MS = 1500;
@@ -23,6 +24,8 @@ const FINISHED_RUN_VISIBLE_STEPS = 3;
 const TITLE_MAX_CHARACTERS = 200;
 const THREAD_HEADING = "\n# Thread\n";
 const IMAGES_ANCHOR = "prompt-images";
+const THUMBNAIL_HEIGHT = 120;
+const THUMBNAIL_TRANSFORMATIONS = [{ c: "limit", h: String(THUMBNAIL_HEIGHT), dpr: "2.0", f: "auto", q: "auto" }];
 
 const LlmRunQuery = gql(`
   query LlmRunPageQuery($runId: String!) {
@@ -195,7 +198,7 @@ const styles = defineStyles("LlmRunPage", (theme: ThemeType) => ({
   promptImageThumbnail: {
     display: "block",
     marginTop: 4,
-    maxHeight: 120,
+    maxHeight: THUMBNAIL_HEIGHT,
     maxWidth: "100%",
     borderRadius: theme.borderRadius.small,
   },
@@ -331,7 +334,7 @@ export default function LlmRunPage({ runId }: { runId: string }) {
             {contextImages.map((image) => <div key={image._id} className={classes.promptImage}>
               {image.text}
               {image.url && <a href={image.url} target="_blank" rel="noopener noreferrer">
-                <img src={image.url} alt="" loading="lazy" className={classes.promptImageThumbnail} />
+                <img src={makeCloudinaryFetchUrl(image.url, THUMBNAIL_TRANSFORMATIONS)} alt="" loading="lazy" className={classes.promptImageThumbnail} />
               </a>}
             </div>)}
           </div>}
