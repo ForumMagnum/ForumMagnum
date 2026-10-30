@@ -987,6 +987,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
     {adjustable && optionsOpen && <WidgetOptionsMenu
       layout={state.layout}
       columnWidth={columnWidth}
+      onlyWrapping={!state.topLevel}
       style={{
         top: position.top + 22 + 32,
         left: Math.max(0, position.left + position.width - gearRight - OPTIONS_MENU_WIDTH),
@@ -1551,7 +1552,8 @@ export default function IframeWidgetPlugin({
         }
         const column = widgetColumnRect(editor, key);
         columnWidth = column.width;
-        const target = resizeTarget({ edge, startLayout: start.layout, startWraps, pointerX: point.x, column });
+        // EXPERIMENT (experiment/iframe-layout-ronny-exp3): inside a block, only the widths that wrap there.
+        const target = resizeTarget({ edge, startLayout: start.layout, startWraps, pointerX: point.x, column, onlyWrapping: !start.topLevel });
         if (!sameLayout(target.layout, current)) {
           // A style-only preview: the text reflows around the new size, the document is untouched.
           current = target.layout;

@@ -2,7 +2,7 @@
 import { createRequire } from 'module';
 const require = createRequire('/Users/ronnyfernandez/Github Repos/ForumMagnum-layout/package.json');
 const { chromium } = require('playwright');
-const BASE = process.env.BASE_URL || 'http://localhost:3000';
+const BASE = process.env.BASE_URL || 'http://localhost:3001';
 const R = '/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e';
 const widths = []; for (let w = Number(process.env.FROM || 320); w <= Number(process.env.TO || 900); w += Number(process.env.STEP || 8)) widths.push(w);
 const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM, headless: true, args: ['--mute-audio'] });

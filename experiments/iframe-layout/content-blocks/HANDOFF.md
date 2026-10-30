@@ -263,6 +263,25 @@ Deploy: on the Studio `cd ~/.claude/briefs/lw-widget-exp3 && python3 make-projec
 `... status <dpl_id>` (it refuses any other project/branch; a copy is in the tarball; from the MacBook you
 can run it over `ssh studio`, or use your own copy).
 
+**Two local copies (Ronny, Oct 29 2026), so he can use the site while work goes on:**
+- Ronny's play copy: worktree `~/Github Repos/ForumMagnum-layout-play`, detached at a commit that passed
+  every check, served on port 3000 (launch.json `lw-layout`; his tabs and Google login are on 3000). Never
+  edit it, push from it, restart it or run tests against it during normal work.
+- The working copy: `~/Github Repos/ForumMagnum-layout` (this branch) on port 3001 (launch.json
+  `lw-layout-work`, debugger on 9230 because the play copy holds 9229). Every check here defaults to
+  `BASE_URL=http://localhost:3001`.
+- Update the play copy only when a batch of changes passes all checks: tell Ronny first in one line, then
+  `git -C ~/Github\ Repos/ForumMagnum-layout-play checkout --detach <commit>` and restart `lw-layout`
+  (about a minute).
+- Its `node_modules` is an APFS clone of this one (`cp -cR`, about 30s, no extra disk): Turbopack refuses
+  a `node_modules` symlink that points outside its workspace. Re-clone after a dependency change. Its
+  `.env.local` and `.vercel/` are copies (never print them), plus `excalidraw/dist` and
+  `public/excalidraw-assets`.
+- Both servers share the dev database. That's fine (demo edits live in sessionStorage); never write to
+  existing posts. The blocks demo post is rewritten by whichever server serves different demo HTML, which
+  only touches that demo's own post.
+- Memory with both running: about 8GB (play, fresh compile) plus 3.5GB, of 128GB.
+
 ## 9. Tarball contents (`studio:~/lw-exp3-handoff.tar.gz`)
 
 - `session-transcript.jsonl`: this Studio session's full transcript (everything I saw and did).
@@ -327,9 +346,20 @@ can run it over `ssh studio`, or use your own copy).
   and resize edges (no grip: a widget can't be moved out of its block), sized against the block's text
   (`widgetColumnRect` in widgetDragDom.ts; the overlay's `columnWidth` is now the width the widget is sized
   against). One in a table cell, footnote or column (never wraps) still gets no controls (drag-check R4).
-  Check: `nested-check.mjs` (gear 25%, edge drag to 38%, Post tab widths). Open question for Ronny: 50% can't
-  wrap inside these blocks at the normal width (quote 647px leaves 291px beside, list item 289, section 296,
-  under the 300px rule), so it shows full width with the gear's note.
+  Check: `nested-check.mjs` (gear 25%, edge drag to 38%, Post tab widths). 50% can't wrap inside these
+  blocks at the normal width (quote 647px leaves 291px beside, list item 289, section 296, under the 300px
+  rule).
+- **Inside a block, only widths that wrap (Ronny, Oct 29: keep the 300px rule, don't lower it to 285):** a
+  nested widget's gear lists `wrappableWidths(columnWidth)` (WidgetOptionsMenu `onlyWrapping`), not
+  `offeredWidths`, plus its own stored width (kept, never rewritten; it shows full width with the note).
+  Its edge drag uses `resizeTarget({ onlyWrapping })`: the nearest snap is still chosen among all the
+  offered widths, but one that can't wrap here becomes full width, and only the wrapping snaps are
+  ticks, so 38% holds to about 44% and anything wider is full width. Both go by the measured block width
+  (`widgetColumnRect`), so AI content (682px, 50% leaves 309px) keeps 50%, and a 700px window drops it.
+  Top-level widgets unchanged. The blocks demo has a 50% widget inside AI content for this. Checks:
+  nested-check (gear lists exactly the wrapping widths in a quote, list item, section and AI content; no
+  50% tick or label; past 38% goes to full width; AI content's 50% at 1280 but not at 700) and 4 unit
+  tests in `iframeWidgetDragGeometry.tests.ts` (52/52).
 - **Doubled gaps next to sentinels (fixed Oct 29):** see the sentinel note above. vertical-compare (scratch
   script: every top-level block's gap and height, editor vs post) finds no gap differences that don't come
   from a height difference above them.
@@ -358,5 +388,16 @@ can run it over `ssh studio`, or use your own copy).
   measuring inline math as the first line); overriding it would change how trailing spaces behave while
   typing. (2) An equation wider than the column (the second demo equation below ~700px): the post wraps
   it in HorizScrollBlock, whose touch target (-1em margin, 2em padding) plus MathJax's trapped margin
-  puts it ~55px lower than the editor (LessWrong-wide behavior for wide content).
+  puts it ~55px lower than the editor (LessWrong-wide behavior for wide content). The post decides that
+  wrapping when the page loads, so a post loaded narrow keeps the scroll box after widening (the width
+  sweep, which starts at 320px, measures the equation inside it). (3) AI Futures at 672px: the paragraph
+  after the milestones widget ends level with the widget's bottom, so which view puts the next
+  paragraph's first line beside the widget flips from run to run (width-sweep "line 239/0" or "0/239";
+  not seen in a short sweep). (4) Full-width widget frames can be 1px taller in the post: both views
+  apply the height the frame reports, and the two frames round differently.
+- **Test notes (Oct 29):** section-open-check once failed at all three widths in a full run (the arrow
+  click left the long section open) and passed 8 runs since, alone, after nested-check and under a
+  concurrent sweep; it now waits for the title to stop moving and reports what was under the pointer.
+  width-sweep's display-equation check now also covers the post's scroll box around a wide equation (it
+  was measuring MathJax's hidden screen-reader copy there: 236 false "drift" widths).
 

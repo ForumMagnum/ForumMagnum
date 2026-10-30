@@ -7,7 +7,7 @@ import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {
-  IframeWidgetLayout, alignOf, offeredWidths, shouldWrapWidget, widgetWidthPx, withAlign,
+  IframeWidgetLayout, alignOf, offeredWidths, shouldWrapWidget, widgetWidthPx, withAlign, wrappableWidths,
 } from '@/components/contents/iframeWidgetLayout';
 
 /** A widget switched from full width to a side gets this width. */
@@ -72,9 +72,16 @@ const styles = defineStyles('WidgetOptionsMenu', (theme: ThemeType) => ({
 
 const preventDefault = (e: React.SyntheticEvent) => e.preventDefault();
 
-export function WidgetOptionsMenu({ layout, columnWidth, style, onChange, onClose }: {
+export function WidgetOptionsMenu({ layout, columnWidth, onlyWrapping = false, style, onChange, onClose }: {
   layout: IframeWidgetLayout,
   columnWidth: number,
+  /**
+   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget inside a quote, list item, collapsible
+   * section or AI content offers only the widths that wrap against that block's text (Ronny, Oct 29 2026:
+   * keep the 300px rule): 25/33/38% in a quote at the normal width, 50% too in AI content, which is as
+   * wide as the column. Measured, so it follows the window.
+   */
+  onlyWrapping?: boolean,
   style: React.CSSProperties,
   onChange: (layout: IframeWidgetLayout) => void,
   /** refocus: closed with Escape, so the gear gets the focus back. */
@@ -104,9 +111,10 @@ export function WidgetOptionsMenu({ layout, columnWidth, style, onChange, onClos
 
   const side = layout.position === 'left' || layout.position === 'right' ? layout.position : null;
   const width = layout.width ?? DEFAULT_WRAP_WIDTH;
-  // The widths not too narrow to use in this column, plus the widget's own (which it keeps).
+  // The widths not too narrow to use in this column (inside a block: the ones that wrap), plus the widget's
+  // own (which it keeps, even where it can't wrap: it shows full width, with the note below).
   const px = (w: string) => widgetWidthPx({ position: 'left', width: w }, columnWidth) ?? columnWidth;
-  const offered = offeredWidths(columnWidth);
+  const offered = onlyWrapping ? wrappableWidths(columnWidth) : offeredWidths(columnWidth);
   const widths = !side || offered.includes(width) ? offered : [...offered, width].sort((a, b) => px(a) - px(b));
   const button = (option: string, label: string, active: boolean, next: IframeWidgetLayout, disabled = false) => <button
     key={option}

@@ -204,9 +204,11 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
    CDN). Say yes and I'll install it and run the width sweep in WebKit. Or open the demo in Safari.
 3. **Quotes, sections and lists beside a right widget** flow like text (my call, by eye). If you'd rather
    have one rule for both sides, it's a one-line change.
-4. **50% inside a quote, list item or section.** It can't wrap there at the normal width (a quote leaves
-   291px of text beside it, a list item 289, a section 296, under the 300px rule), so it shows full width.
-   Keep the rule, or lower it to about 285px?
+4. ~~**50% inside a quote, list item or section.**~~ Answered Oct 29: keep the 300px rule. Inside a block,
+   a widget only offers the widths that leave 300px of text beside it there, measured, so it changes with
+   the window. At the normal width a quote, list item or collapsible section offers 25%, 33% and 38%, and
+   dragging an edge wider goes straight to full width. AI content is as wide as the column, so it still
+   offers 50%. A widget that already has a width that can't wrap there keeps it, and shows full width.
 
 ## Changes on Oct 29 (MacBook session)
 - Collapsible sections are placed as they look open (see above).
@@ -216,6 +218,10 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
 - Escape during a resize puts the widget back exactly, with no jump a moment later.
 - Widgets inside a quote, list item or collapsible section have the gear and resize edges like any other
   widget, sized against that block's text. (They still can't be dragged out of their block.)
+- Inside a block, a widget only offers widths that wrap there (your call: keep the 300px rule). The gear
+  lists only those, and an edge pulled past the widest one goes straight to full width; 50% never shows
+  as a mark or label in a quote, list item or section at the normal width. The demo post's "Widgets
+  inside other blocks" section says so, and it now has a widget inside AI content at 50%.
 - The editor keeps the gap between a quote and a collapsible section, as the post does.
 - The editor always opens on the original post. Reopening saved edits garbled every widget's code: each
   widget showed a long run of escaped code under it, worse with each reload. It happened in Experiment

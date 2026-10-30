@@ -26,7 +26,7 @@ const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) =>
   if (a.startsWith('--')) acc.push([a.slice(2), all[i + 1] && !all[i + 1].startsWith('--') ? all[i + 1] : true]);
   return acc;
 }, []));
-const BASE = process.env.BASE_URL || 'http://localhost:3000';
+const BASE = process.env.BASE_URL || 'http://localhost:3001';
 const ROOT = '/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e';
 const demo = args.demo || 'blocks';
 const route = demo === 'blocks' ? `${ROOT}/blocks` : ROOT;
@@ -115,8 +115,9 @@ const MEASURE = (view) => {
     seen[base] = (seen[base] ?? 0) + 1;
     let firstLineX = null;
     // A display equation draws its glyphs from CSS, so it has no text to measure: take where it starts.
-    // (Not inline math in a paragraph: its first line starts with the paragraph's text.)
-    const equation = el.matches('.math-tex') ? el.querySelector('mjx-math') : null;
+    // (Not inline math in a paragraph: its first line starts with the paragraph's text. The post wraps an
+    // equation wider than the column at load in a scroll box, which stays once the window is wider.)
+    const equation = el.matches('.math-tex, .horiz-scroll-block:has(div.math-tex)') ? el.querySelector('mjx-math') : null;
     const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     let t = tw.nextNode(); while (t && (!t.textContent.trim() || t.parentElement.closest('.iframe-widget-code, .llm-content-block-header'))) t = tw.nextNode();
     if (equation) {

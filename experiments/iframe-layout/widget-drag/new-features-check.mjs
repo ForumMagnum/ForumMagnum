@@ -8,7 +8,7 @@ import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
-const BASE = process.env.BASE_URL || 'http://localhost:3000';
+const BASE = process.env.BASE_URL || 'http://localhost:3001';
 // EDITOR_PATH (exp3): which drag editor to check. Experiment 2's by default; Experiment 3's AI Futures
 // editor is /experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/editor. Its Post tab is the same path without /editor.
 const EDITOR_PATH = process.env.EDITOR_PATH || '/experiment-widget-drag-rrjhoz6rhigvo14qsbixz68ut/editor';

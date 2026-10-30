@@ -4,13 +4,13 @@
 // the Post tab at several widths, that opening or closing a section never moves it:
 // - the demo's short section sits beside the widget, closed and open;
 // - made long (typed in the editor), it goes below the widget open AND closed, in the editor and the post.
-// Needs the dev server (BASE_URL, default http://localhost:3000). Uses the installed Chrome, headless and
+// Needs the dev server (BASE_URL, default http://localhost:3001: the working copy; 3000 is Ronny's play copy, never tested against). Uses the installed Chrome, headless and
 // muted; set PW_CHROMIUM to a Chrome binary where there is none (the Studio: Chrome for Testing 156).
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 
-const BASE = process.env.BASE_URL || 'http://localhost:3000';
+const BASE = process.env.BASE_URL || 'http://localhost:3001';
 const ROUTE = '/experiment-widget-blocks-7qunirv1o86fgfg7k1e9bru6e/blocks';
 const WIDTHS = (process.env.WIDTHS || '1280,1024,900').split(',').map(Number);
 const FILLER = 'Filler sentence to make this collapsible section long, so that it hangs well below the widget beside it. ';
@@ -96,12 +96,26 @@ try {
     // The marker sits in the title's left gutter, outside the title's text.
     const title = section.locator(':scope > .detailsBlockTitle');
     await title.scrollIntoViewIfNeeded();
-    const tb = await title.boundingBox();
-    await page.mouse.click(tb.x + 6, tb.y + tb.height / 2);
+    // (Once the title has stopped moving: in one run in about eight, all three widths, the click left the
+    // section open; it never did when run again. What was under the pointer goes in the report.)
+    let tb = await title.boundingBox();
+    for (let i = 0; i < 20; i++) {
+      await page.waitForTimeout(150);
+      const again = await title.boundingBox();
+      const still = Math.abs(again.x - tb.x) < 0.5 && Math.abs(again.y - tb.y) < 0.5;
+      tb = again;
+      if (still) break;
+    }
+    const at = [tb.x + 6, tb.y + tb.height / 2];
+    const under = await page.evaluate(([x, y]) => ({
+      stack: document.elementsFromPoint(x, y).slice(0, 4).map(e => `${e.tagName}.${(e.className || '').toString().split(' ')[0]}`),
+      selectionCollapsed: window.getSelection()?.isCollapsed,
+    }), at);
+    await page.mouse.click(at[0], at[1]);
     await page.waitForTimeout(1500);
     const editorClosed = await page.evaluate(measure, EDITOR);
     report(!editorClosed.open && !editorClosed.beside && editorClosed.box.x === editorLong.box.x && editorClosed.box.w === editorLong.box.w,
-      `editor ${width}: closing the long section doesn't move it`, { editorLong, editorClosed });
+      `editor ${width}: closing the long section doesn't move it`, { editorLong, editorClosed, under });
     await page.waitForTimeout(1500);
 
     // The Post tab shows the edit: below the widget, closed and open.
