@@ -23,8 +23,13 @@ import {$patchStyleText, $setBlocksType} from '@lexical/selection';
 import {$isTableSelection} from '@lexical/table';
 import {$findMatchingParent, $getNearestBlockElementAncestorOrThrow} from '@lexical/utils';
 import {
+  type BaseSelection,
+  type ElementNode,
+  type LexicalNode,
   $addUpdateTag,
   $createParagraphNode,
+  $getCommonAncestor,
+  $getNearestRootOrShadowRoot,
   $getSelection,
   $isRangeSelection,
   $isRootOrShadowRoot,
@@ -227,54 +232,66 @@ export const updateFontSize = (
   }
 };
 
+function $getChildOfContainerContaining(node: LexicalNode, container: ElementNode): LexicalNode | null {
+  let current: LexicalNode | null = node;
+  while (current && !container.is(current.getParent())) {
+    current = current.getParent();
+  }
+  return current;
+}
+
 /**
- * Wraps the selected block(s) in a ContainerQuoteNode, or unwraps them if
- * already inside a quote.
+ * Wraps the selected block(s) in a ContainerQuoteNode, or unwraps the
+ * innermost quote containing the whole selection.
  *
- * For wrapping: finds the top-level element(s) from the selection and moves
- * them into a new ContainerQuoteNode.
+ * For wrapping: finds the blocks spanned by the selection at the level of
+ * the nearest root/shadow root containing the whole selection and moves them
+ * into a new ContainerQuoteNode.
  *
  * For unwrapping: moves the quote's children out after the quote and removes
  * the empty quote node.
  */
-function $wrapOrUnwrapQuote(selection: ReturnType<typeof $getSelection>): void {
+function $wrapOrUnwrapQuote(selection: BaseSelection | null): void {
   if (!$isRangeSelection(selection)) {
     return;
   }
 
-  const anchorNode = selection.anchor.getNode();
+  const commonAncestorResult = $getCommonAncestor(selection.anchor.getNode(), selection.focus.getNode());
+  if (!commonAncestorResult) {
+    throw new Error('Selection anchor and focus have no common ancestor');
+  }
+  const { commonAncestor } = commonAncestorResult;
 
-  // Check if we're already inside a quote
-  const existingQuote = $findMatchingParent(anchorNode, $isContainerQuoteNode);
+  const existingQuote = $findMatchingParent(commonAncestor, $isContainerQuoteNode);
   if (existingQuote) {
     $unwrapQuote(existingQuote);
     return;
   }
 
-  // Wrap: find the top-level element(s) in the selection and wrap in a quote
-  const nodes = selection.getNodes();
-  // Collect unique top-level block elements
-  const topLevelElements = new Set<import('lexical').LexicalNode>();
-  for (const node of nodes) {
-    const topLevel = $findMatchingParent(node, (n) => {
-      const parent = n.getParent();
-      return parent !== null && $isRootOrShadowRoot(parent);
-    });
-    if (topLevel) {
-      topLevelElements.add(topLevel);
+  // Selections can span different nesting levels (e.g. from a paragraph into a
+  // nested quote). Blocks must all be children of the same container, or
+  // $wrapInQuote will try to move a quote into itself, which hangs the editor.
+  const container = $isRootOrShadowRoot(commonAncestor)
+    ? commonAncestor
+    : $getNearestRootOrShadowRoot(commonAncestor);
+
+  const blocksByKey = new Map<string, LexicalNode>();
+  for (const node of selection.getNodes()) {
+    const block = $getChildOfContainerContaining(node, container);
+    if (block) {
+      blocksByKey.set(block.getKey(), block);
     }
   }
 
-  if (topLevelElements.size === 0) {
+  if (blocksByKey.size === 0) {
     return;
   }
 
-  // Sort by position in the document
-  const sortedElements = Array.from(topLevelElements).sort((a, b) => {
-    return a.isBefore(b) ? -1 : 1;
-  });
+  const sortedBlocks = Array.from(blocksByKey.values()).sort(
+    (a, b) => a.getIndexWithinParent() - b.getIndexWithinParent(),
+  );
 
-  $wrapInQuote(sortedElements);
+  $wrapInQuote(sortedBlocks);
 }
 
 export const formatParagraph = (editor: LexicalEditor) => {
