@@ -40,6 +40,9 @@ const styles = defineStyles('CommentBody', (theme: ThemeType) => ({
       fontSize: ".85em",
       color: theme.palette.grey[600],
       cursor: "pointer",
+      '& a:visited': {
+        color: theme.palette.link.color,
+      },
     },
   },
   retracted: {
