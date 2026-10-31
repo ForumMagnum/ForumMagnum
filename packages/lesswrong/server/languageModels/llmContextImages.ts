@@ -1,4 +1,4 @@
-import { makeCloudinaryFetchUrl } from "@/components/common/cloudinaryHelpers";
+import { makeCloudinaryFetchUrl, type CloudinaryPropsType } from "@/components/common/cloudinaryHelpers";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 
 const CONTEXT_IMAGE_TOKEN_BUDGET = 500_000;
@@ -16,6 +16,7 @@ const MAX_CONCURRENT_IMAGE_CHECKS = 10;
 const SUPPORTED_MEDIA_TYPES = ["image/jpeg", "image/png"];
 const SOURCE_ERROR_PATTERNS = [
   /^Error in loading /,
+  /^File size too large\. /,
   /^Invalid image file/,
   /^Maximum image size is /,
   /^public_id \(.*\) is too long$/,
@@ -28,22 +29,42 @@ export interface LlmContextImage {
   mediaType: string,
 }
 
+interface CheckedImage {
+  image: LlmContextImage,
+  bytes: number,
+}
+
 export async function loadLlmContextImages(sourceUrls: string[]): Promise<LlmContextImage[]> {
   if (sourceUrls.length > MAX_LLM_CONTEXT_IMAGES) {
     throw new Error(`Got ${sourceUrls.length} context images, but a request can have at most ${MAX_LLM_CONTEXT_IMAGES}`);
   }
   const maxDimension = sourceUrls.length > MANY_IMAGES_THRESHOLD ? MANY_IMAGES_MAX_DIMENSION : MAX_IMAGE_DIMENSION;
-  const imageLoaders = sourceUrls.map((sourceUrl) => () => loadLlmContextImage(sourceUrl, maxDimension, 1));
+  const imageLoaders = sourceUrls.map((sourceUrl) => () => loadLlmContextImage(sourceUrl, maxDimension));
   const images = await executePromiseQueue(imageLoaders, MAX_CONCURRENT_IMAGE_CHECKS);
   return images.filter((image) => image !== null);
 }
 
-async function loadLlmContextImage(sourceUrl: string, maxDimension: string, scale: number): Promise<LlmContextImage | null> {
-  const url = makeCloudinaryFetchUrl(sourceUrl, [
-    { f: "jpg", q: "auto", c: "limit", w: maxDimension, h: maxDimension },
-    ...(scale < 1 ? [{ c: "scale", w: scale.toFixed(2) }] : []),
-  ]);
-  const response = await fetchImageHead(url);
+async function loadLlmContextImage(sourceUrl: string, maxDimension: string): Promise<LlmContextImage | null> {
+  const signal = AbortSignal.timeout(IMAGE_CHECK_TIMEOUT_MS);
+  const limitTransformation = { f: "jpg", q: "auto", c: "limit", w: maxDimension, h: maxDimension };
+  const checked = await checkImage(sourceUrl, [limitTransformation], signal);
+  if (!checked) {
+    return null;
+  }
+  if (checked.bytes <= MAX_IMAGE_BYTES) {
+    return checked.image;
+  }
+  const scale = Math.sqrt(MAX_IMAGE_BYTES / checked.bytes) * SHRINK_MARGIN;
+  const shrunk = await checkImage(sourceUrl, [limitTransformation, { c: "scale", w: scale.toFixed(2) }], signal);
+  if (!shrunk || shrunk.bytes > MAX_IMAGE_BYTES) {
+    return null;
+  }
+  return shrunk.image;
+}
+
+async function checkImage(sourceUrl: string, transformations: CloudinaryPropsType[], signal: AbortSignal): Promise<CheckedImage | null> {
+  const url = makeCloudinaryFetchUrl(sourceUrl, transformations);
+  const response = await fetchImageHead(url, signal);
   if (!response || isSourceError(response)) {
     return null;
   }
@@ -52,18 +73,12 @@ async function loadLlmContextImage(sourceUrl: string, maxDimension: string, scal
   if (!response.ok || !mediaType || !SUPPORTED_MEDIA_TYPES.includes(mediaType) || !bytes) {
     throw new Error(`Cloudinary returned ${response.status} (${mediaType}, ${bytes} bytes, error: ${response.headers.get("x-cld-error")}) for image ${sourceUrl}`);
   }
-  if (bytes > MAX_IMAGE_BYTES) {
-    if (scale < 1) {
-      return null;
-    }
-    return await loadLlmContextImage(sourceUrl, maxDimension, Math.sqrt(MAX_IMAGE_BYTES / bytes) * SHRINK_MARGIN);
-  }
-  return { sourceUrl, url, mediaType };
+  return { image: { sourceUrl, url, mediaType }, bytes };
 }
 
-async function fetchImageHead(url: string): Promise<Response | null> {
+async function fetchImageHead(url: string, signal: AbortSignal): Promise<Response | null> {
   try {
-    return await fetch(url, { method: "HEAD", signal: AbortSignal.timeout(IMAGE_CHECK_TIMEOUT_MS) });
+    return await fetch(url, { method: "HEAD", signal });
   } catch (error) {
     if (error instanceof Error && error.name === "TimeoutError") {
       return null;

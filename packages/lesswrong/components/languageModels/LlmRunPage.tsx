@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import classNames from "classnames";
+import partition from "lodash/partition";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
@@ -286,7 +287,7 @@ export default function LlmRunPage({ runId }: { runId: string }) {
   const modelFullName = getLlmVersionFullName(run.modelName);
   const mention = `@${modelFullName}`;
   const promptParts = getPromptParts(run.systemPrompt, run.contextMessage);
-  const contextImages = run.transcriptEntries.filter((entry) => entry.type === "image");
+  const [contextImages, stepEntries] = partition(run.transcriptEntries, (entry) => entry.type === "image");
   const copyPrompt = async () => {
     await navigator.clipboard.writeText([run.systemPrompt, run.contextMessage].filter(Boolean).join("\n\n"));
     setPromptCopied(true);
@@ -333,8 +334,8 @@ export default function LlmRunPage({ runId }: { runId: string }) {
           {contextImages.length > 0 && <div id={IMAGES_ANCHOR} className={classes.promptPart}>
             {contextImages.map((image) => <div key={image._id} className={classes.promptImage}>
               {image.text}
-              {image.url && <a href={image.url} target="_blank" rel="noopener noreferrer">
-                <img src={makeCloudinaryFetchUrl(image.url, THUMBNAIL_TRANSFORMATIONS)} alt="" loading="lazy" className={classes.promptImageThumbnail} />
+              {image.text && image.url && <a href={image.url} target="_blank" rel="noopener noreferrer">
+                <img src={makeCloudinaryFetchUrl(image.text, THUMBNAIL_TRANSFORMATIONS)} alt="" loading="lazy" className={classes.promptImageThumbnail} />
               </a>}
             </div>)}
           </div>}
@@ -348,7 +349,7 @@ export default function LlmRunPage({ runId }: { runId: string }) {
     <section className={classes.section}>
       <h2 className={classes.sectionLabel}>Steps</h2>
       <LlmTranscript
-        entries={run.transcriptEntries}
+        entries={stepEntries}
         finalResponse={run.response}
         isRunning={isRunning}
         initialVisibleSteps={isCompleted ? FINISHED_RUN_VISIBLE_STEPS : undefined}
