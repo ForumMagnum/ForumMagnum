@@ -22,3 +22,7 @@ function cloudinaryPropsToStr(props: Record<string, string>) {
 export function makeCloudinaryImageUrl(publicId: string, cloudinaryProps: CloudinaryPropsType) {
   return `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/${cloudinaryPropsToStr(cloudinaryProps)}/${publicId}`;
 }
+
+export function makeCloudinaryFetchUrl(remoteUrl: string, transformations: CloudinaryPropsType[]) {
+  return `https://res.cloudinary.com/${cloudinaryCloudName}/image/fetch/${transformations.map(cloudinaryPropsToStr).join("/")}/${encodeURIComponent(remoteUrl)}`;
+}

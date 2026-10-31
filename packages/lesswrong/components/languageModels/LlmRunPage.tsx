@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import classNames from "classnames";
+import partition from "lodash/partition";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
@@ -16,12 +17,16 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getLlmVersionFullName } from "@/lib/languageModels/llmRegistry";
+import { makeCloudinaryFetchUrl } from "@/components/common/cloudinaryHelpers";
 
 const POLL_INTERVAL_MS = 3000;
 const COPIED_INDICATOR_MS = 1500;
 const FINISHED_RUN_VISIBLE_STEPS = 3;
 const TITLE_MAX_CHARACTERS = 200;
 const THREAD_HEADING = "\n# Thread\n";
+const IMAGES_ANCHOR = "prompt-images";
+const THUMBNAIL_HEIGHT = 120;
+const THUMBNAIL_TRANSFORMATIONS = [{ c: "limit", h: String(THUMBNAIL_HEIGHT), dpr: "2.0", f: "auto", q: "auto" }];
 
 const LlmRunQuery = gql(`
   query LlmRunPageQuery($runId: String!) {
@@ -186,6 +191,18 @@ const styles = defineStyles("LlmRunPage", (theme: ThemeType) => ({
       marginTop: "1.5em",
     },
   },
+  promptImage: {
+    "& + &": {
+      marginTop: 12,
+    },
+  },
+  promptImageThumbnail: {
+    display: "block",
+    marginTop: 4,
+    maxHeight: THUMBNAIL_HEIGHT,
+    maxWidth: "100%",
+    borderRadius: theme.borderRadius.small,
+  },
   readMore: {
     ...theme.typography.commentStyle,
     marginTop: 4,
@@ -270,6 +287,7 @@ export default function LlmRunPage({ runId }: { runId: string }) {
   const modelFullName = getLlmVersionFullName(run.modelName);
   const mention = `@${modelFullName}`;
   const promptParts = getPromptParts(run.systemPrompt, run.contextMessage);
+  const [contextImages, stepEntries] = partition(run.transcriptEntries, (entry) => entry.type === "image");
   const copyPrompt = async () => {
     await navigator.clipboard.writeText([run.systemPrompt, run.contextMessage].filter(Boolean).join("\n\n"));
     setPromptCopied(true);
@@ -303,6 +321,7 @@ export default function LlmRunPage({ runId }: { runId: string }) {
         {promptParts.map((part) => <a key={part.anchor} href={`#${part.anchor}`} onClick={() => setPromptExpanded(true)}>
           {part.label}
         </a>)}
+        {contextImages.length > 0 && <a href={`#${IMAGES_ANCHOR}`} onClick={() => setPromptExpanded(true)}>Images</a>}
       </nav>}
       <div className={classes.promptBlock}>
         <LWTooltip title="Copy prompt" className={classes.copyButtonPosition}>
@@ -312,6 +331,14 @@ export default function LlmRunPage({ runId }: { runId: string }) {
         </LWTooltip>
         <div className={classNames(classes.promptText, !promptExpanded && classes.promptCollapsed)}>
           {promptParts.map((part) => <div key={part.anchor} id={part.anchor} className={classes.promptPart}>{part.text}</div>)}
+          {contextImages.length > 0 && <div id={IMAGES_ANCHOR} className={classes.promptPart}>
+            {contextImages.map((image) => <div key={image._id} className={classes.promptImage}>
+              {image.text}
+              {image.text && image.url && <a href={image.url} target="_blank" rel="noopener noreferrer">
+                <img src={makeCloudinaryFetchUrl(image.text, THUMBNAIL_TRANSFORMATIONS)} alt="" loading="lazy" className={classes.promptImageThumbnail} />
+              </a>}
+            </div>)}
+          </div>}
         </div>
         {!promptExpanded && <button className={classes.readMore} onClick={() => setPromptExpanded(true)}>
           (read more)
@@ -322,7 +349,7 @@ export default function LlmRunPage({ runId }: { runId: string }) {
     <section className={classes.section}>
       <h2 className={classes.sectionLabel}>Steps</h2>
       <LlmTranscript
-        entries={run.transcriptEntries}
+        entries={stepEntries}
         finalResponse={run.response}
         isRunning={isRunning}
         initialVisibleSteps={isCompleted ? FINISHED_RUN_VISIBLE_STEPS : undefined}
