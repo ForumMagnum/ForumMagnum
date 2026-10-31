@@ -21,6 +21,8 @@ export const highlightFromHTML = (html: string | null): string => {
   });
 };
 
+const getTruncatedLength = (truncateLength: number) => Math.floor(truncateLength - (truncateLength/4)) || truncateLength;
+
 export const truncate = (
   html: string|null|undefined,
   truncateLength: number,
@@ -37,7 +39,7 @@ export const truncate = (
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
 
   const truncatedHtml = truncatise(htmlRemovedStyles, {
-    TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
+    TruncateLength: getTruncatedLength(truncateLength),
     TruncateBy: newTruncateBy,
     Suffix: `${newSuffix}`,
     Strict: allowTruncationMidWord,
@@ -59,7 +61,7 @@ export const calculateTruncationStatus = (
     return { willTruncate: false, wordsRemaining: 0 };
   }
   
-  return { willTruncate: true, wordsRemaining: wordsLeft };
+  return { willTruncate: true, wordsRemaining: totalWordCount - getTruncatedLength(maxLengthWords) };
 };
 
 export const truncateWithGrace = (html: string, maxLengthWords: number, graceWords: number, rawWordCount: number, suffix?: string): {
@@ -101,7 +103,6 @@ export const truncateWithGrace = (html: string, maxLengthWords: number, graceWor
 export function getTruncationCharCount (comment: CommentsList, postPage?: boolean) {
   const commentIsByGPT2 = !!(comment && comment.user && comment.user.displayName === "GPT2")
   if (commentIsByGPT2) return GTP2_TRUNCATION_CHAR_COUNT
-  if (comment.llmRunId) return SMALL_TRUNCATION_CHAR_COUNT
 
   const commentIsRecent = new Date(comment.postedAt) > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
   const commentIsHighKarma = typeof comment.baseScore === 'number' && comment.baseScore >= TRUNCATION_KARMA_THRESHOLD
