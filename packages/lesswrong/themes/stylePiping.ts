@@ -273,7 +273,6 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
     fontFamily: '"cronos-pro", serif',
     fontSize: 19.1,
     fontWeight: 400,
-    opacity: 0.94,
     '& h1, & h2, & h3, & h4, & h5, & h6': {
       fontFamily: 'inherit',
     },

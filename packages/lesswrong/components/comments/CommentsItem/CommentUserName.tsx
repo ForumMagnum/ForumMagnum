@@ -19,12 +19,8 @@ const styles = defineStyles("CommentUserName", (theme: ThemeType) => ({
     display: "inline-flex",
     alignItems: "center",
     gap: 4,
-    color: theme.palette.text.dim,
     fontFamily: '"cronos-pro", serif',
     fontVariant: "small-caps",
-    "& a, & a:hover": {
-      color: theme.palette.text.dim,
-    },
   },
   llmIcon: {
     "--icon-size": "1em",
