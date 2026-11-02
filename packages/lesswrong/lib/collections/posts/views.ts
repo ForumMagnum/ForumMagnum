@@ -886,7 +886,7 @@ function nearbyEvents(terms: PostsViewTerms) {
               // place in the codebase where we use this operator so it's probably not worth spending a
               // ton of time making this beautiful.
               $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ],
-              $comment: { locationName: `"googleLocation"->'geometry'->'location'` },
+              $comment: { locationName: "googleLocation.geometry.location" },
             }
           }
         },
