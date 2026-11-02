@@ -35,6 +35,12 @@ describe('diffHtml', () => {
         after: '<p>First paragraph</p><p>Inserted in the middle</p><p>Last paragraph</p>',
         differences: '<p>First paragraph</p><p><ins>Inserted in the middle</ins></p><p>Last paragraph</p>'
       },
+      // Change a link's destination without changing its text
+      {
+        before: '<p>See <a href="https://example.com/old">this post</a> here</p>',
+        after: '<p>See <a href="https://example.com/new">this post</a> here</p>',
+        differences: '<p>See <a href="https://example.com/new"><del>this post</del><ins>this post</ins></a> here</p>'
+      },
     ];
     for (const testCase of tests) {
       chai.assert.equal(normalizeHtml(diffHtml(testCase.before, testCase.after, false)), normalizeHtml(testCase.differences));
