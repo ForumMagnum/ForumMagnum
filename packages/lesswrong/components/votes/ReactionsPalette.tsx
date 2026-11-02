@@ -109,7 +109,7 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
     padding: 8,
     minWidth: 55, // 40px icon + 16px padding
     '& img': {
-      filter: 'opacity(1) !important'
+      '--reaction-opacity': '1 !important',
     }
   },
   showAll: {
