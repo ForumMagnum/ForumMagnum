@@ -313,6 +313,14 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
     blank lines starting beside it) or when blank lines have pushed the next block below a widget. Its button
     removes those blank lines and starts the next block below the widget (with the marker). Nothing happens on
     its own: the author clicks. The margin chip no longer shows on blank lines (the hint covers them).
+  - **Inside quotes, AI content and collapsible sections (Nov 2, your "doesn't seem to work inside ai block",
+    "or inside quote block?").** The chip and the hint work there too, wherever the block flows beside the
+    widget (AI content always; a quote or section beside a right widget). The marker goes inside the block, so
+    only the text after it starts below the widget. From the block's first paragraph it goes before the whole
+    block instead (a marker there would leave the block's top, or the AI label, beside the widget with nothing in
+    it). Beside a left widget a quote or section is a box, which can't break partway down, so there the chip
+    starts the whole box below the widget. Backspace at the start of a block that starts below takes the marker
+    out, as for a paragraph. One per widget counts the markers inside blocks too.
   - Test: `start-below-check.mjs` (chip, Backspace, ✕, one per widget, Post tab, phone, every H2 below the
-    widgets before it).
+    widgets before it, quotes and AI content).
 

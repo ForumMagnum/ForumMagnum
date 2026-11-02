@@ -62,6 +62,6 @@ export function StartBelowChip({ anchorElem }: { anchorElem: HTMLElement }) {
     title="Start this below the widget, at every window width"
     data-testid="widget-start-below"
     onMouseDown={(e) => e.preventDefault()}
-    onClick={() => editor.update(() => $startBelow(spot.key))}
+    onClick={() => editor.update(() => $startBelow(editor, spot.key))}
   >↓ Below widget</button>;
 }

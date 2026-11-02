@@ -514,5 +514,16 @@ can run it over `ssh studio`, or use your own copy).
     (removes the run; `$startBelow` on the next block unless it clears anyway: a widget or EDITOR_CLEARING_BLOCKS;
     at the end of the post, marker + an empty line for the caret). BlankLinesHint.tsx draws it in the first blank
     line (pointer-events only on its button). `startBelowSpot` skips blank paragraphs.
-  - Check: `content-blocks/start-below-check.mjs` (18).
+  - Nested blocks (Ronny, Nov 2: "doesn't seem to work inside ai block", "or inside quote block?"): widgetClear.ts
+    works at any depth. `$holdsBlocks` = root, ContainerQuoteNode, LLMContentBlockContentNode,
+    CollapsibleSectionContentNode (never LLMContentBlockNode itself, a shadow root holding header + content).
+    `floatBefore(elem, root)` walks up the DOM levels to the float before the top-level block, null across a box
+    (`isBox`: flow-root, a non-block display, overflow, float, absolute, contain). `$clearTarget` moves the
+    marker's place from a block that opens its container, or sits in a box, out to the container (for AI content,
+    out to the whole .llm-content-block). `blankLineHints` scans every container (`$innerContainers`) and places
+    the hint from the blank line's own rect. `$replaceBlankLines` decides "starts below anyway" by computed
+    `clear` (ignoring data-lw-below), since nested H1/H2 don't clear. One per widget walks the whole tree in
+    order (`$widgetsAndClears`). `$removeClearAtCaret` walks out to the container's neighbour from its first or
+    last block. Enter on an empty last line exits quotes and AI content, so blank runs there sit mid-container.
+  - Check: `content-blocks/start-below-check.mjs` (33).
 

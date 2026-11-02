@@ -5,7 +5,10 @@
 //   paragraph the widget lines up with); clicking it starts the paragraph below the widget, with a marker;
 // - Backspace at the paragraph's start, or the marker's ✕, puts it back beside the widget;
 // - the Post tab keeps it (and a phone shows no gap for it);
-// - every H2 starts below the widgets before it, in the editor and the post.
+// - every H2 starts below the widgets before it, in the editor and the post;
+// - the chip and the blank-lines hint work inside a quote and AI content that flow beside a widget (the marker
+//   goes inside them, or before the whole block from its first paragraph), and a quote beside a left widget (a
+//   box) starts below as a whole.
 // Needs the dev server (BASE_URL, default http://localhost:3001, the working copy; 3000 is Ronny's play copy,
 // never tested against). Uses the installed Chrome, headless and muted.
 import { createRequire } from 'module';
@@ -145,6 +148,144 @@ try {
     await frames(6);
   }
 
+  // Inside quotes and AI content (Ronny, Nov 2 2026: "doesn't seem to work inside ai block", "or inside quote
+  // block?"). The quote beside the right widget in "Quotes, collapsible sections and spoilers" flows like text (its
+  // long first paragraph is split after its first sentence, so the rest starts beside the widget): that paragraph
+  // gets the chip, with the marker inside the quote, and blank lines before it get the hint. The AI content beside
+  // the right widget in "Text flows beside a widget": its first paragraph's chip starts the whole block below (a
+  // marker inside would leave its label beside the widget, alone); blank lines in the middle of it get the hint,
+  // with the marker inside. The quote beside the left widget is a box: from its second paragraph too, the chip
+  // starts the whole quote below.
+  const QS = 'This quote flows beside a right widget like any paragraph.';
+  const Q2 = 'Its bar stays on the left';
+  {
+    // A paragraph at any depth: its top, the bottom of the widget beside it, and whether a marker comes right
+    // before it (inside its container) or before its top-level block.
+    const nested = (start) => page.evaluate((start) => {
+      const root = document.querySelector('[data-lexical-editor]');
+      const p = [...root.querySelectorAll('p')].find(el => el.textContent.trim().startsWith(start));
+      if (!p) return null;
+      const before = (el) => { let e = el.previousElementSibling; while (e?.matches('.sentinel-paragraph')) e = e.previousElementSibling; return e; };
+      let block = p;
+      while (block.parentElement !== root) block = block.parentElement;
+      let w = block.previousElementSibling;
+      while (w && !w.matches('.iframe-widget-code[data-lw-wraps]')) w = w.previousElementSibling;
+      return {
+        top: Math.round(p.getBoundingClientRect().top),
+        widgetBottom: w ? Math.round(w.getBoundingClientRect().bottom) : null,
+        markedInside: !!before(p)?.matches('.lw-widget-clear'),
+        markedBeforeBlock: block !== p && !!before(block)?.matches('.lw-widget-clear'),
+      };
+    }, start);
+    const hintCount = () => page.evaluate(() => document.querySelectorAll('[data-testid=widget-blank-lines-hint]').length);
+    const blanksBeside = (start) => page.evaluate((start) => {
+      const root = document.querySelector('[data-lexical-editor]');
+      const p = [...root.querySelectorAll('p')].find(el => el.textContent.trim().startsWith(start));
+      return [...p.parentElement.children].filter(el => el.matches('p:not(.sentinel-paragraph)') && !el.textContent.trim()).length;
+    }, start);
+    const caretAfter = (sentence) => page.evaluate((sentence) => {
+      const root = document.querySelector('[data-lexical-editor]');
+      const editor = root.__lexicalEditor;
+      const p = [...root.querySelectorAll('p')].find(el => el.textContent.trim().startsWith(sentence));
+      p.scrollIntoView({ block: 'center' });
+      const key = p[`__lexicalKey_${editor._key}`];
+      root.focus();
+      editor.update(() => editor.getEditorState()._nodeMap.get(key).getLatest().getFirstDescendant().select(sentence.length, sentence.length));
+    }, sentence);
+    // (A missing chip or hint fails its check instead of timing out here.)
+    const click = async (selector) => {
+      if (await page.locator(selector).count()) await page.click(selector);
+      await frames(8);
+    };
+
+    await caretAfter(QS);
+    await page.keyboard.press('Enter');
+    await frames(6);
+    await caretIn(Q2);
+    await frames(6);
+    const q0 = await nested(Q2);
+    check('quote beside a right widget: a paragraph in it beside the widget gets the chip', q0?.widgetBottom && q0.top < q0.widgetBottom && await chip(), q0);
+    await click('[data-testid=widget-start-below]');
+    const q1 = await nested(Q2);
+    check('clicked: it starts below the widget, after a marker inside the quote', q1?.markedInside && q1.top >= q1.widgetBottom, q1);
+    await caretIn(Q2);
+    await page.keyboard.press('Backspace');
+    await frames(8);
+    const q2 = await nested(Q2);
+    check('Backspace at its start: back beside the widget', q2 && !q2.markedInside && q2.top < q2.widgetBottom, q2);
+    await caretIn(Q2);
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Enter');
+    await frames(8);
+    check('two blank lines inside the quote beside the widget: the hint', (await hintCount()) === 1, await hintCount());
+    await click('[data-testid=widget-blank-lines-hint] button');
+    const q3 = { ...(await nested(Q2)), blanks: await blanksBeside(Q2), hints: await hintCount() };
+    check('its button: blank lines gone, the paragraph below the widget after a marker inside the quote',
+      q3.markedInside && q3.top >= q3.widgetBottom && q3.blanks === 0 && q3.hints === 0, q3);
+    // (That one stays, for the Post tab.)
+
+    const AI = 'AI content flows like any other text';
+    await caretIn(AI);
+    await frames(6);
+    const a0 = await nested(AI);
+    check('AI content beside a widget: its first paragraph starts beside the widget, with the chip', a0?.widgetBottom && a0.top < a0.widgetBottom && await chip(), a0);
+    await click('[data-testid=widget-start-below]');
+    const a1 = await nested(AI);
+    check('clicked: the whole AI block starts below the widget, the marker before it', a1?.markedBeforeBlock && !a1.markedInside && a1.top >= a1.widgetBottom, a1);
+    await caretIn(AI);
+    await page.keyboard.press('Backspace');
+    await frames(8);
+    const a2 = await nested(AI);
+    check('Backspace at the start of its text: back beside the widget, marker gone', a2 && !a2.markedBeforeBlock && a2.top < a2.widgetBottom, a2);
+    // Enter three times after its first sentence: two blank lines in the middle of it.
+    const SENTENCE = 'AI content flows like any other text.';
+    const REST = 'Its label stays at the start';
+    await caretAfter(SENTENCE);
+    for (let i = 0; i < 3; i++) await page.keyboard.press('Enter');
+    await frames(8);
+    const mid = { hints: await hintCount(), blanks: await blanksBeside(REST), rest: await nested(REST) };
+    check('blank lines in the middle of AI content beside the widget: the hint', mid.hints === 1 && mid.blanks === 2, mid);
+    await click('[data-testid=widget-blank-lines-hint] button');
+    const a3 = { ...(await nested(REST)), blanks: await blanksBeside(REST), hints: await hintCount() };
+    check('its button: blank lines gone, the rest of the AI text below the widget after a marker inside the block',
+      a3.markedInside && a3.top >= a3.widgetBottom && a3.blanks === 0 && a3.hints === 0, a3);
+    // (Clean up: Backspace twice takes out the marker, then joins the text again.)
+    await caretIn(REST);
+    await page.keyboard.press('Backspace');
+    await frames(4);
+    await page.keyboard.press('Backspace');
+    await frames(8);
+    const joined = await page.evaluate(([ai, rest]) => [...document.querySelectorAll('[data-lexical-editor] .llm-content-block-content > p')]
+      .some(p => p.textContent.trim().startsWith(ai) && p.textContent.includes(rest)), [AI, REST]);
+    check('Backspace at the start of the rest: the marker goes, then the text joins up again', joined);
+
+    const QL = 'A quote beside a left widget keeps its bar';
+    const QL2 = 'Its second line, in the box';
+    await caretIn(QL, false);
+    await page.keyboard.press('Enter');
+    await page.keyboard.type(QL2);
+    await frames(8);
+    const l0 = await nested(QL2);
+    check('quote beside a left widget (a box): its second paragraph beside the widget, with the chip', l0?.widgetBottom && l0.top < l0.widgetBottom && await chip(), l0);
+    await click('[data-testid=widget-start-below]');
+    const l1 = await nested(QL2);
+    check('clicked: the whole quote starts below the widget, the marker before it (none inside the box)',
+      l1?.markedBeforeBlock && !l1.markedInside && l1.top >= l1.widgetBottom, l1);
+    // (Clean up: Backspace at the quote's start takes out the marker; the new line goes.)
+    await caretIn(QL);
+    await page.keyboard.press('Backspace');
+    await frames(6);
+    check('Backspace at the start of the quote: the marker goes', !(await nested(QL2))?.markedBeforeBlock, await nested(QL2));
+    await page.evaluate((start) => {
+      const root = document.querySelector('[data-lexical-editor]');
+      const editor = root.__lexicalEditor;
+      const p = [...root.querySelectorAll('p')].find(el => el.textContent.trim().startsWith(start));
+      const key = p[`__lexicalKey_${editor._key}`];
+      editor.update(() => editor.getEditorState()._nodeMap.get(key).getLatest().remove());
+    }, QL2);
+    await frames(6);
+  }
+
   // Keep one for the Post tab.
   await caretIn(TARGET);
   await frames(6);
@@ -238,6 +379,16 @@ try {
   await page.waitForTimeout(5000);
   const post = await state(TARGET, 'post');
   check('the Post tab keeps it: below the widget, after the marker', post?.marked && post.top >= post.widgetBottom, post);
+  const postQuote = await page.evaluate((start) => {
+    const body = document.querySelector('[data-testid=widget-drag-post-body]');
+    const p = [...body.querySelectorAll('blockquote p')].find(el => el.textContent.trim().startsWith(start));
+    if (!p) return null;
+    let w = p.closest('blockquote').previousElementSibling;
+    while (w && !w.matches('.iframe-widget:has(> .lwFloatedWidget)')) w = w.previousElementSibling;
+    const widget = w?.querySelector('iframe')?.getBoundingClientRect();
+    return { marked: !!p.previousElementSibling?.matches('.lw-widget-clear'), top: Math.round(p.getBoundingClientRect().top), widgetBottom: widget ? Math.round(widget.bottom) : null };
+  }, Q2);
+  check('...and the one inside the quote: its second paragraph below the widget', postQuote?.marked && postQuote.top >= postQuote.widgetBottom, postQuote);
   check('post: every H2 starts below the widgets before it', (await h2sBelow('post')).length === 0, await h2sBelow('post'));
   await page.setViewportSize({ width: 375, height: 800 });
   await page.waitForTimeout(2500);
