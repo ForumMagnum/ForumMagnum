@@ -73,6 +73,18 @@ import { useQuery } from "@/lib/crud/useQuery"
 import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 import { CommentsListMultiQuery, postCommentsThreadQuery } from '../queries';
+import { gql } from '@/lib/generated/gql-codegen';
+import { userHasPingbacksInComments } from '@/lib/betas';
+
+const PostPingbacksQuery = gql(`
+  query postPingbacksQuery($postId: String) {
+    pingbacks(selector: { pingbacksToPost: { postId: $postId } }) {
+      results {
+        ...PingbackFragment
+      }
+    }
+  }
+`);
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
@@ -379,6 +391,16 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const defaultLimit = post.shortform ? maxDocumentsPerRequestSetting.get(forumType) : 1000;
   const defaultTerms = { view: defaultView, limit: defaultLimit };
   const { view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
+
+  const { data: pingbacksData } = useQuery(PostPingbacksQuery, {
+    variables: { postId: post._id },
+    skip: !userHasPingbacksInComments(currentUser) || preview,
+  });
+  const pingbacks = pingbacksData?.pingbacks?.results;
+  const pingbacksInComments = useMemo(
+    () => pingbacks ? { pingbacks, commentsView: view } : undefined,
+    [pingbacks, view],
+  );
 
   // these are the replies to the debate responses (see earlier comment about deprecated feature)
   const { data: dataDebateResponseReplies } = useQuery(CommentsListMultiQuery, {
@@ -711,6 +733,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
               newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
               highlightDate={highlightDate ?? undefined}
               setHighlightDate={setHighlightDate}
+              pingbacksInComments={pingbacksInComments}
             />}
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </Suspense>

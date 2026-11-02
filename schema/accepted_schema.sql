@@ -1395,6 +1395,30 @@ CREATE TABLE "PetrovDayLaunchs" (
   "userId" TEXT
 );
 
+-- Table "Pingbacks"
+CREATE TABLE "Pingbacks" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "sourcePostId" VARCHAR(27) NOT NULL,
+  "targetPostId" VARCHAR(27) NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "excerpt" TEXT NOT NULL,
+  "deleted" BOOL NOT NULL DEFAULT FALSE,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION
+);
+
+-- Index "idx_Pingbacks_sourcePostId_targetPostId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_Pingbacks_sourcePostId_targetPostId" ON "Pingbacks" USING btree ("sourcePostId", "targetPostId");
+
+-- Index "idx_Pingbacks_targetPostId_deleted"
+CREATE INDEX IF NOT EXISTS "idx_Pingbacks_targetPostId_deleted" ON "Pingbacks" USING btree ("targetPostId", "deleted");
+
 -- Table "PodcastEpisodes"
 CREATE TABLE "PodcastEpisodes" (
   _id VARCHAR(27) PRIMARY KEY,

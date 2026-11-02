@@ -890,6 +890,25 @@ interface DbPetrovDayLaunch extends DbObject {
   userId: string | null
 }
 
+type PingbacksCollection = PgCollection<"Pingbacks">;
+
+interface DbPingback extends DbObject {
+  __collectionName?: "Pingbacks"
+  afBaseScore: number | null
+  afExtendedScore: any | null
+  afVoteCount: number | null
+  baseScore: number
+  createdAt: Date
+  deleted: boolean
+  excerpt: string
+  extendedScore: any | null
+  score: number
+  sourcePostId: string
+  targetPostId: string
+  userId: string
+  voteCount: number
+}
+
 type PodcastEpisodesCollection = PgCollection<"PodcastEpisodes">;
 
 interface DbPodcastEpisode extends DbObject {
@@ -2488,6 +2507,7 @@ interface CollectionsByName {
   OAuthClients: OAuthClientsCollection
   PetrovDayActions: PetrovDayActionsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
+  Pingbacks: PingbacksCollection
   PodcastEpisodes: PodcastEpisodesCollection
   Podcasts: PodcastsCollection
   PostEmbeddings: PostEmbeddingsCollection
@@ -2592,6 +2612,7 @@ interface ObjectsByCollectionName {
   OAuthClients: DbOAuthClient
   PetrovDayActions: DbPetrovDayAction
   PetrovDayLaunchs: DbPetrovDayLaunch
+  Pingbacks: DbPingback
   PodcastEpisodes: DbPodcastEpisode
   Podcasts: DbPodcast
   PostEmbeddings: DbPostEmbedding
@@ -2696,6 +2717,7 @@ interface ObjectsByTypeName {
   OAuthClient: DbOAuthClient
   PetrovDayAction: DbPetrovDayAction
   PetrovDayLaunch: DbPetrovDayLaunch
+  Pingback: DbPingback
   PodcastEpisode: DbPodcastEpisode
   Podcast: DbPodcast
   PostEmbedding: DbPostEmbedding

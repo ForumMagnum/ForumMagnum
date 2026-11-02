@@ -3650,6 +3650,19 @@ type MultiPetrovDayActionOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+type MultiPingbackInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiPingbackOutput = {
+  __typename?: 'MultiPingbackOutput';
+  results: Array<Pingback>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 type MultiPodcastEpisodeInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4148,6 +4161,7 @@ type Mutation = {
   performVoteComment?: Maybe<VoteResultComment>;
   performVoteMessage?: Maybe<VoteResultMessage>;
   performVoteMultiDocument?: Maybe<VoteResultMultiDocument>;
+  performVotePingback?: Maybe<VoteResultPingback>;
   performVotePost?: Maybe<VoteResultPost>;
   performVoteRevision?: Maybe<VoteResultRevision>;
   performVoteTag?: Maybe<VoteResultTag>;
@@ -4178,6 +4192,7 @@ type Mutation = {
   setVoteComment?: Maybe<Comment>;
   setVoteMessage?: Maybe<Message>;
   setVoteMultiDocument?: Maybe<MultiDocument>;
+  setVotePingback?: Maybe<Pingback>;
   setVotePost?: Maybe<Post>;
   setVoteRevision?: Maybe<Revision>;
   setVoteTag?: Maybe<Tag>;
@@ -4747,6 +4762,13 @@ type MutationperformVoteMultiDocumentArgs = {
 };
 
 
+type MutationperformVotePingbackArgs = {
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  extendedVote?: InputMaybe<Scalars['JSON']['input']>;
+  voteType?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 type MutationperformVotePostArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
@@ -4924,6 +4946,13 @@ type MutationsetVoteMessageArgs = {
 
 
 type MutationsetVoteMultiDocumentArgs = {
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  extendedVote?: InputMaybe<Scalars['JSON']['input']>;
+  voteType?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationsetVotePingbackArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
@@ -5429,6 +5458,35 @@ type PetrovDayLaunchMissileData = {
   __typename?: 'PetrovDayLaunchMissileData';
   createdAt?: Maybe<Scalars['Date']['output']>;
   launchCode?: Maybe<Scalars['String']['output']>;
+};
+
+type Pingback = {
+  __typename?: 'Pingback';
+  _id: Scalars['String']['output'];
+  afBaseScore?: Maybe<Scalars['Float']['output']>;
+  afExtendedScore?: Maybe<Scalars['JSON']['output']>;
+  afVoteCount?: Maybe<Scalars['Float']['output']>;
+  baseScore: Scalars['Float']['output'];
+  createdAt: Scalars['Date']['output'];
+  currentUserExtendedVote?: Maybe<Scalars['JSON']['output']>;
+  currentUserVote?: Maybe<Scalars['String']['output']>;
+  excerpt: Scalars['String']['output'];
+  extendedScore?: Maybe<Scalars['JSON']['output']>;
+  score: Scalars['Float']['output'];
+  sourcePost?: Maybe<Post>;
+  sourcePostId: Scalars['String']['output'];
+  targetPostId: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
+  voteCount: Scalars['Float']['output'];
+};
+
+type PingbackSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  pingbacksToPost?: InputMaybe<PingbacksPingbacksToPostInput>;
+};
+
+type PingbacksPingbacksToPostInput = {
+  postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type Podcast = {
@@ -7648,6 +7706,8 @@ type Query = {
   petrov2024checkIfNuked?: Maybe<Scalars['Boolean']['output']>;
   petrovDayAction?: Maybe<SinglePetrovDayActionOutput>;
   petrovDayActions?: Maybe<MultiPetrovDayActionOutput>;
+  pingback?: Maybe<SinglePingbackOutput>;
+  pingbacks?: Maybe<MultiPingbackOutput>;
   podcast?: Maybe<SinglePodcastOutput>;
   podcastEpisode?: Maybe<SinglePodcastEpisodeOutput>;
   podcastEpisodes?: Maybe<MultiPodcastEpisodeOutput>;
@@ -8574,6 +8634,21 @@ type QuerypetrovDayActionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<PetrovDayActionSelector>;
+};
+
+
+type QuerypingbackArgs = {
+  input?: InputMaybe<SinglePingbackInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QuerypingbacksArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiPingbackInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<PingbackSelector>;
 };
 
 
@@ -10177,6 +10252,16 @@ type SinglePetrovDayActionInput = {
 type SinglePetrovDayActionOutput = {
   __typename?: 'SinglePetrovDayActionOutput';
   result?: Maybe<PetrovDayAction>;
+};
+
+type SinglePingbackInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SinglePingbackOutput = {
+  __typename?: 'SinglePingbackOutput';
+  result?: Maybe<Pingback>;
 };
 
 type SinglePodcastEpisodeInput = {
@@ -12707,6 +12792,12 @@ type VoteResultMessage = {
 type VoteResultMultiDocument = {
   __typename?: 'VoteResultMultiDocument';
   document: MultiDocument;
+  showVotingPatternWarning: Scalars['Boolean']['output'];
+};
+
+type VoteResultPingback = {
+  __typename?: 'VoteResultPingback';
+  document: Pingback;
   showVotingPatternWarning: Scalars['Boolean']['output'];
 };
 
@@ -18222,6 +18313,23 @@ type multiReviewWinnerArtSplashImageEditingOptionsQueryQueryVariables = Exact<{
 
 
 type multiReviewWinnerArtSplashImageEditingOptionsQueryQuery = multiReviewWinnerArtSplashImageEditingOptionsQueryQuery_Query;
+
+type postPingbacksQueryQuery_pingbacks_MultiPingbackOutput_results_Pingback = (
+  { __typename?: 'Pingback' }
+  & PingbackFragment
+);
+
+type postPingbacksQueryQuery_pingbacks_MultiPingbackOutput = { __typename?: 'MultiPingbackOutput', results: Array<postPingbacksQueryQuery_pingbacks_MultiPingbackOutput_results_Pingback> };
+
+type postPingbacksQueryQuery_Query = { __typename?: 'Query', pingbacks: postPingbacksQueryQuery_pingbacks_MultiPingbackOutput | null };
+
+
+type postPingbacksQueryQueryVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type postPingbacksQueryQuery = postPingbacksQueryQuery_Query;
 
 type PostsPageWrapper1Query_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
@@ -24663,6 +24771,25 @@ type performVoteMessageMutationVariables = Exact<{
 
 type performVoteMessageMutation = performVoteMessageMutation_Mutation;
 
+type performVotePingbackMutation_performVotePingback_VoteResultPingback_document_Pingback = (
+  { __typename?: 'Pingback' }
+  & WithVotePingback
+);
+
+type performVotePingbackMutation_performVotePingback_VoteResultPingback = { __typename?: 'VoteResultPingback', showVotingPatternWarning: boolean, document: performVotePingbackMutation_performVotePingback_VoteResultPingback_document_Pingback };
+
+type performVotePingbackMutation_Mutation = { __typename?: 'Mutation', performVotePingback: performVotePingbackMutation_performVotePingback_VoteResultPingback | null };
+
+
+type performVotePingbackMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVotePingbackMutation = performVotePingbackMutation_Mutation;
+
 type emailstestsQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsRevision
@@ -25353,6 +25480,20 @@ type WithVoteMultiDocument = (
 type NotificationsList = { __typename?: 'Notification', _id: string, documentId: string | null, documentType: string | null, deleted: boolean | null, userId: string | null, createdAt: string | null, link: string | null, message: string | null, type: string | null, viewed: boolean | null, extraData: any | null };
 
 type PetrovDayActionInfo = { __typename?: 'PetrovDayAction', _id: string, createdAt: string, userId: string | null, actionType: string, data: any | null };
+
+type PingbackFragment_Pingback_sourcePost_Post_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type PingbackFragment_Pingback_sourcePost_Post = (
+  { __typename?: 'Post', postedAt: string, isEvent: boolean, groupId: string | null, user: PingbackFragment_Pingback_sourcePost_Post_user_User | null }
+  & PostsMinimumInfo
+);
+
+type PingbackFragment = { __typename?: 'Pingback', _id: string, sourcePostId: string, targetPostId: string, excerpt: string, score: number, baseScore: number, extendedScore: any | null, afBaseScore: number | null, voteCount: number, currentUserVote: string | null, currentUserExtendedVote: any | null, sourcePost: PingbackFragment_Pingback_sourcePost_Post | null };
+
+type WithVotePingback = { __typename: 'Pingback', _id: string, score: number, baseScore: number, extendedScore: any | null, afBaseScore: number | null, voteCount: number, currentUserVote: string | null, currentUserExtendedVote: any | null };
 
 type PodcastEpisodeCreateFragment = { __typename?: 'PodcastEpisode', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, podcastId: string, title: string, episodeLink: string, externalEpisodeId: string };
 

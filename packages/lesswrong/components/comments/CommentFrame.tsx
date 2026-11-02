@@ -125,7 +125,8 @@ const CommentFrame = ({
   children,
   className,
 }: {
-  comment: CommentsList,
+  /** Omitted for items in a comment tree that aren't comments, such as pingbacks */
+  comment?: CommentsList,
   treeOptions: CommentTreeOptions,
   onClick?: (event: any) => void,
   id?: string,
@@ -153,12 +154,12 @@ const CommentFrame = ({
     nestingLevelToClass(effectiveNestingLevel, classes),
     classes.node,
     className,
-    comment.af && "af",
+    comment?.af && "af",
     highlighted && classes.highlightAnimation,
     isChild && classes.child,
     isNewComment && classes.new,
-    comment.deleted && classes.deleted,
-    comment.answer && classes.isAnswer,
+    comment?.deleted && classes.deleted,
+    comment?.answer && classes.isAnswer,
     isReplyToAnswer && classes.answerChildComment,
     isChild && isReplyToAnswer && classes.childAnswerComment,
     (effectiveNestingLevel % 2 !== 0) && isReplyToAnswer && classes.oddAnswerComment,
@@ -167,8 +168,8 @@ const CommentFrame = ({
     condensed && classes.condensed,
     postPage && shortform && (effectiveNestingLevel===1) && classes.shortformTop,
     hoverPreview && classes.hoverPreview,
-    comment.hideModeratorHat ? false : comment.moderatorHat && classes.moderatorHat,
-    comment.promoted && classes.promoted,
+    comment?.hideModeratorHat ? false : comment?.moderatorHat && classes.moderatorHat,
+    comment?.promoted && classes.promoted,
   )
   
   return <div className={nodeClass} onClick={onClick} id={id}>

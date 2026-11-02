@@ -49,12 +49,15 @@ export async function invalidatePostPageCache(postIds: string | readonly string[
   backgroundTask(sleep(TRAILING_PURGE_DELAY_MS).then(() => purgeCacheTags(tags, mode)));
 }
 
-// `pingbacks.Posts` holds the posts this document links to. Their pages list
-// this post under "Mentioned in", with its title, score and status.
-export function getPingbackTargetPostIds(pingbacks: DbPost['pingbacks']): string[] {
-  const postIds: unknown = pingbacks?.Posts;
-  if (!Array.isArray(postIds)) return [];
-  return postIds.filter((postId): postId is string => typeof postId === 'string');
+// The posts this post links to. Their pages list this post under "Mentioned
+// in", with its title, score and status.
+export async function getPingbackTargetPostIds(postId: string, context: ResolverContext): Promise<string[]> {
+  const pingbacks = await context.Pingbacks.find(
+    { sourcePostId: postId, deleted: false },
+    {},
+    { targetPostId: 1 },
+  ).fetch();
+  return pingbacks.map(pingback => pingback.targetPostId);
 }
 
 let warnedNoPurgeTransport = false;

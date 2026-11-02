@@ -29,6 +29,7 @@ export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => !!
 // TODO: Consider porting EA tag subscriptions (including new-post notifications) to LW/AF.
 export const userHasNewTagSubscriptions: BetaGate = (user) => isEAForum() ? shippedFeature(user) : disabled(user);
 export const userHasDefaultProfilePhotos = disabled
+export const userHasPingbacksInComments: BetaGate = optInOnly;
 
 export const visitorGetsDynamicFrontpage = (user: UsersCurrent | DbUser | null, forumType: ForumTypeString) => forumType === 'LessWrong' ? shippedFeature(user) : disabled(user);
 

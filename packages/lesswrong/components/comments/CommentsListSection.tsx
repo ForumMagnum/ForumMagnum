@@ -31,6 +31,7 @@ import { NEW_COMMENT_MARGIN_BOTTOM } from './constants';
 import CommentsDraftList from './CommentsDraftList';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { CommentTreeOptions } from './commentTree';
+import { useInterleavedPingbacks, type PingbacksInComments } from './interleavePingbacks';
 
 const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
   root: {
@@ -106,6 +107,7 @@ const CommentsListSection = ({
   hideDateHighlighting,
   setHighlightDate,
   treeOptions: treeOptionsOverride,
+  pingbacksInComments,
 }: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
@@ -123,10 +125,12 @@ const CommentsListSection = ({
   hideDateHighlighting?: boolean,
   setHighlightDate: (newValue: Date|undefined) => void,
   treeOptions?: Partial<CommentTreeOptions>,
+  pingbacksInComments?: PingbacksInComments,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const commentTree = useMemo(() => unflattenComments(comments), [comments]);
+  const commentsListEntries = useInterleavedPingbacks(commentTree, pingbacksInComments);
   const [restoreScrollPos, setRestoreScrollPos] = useState(-1);
 
   useEffect(() => {
@@ -204,7 +208,7 @@ const CommentsListSection = ({
       <CommentsList
         treeOptions={treeOptions}
         totalComments={totalComments}
-        comments={commentTree}
+        comments={commentsListEntries}
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
         loading={loading}

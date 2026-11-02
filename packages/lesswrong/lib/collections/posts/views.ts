@@ -4,7 +4,7 @@ import { getKarmaInflationSeries } from '@/server/karmaInflation/cache';
 import { classifyTagFilters, filterModeToAdditiveKarmaModifier, filterModeToMultiplicativeKarmaModifier, type FilterSettings } from '../../filterSettings';
 import { adminAccountSetting, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
-import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
+import { viewFieldAllowAny, viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, reviewExcludedPostIds, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
 import isEmpty from 'lodash/isEmpty';
@@ -1121,10 +1121,18 @@ function hasEverDialogued(terms: PostsViewTerms) {
   }
 }
 
-function pingbackPosts(terms: PostsViewTerms) {
+async function pingbackPosts(terms: PostsViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
+  if (!terms.postId) {
+    throw new Error("Invalid pingbackPosts view: postId is required");
+  }
+  const pingbacks = await context.Pingbacks.find(
+    { targetPostId: terms.postId, deleted: false },
+    {},
+    { sourcePostId: 1 },
+  ).fetch();
   return {
     selector: {
-      ...jsonArrayContainsSelector("pingbacks.Posts", terms.postId),
+      _id: {$in: pingbacks.map(pingback => pingback.sourcePostId)},
       baseScore: {$gt: 0}
     },
     options: {

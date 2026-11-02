@@ -136,6 +136,8 @@ interface Query {
   myHomePageDesignSummaries: Array<HomePageDesignSummary>;
   marketplaceHomePageDesigns: Array<MarketplaceHomePageDesign>;
   adminHomePageDesigns: Array<AdminHomePageDesign>;
+  pingback: SinglePingbackOutput | null;
+  pingbacks: MultiPingbackOutput | null;
   rejectionAppeal: SingleRejectionAppealOutput | null;
   rejectionAppeals: MultiRejectionAppealOutput | null;
   typoSuggestion: SingleTypoSuggestionOutput | null;
@@ -246,6 +248,8 @@ interface Mutation {
   performVoteTag: VoteResultTag | null;
   setVoteMultiDocument: MultiDocument | null;
   performVoteMultiDocument: VoteResultMultiDocument | null;
+  setVotePingback: Pingback | null;
+  performVotePingback: VoteResultPingback | null;
   moderateComment: Comment | null;
   MakeElicitPrediction: ElicitBlockData | null;
   MarkAllNotificationsAsRead: boolean | null;
@@ -694,6 +698,11 @@ interface VoteResultTag {
 
 interface VoteResultMultiDocument {
   document: MultiDocument;
+  showVotingPatternWarning: boolean;
+}
+
+interface VoteResultPingback {
+  document: Pingback;
   showVotingPatternWarning: boolean;
 }
 
@@ -3034,6 +3043,55 @@ interface LlmRunTranscriptEntry {
   url: string | null;
   title: string | null;
   extra: any;
+}
+
+interface Pingback {
+  _id: string;
+  createdAt: Date;
+  sourcePostId: string;
+  sourcePost: Post | null;
+  targetPostId: string;
+  userId: string;
+  excerpt: string;
+  currentUserVote: string | null;
+  currentUserExtendedVote: any;
+  voteCount: number;
+  baseScore: number;
+  extendedScore: any;
+  score: number;
+  afBaseScore: number | null;
+  afExtendedScore: any;
+  afVoteCount: number | null;
+}
+
+interface SinglePingbackInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SinglePingbackOutput {
+  result: Pingback | null;
+}
+
+interface PingbacksPingbacksToPostInput {
+  postId?: string | null;
+}
+
+interface PingbackSelector {
+  default: EmptyViewInput | null;
+  pingbacksToPost: PingbacksPingbacksToPostInput | null;
+}
+
+interface MultiPingbackInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiPingbackOutput {
+  results: Array<Pingback>;
+  totalCount: number | null;
 }
 
 interface RejectionAppeal {
@@ -9556,6 +9614,7 @@ interface GraphQLTypeMap {
   VoteResultRevision: VoteResultRevision;
   VoteResultTag: VoteResultTag;
   VoteResultMultiDocument: VoteResultMultiDocument;
+  VoteResultPingback: VoteResultPingback;
   CommentsWithReactsResult: CommentsWithReactsResult;
   PopularCommentsResult: PopularCommentsResult;
   PostKarmaChange: PostKarmaChange;
@@ -9868,6 +9927,13 @@ interface GraphQLTypeMap {
   MarketplaceHomePageDesign: MarketplaceHomePageDesign;
   AdminHomePageDesign: AdminHomePageDesign;
   LlmRunTranscriptEntry: LlmRunTranscriptEntry;
+  Pingback: Pingback;
+  SinglePingbackInput: SinglePingbackInput;
+  SinglePingbackOutput: SinglePingbackOutput;
+  PingbacksPingbacksToPostInput: PingbacksPingbacksToPostInput;
+  PingbackSelector: PingbackSelector;
+  MultiPingbackInput: MultiPingbackInput;
+  MultiPingbackOutput: MultiPingbackOutput;
   RejectionAppeal: RejectionAppeal;
   SingleRejectionAppealOutput: SingleRejectionAppealOutput;
   RejectionAppealSelector: RejectionAppealSelector;
@@ -10548,6 +10614,7 @@ interface CreateInputsByCollectionName {
   OAuthAuthorizationCodes: never;
   OAuthClients: never;
   PetrovDayLaunchs: never;
+  Pingbacks: never;
   Podcasts: never;
   PostEmbeddings: never;
   PostPreviews: never;
@@ -10651,6 +10718,7 @@ interface UpdateInputsByCollectionName {
   OAuthClients: never;
   PetrovDayActions: never;
   PetrovDayLaunchs: never;
+  Pingbacks: never;
   PodcastEpisodes: never;
   Podcasts: never;
   PostEmbeddings: never;

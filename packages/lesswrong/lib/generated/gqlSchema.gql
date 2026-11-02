@@ -382,6 +382,16 @@ extend type Mutation {
   performVoteMultiDocument(documentId: String, voteType: String, extendedVote: JSON): VoteResultMultiDocument
 }
 
+type VoteResultPingback {
+  document: Pingback!
+  showVotingPatternWarning: Boolean!
+}
+
+extend type Mutation {
+  setVotePingback(documentId: String, voteType: String, extendedVote: JSON): Pingback
+  performVotePingback(documentId: String, voteType: String, extendedVote: JSON): VoteResultPingback
+}
+
 extend type Query {
   CommentEmbeddingSearch(query: String!, scoreBias: Float): [Comment!]!
   CommentEmbeddingSimilaritySearch(commentId: String!, scoreBias: Float): [Comment!]!
@@ -3361,6 +3371,60 @@ type LlmRunTranscriptEntry {
   url: String
   title: String
   extra: JSON
+}
+
+type Pingback {
+  _id: String!
+  createdAt: Date!
+  sourcePostId: String!
+  sourcePost: Post
+  targetPostId: String!
+  userId: String!
+  excerpt: String!
+  currentUserVote: String
+  currentUserExtendedVote: JSON
+  voteCount: Float!
+  baseScore: Float!
+  extendedScore: JSON
+  score: Float!
+  afBaseScore: Float
+  afExtendedScore: JSON
+  afVoteCount: Float
+}
+
+input SinglePingbackInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SinglePingbackOutput {
+  result: Pingback
+}
+
+input PingbacksPingbacksToPostInput {
+  postId: String
+}
+
+input PingbackSelector {
+  default: EmptyViewInput
+  pingbacksToPost: PingbacksPingbacksToPostInput
+}
+
+input MultiPingbackInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiPingbackOutput {
+  results: [Pingback!]!
+  totalCount: Int
+}
+
+extend type Query {
+  pingback(input: SinglePingbackInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePingbackOutput
+  pingbacks(input: MultiPingbackInput @deprecated(reason: "Use the selector field instead"), selector: PingbackSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPingbackOutput
 }
 
 type RejectionAppeal {

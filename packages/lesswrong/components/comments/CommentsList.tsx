@@ -5,11 +5,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
-import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
+import { isPingbackListEntry, type CommentsListEntry } from './interleavePingbacks';
 import classNames from 'classnames';
 import ErrorBoundary from "../common/ErrorBoundary";
 import CommentsNode from "./CommentsNode";
+import CommentsPingbackItem from "./CommentsPingbackItem";
 import SettingsButton from "../icons/SettingsButton";
 import LoginPopupButton from "../users/LoginPopupButton";
 import LWTooltip from "../common/LWTooltip";
@@ -43,7 +44,7 @@ export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
 const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, loading}: {
   treeOptions: CommentTreeOptions,
-  comments: Array<CommentTreeNode<CommentsList>>,
+  comments: Array<CommentsListEntry>,
   totalComments?: number,
   startThreadTruncated?: boolean,
   parentAnswerId?: string,
@@ -80,14 +81,19 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
     {/* commentsListLoadingSpacer makes the comments list keep a minimum height while reloading a different comment
         sorting view, so that the scroll position doesn't move. */}
     <div className={classNames({[classes.commentsListLoadingSpacer]: loading})}>
-      {comments.map(comment =>
-        <CommentsNode
+      {comments.map(entry => isPingbackListEntry(entry)
+        ? <CommentsPingbackItem
+          key={entry.pingback._id}
+          pingback={entry.pingback}
+          treeOptions={treeOptions}
+        />
+        : <CommentsNode
           treeOptions={treeOptions}
           startThreadTruncated={startThreadTruncated || totalComments >= POST_COMMENT_COUNT_TRUNCATE_THRESHOLD}
           expandAllThreads={expandAllThreads}
-          comment={comment.item}
-          childComments={comment.children}
-          key={comment.item._id}
+          comment={entry.item}
+          childComments={entry.children}
+          key={entry.item._id}
           parentCommentId={parentCommentId}
           parentAnswerId={parentAnswerId}
           shortform={(treeOptions.post as PostsBase)?.shortform}

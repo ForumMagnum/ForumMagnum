@@ -53,6 +53,7 @@ type OAuthAuthorizationCodesViewName = never
 type OAuthClientsViewName = never
 type PetrovDayActionsViewName = "adminConsole"|"getAction"|"launchDashboard"|"warningConsole";
 type PetrovDayLaunchsViewName = never
+type PingbacksViewName = "pingbacksToPost";
 type PodcastEpisodesViewName = "episodeByExternalId";
 type PodcastsViewName = never
 type PostEmbeddingsViewName = never
@@ -156,6 +157,7 @@ interface ViewTermsByCollectionName {
   OAuthClients: ViewTermsBase
   PetrovDayActions: PetrovDayActionsViewTerms
   PetrovDayLaunchs: ViewTermsBase
+  Pingbacks: PingbacksViewTerms
   PodcastEpisodes: PodcastEpisodesViewTerms
   Podcasts: ViewTermsBase
   PostEmbeddings: ViewTermsBase
@@ -205,4 +207,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AiDigestIssues"|"Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"RejectionAppeals"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AiDigestIssues"|"Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"Pingbacks"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"RejectionAppeals"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

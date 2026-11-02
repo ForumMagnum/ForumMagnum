@@ -18,6 +18,7 @@ import LWEventsRepo from "./LWEventsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import NotificationsRepo from "./NotificationsRepo";
 import OAuthAuthorizationCodesRepo from "./OAuthAuthorizationCodesRepo";
+import PingbacksRepo from "./PingbacksRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
 import PostRelationsRepo from "./PostRelationsRepo";
@@ -71,6 +72,7 @@ const allRepos = {
   manifoldProbabilitiesCachesRepo: ManifoldProbabilitiesCachesRepo,
   notifications: NotificationsRepo,
   oAuthAuthorizationCodes: OAuthAuthorizationCodesRepo,
+  pingbacks: PingbacksRepo,
   postEmbeddings: PostEmbeddingsRepo,
   postRecommendations: PostRecommendationsRepo,
   postRelations: PostRelationsRepo,

@@ -326,6 +326,7 @@ type Documents = {
     "\n  query multiCommentReviewPillContainerQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentWithRepliesFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentReviewPillContainerQueryDocument,
     "\n    mutation flipSplashArtImage($reviewWinnerArtId: String!) {\n      flipSplashArtImage(reviewWinnerArtId: $reviewWinnerArtId)\n    }\n  ": typeof types.flipSplashArtImageDocument,
     "\n  query multiReviewWinnerArtSplashImageEditingOptionsQuery($selector: ReviewWinnerArtSelector, $limit: Int, $enableTotal: Boolean) {\n    reviewWinnerArts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ReviewWinnerArtImages\n      }\n      totalCount\n    }\n  }\n": typeof types.multiReviewWinnerArtSplashImageEditingOptionsQueryDocument,
+    "\n  query postPingbacksQuery($postId: String) {\n    pingbacks(selector: { pingbacksToPost: { postId: $postId } }) {\n      results {\n        ...PingbackFragment\n      }\n    }\n  }\n": typeof types.postPingbacksQueryDocument,
     "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n": typeof types.PostsPageWrapper1Document,
     "\n  query PostsPageWrapper($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": typeof types.PostsPageWrapperDocument,
     "\n  query PostsRevisionsList($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevisionsList\n      }\n    }\n  }\n": typeof types.PostsRevisionsListDocument,
@@ -702,6 +703,7 @@ type Documents = {
     "\n  mutation performVoteTag($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVoteTag(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVoteTag\n      }\n      showVotingPatternWarning\n    }\n  }\n": typeof types.performVoteTagDocument,
     "\n  mutation performVoteMultiDocument($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVoteMultiDocument(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVoteMultiDocument\n      }\n      showVotingPatternWarning\n    }\n  }\n": typeof types.performVoteMultiDocumentDocument,
     "\n  mutation performVoteMessage($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVoteMessage(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVoteMessage\n      }\n      showVotingPatternWarning\n    }\n  }\n": typeof types.performVoteMessageDocument,
+    "\n  mutation performVotePingback($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVotePingback(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVotePingback\n      }\n      showVotingPatternWarning\n    }\n  }\n": typeof types.performVotePingbackDocument,
     "\n  query emailstests($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": typeof types.emailstestsDocument,
     "\n  mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n": typeof types.updateCommentCommentsNewFormDocument,
     "\n  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n": typeof types.updatePostPostsEditFormDocument,
@@ -776,6 +778,8 @@ type Documents = {
     "\n  fragment WithVoteMultiDocument on MultiDocument {\n    ...MultiDocumentMinimumInfo\n  }\n": typeof types.WithVoteMultiDocumentDoc,
     "\n  fragment NotificationsList on Notification {\n    _id\n    documentId\n    documentType\n    deleted\n    userId\n    createdAt\n    link\n    message\n    type\n    viewed\n    extraData\n  }\n": typeof types.NotificationsListDoc,
     "\n  fragment PetrovDayActionInfo on PetrovDayAction {\n    _id\n    createdAt\n    userId\n    actionType\n    data\n  }\n": typeof types.PetrovDayActionInfoDoc,
+    "\n  fragment PingbackFragment on Pingback {\n    _id\n    sourcePostId\n    targetPostId\n    excerpt\n    score\n    baseScore\n    extendedScore\n    afBaseScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n    sourcePost {\n      ...PostsMinimumInfo\n      postedAt\n      isEvent\n      groupId\n      user {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.PingbackFragmentDoc,
+    "\n  fragment WithVotePingback on Pingback {\n    __typename\n    _id\n    score\n    baseScore\n    extendedScore\n    afBaseScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n  }\n": typeof types.WithVotePingbackDoc,
     "\n  fragment PodcastEpisodeCreateFragment on PodcastEpisode {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n    podcastId\n    title\n    episodeLink\n    externalEpisodeId\n  }\n": typeof types.PodcastEpisodeCreateFragmentDoc,
     "\n  fragment PodcastEpisodeFull on PodcastEpisode {\n    _id\n    podcastId\n    title\n    episodeLink\n    externalEpisodeId\n  }\n": typeof types.PodcastEpisodeFullDoc,
     "\n  fragment PodcastSelect on Podcast {\n    _id\n    title\n  }\n": typeof types.PodcastSelectDoc,
@@ -1264,6 +1268,7 @@ const documents: Documents = {
     "\n  query multiCommentReviewPillContainerQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentWithRepliesFragment\n      }\n      totalCount\n    }\n  }\n": types.multiCommentReviewPillContainerQueryDocument,
     "\n    mutation flipSplashArtImage($reviewWinnerArtId: String!) {\n      flipSplashArtImage(reviewWinnerArtId: $reviewWinnerArtId)\n    }\n  ": types.flipSplashArtImageDocument,
     "\n  query multiReviewWinnerArtSplashImageEditingOptionsQuery($selector: ReviewWinnerArtSelector, $limit: Int, $enableTotal: Boolean) {\n    reviewWinnerArts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ReviewWinnerArtImages\n      }\n      totalCount\n    }\n  }\n": types.multiReviewWinnerArtSplashImageEditingOptionsQueryDocument,
+    "\n  query postPingbacksQuery($postId: String) {\n    pingbacks(selector: { pingbacksToPost: { postId: $postId } }) {\n      results {\n        ...PingbackFragment\n      }\n    }\n  }\n": types.postPingbacksQueryDocument,
     "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n": types.PostsPageWrapper1Document,
     "\n  query PostsPageWrapper($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": types.PostsPageWrapperDocument,
     "\n  query PostsRevisionsList($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevisionsList\n      }\n    }\n  }\n": types.PostsRevisionsListDocument,
@@ -1640,6 +1645,7 @@ const documents: Documents = {
     "\n  mutation performVoteTag($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVoteTag(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVoteTag\n      }\n      showVotingPatternWarning\n    }\n  }\n": types.performVoteTagDocument,
     "\n  mutation performVoteMultiDocument($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVoteMultiDocument(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVoteMultiDocument\n      }\n      showVotingPatternWarning\n    }\n  }\n": types.performVoteMultiDocumentDocument,
     "\n  mutation performVoteMessage($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVoteMessage(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVoteMessage\n      }\n      showVotingPatternWarning\n    }\n  }\n": types.performVoteMessageDocument,
+    "\n  mutation performVotePingback($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVotePingback(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVotePingback\n      }\n      showVotingPatternWarning\n    }\n  }\n": types.performVotePingbackDocument,
     "\n  query emailstests($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": types.emailstestsDocument,
     "\n  mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n": types.updateCommentCommentsNewFormDocument,
     "\n  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n": types.updatePostPostsEditFormDocument,
@@ -1714,6 +1720,8 @@ const documents: Documents = {
     "\n  fragment WithVoteMultiDocument on MultiDocument {\n    ...MultiDocumentMinimumInfo\n  }\n": types.WithVoteMultiDocumentDoc,
     "\n  fragment NotificationsList on Notification {\n    _id\n    documentId\n    documentType\n    deleted\n    userId\n    createdAt\n    link\n    message\n    type\n    viewed\n    extraData\n  }\n": types.NotificationsListDoc,
     "\n  fragment PetrovDayActionInfo on PetrovDayAction {\n    _id\n    createdAt\n    userId\n    actionType\n    data\n  }\n": types.PetrovDayActionInfoDoc,
+    "\n  fragment PingbackFragment on Pingback {\n    _id\n    sourcePostId\n    targetPostId\n    excerpt\n    score\n    baseScore\n    extendedScore\n    afBaseScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n    sourcePost {\n      ...PostsMinimumInfo\n      postedAt\n      isEvent\n      groupId\n      user {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.PingbackFragmentDoc,
+    "\n  fragment WithVotePingback on Pingback {\n    __typename\n    _id\n    score\n    baseScore\n    extendedScore\n    afBaseScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n  }\n": types.WithVotePingbackDoc,
     "\n  fragment PodcastEpisodeCreateFragment on PodcastEpisode {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n    podcastId\n    title\n    episodeLink\n    externalEpisodeId\n  }\n": types.PodcastEpisodeCreateFragmentDoc,
     "\n  fragment PodcastEpisodeFull on PodcastEpisode {\n    _id\n    podcastId\n    title\n    episodeLink\n    externalEpisodeId\n  }\n": types.PodcastEpisodeFullDoc,
     "\n  fragment PodcastSelect on Podcast {\n    _id\n    title\n  }\n": types.PodcastSelectDoc,
@@ -3152,6 +3160,10 @@ export function gql(source: "\n    mutation flipSplashArtImage($reviewWinnerArtI
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiReviewWinnerArtSplashImageEditingOptionsQuery($selector: ReviewWinnerArtSelector, $limit: Int, $enableTotal: Boolean) {\n    reviewWinnerArts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ReviewWinnerArtImages\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiReviewWinnerArtSplashImageEditingOptionsQuery($selector: ReviewWinnerArtSelector, $limit: Int, $enableTotal: Boolean) {\n    reviewWinnerArts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ReviewWinnerArtImages\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query postPingbacksQuery($postId: String) {\n    pingbacks(selector: { pingbacksToPost: { postId: $postId } }) {\n      results {\n        ...PingbackFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query postPingbacksQuery($postId: String) {\n    pingbacks(selector: { pingbacksToPost: { postId: $postId } }) {\n      results {\n        ...PingbackFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -4659,6 +4671,10 @@ export function gql(source: "\n  mutation performVoteMessage($documentId: String
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation performVotePingback($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVotePingback(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVotePingback\n      }\n      showVotingPatternWarning\n    }\n  }\n"): (typeof documents)["\n  mutation performVotePingback($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVotePingback(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVotePingback\n      }\n      showVotingPatternWarning\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query emailstests($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n"): (typeof documents)["\n  query emailstests($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -4952,6 +4968,14 @@ export function gql(source: "\n  fragment NotificationsList on Notification {\n 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  fragment PetrovDayActionInfo on PetrovDayAction {\n    _id\n    createdAt\n    userId\n    actionType\n    data\n  }\n"): (typeof documents)["\n  fragment PetrovDayActionInfo on PetrovDayAction {\n    _id\n    createdAt\n    userId\n    actionType\n    data\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment PingbackFragment on Pingback {\n    _id\n    sourcePostId\n    targetPostId\n    excerpt\n    score\n    baseScore\n    extendedScore\n    afBaseScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n    sourcePost {\n      ...PostsMinimumInfo\n      postedAt\n      isEvent\n      groupId\n      user {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  fragment PingbackFragment on Pingback {\n    _id\n    sourcePostId\n    targetPostId\n    excerpt\n    score\n    baseScore\n    extendedScore\n    afBaseScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n    sourcePost {\n      ...PostsMinimumInfo\n      postedAt\n      isEvent\n      groupId\n      user {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment WithVotePingback on Pingback {\n    __typename\n    _id\n    score\n    baseScore\n    extendedScore\n    afBaseScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n  }\n"): (typeof documents)["\n  fragment WithVotePingback on Pingback {\n    __typename\n    _id\n    score\n    baseScore\n    extendedScore\n    afBaseScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
