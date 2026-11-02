@@ -17,8 +17,12 @@ import { addPacificDays, PACIFIC_TZ, daysLateFromAge, groupDaysLate, type Modera
 
 interface ReportUser extends Pick<DbUser,
   '_id' | 'displayName' | 'username' | 'fullName' | 'createdAt' |
-  'needsReview' | 'reviewedByUserId' | 'banned' | 'deleted'
+  'needsReview' | 'reviewedByUserId' | 'banned' | 'deleted' | 'signUpReCaptchaRating'
 > {}
+
+// Supermod hid users with a signup reCAPTCHA rating at or below the threshold until de8290e442 was deployed.
+const LOW_RECAPTCHA_RATING_THRESHOLD = 0.2;
+const LOW_RECAPTCHA_USERS_SHOWN_SINCE = new Date('2026-10-09T02:29:43Z');
 
 interface ReviewChange extends Pick<DbFieldChange, 'documentId' | 'userId' | 'createdAt'> {
   oldValue: unknown;
@@ -31,6 +35,7 @@ interface UserReview {
   userId: string;
   actorId: string | null;
   handledAt: Date;
+  // null: the entry time is unknown, or the user was handled before Supermod showed them.
   queuedAt: Date | null;
   reviewGroup: ReviewGroup;
 }
@@ -75,11 +80,23 @@ function isPostReview(change: ReviewChange): boolean {
   return typeof change.newValue === 'string' && change.newValue.length > 0;
 }
 
+function getShownInSupermodSince(user: ReportUser): Date | null {
+  const rating = user.signUpReCaptchaRating;
+  return rating !== null && rating <= LOW_RECAPTCHA_RATING_THRESHOLD ? LOW_RECAPTCHA_USERS_SHOWN_SINCE : null;
+}
+
+function clampToShownSince(queuedAt: Date | null, shownSince: Date | null): Date | null {
+  return queuedAt && shownSince && queuedAt < shownSince ? shownSince : queuedAt;
+}
+
 function documentIds(changes: ReviewChange[]): string[] {
   return [...new Set(changes.flatMap(change => change.documentId ? [change.documentId] : []))];
 }
 
-/** Repeated triggers don't restart a wait, and ending a trigger doesn't clear needsReview. */
+/**
+ * Repeated triggers don't restart a wait, and ending a trigger doesn't clear needsReview.
+ * Waits start when Supermod began showing the user, not when they entered the queue.
+ */
 export function getUserReviewHistory(
   user: ReportUser,
   actions: ReviewAction[],
@@ -94,6 +111,7 @@ export function getUserReviewHistory(
     ...changes.filter(isReviewClear).map(clear => ({ createdAt: clear.createdAt, clear })),
   ], 'createdAt');
   const firstClear = events[0]?.clear;
+  const shownSince = getShownInSupermodSince(user);
   const currentlyQueued = user.needsReview && !user.reviewedByUserId && !user.banned && !user.deleted;
   // Entries into the queue are usually unlogged, so the first event after the cutoff
   // (or, failing that, the current state) is what says whether the user was queued then.
@@ -117,11 +135,12 @@ export function getUserReviewHistory(
         ...action,
         active: !action.endedAt || action.endedAt >= event.createdAt,
       }));
+      const handledWhileHidden = shownSince !== null && event.createdAt < shownSince;
       handled.push({
         userId: user._id,
         actorId: event.clear.userId,
         handledAt: event.createdAt,
-        queuedAt: queuedAt ?? null,
+        queuedAt: handledWhileHidden ? null : clampToShownSince(queuedAt ?? null, shownSince),
         reviewGroup: getReviewGroupFromActions(actionsAtHandle, previousClear),
       });
     }
@@ -129,7 +148,8 @@ export function getUserReviewHistory(
     previousClear = event.createdAt;
   }
   if (queuedAt === undefined && queuedAtCutoff && user.createdAt < windowEnd) queuedAt = null;
-  return { queuedAt, handled };
+  if (queuedAt === undefined || (shownSince && shownSince > windowEnd)) return { queuedAt: undefined, handled };
+  return { queuedAt: clampToShownSince(queuedAt, shownSince), handled };
 }
 
 function countModerators(actorIds: Array<string | null>, data: SupermodStatusData): ModeratorCount[] {
