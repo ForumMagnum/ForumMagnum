@@ -71,7 +71,7 @@ const compileWithGlobals = (code: string) => {
       has () { return true; },
       get (_target, key) {
         if (typeof key !== "symbol") {
-          return global[key as keyof Global];
+          return global[key as keyof typeof globalThis];
         }
       }
     }));

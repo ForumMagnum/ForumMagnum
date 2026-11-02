@@ -78,7 +78,7 @@ async function main(workerScriptPath: string) {
         if (!settled) {
           settled = true;
           console.error(`[Batch ${batchNumber}] Critical error from worker:`, err);
-          const errorResults = filePathsInBatch.map(fp => ({ filePath: fp, status: 'error', error: `Worker errored: ${err.message || String(err)}` }));
+          const errorResults = filePathsInBatch.map(fp => ({ filePath: fp, status: 'error', error: `Worker errored: ${err instanceof Error ? err.message : String(err)}` }));
           errorResults.forEach(r => { if (!allResults.some(ar => ar.filePath === r.filePath)) totalFilesProcessedCount++; allResults.push(r); });
           // Resolve with error results instead of rejecting Promise.allSettled, 
           // as individual file errors are what we want to track in allResults.

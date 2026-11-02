@@ -47,7 +47,7 @@ export class TupleSet<T extends ReadonlyArray<string|number>> extends Set<string
     return super.has(value);
   }
   
-  [Symbol.iterator](): IterableIterator<Tuple<T>[number]> {
+  [Symbol.iterator](): SetIterator<Tuple<T>[number]> {
     return super[Symbol.iterator]();
   }
 }
