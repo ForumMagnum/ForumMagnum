@@ -9,7 +9,6 @@ import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { getCommentParentTitle } from '@/lib/notificationDataHelpers';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
-import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { viewTermsToQuery } from '../lib/utils/viewUtils';
 import { fetchFragment } from './fetchFragment';
 import { performQueryFromViewParameters } from './resolvers/defaultResolvers';
@@ -108,7 +107,7 @@ export const servePostRSS = async (terms: RSSTerms, req: NextRequest) => {
 };
 
 export const serveCommentRSS = async (terms: RSSTerms, req: NextRequest) => {
-  const context = await getContextFromReqAndRes({req, isSSR: false});
+  const context = createAnonymousContext({forumType: getForumTypeForRequest(req)});
   const url = rssTermsToUrl(terms, context.forumType);
   const feed = new RSS(getMeta(url, context));
 

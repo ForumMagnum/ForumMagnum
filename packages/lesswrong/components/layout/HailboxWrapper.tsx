@@ -15,6 +15,15 @@ import { defaultZIndexes } from '@/themes/zIndexes';
 
 const styles = defineStyles('HailboxWrapper', (theme: ThemeType) => ({
   root: {
+    // Match the Intercom launcher this replaces, and LanguageModelLauncherButton beside it
+    "& .hailbox-launcher": {
+      color: theme.palette.text.alwaysBlack,
+      backgroundColor: theme.palette.intercom.buttonBackground,
+      boxShadow: `0 1px 6px 0 ${theme.palette.greyAlpha(0.06)}, 0 2px 32px 0 ${theme.palette.greyAlpha(0.16)}`,
+      "&:hover": {
+        boxShadow: `0 6px 8px ${theme.palette.greyAlpha(0.2)}`,
+      },
+    },
     [theme.breakpoints.down('sm')]: {
       display: "none",
     },
