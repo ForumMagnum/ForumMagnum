@@ -225,6 +225,11 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
+      name: "rejects pg-promise placeholders in json path components",
+      getQuery: () => new SelectQuery(testTable, {"c.key$1": 3}),
+      expectedError: "Invalid character in SQL string literal",
+    },
+    {
       name: "can build select query with array fields",
       getQuery: () => new SelectQuery(testTable, {"c.0": 3}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ("c"[0])::INTEGER = $1',
@@ -286,6 +291,12 @@ describe("SelectQuery", () => {
       getQuery: () => new SelectQuery(testTable, {$comment: "Test comment"}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection"',
       expectedArgs: [],
+    },
+    {
+      name: "sanitizes line breaks and placeholders in sql comments",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {comment: "Posts::view\rSELECT $1"}),
+      expectedSql: '-- Posts::view_SELECT _1 SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1',
+      expectedArgs: [3],
     },
     {
       name: "can build select from a subquery",
@@ -470,12 +481,24 @@ describe("SelectQuery", () => {
         c: {
           $geoWithin: {
             $centerSphere: [ [ 123, 456 ], 789 ],
-            $comment: { locationName: `"c"->'location'` },
+            $comment: { locationName: "c.location" },
           },
         },
       }),
-      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE (EARTH_DISTANCE(LL_TO_EARTH(("c"->'location'->>'lng')::FLOAT8, ("c"->'location'->>'lat')::FLOAT8), LL_TO_EARTH( $1 , $2 )) / 6378000) < $3`,
+      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE (EARTH_DISTANCE(LL_TO_EARTH((("c"->'location')->>'lng')::FLOAT8, (("c"->'location')->>'lat')::FLOAT8), LL_TO_EARTH( $1 , $2 )) / 6378000) < $3`,
       expectedArgs: [123, 456, 789],
+    },
+    {
+      name: "rejects raw sql as the $geoWithin location",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {
+        c: {
+          $geoWithin: {
+            $centerSphere: [ [ 0, 0 ], 1 ],
+            $comment: { locationName: `"c") IS NULL OR TRUE OR ("c"` },
+          },
+        },
+      }),
+      expectedError: "Cannot resolve field name",
     },
     {
       name: "can build select with group by",
