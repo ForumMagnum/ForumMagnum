@@ -49,6 +49,7 @@ import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
 import CurationEmails from "../collections/curationEmails/collection";
 import { maybeAutoFrontpagePost } from "../frontpageClassifier/predictions";
+import { escapeHtml } from "@/lib/utils/sanitize";
 
 
 /** Create notifications for a new post being published */
@@ -755,7 +756,7 @@ export async function sendRejectionPM({ post, currentUser, context }: {post: DbP
   const { Users, Posts } = context;
   const postUser = await Users.findOne({_id: post.userId});
 
-  const rejectedContentLink = `<span>post, <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a></span>`
+  const rejectedContentLink = `<span>post, <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${escapeHtml(post.title)}</a></span>`
 
   let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
 

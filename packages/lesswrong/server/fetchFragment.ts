@@ -23,6 +23,8 @@ type FetchFragmentOptions<
   selector?: string | MongoSelector<ObjectsByCollectionName[CollectionName]>,
   /** The mongo options for the query */
   options?: MongoFindOptions<ObjectsByCollectionName[CollectionName]>,
+  /** Synthetic fields from a view, which the view's sort may refer to */
+  syntheticFields?: Partial<Record<keyof ObjectsByCollectionName[CollectionName], MongoSelector<ObjectsByCollectionName[CollectionName]>>>,
   /** Arguments to pass to code resolvers and SQL resolvers */
   resolverArgs?: Record<string, unknown> | null,
   /** Resolver context, including the request forum. */
@@ -68,6 +70,7 @@ export const fetchFragment = async <
   currentUser,
   selector,
   options,
+  syntheticFields,
   resolverArgs,
   context,
   skipFiltering,
@@ -87,7 +90,7 @@ export const fetchFragment = async <
     currentUser ?? null,
     resolverArgs,
     selector,
-    undefined,
+    syntheticFields,
     options,
   );
   const {sql, args} = query.compile();

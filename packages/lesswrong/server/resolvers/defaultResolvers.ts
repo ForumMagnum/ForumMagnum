@@ -387,10 +387,7 @@ export const performQueryFromViewParameters = async <N extends CollectionNameStr
   if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
     const pipeline = [
       // First stage: Filter by selector
-      { $match: {
-        ...selector,
-        $comment: description,
-      }},
+      { $match: selector },
       // Second stage: Add computed fields
       { $addFields: parameters.syntheticFields },
 
@@ -409,7 +406,7 @@ export const performQueryFromViewParameters = async <N extends CollectionNameStr
       pipeline.push({ $limit: parameters.options.limit });
     }
     logger('aggregation pipeline', pipeline);
-    return await collection.aggregate(pipeline).toArray();
+    return await collection.aggregate(pipeline, undefined, description).toArray();
   } else {
     logger('performQueryFromViewParameters connector find', selector, terms, options);
     return await collection.find({

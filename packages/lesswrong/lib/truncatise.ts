@@ -54,6 +54,8 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
     var text            = (text || "").trim();
     var currentState    = 0;
     var currentTagStart = 0;
+    let attributeQuoteChar = 0;
+    let previousTagChar = 0;
     const tagStack: {name: string, start: number}[] = [];
 
     //Counters
@@ -65,6 +67,9 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
     const NOT_TAG = 0;
     const TAG_START = 1;
     const TAG_ATTRIBUTES = 2;
+    // Stored HTML can have `<` and `>` inside quoted attribute values, which
+    // must not be mistaken for the boundaries of tags.
+    const QUOTED_ATTRIBUTE_VALUE = 3;
 
     //Set default values
     const matchByWords = TruncateBy==="words";
@@ -82,11 +87,29 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
     for (; pointer < text.length; pointer++ ) {
       var currentChar = text.charCodeAt(pointer);
 
+      if (currentState === QUOTED_ATTRIBUTE_VALUE) {
+        if (currentChar === attributeQuoteChar) {
+          currentState = TAG_ATTRIBUTES;
+          previousTagChar = currentChar;
+        }
+        continue;
+      }
+
       switch(currentChar) {
         case 60: //"<"
           if(currentState === NOT_TAG){
             currentState = TAG_START;
             currentTagStart = pointer+1;
+            previousTagChar = 0;
+          }
+          break;
+        case 34: //'"'
+        case 39: //"'"
+          if (currentState === NOT_TAG) {
+            charCounter++;
+          } else if (previousTagChar === 61) { //"="
+            currentState = QUOTED_ATTRIBUTE_VALUE;
+            attributeQuoteChar = currentChar;
           }
           break;
         case 62: { //>
@@ -129,6 +152,10 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
             charCounter++;
           }
           break;
+      }
+
+      if (currentState !== NOT_TAG && currentChar !== 32) {
+        previousTagChar = currentChar;
       }
 
       if(matchByWords && wordCounter >= TruncateLength){
