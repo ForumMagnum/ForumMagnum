@@ -5096,6 +5096,7 @@ export type ModerationMessageInput = {
   contents: CreateRevisionDataInput;
   conversationId?: InputMaybe<Scalars['String']['input']>;
   noEmail?: InputMaybe<Scalars['Boolean']['input']>;
+  templateIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type ModerationTemplate = {
@@ -20409,11 +20410,6 @@ export type performVoteTagRelModeratorCoreTagsChecklistMutation = { __typename?:
       & WithVoteTagRel
     ) } | null };
 
-export type moderationTemplateUsageCountsRejectContentPanelQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type moderationTemplateUsageCountsRejectContentPanelQueryQuery = { __typename?: 'Query', moderationTemplateUsageCounts: Array<{ __typename?: 'ModerationTemplateUsageCount', templateId: string, count: number }> };
-
 export type multiModerationTemplateRestrictAndNotifyModalQueryQueryVariables = Exact<{
   selector?: InputMaybe<ModerationTemplateSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -20608,6 +20604,11 @@ export type updateTagTagReviewActionsMutation = { __typename?: 'Mutation', updat
       { __typename?: 'Tag' }
       & SunshineTagFragment
     ) | null } | null };
+
+export type moderationTemplateUsageCountsuseTemplateUsageComparatorQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type moderationTemplateUsageCountsuseTemplateUsageComparatorQueryQuery = { __typename?: 'Query', moderationTemplateUsageCounts: Array<{ __typename?: 'ModerationTemplateUsageCount', templateId: string, count: number }> };
 
 export type updateUserContentPermissionsMutationVariables = Exact<{
   selector: SelectorInput;
@@ -24428,7 +24429,6 @@ export const multiTagRelModerationTagViewQueryDocument = _o1(_1,[_o11(_1035,_468
 export const multiPostModerationUserFeedCoauthoredQueryDocument = _o1(_1,[_o11(_1035,_468,_o3(_3,"multiPostModerationUserFeedCoauthoredQuery"),_1109,_o5(_7,[_o7(_8,_247,_1111,_o5(_7,[_1508]))])),_23,_136,_62,_145,_155,_181,_189,_380,_223,_382,_385,_395,_401,_415]) as unknown as DocumentNode<multiPostModerationUserFeedCoauthoredQueryQuery, multiPostModerationUserFeedCoauthoredQueryQueryVariables>;
 export const addOrUpvoteTagModeratorCoreTagsChecklistDocument = _o1(_1,[_o11(_1035,_1036,_o3(_3,"addOrUpvoteTagModeratorCoreTagsChecklist"),_1901,_1904),_385,_155,_395,_401]) as unknown as DocumentNode<addOrUpvoteTagModeratorCoreTagsChecklistMutation, addOrUpvoteTagModeratorCoreTagsChecklistMutationVariables>;
 export const performVoteTagRelModeratorCoreTagsChecklistDocument = _o1(_1,[_o11(_1035,_1036,_o3(_3,"performVoteTagRelModeratorCoreTagsChecklist"),_1907,_o5(_7,[_o7(_8,_1908,_1909,_o5(_7,[_1910]))])),_595]) as unknown as DocumentNode<performVoteTagRelModeratorCoreTagsChecklistMutation, performVoteTagRelModeratorCoreTagsChecklistMutationVariables>;
-export const moderationTemplateUsageCountsRejectContentPanelQueryDocument = _o1(_1,[_o18(_1035,_468,_o3(_3,"moderationTemplateUsageCountsRejectContentPanelQuery"),_o5(_7,[_o6(_8,_o3(_3,"moderationTemplateUsageCounts"),_o5(_7,[_o4(_8,_o3(_3,"templateId")),_1811]))]))]) as unknown as DocumentNode<moderationTemplateUsageCountsRejectContentPanelQueryQuery, moderationTemplateUsageCountsRejectContentPanelQueryQueryVariables>;
 export const multiModerationTemplateRestrictAndNotifyModalQueryDocument = _o1(_1,[_o11(_1035,_468,_o3(_3,"multiModerationTemplateRestrictAndNotifyModalQuery"),_1514,_1515),_223,_268,_504]) as unknown as DocumentNode<multiModerationTemplateRestrictAndNotifyModalQueryQuery, multiModerationTemplateRestrictAndNotifyModalQueryQueryVariables>;
 export const rejectContentAndRemoveFromQueueRestrictAndNotifyDocument = _o1(_1,[_o11(_1035,_1036,_o3(_3,"rejectContentAndRemoveFromQueueRestrictAndNotify"),[_1127,_1045,_1519,_1912,_o12(_1037,_1914,_1040)],_o5(_7,[_o10(_8,_1915,[_1169,_1144,_1143,_1916,_o8(_597,_1913,_1914)])]))]) as unknown as DocumentNode<rejectContentAndRemoveFromQueueRestrictAndNotifyMutation, rejectContentAndRemoveFromQueueRestrictAndNotifyMutationVariables>;
 export const updateModeratorActionSupermodDocument = _o1(_1,[_o11(_1035,_1036,_o3(_3,"updateModeratorActionSupermod"),_1866,_1868),_62,_382]) as unknown as DocumentNode<updateModeratorActionSupermodMutation, updateModeratorActionSupermodMutationVariables>;
@@ -24447,6 +24447,7 @@ export const updateCommentReportActionsDocument = _o1(_1,[_o11(_1035,_1036,_o3(_
 export const updatePostReportActionsDocument = _o1(_1,[_o11(_1035,_1036,_o3(_3,"updatePostReportActions"),_1201,_1203),_23,_136,_62,_145,_155,_181,_189,_195]) as unknown as DocumentNode<updatePostReportActionsMutation, updatePostReportActionsMutationVariables>;
 export const RerunLlmCheckHookDocument = _o1(_1,[_o11(_1035,_1036,_o3(_3,"RerunLlmCheckHook"),_1855,_o5(_7,[_o7(_8,_o3(_3,"rerunLlmCheck"),_1856,_404)])),_380]) as unknown as DocumentNode<RerunLlmCheckHookMutation, RerunLlmCheckHookMutationVariables>;
 export const updateTagTagReviewActionsDocument = _o1(_1,[_o11(_1035,_1036,_o3(_3,"updateTagTagReviewActions"),_1304,_1879),_155,_62,_227,_223,_236,_754,_757,_874]) as unknown as DocumentNode<updateTagTagReviewActionsMutation, updateTagTagReviewActionsMutationVariables>;
+export const moderationTemplateUsageCountsuseTemplateUsageComparatorQueryDocument = _o1(_1,[_o18(_1035,_468,_o3(_3,"moderationTemplateUsageCountsuseTemplateUsageComparatorQuery"),_o5(_7,[_o6(_8,_o3(_3,"moderationTemplateUsageCounts"),_o5(_7,[_o4(_8,_o3(_3,"templateId")),_1811]))]))]) as unknown as DocumentNode<moderationTemplateUsageCountsuseTemplateUsageComparatorQueryQuery, moderationTemplateUsageCountsuseTemplateUsageComparatorQueryQueryVariables>;
 export const updateUserContentPermissionsDocument = _o1(_1,[_o11(_1035,_1036,_o3(_3,"updateUserContentPermissions"),_1246,_1854),_62,_382,_705,_724]) as unknown as DocumentNode<updateUserContentPermissionsMutation, updateUserContentPermissionsMutationVariables>;
 export const createModeratorActionContentPermissionsDocument = _o1(_1,[_o11(_1035,_1036,_o3(_3,"createModeratorActionContentPermissions"),_1861,_o5(_7,[_o7(_8,_1860,_1165,_1924)]))]) as unknown as DocumentNode<createModeratorActionContentPermissionsMutation, createModeratorActionContentPermissionsMutationVariables>;
 export const updateModeratorActionContentPermissionsDocument = _o1(_1,[_o11(_1035,_1036,_o3(_3,"updateModeratorActionContentPermissions"),_1866,_o5(_7,[_o7(_8,_1867,_1198,_1924)]))]) as unknown as DocumentNode<updateModeratorActionContentPermissionsMutation, updateModeratorActionContentPermissionsMutationVariables>;

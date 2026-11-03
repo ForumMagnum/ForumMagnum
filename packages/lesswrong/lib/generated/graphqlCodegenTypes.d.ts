@@ -3047,6 +3047,7 @@ type ModerationMessageInput = {
   contents: CreateRevisionDataInput;
   conversationId?: InputMaybe<Scalars['String']['input']>;
   noEmail?: InputMaybe<Scalars['Boolean']['input']>;
+  templateIds?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 type ModerationTemplate = {
@@ -22128,16 +22129,6 @@ type performVoteTagRelModeratorCoreTagsChecklistMutationVariables = Exact<{
 
 type performVoteTagRelModeratorCoreTagsChecklistMutation = performVoteTagRelModeratorCoreTagsChecklistMutation_Mutation;
 
-type moderationTemplateUsageCountsRejectContentPanelQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount = { __typename?: 'ModerationTemplateUsageCount', templateId: string, count: number };
-
-type moderationTemplateUsageCountsRejectContentPanelQueryQuery_Query = { __typename?: 'Query', moderationTemplateUsageCounts: Array<moderationTemplateUsageCountsRejectContentPanelQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount> };
-
-
-type moderationTemplateUsageCountsRejectContentPanelQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-type moderationTemplateUsageCountsRejectContentPanelQueryQuery = moderationTemplateUsageCountsRejectContentPanelQueryQuery_Query;
-
 type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }
   & ModerationTemplateFragment
@@ -22452,6 +22443,16 @@ type updateTagTagReviewActionsMutationVariables = Exact<{
 
 
 type updateTagTagReviewActionsMutation = updateTagTagReviewActionsMutation_Mutation;
+
+type moderationTemplateUsageCountsuseTemplateUsageComparatorQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount = { __typename?: 'ModerationTemplateUsageCount', templateId: string, count: number };
+
+type moderationTemplateUsageCountsuseTemplateUsageComparatorQueryQuery_Query = { __typename?: 'Query', moderationTemplateUsageCounts: Array<moderationTemplateUsageCountsuseTemplateUsageComparatorQueryQuery_moderationTemplateUsageCounts_ModerationTemplateUsageCount> };
+
+
+type moderationTemplateUsageCountsuseTemplateUsageComparatorQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type moderationTemplateUsageCountsuseTemplateUsageComparatorQueryQuery = moderationTemplateUsageCountsuseTemplateUsageComparatorQueryQuery_Query;
 
 type updateUserContentPermissionsMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }

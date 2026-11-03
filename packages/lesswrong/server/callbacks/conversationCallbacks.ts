@@ -12,6 +12,7 @@ import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { createMessage } from '../collections/messages/mutations';
 import { updateUser } from '../collections/users/mutations';
 import { backgroundTask } from "../utils/backgroundTask";
+import { filterMessageNotificationRecipients } from "../utils/teamInbox";
 
 /**
  * Before a user has been fully approved, keep track of the number of users
@@ -132,10 +133,14 @@ export async function conversationEditNotification(
 
   // Filter out the new participant if the user added themselves (which can
   // happen with mods)
-  const newParticipantIds = difference(
-    conversation.participantIds || [],
-    oldConversation.participantIds || [],
-  ).filter((id) => id !== currentUser?._id);
+  const newParticipantIds = await filterMessageNotificationRecipients(
+    conversation,
+    difference(
+      conversation.participantIds || [],
+      oldConversation.participantIds || [],
+    ).filter((id) => id !== currentUser?._id),
+    context,
+  );
 
   if (newParticipantIds.length) {
     // Notify newly added users of the most recent message

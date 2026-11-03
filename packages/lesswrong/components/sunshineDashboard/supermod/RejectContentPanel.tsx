@@ -1,7 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import LexicalEditor from '@/components/editor/LexicalEditor';
-import { useQuery } from '@/lib/crud/useQuery';
-import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from '@/components/common/ContentStyles';
 import { focusLexicalEditorAtEnd } from '@/components/editor/focusLexicalEditor';
@@ -18,15 +16,7 @@ import { areAllContentPermissionsDisabled, isPost, isRejectionTemplateRelevant, 
 import type { InboxAction } from './inboxReducer';
 import ModerationSendOptions from './ModerationSendOptions';
 import { DEFAULT_REJECTION_RATE_LIMIT_SETTINGS, getRateLimitParagraphHtml, getRateLimitsToCreate, type RejectionRateLimitSettings } from './RejectionRateLimitForm';
-
-const ModerationTemplateUsageCountsQuery = gql(`
-  query moderationTemplateUsageCountsRejectContentPanelQuery {
-    moderationTemplateUsageCounts {
-      templateId
-      count
-    }
-  }
-`);
+import { useTemplateUsageComparator } from './useTemplateUsageComparator';
 
 const styles = defineStyles('RejectContentPanel', (theme: ThemeType) => ({
   root: {
@@ -176,15 +166,7 @@ const RejectContentPanel = ({ user, focusedContent, active, rejectComposerFocusT
   onRejected?: () => void,
   dispatch: React.ActionDispatch<[action: InboxAction]>,
 }) => {
-  const { data: usageData } = useQuery(ModerationTemplateUsageCountsQuery, { ssr: false });
-  const usageCounts = useMemo(
-    () => new Map((usageData?.moderationTemplateUsageCounts ?? []).map(({ templateId, count }) => [templateId, count])),
-    [usageData],
-  );
-  const compareTemplates = useCallback(
-    (a: ModerationTemplateFragment, b: ModerationTemplateFragment) => (usageCounts.get(b._id) ?? 0) - (usageCounts.get(a._id) ?? 0),
-    [usageCounts],
-  );
+  const compareTemplates = useTemplateUsageComparator();
   const [templateSearchToken, setTemplateSearchToken] = useState(0);
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const templateFilter = useCallback(

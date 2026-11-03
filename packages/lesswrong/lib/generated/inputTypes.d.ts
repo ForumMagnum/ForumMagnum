@@ -1280,6 +1280,7 @@ interface ModerationMessageInput {
   conversationId?: string | null;
   contents: CreateRevisionDataInput;
   noEmail?: boolean | null;
+  templateIds?: Array<string> | null;
 }
 
 interface CompleteUserModerationInput {

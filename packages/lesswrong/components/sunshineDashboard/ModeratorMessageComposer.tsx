@@ -16,6 +16,7 @@ import ModerationSendOptions from './supermod/ModerationSendOptions';
 import { DEFAULT_REJECTION_RATE_LIMIT_SETTINGS, getRateLimitsToCreate, type RejectionRateLimitSettings } from './supermod/RejectionRateLimitForm';
 import { areAllContentPermissionsDisabled } from './supermod/helpers';
 import type { InboxAction } from './supermod/inboxReducer';
+import { useTemplateUsageComparator } from './supermod/useTemplateUsageComparator';
 
 const styles = defineStyles('ModeratorMessageComposer', (theme: ThemeType) => ({
   conversationForm: {
@@ -52,6 +53,8 @@ const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, act
   const [rateLimitSettings, setRateLimitSettings] = useState<RejectionRateLimitSettings>(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
   const [disablePermissions, setDisablePermissions] = useState(false);
   const [rejectAll, setRejectAll] = useState(false);
+  const [usedTemplateIds, setUsedTemplateIds] = useState<string[]>([]);
+  const compareTemplates = useTemplateUsageComparator();
 
   const highlightedTemplateNames = useMemo(
     () => getHighlightedTemplateNames({ user, moderatorActions: user.moderatorActions ?? [] }, posts, comments),
@@ -104,21 +107,24 @@ const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, act
       if (!isEqual(newTemplateQueries, templateQueries)) {
         setTemplateQueries(newTemplateQueries);
       }
+      setUsedTemplateIds([template._id]);
     } else if (template.contents?.html) {
       appendToEditor(getDraftMessageHtml({ html: template.contents.html, displayName: user.displayName }));
+      setUsedTemplateIds(prev => prev.includes(template._id) ? prev : [...prev, template._id]);
     }
   };
 
   const submitModeratorMessage = async (message: CreateMessageDataInput) => {
     const rateLimits = rateLimitEnabled ? getRateLimitsToCreate(rateLimitSettings, user._id) : [];
     if (!message.contents) throw new Error('Message contents are required');
-    const moderatorMessage = { conversationId: message.conversationId, contents: message.contents, noEmail: message.noEmail };
+    const moderatorMessage = { conversationId: message.conversationId, contents: message.contents, noEmail: message.noEmail, templateIds: usedTemplateIds };
     const result = await completeModeration({ userId: user._id, message: moderatorMessage, rateLimits, disablePermissions, rejectAll, removeFromQueue: rejectAll });
     if (!result.message) throw new Error('Moderation completed without the requested message');
     setDisablePermissions(false);
     setRateLimitEnabled(false);
     setRateLimitSettings(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
     setRejectAll(false);
+    setUsedTemplateIds([]);
     return result.message;
   };
 
@@ -181,6 +187,9 @@ const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, act
       focusSearchToken={templateSearchToken}
       active={active}
       onEscape={onEscape}
+      layout="flat"
+      compareTemplates={compareTemplates}
+      numberShortcuts
     />
   </>;
 };

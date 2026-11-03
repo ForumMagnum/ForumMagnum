@@ -31,6 +31,7 @@ interface ModerationMessage {
   conversationId?: string | null;
   contents: CreateRevisionDataInput;
   noEmail?: boolean | null;
+  templateIds?: string[] | null;
 }
 
 export interface UserModerationOptions {
@@ -52,7 +53,7 @@ function moderationDocumentId(options: UserModerationOptions, moderatorId: strin
 export async function recordModerationTemplateUsage({ templateId, documentId, collectionName, eventId }: {
   templateId: string;
   documentId: string;
-  collectionName: 'Posts' | 'Comments';
+  collectionName: 'Posts' | 'Comments' | 'Messages';
   eventId?: string;
 }, context: ResolverContext) {
   if (eventId && await context.LWEvents.findOne(eventId)) return;
@@ -98,6 +99,11 @@ export async function completeUserModeration(options: UserModerationOptions, con
     const templates = await ModerationTemplates.find({ _id: { $in: templateIds }, collectionName: 'Rejections' }).fetch();
     if (templates.length !== templateIds.length) throw new Error('Invalid rejection template');
   }
+  const messageTemplateIds = [...new Set(options.message?.templateIds ?? [])];
+  if (messageTemplateIds.length) {
+    const templates = await ModerationTemplates.find({ _id: { $in: messageTemplateIds }, collectionName: 'Messages' }).fetch();
+    if (templates.length !== messageTemplateIds.length) throw new Error('Invalid message template');
+  }
   if (options.message) {
     checkIfNewMessageIsEmpty(options.message);
     if (options.message.conversationId) {
@@ -126,8 +132,17 @@ export async function completeUserModeration(options: UserModerationOptions, con
       const data = { _id: conversationId, participantIds: [user._id, teamAccountId], title: 'Content rejected and permissions restricted', moderator: true };
       await createConversation({ data }, context);
     }
-    const messageData = { ...options.message, conversationId, userId: currentUser._id, _id: moderationDocumentId(options, currentUser._id, 'message') };
+    const { contents, noEmail } = options.message;
+    const messageData = { contents, noEmail, conversationId, userId: currentUser._id, _id: moderationDocumentId(options, currentUser._id, 'message') };
     message = await Messages.findOne(messageData._id) ?? await createMessage({ data: messageData }, context);
+    for (const templateId of messageTemplateIds) {
+      await recordModerationTemplateUsage({
+        templateId,
+        documentId: message._id,
+        collectionName: 'Messages',
+        eventId: moderationDocumentId(options, currentUser._id, `messageTemplate:${templateId}`),
+      }, context);
+    }
   }
 
   const otherReason = options.message ? SEE_MODERATOR_MESSAGE_REASON : REJECTED_ALONGSIDE_REASON;
