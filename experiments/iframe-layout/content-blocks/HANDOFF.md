@@ -286,8 +286,9 @@ can run it over `ssh studio`, or use your own copy).
   Oct 30, ~4:30pm); `play-nested-clear` = 9f8aac26db (on 3000 from Nov 2, ~2pm: the chip and hint inside quotes, AI
   content and sections); `play-bottom-span` = 2a2ec0c7a2 (on 3000 from Nov 2, ~4:40pm: bottom of a paragraph
   shorter than the widget, span=N; below its paragraph at full width); `play-span-blocks` = 27407ba5a5 (on 3000
-  since Nov 2, ~5:20pm: spans also start beside smaller headings, lists, quotes, spoilers and code, tables,
-  images or equations that fit). Tag each new state when updating. Going back
+  from Nov 2, ~5:20pm: spans also start beside smaller headings, lists, quotes, spoilers and code, tables,
+  images or equations that fit); `play-any-block` = 876e5566d1 (on 3000 since Nov 2, ~6:30pm: bottoms of
+  smaller headings and sections too, and the start-below-the-widget fix). Tag each new state when updating. Going back
   is the same checkout with the tag, then restart `lw-layout`.
 - Its `node_modules` is an APFS clone of this one (`cp -cR`, about 30s, no extra disk): Turbopack refuses
   a `node_modules` symlink that points outside its workspace. Re-clone after a dependency change. Its
