@@ -5269,11 +5269,6 @@ type NotificationCounts = {
   unreadPrivateMessages: Scalars['Int']['output'];
 };
 
-type NotificationDisplaysResult = {
-  __typename?: 'NotificationDisplaysResult';
-  results: Array<Scalars['JSON']['output']>;
-};
-
 type NotificationOutput = {
   __typename?: 'NotificationOutput';
   data?: Maybe<Notification>;
@@ -7531,7 +7526,6 @@ type Query = {
   MultiPostAnalytics: MultiPostAnalyticsResult;
   MyDialogues?: Maybe<MyDialoguesResult>;
   NetKarmaChangesForAuthorsOverPeriod: Array<NetKarmaChangesForAuthorsOverPeriod>;
-  NotificationDisplays?: Maybe<NotificationDisplaysResult>;
   PetrovDay2024CheckNumberOfIncoming?: Maybe<PetrovDay2024CheckNumberOfIncomingData>;
   PetrovDayCheckIfIncoming?: Maybe<PetrovDayCheckIfIncomingData>;
   PopularComments?: Maybe<PopularCommentsResult>;
@@ -7849,12 +7843,6 @@ type QueryMyDialoguesArgs = {
 type QueryNetKarmaChangesForAuthorsOverPeriodArgs = {
   days: Scalars['Int']['input'];
   limit: Scalars['Int']['input'];
-};
-
-
-type QueryNotificationDisplaysArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
 };
 
 
