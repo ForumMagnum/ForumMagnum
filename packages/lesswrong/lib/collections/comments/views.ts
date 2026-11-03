@@ -568,7 +568,7 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context: 
         {
           $or: [
             {authorIsUnreviewed: false},
-            {userId: currentUserId},
+            ...(currentUserId ? [{userId: currentUserId}] : []),
           ]
         },
       ],

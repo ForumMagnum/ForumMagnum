@@ -65,6 +65,7 @@ export const servePostRSS = async (terms: RSSTerms, req: NextRequest) => {
     context,
     selector: parameters.selector,
     options: parameters.options,
+    syntheticFields: parameters.syntheticFields,
   });
 
   await asyncForeachSequential(postsCursor, async (post: PostsRSSFeed) => {

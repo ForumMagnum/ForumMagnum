@@ -713,19 +713,6 @@ abstract class Query<T extends DbObject> {
     // https://www.mongodb.com/docs/manual/reference/operator/aggregation/arrayElemAt/
     if (op === "$arrayElemAt") {
       const [array, index] = expr[op];
-      // This is over specialized, but most of our usage follows this pattern
-      if (typeof array === "string" && array[0] === "$") { // e.g. "$cats"
-        // TODO: I think the logic inside this `if` is no longer used - can we
-        // delete it?
-        const tokens = array.split(".");
-        const field = `"${tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0]}"`;
-        const path = tokens.slice(1).flatMap((name) => ["->", postgresStringLiteral(name)]);
-        if (path.length) {
-          path[path.length - 2] = "->>";
-        }
-        // Postgres array are 1-indexed
-        return [`(${this.prefixify(field)})[1 + ${index}]${path.join("")}`];
-      }
       return [
         "(",
         ...this.compileExpression(array),
@@ -757,13 +744,9 @@ abstract class Query<T extends DbObject> {
     // This is rare, but is does occur.
     if (op === "$jsonArrayContains") {
       const [array, value] = expr[op];
-      const [field, ...path] = array.split(".");
-      return [
-        this.resolveFieldName(field),
-        "@> ('",
-        ...this.buildJsonArrayAtPath(path, value),
-        "')::JSONB",
-      ];
+      const [field, ...path]: string[] = array.split(".");
+      const containedJson = path.reduceRight<unknown>((inner, key) => ({[key]: inner}), [String(value)]);
+      return [this.resolveFieldName(field), "@>", new Arg(JSON.stringify(containedJson)), "::JSONB"];
     }
 
     if (op === undefined) {
@@ -771,23 +754,6 @@ abstract class Query<T extends DbObject> {
     }
 
     throw new Error(`Invalid expression: ${JSON.stringify(expr)}`);
-  }
-
-  private buildJsonArrayAtPath(path: string[], value: any): Atom<T>[] {
-    if (path.length) {
-      const [name, ...rest] = path;
-      return [
-        `{ "${name}":`,
-        ...this.buildJsonArrayAtPath(rest, value),
-        "}",
-      ];
-    } else {
-      return [
-        "[\"' ||",
-        ...this.compileExpression(value),
-        "|| '\"]",
-      ];
-    }
   }
 }
 

@@ -48,5 +48,25 @@ describe("Pipeline", () => {
       expectedSql: 'SELECT * FROM ( SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ORDER BY "b" DESC NULLS LAST LIMIT $2 ) A WHERE "b" = $3',
       expectedArgs: [3, 10, "test"],
     },
+    {
+      name: "attaches the comment to the outermost query",
+      getQuery: () => new Pipeline(testTable, [
+        {
+          $match: {
+            a: 3,
+          },
+        },
+        {
+          $limit: 10,
+        },
+        {
+          $match: {
+            b: "test",
+          },
+        },
+      ], undefined, "TestCollection.someView").toQuery(),
+      expectedSql: '-- TestCollection.someView SELECT * FROM ( SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 LIMIT $2 ) A WHERE "b" = $3',
+      expectedArgs: [3, 10, "test"],
+    },
   ]);
 });
