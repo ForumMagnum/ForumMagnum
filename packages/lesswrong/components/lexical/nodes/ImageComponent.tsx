@@ -267,7 +267,6 @@ export default function ImageComponent({
   width,
   height,
   maxWidth,
-  widthPercent,
   srcSet,
   resizable,
   showCaption,
@@ -282,7 +281,6 @@ export default function ImageComponent({
   src: string;
   srcSet?: string | null;
   width: 'inherit' | number;
-  widthPercent?: number | null;
   captionsEnabled: boolean;
 }): JSX.Element {
   const classes = useStyles(styles);
@@ -626,21 +624,6 @@ export default function ImageComponent({
   const showToolbar = isFocused && !isResizing && isEditable;
   const isCaptionButtonActive = showCaption && captionsEnabled;
 
-  useEffect(() => {
-    const imageElement = imageRef.current;
-    if (!imageElement) {
-      return;
-    }
-    const figureElement = imageElement.closest('figure');
-    if (!figureElement) {
-      return;
-    }
-    if (widthPercent !== undefined && widthPercent !== null) {
-      figureElement.style.width = `${widthPercent}%`;
-    } else {
-      figureElement.style.removeProperty('width');
-    }
-  }, [widthPercent]);
 
   const openAltTextModal = () => {
     showModal('Image Alt Text', (onClose) => (
