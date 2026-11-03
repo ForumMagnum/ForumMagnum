@@ -283,8 +283,9 @@ can run it over `ssh studio`, or use your own copy).
   before "no widgets inside blocks" and the one-height rule); `play-one-height` = a4d03487bb (on 3000 from
   Oct 30 2026, ~1am); `play-quote-flow` = b3b1a48b2d (on 3000 from Oct 30, ~2pm); `play-start-below` = 358b91baa4 (on 3000 from
   Oct 30, ~3:30pm); `play-one-marker` = 55721552a1 (on 3000 from Oct 30, ~3:45pm); `play-blank-hint` = 450ba5c88e (on 3000 from
-  Oct 30, ~4:30pm); `play-nested-clear` = 9f8aac26db (on 3000 since Nov 2, ~2pm: the chip and hint inside quotes, AI
-  content and sections). Tag each new state when updating. Going back
+  Oct 30, ~4:30pm); `play-nested-clear` = 9f8aac26db (on 3000 from Nov 2, ~2pm: the chip and hint inside quotes, AI
+  content and sections); `play-bottom-span` = 2a2ec0c7a2 (on 3000 since Nov 2, ~4:40pm: bottom of a paragraph
+  shorter than the widget, span=N; below its paragraph at full width). Tag each new state when updating. Going back
   is the same checkout with the tag, then restart `lw-layout`.
 - Its `node_modules` is an APFS clone of this one (`cp -cR`, about 30s, no extra disk): Turbopack refuses
   a `node_modules` symlink that points outside its workspace. Re-clone after a dependency change. Its
