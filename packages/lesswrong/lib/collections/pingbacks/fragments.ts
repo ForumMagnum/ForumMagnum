@@ -15,12 +15,14 @@ export const PingbackFragment = gql(`
     currentUserExtendedVote
     sourcePost {
       ...PostsMinimumInfo
+      ...PostsAuthors
       postedAt
       isEvent
       groupId
-      user {
-        ...UsersMinimumInfo
-      }
+      frontpageDate
+      commentsLocked
+      commentsLockedToAccountsCreatedAfter
+      bannedUserIds
     }
   }
 `)

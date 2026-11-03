@@ -34,6 +34,7 @@ import LWHelpIcon from "../../common/LWHelpIcon";
 import CoreTagIcon from "../../tagging/CoreTagIcon";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
+import CommentPingbackContext from "./CommentPingbackContext";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useNavigate } from '@/lib/routeUtil';
 import dynamic from 'next/dynamic';
@@ -394,6 +395,9 @@ export const CommentsItem = ({
               setShowEdit,
             }}
           />
+          {comment.pingbackId && comment.pingbackId !== treeOptions.parentPingbackId && <CommentPingbackContext
+            pingbackId={comment.pingbackId}
+          />}
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Pinned by {comment.promotedByUser.displayName}
           </div>}

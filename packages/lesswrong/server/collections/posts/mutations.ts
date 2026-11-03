@@ -159,8 +159,8 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     props: afterCreateProperties,
   });
 
-  const newPingbacks = await syncPostPingbacks(documentWithId, context);
-  backgroundTask(castInitialPingbackVotes(newPingbacks, documentWithId, context));
+  await syncPostPingbacks(documentWithId, context);
+  backgroundTask(castInitialPingbackVotes(documentWithId._id, context));
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Posts', documentWithId);
 
@@ -271,8 +271,8 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   });
 
   if (updatedDocument.contents_latest !== oldDocument.contents_latest) {
-    const newPingbacks = await syncPostPingbacks(updatedDocument, context);
-    backgroundTask(castInitialPingbackVotes(newPingbacks, updatedDocument, context));
+    await syncPostPingbacks(updatedDocument, context);
+    backgroundTask(castInitialPingbackVotes(updatedDocument._id, context));
   }
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Posts', updatedDocument, oldDocument);

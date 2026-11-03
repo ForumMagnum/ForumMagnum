@@ -2259,6 +2259,7 @@ type Comment {
   tagCommentType: TagCommentType!
   userId: String!
   user: User
+  pingbackId: String
   llmRunId: String
   llmReplyPublishedAt: Date
   userIP: String
@@ -2379,6 +2380,14 @@ input CommentsCommentRepliesInput {
   minimumKarma: Int
   authorIsUnreviewed: Boolean
   parentCommentId: String
+}
+
+input CommentsPingbackRepliesInput {
+  userId: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
+  postId: String
 }
 
 input CommentsPostCommentsDeletedInput {
@@ -2786,6 +2795,7 @@ input CommentsDraftCommentsInput {
 input CommentSelector {
   default: CommentDefaultViewInput
   commentReplies: CommentsCommentRepliesInput
+  pingbackReplies: CommentsPingbackRepliesInput
   postCommentsDeleted: CommentsPostCommentsDeletedInput
   allCommentsDeleted: CommentsAllCommentsDeletedInput
   postCommentsTop: CommentsPostCommentsTopInput
@@ -3379,6 +3389,7 @@ type Pingback {
   sourcePostId: String!
   sourcePost: Post
   targetPostId: String!
+  targetPost: Post
   userId: String!
   excerpt: String!
   currentUserVote: String
@@ -8580,6 +8591,7 @@ input CreateCommentDataInput {
   tagId: String
   tagCommentType: TagCommentType
   userId: String
+  pingbackId: String
   llmRunId: String
   authorIsUnreviewed: Boolean
   answer: Boolean

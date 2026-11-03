@@ -75,6 +75,7 @@ import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 import { CommentsListMultiQuery, postCommentsThreadQuery } from '../queries';
 import { gql } from '@/lib/generated/gql-codegen';
 import { userHasPingbacksInComments } from '@/lib/betas';
+import { useInterleavedPingbacks } from '@/components/comments/interleavePingbacks';
 
 const PostPingbacksQuery = gql(`
   query postPingbacksQuery($postId: String) {
@@ -392,14 +393,23 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const defaultTerms = { view: defaultView, limit: defaultLimit };
   const { view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
 
+  const showPingbacksInComments = userHasPingbacksInComments(currentUser) && !preview;
   const { data: pingbacksData } = useQuery(PostPingbacksQuery, {
     variables: { postId: post._id },
-    skip: !userHasPingbacksInComments(currentUser) || preview,
+    skip: !showPingbacksInComments,
+  });
+  const { data: pingbackRepliesData } = useQuery(postCommentsThreadQuery, {
+    variables: {
+      selector: { pingbackReplies: { postId: post._id } },
+      enableTotal: false,
+    },
+    skip: !showPingbacksInComments,
   });
   const pingbacks = pingbacksData?.pingbacks?.results;
+  const pingbackReplies = pingbackRepliesData?.comments?.results;
   const pingbacksInComments = useMemo(
-    () => pingbacks ? { pingbacks, commentsView: view } : undefined,
-    [pingbacks, view],
+    () => (pingbacks && pingbackReplies) ? { pingbacks, pingbackReplies, commentsView: view } : undefined,
+    [pingbacks, pingbackReplies, view],
   );
 
   // these are the replies to the debate responses (see earlier comment about deprecated feature)
@@ -528,6 +538,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const displayedPublicCommentCount = comments?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
   const { commentCount: totalComments } = getResponseCounts({ post, answers, forumType })
   const commentTree = useMemo(() => unflattenComments(comments ?? []), [comments]);
+  const commentsListEntries = useInterleavedPingbacks(commentTree, pingbacksInComments);
   const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
   const answerCount = post.question ? answersTree.length : undefined;
 
@@ -548,8 +559,8 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const hashCommentId = location.hash.length >= 1 ? location.hash.slice(1) : null;
   // If the comment reference in the hash doesn't appear in the page, try and load it separately as a permalinked comment
   const showHashCommentFallback = useMemo(() => (
-    hashCommentId && !loading && ![...(comments ?? []), ...(answersAndReplies ?? [])].map(({ _id }) => _id).includes(hashCommentId)
-  ), [answersAndReplies, hashCommentId, loading, comments]);
+    hashCommentId && !loading && ![...(comments ?? []), ...(answersAndReplies ?? []), ...(pingbackReplies ?? [])].map(({ _id }) => _id).includes(hashCommentId)
+  ), [answersAndReplies, hashCommentId, loading, comments, pingbackReplies]);
 
   const [permalinkedCommentId, setPermalinkedCommentId] = useState((fullPost && !isDebateResponseLink) ? (linkedCommentId ?? null) : null)
   // Don't show loading state if we are are getting the id from the hash, because it might be a hash referencing a non-comment id in the page
@@ -733,7 +744,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
               newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
               highlightDate={highlightDate ?? undefined}
               setHighlightDate={setHighlightDate}
-              pingbacksInComments={pingbacksInComments}
+              commentsListEntries={commentsListEntries}
             />}
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </Suspense>
@@ -744,7 +755,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
 
   const commentsToC = fullPost
     ? <CommentsTableOfContents
-        commentTree={commentTree}
+        commentTree={commentsListEntries}
         answersTree={answersTree}
         post={fullPost}
         highlightDate={highlightDate ?? undefined}

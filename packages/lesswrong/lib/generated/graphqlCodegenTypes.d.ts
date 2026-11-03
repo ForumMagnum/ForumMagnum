@@ -543,6 +543,7 @@ type Comment = {
   parentAnswerId?: Maybe<Scalars['String']['output']>;
   parentComment?: Maybe<Comment>;
   parentCommentId?: Maybe<Scalars['String']['output']>;
+  pingbackId?: Maybe<Scalars['String']['output']>;
   pingbacks?: Maybe<Scalars['JSON']['output']>;
   post?: Maybe<Post>;
   postId?: Maybe<Scalars['String']['output']>;
@@ -678,6 +679,7 @@ type CommentSelector = {
   moderatorComments?: InputMaybe<CommentsModeratorCommentsInput>;
   nominations2018?: InputMaybe<CommentsNominations2018Input>;
   nominations2019?: InputMaybe<CommentsNominations2019Input>;
+  pingbackReplies?: InputMaybe<CommentsPingbackRepliesInput>;
   postCommentsBest?: InputMaybe<CommentsPostCommentsBestInput>;
   postCommentsDeleted?: InputMaybe<CommentsPostCommentsDeletedInput>;
   postCommentsMagic?: InputMaybe<CommentsPostCommentsMagicInput>;
@@ -862,6 +864,14 @@ type CommentsNominations2019Input = {
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<CommentSortingMode>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type CommentsPingbackRepliesInput = {
+  authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
+  commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1316,6 +1326,7 @@ type CreateCommentDataInput = {
   originalDialogueId?: InputMaybe<Scalars['String']['input']>;
   parentAnswerId?: InputMaybe<Scalars['String']['input']>;
   parentCommentId?: InputMaybe<Scalars['String']['input']>;
+  pingbackId?: InputMaybe<Scalars['String']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
   promotedByUserId?: InputMaybe<Scalars['String']['input']>;
   rejected?: InputMaybe<Scalars['Boolean']['input']>;
@@ -5475,6 +5486,7 @@ type Pingback = {
   score: Scalars['Float']['output'];
   sourcePost?: Maybe<Post>;
   sourcePostId: Scalars['String']['output'];
+  targetPost?: Maybe<Post>;
   targetPostId: Scalars['String']['output'];
   userId: Scalars['String']['output'];
   voteCount: Scalars['Float']['output'];
@@ -14178,6 +14190,22 @@ type CommentDeletedMetadataQueryVariables = Exact<{
 
 
 type CommentDeletedMetadataQuery = CommentDeletedMetadataQuery_Query;
+
+type CommentPingbackContextQuery_pingback_SinglePingbackOutput_result_Pingback_targetPost_Post = { __typename?: 'Post', _id: string, slug: string, title: string, isEvent: boolean, groupId: string | null };
+
+type CommentPingbackContextQuery_pingback_SinglePingbackOutput_result_Pingback = { __typename?: 'Pingback', _id: string, targetPost: CommentPingbackContextQuery_pingback_SinglePingbackOutput_result_Pingback_targetPost_Post | null };
+
+type CommentPingbackContextQuery_pingback_SinglePingbackOutput = { __typename?: 'SinglePingbackOutput', result: CommentPingbackContextQuery_pingback_SinglePingbackOutput_result_Pingback | null };
+
+type CommentPingbackContextQuery_Query = { __typename?: 'Query', pingback: CommentPingbackContextQuery_pingback_SinglePingbackOutput | null };
+
+
+type CommentPingbackContextQueryVariables = Exact<{
+  pingbackId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type CommentPingbackContextQuery = CommentPingbackContextQuery_Query;
 
 type CommentsNewFormQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
@@ -25002,7 +25030,7 @@ type CommentsList_Comment_promotedByUser_User = (
   & UsersMinimumInfo
 );
 
-type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, llmRunId: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
+type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, pingbackId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, llmRunId: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
 
 type CommentsListWithTopLevelComment_Comment_topLevelComment_Comment = (
   { __typename?: 'Comment' }
@@ -25481,14 +25509,10 @@ type NotificationsList = { __typename?: 'Notification', _id: string, documentId:
 
 type PetrovDayActionInfo = { __typename?: 'PetrovDayAction', _id: string, createdAt: string, userId: string | null, actionType: string, data: any | null };
 
-type PingbackFragment_Pingback_sourcePost_Post_user_User = (
-  { __typename?: 'User' }
-  & UsersMinimumInfo
-);
-
 type PingbackFragment_Pingback_sourcePost_Post = (
-  { __typename?: 'Post', postedAt: string, isEvent: boolean, groupId: string | null, user: PingbackFragment_Pingback_sourcePost_Post_user_User | null }
+  { __typename?: 'Post', postedAt: string, isEvent: boolean, groupId: string | null, frontpageDate: string | null, commentsLocked: boolean | null, commentsLockedToAccountsCreatedAfter: string | null, bannedUserIds: Array<string> | null }
   & PostsMinimumInfo
+  & PostsAuthors
 );
 
 type PingbackFragment = { __typename?: 'Pingback', _id: string, sourcePostId: string, targetPostId: string, excerpt: string, score: number, baseScore: number, extendedScore: any | null, afBaseScore: number | null, voteCount: number, currentUserVote: string | null, currentUserExtendedVote: any | null, sourcePost: PingbackFragment_Pingback_sourcePost_Post | null };

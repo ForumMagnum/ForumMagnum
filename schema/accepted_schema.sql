@@ -289,6 +289,7 @@ CREATE TABLE "Comments" (
   "tagId" VARCHAR(27),
   "tagCommentType" TEXT NOT NULL DEFAULT 'DISCUSSION',
   "userId" VARCHAR(27) NOT NULL,
+  "pingbackId" VARCHAR(27),
   "llmRunId" VARCHAR(27),
   "llmReplyPublishedAt" TIMESTAMPTZ,
   "userIP" TEXT,
@@ -613,6 +614,11 @@ WHERE
 CREATE INDEX IF NOT EXISTS "idx_comments_llmRunId" ON "Comments" USING btree ("llmRunId")
 WHERE
   "llmRunId" IS NOT NULL;
+
+-- Index "idx_comments_pingbackId"
+CREATE INDEX IF NOT EXISTS "idx_comments_pingbackId" ON "Comments" USING btree ("pingbackId")
+WHERE
+  "pingbackId" IS NOT NULL;
 
 -- Table "Conversations"
 CREATE TABLE "Conversations" (

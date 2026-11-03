@@ -11,16 +11,14 @@ class PingbacksRepo extends AbstractRepo<"Pingbacks"> {
   /**
    * Inserts the given pingbacks, skipping any whose source and target posts
    * already have a pingback (eg, from a concurrent save of the same post).
-   * Returns the pingbacks that were inserted.
    */
-  async insertNewPingbacks(pingbacks: InsertionRecord<DbPingback>[]): Promise<DbPingback[]> {
-    if (!pingbacks.length) return [];
+  async insertNewPingbacks(pingbacks: InsertionRecord<DbPingback>[]): Promise<void> {
+    if (!pingbacks.length) return;
     const { sql, args } = new InsertQuery(this.collection.getTable(), pingbacks).compile();
-    return this.any(`
+    await this.none(`
       -- PingbacksRepo.insertNewPingbacks
       ${sql}
       ON CONFLICT ("sourcePostId", "targetPostId") DO NOTHING
-      RETURNING *
     `, args);
   }
 }

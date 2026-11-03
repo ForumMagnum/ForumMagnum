@@ -244,6 +244,6 @@ async function syncRepairedPostPingbacks(postId: string) {
   const context = createAnonymousContext();
   const post = await context.Posts.findOne({ _id: postId });
   if (!post) throw new Error(`Repaired post ${postId} not found`);
-  const newPingbacks = await syncPostPingbacks(post, context);
-  await castInitialPingbackVotes(newPingbacks, post, context);
+  await syncPostPingbacks(post, context);
+  await castInitialPingbackVotes(post._id, context);
 }

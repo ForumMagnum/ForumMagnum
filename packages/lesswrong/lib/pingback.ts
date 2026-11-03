@@ -6,6 +6,8 @@ export const userMentionQueryString = `${userMentionQuery}=${userMentionValue}`
 
 export const pingbackExcerptLinkClass = 'pingback-excerpt-link'
 
+export const getPingbackElementId = (pingbackId: string) => `pingback-${pingbackId}`
+
 export async function getPostPingbackById(parsedUrl: RouterLocation, postId: string | null): Promise<PingbackDocument | null> {
   if (!postId)
     return null

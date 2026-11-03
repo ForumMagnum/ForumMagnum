@@ -1,8 +1,10 @@
 import type { CheerioAPI } from 'cheerio';
 import type { DataNode, Element, Node } from 'cheerio/node_modules/domhandler';
 import keyBy from 'lodash/keyBy';
+import uniq from 'lodash/uniq';
 import type { ForumTypeString } from '@/lib/instanceSettings';
 import { pingbackExcerptLinkClass } from '@/lib/pingback';
+import { userCanDo } from '@/lib/vulcan-users/permissions';
 import { getLatestContentsRevision } from '@/server/collections/revisions/helpers';
 import { resolvePingbackLinks } from './pingbacks';
 import { cheerioParse } from './utils/htmlUtil';
@@ -15,6 +17,8 @@ const MATH_SELECTOR = "math, mjx-container, .mjpage, .math-tex";
 // Elements that are kept or dropped whole, rather than cut partway through.
 const ATOMIC_ELEMENT_SELECTOR = `img, svg, iframe, video, audio, ${MATH_SELECTOR}`;
 const ATOMIC_ELEMENT_LENGTH = 20;
+// The permission performVoteServer checks for the initial vote
+const INITIAL_VOTE_PERMISSION = "pingbacks.bigUpvote";
 
 interface ExcerptContentUnit {
   node: Node,
@@ -24,10 +28,10 @@ interface ExcerptContentUnit {
 /**
  * Brings the post's outgoing pingbacks in line with the post links in its
  * current contents: creates pingbacks for new links, updates excerpts, and
- * marks pingbacks whose links were removed as deleted. Returns the pingbacks
- * it created, which still need their initial vote (castInitialPingbackVotes).
+ * marks pingbacks whose links were removed as deleted. New pingbacks still
+ * need their initial votes (castInitialPingbackVotes).
  */
-export async function syncPostPingbacks(post: DbPost, context: ResolverContext): Promise<DbPingback[]> {
+export async function syncPostPingbacks(post: DbPost, context: ResolverContext): Promise<void> {
   const { Pingbacks, Posts } = context;
   const html = await getPostContentsHtml(post, context);
   const linkExcerptsByPostId = await htmlToPostLinkExcerpts(html, post._id, context.forumType);
@@ -71,20 +75,34 @@ export async function syncPostPingbacks(post: DbPost, context: ResolverContext):
       afExtendedScore: null,
       afVoteCount: 0,
     }));
-  return await context.repos.pingbacks.insertNewPingbacks(newPingbacks);
+  await context.repos.pingbacks.insertNewPingbacks(newPingbacks);
 }
 
 /**
- * Casts the source post author's strong upvote on each of the given new
- * pingbacks, which is their starting score.
+ * Casts the author's strong upvote, which is a pingback's starting score, on
+ * each of the post's pingbacks that its author has never voted on. Pingbacks
+ * whose authors can't vote (eg, banned users) start at zero.
  */
-export async function castInitialPingbackVotes(pingbacks: DbPingback[], sourcePost: DbPost, context: ResolverContext): Promise<void> {
+export async function castInitialPingbackVotes(sourcePostId: string, context: ResolverContext): Promise<void> {
+  const { Pingbacks, Votes } = context;
+  const pingbacks = await Pingbacks.find({ sourcePostId, deleted: false }).fetch();
   if (!pingbacks.length) return;
-  const author = await context.loaders.Users.load(sourcePost.userId);
-  if (!author) {
-    throw new Error(`Could not find author ${sourcePost.userId} of post ${sourcePost._id}`);
-  }
-  for (const pingback of pingbacks) {
+  const authorVotes = await Votes.find(
+    { documentId: { $in: pingbacks.map(pingback => pingback._id) }, userId: { $in: uniq(pingbacks.map(pingback => pingback.userId)) } },
+    {},
+    { documentId: 1, userId: 1 },
+  ).fetch();
+  const unvotedPingbacks = pingbacks.filter(pingback =>
+    !authorVotes.some(vote => vote.documentId === pingback._id && vote.userId === pingback.userId)
+  );
+  for (const pingback of unvotedPingbacks) {
+    const author = await context.loaders.Users.load(pingback.userId);
+    if (!author) {
+      throw new Error(`Could not find author ${pingback.userId} of pingback ${pingback._id}`);
+    }
+    if (!userCanDo(author, INITIAL_VOTE_PERMISSION)) {
+      continue;
+    }
     await performVoteServer({
       document: pingback,
       voteType: "bigUpvote",

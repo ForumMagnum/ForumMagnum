@@ -1,12 +1,15 @@
 import { useMemo, useState } from 'react';
+import groupBy from 'lodash/groupBy';
 import keyBy from 'lodash/keyBy';
 import sortBy from 'lodash/sortBy';
-import type { CommentTreeNode } from '@/lib/utils/unflatten';
+import { unflattenComments, type CommentTreeNode } from '@/lib/utils/unflatten';
 import { timeDecayedScore } from '@/lib/scoring';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 export interface PingbacksInComments {
   pingbacks: readonly PingbackFragment[],
+  /** Replies to the pingbacks, and their descendants */
+  pingbackReplies: readonly CommentsList[],
   commentsView: CommentsViewName | "default",
 }
 
@@ -16,9 +19,12 @@ export interface PingbackWithSourcePost extends PingbackFragment {
 
 export interface PingbackListEntry {
   pingback: PingbackWithSourcePost,
+  children: CommentTreeNode<CommentsList>[],
 }
 
 export type CommentsListEntry = CommentTreeNode<CommentsList> | PingbackListEntry;
+
+type RankedEntry = CommentTreeNode<CommentsList> | { pingback: PingbackWithSourcePost };
 
 /**
  * How pingbacks rank against top-level comments under a comment sort. Higher
@@ -111,10 +117,23 @@ export function useInterleavedPingbacks(
     }
     const { pingbacks, commentsView } = ranking.pingbacksInComments;
     const currentPingbacksById = keyBy(pingbacksInComments.pingbacks.filter(hasSourcePost), pingback => pingback._id);
-    return interleavePingbacks(commentTree, pingbacks, commentsView, ranking.now).map(entry =>
-      isPingbackListEntry(entry) ? { pingback: currentPingbacksById[entry.pingback._id] } : entry
+    const replyTreesByPingbackId = getReplyTreesByPingbackId(pingbacksInComments.pingbackReplies);
+    return interleavePingbacks(commentTree, pingbacks, commentsView, ranking.now).map(entry => 'pingback' in entry
+      ? { pingback: currentPingbacksById[entry.pingback._id], children: replyTreesByPingbackId[entry.pingback._id] ?? [] }
+      : entry
     );
   }, [commentTree, pingbacksInComments, ranking]);
+}
+
+/**
+ * Comment trees under each pingback. Replies whose parent isn't loaded are
+ * placed by their thread's top-level comment, which replies to the pingback.
+ */
+function getReplyTreesByPingbackId(replies: readonly CommentsList[]): Record<string, CommentTreeNode<CommentsList>[]> {
+  const directRepliesById = keyBy(replies.filter(reply => reply.pingbackId), reply => reply._id);
+  const getPingbackId = (reply: CommentsList) => reply.pingbackId ?? directRepliesById[reply.topLevelCommentId ?? ""]?.pingbackId;
+  const placedTrees = unflattenComments([...replies]).filter(tree => getPingbackId(tree.item));
+  return groupBy(placedTrees, tree => getPingbackId(tree.item));
 }
 
 function interleavePingbacks(
@@ -122,7 +141,7 @@ function interleavePingbacks(
   pingbacks: readonly PingbackFragment[],
   commentsView: CommentsViewName | "default",
   now: Date,
-): CommentsListEntry[] {
+): RankedEntry[] {
   const ordering = pingbackOrderingsByCommentView[commentsView];
   if (!ordering) {
     return commentTree;
@@ -132,7 +151,7 @@ function interleavePingbacks(
     pingback => -ordering.getPingbackKey(pingback, now),
   );
 
-  const entries: CommentsListEntry[] = [];
+  const entries: RankedEntry[] = [];
   let nextPingbackIndex = 0;
   for (const commentNode of commentTree) {
     while (

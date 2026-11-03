@@ -31,7 +31,7 @@ import { NEW_COMMENT_MARGIN_BOTTOM } from './constants';
 import CommentsDraftList from './CommentsDraftList';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { CommentTreeOptions } from './commentTree';
-import { useInterleavedPingbacks, type PingbacksInComments } from './interleavePingbacks';
+import type { CommentsListEntry } from './interleavePingbacks';
 
 const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
   root: {
@@ -107,7 +107,7 @@ const CommentsListSection = ({
   hideDateHighlighting,
   setHighlightDate,
   treeOptions: treeOptionsOverride,
-  pingbacksInComments,
+  commentsListEntries,
 }: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
@@ -125,12 +125,15 @@ const CommentsListSection = ({
   hideDateHighlighting?: boolean,
   setHighlightDate: (newValue: Date|undefined) => void,
   treeOptions?: Partial<CommentTreeOptions>,
-  pingbacksInComments?: PingbacksInComments,
+  /**
+   * The top-level entries to show, built from `comments` plus other items
+   * such as pingbacks. Defaults to the comment tree of `comments`.
+   */
+  commentsListEntries?: CommentsListEntry[],
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const commentTree = useMemo(() => unflattenComments(comments), [comments]);
-  const commentsListEntries = useInterleavedPingbacks(commentTree, pingbacksInComments);
   const [restoreScrollPos, setRestoreScrollPos] = useState(-1);
 
   useEffect(() => {
@@ -208,7 +211,7 @@ const CommentsListSection = ({
       <CommentsList
         treeOptions={treeOptions}
         totalComments={totalComments}
-        comments={commentsListEntries}
+        comments={commentsListEntries ?? commentTree}
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
         loading={loading}

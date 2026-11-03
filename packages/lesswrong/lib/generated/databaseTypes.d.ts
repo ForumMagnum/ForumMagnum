@@ -264,6 +264,7 @@ interface DbComment extends DbObject {
   originalDialogueId: string | null
   parentAnswerId: string | null
   parentCommentId: string | null
+  pingbackId: string | null
   pingbacks: any | null
   postId: string | null
   postVersion: string | null

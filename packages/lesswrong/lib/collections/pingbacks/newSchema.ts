@@ -34,6 +34,13 @@ const schema = {
       canRead: ["guests"],
     },
   },
+  targetPost: {
+    graphql: {
+      outputType: "Post",
+      canRead: ["guests"],
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "targetPostId" }),
+    },
+  },
   // The author of the source post when the link was first found. Their strong
   // upvote is the pingback's starting score. Pingbacks are not in
   // `collectionsThatAffectKarma`, so votes on them give this user no karma.

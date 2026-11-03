@@ -2001,6 +2001,7 @@ interface Comment {
   tagCommentType: TagCommentType;
   userId: string;
   user: User | null;
+  pingbackId: string | null;
   llmRunId: string | null;
   llmReplyPublishedAt: Date | null;
   userIP: string | null;
@@ -2104,6 +2105,14 @@ interface CommentsCommentRepliesInput {
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
   parentCommentId?: string | null;
+}
+
+interface CommentsPingbackRepliesInput {
+  userId?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
 }
 
 interface CommentsPostCommentsDeletedInput {
@@ -2511,6 +2520,7 @@ interface CommentsDraftCommentsInput {
 interface CommentSelector {
   default: CommentDefaultViewInput | null;
   commentReplies: CommentsCommentRepliesInput | null;
+  pingbackReplies: CommentsPingbackRepliesInput | null;
   postCommentsDeleted: CommentsPostCommentsDeletedInput | null;
   allCommentsDeleted: CommentsAllCommentsDeletedInput | null;
   postCommentsTop: CommentsPostCommentsTopInput | null;
@@ -3051,6 +3061,7 @@ interface Pingback {
   sourcePostId: string;
   sourcePost: Post | null;
   targetPostId: string;
+  targetPost: Post | null;
   userId: string;
   excerpt: string;
   currentUserVote: string | null;
@@ -7863,6 +7874,7 @@ interface CreateCommentDataInput {
   tagId?: string | null;
   tagCommentType?: TagCommentType | null;
   userId?: string | null;
+  pingbackId?: string | null;
   llmRunId?: string | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
@@ -9811,6 +9823,7 @@ interface GraphQLTypeMap {
   SingleCommentOutput: SingleCommentOutput;
   CommentDefaultViewInput: CommentDefaultViewInput;
   CommentsCommentRepliesInput: CommentsCommentRepliesInput;
+  CommentsPingbackRepliesInput: CommentsPingbackRepliesInput;
   CommentsPostCommentsDeletedInput: CommentsPostCommentsDeletedInput;
   CommentsAllCommentsDeletedInput: CommentsAllCommentsDeletedInput;
   CommentsPostCommentsTopInput: CommentsPostCommentsTopInput;

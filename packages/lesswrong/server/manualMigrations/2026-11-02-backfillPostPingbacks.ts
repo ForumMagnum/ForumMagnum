@@ -6,8 +6,8 @@ import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 async function backfillPingbacksFromPost(post: DbPost, failedPostIds: string[], context: ResolverContext) {
   try {
-    const newPingbacks = await syncPostPingbacks(post, context);
-    await castInitialPingbackVotes(newPingbacks, post, context);
+    await syncPostPingbacks(post, context);
+    await castInitialPingbackVotes(post._id, context);
   } catch (err) {
     failedPostIds.push(post._id);
     // eslint-disable-next-line no-console
@@ -23,11 +23,11 @@ export default registerMigration({
     const failedPostIds: string[] = [];
     await forEachDocumentBatchInCollection({
       collection: Posts,
-      batchSize: 100,
+      batchSize: 300,
       callback: async (posts: DbPost[]) => {
         // A context per batch, so that its loaders don't accumulate every post's contents
         const context = createAnonymousContext();
-        await executePromiseQueue(posts.map(post => () => backfillPingbacksFromPost(post, failedPostIds, context)), 10);
+        await executePromiseQueue(posts.map(post => () => backfillPingbacksFromPost(post, failedPostIds, context)), 30);
       },
     });
     // eslint-disable-next-line no-console
