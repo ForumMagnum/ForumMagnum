@@ -578,29 +578,48 @@ async function mainChecks(browser) {
 
   // S19: the gear opens the widget's options; each choice is one undo step; Escape closes them.
   {
-    const key = await h.widget(/position=left/);
-    const gear = `[data-testid=widget-options][data-widget-key="${key}"]`;
-    await h.scrollTo(h.overlay(key));
-    await h.frames(2);
-    await h.resetUpdates();
-    await page.click(gear);
-    await h.frames(2);
-    const opened = !!(await page.$('[data-testid=widget-options-menu]'));
-    await page.click('[data-testid=widget-options-menu] [data-option=right]');
-    await h.frames(3);
-    await page.click('[data-testid=widget-options-menu] [data-option=bottom]');
-    await h.frames(3);
-    const text = await h.widgetText(key);
-    const pushes = pushCount(await h.updates());
-    await page.keyboard.press('Escape');
-    await h.frames(2);
-    const closed = !(await page.$('[data-testid=widget-options-menu]'));
-    await page.keyboard.press(UNDO);
-    await page.keyboard.press(UNDO);
-    await h.frames(4);
-    check('S19 the gear sets the side and the alignment, one undo step each', opened && closed && /position=right/.test(text)
-      && /align=bottom/.test(text) && pushes === 2 && !/position=right|align=bottom/.test(await h.widgetText(key)),
-      `${text} pushes=${pushes} opened=${opened} closed=${closed}`);
+    // (A widget that can line up with its paragraph's bottom: Bottom is greyed out on one that can't, such
+    // as the tall milestones widget, first in its section.)
+    const gearOf = key => `[data-testid=widget-options][data-widget-key="${key}"]`;
+    let key = null;
+    for (const c of (await h.snapshot()).filter(c => c.type === 'iframe-widget' && /position=left/.test(c.text) && !/align=bottom/.test(c.text))) {
+      await h.scrollTo(h.overlay(c.key));
+      await h.frames(2);
+      await page.click(gearOf(c.key));
+      await h.frames(2);
+      const offered = await page.$eval('[data-testid=widget-options-menu] [data-option=bottom]', b => !b.disabled);
+      await page.keyboard.press('Escape');
+      await h.frames(2);
+      if (offered) {
+        key = c.key;
+        break;
+      }
+    }
+    check('S19 some left widget can line up with its paragraph\'s bottom', !!key);
+    if (key) {
+      const before = await h.widgetText(key);
+      await h.scrollTo(h.overlay(key));
+      await h.frames(2);
+      await h.resetUpdates();
+      await page.click(gearOf(key));
+      await h.frames(2);
+      const opened = !!(await page.$('[data-testid=widget-options-menu]'));
+      await page.click('[data-testid=widget-options-menu] [data-option=right]');
+      await h.frames(3);
+      await page.click('[data-testid=widget-options-menu] [data-option=bottom]');
+      await h.frames(3);
+      const text = await h.widgetText(key);
+      const pushes = pushCount(await h.updates());
+      await page.keyboard.press('Escape');
+      await h.frames(2);
+      const closed = !(await page.$('[data-testid=widget-options-menu]'));
+      await page.keyboard.press(UNDO);
+      await page.keyboard.press(UNDO);
+      await h.frames(4);
+      check('S19 the gear sets the side and the alignment, one undo step each', opened && closed && /position=right/.test(text)
+        && /align=bottom/.test(text) && pushes === 2 && (await h.widgetText(key)) === before,
+        `${text} pushes=${pushes} opened=${opened} closed=${closed}`);
+    }
     await h.invariants('S19');
   }
 
@@ -1550,8 +1569,9 @@ async function shrinkWarningChecks(browser) {
   await h.close();
 }
 
-// B1-B3: a widget the text wraps around, dragged over the lower half of a paragraph, lines up with that
-// paragraph's bottom (align=bottom); over the upper half, with its top.
+// B1-B3: a widget the text wraps around, held where its bottom reaches a paragraph's bottom, lines up with
+// that bottom (align=bottom); held at the paragraph's top, with its top. (EXPERIMENT (experiment/iframe-layout-
+// ronny-exp3): it goes by where the pointer holds the widget, not the half of the block under the pointer.)
 async function bottomChecks(browser) {
   const h = await openEditor(browser, 1024);
   const { page } = h;
@@ -1565,17 +1585,18 @@ async function bottomChecks(browser) {
     return { push: Number(ed.getElementByKey(key).dataset.lwBottomPush ?? 0), gap: Math.round(p.bottom - w.bottom), top: Math.round(w.top - p.top) };
   }, [key, paragraph]);
 
-  // B1: into the lower half of its own paragraph: same place, now lined up with the paragraph's end.
+  // B1: down until its bottom reaches its own paragraph's: same place, now lined up with the paragraph's end.
   await h.resetUpdates();
   const mid = await h.drag(h.grip(key), async () => {
     const r = await h.keyRect(paragraph);
-    return { x: col.left + col.width * 0.85, y: r.y + r.h * 0.8 };
+    const w = await h.keyRect(key);
+    return { x: col.left + col.width * 0.85, y: r.y + r.h - w.h };
   });
   await h.frames(6);
   const text = await h.widgetText(key);
   const lined = await lineUp();
   await page.screenshot({ path: path.join(OUT, 'bottom-aligned.png') });
-  check('B1 dragged over a paragraph\'s lower half, it lines up with that paragraph\'s bottom', mid.ind.align === 'bottom'
+  check('B1 held where its bottom reaches a paragraph\'s bottom, it lines up with that bottom', mid.ind.align === 'bottom'
     && /bottom of the paragraph/.test(mid.ind.chip ?? '') && /align=bottom/.test(text) && lined.push > 0 && lined.gap >= -1 && lined.gap < 40
     && pushCount(await h.updates()) === 1, `chip=${mid.ind.chip} ${text} ${JSON.stringify(lined)}`);
   await h.invariants('B1');
@@ -1592,13 +1613,13 @@ async function bottomChecks(browser) {
   check('B2 above it the paragraph runs the full column width', besideAbove !== null && besideAbove > col.left + col.width - 120,
     `lines above end at ${besideAbove}, column ends at ${Math.round(col.left + col.width)}`);
 
-  // B3: back over the upper half: its top again. Then undo twice to the start.
+  // B3: back up to the paragraph's top: its top again. Then undo twice to the start.
   const mid3 = await h.drag(h.grip(key), async () => {
     const r = await h.keyRect(paragraph);
     return { x: col.left + col.width * 0.85, y: r.y + Math.min(30, r.h * 0.2) };
   });
   await h.frames(4);
-  check('B3 over a paragraph\'s upper half, it lines up with its top', mid3.ind.align === 'top' && !/align=bottom/.test(await h.widgetText(key))
+  check('B3 held at a paragraph\'s top, it lines up with its top', mid3.ind.align === 'top' && !/align=bottom/.test(await h.widgetText(key))
     && (await lineUp()).push === 0, `chip=${mid3.ind.chip} ${await h.widgetText(key)}`);
   await h.invariants('B3');
   check('no console errors in the bottom alignment checks', h.errors.length === 0, h.errors.join(' || '));

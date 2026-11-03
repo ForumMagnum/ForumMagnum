@@ -105,7 +105,7 @@ All paths under `packages/lesswrong/`.
   `EDITOR_CLEARING_BLOCKS` (they only clear once a float precedes them, so computed style can't be used) and
   ignores guard marks; `widgetDragGeometry.ts`: headings no longer snap (`snapped` replaced
   `headingSnapped`; `snappedBelow`/`pushesDown` are `ClearingKind` = divider | embed | widget; chips "Below the
-  divider", "pushes the embed down"); a widget still never bottom-aligns with a heading (kind check);
+  divider", "pushes the embed down"); a widget still never bottom-aligns with a heading (kind check; since Nov 2 only H1/H2: canLineUpWith);
   `WidgetDragLayer.tsx` exposes `data-snapped` (was data-heading-snapped).
 - Editor-wide fixes (affect every editor, all improvements): `components/lexical/Editor.tsx` editor
   `minWidth: 0` (wide code/equations widened the column up to 50px, so widgets wrapped where the post shows
@@ -329,7 +329,7 @@ can run it over `ssh studio`, or use your own copy).
   closed state should not fit either"). `widgetSliverGuard.ts` `openBottom()` opens a closed section
   (`<details>` in posts, `.detailsBlockClosed`/`.closed` divs in editors) for the measurement and closes it
   again before anything is drawn; nothing listens for sections toggling. `bottomAlign.ts` never lines a
-  widget up with a `.detailsBlock`, and the drag classifies sections as kind `'section'`
+  widget up with a `.detailsBlock` (changed Nov 2: it does, measured open), and the drag classifies sections as kind `'section'`
   (`widgetDragDom.ts`), so it never offers "bottom of" one (unit test added: 48/48). Check:
   `section-open-check.mjs` in this folder (short section beside, long one below, open and closed, editor and
   post, 1280/1024/900): all pass.
@@ -569,4 +569,15 @@ can run it over `ssh studio`, or use your own copy).
     at push 0, so the initial "starts below" check is span-1 only, and the in-loop bail needs push > 0, the
     block below the widget, and the block having moved down by more than half the push (a box displaced by
     the float). Check: `bottom-kinds-check.mjs` (7).
+  - Aim (Ronny, Nov 3: "I cannot drag the 5 milestones widget to be aligned with the bottom of the second
+    paragraph"): chooseDropSlot no longer goes by the block under the pointer for a widget that wraps.
+    `aimedSpot(room, pointerY - grabOffset)` takes every top (`floatTop`) and every bottom it can line up with
+    (`bottomReach`: block.bottom + grown - height, where it lands once the text has wrapped; grown is capped at
+    height * (1 - share), as only text beside the widget grows) and picks the nearest to where the pointer
+    holds the widget's top. `findSpot` then works as before from that aim (down first, then up, the moved and
+    snapped chips). `grabOffset` comes from startMove. A full-width widget keeps the pointer rule. moveView's
+    "lands below" now goes by the ghost's top. Lesson: checks that jump the mouse to the target and scroll by
+    script hid this for days; `real-drag-check.mjs` (12) presses the grip and moves in 4px steps with no scripted
+    scrolling at 1440x780. The ghost is drawn at the measured bottom, so where text would still grow it can sit
+    at the start's top with the chip already saying bottom (a preview limit).
 

@@ -282,22 +282,60 @@ function floatTop(flow: BlockBox[], index: number): number {
  * beside this one: narrowed to `share` of the column, and so taller.
  */
 export function bottomStart(room: WidgetRoom, index: number): number | null {
+  return bottomReach(room, index)?.start ?? null;
+}
+
+/**
+ * bottomStart, plus how much taller the text from there to flow block `index` will be once beside the widget:
+ * at most what the widget's own height of text grows by (text below the widget stays as it is).
+ */
+function bottomReach(room: WidgetRoom, index: number): { start: number, grown: number } | null {
   const { blocks, flow, height, share, beside } = room;
   const target = flow[index];
   const fits = (b: BlockBox) => b.naturalWidth === undefined || b.naturalWidth <= beside + 1;
   if (!target || !fits(target)) return null;
   const floatsNow = blocks.filter(b => b.float !== 'none');
-  let grown = 0;
+  const narrowed = Math.max(share, 0.1);
+  let text = 0;
   for (let start = index; start >= 0; start--) {
     const b = flow[start];
     if (start < index && (b.clears || !(b.flows || (b.naturalWidth !== undefined && fits(b))))) return null;
     // (A block that keeps its size doesn't grow.)
-    if (b.naturalWidth === undefined && !floatsNow.some(f => f.top < b.bottom && f.bottom > b.top)) {
-      grown += (b.bottom - b.top) * (1 / Math.max(share, 0.1) - 1);
-    }
-    if (target.bottom + grown - floatTop(flow, start) >= height) return start;
+    if (b.naturalWidth === undefined && !floatsNow.some(f => f.top < b.bottom && f.bottom > b.top)) text += b.bottom - b.top;
+    const grown = Math.min(text * (1 / narrowed - 1), height * (1 - narrowed));
+    if (target.bottom + grown - floatTop(flow, start) >= height) return { start, grown };
   }
   return null;
+}
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): the spot a widget the text wraps around is aimed at: the one
+ * that would put it nearest to where the pointer holds it (`top`: where the top of the held widget is now), top
+ * or bottom of any block it can line up with. So moving a widget until its bottom reaches a paragraph's bottom
+ * lines it up there, however tall it is. (It used to go by the block under the pointer, its lower half meaning
+ * its bottom: a 525px widget that needed to move 110px down had to be dragged 500px, past a jump to the wrong
+ * place and into auto-scroll. Ronny, Nov 3 2026: "I cannot drag the 5 milestones widget to be aligned with the
+ * bottom of the second paragraph".)
+ */
+function aimedSpot(room: WidgetRoom, top: number): Spot {
+  const { flow, height } = room;
+  let best: Spot = { index: 0, align: 'top' };
+  let nearest = Infinity;
+  const consider = (spot: Spot, at: number) => {
+    if (Math.abs(at - top) < nearest) {
+      best = spot;
+      nearest = Math.abs(at - top);
+    }
+  };
+  flow.forEach((block, index) => {
+    consider({ index, align: 'top' }, floatTop(flow, index));
+    const reach = canLineUpWith(block) && !block.clears ? bottomReach(room, index) : null;
+    // (Where it will land once the text beside it has wrapped.)
+    if (reach) consider({ index, align: 'bottom' }, block.bottom + reach.grown - height);
+  });
+  // The end of the post.
+  consider({ index: flow.length, align: 'top' }, (flow[flow.length - 1]?.bottom ?? 0) + FLOAT_TOP_MARGIN);
+  return best;
 }
 
 /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): the span (see spanOf) from flow block `start` to `index`: the blocks with content. */
@@ -476,20 +514,24 @@ export interface DropSlotInput {
   prevSide: WidgetSide | null;
   /** Height of the ghost box (the widget's height). */
   ghostHeight: number;
+  /**
+   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): how far below the widget's top the pointer took hold of
+   * it (see aimedSpot).
+   */
+  grabOffset?: number;
 }
 
 /**
  * Where a widget dragged to the pointer would land. Drops go between top-level blocks only, and only
- * blocks in the text flow count (floats are skipped), so the slot is before the block under the
- * pointer (above its middle) or before the one after it.
- * EXPERIMENT (experiment/iframe-layout-ronny-exp2): a widget the text wraps around, dragged over the lower
- * half of a paragraph, lines up with that paragraph's bottom instead (align=bottom, still inserted
- * before it); over the upper half, with its top. EXPERIMENT (experiment/iframe-layout-ronny-exp3): a
- * paragraph shorter than the widget it lines up with from before the text before it (span=N, see
- * bottomStart), or, where it can't, the next spot down with room.
+ * blocks in the text flow count (floats are skipped), so a full-width widget's slot is before the block
+ * under the pointer (above its middle) or before the one after it.
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): a widget the text wraps around goes to the top or the
+ * bottom of a block, whichever would put it nearest to where the pointer holds it (see aimedSpot): the
+ * bottom (align=bottom) of a block shorter than it from before the blocks before it (span=N, see
+ * bottomStart).
  */
 export function chooseDropSlot({
-  blocks, draggedKey, pointerX, pointerY, column, layout, prevSide, ghostHeight,
+  blocks, draggedKey, pointerX, pointerY, column, layout, prevSide, ghostHeight, grabOffset = 0,
 }: DropSlotInput): DropSlot {
   const dragged = blocks.find(b => b.key === draggedKey);
   const draggedIndex = dragged?.index ?? -1;
@@ -505,18 +547,15 @@ export function chooseDropSlot({
   const wraps = shouldWrapWidget(target, column.width);
   if (!wraps) target = layout;
 
+  const room = wraps ? widgetRoom(blocks, draggedKey, target, column.width, ghostHeight) : null;
   let beforeIndex = 0;
   let align: 'top' | 'bottom' = 'top';
-  if (flow.length) {
+  if (flow.length && room) {
+    ({ index: beforeIndex, align } = aimedSpot(room, pointerY - grabOffset));
+  } else if (flow.length) {
     const nearest = nearestBlock(flow, pointerY);
     const block = flow[nearest];
-    const lowerHalf = pointerY >= (block.top + block.bottom) / 2;
-    if (lowerHalf && wraps && canLineUpWith(block) && !block.clears && pointerY <= block.bottom) {
-      beforeIndex = nearest;
-      align = 'bottom';
-    } else {
-      beforeIndex = lowerHalf ? nearest + 1 : nearest;
-    }
+    beforeIndex = pointerY >= (block.top + block.bottom) / 2 ? nearest + 1 : nearest;
   }
   // A widget the text wraps around goes below a block that clears it (a divider, an embed, a full-width
   // widget), never just before it (it would sit beside nothing).
@@ -528,8 +567,7 @@ export function chooseDropSlot({
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the flow block it goes before: the one it lines up
   // with, or, lined up with the bottom of one shorter than the widget, an earlier one (see bottomStart).
   let startIndex = beforeIndex;
-  if (wraps) {
-    const room = widgetRoom(blocks, draggedKey, target, column.width, ghostHeight);
+  if (room) {
     const found = findSpot(room, { index: beforeIndex, align });
     if (found) {
       ({ snappedBelow, moved } = found);

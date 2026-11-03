@@ -74,7 +74,7 @@ ${image('Full-size image', 1200, 500, '', 'A full-size image starts below the wi
 <h2>Widgets stay out of other blocks</h2>
 <p>A widget can't go inside a quote, a list item, a collapsible section, AI content, a table or a footnote. One pasted into a block moves out to just before it, and the block then sits beside the widget the way the sections above show.</p>
 <h2>Lining up with the end of a paragraph</h2>
-<p>A widget can also line up with the bottom of the paragraph after it (in the editor, drag it over the lower half of a paragraph). It only lines up with a block that runs beside it: never with a heading, a divider or anything else that starts below it.</p>
+<p>A widget can also line up with the bottom of the paragraph after it (in the editor, drag it until its bottom reaches the paragraph's). It only lines up with a block that runs beside it: never with a section heading, a divider or anything else that starts below it.</p>
 <!--demo:left 33% h160 bottom-->
 <p>This paragraph ends level with the bottom of the widget beside it. The widget is pushed down until its bottom meets the paragraph's last line, so the text runs past its top. However wide the window, the two stay lined up as the text wraps differently.</p>
 <h2>Starting below a widget</h2>

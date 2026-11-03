@@ -82,8 +82,8 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   state would not fit, then the closed state should not fit either"). A section that would hang below
   the widget when open starts below the widget even while closed. So opening or closing a section never
   moves it.
-- A widget never lines its bottom up with a collapsible section (it would move whenever the section is
-  opened or closed); dragging over a section's lower half drops the widget after it.
+- A widget can line its bottom up with a collapsible section (since Nov 2). It goes by the section as it looks
+  open, so opening or closing the section doesn't move the widget.
 - (Widgets can't go inside other blocks since Oct 29: see the changes below.)
 - **My change from the designers' pick** (box beside on both sides): I saw long quotes staying narrow
   for hundreds of pixels below a right widget. Known limit: the rule looks for any left widget earlier in
@@ -201,6 +201,12 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
 - Unit tests: 47 of 47. Type check: 0 errors. Lint: clean.
 - Deliberately changed checks (the old behavior they tested is gone): drag-check S3 and E1 (headings),
   and 5 heading-snap unit tests, which now test dividers and embeds (plus one new test: a widget never lines up with a heading).
+
+- Nov 3, everything rerun on the latest: `real-drag-check` 12, `bottom-span-check` 10, `bottom-kinds-check` 7,
+  `one-height-check` 16, `start-below-check` 33, `quote-flow-check` 6, `section-open-check` 30, `delete-key-check`
+  22, `no-nesting-check` 10, `drag-check` 144 and `new-features-check` 11 on the Experiment 3 editor, unit tests 61,
+  width sweep of the blocks demo 281 widths with 0 problems, editor and post columns equal at 73 widths. Safari
+  is still untested.
 
 ## Needs you
 1. ~~**Widgets on opposite sides.**~~ Answered Oct 29: never level. No two widgets share a height, on
@@ -338,12 +344,12 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
     widget down from the top of its paragraph. With a paragraph shorter than the widget (your AI content: 79px
     beside a 242px widget) the push was 0 and the widget stayed at the top, while the drag said "bottom of the
     paragraph". Now the widget starts beside the text before that paragraph, so its bottom still meets the
-    paragraph's. Dropped on the lower half of the AI content, it goes before the first paragraph, saved as
+    paragraph's. Dragged until its bottom reaches the AI content's, it goes before the first paragraph, saved as
     `align=bottom span=2` (lined up with the second block after it; blank lines don't count). It starts beside
     any block that can sit beside a widget (text, AI content, smaller headings, quotes, lists, spoilers, and
     code, tables, images or equations that fit beside it), never above a section heading, a collapsible
-    section, a divider or embed, or another widget's text. Where it can't, the lower half of that paragraph
-    means the next spot down, and the gear greys out Bottom with a note. (The first version allowed only
+    section, a divider or embed, or another widget's text. Where it can't, that bottom simply isn't one of the
+    places the drag goes, and the gear greys out Bottom with a note. (The first version allowed only
     paragraphs and AI content there, which lost the bottoms below headings, lists and code: your "a bunch of
     the possible positions are currently missing". A sweep over every block of the demo now finds a bottom
     wherever one can line up.) The gear's Bottom moves the widget up the same way, Top takes it back to that
@@ -362,4 +368,17 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
     the block moves down with the widget (a box that doesn't fit beside it).
   - Test: `bottom-kinds-check.mjs` (a heading, a section, a spoiler past a section; the Post tab with the
     section closed and open).
+  - **A drag goes by where you hold the widget (Nov 3, your "I cannot drag the 5 milestones widget to be aligned
+    with the bottom of the second paragraph").** The drag used to go by the block under the pointer: its upper
+    half meant its top, its lower half its bottom. For a tall widget that was close to unusable. The 525px
+    milestones widget needed to move 111px down, but the mouse had to travel 500px: 160px did nothing, then the
+    ghost jumped 340px down to the wrong place, then back up, and in a laptop window the auto-scroll started 18px
+    later and the spot flew away. Now every top and bottom the widget can line up with is a place it can go, and
+    the drag picks the one that would put the widget nearest to where you hold it. Move it until its bottom
+    reaches a paragraph's bottom and it snaps there, for 60px of mouse movement in that example. A full-width
+    widget still goes by the block under the pointer (it has no alignment).
+    My checks had said this worked: they jumped the mouse straight to the spot and scrolled by script, which a
+    person can't do. So there's a new check that drags as a person does.
+  - Test: `real-drag-check.mjs` (from the grip, small steps, no scripted scrolling, 1440x780 window: the milestones
+    widget and the blocks demo's first widget).
 

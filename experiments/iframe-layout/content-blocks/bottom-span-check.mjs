@@ -2,8 +2,8 @@
 // A widget lined up with the bottom of a paragraph shorter than it (Ronny, Nov 2 2026: "I aligned this to the
 // bottom of the second paragraph in this section, but it doesn't look to me like it worked"). In the blocks
 // demo's "Text flows beside a widget" section, at 1280px:
-// - dragged to the left, onto the lower half of the AI content (3 lines, much shorter than the widget), the
-//   chip says "bottom of the paragraph", and the drop puts the widget before the first paragraph with
+// - dragged to the left and down until its bottom reaches the AI content's (3 lines, much shorter than it), the
+//   chip says "bottom of the paragraph", and the drop keeps the widget before the first paragraph with
 //   span=2: it starts beside that paragraph and ends at the AI content's bottom, in the editor and the post;
 // - narrower, where the widget shows full width, it goes below the AI content, so that text comes first and
 //   nothing overlaps (editor and post); back at 1280 it lines up again.
@@ -77,23 +77,25 @@ try {
   const widget = blocks.find(b => b.type === 'iframe-widget');
   check('the demo has the section and its widget', !!(first && ai && last && widget) && /position=right/.test(widget.text), { first, ai, last, widget });
 
-  // Drag it to the left, onto the AI content's lower half.
+  // Drag it to the left, and down until the ghost ends at the AI content's bottom.
   await page.evaluate(sel => document.querySelector(sel)?.scrollIntoView({ block: 'center' }), grip(widget.key));
   await frames(2);
   const g = await rect(grip(widget.key));
   await page.mouse.move(g.cx, g.cy);
   await page.mouse.down();
   await page.mouse.move(g.cx + 6, g.cy, { steps: 2 });
-  await scrollToKey(ai);
-  await frames(3);
   const col = await column();
-  for (let i = 0; i < 2; i++) {
-    const t = await keyRect(ai);
-    await page.mouse.move(col.left + 60, t.bottom - 6, { steps: 12 });
-    await frames(4);
+  await page.mouse.move(col.left + 60, g.cy, { steps: 6 });
+  await frames(3);
+  let during = {};
+  for (let y = g.cy; y < g.cy + 200; y += 4) {
+    await page.mouse.move(col.left + 60, y, { steps: 1 });
+    await frames(2);
+    during = await indicator();
+    const ghost = await rect('[data-testid=widget-drop-ghost]');
+    if (/bottom of the paragraph/.test(during.chip ?? '') && ghost && Math.abs(ghost.bottom - (await keyRect(ai)).bottom) <= 3) break;
   }
-  const during = await indicator();
-  check('dragged onto the AI content\'s lower half, the chip says bottom of the paragraph', /Left · 33% · bottom of the paragraph/.test(during.chip ?? ''), during);
+  check('moved until its bottom reaches the AI content\'s, the chip says bottom of the paragraph', /Left · 33% · bottom of the paragraph/.test(during.chip ?? ''), during);
   await page.mouse.up();
   await settle();
 

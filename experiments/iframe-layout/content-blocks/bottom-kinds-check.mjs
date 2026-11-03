@@ -1,6 +1,6 @@
 // EXPERIMENT (experiment/iframe-layout-ronny-exp3).
 // "You should be able to align top or bottom to any kind of content that can go beside a widget" (Ronny, Nov 2
-// 2026). In the blocks demo at 1280px, each section's own widget dragged onto the lower half of:
+// 2026). In the blocks demo at 1280px, each section's own widget dragged until its bottom reaches the bottom of:
 // - a smaller heading (H3), which starts below the widget's bottom until the widget is pushed down to it;
 // - a collapsible section (lined up as it looks open), and then a spoiler past that section;
 // lines up with that block's bottom, and the chip names it. On the Post tab, where sections start closed, the
@@ -50,7 +50,7 @@ try {
   const rect = key => page.evaluate(key => { const r = document.querySelector('[data-lexical-editor]').__lexicalEditor.getElementByKey(key).getBoundingClientRect(); return { top: Math.round(r.top), bottom: Math.round(r.bottom) }; }, key);
   const scrollTo = key => page.evaluate(key => document.querySelector('[data-lexical-editor]').__lexicalEditor.getElementByKey(key).scrollIntoView({ block: 'center' }), key);
   const colLeft = await page.evaluate(() => { const root = document.querySelector('[data-lexical-editor]'); return root.getBoundingClientRect().left + parseFloat(getComputedStyle(root).paddingLeft); });
-  /** Drags widget `w` onto the lower half of block `t` (on the left), drops it, and measures both. */
+  /** Drags widget `w` (on the left) from its grip, up or down, until the ghost ends at block `t`'s bottom, drops it, and measures both. */
   const dragOnto = async (w, t) => {
     const grip = `[data-testid=widget-grip][data-widget-key="${w}"]`;
     await page.evaluate(sel => document.querySelector(sel)?.scrollIntoView({ block: 'center' }), grip);
@@ -59,14 +59,17 @@ try {
     await page.mouse.move(g.x, g.y);
     await page.mouse.down();
     await page.mouse.move(g.x + 6, g.y, { steps: 2 });
-    await scrollTo(t);
+    await page.mouse.move(colLeft + 60, g.y, { steps: 6 });
     await frames(3);
+    const moveBy = (await rect(t)).bottom - (await rect(w)).bottom;
+    const step = moveBy >= 0 ? 4 : -4;
     let chip = '';
-    for (let i = 0; i < 2; i++) {
-      const r = await rect(t);
-      await page.mouse.move(colLeft + 60, r.bottom - 6, { steps: 8 });
-      await frames(4);
+    for (let d = 0; Math.abs(d) < Math.abs(moveBy) + 80; d += step) {
+      await page.mouse.move(colLeft + 60, g.y + d, { steps: 1 });
+      await frames(2);
       chip = await page.evaluate(() => document.querySelector('[data-testid=widget-drop-indicator]')?.dataset.chip ?? '');
+      const ghost = await page.evaluate(() => document.querySelector('[data-testid=widget-drop-ghost]')?.getBoundingClientRect().bottom ?? null);
+      if (/bottom of the/.test(chip) && ghost !== null && Math.abs(ghost - (await rect(t)).bottom) <= 3) break;
     }
     await page.mouse.up();
     await frames(10);

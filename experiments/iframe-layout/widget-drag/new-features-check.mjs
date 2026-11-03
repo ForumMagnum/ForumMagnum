@@ -69,14 +69,20 @@ try {
   await page.waitForTimeout(1500);
   const afterBottom = await widgetText(fixed);
   check('Left, Bottom and 25% are written to the widget', /position=left width=50%/.test(afterLeft) && /position=left width=25% align=bottom/.test(afterBottom), `${afterLeft} / ${afterBottom}`);
-  const editorAlign = await page.evaluate((key) => {
+  // (EXPERIMENT (experiment/iframe-layout-ronny-exp3): the block it lines up with is the span-th after it: a
+  // paragraph shorter than the widget has it start beside the text before.)
+  const span = Number(/span=(\d+)/.exec(afterBottom)?.[1] ?? 1);
+  const editorAlign = await page.evaluate(([key, span]) => {
     const ed = document.querySelector('[data-lexical-editor]').__lexicalEditor;
     const spacer = ed.getElementByKey(key);
-    let next = spacer.nextElementSibling;
-    while (next && next.getBoundingClientRect().height < 1) next = next.nextElementSibling;
+    let next = spacer;
+    for (let count = 0; next && count < span;) {
+      next = next.nextElementSibling;
+      if (next && next.getBoundingClientRect().height >= 1 && next.textContent.trim()) count++;
+    }
     const s = spacer.getBoundingClientRect(), p = next.getBoundingClientRect();
     return { push: spacer.dataset.lwBottomPush, widgetBottom: Math.round(s.bottom), paragraphTop: Math.round(p.top), paragraphBottom: Math.round(p.bottom), float: getComputedStyle(spacer).float };
-  }, fixed);
+  }, [fixed, span]);
   check('in the editor its bottom lines up with its paragraph\'s', editorAlign.float === 'left' && Number(editorAlign.push) > 0
     && editorAlign.paragraphBottom - editorAlign.widgetBottom >= -1 && editorAlign.paragraphBottom - editorAlign.widgetBottom < 40, JSON.stringify(editorAlign));
   await page.screenshot({ path: path.join(OUT, 'editor-bottom.png') });
@@ -89,17 +95,20 @@ try {
   await Promise.all([page.waitForURL(/widgetDrag=1|widgetBlocks=/, { timeout: 240000 }), page.click('a:text-is("Post")')]);
   await page.waitForSelector('[data-testid=widget-drag-post-body] iframe[data-lexical-iframe-widget]', { timeout: 240000 });
   await page.waitForTimeout(5000);
-  const post = await page.evaluate(() => {
+  const post = await page.evaluate((span) => {
     const frames = [...document.querySelectorAll('[data-testid=widget-drag-post-body] iframe[data-lexical-iframe-widget]')];
     const fixedFrame = frames.find(f => /620px-wide box/.test(f.getAttribute('srcdoc') ?? ''));
     if (!fixedFrame) return { frames: frames.length };
     const container = fixedFrame.closest('.iframe-widget');
-    let next = container.nextElementSibling;
-    while (next && next.getBoundingClientRect().height < 1) next = next.nextElementSibling;
+    let next = container;
+    for (let count = 0; next && count < span;) {
+      next = next.nextElementSibling;
+      if (next && next.getBoundingClientRect().height >= 1 && next.textContent.trim()) count++;
+    }
     const f = fixedFrame.getBoundingClientRect(), p = next.getBoundingClientRect();
     return { frames: frames.length, float: getComputedStyle(fixedFrame).float, push: fixedFrame.dataset.lwBottomPush,
       widgetBottom: Math.round(f.bottom), paragraphBottom: Math.round(p.bottom), widthButtons: [...document.querySelectorAll('button')].filter(b => /^(Normal|Medium|Wide) \(/.test(b.textContent)).length };
-  });
+  }, span);
   check('the Post tab shows the edit: left, lined up with its paragraph\'s bottom', post.frames === 7 && post.float === 'left' && Number(post.push) > 0
     && post.paragraphBottom - post.widgetBottom >= -1 && post.paragraphBottom - post.widgetBottom < 40, JSON.stringify(post));
   check('the Post tab has no text width choice', post.widthButtons === 0, String(post.widthButtons));

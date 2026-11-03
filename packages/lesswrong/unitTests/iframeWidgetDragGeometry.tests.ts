@@ -1,6 +1,6 @@
 // EXPERIMENT (experiment/iframe-layout-ronny-exp2): dragging and resizing iframe widgets in the editor.
 import {
-  BlockBox, ColumnRect, DropSlotInput, adjacentSlot, adjacentSpot, alignPlacement, autoScrollStep, chooseDropSlot, chooseSide,
+  BlockBox, ColumnRect, DropSlotInput, adjacentSlot, adjacentSpot, alignPlacement, autoScrollStep, bottomStart, chooseDropSlot, chooseSide,
   fitMatchesWidth, insertionKey, moveChipText, resizeChipText, resizeTarget, roomInPlace, shrinkWarning, stepWidth, widgetRoom,
 } from '../components/lexical/embeds/IframeWidgetEmbed/widgetDragGeometry';
 import { IframeWidgetFit, injectResizeScript, readIframeWidgetFit } from '../components/lexical/embeds/IframeWidgetEmbed/iframeResizeScript';
@@ -126,8 +126,8 @@ describe('chooseDropSlot', () => {
     expect(before.beforeKey).toBe('h');
     expect(before.snapped).toBe(false);
     expect(alignOf(before.layout)).toBe('top');
-    // Over the heading's lower half: the slot after it (a heading is no bottom-align target).
-    const after = slot({ pointerY: 335, layout: LEFT_33, pointerX: 50 });
+    // Held nearer p3's top than the heading's: the slot after it (this heading is no bottom-align target).
+    const after = slot({ pointerY: 370, layout: LEFT_33, pointerX: 50 });
     expect(after.beforeKey).toBe('p3');
     expect(alignOf(after.layout)).toBe('top');
     const inline = slot({ pointerY: 305 });
@@ -716,8 +716,9 @@ describe('bottom alignment', () => {
     expect(sameLayout(RIGHT_33, withAlign(RIGHT_33_BOTTOM, 'top'))).toBe(true);
   });
 
-  it('lines a wrapping widget up with the bottom of the paragraph whose lower half the pointer is over', () => {
-    // p3 runs from 400 to 480, with nothing beside it: its upper half means its top, its lower half its bottom.
+  it('lines a wrapping widget up with the top or bottom of a paragraph, whichever is nearest to where it is held', () => {
+    // p3 runs from 400 to 480, with nothing beside it: held near its top, its top; near where a 50px widget
+    // would end at its bottom, its bottom.
     const upper = slot({ layout: RIGHT_33, pointerX: 600, pointerY: 420, ghostHeight: 50 });
     expect([upper.slotKey, alignOf(upper.layout)]).toEqual(['p3', 'top']);
     const lower = slot({ layout: RIGHT_33, pointerX: 600, pointerY: 460, ghostHeight: 50 });
@@ -736,14 +737,14 @@ describe('bottom alignment', () => {
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): it used to stay at the paragraph's top, its bottom far
   // below the paragraph's (Ronny, Nov 2 2026: "it doesn't look to me like it worked").
   it('never lines a widget up with the bottom of a paragraph shorter than it with no text above to start beside, nor with a heading', () => {
-    // p3 (80px, after the heading) can't hold a 200px widget, and it can't start above the heading: the
-    // lower half of p3 means the next spot down, p4's top. (Without fr, which it would reach.)
+    // p3 (80px, after the heading) can't hold a 200px widget, and it can't start above the heading: its bottom
+    // isn't a place it can go, so held there it goes to p4's top. (Without fr, which it would reach.)
     const tall = slot({ blocks: post().filter(b => b.key !== 'fr'), layout: RIGHT_33, pointerX: 600, pointerY: 460, ghostHeight: 200 });
     expect([tall.slotKey, alignOf(tall.layout)]).toEqual(['p4', 'top']);
     expect(moveChipText(tall, RIGHT_33)).toBe('Right · 33%');
-    // The heading (300 to 340) is never a bottom: below its middle means the paragraph after it.
-    const heading = slot({ layout: RIGHT_33, pointerX: 600, pointerY: 330, ghostHeight: 50 });
-    expect([heading.slotKey, alignOf(heading.layout)]).toEqual(['p3', 'top']);
+    // The heading (300 to 340) is never a bottom: held where its bottom would line up, it goes to its top.
+    const heading = slot({ layout: RIGHT_33, pointerX: 600, pointerY: 290, ghostHeight: 50 });
+    expect([heading.slotKey, alignOf(heading.layout)]).toEqual(['h', 'top']);
   });
 
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): h, then p0 (60-140), p1 (160-200, short) and p2
@@ -761,39 +762,62 @@ describe('bottom alignment', () => {
   });
 
   it('lines a widget up with the bottom of a paragraph shorter than it by starting it beside the text before', () => {
-    // p1 is 40px (about 65 beside a 33% widget); from p0's top there is room for the 100px widget.
-    const drop = spanDrop(spanPost(), 190);
+    // p1 is 40px (about 65 beside a 33% widget); from p0's top there is room for the 100px widget. It lands
+    // at about 138, where p1 will end (taller beside the widget) less the widget's height.
+    const drop = spanDrop(spanPost(), 138);
     expect([drop.slotKey, drop.beforeKey, drop.layout]).toEqual(['p0', 'p0', { ...LEFT_33, align: 'bottom', span: 2 }]);
     // The ghost ends at p1's bottom, where the line is.
     expect([drop.ghostTop, drop.lineY]).toEqual([100, 200]);
     expect(moveChipText(drop, LEFT_33)).toBe('Left · 33% · bottom of the paragraph');
     // Blank lines between them don't count.
     const blank: BlockBox = { ...block('b', 1.5, 145, 10), flows: true, blank: true };
-    const withBlank = spanDrop([...spanPost(), blank].sort((a, b) => a.index - b.index), 190);
+    const withBlank = spanDrop([...spanPost(), blank].sort((a, b) => a.index - b.index), 138);
     expect([withBlank.slotKey, withBlank.layout.span]).toEqual(['p0', 2]);
     // Nor is a blank line ever a bottom.
     expect(alignOf(spanDrop([...spanPost(), blank].sort((a, b) => a.index - b.index), 152).layout)).toBe('top');
   });
 
   it('starts a widget only beside blocks that sit beside it, never above a section heading', () => {
-    // A 200px one would need text above p0, which is the heading: the next spot, p1's top.
-    const tall = spanDrop(spanPost(), 120, 200);
-    expect([tall.slotKey, alignOf(tall.layout)]).toEqual(['p1', 'top']);
+    const room = (blocks: BlockBox[], height = 100) => widgetRoom(blocks, 'w', LEFT_33, COLUMN.width, height);
+    // (In the flow: h 0, p0 1, p1 2.) A 200px one would need room above p0, which is the heading.
+    expect(bottomStart(room(spanPost(), 200), 1)).toBe(null);
     // A block that keeps its size (code, say) only where it fits: the room beside a 33% widget is 425px.
-    const narrowCode = spanDrop(spanPost({ p0: { flows: false, naturalWidth: 200 } }), 190);
-    expect([narrowCode.slotKey, narrowCode.layout.span]).toEqual(['p0', 2]);
-    const wideCode = spanDrop(spanPost({ p0: { flows: false, naturalWidth: 500 } }), 190);
-    expect([wideCode.slotKey, alignOf(wideCode.layout)]).toEqual(['p2', 'top']);
+    expect(bottomStart(room(spanPost({ p0: { flows: false, naturalWidth: 200 } })), 2)).toBe(1);
+    expect(bottomStart(room(spanPost({ p0: { flows: false, naturalWidth: 500 } })), 2)).toBe(null);
     // Nor with one that doesn't fit itself: it would start below the widget.
-    const wideTarget = spanDrop(spanPost({ p1: { flows: false, naturalWidth: 500 } }), 190);
-    expect([wideTarget.slotKey, alignOf(wideTarget.layout)]).toEqual(['p2', 'top']);
+    expect(bottomStart(room(spanPost({ p1: { flows: false, naturalWidth: 500 } })), 2)).toBe(null);
   });
 
   it('keeps another widget out of the text it starts beside', () => {
     // A right float at p0's top, running on to 150: lining up with p1's bottom would start beside it.
     const blocks = [...spanPost(), float('fr', 0.5, 'right', 66, 150)].sort((a, b) => a.index - b.index);
-    const drop = spanDrop(blocks, 190);
+    const drop = spanDrop(blocks, 130);
     expect([drop.slotKey, alignOf(drop.layout), drop.moved]).toEqual(['p2', 'top', 'down']);
+  });
+
+  // Ronny, Nov 3 2026: "I cannot drag the 5 milestones widget to be aligned with the bottom of the second paragraph".
+  it('goes by where the pointer holds the widget: a tall one moved a little lines up with a bottom it reaches', () => {
+    const left38: IframeWidgetLayout = { position: 'left', width: '38%' };
+    const blocks: BlockBox[] = [
+      block('h', 0, 80, 40, 'heading'),
+      { key: 'w', index: 1, kind: 'widget', float: 'left', top: 149, bottom: 674 },
+      { ...block('p1', 2, 143, 338), flows: true },
+      { ...block('p2', 3, 499, 286), flows: true },
+      block('next', 4, 830, 40, 'heading'),
+    ];
+    const held = (pointerY: number) => chooseDropSlot({
+      blocks, draggedKey: 'w', pointerX: 50, pointerY, column: COLUMN, layout: left38, prevSide: null, ghostHeight: 525, grabOffset: 1,
+    });
+    // Barely moved: nothing changes.
+    expect(held(160).noOp).toBe(true);
+    // About 110px down, its bottom reaches p2's: it stays where it is in the text, lined up with p2.
+    const down = held(260);
+    expect([down.slotKey, down.sameSlot, down.layout, down.ghostTop, down.lineY])
+      .toEqual(['p1', true, { ...left38, align: 'bottom', span: 2 }, 260, 785]);
+    expect(moveChipText(down, left38)).toBe('Left · 38% · bottom of the paragraph');
+    // On past that, p2's top.
+    const on = held(420);
+    expect([on.slotKey, alignOf(on.layout)]).toEqual(['p2', 'top']);
   });
 
   it('moves a widget up or down with the gear\'s Bottom and Top, keeping its paragraph', () => {
@@ -834,7 +858,7 @@ describe('bottom alignment', () => {
   // bottom to any kind of content that can go beside a widget" (a section as it looks open, see bottomAlign).
   it('lines a widget up with a collapsible section or a smaller heading too, never a section heading', () => {
     const asSection = post().filter(b => b.key !== 'fr').map(b => b.key === 'p3' ? { ...b, kind: 'section' as const } : b);
-    // p3 (400 to 480) is now a section: its lower half means its bottom, its upper half its top.
+    // p3 (400 to 480) is now a section: held near where it would end at its bottom, its bottom; near its top, its top.
     const lower = slot({ blocks: asSection, layout: RIGHT_33, pointerX: 600, pointerY: 460, ghostHeight: 50 });
     expect([lower.slotKey, alignOf(lower.layout)]).toEqual(['p3', 'bottom']);
     expect(moveChipText(lower, RIGHT_33)).toBe('Right · 33% · bottom of the section');
@@ -852,11 +876,11 @@ describe('bottom alignment', () => {
   });
 
   it('dropping on its own paragraph\'s bottom only changes the alignment', () => {
-    // w sits before p5 (700 to 780); as a right float there, dropped on p5's lower half.
+    // w sits before p5 (700 to 780); as a right float there, moved down until its bottom reaches p5's.
     const blocks = post({ float: 'right', top: 706, bottom: 756 });
-    const same = slot({ blocks, layout: RIGHT_33, pointerX: 600, pointerY: 760, ghostHeight: 50 });
+    const same = slot({ blocks, layout: RIGHT_33, pointerX: 600, pointerY: 730, ghostHeight: 50 });
     expect([same.slotKey, same.sameSlot, same.noOp, alignOf(same.layout)]).toEqual(['p5', true, false, 'bottom']);
-    const again = slot({ blocks, layout: RIGHT_33_BOTTOM, pointerX: 600, pointerY: 760, ghostHeight: 50 });
+    const again = slot({ blocks, layout: RIGHT_33_BOTTOM, pointerX: 600, pointerY: 730, ghostHeight: 50 });
     expect(again.noOp).toBe(true);
   });
 

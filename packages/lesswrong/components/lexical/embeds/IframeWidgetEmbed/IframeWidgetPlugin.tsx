@@ -1477,6 +1477,8 @@ export default function IframeWidgetPlugin({
     const grip = e.currentTarget;
     // As tall as the widget, so the ghost shows what the drop will cover or push down.
     const ghostHeight = Math.round(start.previewHeight);
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): where the pointer holds it (see aimedSpot).
+    const grabOffset = e.clientY - (editor.getElementByKey(key)?.getBoundingClientRect().top ?? e.clientY);
     let slot: DropSlot | null = null;
     let column: ColumnRect = editorColumnRect(editor);
     setGesture({ key, phase: 'pressed' });
@@ -1508,6 +1510,7 @@ export default function IframeWidgetPlugin({
           layout: start.layout,
           prevSide: slot ? widgetSide(slot.layout) : null,
           ghostHeight,
+          grabOffset,
         });
         dragViewStore.set(moveView(slot, start.layout, column, anchorElem, ghostHeight, renderedChipHeight(anchorElem)));
       },
@@ -1908,7 +1911,9 @@ function moveView(
   const bottom = visibleBottom();
   // Where the line itself is out of view (or under the bar), a dashed stand-in is drawn at that edge,
   // the chip next to it says which way the drop lands, and auto-scroll (or the wheel) brings it in.
-  const offscreen: MoveDragView['offscreen'] = lineY > bottom - 3 ? 'below' : lineY < CHIP_TOP_MARGIN ? 'above' : null;
+  // (EXPERIMENT (experiment/iframe-layout-ronny-exp3): lined up with a bottom, the line is at the ghost's bottom:
+  // while the ghost's top is in view, it hasn't landed below.)
+  const offscreen: MoveDragView['offscreen'] = (ghost ? slot.ghostTop ?? lineY : lineY) > bottom - 3 ? 'below' : lineY < CHIP_TOP_MARGIN ? 'above' : null;
   if (offscreen) {
     line = { ...line, top: Math.round((offscreen === 'below' ? bottom - 3 : CHIP_TOP_MARGIN) + dy) };
     if (!slot.noOp) chip = { ...chip, text: `${text} · ${offscreen === 'below' ? 'lands below ↓' : 'lands above ↑'}` };
