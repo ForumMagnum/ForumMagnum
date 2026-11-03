@@ -81,7 +81,7 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
   /** Inserts without running callbacks. Consider using createMutator, which
    * wraps this. */
   rawInsert: (data: any, options?: any) => Promise<string>
-  aggregate: (aggregationPipeline: MongoAggregationPipeline<ObjectsByCollectionName[N]>, options?: any) => any
+  aggregate: (aggregationPipeline: MongoAggregationPipeline<ObjectsByCollectionName[N]>, options?: any, comment?: string) => any
   _ensureIndex: (fieldOrSpec: MongoIndexFieldOrKey<ObjectsByCollectionName[N]>, options?: MongoEnsureIndexOptions<ObjectsByCollectionName[N]>) => Promise<void>
 }
 
