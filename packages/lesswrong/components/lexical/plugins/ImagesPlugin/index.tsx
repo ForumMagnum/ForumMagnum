@@ -22,13 +22,16 @@ import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
 import {
   $createParagraphNode,
   $createRangeSelection,
+  $createTextNode,
   $getEditor,
   $getNodeByKey,
   $getSelection,
   $insertNodes,
+  $isNodeSelection,
   $isParagraphNode,
   $isRootOrShadowRoot,
   $setSelection,
+  BEFORE_INPUT_COMMAND,
   COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
@@ -562,6 +565,11 @@ export default function ImagesPlugin({
         },
         COMMAND_PRIORITY_EDITOR,
       ),
+      editor.registerCommand(
+        BEFORE_INPUT_COMMAND,
+        $handleInputWithImageSelected,
+        COMMAND_PRIORITY_HIGH,
+      ),
       editor.registerCommand<DragEvent>(
         DRAGSTART_COMMAND,
         (event) => {
@@ -746,6 +754,52 @@ function enforceImageNodeStructure(node: ImageNode): void {
   if (parent && $isRootOrShadowRoot(parent) && node.getNextSibling() === null) {
     node.insertAfter($createParagraphNode());
   }
+}
+
+const TYPING_INPUT_TYPES = new Set([
+  'insertText',
+  'insertReplacementText',
+  'insertParagraph',
+  'insertLineBreak',
+]);
+
+function $getLastSelectedImageNode(): ImageNode | null {
+  const selection = $getSelection();
+  if (!$isNodeSelection(selection)) {
+    return null;
+  }
+  const nodes = selection.getNodes();
+  if (nodes.length === 0 || !nodes.every($isImageNode)) {
+    return null;
+  }
+  return nodes.reduce((last, node) => (last.isBefore(node) ? node : last));
+}
+
+/**
+ * Lexical only handles beforeinput for range selections, so typing while an
+ * image is node-selected falls through to the browser, which inserts the text
+ * at the start of the document (often far off-screen). Instead, start a new
+ * paragraph directly after the image and put the typed text there.
+ */
+function $handleInputWithImageSelected(event: InputEvent): boolean {
+  if (!TYPING_INPUT_TYPES.has(event.inputType)) {
+    return false;
+  }
+  const imageNode = $getLastSelectedImageNode();
+  if (!imageNode) {
+    return false;
+  }
+  event.preventDefault();
+  const paragraph = $createParagraphNode();
+  imageNode.getTopLevelElementOrThrow().insertAfter(paragraph);
+  const isTextInsertion = event.inputType === 'insertText' || event.inputType === 'insertReplacementText';
+  const text = event.data ?? event.dataTransfer?.getData('text/plain') ?? '';
+  if (isTextInsertion && text.length > 0) {
+    paragraph.append($createTextNode(text)).selectEnd();
+  } else {
+    paragraph.select();
+  }
+  return true;
 }
 
 const TRANSPARENT_IMAGE =
