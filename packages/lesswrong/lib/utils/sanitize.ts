@@ -8,7 +8,7 @@ export const sanitizeAllowedTags = [
   'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
-  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe', 'audio',
+  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe', 'audio', 'video',
   'details', 'summary',
   
   //MathML elements (https://developer.mozilla.org/en-US/docs/Web/MathML/Element)
@@ -163,6 +163,7 @@ export const sanitize = function(s: string): string {
       ...svgAllowedAttributes,
       '*': [...footnoteAttributes, 'data-internal-id', 'data-visibility'],
       audio: [ 'controls', 'src', 'style' ],
+      video: [ 'controls', 'src', 'preload', 'playsinline' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],
       table: ['style'],
@@ -296,6 +297,7 @@ export const sanitize = function(s: string): string {
         'calendly-preview',
         'lwartifacts-preview',
         'youtube-preview',
+        'video-file-preview',
         'review-results-table',
         'conditionallyVisibleBlock',
         'defaultVisible',
