@@ -289,7 +289,8 @@ can run it over `ssh studio`, or use your own copy).
   from Nov 2, ~5:20pm: spans also start beside smaller headings, lists, quotes, spoilers and code, tables,
   images or equations that fit); `play-any-block` = 876e5566d1 (on 3000 from Nov 2, ~6:30pm: bottoms of
   smaller headings and sections too, and the start-below-the-widget fix); `play-held-aim` = 51c5e80a0f (on 3000
-  since Nov 3, ~2:15pm: the drag goes by where you hold the widget). Tag each new state when updating. Going back
+  from Nov 3, ~2:15pm: the drag goes by where you hold the widget); `play-narrow-order` = a52add36d5 (on 3000 since
+  Nov 3, ~3pm: at full width the widget goes where its top is in the text). Tag each new state when updating. Going back
   is the same checkout with the tag, then restart `lw-layout`.
 - Its `node_modules` is an APFS clone of this one (`cp -cR`, about 30s, no extra disk): Turbopack refuses
   a `node_modules` symlink that points outside its workspace. Re-clone after a dependency change. Its
