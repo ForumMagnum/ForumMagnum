@@ -127,9 +127,9 @@ function InlineIframeWidget({ srcdoc, title }: {
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): align=bottom lines the widget up with the end of the
   // paragraph after it, again whenever that paragraph reflows (fonts loading, the window resizing).
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): or with the span-th block after it, the text before
-  // that reflowing too. Where it shows full width (no room beside it at this width), it goes below that
-  // block instead, so its text comes first (trailBelow; not in a quote, list or other block, where it
-  // never wraps).
+  // that reflowing too. Where it shows full width (no room beside it at this width), it goes below the first
+  // block after it, which starts above its top on wider screens (trailBelow; not in a quote, list or other
+  // block, where it never wraps).
   const aligned = alignOf(layout) === 'bottom';
   const span = spanOf(layout);
   const trails = aligned && !floated && !!columnWidth;
@@ -140,10 +140,10 @@ function InlineIframeWidget({ srcdoc, title }: {
     const place = () => {
       if (floated && aligned) alignFloatBottom(iframe, alignedBlock(container, span), 6, span);
       else clearFloatBottom(iframe);
-      trailBelow(container, trails ? alignedBlock(container, span) : null);
+      trailBelow(container, trails ? alignedBlock(container) : null);
     };
     place();
-    const paragraph = (floated && aligned) || trails ? alignedBlock(container, span) : null;
+    const paragraph = floated && aligned ? alignedBlock(container, span) : trails ? alignedBlock(container) : null;
     if (!paragraph) return;
     let frame = 0;
     const realign = () => {

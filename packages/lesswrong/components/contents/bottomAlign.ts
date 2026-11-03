@@ -6,7 +6,8 @@
 // (HydratedIframeWidget) and the editor (IframeWidgetPlugin's preview spacer).
 // EXPERIMENT (experiment/iframe-layout-ronny-exp3): with span=N it lines up with the Nth block after it
 // instead: a paragraph shorter than the widget, which then starts beside the text before it (Ronny, Nov 2
-// 2026). And where the widget shows full width (no room beside it), it goes below that block (trailBelow).
+// 2026). And where the widget shows full width (no room beside it), it goes below the first block after it
+// (trailBelow).
 import { WIDGET_CLEAR_CLASS } from '@/components/lexical/embeds/IframeWidgetEmbed/widgetClearClass';
 
 /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): on the blocks a left or right widget is pushed down past (see alignFloatBottom). */
@@ -240,10 +241,12 @@ const trails = new WeakMap<HTMLElement, HTMLElement[]>();
 
 /**
  * EXPERIMENT (experiment/iframe-layout-ronny-exp3): a bottom-aligned widget that shows full width (no room
- * beside it at this width) goes below the block it lines up with, so that block's text comes first, as it
- * does beside the widget on wider screens (Ronny, Nov 2 2026). `widget` is the widget's own block. On screen
- * only: it and the blocks down to `block` swap places with transforms, so its place in the text stays and
- * nothing after them moves. Run it again whenever those blocks change height; with `block` null it only
+ * beside it at this width) goes where its top is in the text on wider screens. `block`, the first block after
+ * it, starts above its top there (the widget is pushed down past that block's first lines), so it comes
+ * first; any blocks after that start beside the widget, so they stay below it (Ronny, Nov 3 2026: "Paragraph 1
+ * should go above the widget, but paragraph 2 should go below it when the screen narrows"). `widget` is the
+ * widget's own block. On screen only: it and `block` swap places with transforms, so its place in the text
+ * stays and nothing after them moves. Run it again whenever `block` changes height; with `block` null it only
  * undoes it.
  */
 export function trailBelow(widget: HTMLElement, block: HTMLElement | null): void {

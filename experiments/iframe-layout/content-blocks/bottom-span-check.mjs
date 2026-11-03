@@ -5,8 +5,11 @@
 // - dragged to the left and down until its bottom reaches the AI content's (3 lines, much shorter than it), the
 //   chip says "bottom of the paragraph", and the drop keeps the widget before the first paragraph with
 //   span=2: it starts beside that paragraph and ends at the AI content's bottom, in the editor and the post;
-// - narrower, where the widget shows full width, it goes below the AI content, so that text comes first and
-//   nothing overlaps (editor and post); back at 1280 it lines up again.
+// - narrower, where the widget shows full width, it goes where its top is in the text: below the first
+//   paragraph, which starts above its top, and above the AI content, which starts beside it (Ronny, Nov 3 2026),
+//   with nothing overlapping (editor and post, narrowed and loaded narrow); back at 1280 it lines up again;
+// - the demo's own widget lined up with one long paragraph's bottom goes below that paragraph, which starts
+//   above its top.
 // Needs the dev server (BASE_URL, default http://localhost:3001, the working copy; 3000 is Ronny's play copy,
 // never tested against). Uses the installed Chrome, headless and muted.
 import { createRequire } from 'module';
@@ -133,15 +136,33 @@ try {
   await settle();
   await scrollToKey(ai);
   await settle();
-  const narrowOk = (s) => !!s && !s.floats && s.widget.top >= s.ai.bottom - 1 && s.widget.bottom <= s.p3.top + 1 && s.p1.top < s.ai.top && s.transforms === 3;
+  const narrowOk = (s) => !!s && !s.floats && s.widget.top >= s.p1.bottom - 1 && s.widget.bottom <= s.ai.top + 1 && s.ai.bottom <= s.p3.top + 1 && s.transforms === 2;
+  // The demo's own widget lined up with one long paragraph's bottom.
+  const single = (view) => page.evaluate((view) => {
+    const body = view === 'editor' ? document.querySelector('[data-lexical-editor]') : document.querySelector('[data-testid=widget-drag-post-body] .iframe-widget')?.parentElement;
+    const p = body && [...body.querySelectorAll(':scope > p')].find(el => el.textContent.trim().startsWith('This paragraph ends level'));
+    let w = p?.previousElementSibling;
+    while (w && !w.matches('.iframe-widget-code, .iframe-widget')) w = w.previousElementSibling;
+    const shown = view === 'editor' ? w : w?.querySelector('iframe');
+    let next = p?.nextElementSibling;
+    while (next && next.getBoundingClientRect().height < 1) next = next.nextElementSibling;
+    const box = (el) => { const r = el.getBoundingClientRect(); return { top: Math.round(r.top), bottom: Math.round(r.bottom) }; };
+    return p && shown && next ? { paragraph: box(p), widget: box(shown), next: box(next), floats: getComputedStyle(shown).float !== 'none' } : { missing: true };
+  }, view);
+  const singleOk = s => !!s && !s.missing && !s.floats && s.widget.top >= s.paragraph.bottom - 1 && s.widget.bottom <= s.next.top + 1;
   {
     const s = await lineUp('editor');
-    check(`editor at ${NARROW}px: full width, below the AI content, the text above it and nothing overlapping`, narrowOk(s), s);
+    check(`editor at ${NARROW}px: full width, the first paragraph above it, the AI content below it, nothing overlapping`, narrowOk(s), s);
     const overlay = await page.evaluate((key) => {
       const r = document.querySelector(`[data-testid=widget-overlay][data-widget-key="${key}"]`)?.getBoundingClientRect();
       return r && Math.round(r.top);
     }, widget.key);
     check('  its frame shows there too', overlay !== null && s && Math.abs(overlay - s.widget.top) <= 3, { overlay, spacer: s?.widget.top });
+  }
+
+  {
+    const s = await single('editor');
+    check(`editor at ${NARROW}px: lined up with one long paragraph, that paragraph goes above it`, singleOk(s), s);
   }
 
   // Back at 1280 it lines up again, and nothing is left moved.
@@ -169,7 +190,14 @@ try {
   await settle();
   await page.evaluate(() => document.querySelector('[data-testid=widget-drag-post-body] .llm-content-block')?.scrollIntoView({ block: 'center' }));
   await settle();
-  check(`post at ${NARROW}px: full width, below the AI content, nothing overlapping`, narrowOk(await lineUp('post')), await lineUp('post'));
+  check(`post at ${NARROW}px: full width, the first paragraph above it, the AI content below it, nothing overlapping`, narrowOk(await lineUp('post')), await lineUp('post'));
+  check(`post at ${NARROW}px: lined up with one long paragraph, that paragraph goes above it`, singleOk(await single('post')), await single('post'));
+  // Loaded narrow, as on a phone.
+  await page.reload({ waitUntil: 'load', timeout: 240000 });
+  await page.waitForSelector('[data-testid=widget-drag-post-body] iframe[data-lexical-iframe-widget]', { timeout: 240000 });
+  await page.waitForTimeout(3000);
+  await settle();
+  check(`post loaded at ${NARROW}px: the same order`, narrowOk(await lineUp('post')) && singleOk(await single('post')), { spanning: await lineUp('post'), single: await single('post') });
 
   check('no page errors', errors.length === 0, errors);
 } finally {

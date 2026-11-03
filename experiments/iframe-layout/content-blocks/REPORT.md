@@ -168,8 +168,10 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   headings, quotes, lists, spoilers, and code, tables, images and equations that fit beside it. Where nothing
   above can (the post's first paragraph, the first one after a section heading, one right after a collapsible
   section), "bottom of" that paragraph isn't offered: no position would line it up.
-- Where the widget shows full width (no room beside it), it goes below the paragraph it lines up with, so that
-  paragraph's text comes first (Nov 2).
+- Where the widget shows full width (no room beside it), it goes where its top is in the text on wider screens
+  (Nov 3): text that starts above its top goes above it, text that starts beside it goes below it. So a widget
+  lined up with one long paragraph goes below that paragraph; a widget lined up with paragraph 2, with some of
+  paragraph 1 beside it, goes between them.
 
 ### No interaction (on purpose)
 - Paragraph indent and alignment: no menu for them, and publishing drops them.
@@ -207,6 +209,10 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   22, `no-nesting-check` 10, `drag-check` 144 and `new-features-check` 11 on the Experiment 3 editor, unit tests 61,
   width sweep of the blocks demo 281 widths with 0 problems, editor and post columns equal at 73 widths. Safari
   is still untested.
+- Nov 3, after the narrow-order change: `bottom-span-check` 13 (now also a long paragraph, and a post loaded
+  narrow), `bottom-kinds-check` 7, `real-drag-check` 12, `drag-check`'s narrow, phone and bottom groups 15, blocks
+  sweep 0 problems. AI Futures sweep: 2 of 281 widths (568, 664), the known flip when a paragraph ends level with
+  a widget's bottom (HANDOFF, "Known editor/post differences", item 3); both views are the same height there.
 
 ## Needs you
 1. ~~**Widgets on opposite sides.**~~ Answered Oct 29: never level. No two widgets share a height, on
@@ -354,10 +360,15 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
     the possible positions are currently missing". A sweep over every block of the demo now finds a bottom
     wherever one can line up.) The gear's Bottom moves the widget up the same way, Top takes it back to that
     paragraph's top, and the arrow keys step onto short paragraphs too.
-  - **Narrow screens: a bottom-aligned widget goes below its paragraph (Nov 2, your "when you go narrower the
-    text from that paragraph goes to the top").** Where the widget shows full width (no room beside it), the
-    paragraph it lines up with comes first and the widget follows it, in the editor and the post. Only on
-    screen: they swap places, so the widget's place in the text stays and nothing after them moves.
+  - **Narrow screens: the widget goes where its top is in the text (Nov 2, your "when you go narrower the text
+    from that paragraph goes to the top"; refined Nov 3, your "Paragraph 1 should go above the widget, but
+    paragraph 2 should go below it when the screen narrows").** Where the widget shows full width (no room
+    beside it), the first block after it, which starts above its top on wider screens, comes first; the widget
+    follows it; any later blocks, which start beside it, stay below it. Editor and post, narrowed or loaded
+    narrow. Only on screen: the widget and that block swap places, so the widget's place in the text stays and
+    nothing after them moves. You'll see one thing while narrowing that this doesn't cause: below a 600px window
+    the site's text column gets wider (472px at 600, 566px at 592), so a 38% widget goes full width at about
+    660px, back beside the text just under 600px, and full width again at about 560px.
   - Test: `bottom-span-check.mjs` (dragged onto the AI content, editor and post, at 1280px and 420px).
   - **Top or bottom of any content that can go beside a widget (Nov 2, your rule above).** Smaller headings
     (H3 and below) and collapsible sections now offer a bottom too; the chip says "bottom of the heading" or

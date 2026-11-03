@@ -554,12 +554,15 @@ can run it over `ssh studio`, or use your own copy).
     start, layout span = `spanCount`, ghost/line at the lined-up block. `adjacentSpot` (adjacentSlot wraps it)
     returns the span for the arrow keys. `alignPlacement` = the gear's Top/Bottom (moves the widget; canPlace
     returns 'short' for the new note `widget-options-cannot-line-up`).
-  - Narrow (Ronny, Nov 2: "when you go narrower the text from that paragraph ... goes to the top"):
-    `trailBelow(widget, block)`: a bottom-aligned widget that doesn't wrap swaps places on screen with the blocks
-    down to the one it lines up with (translateY on them and on the widget's block; nothing after moves). Editor:
-    placeSpacer, top level only (the overlay follows the spacer's rect). Post: HydratedIframeWidget, when its
-    column can wrap at all; ResizeObservers on every block in the span. `clearTrail` undoes it.
-  - Checks: `content-blocks/bottom-span-check.mjs` (10); unit tests 60.
+  - Narrow (Ronny, Nov 2: "when you go narrower the text from that paragraph ... goes to the top"; Nov 3: "Paragraph
+    1 should go above the widget, but paragraph 2 should go below it when the screen narrows"):
+    `trailBelow(widget, block)` with `block` = `alignedBlock(widget)`, the first content block after it (it starts
+    above the widget's top on wider screens): a bottom-aligned widget that doesn't wrap swaps places with it on
+    screen (translateY on both, and on any sentinels between; nothing after moves). So span=1: paragraph, widget.
+    span=2: paragraph 1, widget, paragraph 2. span=3: paragraph 1, widget, paragraph 2, paragraph 3 (2 starts
+    beside the widget too). Editor: placeSpacer, top level only (the overlay follows the spacer's rect). Post:
+    HydratedIframeWidget, when its column can wrap at all; a ResizeObserver on that block. `clearTrail` undoes it.
+  - Checks: `content-blocks/bottom-span-check.mjs` (13); unit tests 61.
   - Any content that can go beside a widget (Ronny, Nov 2: "you should be able to align top or bottom to any
     kind of content that can go beside a widget"): widgetDragGeometry `canLineUpWith(block)` = not blank and
     kind other, section, or heading with `flows` (H3-H6 are in WRAPPING_BLOCKS, H1/H2 aren't); used by

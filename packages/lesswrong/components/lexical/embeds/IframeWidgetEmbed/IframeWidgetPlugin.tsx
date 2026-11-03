@@ -584,8 +584,8 @@ function placeSpacer(elem: HTMLElement, layout: IframeWidgetLayout | null, colum
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): align=bottom pushes it down beside the end of its
   // paragraph (see bottomAlign).
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): its paragraph is the span-th block after it. Full
-  // width (no room beside it at this width), the widget shows below that block instead (trailBelow; only
-  // at the top level, as widgets elsewhere never wrap).
+  // width (no room beside it at this width), the widget shows below the first block after it, which starts
+  // above its top on wider screens (trailBelow; only at the top level, as widgets elsewhere never wrap).
   const aligned = !!layout && alignOf(layout) === 'bottom';
   if (wraps && aligned) {
     // (Starting from the last push, which is usually still right.)
@@ -593,7 +593,7 @@ function placeSpacer(elem: HTMLElement, layout: IframeWidgetLayout | null, colum
     alignFloatBottom(elem, alignedBlock(elem, spanOf(layout!)), 6, spanOf(layout!));
   }
   trailBelow(elem, aligned && !wraps && columnWidth > 0 && elem.parentElement?.matches('[data-lexical-editor]')
-    ? alignedBlock(elem, spanOf(layout!)) : null);
+    ? alignedBlock(elem) : null);
 }
 
 /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): whether the caret is in a sentinel (the gap between two blocks). */
