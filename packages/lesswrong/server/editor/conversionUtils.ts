@@ -709,7 +709,8 @@ function getMathjax3() {
 }
 
 /**
- * Render LaTeX math expressions in an HTML fragment using MathJax 3.
+ * Render LaTeX math expressions in an HTML fragment using MathJax 3, and
+ * sanitize the result.
  *
  * Replaces inline (\(...\)) and display ($$...$$ / \[...\]) TeX delimiters
  * with pre-rendered CHTML elements. The required MathJax CSS is inlined
@@ -717,6 +718,18 @@ function getMathjax3() {
  * into RSS feeds, scrapers, etc.
  */
 export function renderMathInHtml(html: string): string {
+  return renderMath(html, true);
+}
+
+/**
+ * Like `renderMathInHtml`, but for HTML that is deliberately left unsanitized
+ * (admin-authored contents of type "html").
+ */
+export function renderMathInUnsanitizedHtml(html: string): string {
+  return renderMath(html, false);
+}
+
+function renderMath(html: string, sanitizeOutput: boolean): string {
   if (isAnyTest) return html;
 
   try {
@@ -729,56 +742,58 @@ export function renderMathInHtml(html: string): string {
 
     doc.render();
 
-    // Attach the TeX source to each rendered equation. CHTML output has no
-    // text content (glyphs are drawn via CSS), so without this the equation is
-    // invisible to screen readers; MathNode.importDOM also relies on
-    // aria-label to recover the equation when converting rendered HTML back
-    // into the editor.
     for (const item of doc.math) {
-      if (item.typesetRoot) {
-        adaptor.setAttribute(item.typesetRoot, 'aria-label', item.math);
-        adaptor.setAttribute(item.typesetRoot, 'role', 'math');
+      const container = item.typesetRoot;
+      if (!container) {
+        continue;
       }
+      if (item.display && isEmptyMathContainer(adaptor, container)) {
+        adaptor.remove(container);
+        continue;
+      }
+      // Attach the TeX source to each rendered equation. CHTML output has no
+      // text content (glyphs are drawn via CSS), so without this the equation is
+      // invisible to screen readers; MathNode.importDOM also relies on
+      // aria-label to recover the equation when converting rendered HTML back
+      // into the editor.
+      adaptor.setAttribute(container, 'aria-label', item.math);
+      adaptor.setAttribute(container, 'role', 'math');
     }
 
     const renderedHtml: string = adaptor.innerHTML(adaptor.body(doc.document));
+    // MathJax's serializer doesn't escape `<` and `>` in attribute values, or
+    // anything at all in style attributes (which TeX like \color{...} controls),
+    // so its output must be sanitized again.
+    const outputHtml = sanitizeOutput ? sanitize(renderedHtml) : renderedHtml;
     const css: string = adaptor.textContent(chtml.styleSheet(doc));
-
-    if (!css || !renderedHtml.includes('mjx-container')) {
-      return renderedHtml;
-    }
-
-    // Inline the CSS with the first MathJax element so it's included in
-    // RSS feeds, external scrapers, etc. (same rationale as the old
-    // trimLatexAndAddCSS callback used with mathjax-node-page).
-    const $ = cheerioParse(renderedHtml);
-    // Drop only truly empty display equations.
-    // In MathJax v3, valid display equations can have empty text() while still
-    // containing rendered child nodes (<mjx-math>...), so text().trim()===""
-    // alone is not a safe emptiness check.
-    $('mjx-container[display="true"]').each((_, elem) => {
-      const node = $(elem);
-      const hasRenderedChildren = node.children().length > 0;
-      const hasMeaningfulText = node.text().trim() !== '';
-      if (!hasRenderedChildren && !hasMeaningfulText) {
-        node.remove();
-      }
-    });
-
-    const firstMathContainer = $('mjx-container').first();
-    if (firstMathContainer.length > 0) {
-      const styleNode = $('<style></style>').text(css);
-      firstMathContainer.before(styleNode);
-      return $.html();
-    }
-
-    return renderedHtml;
+    return insertStylesheetBeforeFirstEquation(outputHtml, css);
   } catch (err) {
     captureException(err);
     // eslint-disable-next-line no-console
     console.error('Error rendering math with MathJax:', err);
+    return sanitizeOutput ? sanitize(html) : html;
+  }
+}
+
+/**
+ * Whether a rendered equation is empty. Valid equations can have no text
+ * (glyphs are drawn with CSS) while still having rendered child elements.
+ */
+function isEmptyMathContainer(adaptor: LiteAdaptor, container: LiteElement): boolean {
+  const hasRenderedChildren = adaptor.childNodes(container).some((child) => adaptor.kind(child) !== '#text');
+  return !hasRenderedChildren && adaptor.textContent(container).trim() === '';
+}
+
+/**
+ * Inline the MathJax CSS before the first equation, so that it's included in
+ * RSS feeds, external scrapers, etc.
+ */
+function insertStylesheetBeforeFirstEquation(html: string, css: string): string {
+  const firstEquationIndex = html.indexOf('<mjx-container');
+  if (!css || firstEquationIndex < 0) {
     return html;
   }
+  return `${html.slice(0, firstEquationIndex)}<style>${css}</style>${html.slice(firstEquationIndex)}`;
 }
 
 // Adapted from: https://github.com/cheeriojs/cheerio/issues/748
@@ -1073,15 +1088,18 @@ interface DataToHTMLOptions {
   skipMathjax?: boolean,
 }
 
+function htmlToRenderedHtml(html: string, shouldSanitize: boolean, skipMathjax: boolean): string {
+  if (!shouldSanitize) {
+    return skipMathjax ? html : renderMathInUnsanitizedHtml(html);
+  }
+  const sanitizedHtml = sanitize(html);
+  return skipMathjax ? sanitizedHtml : renderMathInHtml(sanitizedHtml);
+}
+
 export async function dataToHTML(data: AnyBecauseTodo, type: string, context: ResolverContext, options?: DataToHTMLOptions) {
   switch (type) {
     case "html":
-      const maybeSanitized = options?.sanitize ? sanitize(data) : data;
-      if (options?.skipMathjax) {
-        return maybeSanitized;
-      } else {
-        return renderMathInHtml(maybeSanitized)
-      }
+      return htmlToRenderedHtml(data, !!options?.sanitize, !!options?.skipMathjax);
     case "lexical":
       return lexicalMarkupToHtml(data, context, !!options?.skipMathjax)
     case "ckEditorMarkup":

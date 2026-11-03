@@ -6,7 +6,7 @@ import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { useTracking } from '../../lib/analyticsEvents';
-import { truncateWithGrace } from '../../lib/editor/ellipsize';
+import { splitOutStyleElements, truncateWithGrace } from '../../lib/editor/ellipsize';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import ContentStyles from "../common/ContentStyles";
@@ -94,7 +94,7 @@ const FeedPostHighlightBody = ({
   const rawWordCount = wordCount ?? 0;
   const readMoreId = `feed-post-read-more-${post._id}`;
 
-  const styleNodes = html.match(/<style[\s\S]*?<\/style>/g) ?? ""
+  const styleNodes = splitOutStyleElements(html).styles.join("")
   const suffix = expanded ? undefined : `... <span id="${readMoreId}" class="read-more-button">(read more)</span>${styleNodes}`
 
   useEffect(() => {

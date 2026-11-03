@@ -42,6 +42,7 @@ import { PostsRevision } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "@/server/collections/automatedContentEvaluations/helpers";
 import { getQuickTakeAutoTagsToApply, getTagBotUserId } from "../languageModels/autoTagCallbacks";
+import { escapeHtml } from "@/lib/utils/sanitize";
 
 interface SendModerationPMParams {
   messageContents: string,
@@ -394,14 +395,14 @@ const utils = {
   
       let messageContents =
           `<div>
-            <p>One of your comments on "${contentTitle}" has been removed by ${(moderatingUser?.displayName) || "our automated spam detection"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.</p>
+            <p>One of your comments on "${escapeHtml(contentTitle ?? "")}" has been removed by ${escapeHtml(moderatingUser?.displayName || "our automated spam detection")}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.</p>
             <p>The contents of your message are here:</p>
             <blockquote>
               ${comment.contents?.html}
             </blockquote>
           </div>`
       if (comment.deletedReason && moderatingUser) {
-        messageContents += ` They gave the following reason: "${comment.deletedReason}".`;
+        messageContents += ` They gave the following reason: "${escapeHtml(comment.deletedReason)}".`;
       }
   
       // Only email approved users who are not snoozed, to avoid drawing unapproved users back to the site.
@@ -429,13 +430,13 @@ const utils = {
       const tag = await loaders.Tags.load(comment.tagId)
       if (tag) {
         contentTitle = tag.name
-        rejectedContentLink = `<a href=${tagGetAbsoluteDiscussionUrl({slug: tag.slug}, context.forumType)}` + `?commentId=${comment._id}">comment on ${tag.name}</a>`
+        rejectedContentLink = `<a href="${tagGetAbsoluteDiscussionUrl({slug: tag.slug}, context.forumType)}?commentId=${comment._id}">comment on ${escapeHtml(tag.name)}</a>`
       }
     } else if (comment.postId) {
       const post = await loaders.Posts.load(comment.postId)
       if (post) {
         contentTitle = post.title
-        rejectedContentLink = `<a href="https://lesswrong.com/posts/${post._id}/${post.slug}?commentId=${comment._id}">comment on ${post.title}</a>`
+        rejectedContentLink = `<a href="https://lesswrong.com/posts/${post._id}/${post.slug}?commentId=${comment._id}">comment on ${escapeHtml(post.title)}</a>`
       }
     }
   

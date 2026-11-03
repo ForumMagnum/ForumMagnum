@@ -20,7 +20,6 @@ import { useStyles, defineStyles } from "../hooks/useStyles";
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
-import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";
 import TagPageButtonRow, { useTagEditingRestricted } from "./TagPageButtonRow";
@@ -473,7 +472,7 @@ function handleRadioChange(radio: HTMLInputElement) {
   }
 }
 
-function initializeRadioHandlers() {
+function initializeBayesGuideHandlers() {
   const cleanupFunctions: (() => void)[] = [];
   const radioElements = Array.from(document.querySelectorAll('input[name="preference"]'));
   radioElements.forEach((radio: HTMLInputElement) => {
@@ -484,17 +483,18 @@ function initializeRadioHandlers() {
     cleanupFunctions.push(() => radio.removeEventListener("change", listenerFunction));
   });
 
+  const startButton = document.querySelector('#pathDescription .start-reading');
+  if (startButton) {
+    startButton.addEventListener("click", startPath);
+    cleanupFunctions.push(() => startButton.removeEventListener("click", startPath));
+  }
+
   const checkedRadio = document.querySelector('input[name="preference"]:checked') as HTMLInputElement|null;
   if (checkedRadio) {
     handleRadioChange(checkedRadio);
   }
 
   return () => cleanupFunctions.forEach((cleanup) => cleanup());
-}
-
-if (isClient) {
-  Object.assign(window, { startPath });
-  Object.assign(window, { handleRadioChange });
 }
 
 function getTagQueryOptions(
@@ -1042,7 +1042,7 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
           description={`tag ${tag.name}`}
           className={classes.description}
           replacedSubstrings={inlineReactHighlights}
-          onContentReady={initializeRadioHandlers}
+          onContentReady={initializeBayesGuideHandlers}
           contentStyleType="tag"
         />
         <PathInfo tag={tag} lens={selectedLens ?? null} />

@@ -9,8 +9,18 @@ import { assignUserIdToData, getLegacyCreateCallbackProps, getLegacyUpdateCallba
 import gql from "graphql-tag";
 import { sendIntercomEvent, updatePartiallyReadSequences, updateReadStatus } from "./helpers";
 
+// The events that clients record. Other events are created by the server, and
+// some of their properties are trusted (eg rateLimitActivated's message, which
+// is shown on the moderation log).
+const clientCreatableEventNames = new Set([
+  'post-view',
+  'tag-view',
+  'toggled-user-moderation-guidelines',
+  'acknowledged-new-user-guidelines',
+]);
+
 function newCheck(user: DbUser | null, document: CreateLWEventDataInput | null) {
-  if (!user || !document) return false;
+  if (!user || !document?.name || !clientCreatableEventNames.has(document.name)) return false;
   return userCanDo(user, 'events.new.own');
 }
 
