@@ -1,5 +1,5 @@
 import React from "react";
-import { commentIsHiddenPendingReview, commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
+import { commentIsHiddenPendingReview, commentIsNotPublicForAnyReason, commentIsTopLevelQuickTake } from "@/lib/collections/comments/helpers";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetAbsoluteDiscussionUrl } from "@/lib/collections/tags/helpers";
 import { userIsApproved, userShortformPostTitle } from "@/lib/collections/users/helpers";
@@ -41,6 +41,7 @@ import { EmailComment } from "../emailComponents/EmailComment";
 import { PostsRevision } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "@/server/collections/automatedContentEvaluations/helpers";
+import { getQuickTakeAutoTagsToApply, getTagBotUserId } from "../languageModels/autoTagCallbacks";
 
 interface SendModerationPMParams {
   messageContents: string,
@@ -83,12 +84,12 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
 }
 
 const utils = {
-  enforceCommentRateLimit: async ({user, comment, context}: {
+  enforceCommentRateLimit: async ({user, postId, context}: {
     user: DbUser,
-    comment: CreateCommentDataInput,
+    postId: string | null,
     context: ResolverContext,
   }) => {
-    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId ?? null, context);
+    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, postId, context);
     if (rateLimit) {
       const {nextEligible, rateLimitType:_} = rateLimit;
       if (nextEligible === null) throw new Error('Rate limit: You cannot comment until your restriction is lifted.');
@@ -491,11 +492,11 @@ export function newCommentsEmptyCheck(comment: CreateCommentDataInput) {
   }
 }
 
-export async function newCommentsRateLimit(newComment: CreateCommentDataInput, currentUser: DbUser, context: ResolverContext) {
+export async function commentsRateLimit(postId: string | null, currentUser: DbUser, context: ResolverContext) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
   }
-  await utils.enforceCommentRateLimit({user: currentUser, comment: newComment, context});
+  await utils.enforceCommentRateLimit({user: currentUser, postId, context});
 }
 
 /* CREATE BEFORE */
@@ -740,7 +741,7 @@ export async function newCommentTriggerReview({document, context}: AfterCreateCa
   await triggerReviewIfNeeded(document.userId, 'newComment', context);
 }
 
-export async function trackCommentRateLimitHit({document, context}: AfterCreateCallbackProperties<'Comments'>) {
+export async function trackCommentRateLimitHit(document: DbComment, context: ResolverContext) {
   const { loaders } = context;
   const user = await loaders.Users.load(document.userId)
   
@@ -777,8 +778,31 @@ export async function commentsAlignmentNew(comment: DbComment, context: Resolver
 export async function commentsNewNotifications(comment: DbComment, context: ResolverContext) {
   // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
   if (commentIsNotPublicForAnyReason(comment, context.forumType)) return
+  // Model replies are created as placeholders, and notify once the model has
+  // written them (see runCommentReply)
+  if (comment.llmRunId) return
   
   backgroundTask(utils.sendNewCommentNotifications(comment, context))
+}
+
+export const sendNewCommentNotifications = utils.sendNewCommentNotifications;
+
+export async function applyQuickTakeAutoTags(comment: DbComment, context: ResolverContext): Promise<DbTag[]> {
+  if (!commentIsTopLevelQuickTake(comment) || comment.relevantTagIds.length > 0) {
+    return [];
+  }
+  if (!await getTagBotUserId(context)) {
+    return [];
+  }
+  const tags = await getQuickTakeAutoTagsToApply(comment, context);
+  if (tags.length) {
+    // Only fill in tags if the author hasn't set some while the classifier was running
+    await context.Comments.rawUpdateOne(
+      { _id: comment._id, relevantTagIds: { $size: 0 } },
+      { $set: { relevantTagIds: tags.map(tag => tag._id) } },
+    );
+  }
+  return tags;
 }
 
 /* UPDATE VALIDATE */

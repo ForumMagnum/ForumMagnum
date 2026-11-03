@@ -1,12 +1,12 @@
-import type { LexicalEditor, LexicalNode } from "lexical";
+import type { LexicalEditor } from "lexical";
 import { getMarkdownItForResearch } from "@/lib/utils/markdownItPlugins";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
-import { $insertMarkdownBlockInEditor, $markdownToNodes } from "../../../../agent/insertBlock/route";
+import { $insertMarkdownBlockInEditor, $markdownToNodes, type MarkdownConversion } from "../../../../agent/insertBlock/route";
 import { withResearchDocEditorSession } from "../../researchEditorSession";
 import type { InsertLocation, ReplaceMode } from "../../../../agent/toolSchemas";
 
-export function $researchMarkdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
-  return $markdownToNodes(editor, markdown, { markdownIt: getMarkdownItForResearch() });
+export function $researchMarkdownToNodes(editor: LexicalEditor, markdown: string): MarkdownConversion {
+  return { nodes: $markdownToNodes(editor, markdown, { markdownIt: getMarkdownItForResearch() }) };
 }
 
 export interface InsertBlockResult {

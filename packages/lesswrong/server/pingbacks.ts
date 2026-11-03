@@ -72,7 +72,7 @@ export const htmlToPingbacks = async (html: string, exclusions: Array<{collectio
   return pingbacks;
 };
 
-const extractLinks = (html: string): Array<string> => {
+export const extractLinks = (html: string): Array<string> => {
   const $ = cheerioParse(html);
   let targets: Array<string> = [];
   $('a').each((i, anchorTag) => {

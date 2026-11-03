@@ -12,6 +12,7 @@ import {
   FeedPostMetaInfo,
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 import gql from 'graphql-tag';
 import { getUltraFeedCommentThreads, generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
@@ -28,6 +29,7 @@ import { serverCaptureEvent } from "../analytics/serverAnalyticsWriter";
 import { userIsAdmin, userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import {
   loadMultipleEntitiesById,
+  FilteredEntity,
   createUltraFeedResponse,
   UltraFeedEventInsertData,
   insertSubscriptionSuggestions
@@ -41,6 +43,8 @@ import {
 import { scoreAllUltraFeedItems } from '../ultraFeed/ultraFeedRanking';
 import { buildRankingConfigFromSettings } from '../ultraFeed/ultraFeedRankingConfig';
 import UltraFeedEvents from "../collections/ultraFeedEvents/collection";
+import { validateFrontpageFilterSettings } from '../users/validateFrontpageFilterSettings';
+import { classifyTagFilters, getDefaultFilterSettings } from '@/lib/filterSettings';
 
 const ultraFeedLog = loggerConstructor('ultrafeed');
 
@@ -130,7 +134,8 @@ export const ultraFeedGraphQLTypeDefs = gql`
       cutoff: Date,
       offset: Int,
       sessionId: String,
-      settings: JSON
+      settings: JSON,
+      filterSettings: JSON
     ): UltraFeedQueryResults!
   }
 `;
@@ -303,17 +308,17 @@ const deduplicatePostsInThreads = (results: UltraFeedResolverType[]): UltraFeedR
 
 const transformItemsForResolver = (
   sampled: SampledItem[],
-  spotlightsById: Map<string, DbSpotlight>,
-  commentsById: Map<string, DbComment>,
-  postsById: Map<string, DbPost>,
-  suggestedUsers?: DbUser[]
+  spotlightsById: Map<string, FilteredEntity<DbSpotlight>>,
+  commentsById: Map<string, FilteredEntity<DbComment>>,
+  postsById: Map<string, FilteredEntity<DbPost>>,
+  suggestedUsers?: Partial<DbUser>[]
 ): UltraFeedResolverType[] => {
   return filterNonnull(sampled.map((item, index): UltraFeedResolverType | null => {
     if (item.type === "feedSpotlight") {
       const spotlight = spotlightsById.get(item.feedSpotlight.spotlightId);
       if (!spotlight) return null;
       
-      const post = spotlight.documentType === 'Post' 
+      const post = (spotlight.documentType === 'Post' && spotlight.documentId)
         ? postsById.get(spotlight.documentId) 
         : undefined;
       
@@ -334,7 +339,7 @@ const transformItemsForResolver = (
 
     if (item.type === "feedCommentThread") {
       const { comments: preDisplayComments, postSources, rankingMetadata } = item.feedCommentThread;
-      let loadedComments: DbComment[] = [];
+      let loadedComments: FilteredEntity<DbComment>[] = [];
 
       if (preDisplayComments && preDisplayComments.length > 0) {
         loadedComments = filterNonnull(
@@ -342,7 +347,7 @@ const transformItemsForResolver = (
         );
       }
       
-      let post: DbPost | null = null;
+      let post: Partial<DbPost> | null = null;
       const isParentPostRead = preDisplayComments?.[0]?.metaInfo?.isParentPostRead ?? false;
       if (!isParentPostRead && loadedComments.length > 0) {
         const postId = loadedComments[0]?.postId;
@@ -500,7 +505,7 @@ const createUltraFeedEvents = (
         const comments = threadData?.comments;
         const commentMetaInfos = threadData?.commentMetaInfos;
         const sources = threadData?.commentMetaInfos?.[comments?.[0]?._id ?? ""]?.sources ?? [];
-        comments?.forEach((comment: DbComment, commentIndex) => {
+        comments?.forEach((comment: Partial<DbComment>, commentIndex) => {
           if (comment?._id) {
             const displayStatus = commentMetaInfos?.[comment._id]?.displayStatus;
             const servedEventId = commentMetaInfos?.[comment._id]?.servedEventId;
@@ -549,6 +554,7 @@ interface UltraFeedArgs {
   offset?: number;
   sessionId: string;
   settings: string;
+  filterSettings?: unknown;
 }
 
 const calculateFetchLimits = (
@@ -625,6 +631,9 @@ export const ultraFeedGraphQLQueries = {
     const parsedSettings = parseUltraFeedSettings(settingsJson);
     const sourceWeights = parsedSettings.sourceWeights;
     const incognitoMode = parsedSettings.incognitoMode;
+    const filterSettings = await validateFrontpageFilterSettings(args.filterSettings, context)
+      ?? currentUser?.frontpageFilterSettings
+      ?? getDefaultFilterSettings(context.forumType);
 
     try {
       const spotlightsRepo = context.repos.spotlights;
@@ -666,7 +675,8 @@ export const ultraFeedGraphQLQueries = {
               recombeePostFetchLimit, 
               latestAndSubscribedPostLimit,
               parsedSettings,
-              ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays
+              ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays,
+              filterSettings,
             ) 
           : Promise.resolve<FeedFullPost[]>([]),
         commentFetchLimit > 0 
@@ -677,6 +687,7 @@ export const ultraFeedGraphQLQueries = {
               ULTRA_FEED_DATE_CUTOFFS.initialCommentCandidateLookbackDays,
               ULTRA_FEED_DATE_CUTOFFS.commentServedEventRecencyHours,
               ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays,
+              classifyTagFilters(filterSettings.tags, context.forumType),
               sessionId
             ) 
           : Promise.resolve<FeedCommentsThread[]>([]),
@@ -791,7 +802,7 @@ export const ultraFeedGraphQLQueries = {
       
       const { spotlightIds, commentIds, postIds, needsSuggestedUsers } = extractIdsToLoad(sampledItems);
 
-      const [{ postsById, commentsById, spotlightsById }, suggestedUsers] = await Promise.all([
+      const [{ postsById, commentsById, spotlightsById }, unfilteredSuggestedUsers] = await Promise.all([
         loadMultipleEntitiesById(context, {
           posts: postIds,
           comments: commentIds,
@@ -804,6 +815,7 @@ export const ultraFeedGraphQLQueries = {
           )
         : Promise.resolve([])
       ]);
+      const suggestedUsers = await accessFilterMultiple(currentUser, 'Users', unfilteredSuggestedUsers, context);
       const resultsWithoutDuplication = transformItemsForResolver(sampledItems, spotlightsById, commentsById, postsById, suggestedUsers);
       
       const results = deduplicatePostsInThreads(resultsWithoutDuplication);

@@ -4,7 +4,7 @@ import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext, GraphQLRequest
 import { configureSentryScope, getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import type { NextRequest } from 'next/server';
 import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
-import { captureException, getSentry } from '@/lib/sentryWrapper';
+import { captureException, getSentry, withIsolationScope } from '@/lib/sentryWrapper';
 import { getClientIP } from '@/server/utils/getClientIP';
 import { fmCrosspostBaseUrlSetting, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
@@ -196,11 +196,11 @@ async function sharedHandler(request: NextRequest) {
 }
 
 export function GET(request: NextRequest) {
-  return sharedHandler(request);
+  return withIsolationScope(() => sharedHandler(request));
 }
 
 export async function POST(request: NextRequest) {
-  return sharedHandler(request);
+  return withIsolationScope(() => sharedHandler(request));
 }
 
 export function OPTIONS(req: NextRequest) {

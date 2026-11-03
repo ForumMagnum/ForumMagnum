@@ -66,7 +66,13 @@ describe("UpdateQuery", () => {
     {
       name: "can set a value inside a JSON blob",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {"c.d.e": "hello world"}}),
-      expectedSql: `UPDATE "TestCollection" SET "c" = JSONB_SET( "c" , '{d, e}' ::TEXT[], TO_JSONB( $1::TEXT ), TRUE) WHERE "a" = $2 RETURNING "_id"`,
+      expectedSql: `UPDATE "TestCollection" SET "c" = JSONB_SET( "c" , ARRAY['d', 'e'] ::TEXT[], TO_JSONB( $1::TEXT ), TRUE) WHERE "a" = $2 RETURNING "_id"`,
+      expectedArgs: ["hello world", 3],
+    },
+    {
+      name: "escapes quotes in JSON update path components",
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {"c.key').malicious": "hello world"}}),
+      expectedSql: `UPDATE "TestCollection" SET "c" = JSONB_SET( "c" , ARRAY['key'')', 'malicious'] ::TEXT[], TO_JSONB( $1::TEXT ), TRUE) WHERE "a" = $2 RETURNING "_id"`,
       expectedArgs: ["hello world", 3],
     },
     {
@@ -89,7 +95,7 @@ describe("UpdateQuery", () => {
     {
       name: "can add a value to a set (JSON arrays)",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$addToSet: {"c.d": 4}}),
-      expectedSql: `UPDATE "TestCollection" SET "c" = fm_add_to_set( "c" , '{d}' ::TEXT[] , $1::INTEGER ) WHERE "a" = $2 RETURNING "_id"`,
+      expectedSql: `UPDATE "TestCollection" SET "c" = fm_add_to_set( "c" , ARRAY['d'] ::TEXT[] , $1::INTEGER ) WHERE "a" = $2 RETURNING "_id"`,
       expectedArgs: [4, 3],
     },
     {
@@ -125,4 +131,3 @@ describe("UpdateQuery", () => {
     },
   ]);
 });
-

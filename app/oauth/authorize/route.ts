@@ -23,10 +23,10 @@ export async function GET(req: NextRequest) {
   // Check if user is logged in
   const user = await getUserFromReq(req);
   if (!user) {
-    // Redirect to login, then back to this URL
-    // Build the return URL using siteUrl's origin and req.nextUrl's pathname/search/hash
-    const returnUrl = `${siteUrl}${req.nextUrl.pathname}${req.nextUrl.search}${req.nextUrl.hash}`;
-    return NextResponse.redirect(`${siteUrl}/login?returnTo=${encodeURIComponent(returnUrl)}`);
+    // Redirect to login, then back to this URL. returnTo must be a relative
+    // path, because the login page rejects anything else.
+    const returnTo = `${req.nextUrl.pathname}${req.nextUrl.search}`;
+    return NextResponse.redirect(`${siteUrl}/login?returnTo=${encodeURIComponent(returnTo)}`);
   }
 
   // Validate the authorization request

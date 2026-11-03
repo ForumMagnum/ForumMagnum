@@ -11,7 +11,7 @@ export const CommentsList = gql(`
     }
     relevantTagIds
     relevantTags {
-      ...TagPreviewFragment
+      ...TagBasicInfo
     }
     tagCommentType
     parentCommentId
@@ -38,6 +38,7 @@ export const CommentsList = gql(`
     user {
       ...UsersMinimumInfo
     }
+    llmRunId
     currentUserVote
     currentUserExtendedVote
     isBookmarked
@@ -102,9 +103,6 @@ export const ShortformComments = gql(`
     ...CommentsList
     post {
       ...PostsMinimumInfo
-    }
-    relevantTags {
-      ...TagPreviewFragment
     }
   }
 `)
@@ -304,3 +302,30 @@ export const CommentsMarkdownFragment = gql(`
     contents { agentMarkdown plaintextMainText }
   }
 `)
+
+export const AiDigestEmailComment = gql(`
+fragment AiDigestEmailComment on Comment {
+  _id
+  postedAt
+  parentCommentId
+  shortform
+  tagCommentType
+  contents {
+    plaintextMainText
+  }
+  user {
+    _id
+    displayName
+  }
+  post {
+    _id
+    slug
+    title
+  }
+  tag {
+    _id
+    slug
+    name
+  }
+}
+`);

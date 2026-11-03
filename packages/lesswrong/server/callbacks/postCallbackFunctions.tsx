@@ -14,13 +14,10 @@ import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
-import { autoFrontpageSetting, tagBotActiveTimeSetting } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { updatePostEmbeddings } from "../embeddings";
-import { fetchFragmentSingle } from "../fetchFragment";
-import { checkFrontpage, checkTags, getAutoAppliedTags, getTagBotAccount } from "../languageModels/autoTagCallbacks";
-import { getOpenAI } from "../languageModels/languageModelIntegration";
+import { getAutoTagsToApply, getTagBotAccount, isAutoTaggablePost } from "../languageModels/autoTagCallbacks";
 import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { createNotifications, getSubscribedUsers, getUsersWhereLocationIsInNotificationRadius } from "../notificationCallbacksHelpers";
@@ -43,43 +40,16 @@ import { getRejectionMessage, generateLinkSharingKey } from "./helpers";
 import { startTeamInboxConversation } from "../utils/teamInbox";
 import { createModeratorAction } from "../collections/moderatorActions/mutations";
 import { createPostRelation } from "../collections/postRelations/mutations";
-import { updatePost } from "../collections/posts/mutations";
 import { updateDialogueMatchPreference } from "../collections/dialogueMatchPreferences/mutations";
 import { updateDialogueCheck } from "../collections/dialogueChecks/mutations";
 import { updateNotification } from "../collections/notifications/mutations";
 import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
 import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
-import { PostsHTML } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
 import CurationEmails from "../collections/curationEmails/collection";
 import { maybeAutoFrontpagePost } from "../frontpageClassifier/predictions";
 
-
-/**
- * Check whether it's after 5pm UK time on Friday and before 9am ET on Monday
- */
-function isWeekend(): boolean {
-  const nowUK = moment().tz("Europe/London");
-  const nowET = moment().tz("America/New_York");
-
-  const dayOfWeekUK = nowUK.day();
-  const hourOfDayUK = nowUK.hour();
-  const dayOfWeekET = nowET.day();
-  const hourOfDayET = nowET.hour();
-
-  if (dayOfWeekUK === 5 && hourOfDayUK >= 17) {
-    return true;
-  }
-  if (dayOfWeekUK === 6 || dayOfWeekUK === 0) {
-    return true;
-  }
-  if (dayOfWeekET === 1 && hourOfDayET < 9) {
-    return true;
-  }
-
-  return false;
-}
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost, forumType: ForumTypeString) {
@@ -172,6 +142,7 @@ export async function onPostPublished(post: DbPost, context: ResolverContext, ol
     await triggerReviewIfNeeded(post.userId, 'publishedPost', context);
   }
   await maybeAutoFrontpagePost(post._id, context);
+  backgroundTask(utils.applyAutoTags(post, context));
 }
 
 const utils = {
@@ -230,74 +201,27 @@ const utils = {
     await Promise.all(tagRels.map(clearOneTag))
   },
 
-  applyAutoTags: async (post: Pick<DbPost, '_id' | 'title' | 'isEvent' | 'submitToFrontpage' | 'draft'>, context: ResolverContext) => {
-    const api = await getOpenAI();
-    if (!api) {
-      if (!isAnyTest && !isE2E) {
-        //eslint-disable-next-line no-console
-        console.log("Skipping autotagging (API not configured)");
-      }
+  applyAutoTags: async (post: DbPost, context: ResolverContext) => {
+    if (!isAutoTaggablePost(post)) {
       return;
     }
     const tagBot = await getTagBotAccount(context);
-    const tagBotActiveTime = tagBotActiveTimeSetting.get(context);
-  
-    if (!tagBot || (tagBotActiveTime === "weekends" && !isWeekend())) {
-      //eslint-disable-next-line no-console
-      console.log(`Skipping autotagging (${!tagBot ? "no tag-bot account" : "not a weekend"})`);
-      return;
-    }
-    
-    const tags = await getAutoAppliedTags(context);
-    const postHTML = await fetchFragmentSingle({
-      collectionName: "Posts",
-      fragmentDoc: PostsHTML,
-      selector: {_id: post._id},
-      currentUser: context.currentUser,
-      context,
-      skipFiltering: true,
-    });
-    if (!postHTML) {
-      return;
-    }
-    const tagsApplied = await checkTags(postHTML, tags, api, context);
-    
-    //eslint-disable-next-line no-console
-    console.log(`Auto-applying tags to post ${post.title} (${post._id}): ${JSON.stringify(tagsApplied)}`);
-    
-    for (let tag of tags) {
-      if (tagsApplied[tag.slug]) {
-        await addOrUpvoteTag({
-          tagId: tag._id,
-          postId: post._id,
-          currentUser: tagBot,
-          context,
-        });
+    if (!tagBot) {
+      if (!isAnyTest && !isE2E) {
+        //eslint-disable-next-line no-console
+        console.log("Skipping autotagging (no tag-bot account)");
       }
-    }
-  
-    const autoFrontpageEnabled = autoFrontpageSetting.get(context)
-    if (!autoFrontpageEnabled) {
       return;
     }
-  
-    const autoFrontpageReview = await checkFrontpage(postHTML, api, context);
-  
-    // eslint-disable-next-line no-console
-    console.log(
-      `Frontpage auto-review result for ${post.title} (${post._id}): ${
-        autoFrontpageReview ? "Show" : "No action"
-      }`
-    );
-  
-    if (autoFrontpageReview) {
-      await updatePost({
-        data: {
-          frontpageDate: new Date(),
-          autoFrontpage: "show"
-        },
-        selector: { _id: post._id }
-      }, context);
+
+    const tagsToApply = await getAutoTagsToApply(post, context);
+    for (const tag of tagsToApply) {
+      await addOrUpvoteTag({
+        tagId: tag._id,
+        postId: post._id,
+        currentUser: tagBot,
+        context,
+      });
     }
   },
 
@@ -625,13 +549,6 @@ export async function triggerReviewForNewPostIfNeeded({ document, context }: Aft
   }
 }
 
-export async function autoTagNewPost({ document, context }: AfterCreateCallbackProperties<"Posts">) {
-  if (!document.draft) {
-    // Post created (and is not a draft)
-    backgroundTask(utils.applyAutoTags(document, context));
-  }
-}
-
 /* NEW ASYNC */
 export async function sendUsersSharedOnPostNotifications(post: DbPost, context: ResolverContext) {
   const { _id, shareWithUsers = [], coauthorUserIds } = post;
@@ -795,14 +712,6 @@ export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDoc
 
   if (coauthorIdsToNotify.length) {
     await createNotifications({ context, userIds: coauthorIdsToNotify, notificationType: "addedAsCoauthor", documentType: "post", documentId: newPost._id });
-  }
-}
-
-// TODO: maybe combine with autoReviewNewPost and put it into the onPostPublished function
-export async function autoTagUndraftedPost({oldDocument, newDocument, context}: UpdateCallbackProperties<'Posts'>) {
-  if (oldDocument.draft && !newDocument.draft) {
-    // Post was undrafted
-    backgroundTask(utils.applyAutoTags(newDocument, context));
   }
 }
 

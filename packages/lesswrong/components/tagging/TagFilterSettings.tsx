@@ -61,7 +61,7 @@ const TagFilterSettingsInner = ({
 }: {
   filterSettings: FilterSettings,
   suggestedTagsQueryRef: QueryRef<ResultOf<typeof TagBasicInfoMultiQuery>>
-  setPersonalBlogFilter: (filterMode: FilterModeType) => void,
+  setPersonalBlogFilter?: (filterMode: FilterModeType) => void,
   setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterModeType}) => void,
   removeTagFilter: (tagId: string) => void,
   flexWrapEndGrow?: boolean,
@@ -91,7 +91,7 @@ const TagFilterSettingsInner = ({
   
       {/* Combine these two in one div to make sure that there's never a single element on the second row, if there's overflow */}
       <div className={classes.personalAndPlus}>
-        <FilterMode
+        {setPersonalBlogFilter && <FilterMode
           label={personalBlogpostName}
           description={personalBlogpostTooltip}
           mode={filterSettings.personalBlog}
@@ -99,7 +99,7 @@ const TagFilterSettingsInner = ({
           onChangeMode={(mode: FilterModeType) => {
             setPersonalBlogFilter(mode)
           }}
-        />
+        />}
   
         {<LWTooltip title={`Add Wikitag Filter`}>
             <AddTagButton hasTooltip={false} onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
@@ -171,7 +171,7 @@ const TagFilterSettings = ({
 }: {
   filterSettings: FilterSettings,
   suggestedTagsQueryRef: QueryRef<ResultOf<typeof TagBasicInfoMultiQuery>>
-  setPersonalBlogFilter: (filterMode: FilterModeType) => void,
+  setPersonalBlogFilter?: (filterMode: FilterModeType) => void,
   setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterModeType}) => void,
   removeTagFilter: (tagId: string) => void,
   flexWrapEndGrow?: boolean,

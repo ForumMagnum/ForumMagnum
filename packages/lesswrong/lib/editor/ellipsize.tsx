@@ -21,6 +21,8 @@ export const highlightFromHTML = (html: string | null): string => {
   });
 };
 
+const getTruncatedLength = (truncateLength: number) => Math.floor(truncateLength - (truncateLength/4)) || truncateLength;
+
 export const truncate = (
   html: string|null|undefined,
   truncateLength: number,
@@ -37,7 +39,7 @@ export const truncate = (
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
 
   const truncatedHtml = truncatise(htmlRemovedStyles, {
-    TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
+    TruncateLength: getTruncatedLength(truncateLength),
     TruncateBy: newTruncateBy,
     Suffix: `${newSuffix}`,
     Strict: allowTruncationMidWord,
@@ -59,7 +61,7 @@ export const calculateTruncationStatus = (
     return { willTruncate: false, wordsRemaining: 0 };
   }
   
-  return { willTruncate: true, wordsRemaining: wordsLeft };
+  return { willTruncate: true, wordsRemaining: totalWordCount - getTruncatedLength(maxLengthWords) };
 };
 
 export const truncateWithGrace = (html: string, maxLengthWords: number, graceWords: number, rawWordCount: number, suffix?: string): {

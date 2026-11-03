@@ -58,6 +58,7 @@ export const createTestingSqlClient = async (
   sql = await createSqlConnection(testUrl, true);
   await loadDbSchema(sql);
   if (setAsGlobalClient) {
+    process.env.PG_URL = testUrl;
     setSqlClient(sql);
   }
   return {
@@ -93,6 +94,7 @@ export const createTestingSqlClientFromTemplate = async (template: string): Prom
 
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl, true);
+  process.env.PG_URL = testUrl;
   setSqlClient(sql);
   return {
     sql,

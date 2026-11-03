@@ -1,10 +1,12 @@
+import { workAsyncStorage, type WorkStore } from "next/dist/server/app-render/work-async-storage.external";
+import { workUnitAsyncStorage } from "next/dist/server/app-render/work-unit-async-storage.external";
 import { captureException } from "@/lib/sentryWrapper";
 
 /**
- * Run a task (promise), without waiting for the result. If in a serverless
- * context, this function is responsible for making sure the process doesn't
- * exit until the background task is finished. In a non-serverless context,
- * i.e. either run on a local dev instance or on the client, this has no effect.
+ * Run a task (promise), without waiting for the result. If inside a NextJS
+ * request, this function is responsible for making sure the serverless process
+ * doesn't exit until the background task is finished. Outside a request, i.e.
+ * in a script or on the client, this has no effect.
  */
 export const backgroundTask = <T>(promise: Promise<T>) => {
   ensureRequestHasBackgroundTaskHandler();
@@ -21,32 +23,34 @@ export const backgroundTask = <T>(promise: Promise<T>) => {
 }
 
 let pendingBackgroundTasks: Promise<unknown>[] = [];
+const requestsWaitingForBackgroundTasks = new WeakSet<WorkStore>();
 
-// The NextJS request context, if this is running inside a request. Obtained as
-// per https://nextjs.org/docs/app/api-reference/functions/after#platform-support
-function getRequestContext() {
-  const RequestContext = (globalThis as any)[Symbol.for('@next/request-context')];
-  return RequestContext?.get?.();
+// Checks the stores `after` requires, which NextJS sets while handling a
+// request. Vercel's NextJS adapter (used since Next 16.3) doesn't set the
+// `@next/request-context` global, so that can't be used to detect requests.
+function getRequestWorkStore(): WorkStore | undefined {
+  const workStore = workAsyncStorage.getStore();
+  return workStore && workUnitAsyncStorage.getStore() ? workStore : undefined;
 }
 
 export function isInRequestContext(): boolean {
-  return !!getRequestContext();
+  return !!getRequestWorkStore();
 }
 
 function ensureRequestHasBackgroundTaskHandler() {
   // If running inside a NextJS request, calls `after` (from @next/server) to
   // ensure that the Vercel function doesn't exit until all background tasks
   // are complete.
-  //
-  // When run locally, there is no request context, but background tasks will
-  // still complete as long as you don't kill the running server instance.
-  const contextValue = getRequestContext();
-  if (!contextValue) {
+  const workStore = getRequestWorkStore();
+  if (!workStore) {
     warnOnExitIfTasksPending();
     return;
   }
-  if (!contextValue.hasAddedWaitForBackgroundTasks) {
-    contextValue.hasAddedWaitForBackgroundTasks = true;
+  if (!requestsWaitingForBackgroundTasks.has(workStore)) {
+    requestsWaitingForBackgroundTasks.add(workStore);
+    // Not a static import: this module is also bundled for client component
+    // SSR, where `next build` (but not the dev server) rejects static imports
+    // of `after`.
     const { after }: typeof import("next/server") = require("next/server");
     after(async () => {
       await waitForBackgroundTasks();

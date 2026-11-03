@@ -131,6 +131,7 @@ export const UsersCurrent = gql(`
     isReviewed
     nullifyVotes
     hideIntercom
+    hailboxOptIn
     hideNavigationSidebar
     hideCommunitySection
     hasContinueReading
@@ -178,6 +179,7 @@ export const UsersCurrent = gql(`
     nearbyPeopleNotificationThreshold
     hideFrontpageMap
     emailSubscribedToCurated
+    emailSubscribedToAiDigest
     unsubscribeFromAll
     whenConfirmationEmailSent
     hideSubscribePoke
@@ -462,6 +464,7 @@ export const UsersEdit = gql(`
     hideElicitPredictions
     hideAFNonMemberInitialWarning
     hideIntercom
+    hailboxOptIn
     commentSorting
     currentFrontpageFilter
     noCollapseCommentsPosts
@@ -476,6 +479,7 @@ export const UsersEdit = gql(`
     email
     whenConfirmationEmailSent
     emailSubscribedToCurated
+    emailSubscribedToAiDigest
     unsubscribeFromAll
 
     # Moderation

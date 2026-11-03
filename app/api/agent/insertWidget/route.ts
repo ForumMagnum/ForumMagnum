@@ -1,14 +1,11 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import {
-  $getRoot,
-  $createTextNode,
-} from "lexical";
+import { $createTextNode } from "lexical";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { resolveInsertionIndex } from "../insertBlock/route";
+import { $resolveInsertionPoint } from "../insertBlock/route";
 import { insertWidgetToolSchema, type InsertLocation } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -32,17 +29,17 @@ export function $insertWidgetInEditor({
   content: string
   location: InsertLocation
 }): InsertWidgetResult {
-  const root = $getRoot();
-  const { index: insertionIndex, reason } = resolveInsertionIndex(location, root.getChildren());
-  if (insertionIndex === null) {
+  const { point, reason } = $resolveInsertionPoint(location);
+  if (!point) {
     return { inserted: false, note: reason ?? `No block starts with locator text: ${JSON.stringify(location)}` };
   }
+  const { parent, index: insertionIndex } = point;
 
   const widgetId = randomId();
   const widgetNode = $createIframeWidgetNode(widgetId);
   widgetNode.append($createTextNode(content));
 
-  root.splice(insertionIndex, 0, [widgetNode]);
+  parent.splice(insertionIndex, 0, [widgetNode]);
   return {
     inserted: true,
     note: `Inserted widget (id: ${widgetId}) at index ${insertionIndex}.`,

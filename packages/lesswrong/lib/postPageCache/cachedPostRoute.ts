@@ -56,10 +56,10 @@ export function getCacheablePostPagePath(request: NextRequest): ParsedPostPagePa
   if (request.method !== 'GET' && request.method !== 'HEAD') return null;
   const parsedPath = matchPostPagePath(request.nextUrl.pathname);
   if (!parsedPath) return null;
-  // This also excludes client-side navigations and prefetches, which need RSC
-  // payloads: Next puts `_rsc` in their query string (and redirects to add it
-  // if missing). Their `RSC` header can't be checked here, since Next strips
-  // the flight headers before running the middleware.
+  // Client-side navigations and prefetches, which need RSC payloads, never get
+  // here: the middleware matcher excludes them. (They can't be detected here,
+  // since Next strips both their `_rsc` param and their flight headers before
+  // running the middleware.)
   if (request.nextUrl.search) return null;
   if (request.headers.get(STATUS_CODE_LOOPBACK_HEADER)) return null;
   if (request.cookies.getAll().some((cookie) => !HTML_CACHE_ALLOWED_COOKIES.has(cookie.name))) return null;

@@ -231,6 +231,13 @@ export function getDbIndexesOnPosts() {
   // Used in Posts.find() in various places
   indexSet.addIndex("Posts", {userId:1, createdAt:-1});
   
+  // Fetch rejected content linked to a moderation conversation, newest first.
+  indexSet.addIndex("Posts", { rejectionConversationId: 1, createdAt: -1 }, {
+    name: "posts.rejectionConversationId_createdAt",
+    concurrently: true,
+    partialFilterExpression: { rejectionConversationId: { $exists: true } },
+  });
+
   // Used in routes
   indexSet.addIndex("Posts", {agentFoundationsId: "hashed"});
   

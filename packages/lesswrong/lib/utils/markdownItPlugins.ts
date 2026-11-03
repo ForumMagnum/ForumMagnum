@@ -7,6 +7,7 @@ import type { Renderer, StateBlock, Token } from "markdown-it/index.js";
 import markdownItMathjax from './markdownMathjax';
 import { markdownCollapsibleSections } from './markdownCollapsibleSections';
 import { markdownMentions } from './markdownMentions';
+import { markdownLinkifyEscapes } from './markdownLinkifyEscapes';
 
 const llmOutputOpenRegex = /^%%%[ \t]+llm-output(?:[ \t]+model="([^"]*)")?[ \t]*$/;
 const llmOutputCloseRegex = /^%%%[ \t]+\/llm-output[ \t]*$/;
@@ -162,6 +163,7 @@ function markdownSpoilerBlocks(md: markdownIt) {
 }
 
 function applyCommonPlugins(mdi: markdownIt): void {
+  mdi.use(markdownLinkifyEscapes);
   mdi.use(markdownLlmContentBlocks);
   mdi.use(markdownSpoilerBlocks);
   mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
@@ -240,6 +242,7 @@ let _mdiArbital: markdownIt|null = null;
 export function getMarkdownItArbital(): markdownIt {
   if (!_mdiArbital) {
     const mdi = markdownIt({linkify: true})
+    mdi.use(markdownLinkifyEscapes)
     mdi.use(markdownItMathjax())
     _mdiArbital = mdi;
   }

@@ -1,5 +1,8 @@
 import { $getRoot, $isElementNode, $isRootNode, type LexicalNode } from "lexical";
 import { $isListItemNode } from "@lexical/list";
+import { $isCollapsibleSectionContainerNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode";
+import { $isCollapsibleSectionContentNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode";
+import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { foldPunctuation } from "./editorAgentUtil";
 import { findMathSpansInMarkdown, formatMathToken, type MathSpan } from "@/lib/utils/mathTokens";
 import {
@@ -10,6 +13,7 @@ import {
 import {
   $projectDocumentText,
   type DocumentProjection,
+  type DocumentProjectionOptions,
   type ProjectionSegment,
 } from "./quoteLocator";
 
@@ -41,14 +45,14 @@ import {
  * CommonMark projection (`markdownQuoteToRenderedPlainText`).
  *
  * `\[…\]` is read as escaped literal brackets by default: the read path
- * emits real display math as `$$…$$` and escapes literal `[` as `\[`, so in
- * quotes copied from it the escaped-bracket reading is almost always right.
+ * emits real display math as `$$…$$`, so in quotes copied from it the
+ * escaped-bracket reading is almost always right.
  * The locator retries with `bracketDisplayMath: true` (the LaTeX reading)
  * when this reading fails to match — covering hand-written `\[…\]` math.
  */
 export function projectQuoteToRenderedText(
   markdownQuote: string,
-  options?: { bracketDisplayMath?: boolean },
+  options?: { bracketDisplayMath?: boolean, imageTokens?: boolean },
 ): string {
   const withoutAgentSyntax = markdownQuote
     // Footnote definition markers (`[^id]: ` at line start) drop their
@@ -72,6 +76,7 @@ export function projectQuoteToRenderedText(
     .replace(/```widget\[[^\]]*\][\s\S]*?```/g, "");
   return markdownQuoteToRenderedPlainText(withoutAgentSyntax, {
     bracketDisplayMath: options?.bracketDisplayMath ?? false,
+    imageTokens: options?.imageTokens,
   });
 }
 
@@ -294,8 +299,8 @@ interface NormalizedDocument {
  * Project and normalize the current document.
  * Must be called inside a Lexical read/update context.
  */
-function $buildNormalizedDocument(): NormalizedDocument {
-  const projection = $projectDocumentText();
+function $buildNormalizedDocument(options?: DocumentProjectionOptions): NormalizedDocument {
+  const projection = $projectDocumentText(options);
   return { projection, normalizedDocument: normalizeTracked(projection.text) };
 }
 
@@ -486,9 +491,10 @@ export interface BlockPrefixResult {
 /**
  * The block a character position belongs to, for block-level operations: the
  * nearest ancestor that is a list item, or failing that the node's top-level
- * element. Matching a list item (at any nesting depth) lets deleteBlock
+ * element (or, inside a collapsible section, its child of the section's
+ * content). Matching a list item (at any nesting depth) lets deleteBlock
  * remove one item rather than the whole list; everything else (paragraphs,
- * headings, tables, blockquotes, …) resolves to the top-level block.
+ * headings, tables, blockquotes, …) resolves to the enclosing block.
  */
 interface BlockCandidate {
   node: LexicalNode
@@ -497,10 +503,10 @@ interface BlockCandidate {
 }
 
 /**
- * Enumerate the prefix-addressable blocks — top-level children plus list
- * items at any nesting depth — keyed by the raw projection offset of each
- * block's first content character (its span start plus any leading
- * whitespace, which normalization skips). When an outer block's first
+ * Enumerate the prefix-addressable blocks — top-level children, children of
+ * collapsible-section content, and list items at any nesting depth — keyed
+ * by the raw projection offset of each block's first content character (its
+ * span start plus any leading whitespace, which normalization skips). When an outer block's first
  * content coincides with a nested item's (an item that opens with a
  * sub-list), the innermost block wins, matching deleteBlock's most-specific
  * targeting.
@@ -517,7 +523,7 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
     if (isBlock) addBlock(node);
     if ($isElementNode(node)) {
       for (const child of node.getChildren()) {
-        visit(child, $isListItemNode(child) || $isRootNode(node));
+        visit(child, $isListItemNode(child) || $isRootNode(node) || $isCollapsibleSectionContentNode(node));
       }
     }
   };
@@ -530,14 +536,69 @@ function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<num
  * with the given markdown prefix, via the text index. Replaces the legacy
  * markdown-serialization prefix matcher for deleteBlock/insertBlock: the
  * prefix is treated as a quote that must match at a block start, with the
- * same normalization as quote location. A prefix matching more than one
- * block is an error, never a guess.
+ * same normalization as quote location except that images project to tokens
+ * (see `DocumentProjectionOptions`). A prefix matching more than one block is
+ * an error, never a guess.
  *
  * Must be called inside a Lexical read/update context.
  */
 export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
-  const { projection, normalizedDocument } = $buildNormalizedDocument();
-  const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix)).text;
+  // Widgets project to zero width, so they can't be matched by text; a prefix
+  // that opens with a widget fence (as in the editPost markdown) is resolved
+  // by the widget's ID instead.
+  const widgetFenceMatch = /^\s*```widget\[([^\]]*)\]/.exec(prefix);
+  if (widgetFenceMatch) {
+    return $locateWidgetById(widgetFenceMatch[1].trim());
+  }
+  // A "+++ Title" prefix names a collapsible section. Matching it only
+  // against sections keeps a body block that opens with the title's text
+  // from making it ambiguous.
+  if (/^\s*\+\+\+/.test(prefix)) {
+    return $locateCollapsibleSectionByTitle(prefix);
+  }
+  return $locateBlockByTextPrefix(prefix, null, "No block starts with the given prefix.");
+}
+
+/**
+ * Locate the collapsible section whose title starts with the given prefix
+ * (its "+++ Title" line, with or without the leading "+++").
+ *
+ * Must be called inside a Lexical read/update context.
+ */
+export function $locateCollapsibleSectionByTitle(prefix: string): BlockPrefixResult {
+  return $locateBlockByTextPrefix(
+    prefix,
+    $isCollapsibleSectionContainerNode,
+    "No collapsible section's title starts with the given prefix.",
+  );
+}
+
+function $locateWidgetById(widgetId: string): BlockPrefixResult {
+  const widgetNodes = widgetId ? $findWidgetNodesById(widgetId) : [];
+  if (widgetNodes.length === 1) {
+    return { node: widgetNodes[0] };
+  }
+  return {
+    node: null,
+    reason: widgetNodes.length === 0
+      ? `No widget with ID ${JSON.stringify(widgetId)}.`
+      : `Ambiguous widget ID: ${widgetNodes.length} widgets have ID ${JSON.stringify(widgetId)}.`,
+  };
+}
+
+/**
+ * Text-index prefix matching for $locateBlockByPrefix, optionally restricted
+ * to the blocks accepted by `isEligible`.
+ */
+function $locateBlockByTextPrefix(
+  prefix: string,
+  isEligible: ((node: LexicalNode) => boolean) | null,
+  noMatchReason: string,
+): BlockPrefixResult {
+  // Images project to tokens on both sides, so a block that starts with an
+  // image is matched by the image's markdown like any other leading content.
+  const { projection, normalizedDocument } = $buildNormalizedDocument({ imageTokens: true });
+  const normalizedPrefix = normalizeTracked(projectQuoteToRenderedText(prefix, { imageTokens: true })).text;
   if (!normalizedPrefix) {
     return { node: null, reason: "Prefix was empty after normalization." };
   }
@@ -555,7 +616,12 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
     const rawStart = normalizedDocument.toRawStart[matchIndex];
     const rawEnd = normalizedDocument.toRawEnd[matchIndex + normalizedPrefix.length - 1];
     const candidate = blocksByContentStart.get(rawStart);
-    if (candidate && rawEnd <= candidate.spanEnd && !matchedKeys.has(candidate.node.getKey())) {
+    if (
+      candidate
+      && rawEnd <= candidate.spanEnd
+      && (!isEligible || isEligible(candidate.node))
+      && !matchedKeys.has(candidate.node.getKey())
+    ) {
       matchedKeys.add(candidate.node.getKey());
       matchedBlocks.push(candidate.node);
     }
@@ -566,11 +632,31 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
     return { node: matchedBlocks[0] };
   }
   if (matchedBlocks.length === 0) {
-    return { node: null, reason: "No block starts with the given prefix." };
+    return { node: null, reason: noMatchReason };
   }
   return {
     node: null,
     reason: `Ambiguous prefix: ${matchedBlocks.length} blocks start with it. `
       + `Provide a longer prefix to disambiguate.`,
   };
+}
+
+/** Every widget node at or below the given node, in document order. */
+export function $collectWidgetNodes(node: LexicalNode): IframeWidgetNode[] {
+  if ($isIframeWidgetNode(node)) {
+    return [node];
+  }
+  if (!$isElementNode(node)) {
+    return [];
+  }
+  return node.getChildren().flatMap((child) => $collectWidgetNodes(child));
+}
+
+/**
+ * Every widget in the document with the given ID. IDs are meant to be unique,
+ * but the editor doesn't enforce that, so callers must handle duplicates.
+ * Must be called inside a Lexical read/update context.
+ */
+export function $findWidgetNodesById(widgetId: string): IframeWidgetNode[] {
+  return $collectWidgetNodes($getRoot()).filter((widgetNode) => widgetNode.getWidgetId() === widgetId);
 }

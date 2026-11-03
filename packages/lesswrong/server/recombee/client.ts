@@ -17,7 +17,7 @@ import { captureException } from '@/lib/sentryWrapper';
 import { randomId } from '../../lib/random';
 import { fetchFragmentSingle } from '../fetchFragment';
 import { createAdminContext } from '../vulcan-lib/createContexts';
-import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
+import { classifyTagFilters, FilterSettings, filterModeToMultiplicativeKarmaModifier, getDefaultFilterSettings } from '@/lib/filterSettings';
 import { PostsViews } from '@/lib/collections/posts/views';
 import { RevisionHTML } from '@/lib/collections/revisions/fragments';
 import type { RecommendedPost, RecombeeRecommendedPost, NativeRecommendedPost } from '@/lib/recombee/types';
@@ -88,6 +88,26 @@ interface UpsertPostData<FieldMask extends PostFieldDependencies[keyof PostField
 }
 
 type RecRequest = requests.RecommendNextItems | requests.RecommendItemsToUser;
+
+interface RecombeeTagFilterExpressions {
+  filter?: string,
+  booster?: string,
+}
+
+const toReqlStringLiteral = (value: string): string => {
+  if (value.includes('\\')) {
+    throw new Error(`ReQL string escaping for backslashes is undocumented; can't build a literal for: ${value}`);
+  }
+  return `"${value.replace(/"/g, '\\"')}"`;
+};
+
+const combineReqlExpressions = (expressions: Array<string | undefined>, operator: 'and' | '*'): string | undefined => {
+  const presentExpressions = filterNonnull(expressions);
+  if (presentExpressions.length === 0) {
+    return undefined;
+  }
+  return presentExpressions.map(expression => `(${expression})`).join(` ${operator} `);
+};
 
 interface DatedRec extends Recommendation {
   generatedAt?: Date;
@@ -243,6 +263,43 @@ const helpers = {
     });
   },
 
+  getFilterSettings(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, context: ResolverContext): FilterSettings {
+    return lwAlgoSettings.filterSettings ?? context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(context.forumType);
+  },
+
+  /**
+   * Recombee items store tag names, not IDs, in their 'tags' property. Only
+   * multiplicative modifiers (eg "Reduced") become boosters, because additive
+   * karma modifiers have no equivalent on Recombee's relevance scale.
+   */
+  async getTagFilterExpressions(filterSettings: FilterSettings, context: ResolverContext): Promise<RecombeeTagFilterExpressions> {
+    const { required, hidden, softFiltered } = classifyTagFilters(filterSettings.tags, context.forumType);
+    const boostedTags = softFiltered
+      .map(tag => ({ tagId: tag.tagId, multiplier: filterModeToMultiplicativeKarmaModifier(tag.filterMode) }))
+      .filter(({ multiplier }) => multiplier !== 1);
+
+    const tagIds = uniq([...required, ...hidden, ...boostedTags].map(({ tagId }) => tagId));
+    const tags = await loadByIds(context, 'Tags', tagIds);
+    const tagNameLiteralsById = new Map(tagIds.map((tagId, index) => {
+      const tag = tags[index];
+      if (!tag) {
+        throw new Error(`Tag filter references nonexistent tag ${tagId}`);
+      }
+      return [tagId, toReqlStringLiteral(tag.name)];
+    }));
+
+    const filter = combineReqlExpressions([
+      ...required.map(({ tagId }) => `${tagNameLiteralsById.get(tagId)} in 'tags'`),
+      ...hidden.map(({ tagId }) => `${tagNameLiteralsById.get(tagId)} not in 'tags'`),
+    ], 'and');
+    const booster = combineReqlExpressions(
+      boostedTags.map(({ tagId, multiplier }) => `if ${tagNameLiteralsById.get(tagId)} in 'tags' then ${multiplier} else 1`),
+      '*'
+    );
+
+    return { filter, booster };
+  },
+
   async getOnsitePostInfo(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, context: ResolverContext, skipOnLoadMore = true): Promise<OnsitePostRecommendationsInfo> {
     if (helpers.isLoadMoreOperation(lwAlgoSettings) && skipOnLoadMore) {
       return {
@@ -252,8 +309,7 @@ const helpers = {
       };
     }
 
-    const filterSettings: FilterSettings = lwAlgoSettings.filterSettings ?? context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(context.forumType);
-    const filteredStickiedPostTerms = { ...stickiedPostTerms, filterSettings };
+    const filteredStickiedPostTerms = { ...stickiedPostTerms, filterSettings: helpers.getFilterSettings(lwAlgoSettings, context) };
 
     const postPromises = [curatedPostTerms, filteredStickiedPostTerms]
       .map(terms => viewTermsToQuery(PostsViews, terms, undefined, context)
@@ -583,7 +639,12 @@ const recombeeApi = {
       return [];
     }
 
-    const recommendationsRequestBody = helpers.createRecommendationsForUserRequest(recombeeUser, modifiedCount, { ...lwAlgoSettings, filter: excludedPostFilter });
+    const tagFilterExpressions = await helpers.getTagFilterExpressions(helpers.getFilterSettings(lwAlgoSettings, context), context);
+    const recommendationsRequestBody = helpers.createRecommendationsForUserRequest(recombeeUser, modifiedCount, {
+      ...lwAlgoSettings,
+      filter: combineReqlExpressions([excludedPostFilter, tagFilterExpressions.filter], 'and'),
+      booster: combineReqlExpressions([lwAlgoSettings.booster, tagFilterExpressions.booster], '*'),
+    });
 
     const [recombeeResponseWithScenario] = await helpers.getCachedRecommendations({
       recRequest: recommendationsRequestBody,

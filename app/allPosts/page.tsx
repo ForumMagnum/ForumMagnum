@@ -1,6 +1,8 @@
 import { getForumTypeForPage } from "@/server/utils/pageUtil";
 import React from "react";
 import AllPostsPage from '@/components/posts/AllPostsPage';
+import ErrorBadRequest from '@/components/common/ErrorBadRequest';
+import { getAllPostsQueryParamsError } from '@/components/posts/allPostsQueryParams';
 import { getDefaultMetadata, getMetadataDescriptionFields, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
@@ -26,7 +28,15 @@ assertRouteAttributes("/allPosts", {
   hasMarkdownVersion: false,
 });
 
-export default function Page() {
+export default async function Page({ searchParams }: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const queryParamsError = getAllPostsQueryParamsError(await searchParams);
+  if (queryParamsError) {
+    return <RouteRoot delayedStatusCode>
+      <ErrorBadRequest message={queryParamsError} />
+    </RouteRoot>;
+  }
   return <RouteRoot>
     <AllPostsPage />
   </RouteRoot>;

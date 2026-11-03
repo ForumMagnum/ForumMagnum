@@ -92,6 +92,9 @@ interface Query {
   getSequenceStats: SequenceStats | null;
   reviewPredictionPosts: Array<Post>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
+  AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
+  aiDigestIssue: SingleAiDigestIssueOutput | null;
+  aiDigestIssues: MultiAiDigestIssueOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
   arbitalTagContentRels: MultiArbitalTagContentRelOutput | null;
   ban: SingleBanOutput | null;
@@ -145,6 +148,8 @@ interface Query {
   lWEvents: MultiLWEventOutput | null;
   llmConversation: SingleLlmConversationOutput | null;
   llmConversations: MultiLlmConversationOutput | null;
+  llmRun: SingleLlmRunOutput | null;
+  llmRuns: MultiLlmRunOutput | null;
   localgroup: SingleLocalgroupOutput | null;
   localgroups: MultiLocalgroupOutput | null;
   message: SingleMessageOutput | null;
@@ -319,6 +324,8 @@ interface Mutation {
   moveSequencePost: boolean;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
+  GenerateAiDigestIssues: Array<string>;
+  ClearAiDigestRecommendationHistory: number;
   createBook: BookOutput | null;
   updateBook: BookOutput | null;
   createChapter: ChapterOutput | null;
@@ -1473,6 +1480,61 @@ interface AdminSendBulkEmailResult {
   lastAfterUserId: string | null;
 }
 
+interface AiDigestToolCall {
+  toolName: string;
+  input: string;
+}
+
+interface AiDigestModelCall {
+  purpose: string;
+  modelId: string;
+  promptVersion: string;
+  systemPrompt: string;
+  prompt: string;
+  inputTokenCount: number | null;
+  outputTokenCount: number | null;
+  uncachedInputTokenCount: number | null;
+  cacheReadInputTokenCount: number | null;
+  cacheWriteInputTokenCount: number | null;
+  costUsd: number | null;
+  toolCalls: Array<AiDigestToolCall>;
+}
+
+interface AiDigestEmailSamplePreview {
+  email: EmailPreview;
+  durationMs: number;
+  calls: Array<AiDigestModelCall>;
+}
+
+interface AiDigestIssue {
+  _id: string;
+  createdAt: Date;
+  recipientId: string | null;
+  emailedAt: Date | null;
+  trigger: AiDigestIssueTrigger | null;
+  countsTowardHistory: boolean | null;
+  spec: any;
+  subject: string | null;
+}
+
+interface SingleAiDigestIssueOutput {
+  result: AiDigestIssue | null;
+}
+
+interface AiDigestIssuesRecipientIssuesInput {
+  recipientId?: string | null;
+}
+
+interface AiDigestIssueSelector {
+  default: EmptyViewInput | null;
+  recipientIssues: AiDigestIssuesRecipientIssuesInput | null;
+}
+
+interface MultiAiDigestIssueOutput {
+  results: Array<AiDigestIssue>;
+  totalCount: number | null;
+}
+
 interface ArbitalCaches {
   _id: string;
   schemaVersion: number;
@@ -1931,6 +1993,8 @@ interface Comment {
   tagCommentType: TagCommentType;
   userId: string;
   user: User | null;
+  llmRunId: string | null;
+  llmReplyPublishedAt: Date | null;
   userIP: string | null;
   userAgent: string | null;
   referrer: string | null;
@@ -2284,8 +2348,7 @@ interface CommentsShortformFrontpageInput {
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
   maxAgeDays?: number | null;
-  showCommunity?: boolean | null;
-  relevantTagId?: string | null;
+  filterSettings?: any;
 }
 
 interface CommentsRepliesToCommentThreadInput {
@@ -2388,6 +2451,13 @@ interface CommentsModeratorCommentsInput {
   authorIsUnreviewed?: boolean | null;
 }
 
+interface CommentsLlmRepliesInput {
+  userId?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
+}
+
 interface CommentsDebateResponsesInput {
   userId?: string | null;
   commentIds?: Array<string> | null;
@@ -2474,6 +2544,7 @@ interface CommentSelector {
   tagSubforumComments: CommentsTagSubforumCommentsInput | null;
   latestSubforumDiscussion: CommentsLatestSubforumDiscussionInput | null;
   moderatorComments: CommentsModeratorCommentsInput | null;
+  llmReplies: CommentsLlmRepliesInput | null;
   debateResponses: CommentsDebateResponsesInput | null;
   recentDebateResponses: CommentsRecentDebateResponsesInput | null;
   alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput | null;
@@ -2506,9 +2577,12 @@ interface Conversation {
   messageCount: number;
   moderator: boolean | null;
   awaitingModeratorReply: boolean | null;
+  moderatorReplyWaitingSince: Date | null;
   archivedByIds: Array<string>;
   archivedBy: Array<User>;
   latestMessage: Message | null;
+  rejectedPosts: Array<Post> | null;
+  rejectedComments: Array<Comment> | null;
   rejectionAppeal: RejectionAppeal | null;
   hasUnreadMessages: boolean | null;
 }
@@ -2947,6 +3021,22 @@ interface AdminHomePageDesign {
   ownerSlug: string;
 }
 
+interface LlmRunTranscriptEntry {
+  _id: string;
+  createdAt: Date;
+  llmRunId: string;
+  attempt: number;
+  index: number;
+  type: string;
+  text: string | null;
+  toolCallId: string | null;
+  toolName: string | null;
+  query: string | null;
+  url: string | null;
+  title: string | null;
+  extra: any;
+}
+
 interface RejectionAppeal {
   _id: string;
   createdAt: Date;
@@ -3230,6 +3320,37 @@ interface LlmMessage {
   conversationId: string | null;
   role: string | null;
   content: string | null;
+}
+
+interface LlmRun {
+  _id: string;
+  createdAt: Date;
+  invocationContext: string;
+  post: Post | null;
+  modelName: string;
+  gatewayModelId: string;
+  status: string;
+  systemPrompt: string;
+  contextMessage: string | null;
+  transcriptEntries: Array<LlmRunTranscriptEntry>;
+  response: string | null;
+  error: string | null;
+  completedAt: Date | null;
+  triggerCommentId: string | null;
+  replyCommentId: string | null;
+}
+
+interface SingleLlmRunOutput {
+  result: LlmRun | null;
+}
+
+interface LlmRunSelector {
+  default: EmptyViewInput | null;
+}
+
+interface MultiLlmRunOutput {
+  results: Array<LlmRun>;
+  totalCount: number | null;
 }
 
 interface Localgroup {
@@ -7177,6 +7298,7 @@ interface User {
   showHideKarmaOption: boolean | null;
   showPostAuthorCard: boolean | null;
   hideIntercom: boolean;
+  hailboxOptIn: boolean | null;
   markDownPostEditor: boolean;
   hideElicitPredictions: boolean | null;
   hideAFNonMemberInitialWarning: boolean | null;
@@ -7275,6 +7397,7 @@ interface User {
   karmaChangeLastOpened: Date | null;
   karmaChangeBatchStart: Date | null;
   emailSubscribedToCurated: boolean | null;
+  emailSubscribedToAiDigest: boolean | null;
   unsubscribeFromAll: boolean | null;
   hideSubscribePoke: boolean | null;
   hideMeetupsPoke: boolean | null;
@@ -7308,6 +7431,7 @@ interface User {
   reviewedByUserId: string | null;
   reviewedByUser: User | null;
   isReviewed: boolean | null;
+  hasApprovedContent: boolean | null;
   reviewedAt: Date | null;
   afKarma: number;
   voteCount: number | null;
@@ -7400,6 +7524,7 @@ interface User {
   hideSunshineSidebar: boolean | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
+  aiDigestPersonalInstructions: string | null;
   lastRemovedFromReviewQueueAt: Date | null;
   pendingPostCount: number | null;
   pendingCommentCount: number | null;
@@ -7681,6 +7806,7 @@ interface CreateCommentDataInput {
   tagId?: string | null;
   tagCommentType?: TagCommentType | null;
   userId?: string | null;
+  llmRunId?: string | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
   parentAnswerId?: string | null;
@@ -7729,6 +7855,7 @@ interface UpdateCommentDataInput {
   postedAt?: Date | null;
   postId?: string | null;
   tagId?: string | null;
+  llmReplyPublishedAt?: Date | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
   shortform?: boolean | null;
@@ -9040,6 +9167,7 @@ interface CreateUserDataInput {
   showHideKarmaOption?: boolean | null;
   showPostAuthorCard?: boolean | null;
   hideIntercom?: boolean | null;
+  hailboxOptIn?: boolean | null;
   noSingleLineComments?: boolean | null;
   noCollapseCommentsPosts?: boolean | null;
   noCollapseCommentsFrontpage?: boolean | null;
@@ -9121,6 +9249,7 @@ interface CreateUserDataInput {
   karmaChangeLastOpened?: Date | null;
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
+  emailSubscribedToAiDigest?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -9202,6 +9331,7 @@ interface UpdateUserDataInput {
   showHideKarmaOption?: boolean | null;
   showPostAuthorCard?: boolean | null;
   hideIntercom?: boolean | null;
+  hailboxOptIn?: boolean | null;
   markDownPostEditor?: boolean | null;
   hideElicitPredictions?: boolean | null;
   hideAFNonMemberInitialWarning?: boolean | null;
@@ -9291,6 +9421,7 @@ interface UpdateUserDataInput {
   karmaChangeLastOpened?: Date | null;
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
+  emailSubscribedToAiDigest?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -9365,6 +9496,7 @@ interface UpdateUserDataInput {
   afSubmittedApplication?: boolean | null;
   hideSunshineSidebar?: boolean | null;
   recommendationSettings?: RecommendationSettingsInput | null;
+  aiDigestPersonalInstructions?: string | null;
 }
 
 interface UpdateUserInput {
@@ -9544,6 +9676,14 @@ interface GraphQLTypeMap {
   AdminSendTestEmailResult: AdminSendTestEmailResult;
   AdminSendBulkEmailError: AdminSendBulkEmailError;
   AdminSendBulkEmailResult: AdminSendBulkEmailResult;
+  AiDigestToolCall: AiDigestToolCall;
+  AiDigestModelCall: AiDigestModelCall;
+  AiDigestEmailSamplePreview: AiDigestEmailSamplePreview;
+  AiDigestIssue: AiDigestIssue;
+  SingleAiDigestIssueOutput: SingleAiDigestIssueOutput;
+  AiDigestIssuesRecipientIssuesInput: AiDigestIssuesRecipientIssuesInput;
+  AiDigestIssueSelector: AiDigestIssueSelector;
+  MultiAiDigestIssueOutput: MultiAiDigestIssueOutput;
   ArbitalCaches: ArbitalCaches;
   ArbitalTagContentRel: ArbitalTagContentRel;
   SingleArbitalTagContentRelInput: SingleArbitalTagContentRelInput;
@@ -9654,6 +9794,7 @@ interface GraphQLTypeMap {
   CommentsTagSubforumCommentsInput: CommentsTagSubforumCommentsInput;
   CommentsLatestSubforumDiscussionInput: CommentsLatestSubforumDiscussionInput;
   CommentsModeratorCommentsInput: CommentsModeratorCommentsInput;
+  CommentsLlmRepliesInput: CommentsLlmRepliesInput;
   CommentsDebateResponsesInput: CommentsDebateResponsesInput;
   CommentsRecentDebateResponsesInput: CommentsRecentDebateResponsesInput;
   CommentsAlignmentSuggestedCommentsInput: CommentsAlignmentSuggestedCommentsInput;
@@ -9727,6 +9868,7 @@ interface GraphQLTypeMap {
   HomePageDesignSummary: HomePageDesignSummary;
   MarketplaceHomePageDesign: MarketplaceHomePageDesign;
   AdminHomePageDesign: AdminHomePageDesign;
+  LlmRunTranscriptEntry: LlmRunTranscriptEntry;
   RejectionAppeal: RejectionAppeal;
   SingleRejectionAppealOutput: SingleRejectionAppealOutput;
   RejectionAppealSelector: RejectionAppealSelector;
@@ -9769,6 +9911,10 @@ interface GraphQLTypeMap {
   MultiLlmConversationInput: MultiLlmConversationInput;
   MultiLlmConversationOutput: MultiLlmConversationOutput;
   LlmMessage: LlmMessage;
+  LlmRun: LlmRun;
+  SingleLlmRunOutput: SingleLlmRunOutput;
+  LlmRunSelector: LlmRunSelector;
+  MultiLlmRunOutput: MultiLlmRunOutput;
   Localgroup: Localgroup;
   SingleLocalgroupInput: SingleLocalgroupInput;
   SingleLocalgroupOutput: SingleLocalgroupOutput;
@@ -10364,6 +10510,9 @@ interface CreateInputsByCollectionName {
   UserRateLimits: CreateUserRateLimitInput;
   UserTagRels: CreateUserTagRelInput;
   Users: CreateUserInput;
+  AiDigestIssueGenerations: never;
+  AiDigestIssues: never;
+  AiDigestSchedules: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
@@ -10389,6 +10538,8 @@ interface CreateInputsByCollectionName {
   LinkPreviewCaches: never;
   LlmConversations: never;
   LlmMessages: never;
+  LlmRunTranscriptEntries: never;
+  LlmRuns: never;
   LoginTokens: never;
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
@@ -10400,8 +10551,10 @@ interface CreateInputsByCollectionName {
   PetrovDayLaunchs: never;
   Podcasts: never;
   PostEmbeddings: never;
+  PostPreviews: never;
   PostRecommendations: never;
   PostRelations: never;
+  PostSummaries: never;
   PostViewTimes: never;
   PostViews: never;
   ReadStatuses: never;
@@ -10460,6 +10613,9 @@ interface UpdateInputsByCollectionName {
   UserRateLimits: UpdateUserRateLimitInput;
   UserTagRels: UpdateUserTagRelInput;
   Users: UpdateUserInput;
+  AiDigestIssueGenerations: never;
+  AiDigestIssues: never;
+  AiDigestSchedules: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
@@ -10485,6 +10641,8 @@ interface UpdateInputsByCollectionName {
   LegacyData: never;
   LinkPreviewCaches: never;
   LlmMessages: never;
+  LlmRunTranscriptEntries: never;
+  LlmRuns: never;
   LoginTokens: never;
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
@@ -10497,8 +10655,10 @@ interface UpdateInputsByCollectionName {
   PodcastEpisodes: never;
   Podcasts: never;
   PostEmbeddings: never;
+  PostPreviews: never;
   PostRecommendations: never;
   PostRelations: never;
+  PostSummaries: never;
   PostViewTimes: never;
   PostViews: never;
   ReadStatuses: never;

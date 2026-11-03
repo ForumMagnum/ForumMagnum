@@ -1,4 +1,5 @@
 import type { NextRequest } from 'next/server';
+import { checkCronRequestAuthorization } from '@/server/utils/cronAuth';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import { getForumTypeForRequest } from '@/server/utils/requestUtil';
 import { captureException } from '@/lib/sentryWrapper';
@@ -14,9 +15,9 @@ import {
 } from './supermodStatusFormat';
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response('Unauthorized', { status: 401 });
+  const authError = checkCronRequestAuthorization(request);
+  if (authError) {
+    return authError;
   }
 
   const now = new Date();

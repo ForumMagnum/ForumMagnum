@@ -9,7 +9,7 @@ import SettingsSection from './SettingsSection';
 import SettingsToggleRow from './SettingsToggleRow';
 import SettingsSelectRow from './SettingsSelectRow';
 import type { SettingsTabProps } from './settingsTabTypes';
-import { userCanViewJargonTerms } from '@/lib/betas';
+import { userCanUseHailbox, userCanViewJargonTerms } from '@/lib/betas';
 
 const SORT_DRAFTS_BY_OPTIONS = [
   { value: "wordCount", label: "Wordcount" },
@@ -21,6 +21,7 @@ const PreferencesSettingsTab = ({
   updateSettings,
   bind,
   currentUser,
+  isCurrentUser,
   fieldWrapperClass,
 }: SettingsTabProps) => {
   const { isAF, isLW, forumType } = useForumType();
@@ -177,6 +178,15 @@ const PreferencesSettingsTab = ({
           label="Hide Intercom"
           description="Hide the support chat widget"
         />
+
+        {isCurrentUser && userCanUseHailbox(currentUser, forumType) && (
+          <SettingsToggleRow
+            value={settings.hailboxOptIn}
+            onChange={(value) => void updateSettings({ hailboxOptIn: value })}
+            label="Use Hailbox"
+            description="Replace Intercom with Hailbox, our self-hosted support chat (admins only, while we test it)"
+          />
+        )}
 
         {/* TODO: Consider porting karma visibility controls together with the post-form control. */}
         {isEAForum() && (userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && (

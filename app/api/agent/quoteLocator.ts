@@ -9,14 +9,16 @@ import {
 } from "lexical";
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { $isMentionNode } from "@/components/research/lexical/MentionNode";
+import { $isImageNode } from "@/components/lexical/nodes/ImageNode";
 import { FOOTNOTE_ELEMENT_TYPES } from "@/components/editor/lexicalPlugins/footnotes/constants";
 import { formatMathToken } from "@/lib/utils/mathTokens";
 import {
+  formatImageToken,
   isHiddenFromAgentEdits,
   type MarkdownSelectionPoint,
 } from "./mapMarkdownToLexical";
 
-export type ProjectionSegmentKind = "text" | "linebreak" | "math" | "mention" | "separator";
+export type ProjectionSegmentKind = "text" | "linebreak" | "math" | "mention" | "image" | "separator";
 
 export interface ProjectionSegment {
   kind: ProjectionSegmentKind
@@ -43,6 +45,18 @@ export interface DocumentProjection {
   text: string
   segments: ProjectionSegment[]
   spans: Map<string, NodeSpan>
+}
+
+export interface DocumentProjectionOptions {
+  /**
+   * Project each image as its `formatImageToken` token (ahead of its
+   * caption) instead of zero width. Block-prefix matching turns this on, with
+   * the same option on the prefix side, so a block that starts with an image
+   * is matched by the image's markdown under the ordinary prefix rules. Quote
+   * matching leaves it off, so a quote that skips over an image still
+   * matches; its selection points have no way to resolve inside a token.
+   */
+  imageTokens?: boolean
 }
 
 export interface ProjectedSelectionRange {
@@ -105,7 +119,11 @@ function pushSegment(
   projection.segments.push({ ...segment, start, end: projection.text.length });
 }
 
-function projectNode(projection: DocumentProjection, node: LexicalNode): void {
+function projectNode(
+  projection: DocumentProjection,
+  node: LexicalNode,
+  options: DocumentProjectionOptions,
+): void {
   const start = projection.text.length;
 
   // Must precede the $isTextNode branch: FootnoteReferenceNode extends
@@ -154,6 +172,9 @@ function projectNode(projection: DocumentProjection, node: LexicalNode): void {
       );
     }
   } else if ($isElementNode(node)) {
+    if (options.imageTokens && $isImageNode(node)) {
+      pushSegment(projection, { kind: "image", key: node.getKey() }, formatImageToken(node.getSrc()));
+    }
     let previousChildRendered = false;
     let previousChildWasBlock = false;
     for (const child of node.getChildren()) {
@@ -162,16 +183,16 @@ function projectNode(projection: DocumentProjection, node: LexicalNode): void {
       if (previousChildRendered && (previousChildWasBlock || childIsBlock)) {
         pushSegment(projection, { kind: "separator" }, "\n\n");
       }
-      projectNode(projection, child);
+      projectNode(projection, child, options);
       previousChildRendered = true;
       previousChildWasBlock = childIsBlock;
     }
   }
-  // Other decorator/leaf nodes (embeds, widgets, images, …) project to zero
-  // width: Turndown either drops them or emits non-text forms (fences,
-  // iframes) on the markdown side, so any text content they carry — embed
-  // URLs, widget srcdoc — exists only on the tree side and must not enter
-  // the matchable projection.
+  // Other decorator/leaf nodes (embeds, widgets, …) and, without the
+  // `imageTokens` option, images project to zero width: Turndown either
+  // drops them or emits non-text forms (fences, iframes) on the markdown
+  // side, so any text content they carry — embed URLs, widget srcdoc —
+  // exists only on the tree side and must not enter the matchable projection.
 
   projection.spans.set(node.getKey(), { start, end: projection.text.length });
 }
@@ -186,9 +207,9 @@ function projectNode(projection: DocumentProjection, node: LexicalNode): void {
  *
  * Must be called inside a Lexical read/update context.
  */
-export function $projectDocumentText(): DocumentProjection {
+export function $projectDocumentText(options: DocumentProjectionOptions = {}): DocumentProjection {
   const projection: DocumentProjection = { text: "", segments: [], spans: new Map() };
-  projectNode(projection, $getRoot());
+  projectNode(projection, $getRoot(), options);
   return projection;
 }
 

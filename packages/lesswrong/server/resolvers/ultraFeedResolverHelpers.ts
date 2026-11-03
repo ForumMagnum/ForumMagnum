@@ -1,28 +1,39 @@
 import { loadByIds } from '@/lib/loaders';
+import { accessFilterMultiple } from '@/lib/utils/schemaUtils';
 import { ServedEventData } from '@/components/ultraFeed/ultraFeedTypes';
 
 /**
- * Load entities by IDs and create a Map for fast lookup, typed by collection name
+ * A permissions-filtered entity. Filtering can remove any field except `_id`.
+ */
+export type FilteredEntity<T extends DbObject> = Partial<T> & { _id: string };
+
+/**
+ * Load entities by IDs and create a Map for fast lookup, typed by collection name.
+ * Entities are permissions-filtered for the current user: ones they can't access
+ * are left out of the Map, and fields they can't read are removed.
  */
 export async function loadEntitiesById<N extends CollectionNameString>(
   context: ResolverContext,
   collectionName: N,
   ids: string[]
-): Promise<Map<string, ObjectsByCollectionName[N]>> {
+): Promise<Map<string, FilteredEntity<ObjectsByCollectionName[N]>>> {
   const results: Array<ObjectsByCollectionName[N] | null> = await loadByIds(context, collectionName, ids);
-  const map = new Map<string, ObjectsByCollectionName[N]>();
-  
-  results.forEach(item => {
-    if (item && item._id) {
-      map.set(item._id, item);
+  const filteredResults = await accessFilterMultiple(context.currentUser, collectionName, results, context);
+  const map = new Map<string, FilteredEntity<ObjectsByCollectionName[N]>>();
+
+  filteredResults.forEach(item => {
+    const { _id } = item;
+    if (_id) {
+      map.set(_id, { ...item, _id });
     }
   });
-  
+
   return map;
 }
 
 /**
- * Load multiple entity types in parallel and return Maps
+ * Load multiple entity types in parallel and return Maps. See loadEntitiesById
+ * for the permissions filtering this applies.
  */
 export async function loadMultipleEntitiesById(
   context: ResolverContext,
@@ -32,14 +43,14 @@ export async function loadMultipleEntitiesById(
     spotlights?: string[];
   }
 ): Promise<{
-  postsById: Map<string, DbPost>;
-  commentsById: Map<string, DbComment>;
-  spotlightsById: Map<string, DbSpotlight>;
+  postsById: Map<string, FilteredEntity<DbPost>>;
+  commentsById: Map<string, FilteredEntity<DbComment>>;
+  spotlightsById: Map<string, FilteredEntity<DbSpotlight>>;
 }> {
   const [postsById, commentsById, spotlightsById] = await Promise.all([
-    entities.posts?.length ? loadEntitiesById(context, 'Posts', entities.posts) : Promise.resolve(new Map<string, DbPost>()),
-    entities.comments?.length ? loadEntitiesById(context, 'Comments', entities.comments) : Promise.resolve(new Map<string, DbComment>()),
-    entities.spotlights?.length ? loadEntitiesById(context, 'Spotlights', entities.spotlights) : Promise.resolve(new Map<string, DbSpotlight>()),
+    entities.posts?.length ? loadEntitiesById(context, 'Posts', entities.posts) : Promise.resolve(new Map<string, FilteredEntity<DbPost>>()),
+    entities.comments?.length ? loadEntitiesById(context, 'Comments', entities.comments) : Promise.resolve(new Map<string, FilteredEntity<DbComment>>()),
+    entities.spotlights?.length ? loadEntitiesById(context, 'Spotlights', entities.spotlights) : Promise.resolve(new Map<string, FilteredEntity<DbSpotlight>>()),
   ]);
 
   return { postsById, commentsById, spotlightsById };

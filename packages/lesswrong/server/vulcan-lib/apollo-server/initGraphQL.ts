@@ -73,8 +73,10 @@ import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolver
 import { sequencesResolversTypeDefs, sequencesResolversQueries, sequencesResolversMutations } from '@/server/resolvers/sequencesResolvers';
 import { reviewPredictionGraphQLTypeDefs, reviewPredictionGraphQLQueries } from '@/server/resolvers/reviewPredictionResolvers';
 import { graphqlMutations as adminEmailSenderGraphQLMutations, graphqlQueries as adminEmailSenderGraphQLQueries, graphqlTypeDefs as adminEmailSenderGraphQLTypeDefs } from "@/server/resolvers/adminEmailSenderResolvers";
+import { aiDigestGraphQLMutations, aiDigestGraphQLQueries, aiDigestGraphQLTypeDefs } from "@/server/resolvers/aiDigestResolvers";
 
 // Collection imports
+import { graphqlAiDigestIssueQueryTypeDefs, aiDigestIssueGqlQueryHandlers, aiDigestIssueGqlFieldResolvers } from "@/server/collections/aiDigestIssues/queries";
 import { graphqlArbitalCachesQueryTypeDefs, arbitalCachesGqlFieldResolvers } from "@/server/collections/arbitalCache/queries";
 import { graphqlArbitalTagContentRelQueryTypeDefs, arbitalTagContentRelGqlQueryHandlers, arbitalTagContentRelGqlFieldResolvers } from "@/server/collections/arbitalTagContentRels/queries";
 import { graphqlAutomatedContentEvaluationQueryTypeDefs, automatedContentEvaluationGqlFieldResolvers } from "@/server/collections/automatedContentEvaluations/queries";
@@ -105,10 +107,12 @@ import { graphqlHomePageDesignQueryTypeDefs, homePageDesignGqlQueryHandlers, hom
 import { graphqlIframeWidgetSrcdocQueryTypeDefs, iframeWidgetSrcdocGqlQueryHandlers, iframeWidgetSrcdocGqlFieldResolvers } from "@/server/collections/iframeWidgetSrcdocs/queries";
 import { graphqlImagesQueryTypeDefs, imagesGqlFieldResolvers } from "@/server/collections/images/queries";
 import { graphqlJargonTermQueryTypeDefs, jargonTermGqlQueryHandlers, jargonTermGqlFieldResolvers } from "@/server/collections/jargonTerms/queries";
+import { graphqlLlmRunTranscriptEntryQueryTypeDefs, llmRunTranscriptEntryGqlFieldResolvers } from "@/server/collections/llmRunTranscriptEntries/queries";
 import { graphqlLweventQueryTypeDefs, lweventGqlQueryHandlers, lweventGqlFieldResolvers } from "@/server/collections/lwevents/queries";
 import { graphqlLegacyDataQueryTypeDefs, legacyDataGqlFieldResolvers } from "@/server/collections/legacyData/queries";
 import { graphqlLlmConversationQueryTypeDefs, llmConversationGqlQueryHandlers, llmConversationGqlFieldResolvers } from "@/server/collections/llmConversations/queries";
 import { graphqlLlmMessageQueryTypeDefs, llmMessageGqlFieldResolvers } from "@/server/collections/llmMessages/queries";
+import { graphqlLlmRunQueryTypeDefs, llmRunGqlQueryHandlers, llmRunGqlFieldResolvers } from "@/server/collections/llmRuns/queries";
 import { graphqlLocalgroupQueryTypeDefs, localgroupGqlQueryHandlers, localgroupGqlFieldResolvers } from "@/server/collections/localgroups/queries";
 import { graphqlManifoldProbabilitiesCacheQueryTypeDefs, manifoldProbabilitiesCacheGqlFieldResolvers } from "@/server/collections/manifoldProbabilitiesCaches/queries";
 import { graphqlMessageQueryTypeDefs, messageGqlQueryHandlers, messageGqlFieldResolvers } from "@/server/collections/messages/queries";
@@ -323,7 +327,9 @@ export const getTypeDefs = () => gql`
   ${sequencesResolversTypeDefs}
   ${reviewPredictionGraphQLTypeDefs}
   ${adminEmailSenderGraphQLTypeDefs}
+  ${aiDigestGraphQLTypeDefs}
   ## CRUD Query typedefs
+  ${graphqlAiDigestIssueQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
   ${graphqlArbitalTagContentRelQueryTypeDefs}
   ${graphqlAutomatedContentEvaluationQueryTypeDefs}
@@ -351,6 +357,7 @@ export const getTypeDefs = () => gql`
   ${graphqlFieldChangeQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
   ${graphqlHomePageDesignQueryTypeDefs}
+  ${graphqlLlmRunTranscriptEntryQueryTypeDefs}
   ${graphqlRejectionAppealQueryTypeDefs}
   ${graphqlTypoSuggestionQueryTypeDefs}
   ${graphqlIframeWidgetSrcdocQueryTypeDefs}
@@ -360,6 +367,7 @@ export const getTypeDefs = () => gql`
   ${graphqlLegacyDataQueryTypeDefs}
   ${graphqlLlmConversationQueryTypeDefs}
   ${graphqlLlmMessageQueryTypeDefs}
+  ${graphqlLlmRunQueryTypeDefs}
   ${graphqlLocalgroupQueryTypeDefs}
   ${graphqlManifoldProbabilitiesCacheQueryTypeDefs}
   ${graphqlMessageQueryTypeDefs}
@@ -504,8 +512,10 @@ const getResolvers = () => ({
     ...reviewPredictionGraphQLQueries,
     ...researchResolversQueries,
     ...adminEmailSenderGraphQLQueries,
+    ...aiDigestGraphQLQueries,
 
     // CRUD Query Handlers
+    ...aiDigestIssueGqlQueryHandlers,
     ...arbitalTagContentRelGqlQueryHandlers,
     ...banGqlQueryHandlers,
     ...bookGqlQueryHandlers,
@@ -528,6 +538,7 @@ const getResolvers = () => ({
     ...jargonTermGqlQueryHandlers,
     ...lweventGqlQueryHandlers,
     ...llmConversationGqlQueryHandlers,
+    ...llmRunGqlQueryHandlers,
     ...localgroupGqlQueryHandlers,
     ...messageGqlQueryHandlers,
     ...moderationTemplateGqlQueryHandlers,
@@ -614,6 +625,7 @@ const getResolvers = () => ({
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
     ...adminEmailSenderGraphQLMutations,
+    ...aiDigestGraphQLMutations,
 
     // CRUD Mutation Handlers
     createBook: createBookGqlMutation,
@@ -688,6 +700,7 @@ const getResolvers = () => ({
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,
   // Collection Field Resolvers
+  ...aiDigestIssueGqlFieldResolvers,
   ...arbitalCachesGqlFieldResolvers,
   ...arbitalTagContentRelGqlFieldResolvers,
   ...automatedContentEvaluationGqlFieldResolvers,
@@ -715,6 +728,7 @@ const getResolvers = () => ({
   ...fieldChangeGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
   ...homePageDesignGqlFieldResolvers,
+  ...llmRunTranscriptEntryGqlFieldResolvers,
   ...rejectionAppealGqlFieldResolvers,
   ...typoSuggestionGqlFieldResolvers,
   ...iframeWidgetSrcdocGqlFieldResolvers,
@@ -724,6 +738,7 @@ const getResolvers = () => ({
   ...legacyDataGqlFieldResolvers,
   ...llmConversationGqlFieldResolvers,
   ...llmMessageGqlFieldResolvers,
+  ...llmRunGqlFieldResolvers,
   ...localgroupGqlFieldResolvers,
   ...manifoldProbabilitiesCacheGqlFieldResolvers,
   ...messageGqlFieldResolvers,

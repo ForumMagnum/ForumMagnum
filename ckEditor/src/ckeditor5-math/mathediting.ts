@@ -1,10 +1,13 @@
 /* eslint-disable no-tabs */
-import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
-import type { ViewDowncastWriter as DowncastWriter, ModelElement as Element } from '@ckeditor/ckeditor5-engine';
-import type { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion/downcastdispatcher';
-import type { UpcastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion/upcastdispatcher';
-import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
-import { Widget } from '@ckeditor/ckeditor5-widget/src/widget';
+import {
+	Plugin,
+	toWidget,
+	Widget,
+	type ViewDowncastWriter as DowncastWriter,
+	type ModelElement as Element,
+	type DowncastConversionApi,
+	type UpcastConversionApi,
+} from 'ckeditor5';
 import type { MathConfig } from './math';
 
 import MathCommand from './mathcommand';

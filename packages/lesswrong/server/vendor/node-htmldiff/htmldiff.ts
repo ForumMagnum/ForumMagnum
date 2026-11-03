@@ -277,7 +277,39 @@ function htmlToTokens(html: string){
     if (currentWord){
         words.push(createToken(currentWord));
     }
-    return words;
+    return keyLinkContentsByHref(words);
+}
+
+function getLinkHref(token: string): string|null {
+    var href = /\shref=(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i.exec(token);
+    return href ? (href[1] ?? href[2] ?? href[3]) : null;
+}
+
+/**
+ * Open tags are keyed by tag name alone, so a link whose href changed but whose text didn't
+ * would otherwise diff as unchanged. Fold the enclosing link's href into the keys of the
+ * text tokens inside it, so that changing a link's destination (or adding/removing a link)
+ * shows the link text as deleted and reinserted.
+ */
+function keyLinkContentsByHref(tokens: Array<any>): Array<any> {
+    var currentHref: string|null = null;
+    return tokens.map(function(token: any){
+        if (isTag(token.string)) {
+            if (/^<a[\s>]/i.test(token.string)) {
+                currentHref = getLinkHref(token.string);
+            } else if (/^<\/a[\s>]/i.test(token.string)) {
+                currentHref = null;
+            }
+            return token;
+        }
+        if (currentHref === null) {
+            return token;
+        }
+        return {
+            string: token.string,
+            key: token.key + '\u0000' + currentHref,
+        };
+    });
 }
 
 /**

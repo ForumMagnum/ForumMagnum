@@ -1,16 +1,9 @@
-import { findPostByIdOrSlug } from "@/server/markdownApi/apiUtil";
+import { findPostByIdOrSlug, isWebLinksRequest, parseBooleanParam } from "@/server/markdownApi/apiUtil";
 import { markdownResponse } from "@/server/markdownApi/markdownResponse";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest } from "next/server";
 import { MarkdownPostDetail } from "@/server/markdownComponents/MarkdownPostDetail";
-
-const truthyValues = new Set(["1", "true", "yes", "on"]);
-
-function parseBooleanParam(value: string | null): boolean {
-  if (!value) return false;
-  return truthyValues.has(value.toLowerCase());
-}
 
 function compactifyPostMarkdown(markdown: string): string {
   return markdown
@@ -22,7 +15,7 @@ function compactifyPostMarkdown(markdown: string): string {
 }
 
 const PostMarkdownQuery = `
-  query PostMarkdownApi($_id: String!, $commentsLimit: Int, $sequenceId: String) {
+  query PostMarkdownApi($_id: String!, $commentsLimit: Int, $sequenceId: String, $webLinks: Boolean!) {
     post(selector: {_id: $_id}) {
       result {
         _id
@@ -43,7 +36,10 @@ const PostMarkdownQuery = `
         coauthors { slug displayName }
         tags { _id name slug }
         title
-        contents { agentMarkdown }
+        contents {
+          agentMarkdown @skip(if: $webLinks)
+          markdown @include(if: $webLinks)
+        }
         sequence(sequenceId: $sequenceId) {
           _id
           title
@@ -92,6 +88,7 @@ export async function renderPostMarkdownByIdOrSlug(
     return new Response("No ID or slug provided", { status: 400 });
   }
   const compactMode = parseBooleanParam(req.nextUrl.searchParams.get("compact"));
+  const webLinks = isWebLinksRequest(req);
   const resolverContext = await getContextFromReqAndRes({ req });
   const rawPost = await findPostByIdOrSlug(idOrSlug, resolverContext);
   if (!rawPost) {
@@ -102,6 +99,7 @@ export async function renderPostMarkdownByIdOrSlug(
     _id: rawPost._id,
     commentsLimit: 50,
     sequenceId: options?.sequenceId,
+    webLinks,
   }, resolverContext);
   const post = data?.post?.result;
   const topComments = (data?.comments?.results ?? [])
@@ -112,9 +110,10 @@ export async function renderPostMarkdownByIdOrSlug(
     return new Response("No post found with ID or slug: " + idOrSlug, { status: 404 });
   }
 
+  const rawBodyMarkdown = (webLinks ? post.contents?.markdown : post.contents?.agentMarkdown) ?? "";
   const bodyMarkdown = compactMode
-    ? compactifyPostMarkdown(post.contents?.agentMarkdown ?? "")
-    : (post.contents?.agentMarkdown ?? "");
+    ? compactifyPostMarkdown(rawBodyMarkdown)
+    : rawBodyMarkdown;
 
   return await markdownResponse(
     <MarkdownPostDetail
@@ -129,6 +128,7 @@ export async function renderPostMarkdownByIdOrSlug(
       markdownPathOverride={options?.markdownPathOverride}
       commentsMarkdownPathOverride={options?.commentsMarkdownPathOverride}
     />,
-    resolverContext.forumType
+    resolverContext.forumType,
+    { absoluteLinks: webLinks },
   );
 }

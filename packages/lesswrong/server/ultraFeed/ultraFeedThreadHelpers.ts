@@ -28,6 +28,7 @@ import {
 } from '../../components/ultraFeed/ultraFeedTypes';
 import * as crypto from 'crypto';
 import { loggerConstructor } from '@/lib/utils/logging';
+import type { ClassifiedTagFilters } from '@/lib/filterSettings';
 
 const ultraFeedLog = loggerConstructor('ultrafeed');
 
@@ -424,7 +425,7 @@ function buildAndScoreThreads(
     const topLevelId = thread[0].topLevelCommentId ?? thread[0].commentId;
 
     const engagementMultiplier = calculateThreadEngagementMultiplier(topLevelId, engagementStatsMap, threadInterestModel);
-    const finalThreadScore = baseThreadScore * engagementMultiplier;
+    const finalThreadScore = baseThreadScore * engagementMultiplier * thread[0].postTagFilterMultiplier;
 
     return { thread, score: finalThreadScore, topLevelId }; 
   });
@@ -563,6 +564,7 @@ export async function getUltraFeedCommentThreads(
   initialCandidateLookbackDays: number,
   commentServedEventRecencyHours: number,
   threadEngagementLookbackDays: number,
+  tagFilters: ClassifiedTagFilters,
   sessionId?: string
 ): Promise<PreparedFeedCommentsThread[]> {
   const userIdOrClientId = context.userId ?? context.clientId;
@@ -577,7 +579,8 @@ export async function getUltraFeedCommentThreads(
     userIdOrClientId, 
     1000, 
     initialCandidateLookbackDays, 
-    commentServedEventRecencyHours
+    commentServedEventRecencyHours,
+    tagFilters,
   );
   const engagementStatsPromise = commentsRepo.getThreadEngagementStatsForRecentlyActiveThreads(
     userIdOrClientId,

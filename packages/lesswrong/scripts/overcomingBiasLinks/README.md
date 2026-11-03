@@ -4,6 +4,8 @@ These REPL scripts collect current links, resolve destinations, and create patch
 revisions. There are local date/title and archive-based resolver options. They
 do not edit historical revisions. Run against the
 development database first; the commands below select `dev lw` explicitly.
+Content parsing and revision writing live in `../contentLinkRepair/`, which
+`../unwrapOutRedirectLinks.ts` also uses.
 
 ## 1. Collect and deduplicate
 

@@ -14,6 +14,12 @@ const styles = defineStyles('AnimatedCollapse', () => ({
   },
   expanded: {
     gridTemplateRows: '1fr',
+    // The grid is only needed for the collapse animation. When printing,
+    // Firefox won't split a grid item across pages, leaving large gaps
+    // where comments are moved to the next page whole.
+    '@media print': {
+      display: 'block',
+    },
   },
   content: {
     display: 'flow-root',

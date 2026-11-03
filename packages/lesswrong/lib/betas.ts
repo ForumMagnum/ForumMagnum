@@ -6,7 +6,7 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import { type ForumTypeString, isEAForum, userIdsWithAccessToLlmChat } from './instanceSettings';
+import { type ForumTypeString, hailboxUrlSetting, isEAForum, userIdsWithAccessToLlmChat } from './instanceSettings';
 import { isAdmin } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
 
@@ -41,6 +41,14 @@ export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null, forumType:
   const userIdsWithAccess = userIdsWithAccessToLlmChat.get(forumType);
   
   return forumType === 'LessWrong' && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser._id));
+}
+
+export const userCanUseHailbox = (user: UsersCurrent|DbUser|null, forumType: ForumTypeString): boolean => {
+  return adminOnly(user) && hailboxUrlSetting.get(forumType) !== null;
+}
+
+export const userHasHailbox = (user: UsersCurrent|DbUser|null, forumType: ForumTypeString): boolean => {
+  return userCanUseHailbox(user, forumType) && !!user?.hailboxOptIn;
 }
 
 // Non-user-specific features

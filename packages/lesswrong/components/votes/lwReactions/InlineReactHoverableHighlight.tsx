@@ -92,8 +92,12 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
   }
 
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts ?? {};
+  // In netPositive mode, hide the icons of reactions on this span that have
+  // been anti-reacted down to zero or below, even if other reactions on the
+  // same span are positive. (They're still listed in the hover info.)
   const reactionsUsed = Object.keys(normalizedReactions).filter(react =>
     normalizedReactions[react]?.some(r=>r.quotes?.includes(quote))
+    && (visibilityMode !== "netPositive" || quoteReactHasPositiveScore(reactions, react))
   );
   
   return <>
@@ -162,14 +166,12 @@ function atLeastOneQuoteReactHasPositiveScore(reactions: NamesAttachedReactionsL
     return false;
   }
   
-  for (let react of Object.keys(reactions)) {
-    const netReaction = sumBy(reactions[react], r => r.reactType==="disagreed" ? -1 : 1);
-    if (netReaction > 0) {
-      return true;
-    }
-  }
-  
-  return false;
+  return Object.keys(reactions).some(react => quoteReactHasPositiveScore(reactions, react));
+}
+
+function quoteReactHasPositiveScore(reactions: NamesAttachedReactionsList, react: string): boolean {
+  const netReaction = sumBy(reactions[react], r => r.reactType==="disagreed" ? -1 : 1);
+  return netReaction > 0;
 }
 
 export default InlineReactHoverableHighlight;
