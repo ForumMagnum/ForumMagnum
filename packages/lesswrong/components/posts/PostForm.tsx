@@ -488,8 +488,10 @@ const PostForm = ({
   const {
     onSubmitCallback,
     onSuccessCallback,
+    getContentsCallback,
     addOnSubmitCallback,
-    addOnSuccessCallback
+    addOnSuccessCallback,
+    addGetContentsCallback,
   } = useEditorFormCallbacks<PostsEditMutationFragment>();
 
   const {
@@ -934,6 +936,7 @@ const PostForm = ({
                 setFieldEditorType={setEditorType}
                 addOnSubmitCallback={addOnSubmitCallback}
                 addOnSuccessCallback={addOnSuccessCallback}
+                addGetContentsCallback={addGetContentsCallback}
                 hasToc={true}
                 hintText={getDefaultEditorPlaceholder(form.state.values.contents?.originalContents.type as EditorTypeString ?? 'lexical')}
                 fieldName="contents"
@@ -1137,6 +1140,7 @@ const PostForm = ({
           currentUser={currentUser}
           isSaving={isSaving}
           onClose={() => setSidebarPanel(null)}
+          getContentsCallback={getContentsCallback}
           addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
           addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
           addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
@@ -1160,6 +1164,7 @@ const PostForm = ({
         editorType={editorType}
         sidebarPanel={sidebarPanel}
         setSidebarPanel={setSidebarPanel}
+        getContentsCallback={getContentsCallback}
         addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
         addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
         addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
