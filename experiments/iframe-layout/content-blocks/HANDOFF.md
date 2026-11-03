@@ -558,4 +558,14 @@ can run it over `ssh studio`, or use your own copy).
     placeSpacer, top level only (the overlay follows the spacer's rect). Post: HydratedIframeWidget, when its
     column can wrap at all; ResizeObservers on every block in the span. `clearTrail` undoes it.
   - Checks: `content-blocks/bottom-span-check.mjs` (10); unit tests 60.
+  - Any content that can go beside a widget (Ronny, Nov 2: "you should be able to align top or bottom to any
+    kind of content that can go beside a widget"): widgetDragGeometry `canLineUpWith(block)` = not blank and
+    kind other, section, or heading with `flows` (H3-H6 are in WRAPPING_BLOCKS, H1/H2 aren't); used by
+    spotProblem, chooseDropSlot's aim, adjacentSpot and roomInPlace. DropSlot `bottomOf` names it in the chip.
+    bottomAlign: `.detailsBlock` joined WRAPPING_BLOCKS, alignedBlock no longer stops at sections, and
+    alignFloatBottom opens closed sections in the span for the whole measurement (`openSections`, as the guard's
+    openBottom) so a section never moves the widget. Fix: with span > 1 the target may start below the widget
+    at push 0, so the initial "starts below" check is span-1 only, and the in-loop bail needs push > 0, the
+    block below the widget, and the block having moved down by more than half the push (a box displaced by
+    the float). Check: `bottom-kinds-check.mjs` (7).
 

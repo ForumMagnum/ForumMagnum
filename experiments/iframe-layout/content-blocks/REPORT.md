@@ -155,8 +155,11 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
   too (it showed it full width).
 
 ### Lining a widget up with the end of a paragraph
-- It only lines up with a block that runs beside it. Never with a heading, divider, embed, the footnotes,
-  or a box that went below.
+- It lines up with any content that can go beside a widget (your rule, Nov 2: "you should be able to align
+  top or bottom to any kind of content that can go beside a widget"): text, AI content, smaller headings,
+  quotes, collapsible sections (as they look open, so opening or closing one never moves the widget), lists,
+  spoilers, and code, tables, images and equations that fit beside it. Never with a section heading (H1, H2),
+  a divider, an embed, the footnotes, a blank line, or a box that went below.
 - Fixed: lined up with any of those, the widget was pushed down forever (thousands of px).
 - Fixed: it sometimes stopped short of the paragraph's end (when a whole line moved up as the widget moved
   down).
@@ -350,4 +353,13 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
     paragraph it lines up with comes first and the widget follows it, in the editor and the post. Only on
     screen: they swap places, so the widget's place in the text stays and nothing after them moves.
   - Test: `bottom-span-check.mjs` (dragged onto the AI content, editor and post, at 1280px and 420px).
+  - **Top or bottom of any content that can go beside a widget (Nov 2, your rule above).** Smaller headings
+    (H3 and below) and collapsible sections now offer a bottom too; the chip says "bottom of the heading" or
+    "bottom of the section". A section is lined up with as it looks open, as the sliver guard measures it, so
+    in the post (where sections start closed) opening it doesn't move the widget. Fixed on the way: a widget
+    lined up with a block that started just below it before any push gave up and stayed at the top (a heading
+    or spoiler below a tall widget, and likely your AI content at your window size). Now it only gives up when
+    the block moves down with the widget (a box that doesn't fit beside it).
+  - Test: `bottom-kinds-check.mjs` (a heading, a section, a spoiler past a section; the Post tab with the
+    section closed and open).
 

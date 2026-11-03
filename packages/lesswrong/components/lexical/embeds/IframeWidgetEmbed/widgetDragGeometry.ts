@@ -18,9 +18,9 @@ export interface BlockBox {
    * 'sentinel': an empty, zero-height paragraph the editor keeps on each side of a widget for the
    * caret (BlockCursorNavigationPlugin). Never a drop target; the editor re-adds them after a move.
    * EXPERIMENT (experiment/iframe-layout-ronny-exp3): 'divider' and 'embed' start below a widget the text
-   * wraps around (they clear it); a heading sits beside it, but a widget never lines up with one.
-   * 'section': a collapsible section. A widget never lines up with its bottom either: opening or closing
-   * the section would move the widget.
+   * wraps around (they clear it); a smaller heading sits beside it (and since Nov 2 2026 can be lined up
+   * with: see canLineUpWith), a section heading starts below it. 'section': a collapsible section (lined up
+   * with as it looks open, so opening or closing it never moves the widget).
    */
   kind: 'heading' | 'widget' | 'sentinel' | 'divider' | 'embed' | 'section' | 'other';
   float: 'none' | 'left' | 'right';
@@ -130,6 +130,8 @@ export interface DropSlot {
   atEnd: boolean;
   /** Client y of the top of the ghost box, for a drop that wraps. */
   ghostTop: number | null;
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): lined up with a bottom, what the chip calls that block. */
+  bottomOf: 'paragraph' | 'heading' | 'section' | null;
 }
 
 /** What a block that clears a widget is, for the chips. */
@@ -253,6 +255,16 @@ export interface Spot {
   start?: number;
 }
 
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): whether a widget can line up with this block's bottom:
+ * any content that can go beside a widget (Ronny, Nov 2 2026), so smaller headings and collapsible sections
+ * too (sections as they look open, see bottomAlign), but never a section heading (H1, H2: they start below
+ * widgets) or a blank line. Whether it fits beside the widget is bottomStart's question.
+ */
+function canLineUpWith(block: BlockBox): boolean {
+  return !block.blank && (block.kind === 'other' || block.kind === 'section' || (block.kind === 'heading' && !!block.flows));
+}
+
 /** Where a float right before flow block `index` starts: at the block before's bottom margin, or its own top, plus its top margin. */
 function floatTop(flow: BlockBox[], index: number): number {
   const block = flow[index];
@@ -314,7 +326,7 @@ export function spotProblem(room: WidgetRoom, spot: Spot): 'clears' | 'notParagr
   const { index, align } = spot;
   const block = flow[index];
   if (block?.clears) return 'clears';
-  if (block && align === 'bottom' && (block.kind !== 'other' || block.blank)) return 'notParagraph';
+  if (block && align === 'bottom' && !canLineUpWith(block)) return 'notParagraph';
   if (widgetLinedUpWith(blocks, flow, index, key)) return 'widget';
   // At the end of the post it goes below everything.
   if (!block) return null;
@@ -386,7 +398,7 @@ export function roomInPlace(blocks: BlockBox[], key: string, layout: IframeWidge
   // (Its own block's bottom only if that is a paragraph's: otherwise it stays at the top, see bottomAlign.
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the block it lines up with is the span-th after it.)
   const lined = alignOf(layout) === 'bottom' ? lineUpIndex(room.flow, index, spanOf(layout)) : null;
-  const spot: Spot = lined !== null && room.flow[lined].kind === 'other'
+  const spot: Spot = lined !== null && canLineUpWith(room.flow[lined])
     ? { index: lined, align: 'bottom', start: index }
     : { index, align: 'top' };
   return spotProblem(room, spot) !== 'widget';
@@ -499,7 +511,7 @@ export function chooseDropSlot({
     const nearest = nearestBlock(flow, pointerY);
     const block = flow[nearest];
     const lowerHalf = pointerY >= (block.top + block.bottom) / 2;
-    if (lowerHalf && wraps && block.kind === 'other' && !block.clears && pointerY <= block.bottom) {
+    if (lowerHalf && wraps && canLineUpWith(block) && !block.clears && pointerY <= block.bottom) {
       beforeIndex = nearest;
       align = 'bottom';
     } else {
@@ -619,6 +631,8 @@ export function chooseDropSlot({
     pointerSide: sideZone(pointerX, column),
     atEnd: !before,
     ghostTop,
+    bottomOf: alignOf(target) !== 'bottom' || !linedUp ? null
+      : linedUp.kind === 'heading' ? 'heading' : linedUp.kind === 'section' ? 'section' : 'paragraph',
   };
 }
 
@@ -728,7 +742,7 @@ export function adjacentSpot(
   // bottomAlign.)
   const spotAt = (i: number): Spot => ({
     index: i,
-    align: align === 'bottom' && flow[i]?.kind === 'other' && !flow[i]?.blank ? 'bottom' : 'top',
+    align: align === 'bottom' && flow[i] && canLineUpWith(flow[i]) ? 'bottom' : 'top',
   });
   const candidates = Array.from({ length: flow.length + 1 }, (_, i) => i).filter(i => !room || !spotProblem(room, spotAt(i)));
   // Where it is now: the block it goes before, or lined up with bottoms, the one it lines up with.
@@ -774,7 +788,7 @@ export function moveChipText(slot: DropSlot, storedLayout: IframeWidgetLayout): 
   if (slot.snappedBelow) parts.push(`Below the ${slot.snappedBelow}`);
   if (slot.wraps && side) {
     parts.push(`${sideLabel(side)} · ${slot.layout.width}`);
-    if (alignOf(slot.layout) === 'bottom') parts.push('bottom of the paragraph');
+    if (alignOf(slot.layout) === 'bottom') parts.push(`bottom of the ${slot.bottomOf ?? 'paragraph'}`);
   } else if (widgetSide(storedLayout)) {
     parts.push('Full width here: no room to wrap');
   } else {

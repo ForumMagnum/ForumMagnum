@@ -830,15 +830,20 @@ describe('bottom alignment', () => {
       .toEqual({ ...spanning, width: '38%' });
   });
 
-  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): opening or closing a section would move the widget.
-  it('never lines a widget up with a collapsible section', () => {
-    const blocks = post().filter(b => b.key !== 'fr').map(b => b.key === 'p3' ? { ...b, kind: 'section' as const } : b);
-    // p3 (400 to 480) is now a section: its lower half means the slot after it, at the top of p4.
-    const lower = slot({ blocks, layout: RIGHT_33, pointerX: 600, pointerY: 460, ghostHeight: 50 });
-    expect([lower.slotKey, alignOf(lower.layout)]).toEqual(['p4', 'top']);
-    // Its upper half is still the slot before it.
-    const upper = slot({ blocks, layout: RIGHT_33, pointerX: 600, pointerY: 420, ghostHeight: 50 });
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): Ronny, Nov 2 2026: "you should be able to align top or
+  // bottom to any kind of content that can go beside a widget" (a section as it looks open, see bottomAlign).
+  it('lines a widget up with a collapsible section or a smaller heading too, never a section heading', () => {
+    const asSection = post().filter(b => b.key !== 'fr').map(b => b.key === 'p3' ? { ...b, kind: 'section' as const } : b);
+    // p3 (400 to 480) is now a section: its lower half means its bottom, its upper half its top.
+    const lower = slot({ blocks: asSection, layout: RIGHT_33, pointerX: 600, pointerY: 460, ghostHeight: 50 });
+    expect([lower.slotKey, alignOf(lower.layout)]).toEqual(['p3', 'bottom']);
+    expect(moveChipText(lower, RIGHT_33)).toBe('Right · 33% · bottom of the section');
+    const upper = slot({ blocks: asSection, layout: RIGHT_33, pointerX: 600, pointerY: 420, ghostHeight: 50 });
     expect([upper.slotKey, alignOf(upper.layout)]).toEqual(['p3', 'top']);
+    // An H3 (a heading whose text wraps beside a widget) too; an H1 or H2 (h, in post()) never.
+    const asH3 = post().filter(b => b.key !== 'fr').map(b => b.key === 'p3' ? { ...b, kind: 'heading' as const, flows: true } : b);
+    const h3 = slot({ blocks: asH3, layout: RIGHT_33, pointerX: 600, pointerY: 460, ghostHeight: 50 });
+    expect([h3.slotKey, alignOf(h3.layout), moveChipText(h3, RIGHT_33)]).toEqual(['p3', 'bottom', 'Right · 33% · bottom of the heading']);
   });
 
   it('gives a full-width widget no alignment', () => {
