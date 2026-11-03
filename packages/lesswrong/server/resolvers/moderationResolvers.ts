@@ -82,6 +82,7 @@ export const moderationGqlTypeDefs = gql`
     conversationId: String
     contents: CreateRevisionDataInput!
     noEmail: Boolean
+    templateIds: [String!]
   }
 
   input CompleteUserModerationInput {
