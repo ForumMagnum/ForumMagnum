@@ -50,7 +50,7 @@ interface FMTooltipProps {
 }
 
 export const TooltipRef = <T extends HTMLElement>({
-  title, placement="bottom", distance=16, styling="tooltip", flip, clickable,
+  title, placement="bottom", distance=16, styling="tooltip", flip=true, clickable,
   disabled, hideOnTouchScreens, analyticsProps, otherEventProps, className,
   popperClassName, forceOpen, preserve, children
 }: FMTooltipProps & {
