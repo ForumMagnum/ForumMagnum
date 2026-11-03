@@ -1,7 +1,7 @@
 import React from 'react';
 import { postGetLink, postGetLinkTarget, postGetAbsolutePageUrl } from '../../lib/collections/posts/helpers';
 import { truncatise } from '@/lib/truncatise';
-import { SMALL_TRUNCATION_CHAR_COUNT } from '@/lib/editor/ellipsize';
+import { SMALL_TRUNCATION_CHAR_COUNT, splitOutStyleElements } from '@/lib/editor/ellipsize';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { EmailPostAuthors } from './EmailPostAuthors';
 import { EmailContentItemBody } from './EmailContentItemBody';
@@ -39,8 +39,8 @@ const getPodcastInfoElement = (podcastEpisode: Exclude<PostPodcastEpisode['podca
 };
 
 const getTruncatedHtml = (html: string) => {
-  const styles = html ? (html.match(/<style[\s\S]*?<\/style>/g) || "") : "";
-  const htmlWithoutStyles = html ? html.replace(/<style[\s\S]*?<\/style>/g, '') : '';
+  const { styles: styleElements, htmlWithoutStyles } = splitOutStyleElements(html);
+  const styles = styleElements.join('');
 
   const truncatedByParagraphs = truncatise(htmlWithoutStyles, {
     TruncateLength: 2,
