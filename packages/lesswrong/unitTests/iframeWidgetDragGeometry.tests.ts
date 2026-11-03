@@ -1,12 +1,12 @@
 // EXPERIMENT (experiment/iframe-layout-ronny-exp2): dragging and resizing iframe widgets in the editor.
 import {
-  BlockBox, ColumnRect, DropSlotInput, adjacentSlot, autoScrollStep, chooseDropSlot, chooseSide, fitMatchesWidth, insertionKey,
-  moveChipText, resizeChipText, resizeTarget, roomInPlace, shrinkWarning, stepWidth, widgetRoom,
+  BlockBox, ColumnRect, DropSlotInput, adjacentSlot, adjacentSpot, alignPlacement, autoScrollStep, chooseDropSlot, chooseSide,
+  fitMatchesWidth, insertionKey, moveChipText, resizeChipText, resizeTarget, roomInPlace, shrinkWarning, stepWidth, widgetRoom,
 } from '../components/lexical/embeds/IframeWidgetEmbed/widgetDragGeometry';
 import { IframeWidgetFit, injectResizeScript, readIframeWidgetFit } from '../components/lexical/embeds/IframeWidgetEmbed/iframeResizeScript';
 import {
   IframeWidgetLayout, alignOf, minColumnToWrap, offeredSnapFractions, offeredWidths, parseIframeWidgetLayout, sameLayout,
-  setIframeWidgetLayout, shouldWrapWidget, withAlign, wrappableWidths,
+  setIframeWidgetLayout, shouldWrapWidget, spanOf, withAlign, withSpan, wrappableWidths,
 } from '../components/contents/iframeWidgetLayout';
 
 const COLUMN: ColumnRect = { left: 0, width: 682 };
@@ -733,14 +733,96 @@ describe('bottom alignment', () => {
     expect([gapNoFr.slotKey, alignOf(gapNoFr.layout)]).toEqual(['p4', 'top']);
   });
 
-  it('keeps a widget taller than the paragraph at its top, and never lines up with a heading', () => {
-    // Its top can't go above the paragraph's (the line between the heading and p3 is at 370). (Without fr,
-    // which it would reach.)
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): it used to stay at the paragraph's top, its bottom far
+  // below the paragraph's (Ronny, Nov 2 2026: "it doesn't look to me like it worked").
+  it('never lines a widget up with the bottom of a paragraph shorter than it with no text above to start beside, nor with a heading', () => {
+    // p3 (80px, after the heading) can't hold a 200px widget, and it can't start above the heading: the
+    // lower half of p3 means the next spot down, p4's top. (Without fr, which it would reach.)
     const tall = slot({ blocks: post().filter(b => b.key !== 'fr'), layout: RIGHT_33, pointerX: 600, pointerY: 460, ghostHeight: 200 });
-    expect([alignOf(tall.layout), tall.ghostTop]).toEqual(['bottom', 370]);
+    expect([tall.slotKey, alignOf(tall.layout)]).toEqual(['p4', 'top']);
+    expect(moveChipText(tall, RIGHT_33)).toBe('Right · 33%');
     // The heading (300 to 340) is never a bottom: below its middle means the paragraph after it.
     const heading = slot({ layout: RIGHT_33, pointerX: 600, pointerY: 330, ghostHeight: 50 });
     expect([heading.slotKey, alignOf(heading.layout)]).toEqual(['p3', 'top']);
+  });
+
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): h, then p0 (60-140), p1 (160-200, short) and p2
+  // (220-300), text that runs on beside a widget; the dragged widget, full width, after them.
+  const spanPost = (overrides: Record<string, Partial<BlockBox>> = {}): BlockBox[] => [
+    block('h', 0, 0, 40, 'heading'),
+    { ...block('p0', 1, 60, 80), flows: true },
+    { ...block('p1', 2, 160, 40), flows: true },
+    { ...block('p2', 3, 220, 80), flows: true },
+    { key: 'w', index: 4, kind: 'widget', float: 'none', top: 320, bottom: 420 },
+    block('p3', 5, 440),
+  ].map(b => ({ ...b, ...overrides[b.key] }));
+  const spanDrop = (blocks: BlockBox[], pointerY: number, ghostHeight = 100) => chooseDropSlot({
+    blocks, draggedKey: 'w', pointerX: 50, pointerY, column: COLUMN, layout: LEFT_33, prevSide: null, ghostHeight,
+  });
+
+  it('lines a widget up with the bottom of a paragraph shorter than it by starting it beside the text before', () => {
+    // p1 is 40px (about 65 beside a 33% widget); from p0's top there is room for the 100px widget.
+    const drop = spanDrop(spanPost(), 190);
+    expect([drop.slotKey, drop.beforeKey, drop.layout]).toEqual(['p0', 'p0', { ...LEFT_33, align: 'bottom', span: 2 }]);
+    // The ghost ends at p1's bottom, where the line is.
+    expect([drop.ghostTop, drop.lineY]).toEqual([100, 200]);
+    expect(moveChipText(drop, LEFT_33)).toBe('Left · 33% · bottom of the paragraph');
+    // Blank lines between them don't count.
+    const blank: BlockBox = { ...block('b', 1.5, 145, 10), flows: true, blank: true };
+    const withBlank = spanDrop([...spanPost(), blank].sort((a, b) => a.index - b.index), 190);
+    expect([withBlank.slotKey, withBlank.layout.span]).toEqual(['p0', 2]);
+    // Nor is a blank line ever a bottom.
+    expect(alignOf(spanDrop([...spanPost(), blank].sort((a, b) => a.index - b.index), 152).layout)).toBe('top');
+  });
+
+  it('starts a widget only beside text that runs on beside it, never above a heading', () => {
+    // A 200px one would need text above p0, which is the heading: the next spot, p1's top.
+    const tall = spanDrop(spanPost(), 120, 200);
+    expect([tall.slotKey, alignOf(tall.layout)]).toEqual(['p1', 'top']);
+    // With p0 a box (a quote, say), the lower half of p1 means p2's top.
+    const box = spanDrop(spanPost({ p0: { flows: false } }), 190);
+    expect([box.slotKey, alignOf(box.layout)]).toEqual(['p2', 'top']);
+  });
+
+  it('keeps another widget out of the text it starts beside', () => {
+    // A right float at p0's top, running on to 150: lining up with p1's bottom would start beside it.
+    const blocks = [...spanPost(), float('fr', 0.5, 'right', 66, 150)].sort((a, b) => a.index - b.index);
+    const drop = spanDrop(blocks, 190);
+    expect([drop.slotKey, alignOf(drop.layout), drop.moved]).toEqual(['p2', 'top', 'down']);
+  });
+
+  it('moves a widget up or down with the gear\'s Bottom and Top, keeping its paragraph', () => {
+    // w, a left float lined up with the top of p1.
+    const atP1 = spanPost({ w: { index: 1.5, float: 'left', top: 166, bottom: 266 } }).sort((a, b) => a.index - b.index);
+    expect(alignPlacement(atP1, 'w', LEFT_33, 'bottom', COLUMN.width, 100))
+      .toEqual({ beforeKey: 'p0', layout: { ...LEFT_33, align: 'bottom', span: 2 } });
+    // Lined up with p1's bottom from p0, Top takes it to p1's top.
+    const spanning: IframeWidgetLayout = { ...LEFT_33, align: 'bottom', span: 2 };
+    const atP0 = spanPost({ w: { index: 0.5, float: 'left', top: 100, bottom: 200 } }).sort((a, b) => a.index - b.index);
+    expect(alignPlacement(atP0, 'w', spanning, 'top', COLUMN.width, 100)).toEqual({ beforeKey: 'p1', layout: LEFT_33 });
+    expect(roomInPlace(atP0, 'w', spanning, COLUMN.width, 100)).toBe(true);
+    // A 200px one can't line up with p1's bottom at all.
+    expect(alignPlacement(atP1, 'w', LEFT_33, 'bottom', COLUMN.width, 200)).toEqual({ problem: 'short' });
+  });
+
+  it('steps a bottom-aligned widget onto a short paragraph from the text before it', () => {
+    // w lined up with p2's bottom; up: p1's bottom, from p0.
+    const blocks = spanPost({ w: { index: 2.5, float: 'left', top: 226, bottom: 326 } }).sort((a, b) => a.index - b.index);
+    const room = widgetRoom(blocks, 'w', LEFT_33, COLUMN.width, 100);
+    expect(adjacentSpot(blocks, 'w', 'up', room, 'bottom')).toEqual({ key: 'p0', span: 2 });
+  });
+
+  it('reads and writes span=N with align=bottom only', () => {
+    const spanning: IframeWidgetLayout = { position: 'left', width: '33%', align: 'bottom', span: 2 };
+    expect(parseIframeWidgetLayout('<meta name="lw-layout" content="position=left width=33% align=bottom span=2"><p>x</p>'))
+      .toEqual(spanning);
+    expect(parseIframeWidgetLayout('<meta name="lw-layout" content="position=left width=33% span=2"><p>x</p>')).toEqual(LEFT_33);
+    expect(setIframeWidgetLayout('<p>x</p>', spanning))
+      .toBe('<meta name="lw-layout" content="position=left width=33% align=bottom span=2">\n<p>x</p>');
+    expect(spanOf(withAlign(spanning, 'top'))).toBe(1);
+    expect(sameLayout(spanning, withSpan(spanning, 1))).toBe(false);
+    expect(resizeTarget({ edge: 'right', startLayout: spanning, startWraps: true, pointerX: 260, column: COLUMN }).layout)
+      .toEqual({ ...spanning, width: '38%' });
   });
 
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): opening or closing a section would move the widget.

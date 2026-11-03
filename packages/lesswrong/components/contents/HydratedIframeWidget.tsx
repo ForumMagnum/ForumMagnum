@@ -5,8 +5,8 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT } from '@/components/lexical/embeds/IframeWidgetEmbed/iframeResizeScript';
 import classNames from 'classnames';
-import { alignOf, parseIframeWidgetLayout, shouldWrapWidget } from './iframeWidgetLayout';
-import { alignFloatBottom, alignedParagraph, clearFloatBottom } from './bottomAlign';
+import { alignOf, parseIframeWidgetLayout, shouldWrapWidget, spanOf } from './iframeWidgetLayout';
+import { alignFloatBottom, alignedBlock, clearFloatBottom, trailBelow } from './bottomAlign';
 import { widgetNeighbourGlobals } from './widgetNeighbours';
 import { WIDGET_LAYOUT_EVENT, mayRealignAfterGuard, scheduleSliverGuard, widgetContainerWidth } from './widgetSliverGuard';
 
@@ -126,25 +126,35 @@ function InlineIframeWidget({ srcdoc, title }: {
 
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): align=bottom lines the widget up with the end of the
   // paragraph after it, again whenever that paragraph reflows (fonts loading, the window resizing).
-  const bottom = floated && alignOf(layout) === 'bottom';
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): or with the span-th block after it, the text before
+  // that reflowing too. Where it shows full width (no room beside it at this width), it goes below that
+  // block instead, so its text comes first (trailBelow; not in a quote, list or other block, where it
+  // never wraps).
+  const aligned = alignOf(layout) === 'bottom';
+  const span = spanOf(layout);
+  const trails = aligned && !floated && !!columnWidth;
   useLayoutEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
-    if (!bottom) {
-      clearFloatBottom(iframe);
-      return;
-    }
-    const container = iframe.closest('.iframe-widget') ?? iframe;
-    alignFloatBottom(iframe, alignedParagraph(container), 6);
-    const paragraph = alignedParagraph(container);
+    const container = iframe.closest<HTMLElement>('.iframe-widget') ?? iframe;
+    const place = () => {
+      if (floated && aligned) alignFloatBottom(iframe, alignedBlock(container, span), 6, span);
+      else clearFloatBottom(iframe);
+      trailBelow(container, trails ? alignedBlock(container, span) : null);
+    };
+    place();
+    const paragraph = (floated && aligned) || trails ? alignedBlock(container, span) : null;
     if (!paragraph) return;
     let frame = 0;
     const realign = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => alignFloatBottom(iframe, alignedParagraph(container), 6));
+      frame = requestAnimationFrame(place);
     };
     const observer = new ResizeObserver(realign);
-    observer.observe(paragraph);
+    for (let el = container.nextElementSibling; el; el = el.nextElementSibling) {
+      observer.observe(el);
+      if (el === paragraph) break;
+    }
     // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the sliver guard moved a block, which can move the
     // paragraph (without changing its size).
     const column = container.parentElement;
@@ -156,8 +166,9 @@ function InlineIframeWidget({ srcdoc, title }: {
       cancelAnimationFrame(frame);
       observer.disconnect();
       column?.removeEventListener(WIDGET_LAYOUT_EVENT, realignAfterGuard);
+      trailBelow(container, null);
     };
-  }, [bottom, height, columnWidth]);
+  }, [aligned, floated, trails, span, height, columnWidth]);
 
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): boxes that start beside only the widget's last few
   // pixels go below it (widgetSliverGuard), checked again whenever the post's text reflows.

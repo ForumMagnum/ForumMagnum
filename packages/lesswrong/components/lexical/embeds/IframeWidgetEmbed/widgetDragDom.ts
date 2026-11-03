@@ -10,6 +10,7 @@ import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blo
 import { $isIframeWidgetNode } from './IframeWidgetNode';
 import type { BlockBox, ColumnRect } from './widgetDragGeometry';
 import { EDITOR_CLEARING_BLOCKS } from '@/components/contents/widgetNeighbours';
+import { isBlankBlock } from '@/components/contents/bottomAlign';
 import { WIDGET_CLEAR_CLASS } from './widgetClearClass';
 
 /**
@@ -78,6 +79,10 @@ export function measureBlocks(editor: LexicalEditor): { blocks: BlockBox[], colu
         top: rect.top,
         bottom: rect.bottom,
         marginBottom: parseFloat(marginBottom) || 0,
+        // EXPERIMENT (experiment/iframe-layout-ronny-exp3): for lining up with a later block's bottom (see
+        // bottomStart and alignedBlock, which the post uses too).
+        flows: elem.matches('p, .llm-content-block') && !clearing && clear === 'none',
+        blank: isBlankBlock(elem),
       });
     }
   });

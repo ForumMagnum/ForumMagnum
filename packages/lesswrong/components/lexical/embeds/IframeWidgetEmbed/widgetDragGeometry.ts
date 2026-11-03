@@ -2,8 +2,8 @@
 // widgets in the editor: where a drop lands, which side it takes, what a resize snaps to and what the
 // chips say. Pure (no DOM, no Lexical), so it is unit tested (unitTests/iframeWidgetDragGeometry.tests.ts).
 import {
-  alignOf, IframeWidgetLayout, offeredSnapFractions, offeredWidths, sameLayout, shouldWrapWidget, widgetWidthPx, withAlign,
-  WRAP_GUTTER,
+  alignOf, IframeWidgetLayout, offeredSnapFractions, offeredWidths, sameLayout, shouldWrapWidget, spanOf, widgetWidthPx, withAlign,
+  withSpan, WRAP_GUTTER,
 } from '@/components/contents/iframeWidgetLayout';
 import type { IframeWidgetFit } from './iframeResizeScript';
 
@@ -37,6 +37,13 @@ export interface BlockBox {
    * float starts above the next block's top). Unknown: at the next block's top.
    */
   marginBottom?: number;
+  /**
+   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): text that runs on beside a widget (a paragraph or AI
+   * content), so a widget lined up with the bottom of a later block can start beside it (see bottomStart).
+   */
+  flows?: boolean;
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): it has nothing in it (a blank line): never lined up with, and not counted in a span. */
+  blank?: boolean;
 }
 
 /** Blocks in the text flow (floats and sentinels skipped), without the dragged widget. */
@@ -229,27 +236,85 @@ export function widgetRoom(
 export interface Spot {
   index: number;
   align: 'top' | 'bottom';
+  /**
+   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): lined up with a bottom, the flow block the widget goes
+   * before, if it is there already (see bottomStart for where it would go).
+   */
+  start?: number;
+}
+
+/** Where a float right before flow block `index` starts: at the block before's bottom margin, or its own top, plus its top margin. */
+function floatTop(flow: BlockBox[], index: number): number {
+  const block = flow[index];
+  const before = flow[index - 1];
+  return (before?.marginBottom !== undefined ? Math.min(before.bottom + before.marginBottom, block.top) : block.top) + FLOAT_TOP_MARGIN;
+}
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): the flow block a widget lined up with the bottom of flow
+ * block `index` goes before. That block, if the widget can end at its bottom starting from its top; if the
+ * block is shorter than that (Ronny's AI content, Nov 2 2026), the latest block before it from which it
+ * can, so that it starts beside the text before (only text that runs on beside a widget: paragraphs and AI
+ * content). Null if it can't from anywhere. Text no widget is beside yet is counted as it will be beside
+ * this one: narrowed to `share` of the column, and so taller.
+ */
+export function bottomStart(room: WidgetRoom, index: number): number | null {
+  const { blocks, flow, height, share } = room;
+  const target = flow[index];
+  if (!target) return null;
+  const floatsNow = blocks.filter(b => b.float !== 'none');
+  let grown = 0;
+  for (let start = index; start >= 0; start--) {
+    const b = flow[start];
+    if (start < index && (!b.flows || b.clears)) return null;
+    if (!floatsNow.some(f => f.top < b.bottom && f.bottom > b.top)) grown += (b.bottom - b.top) * (1 / Math.max(share, 0.1) - 1);
+    if (target.bottom + grown - floatTop(flow, start) >= height) return start;
+  }
+  return null;
+}
+
+/** EXPERIMENT (experiment/iframe-layout-ronny-exp3): the span (see spanOf) from flow block `start` to `index`: the blocks with content. */
+function spanCount(flow: BlockBox[], start: number, index: number): number {
+  return Math.max(1, flow.slice(start, index + 1).filter(b => !b.blank).length);
+}
+
+/** EXPERIMENT (experiment/iframe-layout-ronny-exp3): the flow block a widget before flow block `start` with this span lines up with (see alignedBlock). */
+function lineUpIndex(flow: BlockBox[], start: number, span: number): number | null {
+  let count = 0;
+  for (let i = start; i < flow.length; i++) {
+    if (flow[i].blank) continue;
+    if (++count >= span) return i;
+  }
+  return null;
 }
 
 /**
  * Why a widget can't line up at a spot: it is just before a block that clears it (it would sit beside
  * nothing), the block's bottom isn't a paragraph's, or another widget is in the way. Null: it can.
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): 'short': lined up with the bottom of a block shorter
+ * than the widget, it would have to start beside the text before that block, and can't (see bottomStart).
  */
-export function spotProblem(room: WidgetRoom, { index, align }: Spot): 'clears' | 'notParagraph' | 'widget' | null {
+export function spotProblem(room: WidgetRoom, spot: Spot): 'clears' | 'notParagraph' | 'widget' | 'short' | null {
   const { blocks, key, flow, floats, height, share } = room;
+  const { index, align } = spot;
   const block = flow[index];
   if (block?.clears) return 'clears';
-  if (block && align === 'bottom' && block.kind !== 'other') return 'notParagraph';
+  if (block && align === 'bottom' && (block.kind !== 'other' || block.blank)) return 'notParagraph';
   if (widgetLinedUpWith(blocks, flow, index, key)) return 'widget';
   // At the end of the post it goes below everything.
   if (!block) return null;
-  const before = flow[index - 1];
-  const start = (before?.marginBottom !== undefined ? Math.min(before.bottom + before.marginBottom, block.top) : block.top) + FLOAT_TOP_MARGIN;
-  const top = align === 'bottom' ? Math.max(start, block.bottom - height) : start;
+  // Where it goes: before this block, or (lined up with the bottom of a short one) before an earlier one,
+  // with no other widget at any of the blocks from there on.
+  const start = align === 'bottom' ? spot.start ?? bottomStart(room, index) : index;
+  if (start === null) return 'short';
+  for (let i = start; i < index; i++) {
+    if (widgetLinedUpWith(blocks, flow, i, key)) return 'widget';
+  }
+  const top = align === 'bottom' ? Math.max(floatTop(flow, start), block.bottom - height) : floatTop(flow, index);
   // A widget after it starts below it once the text between them wraps around it (narrowed to `share` of
   // the column, that text grows taller). After the next block that clears it, one always does.
   const end = flow.slice(index + 1).find(b => b.clears)?.index ?? Infinity;
-  const inTheWay = floats.some(f => f.index < block.index
+  const inTheWay = floats.some(f => f.index < flow[start].index
     ? f.bottom > top + 1
     : f.index < end && f.top - top < height * share);
   return inTheWay ? 'widget' : null;
@@ -303,9 +368,38 @@ export function roomInPlace(blocks: BlockBox[], key: string, layout: IframeWidge
   const room = widgetRoom(placed, key, layout, columnWidth, height, true);
   const next = room.flow.findIndex(b => b.index > self.index);
   const index = next < 0 ? room.flow.length : next;
-  // (Its own block's bottom only if that is a paragraph's: otherwise it stays at the top, see bottomAlign.)
-  const align = alignOf(layout) === 'bottom' && room.flow[index]?.kind === 'other' ? 'bottom' : 'top';
-  return spotProblem(room, { index, align }) !== 'widget';
+  // (Its own block's bottom only if that is a paragraph's: otherwise it stays at the top, see bottomAlign.
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the block it lines up with is the span-th after it.)
+  const lined = alignOf(layout) === 'bottom' ? lineUpIndex(room.flow, index, spanOf(layout)) : null;
+  const spot: Spot = lined !== null && room.flow[lined].kind === 'other'
+    ? { index: lined, align: 'bottom', start: index }
+    : { index, align: 'top' };
+  return spotProblem(room, spot) !== 'widget';
+}
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): the gear's Top or Bottom for widget `key` (`layout`: its
+ * layout now): where it then goes (undefined: it stays) and its new layout, or why it can't. Both keep it
+ * with its paragraph, the block it lines up with now: lined up with the bottom of one shorter than the
+ * widget, it moves up to start beside the text before (see bottomStart); back to the top, it moves down
+ * to that block's top.
+ */
+export function alignPlacement(
+  blocks: BlockBox[], key: string, layout: IframeWidgetLayout, align: 'top' | 'bottom', columnWidth: number, height: number,
+): { beforeKey: string | undefined, layout: IframeWidgetLayout } | { problem: NonNullable<ReturnType<typeof spotProblem>> } {
+  const self = blocks.find(b => b.key === key);
+  const room = widgetRoom(blocks, key, layout, columnWidth, height, true);
+  const slot = self ? room.flow.findIndex(b => b.index > self.index) : -1;
+  // (At the end of the post it has no paragraph.)
+  const paragraph = slot < 0 ? null : alignOf(layout) === 'bottom' ? lineUpIndex(room.flow, slot, spanOf(layout)) : slot;
+  if (paragraph === null) return { problem: 'notParagraph' };
+  const problem = spotProblem(room, { index: paragraph, align });
+  if (problem) return { problem };
+  const start = align === 'bottom' ? bottomStart(room, paragraph) ?? paragraph : paragraph;
+  return {
+    beforeKey: start === slot ? undefined : room.flow[start].key,
+    layout: withSpan(withAlign(layout, align), align === 'bottom' ? spanCount(room.flow, start, paragraph) : 1),
+  };
 }
 
 /**
@@ -363,7 +457,9 @@ export interface DropSlotInput {
  * pointer (above its middle) or before the one after it.
  * EXPERIMENT (experiment/iframe-layout-ronny-exp2): a widget the text wraps around, dragged over the lower
  * half of a paragraph, lines up with that paragraph's bottom instead (align=bottom, still inserted
- * before it); over the upper half, with its top.
+ * before it); over the upper half, with its top. EXPERIMENT (experiment/iframe-layout-ronny-exp3): a
+ * paragraph shorter than the widget it lines up with from before the text before it (span=N, see
+ * bottomStart), or, where it can't, the next spot down with room.
  */
 export function chooseDropSlot({
   blocks, draggedKey, pointerX, pointerY, column, layout, prevSide, ghostHeight,
@@ -402,19 +498,25 @@ export function chooseDropSlot({
   let snappedBelow: DropSlot['snappedBelow'] = null;
   let moved: DropSlot['moved'] = null;
   let noRoom = false;
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): the flow block it goes before: the one it lines up
+  // with, or, lined up with the bottom of one shorter than the widget, an earlier one (see bottomStart).
+  let startIndex = beforeIndex;
   if (wraps) {
-    const found = findSpot(widgetRoom(blocks, draggedKey, target, column.width, ghostHeight), { index: beforeIndex, align });
+    const room = widgetRoom(blocks, draggedKey, target, column.width, ghostHeight);
+    const found = findSpot(room, { index: beforeIndex, align });
     if (found) {
       ({ snappedBelow, moved } = found);
       beforeIndex = found.spot.index;
       align = found.spot.align;
+      startIndex = align === 'bottom' ? bottomStart(room, beforeIndex) ?? beforeIndex : beforeIndex;
     } else {
       noRoom = true;
     }
-    target = withAlign(target, align);
+    target = withSpan(withAlign(target, align), align === 'bottom' ? spanCount(flow, startIndex, beforeIndex) : 1);
   }
-  const before = flow[beforeIndex] ?? null;
-  const prevFlow = beforeIndex > 0 ? flow[beforeIndex - 1] : null;
+  const before = flow[startIndex] ?? null;
+  const prevFlow = startIndex > 0 ? flow[startIndex - 1] : null;
+  const linedUp = flow[beforeIndex] ?? null;
 
   let lineY: number;
   if (before && prevFlow) {
@@ -462,9 +564,9 @@ export function chooseDropSlot({
     let top = lineY;
     // Lined up with the paragraph's bottom: as far down as that allows (the paragraph grows a little as
     // its text wraps around the widget, so the drop lands a little lower than this).
-    if (align === 'bottom' && before) {
-      top = Math.max(top, before.bottom - ghostHeight);
-      lineY = before.bottom;
+    if (align === 'bottom' && linedUp) {
+      top = Math.max(top, linedUp.bottom - ghostHeight);
+      lineY = linedUp.bottom;
     }
     // The next divider, embed or full-width widget clears the widget once it's dropped, so the widget and
     // whatever floats beside it stop there: a taller widget pushes that block, and every float after it,
@@ -562,10 +664,10 @@ export function resizeTarget({ edge, startLayout, startWraps, pointerX, column }
     layout = startWraps ? { position: 'inline', width: null } : startLayout;
   } else {
     // (A float keeps its alignment, top or bottom of its paragraph.)
-    layout = withAlign(
+    layout = withSpan(withAlign(
       { position: side, width: snap === startWidth ? startLayout.width : `${Math.round(snap * 100)}%` },
       startWraps ? alignOf(startLayout) : 'top',
-    );
+    ), startWraps ? spanOf(startLayout) : 1);
   }
   return { layout, side, snap, snaps, fixedEdgeX, wraps: shouldWrapWidget(layout, column.width) };
 }
@@ -593,21 +695,38 @@ export function autoScrollStep(clientY: number, viewportHeight: number): number 
 export function adjacentSlot(
   blocks: BlockBox[], draggedKey: string, direction: 'up' | 'down', room: WidgetRoom | null, align: 'top' | 'bottom' = 'top',
 ): string | null | undefined {
+  return adjacentSpot(blocks, draggedKey, direction, room, align)?.key;
+}
+
+/**
+ * adjacentSlot, plus the span (see spanOf) the widget then has. EXPERIMENT (experiment/iframe-layout-ronny-exp3):
+ * lined up with bottoms (`span`: its span now), it steps from one block it can line up with to the next,
+ * skipping those shorter than the widget it can't start above (see bottomStart).
+ */
+export function adjacentSpot(
+  blocks: BlockBox[], draggedKey: string, direction: 'up' | 'down', room: WidgetRoom | null, align: 'top' | 'bottom' = 'top', span = 1,
+): { key: string | null, span: number } | undefined {
   const dragged = blocks.find(b => b.key === draggedKey);
   if (!dragged) return undefined;
   const flow = flowBlocks(blocks, draggedKey);
   // (Below a block whose bottom isn't a paragraph's, a widget lined up with bottoms sits at its top, see
   // bottomAlign.)
-  const hasRoom = (i: number) => !room || !spotProblem(room, { index: i, align: align === 'bottom' && flow[i]?.kind === 'other' ? 'bottom' : 'top' });
-  const candidates: Array<{ key: string | null, index: number }> = [
-    ...flow.flatMap((b, i) => hasRoom(i) ? [{ key: b.key, index: b.index }] : []),
-    ...(hasRoom(flow.length) ? [{ key: null, index: Infinity }] : []),
-  ];
-  const current = flow.find(b => b.index > dragged.index)?.index ?? Infinity;
+  const spotAt = (i: number): Spot => ({
+    index: i,
+    align: align === 'bottom' && flow[i]?.kind === 'other' && !flow[i]?.blank ? 'bottom' : 'top',
+  });
+  const candidates = Array.from({ length: flow.length + 1 }, (_, i) => i).filter(i => !room || !spotProblem(room, spotAt(i)));
+  // Where it is now: the block it goes before, or lined up with bottoms, the one it lines up with.
+  const slot = flow.findIndex(b => b.index > dragged.index);
+  const at = slot < 0 ? flow.length : slot;
+  const current = align === 'bottom' && slot >= 0 ? lineUpIndex(flow, at, span) ?? at : at;
   const next = direction === 'down'
-    ? candidates.find(c => c.index > current)
-    : [...candidates].reverse().find(c => c.index < current);
-  return next ? next.key : undefined;
+    ? candidates.find(i => i > current)
+    : [...candidates].reverse().find(i => i < current);
+  if (next === undefined) return undefined;
+  const bottom = spotAt(next).align === 'bottom';
+  const start = bottom && room ? bottomStart(room, next) ?? next : next;
+  return { key: flow[start]?.key ?? null, span: bottom ? spanCount(flow, start, next) : 1 };
 }
 
 /** The next offered width up or down from `width` (null: full width), or null if there is none. */

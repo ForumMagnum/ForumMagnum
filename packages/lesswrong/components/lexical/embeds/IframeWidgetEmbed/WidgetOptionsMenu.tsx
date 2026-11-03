@@ -77,9 +77,10 @@ export function WidgetOptionsMenu({ layout, columnWidth, canPlace, style, onChan
   columnWidth: number,
   /**
    * EXPERIMENT (experiment/iframe-layout-ronny-exp3): whether the widget, laid out so, has room where it is:
-   * no other widget in the way (see WidgetRoom in widgetDragGeometry).
+   * no other widget in the way (see WidgetRoom in widgetDragGeometry). 'short': Top or Bottom can't line it
+   * up with its paragraph (see alignPlacement).
    */
-  canPlace?: (layout: IframeWidgetLayout) => boolean,
+  canPlace?: (layout: IframeWidgetLayout) => boolean | 'short',
   style: React.CSSProperties,
   onChange: (layout: IframeWidgetLayout) => void,
   /** refocus: closed with Escape, so the gear gets the focus back. */
@@ -116,10 +117,15 @@ export function WidgetOptionsMenu({ layout, columnWidth, canPlace, style, onChan
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): no two widgets share a height (Ronny, Oct 29 2026), so
   // a placement or alignment that would put it beside another widget is off. (Widths aren't checked: the
   // widget's height at a new width isn't known until it has been shown at it.)
-  const noRoom = (next: IframeWidgetLayout) => !!canPlace && shouldWrapWidget(next, columnWidth) && !canPlace(next);
-  const sideBlocked = !side && noRoom({ ...layout, position: 'left', width });
-  const topBlocked = !!side && alignOf(layout) !== 'top' && noRoom(withAlign(layout, 'top'));
-  const bottomBlocked = !!side && alignOf(layout) !== 'bottom' && noRoom(withAlign(layout, 'bottom'));
+  const problem = (next: IframeWidgetLayout) => {
+    const result = canPlace && shouldWrapWidget(next, columnWidth) ? canPlace(next) : true;
+    return result === true ? null : result === 'short' ? 'short' : 'widget';
+  };
+  const sideBlocked = !side && !!problem({ ...layout, position: 'left', width });
+  const topProblem = side && alignOf(layout) !== 'top' ? problem(withAlign(layout, 'top')) : null;
+  const bottomProblem = side && alignOf(layout) !== 'bottom' ? problem(withAlign(layout, 'bottom')) : null;
+  const topBlocked = !!topProblem;
+  const bottomBlocked = !!bottomProblem;
   const button = (option: string, label: string, active: boolean, next: IframeWidgetLayout, disabled = false) => <button
     key={option}
     type="button"
@@ -150,8 +156,11 @@ export function WidgetOptionsMenu({ layout, columnWidth, canPlace, style, onChan
     {side && !shouldWrapWidget(layout, columnWidth) && <div className={classes.note}>
       Full width at this window size: no room for text beside it.
     </div>}
-    {(sideBlocked || topBlocked || bottomBlocked) && <div className={classes.note} data-testid="widget-options-no-room">
+    {(sideBlocked || topProblem === 'widget' || bottomProblem === 'widget') && <div className={classes.note} data-testid="widget-options-no-room">
       Greyed out: that would put it beside another widget. No two widgets share a height.
+    </div>}
+    {(topProblem === 'short' || bottomProblem === 'short') && <div className={classes.note} data-testid="widget-options-cannot-line-up">
+      {bottomProblem === 'short' ? 'Bottom' : 'Top'} is greyed out: the widget can't line up with that end of its paragraph here.
     </div>}
   </div>;
 }

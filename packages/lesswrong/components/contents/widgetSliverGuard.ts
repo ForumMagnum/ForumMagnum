@@ -16,6 +16,8 @@
 // The same pass narrows the editor's caret lines beside a widget (narrowCaretLines), and marks the quotes,
 // collapsible sections and lists whose nearest widget above is a left one (markAfterLeftWidget).
 
+import { lineUpTarget } from './bottomAlign';
+
 /** A box that starts with less than this much of a widget beside it goes below the widget. */
 export const SLIVER_PX = 48;
 
@@ -39,13 +41,6 @@ function rootFloats(root: HTMLElement): HTMLElement[] {
   ));
 }
 
-/** The block a bottom-aligned widget lines up with (the guard leaves it alone: it is meant to be there). */
-function alignedBlock(float: HTMLElement): Element | null {
-  if (float.dataset.lwBottomPush === undefined) return null;
-  let el = (float.closest('.iframe-widget') ?? float).nextElementSibling;
-  while (el && el.getBoundingClientRect().height < 1) el = el.nextElementSibling;
-  return el;
-}
 
 /**
  * Fired on the root when the guard moved a block (it changes where everything after it sits), so that
@@ -154,7 +149,8 @@ function openBottom(el: HTMLElement, box: DOMRect): number {
 function markSlivers(root: HTMLElement): void {
   const floats = rootFloats(root);
   if (!floats.length) return;
-  const aligned = floats.map(alignedBlock).filter((el): el is Element => !!el);
+  // (The block a bottom-aligned widget lines up with is left alone: it is meant to be there.)
+  const aligned = floats.map(lineUpTarget).filter((el): el is HTMLElement => !!el);
   const first = floats[0].closest('.iframe-widget') ?? floats[0];
   // Top-level blocks after the first widget, and the items of top-level lists (each is its own box).
   const candidates: HTMLElement[] = [];

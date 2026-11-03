@@ -38,15 +38,15 @@ import {useMessages} from '@/components/common/withMessages';
 import { randomId } from '@/lib/random';
 
 import {$createIframeWidgetNode, $isIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
-import { alignFloatBottom, alignedParagraph } from '@/components/contents/bottomAlign';
+import { alignFloatBottom, alignedBlock, clearFloatBottom, trailBelow } from '@/components/contents/bottomAlign';
 import { widgetNeighbourGlobals } from '@/components/contents/widgetNeighbours';
 import {
   AFTER_LEFT_WIDGET_ATTR, CARET_BESIDE_ATTR, WIDGET_LAYOUT_EVENT, mayRealignAfterGuard, scheduleSliverGuard,
 } from '@/components/contents/widgetSliverGuard';
 import {
   alignOf, IframeWidgetLayout, IframeWidgetPosition, MIN_TEXT_BESIDE_WIDGET, offeredWidths,
-  parseIframeWidgetLayout, sameLayout, setIframeWidgetLayout, shouldWrapWidget, stripIframeWidgetLayout,
-  widgetWidthPx, wrappableWidths, WRAP_GUTTER,
+  parseIframeWidgetLayout, sameLayout, setIframeWidgetLayout, shouldWrapWidget, spanOf, stripIframeWidgetLayout,
+  widgetWidthPx, withSpan, wrappableWidths, WRAP_GUTTER,
 } from '@/components/contents/iframeWidgetLayout';
 import {
   injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT, type IframeWidgetFit, readIframeWidgetFit,
@@ -67,9 +67,9 @@ import { StartBelowChip } from './StartBelowChip';
 import { BlankLinesHint } from './BlankLinesHint';
 import { $nextContentSibling, anchorOffset, editorColumnRect, editorColumnWidth, measureBlocks } from './widgetDragDom';
 import {
-  adjacentSlot, type BlockBox, chooseDropSlot, type ColumnRect, type DropSlot, fitMatchesWidth, insertionKey, moveChipText,
-  resizeChipText, resizeTarget, type ResizeTarget, roomInPlace, shrinkWarning, sideLabel, stepWidth, widgetRoom, widgetSide,
-  type WidgetSide,
+  adjacentSpot, alignPlacement, type BlockBox, chooseDropSlot, type ColumnRect, type DropSlot, fitMatchesWidth, insertionKey,
+  moveChipText, resizeChipText, resizeTarget, type ResizeTarget, roomInPlace, shrinkWarning, sideLabel, stepWidth, widgetRoom,
+  widgetSide, type WidgetSide,
 } from './widgetDragGeometry';
 import { type GesturePoint, startPointerGesture, visibleBottom } from './widgetGesture';
 import {
@@ -563,6 +563,9 @@ type GesturePhase = 'pressed' | 'moving' | 'resizing';
 function placeSpacer(elem: HTMLElement, layout: IframeWidgetLayout | null, columnWidth: number): void {
   const wraps = !!layout && shouldWrapWidget(layout, columnWidth);
   const side = layout?.position === 'left' ? 'left' : 'right';
+  // (Any push from before goes first: the margin above is set again below.)
+  const lastPush = elem.dataset.lwBottomPush;
+  clearFloatBottom(elem);
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): a centered widget (hand-written meta only) shows at its
   // width in a row of its own, as in the post (which shows it full width on phones).
   const centered = !wraps && layout?.position === 'center' && !!layout.width && columnWidth > 0 && window.innerWidth >= 600;
@@ -579,16 +582,18 @@ function placeSpacer(elem: HTMLElement, layout: IframeWidgetLayout | null, colum
   if (wraps) elem.dataset.lwSide = side;
   else delete elem.dataset.lwSide;
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): align=bottom pushes it down beside the end of its
-  // paragraph (see bottomAlign); otherwise any push from before goes (the margin above is set again).
-  const lastPush = elem.dataset.lwBottomPush;
-  elem.style.shapeOutside = '';
-  delete elem.dataset.lwBottomPush;
-  elem.removeAttribute('data-lw-pushed');
-  if (wraps && alignOf(layout!) === 'bottom') {
+  // paragraph (see bottomAlign).
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): its paragraph is the span-th block after it. Full
+  // width (no room beside it at this width), the widget shows below that block instead (trailBelow; only
+  // at the top level, as widgets elsewhere never wrap).
+  const aligned = !!layout && alignOf(layout) === 'bottom';
+  if (wraps && aligned) {
     // (Starting from the last push, which is usually still right.)
     if (lastPush) elem.dataset.lwBottomPush = lastPush;
-    alignFloatBottom(elem, alignedParagraph(elem), 6);
+    alignFloatBottom(elem, alignedBlock(elem, spanOf(layout!)), 6, spanOf(layout!));
   }
+  trailBelow(elem, aligned && !wraps && columnWidth > 0 && elem.parentElement?.matches('[data-lexical-editor]')
+    ? alignedBlock(elem, spanOf(layout!)) : null);
 }
 
 /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): whether the caret is in a sentinel (the gap between two blocks). */
@@ -858,7 +863,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
    * EXPERIMENT (experiment/iframe-layout-ronny-exp3): whether the widget, laid out so, has room where it is
    * (no other widget in the way, see WidgetRoom), for the gear's choices.
    */
-  canPlace?: (nodeKey: string, layout: IframeWidgetLayout) => boolean;
+  canPlace?: (nodeKey: string, layout: IframeWidgetLayout) => boolean | 'short';
   onGripPointerDown?: (nodeKey: string, e: React.PointerEvent<HTMLElement>) => void;
   onResizePointerDown?: (nodeKey: string, edge: WidgetSide, e: React.PointerEvent<HTMLElement>) => void;
   onGripKeyDown?: (nodeKey: string, e: React.KeyboardEvent<HTMLElement>) => void;
@@ -911,7 +916,7 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
     (layout: IframeWidgetLayout) => (onOptionsChange ?? onLayoutChange)(nodeKey, layout),
     [onOptionsChange, onLayoutChange, nodeKey],
   );
-  const handleCanPlace = useCallback((layout: IframeWidgetLayout) => canPlace?.(nodeKey, layout) ?? true, [canPlace, nodeKey]);
+  const handleCanPlace = useCallback((layout: IframeWidgetLayout): boolean | 'short' => canPlace?.(nodeKey, layout) ?? true, [canPlace, nodeKey]);
   // The gear keeps the focus while its menu is open (the menu's buttons don't take it), so, like a grip,
   // it passes the editor's undo and redo shortcuts on.
   const handleGearKeyDown = useCallback((e: React.KeyboardEvent<HTMLElement>) => {
@@ -1697,8 +1702,13 @@ export default function IframeWidgetPlugin({
         const wraps = shouldWrapWidget(layout, columnWidth);
         const height = editor.getElementByKey(key)?.getBoundingClientRect().height ?? 0;
         const room = wraps ? widgetRoom(blocks, key, layout, columnWidth, height) : null;
-        slotKey = adjacentSlot(blocks, key, e.key === 'ArrowUp' ? 'up' : 'down', room, alignOf(layout));
-        if (slotKey !== undefined) beforeKey = insertionKey(blocks, key, slotKey, wraps);
+        // EXPERIMENT (experiment/iframe-layout-ronny-exp3): lined up with bottoms, the span can change too.
+        const spot = adjacentSpot(blocks, key, e.key === 'ArrowUp' ? 'up' : 'down', room, alignOf(layout), spanOf(layout));
+        if (spot) {
+          slotKey = spot.key;
+          beforeKey = insertionKey(blocks, key, slotKey, wraps);
+          if (spot.span !== spanOf(layout)) nextLayout = withSpan(layout, spot.span);
+        }
         break;
       }
       case 'ArrowLeft':
@@ -1745,17 +1755,37 @@ export default function IframeWidgetPlugin({
   }, [editor, commitPlacement, deleteWidget]);
 
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): whether widget `key`, laid out so, has room where it is
-  // (see WidgetRoom), for the gear menu's choices.
-  const canPlace = useCallback((key: string, layout: IframeWidgetLayout) => roomInPlace(
-    measureBlocks(editor).blocks, key, layout, editorColumnWidth(editor), editor.getElementByKey(key)?.getBoundingClientRect().height ?? 0,
-  ), [editor]);
+  // (see WidgetRoom), for the gear menu's choices: false if another widget is in the way, 'short' if Top or
+  // Bottom can't line it up with its paragraph (see alignPlacement).
+  const canPlace = useCallback((key: string, layout: IframeWidgetLayout): boolean | 'short' => {
+    const { blocks } = measureBlocks(editor);
+    const columnWidth = editorColumnWidth(editor);
+    const height = editor.getElementByKey(key)?.getBoundingClientRect().height ?? 0;
+    const current = widgetsRef.current.get(key)?.layout;
+    if (current && widgetSide(current) && widgetSide(layout) && alignOf(layout) !== alignOf(current)) {
+      const placed = alignPlacement(blocks, key, current, alignOf(layout), columnWidth, height);
+      return !('problem' in placed) || (placed.problem === 'widget' ? false : 'short');
+    }
+    return roomInPlace(blocks, key, layout, columnWidth, height);
+  }, [editor]);
 
   // EXPERIMENT (experiment/iframe-layout-ronny-exp2): the gear menu's choices, like the keys on a grip: one
   // undo step each, announced for screen readers.
   const handleOptionsChange = useCallback((key: string, layout: IframeWidgetLayout) => {
     if (!dragEnabledRef.current) return;
-    const description = describePlacement(editor, key, layout, undefined, editorColumnWidth(editor));
-    if (commitPlacement(key, undefined, layout)) setAnnouncement(description);
+    // EXPERIMENT (experiment/iframe-layout-ronny-exp3): Top and Bottom keep it with its paragraph, which can
+    // move it (see alignPlacement).
+    const current = widgetsRef.current.get(key)?.layout;
+    let beforeKey: string | undefined;
+    let next = layout;
+    if (current && widgetSide(current) && widgetSide(layout) && alignOf(layout) !== alignOf(current)) {
+      const placed = alignPlacement(measureBlocks(editor).blocks, key, current, alignOf(layout), editorColumnWidth(editor),
+        editor.getElementByKey(key)?.getBoundingClientRect().height ?? 0);
+      if ('problem' in placed) return;
+      ({ beforeKey, layout: next } = placed);
+    }
+    const description = describePlacement(editor, key, next, beforeKey, editorColumnWidth(editor));
+    if (commitPlacement(key, beforeKey, next)) setAnnouncement(description);
   }, [editor, commitPlacement]);
 
   const hintKey = dragEnabled && !hintDone

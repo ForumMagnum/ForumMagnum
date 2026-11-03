@@ -5,6 +5,9 @@
 // text wraps around the widget). width: a percentage of the text column, or pixels.
 // EXPERIMENT (experiment/iframe-layout-ronny-exp2): align=bottom lines a left/right widget up with the
 // bottom of the paragraph after it instead of its top (see bottomAlignOffset).
+// EXPERIMENT (experiment/iframe-layout-ronny-exp3): span=N (with align=bottom) lines it up with the bottom of
+// the Nth block after it instead, for a paragraph shorter than the widget: the widget then starts beside the
+// text before that paragraph (a widget can't start above its own place in the text). Blank lines don't count.
 // A real version would store these on the editor node and set them with toolbar buttons.
 
 export type IframeWidgetPosition = 'inline' | 'center' | 'left' | 'right';
@@ -14,12 +17,19 @@ export interface IframeWidgetLayout {
   width: string | null,
   /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): set only for a left/right widget aligned to the bottom. */
   align?: 'bottom',
+  /**
+   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): with align=bottom, the block it lines up with: the
+   * Nth after it with any content (set only for N > 1; see spanOf).
+   */
+  span?: number,
 }
 
 const POSITIONS: IframeWidgetPosition[] = ['inline', 'center', 'left', 'right'];
 const LAYOUT_META_RE = /<meta[^>]+name=["']lw-layout["'][^>]*>/i;
 const CONTENT_ATTRIBUTE_RE = /content=["']([^"']*)["']/i;
 const WIDTH_RE = /^\d+(\.\d+)?(%|px)$/;
+/** EXPERIMENT (experiment/iframe-layout-ronny-exp3): the most blocks a bottom-aligned widget's span may cover. */
+const MAX_SPAN = 50;
 
 function parseSettings(content: string): Map<string, string> {
   const settings = new Map<string, string>();
@@ -36,7 +46,11 @@ export function parseIframeWidgetLayout(srcdoc: string): IframeWidgetLayout {
   const position = POSITIONS.find(p => p === settings.get('position')) ?? 'inline';
   const width = settings.get('width');
   const layout: IframeWidgetLayout = { position, width: width && WIDTH_RE.test(width) ? width : null };
-  if ((position === 'left' || position === 'right') && settings.get('align') === 'bottom') layout.align = 'bottom';
+  if ((position === 'left' || position === 'right') && settings.get('align') === 'bottom') {
+    layout.align = 'bottom';
+    const span = Number(settings.get('span'));
+    if (Number.isInteger(span) && span > 1 && span <= MAX_SPAN) layout.span = span;
+  }
   return layout;
 }
 
@@ -110,7 +124,7 @@ export function wrappableWidths(columnWidth: number): string[] {
 }
 
 export function sameLayout(a: IframeWidgetLayout, b: IframeWidgetLayout): boolean {
-  return a.position === b.position && a.width === b.width && alignOf(a) === alignOf(b);
+  return a.position === b.position && a.width === b.width && alignOf(a) === alignOf(b) && spanOf(a) === spanOf(b);
 }
 
 /** EXPERIMENT (experiment/iframe-layout-ronny-exp2): which end of its paragraph a widget lines up with. */
@@ -118,10 +132,24 @@ export function alignOf(layout: IframeWidgetLayout): 'top' | 'bottom' {
   return layout.align === 'bottom' && (layout.position === 'left' || layout.position === 'right') ? 'bottom' : 'top';
 }
 
-/** The layout with this alignment (a full-width widget has none). */
+/** The layout with this alignment (a full-width widget has none), lined up with the block right after it. */
 export function withAlign(layout: IframeWidgetLayout, align: 'top' | 'bottom'): IframeWidgetLayout {
-  const { align: _old, ...rest } = layout;
+  const { align: _old, span: _span, ...rest } = layout;
   return align === 'bottom' && (layout.position === 'left' || layout.position === 'right') ? { ...rest, align } : rest;
+}
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): which block after it a bottom-aligned widget lines up
+ * with, counting only blocks with content (1: the next one; always 1 for a widget aligned to the top).
+ */
+export function spanOf(layout: IframeWidgetLayout): number {
+  return alignOf(layout) === 'bottom' && layout.span && layout.span > 1 ? layout.span : 1;
+}
+
+/** EXPERIMENT (experiment/iframe-layout-ronny-exp3): the layout lined up with the bottom of the `span`th block after it. */
+export function withSpan(layout: IframeWidgetLayout, span: number): IframeWidgetLayout {
+  const { span: _old, ...rest } = layout;
+  return alignOf(layout) === 'bottom' && span > 1 ? { ...rest, span: Math.min(span, MAX_SPAN) } : rest;
 }
 
 /** The widget's HTML without its layout tag (the tag only places the frame; the widget never sees it). */
@@ -137,6 +165,7 @@ export function setIframeWidgetLayout(srcdoc: string, layout: IframeWidgetLayout
     `position=${layout.position}`,
     layout.width && `width=${layout.width}`,
     alignOf(layout) === 'bottom' && 'align=bottom',
+    spanOf(layout) > 1 && `span=${spanOf(layout)}`,
   ].filter(Boolean).join(' ');
   return `<meta name="lw-layout" content="${settings}">\n${html}`;
 }

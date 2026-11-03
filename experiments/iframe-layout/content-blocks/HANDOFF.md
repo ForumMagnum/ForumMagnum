@@ -527,4 +527,25 @@ can run it over `ssh studio`, or use your own copy).
     order (`$widgetsAndClears`). `$removeClearAtCaret` walks out to the container's neighbour from its first or
     last block. Enter on an empty last line exits quotes and AI content, so blank runs there sit mid-container.
   - Check: `content-blocks/start-below-check.mjs` (33).
+  - Bottom of a short paragraph (Ronny, Nov 2: "I aligned this to the bottom of the second paragraph in this
+    section, but it doesn't look to me like it worked"): layout `span=N` (with align=bottom; iframeWidgetLayout
+    `spanOf`/`withSpan`, dropped by `withAlign`, kept by a resize) = line up with the Nth block after the widget
+    that has content (`isBlankBlock` ones don't count). bottomAlign.ts `alignedBlock(after, span)` (replaces
+    alignedParagraph) walks there, null past anything but p/AI content, at another widget or a marker;
+    `alignFloatBottom(..., span)` for span > 1 bails only once the block's content is below the widget (the text
+    before it reflows with each push); marks the blocks pushed past `data-lw-spanned="<side>"` (AI labels beside a
+    left widget's margin stop floating, widgetNeighbours) and re-settles (2 passes); `lineUpTarget(float)` (the
+    guard's skip). Drag geometry: BlockBox `flows`/`blank` (measureBlocks), `bottomStart(room, i)` = the latest
+    flow block from whose float top the widget can reach block i's bottom (text no float is beside now counted
+    grown by 1/share), walking back only over `flows` blocks; null = new spotProblem 'short' (findSpot just moves
+    on). Spot `start` (forced start for a widget already there: roomInPlace). chooseDropSlot inserts before the
+    start, layout span = `spanCount`, ghost/line at the lined-up block. `adjacentSpot` (adjacentSlot wraps it)
+    returns the span for the arrow keys. `alignPlacement` = the gear's Top/Bottom (moves the widget; canPlace
+    returns 'short' for the new note `widget-options-cannot-line-up`).
+  - Narrow (Ronny, Nov 2: "when you go narrower the text from that paragraph ... goes to the top"):
+    `trailBelow(widget, block)`: a bottom-aligned widget that doesn't wrap swaps places on screen with the blocks
+    down to the one it lines up with (translateY on them and on the widget's block; nothing after moves). Editor:
+    placeSpacer, top level only (the overlay follows the spacer's rect). Post: HydratedIframeWidget, when its
+    column can wrap at all; ResizeObservers on every block in the span. `clearTrail` undoes it.
+  - Checks: `content-blocks/bottom-span-check.mjs` (10); unit tests 60.
 

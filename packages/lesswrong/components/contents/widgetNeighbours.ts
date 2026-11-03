@@ -13,6 +13,7 @@
 // - a widget inside a container stays inside it (or shows full width there).
 
 import { AFTER_LEFT_WIDGET_ATTR } from './widgetSliverGuard';
+import { SPANNED_ATTR } from './bottomAlign';
 import { WIDGET_CLEAR_CLASS } from '@/components/lexical/embeds/IframeWidgetEmbed/widgetClearClass';
 
 /** A floated widget in the post: the `.iframe-widget` div holding the floated iframe. */
@@ -172,14 +173,20 @@ const RULES: NeighbourRule[] = [
   },
   // ...and after a left widget pushed down to line up with the block's end (align=bottom), the label
   // stops floating, so it doesn't sit out at the widget's far edge with an empty gap before it.
+  // EXPERIMENT (experiment/iframe-layout-ronny-exp3): also further down, for AI content the widget was
+  // pushed past the top of on its way to a later block's end (span=N, marked by alignFloatBottom).
   {
     editor: [
       `:is(${EDITOR_FLOAT}[data-lw-side="left"][data-lw-pushed] + .llm-content-block, ${EDITOR_FLOAT}[data-lw-side="left"][data-lw-pushed] + .sentinel-paragraph + .llm-content-block) > .llm-content-block-header`,
+      `.llm-content-block[${SPANNED_ATTR}="left"] > .llm-content-block-header`,
     ],
     style: { float: 'none', display: 'inline-flex', width: 'auto', margin: '0 0 0.5em', verticalAlign: 'top' },
   },
   {
-    post: ['.iframe-widget:has(> .lwFloatedWidget[data-lw-side="left"][data-lw-pushed]) + .llm-content-block::before'],
+    post: [
+      '.iframe-widget:has(> .lwFloatedWidget[data-lw-side="left"][data-lw-pushed]) + .llm-content-block::before',
+      `.llm-content-block[${SPANNED_ATTR}="left"]::before`,
+    ],
     style: { float: 'none', display: 'inline-block', width: 'auto', margin: '0 0 0.5em', verticalAlign: 'top' },
   },
   // The post body ends below its last widget, so a widget at the very end doesn't hang into what follows

@@ -160,6 +160,11 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
 - Fixed: lined up with any of those, the widget was pushed down forever (thousands of px).
 - Fixed: it sometimes stopped short of the paragraph's end (when a whole line moved up as the widget moved
   down).
+- A paragraph shorter than the widget (Nov 2): the widget starts beside the text before it, so its bottom
+  still meets the paragraph's. Only beside text that runs on beside a widget (paragraphs and AI content). Where
+  nothing above can sit beside it, "bottom of" that paragraph isn't offered.
+- Where the widget shows full width (no room beside it), it goes below the paragraph it lines up with, so that
+  paragraph's text comes first (Nov 2).
 
 ### No interaction (on purpose)
 - Paragraph indent and alignment: no menu for them, and publishing drops them.
@@ -323,4 +328,20 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
     out, as for a paragraph. One per widget counts the markers inside blocks too.
   - Test: `start-below-check.mjs` (chip, Backspace, ✕, one per widget, Post tab, phone, every H2 below the
     widgets before it, quotes and AI content).
+  - **Lining up with the bottom of a short paragraph (Nov 2, your "I aligned this to the bottom of the second
+    paragraph in this section, but it doesn't look to me like it worked").** Bottom alignment could only push a
+    widget down from the top of its paragraph. With a paragraph shorter than the widget (your AI content: 79px
+    beside a 242px widget) the push was 0 and the widget stayed at the top, while the drag said "bottom of the
+    paragraph". Now the widget starts beside the text before that paragraph, so its bottom still meets the
+    paragraph's. Dropped on the lower half of the AI content, it goes before the first paragraph, saved as
+    `align=bottom span=2` (lined up with the second block after it; blank lines don't count). It only starts
+    beside text that runs on beside a widget (paragraphs and AI content), never above a heading, a box, a divider
+    or another widget. Where it can't, the lower half of that paragraph means the next spot down, and the gear
+    greys out Bottom with a note. The gear's Bottom moves the widget up the same way, Top takes it back to that
+    paragraph's top, and the arrow keys step onto short paragraphs too.
+  - **Narrow screens: a bottom-aligned widget goes below its paragraph (Nov 2, your "when you go narrower the
+    text from that paragraph goes to the top").** Where the widget shows full width (no room beside it), the
+    paragraph it lines up with comes first and the widget follows it, in the editor and the post. Only on
+    screen: they swap places, so the widget's place in the text stays and nothing after them moves.
+  - Test: `bottom-span-check.mjs` (dragged onto the AI content, editor and post, at 1280px and 420px).
 
