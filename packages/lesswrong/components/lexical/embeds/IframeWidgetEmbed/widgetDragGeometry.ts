@@ -38,10 +38,16 @@ export interface BlockBox {
    */
   marginBottom?: number;
   /**
-   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): text that runs on beside a widget (a paragraph or AI
-   * content), so a widget lined up with the bottom of a later block can start beside it (see bottomStart).
+   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): its text wraps beside a widget, as lines or as one box
+   * (a paragraph, AI content, a smaller heading, a quote, a list, a spoiler), so a widget lined up with the
+   * bottom of a later block can start beside it (see bottomStart).
    */
   flows?: boolean;
+  /**
+   * EXPERIMENT (experiment/iframe-layout-ronny-exp3): for a block that keeps its own size (code, a table, an
+   * image, an equation), its width: it sits beside a widget only where that fits, else below it.
+   */
+  naturalWidth?: number;
   /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): it has nothing in it (a blank line): never lined up with, and not counted in a span. */
   blank?: boolean;
 }
@@ -212,6 +218,8 @@ export interface WidgetRoom {
   height: number;
   /** See besideShare. */
   share: number;
+  /** EXPERIMENT (experiment/iframe-layout-ronny-exp3): the room beside it (px), for blocks that keep their size. */
+  beside: number;
 }
 
 /** `stays`: the widget keeps its place (the gear changes how it sits there). */
@@ -219,13 +227,15 @@ export function widgetRoom(
   blocks: BlockBox[], key: string, layout: IframeWidgetLayout, columnWidth: number, height: number, stays = false,
 ): WidgetRoom {
   const others = blocks.filter(b => b.key !== key && b.kind !== 'sentinel');
+  const share = besideShare(layout, columnWidth);
   return {
     blocks,
     key,
     flow: flowBlocks(blocks, key),
     floats: afterLeaving(others, blocks.find(b => b.key === key), stays).filter(b => b.float !== 'none'),
     height,
-    share: besideShare(layout, columnWidth),
+    share,
+    beside: share * columnWidth,
   };
 }
 
@@ -254,20 +264,25 @@ function floatTop(flow: BlockBox[], index: number): number {
  * EXPERIMENT (experiment/iframe-layout-ronny-exp3): the flow block a widget lined up with the bottom of flow
  * block `index` goes before. That block, if the widget can end at its bottom starting from its top; if the
  * block is shorter than that (Ronny's AI content, Nov 2 2026), the latest block before it from which it
- * can, so that it starts beside the text before (only text that runs on beside a widget: paragraphs and AI
- * content). Null if it can't from anywhere. Text no widget is beside yet is counted as it will be beside
- * this one: narrowed to `share` of the column, and so taller.
+ * can, so that it starts beside the blocks before (only ones that sit beside a widget: text that wraps, as
+ * lines or as one box, and code, tables, images and equations that fit beside it). Null if it can't from
+ * anywhere, or the block itself doesn't fit beside it. Text no widget is beside yet is counted as it will be
+ * beside this one: narrowed to `share` of the column, and so taller.
  */
 export function bottomStart(room: WidgetRoom, index: number): number | null {
-  const { blocks, flow, height, share } = room;
+  const { blocks, flow, height, share, beside } = room;
   const target = flow[index];
-  if (!target) return null;
+  const fits = (b: BlockBox) => b.naturalWidth === undefined || b.naturalWidth <= beside + 1;
+  if (!target || !fits(target)) return null;
   const floatsNow = blocks.filter(b => b.float !== 'none');
   let grown = 0;
   for (let start = index; start >= 0; start--) {
     const b = flow[start];
-    if (start < index && (!b.flows || b.clears)) return null;
-    if (!floatsNow.some(f => f.top < b.bottom && f.bottom > b.top)) grown += (b.bottom - b.top) * (1 / Math.max(share, 0.1) - 1);
+    if (start < index && (b.clears || !(b.flows || (b.naturalWidth !== undefined && fits(b))))) return null;
+    // (A block that keeps its size doesn't grow.)
+    if (b.naturalWidth === undefined && !floatsNow.some(f => f.top < b.bottom && f.bottom > b.top)) {
+      grown += (b.bottom - b.top) * (1 / Math.max(share, 0.1) - 1);
+    }
     if (target.bottom + grown - floatTop(flow, start) >= height) return start;
   }
   return null;

@@ -160,9 +160,11 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
 - Fixed: lined up with any of those, the widget was pushed down forever (thousands of px).
 - Fixed: it sometimes stopped short of the paragraph's end (when a whole line moved up as the widget moved
   down).
-- A paragraph shorter than the widget (Nov 2): the widget starts beside the text before it, so its bottom
-  still meets the paragraph's. Only beside text that runs on beside a widget (paragraphs and AI content). Where
-  nothing above can sit beside it, "bottom of" that paragraph isn't offered.
+- A paragraph shorter than the widget (Nov 2): the widget starts beside the blocks before it, so its bottom
+  still meets the paragraph's. Only beside blocks that can sit beside a widget: text, AI content, smaller
+  headings, quotes, lists, spoilers, and code, tables, images and equations that fit beside it. Where nothing
+  above can (the post's first paragraph, the first one after a section heading, one right after a collapsible
+  section), "bottom of" that paragraph isn't offered: no position would line it up.
 - Where the widget shows full width (no room beside it), it goes below the paragraph it lines up with, so that
   paragraph's text comes first (Nov 2).
 
@@ -334,10 +336,14 @@ Paragraphs, bold, italic, links, inline code, mentions, footnote markers, inline
     beside a 242px widget) the push was 0 and the widget stayed at the top, while the drag said "bottom of the
     paragraph". Now the widget starts beside the text before that paragraph, so its bottom still meets the
     paragraph's. Dropped on the lower half of the AI content, it goes before the first paragraph, saved as
-    `align=bottom span=2` (lined up with the second block after it; blank lines don't count). It only starts
-    beside text that runs on beside a widget (paragraphs and AI content), never above a heading, a box, a divider
-    or another widget. Where it can't, the lower half of that paragraph means the next spot down, and the gear
-    greys out Bottom with a note. The gear's Bottom moves the widget up the same way, Top takes it back to that
+    `align=bottom span=2` (lined up with the second block after it; blank lines don't count). It starts beside
+    any block that can sit beside a widget (text, AI content, smaller headings, quotes, lists, spoilers, and
+    code, tables, images or equations that fit beside it), never above a section heading, a collapsible
+    section, a divider or embed, or another widget's text. Where it can't, the lower half of that paragraph
+    means the next spot down, and the gear greys out Bottom with a note. (The first version allowed only
+    paragraphs and AI content there, which lost the bottoms below headings, lists and code: your "a bunch of
+    the possible positions are currently missing". A sweep over every block of the demo now finds a bottom
+    wherever one can line up.) The gear's Bottom moves the widget up the same way, Top takes it back to that
     paragraph's top, and the arrow keys step onto short paragraphs too.
   - **Narrow screens: a bottom-aligned widget goes below its paragraph (Nov 2, your "when you go narrower the
     text from that paragraph goes to the top").** Where the widget shows full width (no room beside it), the

@@ -10,7 +10,7 @@ import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blo
 import { $isIframeWidgetNode } from './IframeWidgetNode';
 import type { BlockBox, ColumnRect } from './widgetDragGeometry';
 import { EDITOR_CLEARING_BLOCKS } from '@/components/contents/widgetNeighbours';
-import { isBlankBlock } from '@/components/contents/bottomAlign';
+import { isBlankBlock, WRAPPING_BLOCKS } from '@/components/contents/bottomAlign';
 import { WIDGET_CLEAR_CLASS } from './widgetClearClass';
 
 /**
@@ -81,12 +81,36 @@ export function measureBlocks(editor: LexicalEditor): { blocks: BlockBox[], colu
         marginBottom: parseFloat(marginBottom) || 0,
         // EXPERIMENT (experiment/iframe-layout-ronny-exp3): for lining up with a later block's bottom (see
         // bottomStart and alignedBlock, which the post uses too).
-        flows: elem.matches('p, .llm-content-block') && !clearing && clear === 'none',
+        flows: elem.matches(WRAPPING_BLOCKS) && !clearing && clear === 'none',
+        naturalWidth: clearing || clear !== 'none' ? undefined : naturalWidth(elem),
         blank: isBlankBlock(elem),
       });
     }
   });
   return { blocks, column: editorColumnRect(editor) };
+}
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): how wide a block that keeps its own size beside a widget is
+ * (code, a table, an image, an equation: widgetNeighbours' fitOrBelow), so the drag knows whether it fits
+ * there; undefined for any other block.
+ */
+function naturalWidth(elem: HTMLElement): number | undefined {
+  const width = (el: Element | null | undefined) => el?.getBoundingClientRect().width;
+  // (A plain boolean: the typed `matches` narrows elem away after the first test.)
+  const is = (selector: string): boolean => elem.matches(selector);
+  if (is('.code-block, pre')) {
+    // (Its longest line, as its text doesn't wrap, plus its padding and border.)
+    const range = document.createRange();
+    range.selectNodeContents(elem);
+    const cs = getComputedStyle(elem);
+    const extra = ['paddingLeft', 'paddingRight', 'borderLeftWidth', 'borderRightWidth'] as const;
+    return range.getBoundingClientRect().width + extra.reduce((sum, p) => sum + (parseFloat(cs[p]) || 0), 0);
+  }
+  if (is('.table-scrollable-wrapper')) return width(elem.querySelector('table'));
+  if (is('figure') || elem.querySelector(':scope > figure')) return width(elem.querySelector('img, svg, canvas'));
+  if (is('.math-tex')) return width(elem.querySelector('.katex, mjx-container'));
+  return undefined;
 }
 
 /** Adds these to client coordinates to get coordinates inside the anchor element (where overlays live). */

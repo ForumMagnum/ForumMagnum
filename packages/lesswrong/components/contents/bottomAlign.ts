@@ -23,9 +23,10 @@ export function isBlankBlock(el: Element): boolean {
 
 /**
  * The block a widget lines up with: the `span`th one after it with any content (the editor keeps empty ones
- * for the caret, and blank lines don't count). EXPERIMENT (experiment/iframe-layout-ronny-exp3): the ones
- * before it must be text that runs on beside the widget (paragraphs and AI content); null past anything
- * else, and at another widget or a "Start below widget".
+ * for the caret, and blank lines don't count). EXPERIMENT (experiment/iframe-layout-ronny-exp3): null at
+ * another widget or a "Start below widget", and past a block that starts below widgets (a section heading, or
+ * anything that clears them) or a collapsible section (opening or closing it would move the widget). One
+ * that doesn't fit beside the widget goes below it, and then alignFloatBottom finds the block below too.
  */
 export function alignedBlock(after: Element, span = 1): HTMLElement | null {
   let count = 0;
@@ -33,10 +34,18 @@ export function alignedBlock(after: Element, span = 1): HTMLElement | null {
     if (el.matches(`.iframe-widget, .iframe-widget-code, .${WIDGET_CLEAR_CLASS}`)) return null;
     if (el.getBoundingClientRect().height < 1 || isBlankBlock(el)) continue;
     if (++count >= span) return el;
-    if (!el.matches('p, .llm-content-block') || getComputedStyle(el).clear !== 'none') return null;
+    if (el.matches('h1, h2, .detailsBlock') || getComputedStyle(el).clear !== 'none') return null;
   }
   return null;
 }
+
+/**
+ * EXPERIMENT (experiment/iframe-layout-ronny-exp3): blocks whose text wraps beside a widget, as lines or as
+ * one box (smaller headings, quotes, lists, spoilers): they sit beside a widget of any width it wraps at, so
+ * a widget lined up with a later block's bottom can start beside them. (Code, tables, images and equations
+ * keep their own size: beside only where it fits, see the drag's naturalWidth.)
+ */
+export const WRAPPING_BLOCKS = 'p, .llm-content-block, h3, h4, h5, h6, blockquote, ul, ol, .spoilers, .spoiler-block';
 
 /** The block a bottom-aligned float lines up with (see alignFloatBottom), or null. */
 export function lineUpTarget(float: HTMLElement): HTMLElement | null {

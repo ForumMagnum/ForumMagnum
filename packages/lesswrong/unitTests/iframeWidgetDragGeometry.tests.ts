@@ -748,14 +748,14 @@ describe('bottom alignment', () => {
 
   // EXPERIMENT (experiment/iframe-layout-ronny-exp3): h, then p0 (60-140), p1 (160-200, short) and p2
   // (220-300), text that runs on beside a widget; the dragged widget, full width, after them.
-  const spanPost = (overrides: Record<string, Partial<BlockBox>> = {}): BlockBox[] => [
+  const spanPost = (overrides: Record<string, Partial<BlockBox>> = {}): BlockBox[] => ([
     block('h', 0, 0, 40, 'heading'),
     { ...block('p0', 1, 60, 80), flows: true },
     { ...block('p1', 2, 160, 40), flows: true },
     { ...block('p2', 3, 220, 80), flows: true },
     { key: 'w', index: 4, kind: 'widget', float: 'none', top: 320, bottom: 420 },
     block('p3', 5, 440),
-  ].map(b => ({ ...b, ...overrides[b.key] }));
+  ] as BlockBox[]).map(b => ({ ...b, ...overrides[b.key] }));
   const spanDrop = (blocks: BlockBox[], pointerY: number, ghostHeight = 100) => chooseDropSlot({
     blocks, draggedKey: 'w', pointerX: 50, pointerY, column: COLUMN, layout: LEFT_33, prevSide: null, ghostHeight,
   });
@@ -775,13 +775,18 @@ describe('bottom alignment', () => {
     expect(alignOf(spanDrop([...spanPost(), blank].sort((a, b) => a.index - b.index), 152).layout)).toBe('top');
   });
 
-  it('starts a widget only beside text that runs on beside it, never above a heading', () => {
+  it('starts a widget only beside blocks that sit beside it, never above a section heading', () => {
     // A 200px one would need text above p0, which is the heading: the next spot, p1's top.
     const tall = spanDrop(spanPost(), 120, 200);
     expect([tall.slotKey, alignOf(tall.layout)]).toEqual(['p1', 'top']);
-    // With p0 a box (a quote, say), the lower half of p1 means p2's top.
-    const box = spanDrop(spanPost({ p0: { flows: false } }), 190);
-    expect([box.slotKey, alignOf(box.layout)]).toEqual(['p2', 'top']);
+    // A block that keeps its size (code, say) only where it fits: the room beside a 33% widget is 425px.
+    const narrowCode = spanDrop(spanPost({ p0: { flows: false, naturalWidth: 200 } }), 190);
+    expect([narrowCode.slotKey, narrowCode.layout.span]).toEqual(['p0', 2]);
+    const wideCode = spanDrop(spanPost({ p0: { flows: false, naturalWidth: 500 } }), 190);
+    expect([wideCode.slotKey, alignOf(wideCode.layout)]).toEqual(['p2', 'top']);
+    // Nor with one that doesn't fit itself: it would start below the widget.
+    const wideTarget = spanDrop(spanPost({ p1: { flows: false, naturalWidth: 500 } }), 190);
+    expect([wideTarget.slotKey, alignOf(wideTarget.layout)]).toEqual(['p2', 'top']);
   });
 
   it('keeps another widget out of the text it starts beside', () => {

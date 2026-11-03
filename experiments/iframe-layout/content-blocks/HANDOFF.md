@@ -532,14 +532,21 @@ can run it over `ssh studio`, or use your own copy).
     section, but it doesn't look to me like it worked"): layout `span=N` (with align=bottom; iframeWidgetLayout
     `spanOf`/`withSpan`, dropped by `withAlign`, kept by a resize) = line up with the Nth block after the widget
     that has content (`isBlankBlock` ones don't count). bottomAlign.ts `alignedBlock(after, span)` (replaces
-    alignedParagraph) walks there, null past anything but p/AI content, at another widget or a marker;
+    alignedParagraph) walks there, null at another widget or a marker, and past h1/h2, a `.detailsBlock` or
+    anything whose computed clear isn't none (a block that doesn't fit beside the widget goes below it, and
+    then the bail-out below finds the target below too);
     `alignFloatBottom(..., span)` for span > 1 bails only once the block's content is below the widget (the text
     before it reflows with each push); marks the blocks pushed past `data-lw-spanned="<side>"` (AI labels beside a
     left widget's margin stop floating, widgetNeighbours) and re-settles (2 passes); `lineUpTarget(float)` (the
-    guard's skip). Drag geometry: BlockBox `flows`/`blank` (measureBlocks), `bottomStart(room, i)` = the latest
-    flow block from whose float top the widget can reach block i's bottom (text no float is beside now counted
-    grown by 1/share), walking back only over `flows` blocks; null = new spotProblem 'short' (findSpot just moves
-    on). Spot `start` (forced start for a widget already there: roomInPlace). chooseDropSlot inserts before the
+    guard's skip). Drag geometry: BlockBox `flows` (WRAPPING_BLOCKS: p, AI content, h3-h6, quotes, lists,
+    spoilers), `naturalWidth` (code: its text's range width + padding/border; tables, images, KaTeX: their own
+    box) and `blank` (measureBlocks); WidgetRoom `beside` (px). `bottomStart(room, i)` = the latest flow block
+    from whose float top the widget can reach block i's bottom (text no float is beside now counted grown by
+    1/share; blocks with a naturalWidth don't grow), walking back over `flows` blocks and ones whose
+    naturalWidth fits `beside`, and null if block i itself doesn't fit; null = new spotProblem 'short' (findSpot
+    just moves on). Ronny's "a bunch of the possible positions are currently missing" (Nov 2) was the first
+    version's p/AI-only walk; scratchpad probe pattern: drag over every block's upper and lower half, read the
+    chip. Spot `start` (forced start for a widget already there: roomInPlace). chooseDropSlot inserts before the
     start, layout span = `spanCount`, ghost/line at the lined-up block. `adjacentSpot` (adjacentSlot wraps it)
     returns the span for the arrow keys. `alignPlacement` = the gear's Top/Bottom (moves the widget; canPlace
     returns 'short' for the new note `widget-options-cannot-line-up`).
