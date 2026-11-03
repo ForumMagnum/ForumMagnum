@@ -7,7 +7,7 @@ import { createModeratorAction } from '../collections/moderatorActions/mutations
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { updateConversation } from '../collections/conversations/mutations';
 import { backgroundTask } from "../utils/backgroundTask";
-import { isTeamInboxConversation } from "../utils/teamInbox";
+import { filterMessageNotificationRecipients, isTeamInboxConversation } from "../utils/teamInbox";
 import { getAdminTeamAccountId } from "../utils/adminTeamAccount";
 
 export function checkIfNewMessageIsEmpty(message: Pick<CreateMessageDataInput, 'contents'>) {
@@ -59,8 +59,9 @@ export async function updateUserNotesOnModMessage({ document, context }: AfterCr
 /**
  * If the current user is not part of the conversation then add them to make
  * sure they get notified about future messages (only mods have permission to
- * add themselves to conversations). Team inbox conversations are the exception,
- * since they're meant to stay out of individual moderators' inboxes.
+ * add themselves to conversations; in moderator conversations they follow
+ * replies in the supermod Inbox instead). Team inbox conversations are the
+ * exception, since they're meant to stay out of individual moderators' inboxes.
  */
 export async function addParticipantIfNew({ document, currentUser, context }: AfterCreateCallbackProperties<'Messages'>) {
   const { Conversations, loaders } = context;
@@ -115,7 +116,11 @@ export async function sendMessageNotifications(message: DbMessage, context: Reso
   // message. For email notifications, notify everyone including the sender
   // (since if there's a back-and-forth in the grouped notifications, you want
   // to see your own messages.)
-  const recipientIds = conversation.participantIds.filter((id) => (id !== message.userId));
+  const recipientIds = await filterMessageNotificationRecipients(
+    conversation,
+    conversation.participantIds.filter((id) => (id !== message.userId)),
+    context,
+  );
 
   // Create notification
   await createNotifications({ context, userIds: recipientIds, notificationType: 'newMessage', documentType: 'message', documentId: message._id, noEmail: message.noEmail});

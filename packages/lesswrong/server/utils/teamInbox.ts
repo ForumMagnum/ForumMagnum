@@ -2,6 +2,9 @@ import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/contex
 import { createConversation } from "@/server/collections/conversations/mutations";
 import { createMessage } from "@/server/collections/messages/mutations";
 import { getAdminTeamAccount, getAdminTeamAccountId } from "./adminTeamAccount";
+import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
+import { loadByIds } from "@/lib/loaders";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 /**
  * Team inbox conversations are moderator conversations between a user and the
@@ -15,6 +18,23 @@ export async function isTeamInboxConversation(conversation: DbConversation, cont
   }
   const teamAccountId = await getAdminTeamAccountId(context);
   return !!teamAccountId && conversation.participantIds.includes(teamAccountId);
+}
+
+/**
+ * Moderators follow moderator conversations in the supermod Inbox, so they
+ * aren't sent message notifications for them. A moderator conversation with
+ * only moderators in it never reaches the Inbox, so it notifies as usual.
+ */
+export async function filterMessageNotificationRecipients(conversation: DbConversation, recipientIds: string[], context: ResolverContext): Promise<string[]> {
+  if (!conversation.moderator) {
+    return recipientIds;
+  }
+  const participants = await loadByIds(context, "Users", conversation.participantIds);
+  const moderatorIds = new Set(filterNonnull(participants).filter(user => userIsAdminOrMod(user)).map(user => user._id));
+  if (conversation.participantIds.every(id => moderatorIds.has(id))) {
+    return recipientIds;
+  }
+  return recipientIds.filter(id => !moderatorIds.has(id));
 }
 
 export async function sendMessageAs({ author, conversationId, html, noEmail, context }: {
