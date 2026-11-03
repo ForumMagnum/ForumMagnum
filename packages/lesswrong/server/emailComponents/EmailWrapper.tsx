@@ -15,7 +15,7 @@ const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-export const EmailWrapper = ({unsubscribeAllLink, emailContext, backgroundColor = "#ffffff", includeUnsubscribeFooter = true, children}: {
+export const EmailWrapper = ({unsubscribeAllLink, emailContext, backgroundColor, includeUnsubscribeFooter = true, children}: {
   unsubscribeAllLink: string | null,
   emailContext: EmailContextType,
   backgroundColor?: string,
@@ -26,10 +26,12 @@ export const EmailWrapper = ({unsubscribeAllLink, emailContext, backgroundColor 
   const accountLink = `${getSiteUrl(emailContext.resolverContext.forumType)}account`
   const siteNameWithArticle = siteNameWithArticleSetting.get(emailContext.resolverContext)
   
+  const bgcolorProps = backgroundColor ? { bgcolor: backgroundColor } : {};
+
   // Put props for some HTML elements in any-typed objects, because emails use
   // non-HTML5 attributes which the typechecker will complain about
   const bodyProps: any = {
-    bgcolor: backgroundColor,
+    ...bgcolorProps,
     leftmargin: "0",
     topmargin: "0",
     marginWidth: "0",
@@ -41,23 +43,23 @@ export const EmailWrapper = ({unsubscribeAllLink, emailContext, backgroundColor 
     height: "100%",
     cellPadding: "0",
     cellSpacing: "0",
-    bgcolor: backgroundColor,
+    ...bgcolorProps,
   };
   const outerTdProps: any = {
     align: "center",
     valign: "top",
-    bgcolor: backgroundColor,
-    style: {"backgroundColor": backgroundColor},
+    ...bgcolorProps,
+    style: backgroundColor ? {backgroundColor} : undefined,
   };
   const innerTableProps: any = {
     border: "0",
     width: "600",
     cellPadding: "0",
     cellSpacing: "0",
-    bgcolor: backgroundColor,
+    ...bgcolorProps,
   };
   const innerTdProps: any = {
-    bgcolor: backgroundColor,
+    ...bgcolorProps,
   };
   
   return (

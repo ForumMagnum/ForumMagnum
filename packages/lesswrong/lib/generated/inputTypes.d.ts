@@ -22,7 +22,6 @@ interface Query {
   crossSiteLinkPreview: CrossSiteLinkPreviewData | null;
   ElicitBlockData: ElicitBlockData | null;
   unreadNotificationCounts: NotificationCounts;
-  NotificationDisplays: NotificationDisplaysResult | null;
   Lightcone2024FundraiserStripeAmounts: Array<number> | null;
   Lightcone2025FundraiserAirtableAmounts: number;
   LlmModelOptions: Array<string>;
@@ -872,10 +871,6 @@ interface NotificationCounts {
   unreadNotifications: number;
   unreadPrivateMessages: number;
   faviconBadgeNumber: number;
-}
-
-interface NotificationDisplaysResult {
-  results: Array<any>;
 }
 
 interface PetrovDay2024CheckNumberOfIncomingData {
@@ -9646,7 +9641,6 @@ interface GraphQLTypeMap {
   ElicitPrediction: ElicitPrediction;
   ElicitBlockData: ElicitBlockData;
   NotificationCounts: NotificationCounts;
-  NotificationDisplaysResult: NotificationDisplaysResult;
   PetrovDay2024CheckNumberOfIncomingData: PetrovDay2024CheckNumberOfIncomingData;
   PetrovDayCheckIfIncomingData: PetrovDayCheckIfIncomingData;
   PetrovDayLaunchMissileData: PetrovDayLaunchMissileData;

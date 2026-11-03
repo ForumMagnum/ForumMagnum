@@ -184,17 +184,6 @@ export const getSocialPreviewImage = (post: DbPost, forumType: ForumTypeString):
   return autoUrl || ''
 }
 
-export const getSocialPreviewSql = (tablePrefix: string, forumType: ForumTypeString) => `JSON_BUILD_OBJECT(
-  'imageUrl',
-  CASE
-    WHEN ${tablePrefix}."isEvent" AND ${tablePrefix}."eventImageId" IS NOT NULL
-      THEN '${getSocialImagePreviewPrefix(forumType)}' || ${tablePrefix}."eventImageId"
-    WHEN ${tablePrefix}."socialPreview"->>'imageId' IS NOT NULL
-      THEN '${getSocialImagePreviewPrefix(forumType)}' || (${tablePrefix}."socialPreview"->>'imageId')
-    ELSE COALESCE(${tablePrefix}."socialPreviewImageAutoUrl", '')
-  END
-)`;
-
 // The set of fields required for calling postGetPageUrl. Could be supplied by
 // either a fragment or a DbPost.
 export interface PostsMinimumForGetPageUrl {

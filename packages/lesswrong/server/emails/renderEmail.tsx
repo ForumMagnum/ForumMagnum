@@ -44,8 +44,8 @@ const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional/
 // specific dysfunctional email clients (like the ".ExternalClass" and
 // ".yshortcuts" entries.)
 const emailGlobalCss = (forumType: ForumTypeString) => `
-  .ReadMsgBody { width: 100%; background-color: #ebebeb;}
-  .ExternalClass {width: 100%; background-color: #ebebeb;}
+  .ReadMsgBody { width: 100%; }
+  .ExternalClass {width: 100%; }
   .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height:100%;}
   body {-webkit-text-size-adjust:none; -ms-text-size-adjust:none;}
   body {margin:0; padding:0;}

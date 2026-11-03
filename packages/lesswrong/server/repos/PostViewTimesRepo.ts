@@ -1,8 +1,6 @@
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import moment from "moment";
 import { getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
-import { randomId } from "../../lib/random";
-import chunk from "lodash/chunk";
 import PostViewTimes from "../../server/collections/postViewTimes/collection";
 import IncrementalViewRepo, { IncrementalViewDataType } from "./IncrementalViewRepo";
 import { isE2E } from "../../lib/executionEnvironment";
@@ -106,49 +104,7 @@ class PostViewTimesRepo extends IncrementalViewRepo<"PostViewTimes"> {
   }
 
   async upsertData({ data }: { data: IncrementalViewDataType<"PostViewTimes">[] }) {
-    const dataWithIds = data.map((item) => ({
-      ...item,
-      _id: randomId(),
-    }));
-
-    // Avoid doing too many at once, expect about 5000 total per day
-    const chunks = chunk(dataWithIds, 1000);
-
-    for (const chunk of chunks) {
-      const values = chunk
-        .map(
-          (row) =>
-            `('${row._id}', '${row.clientId}', '${row.postId}', '${row.windowStart}', '${row.windowEnd}', ${
-              row.totalSeconds
-            }, NOW(), NOW())`
-        )
-        .join(",");
-
-      const onConflictUpdate = `
-        "clientId" = EXCLUDED."clientId",
-        "postId" = EXCLUDED."postId",
-        "windowStart" = EXCLUDED."windowStart",
-        "windowEnd" = EXCLUDED."windowEnd",
-        "totalSeconds" = EXCLUDED."totalSeconds",
-        "updatedAt" = NOW()
-      `;
-
-      // If the row with this ("clientId", "postId", "windowStart", "windowEnd") already exists, just update the numbers
-      await this.none(`
-        INSERT INTO "PostViewTimes" (
-          "_id",
-          "clientId",
-          "postId",
-          "windowStart",
-          "windowEnd",
-          "totalSeconds",
-          "createdAt",
-          "updatedAt"
-        ) VALUES ${values}
-        ON CONFLICT ("clientId", "postId", "windowStart", "windowEnd")
-        DO UPDATE SET ${onConflictUpdate}
-      `);
-    }
+    await this.upsertRows(data, ["clientId", "postId", "windowStart", "windowEnd"], ["totalSeconds"]);
   }
 
   async getDateBounds(): Promise<{ earliestWindowStart: Date | null; latestWindowEnd: Date | null }> {
