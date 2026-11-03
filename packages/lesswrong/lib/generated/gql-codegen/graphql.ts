@@ -7318,11 +7318,6 @@ export type NotificationCounts = {
   unreadPrivateMessages: Scalars['Int']['output'];
 };
 
-export type NotificationDisplaysResult = {
-  __typename?: 'NotificationDisplaysResult';
-  results: Array<Scalars['JSON']['output']>;
-};
-
 export type NotificationOutput = {
   __typename?: 'NotificationOutput';
   data: Maybe<Notification>;
@@ -9580,7 +9575,6 @@ export type Query = {
   MultiPostAnalytics: MultiPostAnalyticsResult;
   MyDialogues: Maybe<MyDialoguesResult>;
   NetKarmaChangesForAuthorsOverPeriod: Array<NetKarmaChangesForAuthorsOverPeriod>;
-  NotificationDisplays: Maybe<NotificationDisplaysResult>;
   PetrovDay2024CheckNumberOfIncoming: Maybe<PetrovDay2024CheckNumberOfIncomingData>;
   PetrovDayCheckIfIncoming: Maybe<PetrovDayCheckIfIncomingData>;
   PopularComments: Maybe<PopularCommentsResult>;
@@ -9898,12 +9892,6 @@ export type QueryMyDialoguesArgs = {
 export type QueryNetKarmaChangesForAuthorsOverPeriodArgs = {
   days: Scalars['Int']['input'];
   limit: Scalars['Int']['input'];
-};
-
-
-export type QueryNotificationDisplaysArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
 };
 
 

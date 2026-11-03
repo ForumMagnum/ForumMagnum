@@ -598,14 +598,6 @@ extend type Mutation {
   sendNewDialogueMessageNotification(postId: String!, dialogueHtml: String!): Boolean!
 }
 
-type NotificationDisplaysResult {
-  results: [JSON!]!
-}
-
-extend type Query {
-  NotificationDisplays(type: String, limit: Int): NotificationDisplaysResult
-}
-
 extend type Query {
   Lightcone2024FundraiserStripeAmounts: [Int!]
   Lightcone2025FundraiserAirtableAmounts: Int!
