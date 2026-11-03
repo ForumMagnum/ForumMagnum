@@ -1,4 +1,4 @@
-import { dataToMarkdown, dataToHTML, dataToCkEditor, buildRevision } from '../editor/conversionUtils'
+import { dataToMarkdown, dataToHTML, dataToCkEditor, buildRevision, dataToLexicalHtml } from '../editor/conversionUtils'
 import { getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 import { userOwns, userIsAdmin } from '../../lib/vulcan-users/permissions';
@@ -92,7 +92,7 @@ export const revisionResolversGraphQLMutations = {
         convertedData = dataToMarkdown(sourceData, sourceType);
         break;
       case "lexical":
-        convertedData = await dataToHTML(sourceData, sourceType, context);
+        convertedData = await dataToLexicalHtml(sourceData, sourceType, context);
         break;
       case "html":
         convertedData = await dataToHTML(sourceData, sourceType, context);
@@ -173,7 +173,7 @@ export const revisionResolversGraphQLQueries = {
         // Lexical stores content as HTML internally, so convert to HTML
         return {
           type: "lexical",
-          value: await dataToHTML(document.value, document.type, context),
+          value: await dataToLexicalHtml(document.value, document.type, context),
         };
     }
   },
