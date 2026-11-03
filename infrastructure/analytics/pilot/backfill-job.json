@@ -1,0 +1,15 @@
+{
+  "name": "last12months-20261003",
+  "start": "2025-10-03T01:00:00+00:00",
+  "end": "2026-10-03T01:00:00+00:00",
+  "deadline": "2026-10-09T00:00:00+00:00",
+  "window_hours": 6,
+  "batch_rows": 50000,
+  "minimum_free_bytes": 68719476736,
+  "minimum_free_fraction": 0.2,
+  "source_identity": "3722c7ff454be00016e3d9184ad403888a4b3244b955fbbcb3228b4a27aee650",
+  "archive_bucket": "lw-analytics-pilot-083919364732-20261001",
+  "region": "us-east-1",
+  "source_parameter": "/lw-analytics-pilot/backfill-source",
+  "extractor_fingerprint": "ae85f429dbde53eaf6e6788bac4a454ad3f5177752c2ad0e961e7dc07bdc090e"
+}

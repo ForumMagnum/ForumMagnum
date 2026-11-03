@@ -1,0 +1,23 @@
+[Unit]
+Description=LessWrong archived analytics worker and private query gateway
+After=network-online.target lw-clickhouse.service
+Requires=lw-clickhouse.service
+RequiresMountsFor=/srv/analytics
+
+[Service]
+User=analytics
+Group=analytics
+WorkingDirectory=/opt/lw-analytics
+EnvironmentFile=/etc/lw-analytics/worker.env
+Environment=ANALYTICS_STATE_DIR=/srv/analytics/state
+Environment=ANALYTICS_DATA_DIR=/srv/analytics
+ExecStart=/opt/lw-analytics/.venv/bin/uvicorn service:app --host 0.0.0.0 --port 9443 --workers 1 --ssl-keyfile /etc/lw-analytics/tls/analytics.key --ssl-certfile /etc/lw-analytics/tls/analytics.crt --no-access-log
+Restart=on-failure
+TimeoutStopSec=360
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/analytics/state
+
+[Install]
+WantedBy=multi-user.target
