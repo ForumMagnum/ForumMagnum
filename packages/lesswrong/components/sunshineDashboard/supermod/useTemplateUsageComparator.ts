@@ -11,10 +11,6 @@ const ModerationTemplateUsageCountsQuery = gql(`
   }
 `);
 
-/**
- * Orders moderation templates by how often moderators have used them recently,
- * most used first, so the number shortcuts land on the common ones.
- */
 export function useTemplateUsageComparator() {
   const { data } = useQuery(ModerationTemplateUsageCountsQuery, { ssr: false });
   const usageCounts = useMemo(

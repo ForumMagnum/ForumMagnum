@@ -21,9 +21,8 @@ export async function isTeamInboxConversation(conversation: DbConversation, cont
 }
 
 /**
- * Moderators follow moderator conversations in the supermod Inbox, so they
- * aren't sent message notifications for them. A moderator conversation with
- * only moderators in it never reaches the Inbox, so it notifies as usual.
+ * Moderators follow moderator conversations in the supermod Inbox instead of
+ * notifications. Conversations with only moderators never reach the Inbox.
  */
 export async function filterMessageNotificationRecipients(conversation: DbConversation, recipientIds: string[], context: ResolverContext): Promise<string[]> {
   if (!conversation.moderator) {

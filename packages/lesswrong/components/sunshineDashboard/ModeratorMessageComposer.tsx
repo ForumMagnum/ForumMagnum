@@ -53,7 +53,6 @@ const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, act
   const [rateLimitSettings, setRateLimitSettings] = useState<RejectionRateLimitSettings>(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
   const [disablePermissions, setDisablePermissions] = useState(false);
   const [rejectAll, setRejectAll] = useState(false);
-  // Templates inserted into the draft, recorded as used when the message is sent
   const [usedTemplateIds, setUsedTemplateIds] = useState<string[]>([]);
   const compareTemplates = useTemplateUsageComparator();
 
@@ -108,7 +107,6 @@ const ModeratorMessageComposerInner = ({ user, currentUser, posts, comments, act
       if (!isEqual(newTemplateQueries, templateQueries)) {
         setTemplateQueries(newTemplateQueries);
       }
-      // The draft is prefilled with this template alone, replacing any picked before the editor existed
       setUsedTemplateIds([template._id]);
     } else if (template.contents?.html) {
       appendToEditor(getDraftMessageHtml({ html: template.contents.html, displayName: user.displayName }));

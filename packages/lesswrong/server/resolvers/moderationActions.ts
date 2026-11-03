@@ -52,7 +52,6 @@ function moderationDocumentId(options: UserModerationOptions, moderatorId: strin
 
 export async function recordModerationTemplateUsage({ templateId, documentId, collectionName, eventId }: {
   templateId: string;
-  // The rejected content or sent message the template was used in
   documentId: string;
   collectionName: 'Posts' | 'Comments' | 'Messages';
   eventId?: string;
