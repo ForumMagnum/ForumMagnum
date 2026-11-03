@@ -2,7 +2,7 @@ import { generateText, stepCountIs, type ContentPart, type ImagePart, type Langu
 import { z } from "zod";
 import LlmRuns from "@/server/collections/llmRuns/collection";
 import LlmRunTranscriptEntries from "@/server/collections/llmRunTranscriptEntries/collection";
-import type { LlmContextImage } from "./llmContextImages";
+import type { LlmContextImage } from "@/server/languageModels/llmContextImages";
 
 const MAX_MODEL_STEPS = 20;
 /**
