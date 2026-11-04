@@ -141,8 +141,7 @@ async function getIsBookmarked(documentId: string, context: ResolverContext): Pr
     `bookmarksByUser:${currentUser._id}:Posts`,
     { userId: currentUser._id, collectionName: "Posts", active: true },
     "documentId",
-    documentId,
-    { limit: 1 }
+    documentId
   );
 
   return bookmarks.length > 0;
