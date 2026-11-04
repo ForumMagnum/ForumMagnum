@@ -11,8 +11,8 @@ const MAX_IMAGE_BASE64_BYTES = 5 * 1024 * 1024;
 const MAX_IMAGE_BYTES = MAX_IMAGE_BASE64_BYTES * 3 / 4;
 const IMAGE_CHECK_TIMEOUT_MS = 30 * 1000;
 const MAX_CONCURRENT_IMAGE_CHECKS = 10;
-// Cloudinary fetch ignores f_jpg and returns the original format when the source is a Cloudinary f_auto URL
-const CLOUDINARY_DELIVERY_TRANSFORMATION = /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)[^/]+\/(?=v\d+\/)/;
+// Cloudinary fetch ignores f_jpg and returns the format f_auto picks when the source URL has f_auto
+const CLOUDINARY_UPLOAD_URL = /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload)\/(.+?)\/(v\d+\/.*)$/;
 const SOURCE_ERROR_PATTERNS = [
   /^Error in loading /,
   /^File size too large\. /,
@@ -40,7 +40,7 @@ export async function loadLlmContextImages(sourceUrls: string[]): Promise<LlmCon
 
 async function loadLlmContextImage(sourceUrl: string, maxDimension: string): Promise<LlmContextImage | null> {
   const transformation = { f: "jpg", q: "auto", c: "limit", w: maxDimension, h: maxDimension };
-  const url = makeCloudinaryFetchUrl(sourceUrl.replace(CLOUDINARY_DELIVERY_TRANSFORMATION, "$1"), transformation);
+  const url = makeCloudinaryFetchUrl(removeAutoFormat(sourceUrl), transformation);
   const response = await fetchImageHead(url);
   if (!response || isSourceError(response)) {
     return null;
@@ -51,6 +51,18 @@ async function loadLlmContextImage(sourceUrl: string, maxDimension: string): Pro
     throw new Error(`Cloudinary returned ${response.status} (${mediaType}, ${bytes} bytes, error: ${response.headers.get("x-cld-error")}) for image ${sourceUrl}`);
   }
   return bytes <= MAX_IMAGE_BYTES ? { sourceUrl, url, mediaType } : null;
+}
+
+function removeAutoFormat(sourceUrl: string): string {
+  const match = CLOUDINARY_UPLOAD_URL.exec(sourceUrl);
+  if (!match) {
+    return sourceUrl;
+  }
+  const [, uploadPrefix, transformations, versionedPath] = match;
+  const keptTransformations = transformations.split("/")
+    .map((component) => component.split(",").filter((param) => param !== "f_auto").join(","))
+    .filter((component) => component !== "");
+  return [uploadPrefix, ...keptTransformations, versionedPath].join("/");
 }
 
 async function fetchImageHead(url: string): Promise<Response | null> {
