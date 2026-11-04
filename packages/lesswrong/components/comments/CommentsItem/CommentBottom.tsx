@@ -17,7 +17,7 @@ import { commentBottomComponents } from '@/lib/voting/votingSystemComponents';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = defineStyles("CommentBottom", (theme: ThemeType) => ({
+export const commentBottomStyles = defineStyles("CommentBottom", (theme: ThemeType) => ({
   bottom: {
     display: "flex",
     alignItems: "center",
@@ -59,7 +59,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   replyButton: React.ReactNode,
 }) => {
   const { forumType } = useForumType();
-  const classes = useStyles(styles);
+  const classes = useStyles(commentBottomStyles);
   const userCanReplyOnBlocked = useFilteredCurrentUser(u => userCanDo(u, 'comments.replyOnBlocked.all'));
   const userCanModerateAll = useFilteredCurrentUser(u => userCanDo(u, 'posts.moderate.all'));
 

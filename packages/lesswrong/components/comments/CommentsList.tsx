@@ -87,6 +87,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
           pingback={entry.pingback}
           replies={entry.children}
           treeOptions={treeOptions}
+          expandAllThreads={expandAllThreads}
         />
         : <CommentsNode
           treeOptions={treeOptions}

@@ -107,6 +107,16 @@ const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
   stylePriority: -1,
 });
 
+export const getEffectiveNestingLevel = (nestingLevel: number, treeOptions: CommentTreeOptions): number => {
+  return nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
+}
+
+export const getReplyFormLevelClass = (parentNestingLevel: number, treeOptions: CommentTreeOptions): string => {
+  return getEffectiveNestingLevel(parentNestingLevel + 1, treeOptions) % 2 === 0
+    ? "comments-node-even"
+    : "comments-node-odd";
+}
+
 const CommentFrame = ({
   comment,
   treeOptions,
@@ -146,9 +156,9 @@ const CommentFrame = ({
   className?: string,
 }) => {
   const classes = useStyles(styles);
-  const { condensed, postPage, switchAlternatingHighlights } = treeOptions;
-  const effectiveNestingLevel = nestingLevel + (switchAlternatingHighlights ? 1 : 0);
-  
+  const { condensed, postPage } = treeOptions;
+  const effectiveNestingLevel = getEffectiveNestingLevel(nestingLevel, treeOptions);
+
   const nodeClass = classNames(
     "comments-node",
     nestingLevelToClass(effectiveNestingLevel, classes),

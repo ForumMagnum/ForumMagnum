@@ -17,6 +17,7 @@ import PostsItemComments from "../posts/PostsItemComments";
 import ContentStyles from "../common/ContentStyles";
 import LWPopper from "../common/LWPopper";
 import CommentsNode from "./CommentsNode";
+import { getEffectiveNestingLevel } from './CommentFrame';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 export const SINGLE_LINE_PADDING_TOP = 5
@@ -35,7 +36,7 @@ export const singleLineStyles = (theme: ThemeType) => ({
   whiteSpace: "nowrap"
 })
 
-const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
+export const singleLineCommentStyles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
   root: {
     position: "relative",
     cursor: "pointer",
@@ -162,7 +163,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   displayTagIcon?: boolean,
 }) => {
   const { forumType } = useForumType();
-  const classes = useStyles(styles);
+  const classes = useStyles(singleLineCommentStyles);
   const {anchorEl, hover, eventHandlers} = useHover();
   
   if (!comment) return null
@@ -177,8 +178,8 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const parentTag = comment.tag;
   const actuallyDisplayTagIcon = !!(displayTagIcon && parentTag && coreTagIconMap[parentTag.slug])
   
-  const effectiveNestingLevel = nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
-  
+  const effectiveNestingLevel = getEffectiveNestingLevel(nestingLevel, treeOptions);
+
   const deempphasizeComment = !!deemphasizeCommentsExcludingUserIds && !deemphasizeCommentsExcludingUserIds.has(comment.userId ?? '')
 
   return (
@@ -263,7 +264,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
 export const SingleLineCommentPlaceholder = ({nestingLevel}: {
   nestingLevel: number
 }) => {
-  const classes = useStyles(styles);
+  const classes = useStyles(singleLineCommentStyles);
   return <div className={classes.root}>
     <ContentStyles
       contentType={"comment"}
