@@ -8,7 +8,7 @@ import type {
   SetImageSizePayload,
 } from '@/components/lexical/plugins/ImagesPlugin/commands'
 import { $findMatchingParent, $wrapNodeInElement } from '@lexical/utils'
-import { $createImageNode, $isImageNode } from '@/components/lexical/nodes/ImageNode'
+import { $createImageNode, $isImageNode, type ImageNode } from '@/components/lexical/nodes/ImageNode'
 import {
   $getImageNodeInSelection,
   getDragImageData,
@@ -31,6 +31,27 @@ export function $insertImageNodeAsSuggestion(
   const suggestionID = randomId()
   const suggestion = $createSuggestionNode(suggestionID, 'insert-image').append(node)
   selection.insertNodes([suggestion])
+  onSuggestionCreation(suggestionID)
+  return true
+}
+
+export function $replaceImageAsSuggestion(
+  image: ImageNode,
+  replacement: ImageNode,
+  onSuggestionCreation: (id: string) => void,
+  logger: Logger,
+): boolean {
+  logger.info('Replacing image as suggestion')
+  const suggestionID = randomId()
+  const insertSuggestion = $createSuggestionNode(suggestionID, 'insert-image').append(replacement)
+  const existingSuggestion = $findMatchingParent(image, $isSuggestionNode)
+  if (existingSuggestion?.getSuggestionTypeOrThrow() === 'insert-image') {
+    existingSuggestion.replace(insertSuggestion)
+  } else {
+    const deleteSuggestion = $wrapNodeInElement(image, () => $createSuggestionNode(suggestionID, 'delete-image'))
+    deleteSuggestion.insertAfter(insertSuggestion)
+  }
+  replacement.selectEnd()
   onSuggestionCreation(suggestionID)
   return true
 }

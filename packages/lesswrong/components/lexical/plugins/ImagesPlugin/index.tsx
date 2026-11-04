@@ -27,6 +27,7 @@ import {
   $getSelection,
   $insertNodes,
   $isParagraphNode,
+  $isRangeSelection,
   $isRootOrShadowRoot,
   $setSelection,
   COMMAND_PRIORITY_EDITOR,
@@ -61,6 +62,7 @@ import {
 } from '../../nodes/ImageNode';
 import { $canDropImage, $getImageNodeInSelection, getDragImageData, getDragSelection, isImageFile } from './ImageUtils';
 import { preloadImage } from '../../nodes/imageCache';
+import { $createSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
 
 import {
   SET_IMAGE_CAPTION_VISIBILITY_COMMAND,
@@ -676,6 +678,26 @@ export default function ImagesPlugin({
 }
 
 /**
+ * Inserting at a selection that rests on an ImageNode throws, because the
+ * image has no block ancestor, so the caret can't be left there.
+ */
+function $moveSelectionOffImage(node: ImageNode): void {
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection) || !selection.anchor.getNode().is(node)) {
+    return;
+  }
+  const topLevelNode = node.getTopLevelElementOrThrow();
+  const nextSibling = topLevelNode.getNextSibling();
+  if ($isParagraphNode(nextSibling)) {
+    nextSibling.selectStart();
+    return;
+  }
+  const sentinel = $createSentinelParagraphNode();
+  topLevelNode.insertAfter(sentinel);
+  sentinel.select();
+}
+
+/**
  * Normalize image nodes after any update.
  *
  * Ensures the image node has a stable internal structure:
@@ -684,6 +706,7 @@ export default function ImagesPlugin({
  * - Removes any unexpected children.
  * - Unwraps the image from a paragraph when it is the only child.
  * - Ensures a trailing paragraph exists when the image is the last root child.
+ * - Moves a range selection off the image to the position just after it.
  */
 function enforceImageNodeStructure(node: ImageNode): void {
   let renderNode: ReturnType<typeof $createImageRenderNode> | null = null;
@@ -746,6 +769,8 @@ function enforceImageNodeStructure(node: ImageNode): void {
   if (parent && $isRootOrShadowRoot(parent) && node.getNextSibling() === null) {
     node.insertAfter($createParagraphNode());
   }
+
+  $moveSelectionOffImage(node);
 }
 
 const TRANSPARENT_IMAGE =
