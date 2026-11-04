@@ -284,8 +284,35 @@ export async function renderLiveEditorDraftMarkdownRoute({
         { status: 403, headers: NO_CACHE_HEADERS }
       );
     }
-    const token = checkResult.token;
+    return await renderAuthorizedDraftMarkdownResponse({
+      postId,
+      key,
+      version,
+      token: checkResult.token,
+      resolverContext,
+    });
+  } catch {
+    // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
+    // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message
+    // along with a 200 status code.
+    return new Response(`Unable to access shared draft for postId: ${postId}.  If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`, { status: 200, headers: NO_CACHE_HEADERS });
+  }
+}
 
+async function renderAuthorizedDraftMarkdownResponse({
+  postId,
+  key,
+  version,
+  token,
+  resolverContext,
+}: {
+  postId: string
+  key: string | undefined
+  version: string
+  token: string
+  resolverContext: ResolverContext
+}): Promise<Response> {
+  try {
     const post = key
       ? (
         await runQuery(
@@ -322,10 +349,16 @@ export async function renderLiveEditorDraftMarkdownRoute({
     response.headers.set("Cache-Control", NO_CACHE_HEADERS["Cache-Control"]);
     return response;
   } catch (error) {
-    // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
-    // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message
-    // along with a 200 status code.
-    return new Response(`Unable to access shared draft for postId: ${postId}.  If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`, { status: 200, headers: NO_CACHE_HEADERS });
+    // eslint-disable-next-line no-console
+    console.error(`Failed to render shared draft ${postId}:`, error);
+    captureException(error);
+    // 200 (not 5xx) so Claude's web_fetch surfaces the body to the model.
+    return new Response(
+      `Unable to load the draft for postId: ${postId} because of an error on our side. ` +
+        `This is not a sharing-permissions problem, so please don't ask the user to change their sharing settings. ` +
+        `If you are an AI agent, try again in a moment, and if it keeps failing, report it with the /api/agent/feedback endpoint.`,
+      { status: 200, headers: NO_CACHE_HEADERS }
+    );
   }
 }
 
