@@ -16,7 +16,7 @@ interface RankingPivots {
   [index: string]: number;
 }
 
-export const rankingWeights = {
+const rankingWeights = {
   match: {
     bm25: 3.0,
     allTerms: 1.0,
@@ -68,25 +68,10 @@ export const rankingWeights = {
   },
 };
 
-export function navigationPoints(tokenCount: number): number {
+function navigationPoints(tokenCount: number): number {
   const steps = rankingWeights.navigation.exactTitle;
   if (tokenCount < 1) return 0;
   return steps[Math.min(tokenCount, steps.length) - 1];
-}
-
-export function matchPoints(bm25: number, pivot: number): number {
-  const squared = bm25 * bm25;
-  return rankingWeights.match.bm25 * squared / (squared + (pivot * pivot));
-}
-
-export function popularityPoints(karma: number, pivot: number, slope = rankingWeights.popularity.slope, cap = rankingWeights.popularity.cap): number {
-  return Math.min(cap, slope * Math.log2(1 + (Math.max(karma, 0) / pivot)));
-}
-
-export function popularityGate(match: number): number {
-  const {gateFloor} = rankingWeights.popularity;
-  const normalized = Math.min(Math.max(match, 0), rankingWeights.match.topicalMax) / rankingWeights.match.topicalMax;
-  return gateFloor + ((1 - gateFloor) * normalized * normalized);
 }
 
 export interface SearchIdentifier {
@@ -107,7 +92,7 @@ const urlRoutes: [RegExp, string, "objectID" | "slug"][] = [
   [/^\/(?:w|tag|topics)\/([^/?#]+)/, "tags", "slug"],
 ];
 
-export function parseDocumentUrl(search: string): SearchIdentifier | undefined {
+function parseDocumentUrl(search: string): SearchIdentifier | undefined {
   const trimmed = search.trim();
   if (!/^https?:\/\//i.test(trimmed) && !/^\/(?!\/)/.test(trimmed)) return undefined;
   let url: URL;
@@ -303,7 +288,7 @@ function phraseQuery(fields: IndexFields, search: string): QueryDslQueryContaine
   return {bool: {should: phrases, minimum_should_match: 1}};
 }
 
-export function compoundTitleQuery(index: string, search: string): QueryDslQueryContainer | undefined {
+function compoundTitleQuery(index: string, search: string): QueryDslQueryContainer | undefined {
   const title = indexFields(index).title;
   const token = search.trim().toLowerCase();
   if (!title || !/^[a-z]{12,24}$/.test(token)) return undefined;
@@ -340,7 +325,7 @@ function matchFunctions(index: string, search: string, tokenCount: number, score
   return functions;
 }
 
-export function wantsUpcomingEvents(search: string, filters: QueryFilter[]): boolean {
+function wantsUpcomingEvents(search: string, filters: QueryFilter[]): boolean {
   if (/\b(?:19|20)\d{2}\b/.test(search) || filters.some(filter => /date|time/i.test(filter.field))) return false;
   return /\b(?:meetups?|meetings?|events?|upcoming)\b/i.test(search)
     || filters.some(filter => filter.type === "postType" && filter.value.includes("event"))
