@@ -216,7 +216,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       SELECT
         c."_id",
         c."_id" AS "objectID",
-        c."userId",
+        author."_id" AS "userId",
         COALESCE(c."baseScore", 0) AS "baseScore",
         COALESCE(c."deleted", FALSE) AS "deleted",
         COALESCE(c."draft", FALSE) AS "draft",
@@ -229,18 +229,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         c."postedAt",
         EXTRACT(EPOCH FROM c."postedAt") * 1000 AS "publicDateMs",
         COALESCE(c."af", FALSE) AS "af",
-        CASE
-          WHEN author."deleted" THEN NULL
-          ELSE author."slug"
-        END AS "authorSlug",
-        CASE
-          WHEN author."deleted" THEN NULL
-          ELSE author."displayName"
-        END AS "authorDisplayName",
-        CASE
-          WHEN author."deleted" THEN NULL
-          ELSE author."username"
-        END AS "authorUserName",
+        author."slug" AS "authorSlug",
+        author."displayName" AS "authorDisplayName",
+        author."username" AS "authorUserName",
         c."postId",
         post."title" AS "postTitle",
         post."slug" AS "postSlug",
@@ -259,6 +250,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         NOW() AS "exportedAt"
       FROM "Comments" c
       LEFT JOIN "Users" author ON c."userId" = author."_id"
+        AND author."deleted" IS NOT TRUE AND c."hideAuthor" IS NOT TRUE
       LEFT JOIN "Posts" post on c."postId" = post."_id"
       LEFT JOIN "Tags" tag on c."tagId" = tag."_id"
     `;

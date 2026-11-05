@@ -6,7 +6,7 @@ interface SearchBase {
 
 interface SearchComment extends SearchBase {
   _index: "comments",
-  userId: string,
+  userId: string | null,
   baseScore: number,
   isDeleted: boolean,
   retracted: boolean,
@@ -39,7 +39,7 @@ interface SearchSequence extends SearchBase {
   collectedAuthorIds?: string[],
   baseScore?: number,
   title: string | null,
-  userId: string,
+  userId: string | null,
   createdAt: string,
   af: boolean,
   authorDisplayName?: string | null,
@@ -83,7 +83,7 @@ interface SearchUser extends SearchBase {
 interface SearchPost extends SearchBase {
   _index: "posts",
   coauthorIds?: string[],
-  userId: string,
+  userId: string | null,
   url: string | null,
   title: string | null,
   slug: string,

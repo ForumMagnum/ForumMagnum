@@ -271,6 +271,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
           'title', p."title"
         ) ORDER BY p."baseScore" DESC) FROM "Posts" p WHERE
           p."userId" = u."_id" AND
+          p."hideAuthor" IS NOT TRUE AND
           p."shortform" IS NOT TRUE AND
           ${getViewablePostsSelector("p")}
         ) AS "posts",
