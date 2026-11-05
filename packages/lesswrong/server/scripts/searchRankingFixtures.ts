@@ -2,9 +2,8 @@
 import fs from "fs";
 import type { Client } from "@elastic/elasticsearch";
 import type { SearchRequest } from "@elastic/elasticsearch/lib/api/types";
-import { compileSearchQuery } from "../search/elastic/ElasticAdditiveRanking";
+import { compileSearchQuery, rankingWeights } from "../search/elastic/ElasticAdditiveRanking";
 import { compilePersonLookup, resolvePersonSearch, PersonCandidate } from "../search/elastic/ElasticPersonSearch";
-import { rankingWeights } from "../search/elastic/ElasticAdditiveRanking";
 import type { SearchQueryData } from "../search/elastic/searchQueryTypes";
 import { evaluationClient, summarizeHit } from "./searchRankingEval";
 
