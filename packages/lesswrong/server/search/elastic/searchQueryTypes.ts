@@ -10,5 +10,4 @@ export interface SearchQueryData {
   preTag?: string;
   postTag?: string;
   person?: PersonSearch;
-  curatedSequenceIds?: string[];
 }

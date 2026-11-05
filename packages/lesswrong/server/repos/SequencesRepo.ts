@@ -26,6 +26,7 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         COALESCE(s."draft", FALSE) AS "draft",
         COALESCE(s."hidden", FALSE) AS "hidden",
         COALESCE(s."af", FALSE) AS "af",
+        s."curatedOrder" IS NOT NULL AS "curated",
         s."bannerImageId",
         author."slug" AS "authorSlug",
         author."displayName" AS "authorDisplayName",

@@ -1,15 +1,11 @@
 import { compileSearchQuery } from "../../server/search/elastic/ElasticAdditiveRanking";
 import ElasticClient from "../../server/search/elastic/ElasticClient";
 import ElasticService from "../../server/search/elastic/ElasticService";
-import Sequences from "../../server/collections/sequences/collection";
 
 jest.mock("../../server/search/elastic/ElasticClient");
-const mockSequenceFetch = jest.fn();
-jest.mock("../../server/collections/sequences/collection", () => ({__esModule: true, default: {find: jest.fn(() => ({fetch: mockSequenceFetch}))}}));
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockSequenceFetch.mockReset();
 });
 
 describe("ElasticService", () => {
@@ -57,31 +53,6 @@ describe("ElasticService ranked requests", () => {
     expect(compiled).not.toContain('"tier"');
   });
 
-  it("loads curated sequence IDs for sequence searches and forwards them to server sorting", async () => {
-    const client = new ElasticClient();
-    const search = jest.spyOn(client, "search").mockResolvedValue({hits: {total: 0, hits: []}});
-    mockSequenceFetch.mockResolvedValue([{_id: "curated"}]);
-    await new ElasticService(client).runQuery({indexName: "sequences", params: {query: "alignment"}}, {emptyStringSearchResults: "default"});
-    expect(Sequences.find).toHaveBeenCalledWith({curatedOrder: {$exists: true}}, {}, {_id: 1});
-    expect(search).toHaveBeenCalledWith(expect.objectContaining({curatedSequenceIds: ["curated"]}));
-  });
-
-  it("reports a failed curation lookup instead of silently returning the wrong order", async () => {
-    const client = new ElasticClient();
-    mockSequenceFetch.mockRejectedValue(new Error("Curation lookup failed"));
-    await expect(new ElasticService(client).runQuery({indexName: "sequences", params: {query: "alignment"}}, {emptyStringSearchResults: "default"}))
-      .rejects.toThrow("Curation lookup failed");
-    expect(client.search).not.toHaveBeenCalled();
-  });
-
-  it("does not load or promote curated sequences in the All view", async () => {
-    const client = new ElasticClient();
-    const search = jest.spyOn(client, "search").mockResolvedValue({hits: {total: 0, hits: []}});
-    await new ElasticService(client).runQuery({indexName: "posts,comments,users,tags,sequences", params: {query: "alignment"}}, {emptyStringSearchResults: "default"});
-    expect(Sequences.find).not.toHaveBeenCalled();
-    expect(search).toHaveBeenCalledWith(expect.objectContaining({curatedSequenceIds: []}));
-  });
-
   it("forwards the new filters to ordinary search", async () => {
     const client = new ElasticClient();
     jest.spyOn(client, "search").mockResolvedValue({hits: {total: 0, hits: []}});
@@ -97,7 +68,6 @@ describe("ElasticService ranked requests", () => {
         {type: "postType", field: "postType", value: ["question"]},
       ],
     }));
-    expect(Sequences.find).not.toHaveBeenCalled();
   });
 
   it("rejects invalid post types", () => {
@@ -142,11 +112,10 @@ it("does not silently ignore lookup-only request parameters", async () => {
     .rejects.toThrow("requires a single index");
 });
 
-it("does not query Elasticsearch or curation for suppressed empty searches", async () => {
+it("does not query Elasticsearch for suppressed empty searches", async () => {
   const client = new ElasticClient();
   const result = await new ElasticService(client).runQuery({indexName: "sequences", params: {}}, {emptyStringSearchResults: "empty"});
   expect(result.hits).toEqual([]);
   expect(client.search).not.toHaveBeenCalled();
   expect(client.lookup).not.toHaveBeenCalled();
-  expect(Sequences.find).not.toHaveBeenCalled();
 });

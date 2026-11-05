@@ -10,7 +10,6 @@ import {
 import moment from "moment";
 import type { SearchOptions, SearchQuery } from "@/lib/search/NativeSearchClient";
 import { searchPostTypes, SearchPostType } from "@/lib/search/searchFilters";
-import Sequences from "@/server/collections/sequences/collection";
 
 export interface SearchFilterParams {
   tagIds?: string[],
@@ -59,9 +58,6 @@ class ElasticService {
     if (!lookup && (sorting || params.aroundLatLng)) {
       throw new Error("Index sort aliases and geographic sorting require lookup search");
     }
-    const curatedSequences = !skipSearch && !lookup && indexes.length === 1 && indexes[0] === "sequences"
-      ? await Sequences.find({curatedOrder: {$exists: true}}, {}, {_id: 1}).fetch()
-      : [];
     const result = skipSearch
       ? {hits: {
           total: 0,
@@ -71,7 +67,6 @@ class ElasticService {
         !lookup
           ? this.client.search({
             indexes,
-            curatedSequenceIds: curatedSequences.map(sequence => sequence._id),
             filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters, params),
             preTag: params.highlightPreTag,
             postTag: params.highlightPostTag,

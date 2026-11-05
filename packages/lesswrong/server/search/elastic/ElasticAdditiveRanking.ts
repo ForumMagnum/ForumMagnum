@@ -7,7 +7,7 @@ import type {
 import ElasticQuery, { QueryFilter, compileAuthorshipQuery } from "./ElasticQuery";
 import { collectionNameToConfig, indexToCollectionName } from "./ElasticConfig";
 import { contentTokens } from "./searchTokens";
-import { compileSearchSort } from "./ElasticSearchSort";
+import { searchSort } from "./ElasticSearchSort";
 import { parseQuery } from "./parseQuery";
 import type { SearchQueryData } from "./searchQueryTypes";
 import type { PersonConfidence, PersonSearch } from "./ElasticPersonSearch";
@@ -396,7 +396,7 @@ function compileInterpretation(input: BranchInput, relationships: RelationshipBr
     query: {match_all: {}}, functions: [{weight: 0}, ...relationships.map(branch => ({weight: branch.weight, filter: branch.query}))],
     score_mode: "max", boost_mode: "replace",
   }} : undefined;
-  if (index === "posts") outerFunctions.push({weight: context.curated, filter: {term: {curated: true}}});
+  if (index === "posts" || index === "sequences") outerFunctions.push({weight: context.curated, filter: {term: {curated: true}}});
   const typeOffset = index === "comments" ? context.comment : index === "users" ? context.unresolvedUser : 0;
   const params = {
     karmaField: karmaField(index), pivot: pivots[index], cap: index === "users" ? popularity.userCap : popularity.cap, slope: index === "users" ? popularity.userSlope : popularity.slope,
@@ -455,7 +455,7 @@ function compileIndexBranch(input: BranchInput): QueryDslQueryContainer {
   return {bool: {should: [], filter: [{term: {_index: index}}, ...eligibility], must: [{dis_max: {queries: interpretations, tie_breaker: 0}}]}};
 }
 
-export function compileSearchQuery({indexes, search: rawSearch, offset = 0, limit = 10, filters = [], preTag, postTag, person, curatedSequenceIds}: SearchQueryData): SearchRequest {
+export function compileSearchQuery({indexes, search: rawSearch, offset = 0, limit = 10, filters = [], preTag, postTag, person}: SearchQueryData): SearchRequest {
   const highlightFields: Record<string, SearchHighlightField> = {};
   const excludes = new Set<string>();
   const queries: QueryDslQueryContainer[] = [];
@@ -501,7 +501,7 @@ export function compileSearchQuery({indexes, search: rawSearch, offset = 0, limi
     size: limit,
     track_total_hits: true,
     query: {dis_max: {queries}},
-    sort: compileSearchSort(indexes.length === 1 && indexes[0] === "sequences" ? curatedSequenceIds : undefined),
+    sort: searchSort,
     highlight: {fields: highlightFields, number_of_fragments: 1, fragment_size: 140, no_match_size: 140},
     _source: {excludes: [...excludes]},
   };
