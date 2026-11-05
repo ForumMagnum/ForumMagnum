@@ -17,7 +17,7 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         s."_id",
         s."_id" AS "objectID",
         s."title",
-        s."userId",
+        author."_id" AS "userId",
         COALESCE(collected."authorIds", ARRAY[]::TEXT[]) AS "collectedAuthorIds",
         COALESCE(collected."baseScore", 0) AS "baseScore",
         s."createdAt",
@@ -27,26 +27,23 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         COALESCE(s."hidden", FALSE) AS "hidden",
         COALESCE(s."af", FALSE) AS "af",
         s."bannerImageId",
-        CASE
-          WHEN author."deleted" THEN NULL
-          ELSE author."slug"
-        END AS "authorSlug",
-        CASE
-          WHEN author."deleted" THEN NULL
-          ELSE author."displayName"
-        END AS "authorDisplayName",
-        CASE
-          WHEN author."deleted" THEN NULL
-          ELSE author."username"
-        END AS "authorUserName",
+        author."slug" AS "authorSlug",
+        author."displayName" AS "authorDisplayName",
+        author."username" AS "authorUserName",
         s."contents"->>'html' AS "plaintextDescription",
         NOW() AS "exportedAt"
       FROM "Sequences" s
-      LEFT JOIN "Users" author on s."userId" = author."_id"
+      LEFT JOIN "Users" author on s."userId" = author."_id" AND author."deleted" IS NOT TRUE
       LEFT JOIN LATERAL (
         SELECT
-          ARRAY(SELECT DISTINCT UNNEST(ARRAY[p."userId"] || COALESCE(p."coauthorUserIds", ARRAY[]::TEXT[]))
-            FROM "Posts" p WHERE p."_id" = ANY(public_posts.ids)) AS "authorIds",
+          ARRAY(
+            SELECT DISTINCT postAuthor."_id"
+            FROM "Posts" p
+            JOIN "Users" postAuthor ON postAuthor."_id" = ANY(ARRAY[p."userId"] || COALESCE(p."coauthorUserIds", ARRAY[]::TEXT[]))
+            WHERE p."_id" = ANY(public_posts.ids)
+              AND p."hideAuthor" IS NOT TRUE
+              AND postAuthor."deleted" IS NOT TRUE
+          ) AS "authorIds",
           (SELECT AVG(p."baseScore") FROM "Posts" p WHERE p."_id" = ANY(public_posts.ids)) AS "baseScore"
         FROM (
           SELECT ARRAY_AGG(DISTINCT p."_id") AS ids

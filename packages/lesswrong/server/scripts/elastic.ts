@@ -33,6 +33,7 @@ export function deleteOrphanedIndexes() {
 export async function rebuildRelationshipSearchIndexes() {
   const exporter = new ElasticExporter();
   await exporter.recreateIndex("Posts");
+  await exporter.recreateIndex("Comments");
   await exporter.recreateIndex("Sequences");
 }
 

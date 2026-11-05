@@ -295,6 +295,11 @@ author IDs, sequence karma, and public user `fullName` aliases. Sequence title m
 full-text subfields. Existing single-record post updates and chapter mutations
 refresh affected sequence documents.
 
+Documents do not name a deleted author, or the author of a post or comment with
+`hideAuthor`. Their `userId` and author fields are null and their authors are left out of
+`coauthorIds` and `collectedAuthorIds`, so author filters and person ranking cannot
+reach them. Documents exported by earlier code still name these authors until rebuilt.
+
 The development Users index was rebuilt on 2026-09-10 with
 `rebuildUserSearchIndex()` from `server/scripts/elastic.ts` after
 `previewUserSearchAliases(userIds)` verified public aliases in PostgreSQL.
@@ -314,7 +319,7 @@ npm run repl -- dev lw packages/lesswrong/server/scripts/elastic.ts
 
 Then invoke `await rebuildRelationshipSearchIndexes()` in the REPL. Confirm the
 selected database and Elasticsearch environment before doing a production rebuild.
-The helper rebuilds Posts and Sequences from the selected database and switches
+The helper rebuilds Posts, Comments and Sequences from the selected database and switches
 each index alias once its export is complete. Live writes keep going to the old
 index during an export; `recreateIndex` copies documents written since the export
 started (by their `exportedAt`) into the new index right after the switch. The old
