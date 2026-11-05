@@ -136,11 +136,11 @@ opportunities without event metadata have no reliable deadline signal yet.
 To tell whether a ranking change is an improvement, compare two *runs* of a
 graded golden query set against one frozen corpus.
 
-- **Golden set** (`server/scripts/searchBaselineData/goldenSet.json`, committed).
+- **Golden set** (`server/scripts/searchBaselineData/goldenSet.json`). This
+  directory holds local data and is git-ignored.
   Each query has a category, an intent, optional "what annoys me" note, 0–3
   grades keyed by `index:objectID`, and optional expectations: `within` (target
   in the top N), `absent` (not in the top N), `above` (one result before another).
-  It was seeded from the stress suite and the judged lab-automation query.
 - **Frozen corpus** (`corpus.json`). `freezeSearchCorpus()` clones each live dev
   index into `searcheval-<tag>-<alias>`. Clones share segments, so they are cheap,
   but each source index is write-blocked for a few seconds while it is cloned.
@@ -199,7 +199,7 @@ and `.json` with one row per query and target:
 The console shows hit rates at 1, 3 and 10 for production and the branch on the
 same pairs, and the most-chosen targets that the branch ranks outside its top 10.
 
-The golden set is public. Besides the per-target threshold, queries containing
+Besides the per-target threshold, queries containing
 an `@`, a long digit run, an external URL, or more than 80 characters are never
 imported. Clicks have only been recorded since 2026-04-17.
 

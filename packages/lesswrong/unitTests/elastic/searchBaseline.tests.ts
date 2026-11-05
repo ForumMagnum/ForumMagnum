@@ -1,6 +1,4 @@
-import fs from "fs";
-import path from "path";
-import { bootstrapInterval, compareRuns, evaluateExpectation, GoldenQuery, GoldenSet, ndcgAt10, queryOutcome, RunEntry, SearchRun, validateGoldenSet } from "../../server/scripts/searchBaselineMetrics";
+import { bootstrapInterval, compareRuns, evaluateExpectation, GoldenQuery, GoldenSet, ndcgAt10, queryOutcome, RunEntry, SearchRun } from "../../server/scripts/searchBaselineMetrics";
 
 function hits(...keys: string[]): RunEntry["hits"] {
   return keys.map(key => {
@@ -81,13 +79,5 @@ describe("search baseline comparison", () => {
     const interval = bootstrapInterval(deltas);
     expect(interval).toEqual(bootstrapInterval(deltas));
     expect(interval?.[0]).toBeGreaterThan(0);
-  });
-});
-
-describe("committed golden set", () => {
-  it("is valid", () => {
-    const file = path.join(__dirname, "../../server/scripts/searchBaselineData/goldenSet.json");
-    const set: GoldenSet = JSON.parse(fs.readFileSync(file, "utf8"));
-    expect(validateGoldenSet(set)).toEqual([]);
   });
 });
