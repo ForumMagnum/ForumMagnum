@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { EditorContents, getEditorsForUser } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
+import { isEmptyEditorMarkup } from '@/lib/editor/utils';
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useEffectOnce } from '../hooks/useEffectOnce';
@@ -87,19 +88,12 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
 const isSameContents = (a: EditorContents, b: EditorContents) => a.type === b.type && a.value === b.value;
 
 /**
- * Markup made only of empty paragraphs, line breaks and whitespace. An emptied
- * Lexical editor reports `<p><br></p>` rather than an empty string, so typing
- * into an empty editor and deleting it again leaves a backup like this.
- */
-const emptyEditorMarkup = /^(?:\s|&nbsp;|<\/?p\b[^>]*>|<br\s*\/?>)*$/i;
-
-/**
  * Whether a backup has nothing in it to restore. Only the markup of an emptied
  * editor counts as nothing, so that content without text, such as an embedded
  * video or a poll, is still offered.
  */
 const hasNothingToRestore = (contents: EditorContents) => {
-  return typeof contents.value !== 'string' || emptyEditorMarkup.test(contents.value);
+  return typeof contents.value !== 'string' || isEmptyEditorMarkup(contents.value);
 };
 
 type LocalStorageCheckProps = {

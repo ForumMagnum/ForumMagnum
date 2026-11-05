@@ -29,3 +29,14 @@ export function markdownToHtmlSimple(markdown: string): string {
   const id = randomId()
   return getMarkdownItNoPlugins().render(markdown, {docId: id})
 }
+
+// An emptied Lexical editor reports `<p><br></p>` rather than an empty string.
+const EMPTY_EDITOR_MARKUP = /^(?:\s|&nbsp;|<\/?p\b[^>]*>|<br\s*\/?>)*$/i;
+
+/**
+ * Whether markup consists only of empty paragraphs, line breaks and whitespace.
+ * Content without text, such as an embedded video or a poll, is not empty.
+ */
+export function isEmptyEditorMarkup(html: string): boolean {
+  return EMPTY_EDITOR_MARKUP.test(html);
+}
