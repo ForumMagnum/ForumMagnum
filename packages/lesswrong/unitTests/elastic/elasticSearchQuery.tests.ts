@@ -10,6 +10,14 @@ it("scores curated sequences with a bounded bonus rather than sorting them first
   expect(JSON.stringify(request.query)).toContain(`{"weight":${rankingWeights.context.curated},"filter":{"term":{"curated":true}}}`);
 });
 
+it("recalls users by profile text without crediting it as topical evidence", () => {
+  const request = compileSearchQuery({indexes: ["users"], search: "anthropic"});
+  const branch = JSON.stringify(request.query);
+  expect(branch).toContain('"fields":["bio","mapLocationAddress","jobTitle","organization","howICanHelpOthers","howOthersCanHelpMe"]');
+  expect(JSON.stringify(request.highlight?.fields?.bio?.highlight_query)).toContain('"organization"');
+  expect(request.highlight?.fields?.["bio.exact"]).toBeUndefined();
+});
+
 it("recognizes exact and prominent first names, retains ambiguity, and extracts topics", () => {
   expect(resolvePersonSearch("Eliezer", [eliezer])).toMatchObject({userIds: ["ey"], topic: "", confidence: "strong"});
   expect(resolvePersonSearch("Eliezer corrigibility", [eliezer])).toMatchObject({userIds: ["ey"], topic: "corrigibility", confidence: "strong"});
