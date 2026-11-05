@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import SearchPage from './SearchPage';
 
 const styles = defineStyles('SearchModal', (theme: ThemeType) => ({
@@ -89,6 +90,12 @@ function containSearchFocus(event: React.KeyboardEvent<HTMLDivElement>) {
   }
 }
 
+const focusRestoringKeys = ['Tab', 'ArrowDown', 'ArrowUp'];
+
+function focusSearchInput(frame: HTMLElement | null) {
+  frame?.querySelector<HTMLInputElement>('input[data-search-input]')?.focus({preventScroll: true});
+}
+
 const SearchModal = ({onClose}: {onClose: () => void}) => {
   const classes = useStyles(styles);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -104,7 +111,7 @@ const SearchModal = ({onClose}: {onClose: () => void}) => {
       root.style.scrollbarGutter = 'stable';
     }
     document.body.style.overflow = 'hidden';
-    frameRef.current?.querySelector<HTMLInputElement>('input[data-search-input]')?.focus({preventScroll: true});
+    focusSearchInput(frameRef.current);
     const viewport = window.visualViewport;
     const updateViewport = () => {
       if (!viewport) return;
@@ -128,14 +135,22 @@ const SearchModal = ({onClose}: {onClose: () => void}) => {
     };
   }, [previousFocus]);
 
+  useGlobalKeydown((event) => {
+    const frame = frameRef.current;
+    if (!frame || event.defaultPrevented || event.isComposing) return;
+    const focusOnBody = document.activeElement === document.body;
+    if (!focusOnBody && !frame.contains(document.activeElement)) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      onClose();
+    } else if (focusOnBody && focusRestoringKeys.includes(event.key)) {
+      event.preventDefault();
+      focusSearchInput(frame);
+    }
+  });
+
   return createPortal(<div className={classes.backdrop} onClick={event => {
     if (event.target === event.currentTarget || event.target === viewportRef.current) onClose();
-  }} onKeyDown={event => {
-    if (event.key === 'Escape' && !event.defaultPrevented && !event.nativeEvent.isComposing) {
-      event.preventDefault();
-      event.stopPropagation();
-      onClose();
-    }
   }}>
     <div ref={viewportRef} className={classes.viewport}>
       <div ref={frameRef} className={classes.frame} role="dialog" aria-modal="true" aria-label="Search" onKeyDown={containSearchFocus}>
