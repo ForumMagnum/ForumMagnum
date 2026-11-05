@@ -184,7 +184,8 @@ results and "Run current code" always use the code on disk.
 #### Importing real searches
 
 `importClickedSearches()` turns production `searchResultSelected` events from the
-header (`searchBar`) and search page (`searchPageTabbed`) into golden queries.
+header and search modal (`searchBar`) and search page (`searchPage`, previously
+`searchPageTabbed`) into golden queries.
 Each searcher's last click for a query is the result they wanted. A target is
 imported only when at least three distinct people (by user or client ID) settled
 on it, and it is graded 3 with its count stored as `clickedBy`. A target that

@@ -236,7 +236,7 @@ export function compareGoldenRuns(baseline: string, candidate: string) {
 
 /** Production LessWrong events; general search surfaces only, not user or tag pickers. */
 const clickEnvironment = "lesswrong.com";
-const clickContexts = ["searchBar", "searchPageTabbed"];
+const clickContexts = ["searchBar", "searchPage", "searchPageTabbed"];
 const lookupChunk = 1000;
 
 function fetchSearchClicks(environment: string, since: string): Promise<SearchClick[]> {
