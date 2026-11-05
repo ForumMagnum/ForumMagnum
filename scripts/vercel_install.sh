@@ -1,3 +1,3 @@
 #!/bin/bash
-yarn install --production
+npm install --production
 
