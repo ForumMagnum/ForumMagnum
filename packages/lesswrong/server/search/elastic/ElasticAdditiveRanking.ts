@@ -360,7 +360,7 @@ interface BranchInput {
   eventIntent: boolean;
 }
 
-export function compileTopicalRecall(index: string, search: string, allowCompound = true): QueryDslQueryContainer {
+function compileTopicalRecall(index: string, search: string, allowCompound = true): QueryDslQueryContainer {
   if (!search) return {match_none: {}};
   if (index === "users") return userNameRecall(search, "2<75%");
   const fields = indexFields(index).allTermsFields;

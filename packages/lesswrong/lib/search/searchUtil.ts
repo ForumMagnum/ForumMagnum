@@ -36,25 +36,6 @@ export type ElasticSorting = UnionOf<typeof elasticSortings>;
 
 export const defaultElasticSorting: ElasticSorting = "relevance";
 
-export const getElasticSortingsForCollection = (
-  collectionName: SearchIndexCollectionName,
-): ElasticSorting[] => {
-  const allSortings = Array.from(elasticSortings);
-  if (collectionName === "Sequences") {
-    return allSortings.filter((sorting) => sorting !== "karma");
-  }
-  return allSortings;
-}
-
-export const isValidElasticSorting = (sorting: string): sorting is ElasticSorting =>
-  elasticSortings.has(sorting);
-
-export const formatElasticSorting = (sorting: ElasticSorting): string =>
-  sorting[0].toUpperCase() + sorting.slice(1).replace(/_/g, " ");
-
-export const elasticSortingToUrlParam = (sorting: ElasticSorting): string|undefined =>
-  sorting === defaultElasticSorting ? undefined : sorting;
-
 export const getElasticIndexNameWithSorting = (
   collectionName: SearchIndexCollectionName,
   sorting: ElasticSorting,

@@ -13,7 +13,7 @@ const styles = defineStyles("SearchPostTypeBar", (theme: ThemeType) => ({
   },
 }));
 
-export function togglePostType(selected: SearchPostType[], type: SearchPostType): SearchPostType[] {
+function togglePostType(selected: SearchPostType[], type: SearchPostType): SearchPostType[] {
   const next = selected.includes(type) ? selected.filter(item => item !== type) : [...selected, type];
   return next.length ? next : defaultSearchPostTypes;
 }
