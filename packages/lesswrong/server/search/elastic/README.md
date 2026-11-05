@@ -319,12 +319,10 @@ index is not deleted; run `deleteOrphanedIndexes()` once the new one looks right
 `configureIndexes()` alone copies existing Elasticsearch documents and does not
 backfill the new relationship fields.
 
-The search-page Questions and Shortform filters require the `question` and
-`shortform` fields from the current Posts exporter. For an existing index, run
-`await backfillPostSearchFlags()` from the script module above. This updates only
-those flags on existing documents, skips absent documents (404), and refreshes
-Posts after completion. It does not create documents or replace indexes. A full
-Posts export or rebuild also populates the flags.
+The Posts rebuild also populates `question`, which the Questions filter needs, and
+`shortform`, which keeps shortform container posts out of post results. Their
+entries are comments, so they appear under the comment kind. A document without the
+`shortform` field stays searchable until the rebuild reaches it.
 
 Development refresh completed on 2026-09-10: 150,379 database rows processed,
 49,211 existing search documents updated, 101,168 absent documents skipped, and

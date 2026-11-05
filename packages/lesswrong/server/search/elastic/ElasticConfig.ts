@@ -246,6 +246,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       {term: {unlisted: false}},
       {term: {status: postStatuses.STATUS_APPROVED}},
       {range: {baseScore: {gte: 0}}},
+      {bool: {should: [], must_not: [{term: {shortform: true}}]}},
     ],
     mappings: {
       coauthorIds: keywordMapping,
@@ -275,6 +276,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "status",
       "viewCount",
       "coauthorIds",
+      "shortform",
     ],
   },
   Users: {

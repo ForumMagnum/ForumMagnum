@@ -1,20 +1,19 @@
 import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
 
-export const searchPostTypes = new TupleSet(["article", "question", "linkpost", "shortform", "event"] as const);
+export const searchPostTypes = new TupleSet(["article", "question", "linkpost", "event"] as const);
 export type SearchPostType = UnionOf<typeof searchPostTypes>;
 
 export const searchPostTypeLabels: Record<SearchPostType, string> = {
   article: "Articles",
   question: "Questions",
   linkpost: "Link posts",
-  shortform: "Shortform",
   event: "Events",
 };
 
 export type SearchEventFilter = "include" | "exclude" | "only";
 export type SearchTagMatch = "any" | "all";
 
-export const defaultSearchPostTypes: SearchPostType[] = Array.from(searchPostTypes).filter(type => type !== "event" && type !== "shortform");
+export const defaultSearchPostTypes: SearchPostType[] = Array.from(searchPostTypes).filter(type => type !== "event");
 
 export interface SearchDateRange {
   start?: number;
@@ -48,8 +47,8 @@ export interface SearchFilterParams {
   postTypes?: SearchPostType[];
 }
 
-function sameTypes(a: SearchPostType[], b: SearchPostType[]): boolean {
-  return a.length === b.length && a.every(type => b.includes(type));
+export function isDefaultSearchPostTypes(types: SearchPostType[]): boolean {
+  return types.length === defaultSearchPostTypes.length && types.every(type => defaultSearchPostTypes.includes(type));
 }
 
 export function searchFiltersToParams(filters: SearchFilterState): SearchFilterParams {
@@ -61,7 +60,7 @@ export function searchFiltersToParams(filters: SearchFilterState): SearchFilterP
   }
   if (authorIds.length) params.authorIds = authorIds;
   if (events !== "include") params.facetFilters = [[events === "only" ? "isEvent:true" : "isEvent:-true"]];
-  if (postTypes.length && !sameTypes(postTypes, defaultSearchPostTypes)) params.postTypes = postTypes;
+  if (postTypes.length && !isDefaultSearchPostTypes(postTypes)) params.postTypes = postTypes;
   const numericFilters: string[] = [];
   if (dateRange.start !== undefined) numericFilters.push(`publicDateMs>=${dateRange.start}`);
   if (dateRange.end !== undefined) numericFilters.push(`publicDateMs<=${dateRange.end}`);

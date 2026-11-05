@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { useStyles } from '@/components/hooks/useStyles';
-import { SearchFilterState, defaultSearchPostTypes, searchPostTypeLabels } from '@/lib/search/searchFilters';
+import { SearchFilterState, defaultSearchPostTypes, isDefaultSearchPostTypes, searchPostTypeLabels } from '@/lib/search/searchFilters';
 import { SearchPageState, defaultSearchPageState } from './searchPageUrl';
 import { searchPageStyles } from './searchPageStyles';
 import SearchFilterRow from './SearchFilterRow';
@@ -22,7 +22,7 @@ interface SearchPageFiltersProps {
 export function summarizeSearchFilters(state: SearchPageState) {
   const {dateRange} = state.filters;
   const hasDateFilter = dateRange.start !== undefined || dateRange.end !== undefined;
-  const hasPostFilter = state.filters.postTypes.length > 0 && state.filters.postTypes.length !== defaultSearchPostTypes.length;
+  const hasPostFilter = state.filters.postTypes.length > 0 && !isDefaultSearchPostTypes(state.filters.postTypes);
   const hasFilters = hasDateFilter || hasPostFilter || state.filters.events !== defaultSearchPageState.filters.events || !!state.filters.tagIds.length || !!state.filters.authorIds.length || !!state.kinds.length;
   const dateSummary = matchSearchDatePreset(dateRange, Date.now()) ?? (hasDateFilter ? `${dateRange.start === undefined ? "Beginning" : new Date(dateRange.start).toISOString().slice(0, 10)} – ${dateRange.end === undefined ? "Today" : new Date(dateRange.end).toISOString().slice(0, 10)}` : "All time");
   return {hasDateFilter, hasPostFilter, hasFilters, dateSummary};

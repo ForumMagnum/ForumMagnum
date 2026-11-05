@@ -6,6 +6,7 @@ import {
   SearchPostType,
   defaultSearchPostTypes,
   emptySearchFilters,
+  isDefaultSearchPostTypes,
   searchPostTypes,
 } from "@/lib/search/searchFilters";
 
@@ -90,10 +91,6 @@ function parseDateRange(from: string | undefined, to: string | undefined): Searc
   return {...(start !== undefined ? {start} : {}), ...(end !== undefined ? {end} : {})};
 }
 
-function samePostTypes(a: SearchPostType[], b: SearchPostType[]): boolean {
-  return a.length === b.length && a.every(type => b.includes(type));
-}
-
 export function searchPageStateFromQuery(query: Record<string, string | undefined>): SearchPageState {
   const kinds = splitList(query.kinds ?? query.contentType).filter(collectionIsSearchIndexed);
   const postTypes = splitList(query.types).filter((type): type is SearchPostType => searchPostTypes.has(type));
@@ -126,7 +123,7 @@ export function searchPageStateToQuery(state: SearchPageState): Record<string, s
     ["tagMatch", filters.tagMatch === "all" ? "all" : undefined],
     ["events", filters.events === "exclude" ? undefined : filters.events],
     ["authors", filters.authorIds.length ? filters.authorIds.join(",") : undefined],
-    ["types", samePostTypes(filters.postTypes, defaultSearchPostTypes) ? undefined : filters.postTypes.join(",")],
+    ["types", isDefaultSearchPostTypes(filters.postTypes) ? undefined : filters.postTypes.join(",")],
     ["from", filters.dateRange.start !== undefined ? formatDateBound(filters.dateRange.start, false) : undefined],
     ["to", filters.dateRange.end !== undefined ? formatDateBound(filters.dateRange.end, true) : undefined],
   ];

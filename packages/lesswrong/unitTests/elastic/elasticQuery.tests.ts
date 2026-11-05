@@ -172,7 +172,7 @@ describe("ElasticQuery search filters", () => {
     expect(posts).toContain('{"exists":{"field":"url"}}');
     expect(posts).toContain('"minimum_should_match":1');
     const articles = filterClauses("posts", [{type: "postType", field: "postType", value: ["article"]}]);
-    expect(articles).toContain('"must_not":[{"term":{"question":true}},{"term":{"isEvent":true}},{"term":{"shortform":true}},{"exists":{"field":"url"}}]');
+    expect(articles).toContain('"must_not":[{"term":{"question":true}},{"term":{"isEvent":true}},{"exists":{"field":"url"}}]');
     for (const index of ["comments", "users", "tags", "sequences"]) {
       expect(filterClauses(index, types)).toContain('{"match_all":{}}');
     }
@@ -197,6 +197,10 @@ describe("ElasticQuery search filters", () => {
     for (const index of ["posts", "comments", "users", "sequences"]) {
       expect(filterClauses(index, af)).toContain('{"term":{"af":true}}');
     }
+  });
+
+  it("keeps shortform container posts out of post results", () => {
+    expect(filterClauses("posts", [])).toContain('"must_not":[{"term":{"shortform":true}}]');
   });
 
   it("maps karma range filters to the karma field of each index", () => {
