@@ -4,7 +4,7 @@ import type {
   SearchHighlightField,
   SearchRequest,
 } from "@elastic/elasticsearch/lib/api/types";
-import ElasticQuery, { QueryFilter } from "./ElasticQuery";
+import ElasticQuery, { QueryFilter, compileAuthorshipQuery } from "./ElasticQuery";
 import { collectionNameToConfig, indexToCollectionName } from "./ElasticConfig";
 import { contentTokens } from "./searchTokens";
 import { compileSearchSort } from "./ElasticSearchSort";
@@ -212,15 +212,6 @@ function residualTopicQuery(index: string, topic: string): QueryDslQueryContaine
   }};
 }
 
-function authorshipFilter(index: string, userIds: string[]): QueryDslQueryContainer | undefined {
-  if (index === "posts") return {bool: {minimum_should_match: 1, should: [
-    {terms: {userId: userIds}}, {terms: {coauthorIds: userIds}},
-  ]}};
-  if (index === "comments") return {terms: {userId: userIds}};
-  if (index === "sequences") return {terms: {collectedAuthorIds: userIds}};
-  return undefined;
-}
-
 interface RelationshipBranch {
   query: QueryDslQueryContainer;
   weight: number;
@@ -237,7 +228,7 @@ function relationshipBranches(index: string, person: PersonSearch): Relationship
     branches.push({query: {bool: {should: [], filter: [profileIds, {range: {karma: {gte: minorProfileKarma}}}]}}, weight: profile[person.confidence]});
     branches.push({query: {bool: {should: [], filter: [profileIds, {range: {karma: {lt: minorProfileKarma}}}]}}, weight: profile[person.confidence] * minorShare});
   }
-  const author = authorshipFilter(index, person.userIds);
+  const author = compileAuthorshipQuery(indexToCollectionName(index), person.userIds);
   if (author) {
     const query: QueryDslQueryContainer = person.topic
       ? {bool: {should: [], filter: [author], must: [residualTopicQuery(index, person.topic)]}}
