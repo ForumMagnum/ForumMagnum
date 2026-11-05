@@ -2,6 +2,7 @@ import React from 'react';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { SearchDateRange } from '@/lib/search/searchFilters';
+import { useCurrentTime } from '@/lib/utils/TimeProvider';
 import SearchChip from './SearchChip';
 
 const dayMs = 24 * 60 * 60 * 1000;
@@ -14,8 +15,8 @@ export const searchDatePresets = [
 ];
 
 export function searchDatePresetRange(days: number, nowMs: number): SearchDateRange {
-  const start = nowMs - days * dayMs;
-  return {start: start - start % dayMs};
+  const start = nowMs - (days * dayMs);
+  return {start: start - (start % dayMs)};
 }
 
 export function matchSearchDatePreset(range: SearchDateRange, nowMs: number): string | undefined {
@@ -32,7 +33,7 @@ const SearchDatePresetsBar = ({value, onChange}: {
   onChange: (value: SearchDateRange) => void,
 }) => {
   const classes = useStyles(styles);
-  const nowMs = Date.now();
+  const nowMs = useCurrentTime().getTime();
   const allTime = value.start === undefined && value.end === undefined;
   const preset = matchSearchDatePreset(value, nowMs);
   return <div className={classes.root} role="group" aria-label="Timeframe">
