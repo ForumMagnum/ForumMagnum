@@ -7,9 +7,12 @@ import type {
 } from "@elastic/elasticsearch/lib/api/types";
 import { compilePersonLookup, PersonCandidate, resolvePersonSearch } from "./ElasticPersonSearch";
 import ElasticQuery, { QueryData } from "./ElasticQuery";
+import type { MultiQueryData } from "./ElasticMultiQuery";
 import { compileSearchQuery } from "./ElasticAdditiveRanking";
 import type { SearchQueryData } from "./searchQueryTypes";
+import sortBy from "lodash/sortBy";
 import { isElasticEnabled } from "../../../lib/instanceSettings";
+import take from "lodash/take";
 
 export type ElasticDocument = Exclude<SearchDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
@@ -87,8 +90,8 @@ class ElasticClient {
     return this.client;
   }
 
-  lookup(queryData: QueryData): Promise<HitsOnlySearchResponse> {
-    const query = new ElasticQuery({...queryData, mode: "lookup"});
+  search(queryData: QueryData): Promise<HitsOnlySearchResponse> {
+    const query = new ElasticQuery(queryData);
     const request = query.compile();
     if (DEBUG_LOG_ELASTIC_QUERIES) {
       // eslint-disable-next-line no-console
@@ -97,7 +100,41 @@ class ElasticClient {
     return this.client.search(request);
   }
 
-  async search(queryData: SearchQueryData): Promise<HitsOnlySearchResponse> {
+  async multiSearch(queryData: MultiQueryData): Promise<HitsOnlySearchResponse> {
+    // Perform the same search against each index
+    const resultsBySearchIndex = await Promise.all(
+      queryData.indexes.map((searchIndex) =>
+        this.client.search(new ElasticQuery({
+          index: searchIndex,
+          filters: [],
+          limit: queryData.limit,
+          search: queryData.search,
+          offset: queryData.offset,
+        }).compile())
+      )
+    )
+
+    // Normalize scores within each index to [0, 1] before merging, so that
+    // differences in analyzers/boosts between indexes don't cause one index's
+    // results to dominate the merged list.
+    const normalizedResults = resultsBySearchIndex.flatMap(indexResult => {
+      const hits = indexResult.hits.hits;
+      const maxScore = hits.reduce((max, h) => Math.max(max, h._score ?? 0), 0);
+      if (maxScore <= 0) return hits;
+      return hits.map(h => ({ ...h, _score: (h._score ?? 0) / maxScore }));
+    });
+
+    const sortedResults = take(sortBy(normalizedResults, h => -(h._score ?? 0)), queryData.limit);
+
+    return {
+      hits: {
+        total: normalizedResults.length,
+        hits: sortedResults as ElasticSearchHit[],
+      },
+    };
+  }
+
+  unifiedSearch(queryData: SearchQueryData): Promise<HitsOnlySearchResponse> {
     return executeSearch(this.client, queryData);
   }
 }

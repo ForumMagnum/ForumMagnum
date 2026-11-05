@@ -44,7 +44,7 @@ export function useSearchResults(request: SearchResultsRequest, open: boolean) {
     setError(false);
     try {
       const facetFilters = mergeFacetFilters(filters);
-      const {results} = await getSearchClient({emptyStringSearchResults: "default"})
+      const {results} = await getSearchClient({emptyStringSearchResults: "default", mode: "unified"})
         .search<SearchBarHit>([{
           indexName,
           query,

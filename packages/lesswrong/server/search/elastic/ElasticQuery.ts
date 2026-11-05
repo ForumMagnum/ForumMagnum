@@ -1,5 +1,6 @@
 import type {
   QueryDslQueryContainer,
+  SearchHighlightField,
   Sort,
 } from "@elastic/elasticsearch/lib/api/types";
 
@@ -62,7 +63,6 @@ export type QueryData = {
   filters: QueryFilter[],
   // Providing coordinates will trigger a special case, which sorts results by distance and ignores relevance
   coordinates?: number[],
-  mode?: "lookup",
 }
 
 export type Fuzziness = "AUTO" | number;
@@ -117,16 +117,6 @@ class ElasticQuery {
   ) {
     this.collectionName = indexToCollectionName(queryData.index);
     this.config = collectionNameToConfig(this.collectionName);
-    if (queryData.mode !== "lookup") {
-      this.config = {
-        ...this.config,
-        fields: this.config.fields.map((field, index) => {
-          const name = field.split("^")[0];
-          return `${name}${index === 0 ? "^3" : ""}`;
-        }),
-        ranking: [],
-      };
-    }
   }
 
   compileRanking({field, order, weight, scoring}: Ranking): string {
@@ -345,7 +335,7 @@ class ElasticQuery {
     return {
       multi_match: {
         query: search,
-        fields: this.queryData.mode !== "lookup" ? fields.map(field => this.textFieldToExactField(field)) : fields,
+        fields,
         fuzziness: this.fuzziness,
         max_expansions: 10,
         prefix_length: 3,
@@ -377,25 +367,25 @@ class ElasticQuery {
             {
               multi_match: {
                 query: search,
-                fields: this.queryData.mode !== "lookup" || this.collectionName === 'Users' ? exactFields : fields,
+                fields: this.collectionName === 'Users' ? exactFields : fields,
                 type: "phrase",
                 slop: 2,
-                boost: this.queryData.mode !== "lookup" ? 10 : this.collectionName === 'Users' ? 10 : 100,
+                boost: this.collectionName === 'Users' ? 10 : 100,
               },
             },
             {
               match_phrase_prefix: {
                 [mainField]: {
                   query: search,
-                  boost: this.queryData.mode !== "lookup" ? 20 : 1000,
+                  boost: 1000,
                 },
               },
             },
           ],
         },
       },
-      snippetName: this.queryData.mode !== "lookup" ? `${snippet}.exact` : snippet,
-      highlights: Object.fromEntries((highlight ?? []).map(name => [this.queryData.mode !== "lookup" ? `${name}.exact` : name, undefined])),
+      snippetName: snippet,
+      highlights: Object.fromEntries((highlight ?? []).map(name => [name, undefined])),
     };
   }
 
@@ -427,8 +417,10 @@ class ElasticQuery {
     };
   }
 
-  private compileAdvancedQuery(tokens: QueryToken[]): CompiledQuery {
+  private compileAdvancedQuery(tokens: QueryToken[], exactText = false): CompiledQuery {
     const {fields, snippet, highlight} = this.config;
+    const textFields = exactText ? fields.map((field) => this.textFieldToExactField(field)) : fields;
+    const highlightSuffix = exactText ? ".exact" : "";
 
     const must: QueryDslQueryContainer[] = [];
     const must_not: QueryDslQueryContainer[] = [];
@@ -454,7 +446,7 @@ class ElasticQuery {
         });
         break;
       case "should":
-        should.push(this.getDefaultQuery(token, fields));
+        should.push(this.getDefaultQuery(token, textFields));
         break;
       case "user":
       case "tag":
@@ -487,15 +479,15 @@ class ElasticQuery {
     ).map(({token}) => token).join(" ");
     const highlightQuery = this.getDefaultQuery(
       highlightQueryString,
-      this.config.fields,
+      textFields,
     );
 
     return {
       tokens,
       searchQuery,
-      snippetName: this.queryData.mode !== "lookup" ? `${snippet}.exact` : snippet,
+      snippetName: `${snippet}${highlightSuffix}`,
       snippetQuery: highlightQuery,
-      highlights: Object.fromEntries((highlight ?? []).map(name => [this.queryData.mode !== "lookup" ? `${name}.exact` : name, highlightQuery])),
+      highlights: Object.fromEntries((highlight ?? []).map(name => [`${name}${highlightSuffix}`, highlightQuery])),
     };
   }
 
@@ -504,7 +496,7 @@ class ElasticQuery {
     const {tokens, isAdvanced} = search ? parseQuery(search) : {tokens: [], isAdvanced: false};
     const filters = this.compileFilters(tokens);
     if (!search) return {query: {match_all: {}}, filters, tokens, isAdvanced};
-    if (isAdvanced) return {query: this.compileAdvancedQuery(tokens).searchQuery, filters, tokens, isAdvanced};
+    if (isAdvanced) return {query: this.compileAdvancedQuery(tokens, true).searchQuery, filters, tokens, isAdvanced};
     const names = this.config.fields.map((field) => field.split("^")[0]);
     const main = names[0];
     const titleField = this.collectionName !== "Comments" && isFullTextField(this.collectionName, main) ? main : undefined;
@@ -533,6 +525,25 @@ class ElasticQuery {
       max_expansions: 10, minimum_should_match: minimumShouldMatch,
     }});
     return {query: {bool: {should, minimum_should_match: 1}}, filters, tokens, isAdvanced};
+  }
+
+  compileAdditiveHighlights(recallQuery: QueryDslQueryContainer): Record<string, SearchHighlightField> {
+    const {search} = this.queryData;
+    const {snippet, highlight} = this.config;
+    if (!search) return this.compileHighlightFields({snippetName: snippet}, recallQuery);
+    const {tokens, isAdvanced} = parseQuery(search);
+    if (isAdvanced) {
+      const compiled = this.compileAdvancedQuery(tokens, true);
+      return this.compileHighlightFields(compiled, compiled.searchQuery);
+    }
+    // User recall queries names on displayName.exact, and require_field_match means
+    // highlighting has to use the field the query actually targets.
+    const highlights = Object.fromEntries((highlight ?? []).map(name => [name === "displayName" ? `${name}.exact` : name, recallQuery]));
+    return this.compileHighlightFields({snippetName: snippet, highlights}, recallQuery);
+  }
+
+  getSourceExcludes(): string[] {
+    return ["exportedAt", ...this.config.privateFields];
   }
 
   private compileEmptyQuery(): CompiledQuery {
@@ -616,29 +627,11 @@ class ElasticQuery {
     return sort;
   }
 
-  compile() {
-    const {
-      preTag,
-      postTag,
-      index,
-      sorting,
-      offset = 0,
-      limit = 10,
-      coordinates,
-    } = this.queryData;
-    const {privateFields} = this.config;
-
-    // When sorting by nearest-geographically we disable custom highlighting as
-    // this isn't supported by elastic and causes an exception
-    const hasCustomHighlight = !coordinates;
-
-    const {
-      tokens,
-      searchQuery,
-      snippetName,
-      snippetQuery,
-      highlights,
-    } = this.compileQuery();
+  private compileHighlightFields(
+    {snippetName, snippetQuery, highlights}: Pick<CompiledQuery, "snippetName" | "snippetQuery" | "highlights">,
+    textQuery: QueryDslQueryContainer,
+  ): Record<string, SearchHighlightField> {
+    const {preTag, postTag} = this.queryData;
     // The plain highlighter can fail while rewriting filter clauses (notably
     // negated exists queries in article filters). Highlight only the text query,
     // retaining the specialized queries used for quoted and advanced searches.
@@ -655,6 +648,35 @@ class ElasticQuery {
       max_analyzed_offset: 1000000,
     };
     return {
+      [snippetName]: {
+        ...highlightConfig,
+        highlight_query: snippetQuery ?? textQuery,
+      },
+      ...Object.fromEntries(Object.entries(highlights ?? {}).map(([name, query]) => [name, {
+        ...highlightConfig,
+        number_of_fragments: 0,
+        no_match_size: 0,
+        highlight_query: query ?? textQuery,
+      }])),
+    };
+  }
+
+  compile() {
+    const {
+      index,
+      sorting,
+      offset = 0,
+      limit = 10,
+      coordinates,
+    } = this.queryData;
+
+    // When sorting by nearest-geographically we disable custom highlighting as
+    // this isn't supported by elastic and causes an exception
+    const hasCustomHighlight = !coordinates;
+
+    const compiledQuery = this.compileQuery();
+    const {tokens, searchQuery} = compiledQuery;
+    return {
       index,
       from: offset,
       size: limit,
@@ -663,18 +685,7 @@ class ElasticQuery {
         track_total_hits: true,
         ...(hasCustomHighlight && {
           highlight: {
-            fields: {
-              [snippetName]: {
-                ...highlightConfig,
-                highlight_query: snippetQuery ?? searchQuery,
-              },
-              ...Object.fromEntries(Object.entries(highlights ?? {}).map(([name, query]) => [name, {
-                ...highlightConfig,
-                number_of_fragments: 0,
-                no_match_size: 0,
-                highlight_query: query ?? searchQuery,
-              }])),
-            },
+            fields: this.compileHighlightFields(compiledQuery, searchQuery),
             number_of_fragments: 1,
             fragment_size: 140,
             no_match_size: 140,
@@ -696,7 +707,7 @@ class ElasticQuery {
         },
         sort: this.compileSort(sorting, coordinates),
         _source: {
-          excludes: ["exportedAt", ...privateFields],
+          excludes: this.getSourceExcludes(),
         },
       },
     };

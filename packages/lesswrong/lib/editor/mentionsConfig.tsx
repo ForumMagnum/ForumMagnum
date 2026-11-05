@@ -52,7 +52,7 @@ const collectionNames = ["Posts", "Users", "Tags"] as const;
 
 const fetchMentionableSuggestions = async (forumType: ForumTypeString, searchString: string) => {
   const indexName = collectionNames.map(getSearchIndexName).join(",");
-  const searchClient = getSearchClient();
+  const searchClient = getSearchClient({emptyStringSearchResults: "default", mode: "unified"});
   const response = await searchClient.search<SearchUser | SearchPost | SearchTag>([{
     indexName,
     query: searchString,

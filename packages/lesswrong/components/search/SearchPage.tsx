@@ -146,7 +146,7 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
   );
 
   return <div key={pathname} ref={scrollRef} data-search-filters-open={filtersOpen} className={classNames(classes.root, {[classes.modal]: presentation === 'modal', [classes.filtersClosed]: !filtersOpen})}>
-    <InstantSearch indexName={getSearchIndexName("Posts")} searchClient={getSearchClient({emptyStringSearchResults: "empty"})}>
+    <InstantSearch indexName={getSearchIndexName("Posts")} searchClient={getSearchClient({emptyStringSearchResults: "empty", mode: "unified"})}>
       {filterTabSlot && createPortal(filterTab, filterTabSlot)}
       <div ref={layoutRef} className={classes.layout}>
         <SearchPageFilters state={state} setFilters={setFilters} toggleFilter={toggleFilter} clearFilters={clearFilters}

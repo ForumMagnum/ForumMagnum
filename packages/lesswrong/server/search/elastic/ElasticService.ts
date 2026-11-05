@@ -1,4 +1,4 @@
-import ElasticClient, { ElasticSearchHit } from "./ElasticClient";
+import ElasticClient, { ElasticSearchHit, HitsOnlySearchResponse } from "./ElasticClient";
 import type { SearchResult } from "./SearchResult";
 import { algoliaIndexPrefix } from '@/lib/instanceSettings';
 import { indexNameToConfig } from "./ElasticConfig";
@@ -52,40 +52,12 @@ class ElasticService {
     const hitsPerPage = params.hitsPerPage ?? 10;
     const page = params.page ?? 0;
     const skipSearch = search==="" && options.emptyStringSearchResults==="empty";
-    const indexes = Array.isArray(index) ? index : [index];
-    const lookup = options.mode === "lookup";
-    if (lookup && Array.isArray(index)) throw new Error("Lookup search requires a single index");
-    if (!lookup && (sorting || params.aroundLatLng)) {
-      throw new Error("Index sort aliases and geographic sorting require lookup search");
-    }
     const result = skipSearch
       ? {hits: {
           total: 0,
           hits: [],
         }}
-      : await (
-        !lookup
-          ? this.client.search({
-            indexes,
-            filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters, params),
-            preTag: params.highlightPreTag,
-            postTag: params.highlightPostTag,
-            search,
-            offset: page * hitsPerPage,
-            limit: hitsPerPage,
-          })
-          : this.client.lookup({
-            index: indexes[0],
-            sorting,
-            search,
-            offset: page * hitsPerPage,
-            limit: hitsPerPage,
-            preTag: params.highlightPreTag,
-            postTag: params.highlightPostTag,
-            filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters),
-            coordinates: this.parseLatLng(params.aroundLatLng),
-          })
-      );
+      : await this.dispatchSearch({index, sorting}, search, params, page * hitsPerPage, hitsPerPage, options);
 
     const nbHits = typeof result.hits.total === "number"
       ? result.hits.total
@@ -142,6 +114,41 @@ class ElasticService {
         },
       },
     };
+  }
+
+  private dispatchSearch(
+    {index, sorting}: SanitizedIndexName,
+    search: string,
+    params: SearchQuery["params"],
+    offset: number,
+    limit: number,
+    options: SearchOptions,
+  ): Promise<HitsOnlySearchResponse> {
+    if (options.mode === "unified") {
+      return this.client.unifiedSearch({
+        indexes: Array.isArray(index) ? index : [index],
+        filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters, params),
+        preTag: params.highlightPreTag,
+        postTag: params.highlightPostTag,
+        search,
+        offset,
+        limit,
+      });
+    }
+    if (Array.isArray(index)) {
+      return this.client.multiSearch({indexes: index, search, offset, limit});
+    }
+    return this.client.search({
+      index,
+      sorting,
+      search,
+      offset,
+      limit,
+      preTag: params.highlightPreTag,
+      postTag: params.highlightPostTag,
+      filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters),
+      coordinates: this.parseLatLng(params.aroundLatLng),
+    });
   }
 
   parseFilters(

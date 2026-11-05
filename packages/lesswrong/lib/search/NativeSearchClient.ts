@@ -28,7 +28,7 @@ export const querySchema = z.object({
 });
 
 const searchOptionsSchema = z.object({
-  mode: z.optional(z.literal("lookup")),
+  mode: z.optional(z.literal("unified")),
   emptyStringSearchResults: z.union([z.literal("default"), z.literal("empty")]),
 });
 export type SearchOptions = z.infer<typeof searchOptionsSchema>;
