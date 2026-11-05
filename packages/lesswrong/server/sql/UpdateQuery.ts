@@ -1,4 +1,4 @@
-import Query, { Atom } from "./Query";
+import Query, { Atom, postgresStringLiteral } from "./Query";
 import Table from "./Table";
 import SelectQuery from "./SelectQuery";
 import { JsonType } from "./Type";
@@ -179,7 +179,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
         if (fieldTokens.length === 2) {
           return format(
             column,
-            [column, ` - '${fieldTokens[1]}'`],
+            [column, ` - ${postgresStringLiteral(fieldTokens[1])}`],
           );
         } else {
           throw new Error(`Unsetting a field past the first level of a JSON blob is not yet supported`)
@@ -232,9 +232,9 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
 
   private buildJsonUpdatePath(field: string) {
     const tokens = field.split(".");
-    const path = `'{${tokens.slice(1).join(", ")}}'`;
+    const path = `ARRAY[${tokens.slice(1).map(postgresStringLiteral).join(", ")}]`;
     return {
-      column: `"${tokens[0]}"`,
+      column: this.resolveFieldName(tokens[0]),
       path,
     };
   }

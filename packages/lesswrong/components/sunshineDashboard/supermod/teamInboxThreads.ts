@@ -13,7 +13,7 @@ export function isTeamInboxThreadOpen({ conversation, appeal }: TeamInboxThread)
 
 /** Open threads, longest-waiting first */
 export function sortOpenTeamInboxThreads(threads: TeamInboxThread[]): TeamInboxThread[] {
-  return sortBy(threads, thread => thread.conversation.latestActivity);
+  return sortBy(threads, thread => thread.conversation.moderatorReplyWaitingSince ?? thread.appeal?.createdAt ?? thread.conversation.latestActivity);
 }
 
 /** Done threads, most recent activity first */

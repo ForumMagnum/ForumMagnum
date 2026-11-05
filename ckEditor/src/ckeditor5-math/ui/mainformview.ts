@@ -1,14 +1,14 @@
 /* eslint-disable no-tabs */
-import { View } from '@ckeditor/ckeditor5-ui/src/view';
-import { ViewCollection } from '@ckeditor/ckeditor5-ui/src/viewcollection';
-import { InputTextView } from '@ckeditor/ckeditor5-ui/src/inputtext/inputtextview';
-import type { Locale } from "@ckeditor/ckeditor5-utils";
-
-import { KeystrokeHandler } from '@ckeditor/ckeditor5-utils/src/keystrokehandler';
-import { FocusTracker } from '@ckeditor/ckeditor5-utils/src/focustracker';
-import { FocusCycler } from '@ckeditor/ckeditor5-ui/src/focuscycler';
-
-import { submitHandler } from '@ckeditor/ckeditor5-ui/src/bindings/submithandler';
+import {
+	View,
+	ViewCollection,
+	InputTextView,
+	KeystrokeHandler,
+	FocusTracker,
+	FocusCycler,
+	submitHandler,
+	type Locale,
+} from 'ckeditor5';
 
 import { extractDelimiters, hasDelimiters, resizeInputElement } from '../utils';
 

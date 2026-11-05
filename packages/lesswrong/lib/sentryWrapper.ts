@@ -8,6 +8,7 @@ export function getSentry(): typeof Sentry | null {
 }
 
 export const captureException = Sentry.captureException;
+export const withIsolationScope = Sentry.withIsolationScope;
 
 // eslint-disable-next-line no-barrel-files/no-barrel-files
 export type { Scope };

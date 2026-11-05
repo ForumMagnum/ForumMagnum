@@ -1,4 +1,6 @@
 import { postStatuses } from "../../lib/collections/posts/constants";
+import { type ClassifiedTagFilters, filterModeToAdditiveKarmaModifier, filterModeToMultiplicativeKarmaModifier } from "@/lib/filterSettings";
+import { getPgPromiseLib } from "@/server/sqlConnection";
 
 /**
  * When changing this, also update the default view.
@@ -67,3 +69,35 @@ export const getViewableCommentsSelector = (commentsTableAlias?: string) => {
     ${aliasPrefix}"authorIsUnreviewed" IS NOT TRUE
   `;
 };
+
+export const sqlValue = (value: string): string => {
+  return `'${getPgPromiseLib().as.value(value)}'`;
+}
+
+const postHasTagSql = (tagId: string, postsTableAlias: string) =>
+  `COALESCE((${postsTableAlias}."tagRelevance"->${sqlValue(tagId)})::INTEGER, 0) > 0`;
+
+/**
+ * When changing this, also update filterSettingsToParams in the posts views.
+ */
+export const getTagFilterSelector = (tagFilters: ClassifiedTagFilters, postsTableAlias: string): string => {
+  const conditions = [
+    ...tagFilters.required.map(tag => postHasTagSql(tag.tagId, postsTableAlias)),
+    ...tagFilters.hidden.map(tag => `NOT (${postHasTagSql(tag.tagId, postsTableAlias)})`),
+  ];
+  return conditions.length > 0 ? `(${conditions.join(' AND ')})` : 'TRUE';
+}
+
+export const getTagFilterAdditiveKarmaSql = (tagFilters: ClassifiedTagFilters, postsTableAlias: string): string => {
+  const terms = tagFilters.softFiltered.map(tag =>
+    `(CASE WHEN ${postHasTagSql(tag.tagId, postsTableAlias)} THEN ${filterModeToAdditiveKarmaModifier(tag.filterMode)} ELSE 0 END)`
+  );
+  return terms.length > 0 ? `(${terms.join(' + ')})` : '0';
+}
+
+export const getTagFilterMultiplierSql = (tagFilters: ClassifiedTagFilters, postsTableAlias: string): string => {
+  const factors = tagFilters.softFiltered.map(tag =>
+    `(CASE WHEN ${postHasTagSql(tag.tagId, postsTableAlias)} THEN ${filterModeToMultiplicativeKarmaModifier(tag.filterMode)} ELSE 1 END)`
+  );
+  return factors.length > 0 ? `(${factors.join(' * ')})` : '1';
+}

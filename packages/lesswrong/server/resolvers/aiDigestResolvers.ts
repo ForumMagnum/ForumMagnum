@@ -6,7 +6,7 @@ import { clearAiDigestRecommendationHistory } from "@/server/aiDigest/aiDigestHi
 import AiDigestIssueGenerations from "@/server/collections/aiDigestIssueGenerations/collection";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
 import Users from "@/server/collections/users/collection";
-import { aiDigestEmailBody } from "@/server/emailComponents/AiDigestEmail";
+import { aiDigestEmailBody, aiDigestEmailWrapperOptions } from "@/server/emailComponents/AiDigestEmail";
 import { AI_DIGEST_UTM_PARAMS } from "@/server/emailComponents/aiDigestEmailLinks";
 import { wrapAndRenderEmail } from "@/server/emails/renderEmail";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
@@ -72,6 +72,7 @@ export const aiDigestGraphQLQueries = {
       subject: issue.spec.subject,
       body: aiDigestEmailBody(issue.spec, issueId),
       utmParams: AI_DIGEST_UTM_PARAMS,
+      ...aiDigestEmailWrapperOptions,
     });
     return {
       email,

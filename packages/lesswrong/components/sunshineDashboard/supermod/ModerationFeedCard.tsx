@@ -23,6 +23,9 @@ import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import type { InboxAction } from './inboxReducer';
 import { isPost, POSITIVE_KARMA, type ContentItem } from './helpers';
 import ModerationContentStatus from './ModerationContentStatus';
+import { DomUtils } from 'htmlparser2';
+import { isText, type ChildNode as DomHandlerChildNode, type Element as DomHandlerElement } from 'domhandler';
+import { getSourceRange, parseDocumentWithSourceRanges, replaceSourceRanges } from '@/lib/utils/htmlSourceRanges';
 
 const INITIAL_WORDS = 75;
 const EXPANSION_FACTOR = 4;
@@ -249,7 +252,32 @@ const styles = defineStyles('ModerationFeedCard', (theme: ThemeType) => ({
 // Comments often separate paragraphs with a double line break, which renders as a full
 // blank line; browsers ignore sizing on <br>, so swap the extra breaks for a short spacer
 function compactParagraphBreaks(html: string) {
-  return html.replace(/<br\s*\/?>(\s*<br\s*\/?>)+/g, '<br><span class="paragraph-gap"></span>');
+  if (!html.includes('<br')) {
+    return html;
+  }
+  const document = parseDocumentWithSourceRanges(html);
+  const breakRunRanges = groupAdjacentBreaks(DomUtils.getElementsByTagName('br', document))
+    .filter((run) => run.length > 1)
+    .map((run) => getSourceRange(run[0], run[run.length - 1]));
+  return replaceSourceRanges(html, breakRunRanges, () => '<br><span class="paragraph-gap"></span>');
+}
+
+function groupAdjacentBreaks(breaks: DomHandlerElement[]): DomHandlerElement[][] {
+  return breaks.reduce<DomHandlerElement[][]>((runs, br) => {
+    const lastRun = runs[runs.length - 1];
+    if (lastRun && getPreviousNonWhitespaceSibling(br) === lastRun[lastRun.length - 1]) {
+      return [...runs.slice(0, -1), [...lastRun, br]];
+    }
+    return [...runs, [br]];
+  }, []);
+}
+
+function getPreviousNonWhitespaceSibling(node: DomHandlerChildNode): DomHandlerChildNode | null {
+  const previous = node.prev;
+  if (previous && isText(previous) && previous.data.trim() === '') {
+    return getPreviousNonWhitespaceSibling(previous);
+  }
+  return previous;
 }
 
 // The same notices the post page and comment items show while content awaits moderation

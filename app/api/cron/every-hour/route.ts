@@ -1,5 +1,6 @@
 import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import type { NextRequest } from 'next/server';
+import { checkCronRequestAuthorization } from '@/server/utils/cronAuth';
 import { clearArbitalCache } from '@/server/resolvers/arbitalPageData';
 import { permanentlyDeleteUsers } from '@/server/users/permanentDeletion';
 import { uniquePostUpvotersView } from "@/server/postgresView";
@@ -8,9 +9,9 @@ import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { sendScheduledAiDigestEmails } from '@/server/aiDigest/aiDigestScheduledEmails';
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response('Unauthorized', { status: 401 });
+  const authError = checkCronRequestAuthorization(request);
+  if (authError) {
+    return authError;
   }
 
   // Run some hourly tasks in parallel

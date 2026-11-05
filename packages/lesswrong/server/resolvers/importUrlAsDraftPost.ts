@@ -1,4 +1,4 @@
-const { extract } = require('@extractus/article-extractor')
+const { extractFromHtml } = require('@extractus/article-extractor')
 import { ArxivExtractor } from '../extractors/arxivExtractor'
 import { getLatestContentsRevision } from '@/server/collections/revisions/helpers';
 import { fetchFragmentSingle } from '../fetchFragment'
@@ -10,6 +10,29 @@ import { getUserDefaultRichTextEditor } from "@/lib/editor/defaultRichTextEditor
 import gql from 'graphql-tag';
 import { createPost } from "../collections/posts/mutations";
 import { PostsEditQueryFragment } from '@/lib/collections/posts/fragments';
+import { fetchPublicUrl, parsePublicHttpUrl } from '@/server/utils/fetchPublicUrl';
+
+const IMPORT_FETCH_TIMEOUT_MS = 15000
+
+async function fetchArticleHtml(url: string): Promise<string> {
+  const abortController = new AbortController()
+  const timeout = setTimeout(() => abortController.abort(), IMPORT_FETCH_TIMEOUT_MS)
+  try {
+    const response = await fetchPublicUrl(url, {
+      signal: abortController.signal,
+      headers: {
+        // Same user-agent that article-extractor uses when it fetches pages itself
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0',
+      },
+    })
+    if (response.status >= 400) {
+      throw new Error(`Request failed with error code ${response.status}`)
+    }
+    return (await response.text()).trim()
+  } finally {
+    clearTimeout(timeout)
+  }
+}
 
 interface ExternalPostImportDataWithDates extends Omit<ExternalPostImportData, 'post'> {
   post: Omit<ExternalPostImportData['post'], 'postedAt' | 'createdAt' | 'modifiedAt'> & {
@@ -25,6 +48,9 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
   if (!context.currentUser) {
     throw new Error('You must be logged in to fetch website HTML.')
   }
+
+  // Throws if the URL doesn't look like a public web page
+  parsePublicHttpUrl(url)
 
   const reviewUser = await Users.findOne({slug: 'review-bot'})
   if (!reviewUser) {
@@ -78,7 +104,8 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
       published: arxivData.published,
     }
   } else {
-    extractedData = await extract(url)
+    const html = await fetchArticleHtml(url)
+    extractedData = html ? await extractFromHtml(html, url) : null
     if (!extractedData) {
       throw new Error('Failed to extract data from URL')
     }

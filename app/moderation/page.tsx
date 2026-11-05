@@ -6,7 +6,8 @@ import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { unstable_cache } from 'next/cache';
-import ModerationPageContent from "./ModerationPageContent";
+import ModerationPageContent, { type ActiveRateLimitDetails } from "./ModerationPageContent";
+import { sanitize } from "@/lib/utils/sanitize";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 import { adminAccountSetting, type ForumTypeString } from "@/lib/instanceSettings";
 
@@ -331,6 +332,14 @@ async function fetchModeratorPosts(db: SqlClient) {
   }));
 }
 
+function parseActiveRateLimits(rateLimitsJson: string): ActiveRateLimitDetails[] {
+  const rateLimits: ActiveRateLimitDetails[] = JSON.parse(rateLimitsJson);
+  return rateLimits.map((rateLimit) => ({
+    ...rateLimit,
+    rateLimitMessage: sanitize(rateLimit.rateLimitMessage),
+  }));
+}
+
 async function fetchActiveRateLimits(db: SqlClient, limit: number, offset: number, showExpiredRateLimits: boolean, showNewUserRateLimits: boolean) {
   const activeRateLimitsQuery = `
       WITH latest_events AS (
@@ -452,7 +461,7 @@ async function fetchActiveRateLimits(db: SqlClient, limit: number, offset: numbe
 
   const rateLimits = activeRateLimitsData.map(row => ({
     userId: row.userId,
-    rateLimits: JSON.parse(row.rateLimits),
+    rateLimits: parseActiveRateLimits(row.rateLimits),
     mostRecentActivation: row.mostRecentActivation,
     user: row.user__id && row.user_slug ? {
       _id: row.user__id,

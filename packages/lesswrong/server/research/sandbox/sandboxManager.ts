@@ -440,7 +440,7 @@ async function resolveSnapshotSource(
   if (!baseline) {
     throw new Error(
       `[sandbox] No SandboxBaselineSnapshots row for runtime "${baselineRuntime}". ` +
-        "Build one with `yarn research-supervisor-build && yarn research-sandbox-build-snapshot`.",
+        "Build one with `npm run research-supervisor-build && npm run research-sandbox-build-snapshot`.",
     );
   }
   return { snapshotId: baseline.vercelSnapshotId };

@@ -8,7 +8,7 @@ import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import { getCloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
-import type { Editor } from '@ckeditor/ckeditor5-core';
+import type { Editor } from 'ckeditor5';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
 import { useDialog } from '../common/withDialog';
@@ -92,8 +92,9 @@ const CKCommentEditor = ({
       uploadUrl: ckEditorUploadUrlOverrideSetting.get(forumType) || ckEditorUploadUrlSetting.get(forumType),
       bundleVersion: ckEditorBundleVersion,
     } : undefined,
-    initialData: data || "",
-    placeholder: actualPlaceholder,
+    root: {
+      placeholder: actualPlaceholder,
+    },
     mention: mentionPluginConfiguration(portalContext, forumType),
     ...getCloudinaryConfig(forumType),
     claims: claimsConfig(portalContext, openDialog),

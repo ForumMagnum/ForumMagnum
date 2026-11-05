@@ -1,7 +1,4 @@
-import { Command } from '@ckeditor/ckeditor5-core/src/command';
-import type { ModelWriter } from '@ckeditor/ckeditor5-engine/src/model/writer';
-import type { ModelRootElement as RootElement } from '@ckeditor/ckeditor5-engine/src/model/rootelement';
-import type { ModelElement } from '@ckeditor/ckeditor5-engine/src/model/element';
+import { Command, type ModelWriter, type ModelRootElement as RootElement, type ModelElement } from 'ckeditor5';
 import { modelQueryElement } from './utils';
 import { ATTRIBUTES, ELEMENTS } from './constants';
 

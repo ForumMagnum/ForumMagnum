@@ -1,4 +1,5 @@
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
+import { accessFilterSingle } from '@/lib/utils/schemaUtils';
 import gql from 'graphql-tag';
 
 const performVoteMutation = async (args: {documentId: string, voteType: DbVote['voteType']|null, extendedVote?: any}, context: ResolverContext, collectionName: VoteableCollectionName) => {
@@ -9,7 +10,11 @@ const performVoteMutation = async (args: {documentId: string, voteType: DbVote['
   const document = await collection.findOne({_id: documentId});
   
   if (!currentUser) throw new Error("Error casting vote: Not logged in.");
-  if (!document) throw new Error("No such document ID"); 
+  // Documents the user can't see get the same error as nonexistent ones, so
+  // that this can't be used to check whether a document exists.
+  if (!document || !await accessFilterSingle(currentUser, collectionName, document, context)) {
+    throw new Error("No such document ID");
+  }
 
   const {userCanVoteOn} = collection.options.voteable ?? {};
   const permissionResult = userCanVoteOn &&
@@ -18,17 +23,25 @@ const performVoteMutation = async (args: {documentId: string, voteType: DbVote['
     throw new Error(permissionResult.reason);
   }
 
+  let showVotingPatternWarning = false;
   if (!voteType && !extendedVote) {
-    const modifiedDocument = await clearVotesServer({document, user: currentUser, collection, context});
-    return { modifiedDocument, showVotingPatternWarning: false };
+    await clearVotesServer({document, user: currentUser, collection, context});
   } else {
-    return await performVoteServer({
+    ({ showVotingPatternWarning } = await performVoteServer({
       toggleIfAlreadyVoted: false,
       document, voteType: voteType||"neutral", extendedVote, collection, user: currentUser,
       skipRateLimits: false,
       context,
-    });
+    }));
   }
+
+  // Refetch rather than using the vote functions' returned document, which is
+  // typed too loosely to permissions-filter. The new scores have already been
+  // written to the database by this point.
+  const updatedDocument = await collection.findOne({_id: documentId});
+  const filteredDocument = await accessFilterSingle(currentUser, collectionName, updatedDocument, context);
+  if (!filteredDocument) throw new Error("No such document ID");
+  return { modifiedDocument: filteredDocument, showVotingPatternWarning };
 }
 
 export function getVoteGraphql(collectionName: VoteableCollectionName) {

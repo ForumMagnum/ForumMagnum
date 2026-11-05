@@ -29,12 +29,12 @@ class Unit<T extends DbObject> {
     return this.empty;
   }
 
-  toQuery(): AnyBecauseTodo {
+  toQuery(comment?: string): AnyBecauseTodo {
     if (this.empty) {
       if (this.table instanceof Table) {
         throw new Error("Can't convert empty pipeline to query");
       }
-      return this.table.toQuery();
+      return this.table.toQuery(comment);
     }
     return new SelectQuery<T>(
       this.table instanceof Unit ? this.table.toQuery() : this.table,
@@ -44,6 +44,7 @@ class Unit<T extends DbObject> {
         limit: this.limit,
         skip: this.skip,
         projection: this.project,
+        comment,
       },
       {
         addFields: this.addFields,
@@ -167,13 +168,8 @@ class Pipeline<T extends DbObject> {
       }
     }
 
-    return unit.toQuery();
+    return unit.toQuery(this.sqlComment);
   }
-
-  getSqlComment() {
-    return this.sqlComment;
-  }
-
 }
 
 export default Pipeline;

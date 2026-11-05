@@ -1,7 +1,8 @@
-import { Map as YMap, Array as YArray } from "yjs";
+import { Map as YMap, Array as YArray, type Doc } from "yjs";
 import { randomId } from "@/lib/random";
 import { $createRangeSelection, $setSelection } from "lexical";
-import { $wrapSelectionInMarkNode } from "@lexical/mark";
+import { $isMarkNode, $unwrapMarkNode, $wrapSelectionInMarkNode } from "@lexical/mark";
+import { $dfs } from "@lexical/utils";
 import type { ThreadType, ThreadStatus } from "@/components/lexical/commenting";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import {
@@ -199,17 +200,24 @@ export async function insertCollabCommentThread({
   });
 }
 
+function findThreadMap(
+  commentsArray: YArray<unknown>,
+  threadId: string,
+): YMap<unknown> | null {
+  for (let i = 0; i < commentsArray.length; i++) {
+    const entry = commentsArray.get(i) as YMap<unknown>;
+    if (entry.get("type") === "thread" && entry.get("id") === threadId) {
+      return entry;
+    }
+  }
+  return null;
+}
+
 function findThreadCommentsArray(
   commentsArray: YArray<unknown>,
   threadId: string,
 ): YArray<unknown> | null {
-  for (let i = 0; i < commentsArray.length; i++) {
-    const entry = commentsArray.get(i) as YMap<unknown>;
-    if (entry.get("type") === "thread" && entry.get("id") === threadId) {
-      return (entry.get("comments") as YArray<unknown> | undefined) ?? null;
-    }
-  }
-  return null;
+  return (findThreadMap(commentsArray, threadId)?.get("comments") as YArray<unknown> | undefined) ?? null;
 }
 
 export type AppendReplyResult =
@@ -257,6 +265,133 @@ export async function appendReplyToCommentThread({
       }, "agent-reply-to-comment");
 
       return { kind: "success", commentId };
+    },
+  });
+}
+
+/**
+ * Remove a comment thread's highlight by stripping its ID from every MarkNode
+ * that carries it, unwrapping marks left with no IDs. Mirrors the editor's
+ * RESOLVE_THREAD_COMMAND handler. Returns the number of MarkNodes touched.
+ * Must be called inside a Lexical update context.
+ */
+export function $removeCommentThreadMarks(markId: string): number {
+  let removedCount = 0;
+  for (const { node } of $dfs()) {
+    if (!$isMarkNode(node) || !node.hasID(markId)) continue;
+    node.deleteID(markId);
+    if (node.getIDs().length === 0) {
+      $unwrapMarkNode(node);
+    }
+    removedCount++;
+  }
+  return removedCount;
+}
+
+async function removeCommentThreadMarksFromMainDoc({
+  collectionName,
+  documentId,
+  token,
+  markId,
+}: {
+  collectionName: string
+  documentId: string
+  token: string
+  markId: string
+}): Promise<void> {
+  await withMainDocEditorSession({
+    collectionName,
+    documentId,
+    token,
+    operationLabel: "ResolveCommentThread",
+    callback: async ({ editor, provider }) => {
+      let removedCount = 0;
+      await new Promise<void>((resolve) => {
+        editor.update(() => {
+          removedCount = $removeCommentThreadMarks(markId);
+        }, { onUpdate: resolve });
+      });
+      if (removedCount > 0) {
+        await waitForProviderFlush(provider);
+      }
+    },
+  });
+}
+
+export type ResolveThreadResult =
+  | { kind: "thread_not_found" }
+  | { kind: "not_a_comment_thread" }
+  | { kind: "already_closed", status: ThreadStatus }
+  | { kind: "success" };
+
+/**
+ * Check whether a thread in the comments doc can be resolved: it must exist,
+ * be a comment thread (suggestions are accepted or rejected instead), and
+ * still be open. Exported for testing.
+ */
+export function checkThreadResolvable(
+  commentsArray: YArray<unknown>,
+  threadId: string,
+): { kind: "resolvable", threadMap: YMap<unknown> } | Exclude<ResolveThreadResult, { kind: "success" }> {
+  const threadMap = findThreadMap(commentsArray, threadId);
+  if (!threadMap) {
+    return { kind: "thread_not_found" };
+  }
+  const threadType = (threadMap.get("threadType") as ThreadType | undefined) ?? "comment";
+  if (threadType !== "comment") {
+    return { kind: "not_a_comment_thread" };
+  }
+  const status = threadMap.get("status") as ThreadStatus | undefined;
+  if (status && status !== "open") {
+    return { kind: "already_closed", status };
+  }
+  return { kind: "resolvable", threadMap };
+}
+
+/**
+ * Archive a thread the same way the editor's "Resolve" button does. Clears
+ * statusBeforeReopen so a later undo/redo in someone's editor doesn't revive
+ * a stale status. Exported for testing.
+ */
+export function archiveThreadMap(doc: Doc, threadMap: YMap<unknown>): void {
+  doc.transact(() => {
+    threadMap.set("status", "archived");
+    threadMap.delete("statusBeforeReopen");
+  }, "agent-resolve-comment-thread");
+}
+
+/**
+ * Resolve an open comment thread: remove its highlight from the main
+ * document, then archive it in the comments doc. The comments-doc session
+ * wraps the main-doc edit (as in insertCollabCommentThread) so the thread is
+ * validated before the main document is touched.
+ */
+export async function resolveCollabCommentThread({
+  collectionName,
+  documentId,
+  token,
+  threadId,
+}: {
+  collectionName: string
+  documentId: string
+  token: string
+  threadId: string
+}): Promise<ResolveThreadResult> {
+  return withCommentsDocSession({
+    collectionName,
+    documentId,
+    token,
+    callback: async ({ doc }) => {
+      const commentsArray = doc.get("comments", YArray<unknown>);
+      const check = checkThreadResolvable(commentsArray, threadId);
+      if (check.kind !== "resolvable") {
+        return check;
+      }
+
+      // For comment threads the mark ID is the thread ID.
+      await removeCommentThreadMarksFromMainDoc({ collectionName, documentId, token, markId: threadId });
+      archiveThreadMap(doc, check.threadMap);
+      return { kind: "success" };
     },
   });
 }

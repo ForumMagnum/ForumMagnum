@@ -7,7 +7,7 @@
  * @module mention/mention
  */
 
-import { Plugin } from 'ckeditor5/src/core';
+import { Plugin } from 'ckeditor5';
 
 import MentionEditing from './mentionediting';
 // TODO: use MentionUI from mainline plugin after updating to v34 (spaces bug)

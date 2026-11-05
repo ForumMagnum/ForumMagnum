@@ -89,13 +89,23 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
     paddingRight: 8,
     paddingLeft: 8
   },
+  llmText: {
+    fontFamily: '"cronos-pro", serif',
+  },
   truncatedHighlight: {
     padding: SINGLE_LINE_PADDING_TOP,
     display: "inline",
     flexGrow: 1,
     overflow: "hidden",
     textOverflow: "ellipsis",
-    
+    // Safari shows a native tooltip with the full text of ellipsis-truncated
+    // elements, which duplicates our hover preview. An empty block-level
+    // pseudo-element suppresses it.
+    '&::after': {
+      content: '""',
+      display: "block",
+    },
+
     marginTop: 0,
     marginBottom: 0,
     '& *': {
@@ -160,6 +170,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle, hideParentCommentToggle, deemphasizeCommentsExcludingUserIds } = treeOptions;
 
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
+  const isModelText = !!comment.llmRunId && !!comment.contents?.html?.includes('class="llm-content-block"');
   const displayHoverOver = hover && ((comment.baseScore ?? 0) > -5) && !isMobile() && enableHoverPreview
   const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
 
@@ -205,7 +216,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {!hideSingleLineMeta && <span className={classes.date}>
           <FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
-        {renderHighlight && <ContentStyles contentType="comment" className={classes.truncatedHighlight}> 
+        {renderHighlight && <ContentStyles contentType="comment" className={classNames(classes.truncatedHighlight, isModelText && classes.llmText)}> 
           {singleLinePostTitle && <span className={classes.postTitle}>{post?.title}</span>}
           { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
           { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}

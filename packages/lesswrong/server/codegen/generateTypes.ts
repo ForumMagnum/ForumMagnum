@@ -43,7 +43,7 @@ export async function generateTypes(repoRoot?: string) {
 }
 
 // After running this you still need to run:
-//   yarn graphql-codegen --config codegen.yml
+//   npm run graphql-codegen -- --config codegen.yml
 export const generateTypesAndSQLSchema = async (rootDir?: string) => {
   generateSQLSchema(rootDir);
   await generateTypes(rootDir);
@@ -51,7 +51,7 @@ export const generateTypesAndSQLSchema = async (rootDir?: string) => {
 
 function generateGraphQLSchemaFile(): string {
   const sb: string[] = [];
-  sb.push("# Generated file - run 'yarn generate' to update.\n\n");
+  sb.push("# Generated file - run 'npm run generate' to update.\n\n");
   sb.push(print(getTypeDefs()));
   return sb.join("");
 }
@@ -151,7 +151,7 @@ let hasWarnedAboutUnknownDocument = false;`;
   if (!hasWarnedAboutUnknownDocument && process.env.NODE_ENV !== 'production') {
     hasWarnedAboutUnknownDocument = true;
     // eslint-disable-next-line no-console
-    console.warn("Unknown GraphQL document string encountered. Types may be stale; run 'yarn generate'.");
+    console.warn("Unknown GraphQL document string encountered. Types may be stale; run 'npm run generate'.");
   }
 
   let parsedDocument = parsedDocumentCache.get(source);

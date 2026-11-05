@@ -42,6 +42,7 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   showHideKarmaOption: 'preferences',
   beta: 'preferences',
   hideIntercom: 'preferences',
+  hailboxOptIn: 'preferences',
   markDownPostEditor: 'preferences',
   hideElicitPredictions: 'preferences',
   hideAFNonMemberInitialWarning: 'preferences',

@@ -394,9 +394,13 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
         outlineOffset: '-2px',
       },
     },
+    // The suggestion marker is an empty inline element, so an otherwise-empty
+    // paragraph would collapse to zero height; keep it at least one line tall.
+    // This must be a min-height rather than a fixed height, or text wrapping
+    // onto a second line would overflow onto the blocks below it.
     '& p:has(> ins.block-type-change.target-paragraph)': {
       background: theme.palette.background.diffInserted,
-      height: '26px',
+      minHeight: '1lh',
     },
     // Split suggestion: show two horizontal lines stretching from the end
     // of the text to the right edge of the paragraph, indicating where the

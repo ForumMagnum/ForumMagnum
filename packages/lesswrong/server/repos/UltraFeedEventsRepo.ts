@@ -1,6 +1,8 @@
 import AbstractRepo from './AbstractRepo';
 import UltraFeedEvents from '../collections/ultraFeedEvents/collection';
 import { recordPerfMetrics } from './perfMetricWrapper';
+import { getTagFilterSelector } from './helpers';
+import type { ClassifiedTagFilters } from '@/lib/filterSettings';
 import { FeedItemSourceType, FeedItemRenderType, FeedItemDisplayStatus } from '@/components/ultraFeed/ultraFeedTypes';
 
 export interface UnviewedItem {
@@ -65,7 +67,8 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
     userId: string,
     scenarioId: string,
     lookbackDays: number,
-    limit: number
+    limit: number,
+    tagFilters: ClassifiedTagFilters,
   ): Promise<string[]> {
     const unviewedItems = await this.getRawDb().manyOrNone<{ documentId: string }>(`
       -- UltraFeedEventsRepo.getUnviewedRecombeePostIds
@@ -88,7 +91,9 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
           )
         GROUP BY "documentId"
       ) s
+      INNER JOIN "Posts" p ON p._id = s."documentId"
       WHERE s.serve_count < 3 AND s.was_viewed = 0
+        AND ${getTagFilterSelector(tagFilters, 'p')}
       ORDER BY s.last_served
       LIMIT $(limit)
     `, {

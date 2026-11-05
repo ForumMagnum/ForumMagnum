@@ -25,14 +25,6 @@ module.exports = {
   rules: {
     ...mainProjectEslintConfig.rules,
 
-    // We have a lot of imports that look like (eg)
-    //   import Plugin from "@ckeditor/ckeditor5-core/src/plugin";
-    // CkEditor5 has a default lint rule that says not to do this, the import should be:
-    //   import Plugin from "@ckeditor/ckeditor5-core";
-    // I'm not sure what problems (if any) are caused by importing this way, but it seems
-    // not great to be doing that. So, TODO: turn that lint rule back on (below), and fix
-    // all those imports.
-    "ckeditor5-rules/allow-imports-only-from-main-package-entry-point": 0,
     "ckeditor5-rules/no-relative-imports": 0,
 
     // In the main ForumMagnum project, parens/etc are mostly not spaced. In CkEditor's

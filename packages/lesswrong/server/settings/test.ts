@@ -21,6 +21,9 @@ export const testSettings = {
   disallowCrawlers: true,
   disableEnsureIndex: true,
   disableElastic: true,
+  llmMentions: {
+    enabled: true
+  },
   fmCrosspost: {
     siteName: "LessWrong Test",
     baseUrl: "http://localhost:3467/"

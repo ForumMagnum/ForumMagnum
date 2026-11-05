@@ -4,6 +4,7 @@ import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
 import { graphqlBatchMaxSetting } from '../instanceSettings';
 import { ApolloLink, Operation, selectURI } from "@apollo/client/core";
+import { HttpLink } from "@apollo/client/link/http";
 import { crosspostUserAgent } from "./constants";
 import { getSiteUrl } from "../vulcan-lib/utils";
 import { StreamingGraphqlHttpLink } from "./StreamingGraphqlHttpLink";
@@ -20,7 +21,7 @@ import { StreamingGraphqlHttpLink } from "./StreamingGraphqlHttpLink";
 /**
  * Http link is used for client side rendering
  */
-export const createHttpLink = (baseUrl: string, loginToken: string|null, forumType: ForumTypeString) => {
+export const createHttpLink = (baseUrl: string, forumType: ForumTypeString) => {
   const uri = baseUrl + "api/streamGraphql";
 
   const batchKey = (operation: Operation) => {
@@ -51,7 +52,6 @@ export const createHttpLink = (baseUrl: string, loginToken: string|null, forumTy
         ...options?.headers,
         // user agent because LW bans bot agents
         'User-Agent': crosspostUserAgent,
-        ...(loginToken ? { loginToken } : {}),
       },
     })
     : globalThis.fetch;
@@ -66,6 +66,22 @@ export const createHttpLink = (baseUrl: string, loginToken: string|null, forumTy
     batchKey,
   });
 }
+
+/**
+ * Link to the non-streaming /graphql endpoint, for operations that need to set
+ * cookies (ie login and signup). /api/streamGraphql sends its response headers
+ * before any resolvers run, so cookies set by resolvers are lost. Operations are
+ * routed here by passing `context: { nonStreaming: true }`.
+ */
+export const createNonStreamingHttpLink = (baseUrl: string) => new HttpLink({
+  uri: baseUrl + "graphql",
+  credentials: 'same-origin',
+  headers: {
+    'accept': 'application/json',
+  },
+});
+
+export const isNonStreamingOperation = (operation: Operation) => !!operation.getContext().nonStreaming;
 
 export const headerLink = new ApolloLink((operation, forward) => {
   if (!isServer) {

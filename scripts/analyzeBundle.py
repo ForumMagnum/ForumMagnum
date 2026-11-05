@@ -2,7 +2,6 @@
 import os
 
 bundleFilesDir = 'tmp/bundleSizeDownloads'
-yarnLockFile = 'yarn.lock'
 packagesFile = 'package.json'
 
 def isDividerLine(line):
@@ -61,32 +60,6 @@ def sumSizesInDirectories(sizesByFilename):
         for path in ancestorPaths(filename):
             sizesByDirectory[path] = sizesByDirectory[path]+sizesByFilename[filename] if path in sizesByDirectory else sizesByFilename[filename]
     return sizesByDirectory
-
-# Given the name of a yarn lockfile (yarn.lock), produce a dictionary from
-# package -> array of dependencies of that package.
-# The idea of this is to be able to identify when a package is depended on by
-# only one other package, so that we can attribute the size of the depended-on
-# package to the package that imported it.
-#
-#def yarnLockToDependencyGraph(lockfileName):
-#    dependenciesByPackage = {}
-#    lockfileLines = readFileLines(lockfileName)
-#    
-#    def backtrackToPackageName(lines, i):
-#        #TODO
-#        pass
-#    def forwardOverDependencies(lines, i):
-#        #TODO
-#        pass
-#    
-#    for i in range(0,len(lines)):
-#        if lockfileLines[0].strip()=='dependencies:':
-#            packageName = backtrackToPackageName(lines, i)
-#            dependencies = forwardOverDependencies(lines, i)
-#            if packageName in dependencies:
-#                dependenciesByPackage[packageName] = {**dependencies[packageName], **dependencies}
-#            else:
-#                dependenciesByPackage[packageName] = dependencies
 
 def packagesFileToDependencyRoots(packagesFileName):
     f = open(packagesFileName, 'r')

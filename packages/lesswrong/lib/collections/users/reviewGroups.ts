@@ -162,7 +162,7 @@ export function getReviewGroupFromActions(
   return maxBy(freshModeratorActionGroups, group => REVIEW_GROUP_TO_PRIORITY[group]) ?? 'unknown';
 }
 
-export function getReviewGroupDisplayName(group: ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation' | 'inbox'): string {
+export function getReviewGroupDisplayName(group: ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation' | 'inbox' | 'reports' | 'tags'): string {
   switch (group) {
     case 'newContent':
       return 'New Content';
@@ -186,5 +186,9 @@ export function getReviewGroupDisplayName(group: ReviewGroup | 'all' | 'posts' |
       return 'Curation';
     case 'inbox':
       return 'Inbox';
+    case 'reports':
+      return 'Flagged';
+    case 'tags':
+      return 'Wikitags';
   }
 }

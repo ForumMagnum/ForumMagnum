@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { $getRoot } from "lexical";
 import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $locateBlockByPrefix } from "../../../../agent/textIndexQuoteLocator";
-import { $wrapBlockAsDeletionSuggestion } from "../../../../agent/deleteBlock/route";
+import { $removeBlock, $wrapBlockAsDeletionSuggestion } from "../../../../agent/deleteBlock/route";
 import type { ReplaceMode } from "../../../../agent/toolSchemas";
 import {
   authorizeAgentRequest,
@@ -48,7 +47,6 @@ async function deleteMarkdownBlockInResearchDoc({
       await new Promise<void>((resolve) => {
         editor.update(
           () => {
-            const root = $getRoot();
             const blockResult = $locateBlockByPrefix(prefix);
             const nodeToDelete = blockResult.node;
             if (!nodeToDelete) {
@@ -66,13 +64,7 @@ async function deleteMarkdownBlockInResearchDoc({
             const indexInParent = nodeToDelete.getIndexWithinParent();
 
             if (mode === "edit") {
-              nodeToDelete.remove();
-              // If we just removed the last list item from a list, drop the
-              // (now-empty) list too — leaving an empty list behind looks like
-              // a rendering glitch in the editor.
-              if (parent !== root && parent.getChildrenSize() === 0) {
-                parent.remove();
-              }
+              $removeBlock(nodeToDelete);
               result = {
                 deleted: true,
                 note: "Deleted markdown block from research document.",

@@ -58,6 +58,7 @@ export const createTestingSqlClient = async (
   sql = await createSqlConnection(testUrl, true);
   await loadDbSchema(sql);
   if (setAsGlobalClient) {
+    process.env.PG_URL = testUrl;
     setSqlClient(sql);
   }
   return {
@@ -93,6 +94,7 @@ export const createTestingSqlClientFromTemplate = async (template: string): Prom
 
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl, true);
+  process.env.PG_URL = testUrl;
   setSqlClient(sql);
   return {
     sql,
@@ -155,7 +157,7 @@ type DropAndCreatePgArgs = {
   dropExisting?: boolean,
 }
 
-// Exported to allow running with "yarn repl"
+// Exported to allow running with "npm run repl"
 export const dropAndCreatePg = async ({templateId, dropExisting}: DropAndCreatePgArgs) => {
   // eslint-disable-next-line no-console
   console.log("Creating PG database");

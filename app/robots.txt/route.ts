@@ -47,13 +47,11 @@ Disallow: /allPosts?*
 Disallow: /allPosts
 Disallow: /allposts
 Disallow: /allposts?*
-Disallow: /out?*
 Disallow: /graphiql
 Disallow: /debug
 Disallow: /admin
 Disallow: /compare
 Disallow: /emailToken
-Disallow: /*?commentId=*
 Disallow: /users/*/replies
 Disallow: /moderation
 Crawl-Delay: 3

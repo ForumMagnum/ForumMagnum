@@ -17,6 +17,7 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
     backgroundColor: theme.palette.background.paper,
     flex: 1,
     minWidth: 0,
+    minHeight: 0,
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',

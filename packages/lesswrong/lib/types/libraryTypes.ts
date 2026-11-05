@@ -13,11 +13,6 @@ declare module "markdown-it-sup" {
   export default markdownItSup;
 }
 
-declare module "gpt-3-encoder" {
-  export const encode: AnyBecauseTodo
-  export const decode: AnyBecauseTodo
-}
-
 declare module "feedparser-promised" {
   const feedparserPromised: AnyBecauseTodo
   export default feedparserPromised;

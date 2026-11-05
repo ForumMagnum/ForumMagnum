@@ -3,8 +3,10 @@ import { maxDocumentsPerRequestSetting } from '../instanceSettings';
 import merge from 'lodash/merge';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import pickBy from 'lodash/pickBy';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from './viewConstants';
 import type { CollectionViewSet } from '../views/collectionViewSet';
+import { userCanReadFieldOnAllDocuments } from '../vulcan-users/permissions';
 
 /**
  * Given a view (which gets translated into a mongo query), provide a string
@@ -57,6 +59,30 @@ export async function mergeWithDefaultViewSelector<N extends CollectionNameStrin
   resolverContext: ResolverContext
 ) {
   return mergeSelectors(await getDefaultViewSelector(viewSet, resolverContext), selector);
+}
+
+/**
+ * `terms.orderBy` can come from the client, and the order of the results reveals how
+ * the values of a column compare even when that column is filtered out of the results.
+ * So any column which the user can't read on every document gets dropped from the sort.
+ * That includes readable fields with a custom resolver, because the resolver may be
+ * redacting what's in the column (eg the emails in Posts.rsvps).
+ */
+function getSortableOrderBy(
+  orderBy: ViewTermsBase["orderBy"],
+  collectionName: CollectionNameString,
+  context: ResolverContext,
+) {
+  if (!orderBy) {
+    return {};
+  }
+  const schema = context[collectionName].schema;
+  return pickBy(orderBy, (_direction, fieldName) => {
+    const field = schema[fieldName];
+    return !!field?.database
+      && !field.graphql?.resolver
+      && userCanReadFieldOnAllDocuments(context.currentUser, field.graphql?.canRead);
+  });
 }
 
 /**
@@ -113,8 +139,9 @@ async function getParameters<N extends CollectionNameString>(
   }
 
   // sort using terms.orderBy (overwrite defaultView's sort)
-  if (terms.orderBy && !isEmpty(terms.orderBy)) {
-    parameters.options.sort = terms.orderBy;
+  const orderBy = getSortableOrderBy(terms.orderBy, viewSet.collectionName, context);
+  if (!isEmpty(orderBy)) {
+    parameters.options.sort = orderBy;
   }
 
   // if there is no sort, default to sorting by createdAt descending

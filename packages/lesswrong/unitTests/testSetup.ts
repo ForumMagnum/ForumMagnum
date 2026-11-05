@@ -3,11 +3,6 @@ import chaiAsPromised from 'chai-as-promised';
 import { AbortSignal } from "node-abort-controller";
 import { setPublicSettings, setServerSettingsCache } from '../lib/settingsCache';
 
-// This is needed because one of the tests imports `gpt-3-encoder`, which relies on `TexttDecoder`
-// https://stackoverflow.com/a/68468204
-import { TextEncoder, TextDecoder } from 'util';
-Object.assign(global, { TextDecoder, TextEncoder });
-
 // Fix for Reference error AbortSignal in `lru-cache`
 // See https://github.com/isaacs/node-lru-cache/issues/239
 global.AbortSignal = AbortSignal as AnyBecauseHard;

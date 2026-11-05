@@ -247,8 +247,45 @@ export function isUniversalField(fieldName: string): boolean {
   return fieldName==="_id" || fieldName==="schemaVersion";
 }
 
+const urlHostLabel = '[a-z\\u00a1-\\uffff0-9]+(?:-[a-z\\u00a1-\\uffff0-9]+)*';
+
 /**
- * Based on SimpleSchema.RegEx.Url, modified to also accept the empty string
+ * Based on SimpleSchema.RegEx.Url, modified to also accept the empty string,
+ * and restructured to match in linear time (the original is vulnerable to
+ * ReDoS: exponential backtracking on host labels, and quadratic backtracking
+ * on userinfo and on paths when there are many '@'s).
+ *
+ * The leading whitespace lookahead lets the path always match to the end once
+ * it's reached, so trying each '@' as the end of the userinfo is cheap. It
+ * also means hostnames can no longer contain Unicode whitespace characters,
+ * which the original's ¡-￿ range allowed.
  */
-export const optionalUrlRegex = new RegExp('^((?:(?:https?|ftp):\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!10(?:\\.\\d{1,3}){3})(?!127(?:\\.\\d{1,3}){3})(?!169\\.254(?:\\.\\d{1,3}){2})(?!192\\.168(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))(?::\\d{2,5})?(?:\\/[^\\s]*)?)?$', 'i');
+export const optionalUrlRegex = new RegExp(
+  '^(?=\\S*$)(?:' +
+    // protocol
+    '(?:https?|ftp):\\/\\/' +
+    // user:pass basic auth (optional)
+    '(?:\\S+@)?' +
+    '(?:' +
+      // IP address, excluding private & local networks
+      '(?!10(?:\\.\\d{1,3}){3})' +
+      '(?!127(?:\\.\\d{1,3}){3})' +
+      '(?!169\\.254(?:\\.\\d{1,3}){2})' +
+      '(?!192\\.168(?:\\.\\d{1,3}){2})' +
+      '(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})' +
+      '(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])' +
+      '(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}' +
+      '(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))' +
+    '|' +
+      // host & domain names, then TLD
+      `${urlHostLabel}(?:\\.${urlHostLabel})*` +
+      '\\.[a-z\\u00a1-\\uffff]{2,}' +
+    ')' +
+    // port (optional)
+    '(?::\\d{2,5})?' +
+    // path (optional)
+    '(?:\\/\\S*)?' +
+  ')?$',
+  'i'
+);
 

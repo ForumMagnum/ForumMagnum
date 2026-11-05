@@ -1,7 +1,7 @@
 import { type ForumTypeString, hideUnreviewedAuthorCommentsSettings, siteUrlSetting } from '@/lib/instanceSettings';
 import { combineUrls } from '../../vulcan-lib/utils';
 import { postGetPageUrl } from '../posts/helpers';
-import { userCanDo } from '../../vulcan-users/permissions';
+import { type PermissionableUser, userCanDo, userIsAdminOrMod, userOwns } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
 import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
@@ -132,6 +132,12 @@ export const commentIsNotPublicForAnyReason = (comment: CommentsList|DbComment, 
 
   return commentIsHiddenPendingReview(comment, forumType);
 }
+
+export const commentIsTopLevelQuickTake = (comment: Pick<DbComment, 'shortform' | 'parentCommentId'>) =>
+  !!comment.shortform && !comment.parentCommentId;
+
+export const userCanEditCommentRelevantTags = (user: PermissionableUser|DbUser|null, comment: HasUserIdType) =>
+  userOwns(user, comment) || userIsAdminOrMod(user);
 
 export const commentIncludedInCounts = (comment: Pick<DbComment, '_id' | 'deleted' | 'rejected' | 'debateResponse' | 'authorIsUnreviewed' | 'draft'>) => (
   !comment.deleted &&

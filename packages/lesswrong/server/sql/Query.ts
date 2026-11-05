@@ -56,6 +56,23 @@ export type Atom<T extends DbObject> = string | Arg | Query<T> | Table<T>;
 
 const atomIsArg = <T extends DbObject>(atom: Atom<T>): atom is Arg => atom instanceof Arg;
 
+/**
+ * Format a string as a Postgres string literal. Query values should normally be
+ * passed as Args, but JSON path components are part of the SQL expression and
+ * cannot be represented by a value placeholder in every context where they are
+ * used.
+ *
+ * pg-promise substitutes `$n` placeholders anywhere in the SQL text, including
+ * inside string literals, so a `$` here could splice in another argument's
+ * value unescaped.
+ */
+export function postgresStringLiteral(value: string): string {
+  if (value.includes("$")) {
+    throw new Error(`Invalid character in SQL string literal: ${value}`);
+  }
+  return `'${value.replaceAll("'", "''")}'`;
+}
+
 class NonScalarArrayAccessError extends Error {
   constructor(public fieldName: string, public path: string[]) {
     super("Non-scalar array access");
@@ -303,7 +320,7 @@ abstract class Query<T extends DbObject> {
       } else if (fieldType) {
         const hint = this.getTypeHint(typeHint);
         const result = "(" + this.prefixify(`"${first}"`) +
-          rest.map((element) => element.match(/^\d+$/) ? `[${element}]` : `->'${element}'`).join("") +
+          rest.map((element) => element.match(/^\d+$/) ? `[${element}]` : `->${postgresStringLiteral(element)}`).join("") +
           `)${hint}`;
         return hint === "::TEXT"
           ? result.replace(/->(?!.*->)/, "->>")
@@ -387,7 +404,7 @@ abstract class Query<T extends DbObject> {
    * better-optimized hand-rolled SQL.
    */
   private compileNonScalarArrayAccess(fieldName: string, path: string[], value: any): Atom<T>[] {
-    path = path.map((element: string) => `'${element}'`);
+    path = path.map(postgresStringLiteral);
     path.unshift("unnested");
     const last = path.pop();
     const selector = path.join("->") + "->>" + last;
@@ -489,7 +506,7 @@ abstract class Query<T extends DbObject> {
           if (typeof arraySize !== "number") {
             throw new Error(`Invalid array size: ${arraySize}`);
           }
-          return [`ARRAY_LENGTH(${field}, 1) =`, new Arg(arraySize)];
+          return [`CARDINALITY(${field}) =`, new Arg(arraySize)];
 
         case "$geoWithin":
           // We can be very specific here because this is only used in a single place in the codebase;
@@ -501,15 +518,15 @@ abstract class Query<T extends DbObject> {
           // place in the codebase where we use this operator so it's probably not worth spending a
           // ton of time making this beautiful.
           const {$centerSphere: center, $comment: { locationName }} = value[comparer];
-          if (!center || !Array.isArray(center) || center.length !== 2 || !locationName) {
+          if (!center || !Array.isArray(center) || center.length !== 2 || typeof locationName !== "string") {
             throw new Error("Invalid $geoWithin selector");
           }
-          const prefixedName = this.prefixify(locationName);
+          const location = this.resolveFieldName(locationName);
           const [lng, lat] = center[0];
           const distance = center[1];
           return [
-            `(EARTH_DISTANCE(LL_TO_EARTH((${prefixedName}->>'lng')::FLOAT8, `,
-            `(${prefixedName}->>'lat')::FLOAT8),`,
+            `(EARTH_DISTANCE(LL_TO_EARTH((${location}->>'lng')::FLOAT8, `,
+            `(${location}->>'lat')::FLOAT8),`,
             "LL_TO_EARTH(",
             this.createArg(lng),
             ",",
@@ -696,19 +713,6 @@ abstract class Query<T extends DbObject> {
     // https://www.mongodb.com/docs/manual/reference/operator/aggregation/arrayElemAt/
     if (op === "$arrayElemAt") {
       const [array, index] = expr[op];
-      // This is over specialized, but most of our usage follows this pattern
-      if (typeof array === "string" && array[0] === "$") { // e.g. "$cats"
-        // TODO: I think the logic inside this `if` is no longer used - can we
-        // delete it?
-        const tokens = array.split(".");
-        const field = `"${tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0]}"`;
-        const path = tokens.slice(1).flatMap((name) => ["->", `'${name}'`]);
-        if (path.length) {
-          path[path.length - 2] = "->>";
-        }
-        // Postgres array are 1-indexed
-        return [`(${this.prefixify(field)})[1 + ${index}]${path.join("")}`];
-      }
       return [
         "(",
         ...this.compileExpression(array),
@@ -740,13 +744,9 @@ abstract class Query<T extends DbObject> {
     // This is rare, but is does occur.
     if (op === "$jsonArrayContains") {
       const [array, value] = expr[op];
-      const [field, ...path] = array.split(".");
-      return [
-        this.resolveFieldName(field),
-        "@> ('",
-        ...this.buildJsonArrayAtPath(path, value),
-        "')::JSONB",
-      ];
+      const [field, ...path]: string[] = array.split(".");
+      const containedJson = path.reduceRight<unknown>((inner, key) => ({[key]: inner}), [String(value)]);
+      return [this.resolveFieldName(field), "@>", new Arg(JSON.stringify(containedJson)), "::JSONB"];
     }
 
     if (op === undefined) {
@@ -755,27 +755,15 @@ abstract class Query<T extends DbObject> {
 
     throw new Error(`Invalid expression: ${JSON.stringify(expr)}`);
   }
-
-  private buildJsonArrayAtPath(path: string[], value: any): Atom<T>[] {
-    if (path.length) {
-      const [name, ...rest] = path;
-      return [
-        `{ "${name}":`,
-        ...this.buildJsonArrayAtPath(rest, value),
-        "}",
-      ];
-    } else {
-      return [
-        "[\"' ||",
-        ...this.compileExpression(value),
-        "|| '\"]",
-      ];
-    }
-  }
 }
 
+/**
+ * Comments can contain user-supplied text such as view names. Postgres ends a
+ * `--` comment at \r as well as \n, and pg-promise substitutes `$n` placeholders
+ * inside comments, so only allow characters that can't do either.
+ */
 export function sanitizeSqlComment(comment: string): string {
-  return comment.replace(/\n/g, '_');
+  return comment.replace(/[^\w.,:() -]/g, '_');
 }
 
 export default Query;

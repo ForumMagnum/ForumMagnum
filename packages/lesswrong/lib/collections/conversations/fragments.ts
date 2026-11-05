@@ -36,6 +36,7 @@ export const TeamInboxConversation = gql(`
   fragment TeamInboxConversation on Conversation {
     ...ConversationsList
     awaitingModeratorReply
+    moderatorReplyWaitingSince
   }
 `)
 

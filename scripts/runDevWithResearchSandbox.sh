@@ -102,8 +102,8 @@ if ! tailscale funnel --bg --yes \
 fi
 
 # 3. Start the local hocuspocus server in the background.
-echo "[run-research] Starting hocuspocus server (yarn start:dev in fly/hocuspocusServer)"
-(cd "$HOCUSPOCUS_DIR" && yarn start:dev) &
+echo "[run-research] Starting hocuspocus server (npm run start:dev in fly/hocuspocusServer)"
+(cd "$HOCUSPOCUS_DIR" && npm run start:dev) &
 HOCUSPOCUS_PID=$!
 
 # 4. Run the dev server in the foreground via the existing helper.

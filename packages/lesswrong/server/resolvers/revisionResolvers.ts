@@ -6,6 +6,8 @@ import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/uti
 import gql from 'graphql-tag';
 import { createRevision } from '../collections/revisions/mutations';
 import { updateTag } from '../collections/tags/mutations';
+import { editCheck } from '../collections/tags/helpers';
+import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
 
@@ -28,7 +30,7 @@ export const revisionResolversGraphQLTypeDefs = gql`
 
 export const revisionResolversGraphQLMutations = {
   revertTagToRevision: async (root: void, { tagId, revertToRevisionId }: { tagId: string, revertToRevisionId: string }, context: ResolverContext) => {
-    const { currentUser, loaders, Tags } = context;
+    const { currentUser, loaders } = context;
     if (!tagUserHasSufficientKarma(currentUser, 'edit', context.forumType)) {
       throw new Error(`Must be logged in and have ${getTagMinimumKarmaPermissions(context.forumType).edit} karma to revert tags to older revisions`);
     }
@@ -39,14 +41,20 @@ export const revisionResolversGraphQLMutations = {
       getLatestRev(tagId, 'description', context)
     ]);
 
-    const anyDiff = !isEqual(tag.description?.originalContents, revertToRevision.originalContents);
-
-    if (!tag)               throw new Error('Invalid tagId');
-    if (!revertToRevision)  throw new Error('Invalid revisionId');
+    if (!tag || !await accessFilterSingle(currentUser, 'Tags', tag, context))
+      throw new Error('Invalid tagId');
+    if (!editCheck(currentUser, tag, context.forumType))
+      throw new Error(`You don't have permission to edit this wikitag`);
+    if (!revertToRevision || !await accessFilterSingle(currentUser, 'Revisions', revertToRevision, context))
+      throw new Error('Invalid revisionId');
+    if (revertToRevision.collectionName !== 'Tags' || revertToRevision.documentId !== tag._id || revertToRevision.fieldName !== 'description')
+      throw new Error(`Revision is not a revision of this wikitag's description`);
     if (!revertToRevision.originalContents)
       throw new Error('Revision missing originalContents');
     // I don't think this should be possible if we find a revision to revert to, but...
     if (!latestRevision)    throw new Error('Tag is missing latest revision');
+
+    const anyDiff = !isEqual(tag.description?.originalContents, revertToRevision.originalContents);
     if (!anyDiff)           throw new Error(`Can't find difference between revisions`);
 
     await updateTag({
@@ -169,17 +177,25 @@ export const revisionResolversGraphQLQueries = {
         };
     }
   },
-  latestGoogleDocMetadata: async (root: void, { postId, version }: { postId: string; version?: string }, { Revisions }: ResolverContext) => {
+  latestGoogleDocMetadata: async (root: void, { postId, version }: { postId: string; version?: string }, context: ResolverContext) => {
+    const { currentUser, loaders, Revisions } = context;
+    const post = await loaders.Posts.load(postId);
+    if (!await accessFilterSingle(currentUser, 'Posts', post, context)) {
+      return null;
+    }
+
     const query = {
       documentId: postId,
       googleDocMetadata: { $exists: true },
       ...(version && { version: { $lte: version } }),
     };
+    // Not projected down to just googleDocMetadata, because the revision access
+    // check needs the revision's other fields (userId, draft, etc)
     const latestRevisionWithMetadata = await Revisions.findOne(
       query,
       { sort: { editedAt: -1 } },
-      { googleDocMetadata: 1 }
     );
-    return latestRevisionWithMetadata ? latestRevisionWithMetadata.googleDocMetadata : null;
+    const filteredRevision = await accessFilterSingle(currentUser, 'Revisions', latestRevisionWithMetadata, context);
+    return filteredRevision?.googleDocMetadata ?? null;
   },
 }

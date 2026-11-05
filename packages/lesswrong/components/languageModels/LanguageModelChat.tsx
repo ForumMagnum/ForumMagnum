@@ -4,7 +4,7 @@ import DeferRender from '../common/DeferRender';
 import { useMessages } from '../common/withMessages';
 import { useLocation } from "../../lib/routeUtil";
 import { NewLlmMessage, useLlmChat } from './LlmChatWrapper';
-import type { Editor } from '@ckeditor/ckeditor5-core';
+import type { Editor } from 'ckeditor5';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
 import { mentionPluginConfiguration } from '@/lib/editor/mentionsConfig';
@@ -269,7 +269,9 @@ const LLMInputTextbox = ({onSubmit}: {
 
   // TODO: we probably want to come back to this and enable cloud services for image uploading
   const editorConfig = makeEditorConfig({
-    placeholder: 'Type here.  Ctrl/Cmd + Enter to submit to Claude 3.5. ',
+    root: {
+      placeholder: 'Type here.  Ctrl/Cmd + Enter to submit to Claude 3.5. ',
+    },
     mention: mentionPluginConfiguration,
   });
 

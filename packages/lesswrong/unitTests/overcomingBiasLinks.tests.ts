@@ -1,5 +1,6 @@
-import { normalizeObUrl, replacementUrl, transformContents, type StoredRevision } from "@/scripts/overcomingBiasLinks/content";
-import { planRevisionEdits } from "@/scripts/overcomingBiasLinks/rewrite";
+import { normalizeObUrl, obLinkRepair, replacementUrl } from "@/scripts/overcomingBiasLinks/content";
+import { transformContents, type StoredRevision } from "@/scripts/contentLinkRepair/content";
+import { planRevisionEdits } from "@/scripts/contentLinkRepair/repair";
 import { canonicalLwTarget, findArchivedRedirect, parseCaptures, resolveOvercomingBiasLinks, unwrapArchiveUrl } from "@/scripts/overcomingBiasLinks/resolve";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -15,6 +16,7 @@ const source = "http://www.overcomingbias.com/2007/07/making-beliefs-.html";
 const legacy = "http://lesswrong.com/lw/i3/making_beliefs_pay_rent_in_anticipated_experiences/";
 const target = "https://www.lesswrong.com/posts/a7n8GdKiAZRX86T5A/making-beliefs-pay-rent-in-anticipated-experiences";
 const replacements = new Map([[source, target]]);
+const repair = obLinkRepair(replacements);
 const html = `<p><a href="${source}">Making beliefs pay rent</a></p>`;
 
 function makeRevision(overrides: Partial<StoredRevision> = {}): StoredRevision {
@@ -41,20 +43,20 @@ describe("Overcoming Bias content repair", () => {
   it.each(["html", "ckEditorMarkup"])("rewrites %s source and rendered anchors, preserving non-link URLs", type => {
     const data = `${html}<img src="${source}"><code>${source}</code>`;
     const revision = makeRevision({ html: data, originalContents: { type, data } });
-    const result = transformContents(revision, replacements);
+    const result = transformContents(revision, repair);
     expect(result.html).toContain(`href="${target}"`);
     expect(result.html).toContain(`src="${source}"`);
     expect(result.html).toContain(`<code>${source}</code>`);
     expect(result.originalContents?.type).toBe(type);
     expect(result.originalContents?.data).toBe(result.html);
     expect(revision.originalContents?.data).toBe(data);
-    expect(transformContents(result, replacements).changed).toBe(false);
+    expect(transformContents(result, repair).changed).toBe(false);
   });
 
   it("handles entity-escaped HTML and leaves unresolved URLs byte-for-byte unchanged", () => {
     const data = `<a href="${source}?a=1&amp;b=2#foo">link</a>`;
-    expect(transformContents({ html: data, originalContents: null }).urls).toEqual([source + "?a=1&b=2"]);
-    expect(transformContents({ html: data, originalContents: null }, replacements).html).toBe(data);
+    expect(transformContents({ html: data, originalContents: null }, obLinkRepair()).urls).toEqual([source + "?a=1&b=2"]);
+    expect(transformContents({ html: data, originalContents: null }, repair).html).toBe(data);
   });
 
   it.each([false, true])("rewrites DraftJS object/string data (serialized=%s) without changing text offsets", serialized => {
@@ -66,7 +68,7 @@ describe("Overcoming Bias content repair", () => {
       },
     };
     const revision = makeRevision({ originalContents: { type: "draftJS", data: serialized ? JSON.stringify(draft) : draft } });
-    const result = transformContents(revision, replacements);
+    const result = transformContents(revision, repair);
     const data = result.originalContents?.data;
     const rewritten = typeof data === "string" ? JSON.parse(data) : data;
     expect(rewritten).toEqual({
@@ -77,12 +79,12 @@ describe("Overcoming Bias content repair", () => {
   });
 
   it("fails closed for unknown editors rather than leaving stale editable source", () => {
-    expect(() => transformContents(makeRevision({ originalContents: { type: "lexical", data: "{}" } }), replacements)).toThrow("Unsupported");
+    expect(() => transformContents(makeRevision({ originalContents: { type: "lexical", data: "{}" } }), repair)).toThrow("Unsupported");
   });
 
   it("rewrites anchors embedded in DraftJS atomic HTML", () => {
     const data = { blocks: [{ type: "atomic", data: { mathjax: true, html } }], entityMap: {} };
-    const result = transformContents(makeRevision({ originalContents: { type: "draftJS", data } }), replacements);
+    const result = transformContents(makeRevision({ originalContents: { type: "draftJS", data } }), repair);
     expect(result.originalContents?.data).toEqual({
       blocks: [{ type: "atomic", data: { mathjax: true, html: html.replace(source, target) } }], entityMap: {},
     });
@@ -90,20 +92,20 @@ describe("Overcoming Bias content repair", () => {
   });
 
   it("does not create edits for empty content", () => {
-    expect(transformContents({ html: null, originalContents: null }, replacements).changed).toBe(false);
+    expect(transformContents({ html: null, originalContents: null }, repair).changed).toBe(false);
   });
 
   it("does not create a revision for a fragment-only link excluded by a date/title mapping", () => {
     const data = `<a href="${source}#comment-123">comment</a>`;
     const revision = makeRevision({ html: data, originalContents: { type: "html", data } });
-    expect(planRevisionEdits(revision, revision, replacements, new Date(), new Set([source]))).toEqual([]);
+    expect(planRevisionEdits(revision, revision, obLinkRepair(replacements, new Set([source])))).toEqual([]);
   });
 
   it("repairs published content and preserves an unrelated newer draft as the latest revision", () => {
     const active = makeRevision();
     const draftHtml = "<p>Unpublished changes with no old links</p>";
     const draft = makeRevision({ _id: "draft", draft: true, version: "1.1.0", editedAt: new Date("2021-01-01"), html: draftHtml, originalContents: { type: "ckEditorMarkup", data: draftHtml } });
-    const edits = planRevisionEdits(active, draft, replacements);
+    const edits = planRevisionEdits(active, draft, repair);
     expect(edits).toHaveLength(2);
     expect(edits[0].revision.html).toContain(target);
     expect(edits[0].revision.draft).toBe(false);
@@ -112,13 +114,13 @@ describe("Overcoming Bias content repair", () => {
     expect(edits[1].revision.draft).toBe(true);
     expect(edits[1].updatePointer).toBe(false);
     expect(edits[1].revision.editedAt.getTime()).toBeGreaterThan(edits[0].revision.editedAt.getTime());
-    expect(planRevisionEdits(edits[0].revision, edits[1].revision, replacements)).toEqual([]);
+    expect(planRevisionEdits(edits[0].revision, edits[1].revision, repair)).toEqual([]);
   });
 
   it("repairs a draft-only link without changing the published pointer", () => {
     const active = makeRevision({ html: "<p>Published</p>", originalContents: { type: "html", data: "<p>Published</p>" } });
     const draft = makeRevision({ _id: "draft", draft: true });
-    const edits = planRevisionEdits(active, draft, replacements);
+    const edits = planRevisionEdits(active, draft, repair);
     expect(edits).toHaveLength(1);
     expect(edits[0].updatePointer).toBe(false);
     expect(edits[0].revision.draft).toBe(true);
@@ -126,8 +128,8 @@ describe("Overcoming Bias content repair", () => {
 
   it("keeps never-published content draft and rejects inconsistent published pointers", () => {
     const draft = makeRevision({ draft: true, version: "0.1.0" });
-    expect(planRevisionEdits(draft, draft, replacements)[0].revision.draft).toBe(true);
-    expect(() => planRevisionEdits(makeRevision(), makeRevision({ _id: "unexpected" }), replacements)).toThrow("disagrees");
+    expect(planRevisionEdits(draft, draft, repair)[0].revision.draft).toBe(true);
+    expect(() => planRevisionEdits(makeRevision(), makeRevision({ _id: "unexpected" }), repair)).toThrow("disagrees");
   });
 });
 

@@ -86,8 +86,8 @@ export const RecentDiscussionFeedQuery = gql(`
 `);
 
 export const UltraFeedQuery = gql(`
-  query UltraFeed($limit: Int, $cutoff: Date, $offset: Int, $sessionId: String, $settings: JSON) {
-    UltraFeed(limit: $limit, cutoff: $cutoff, offset: $offset, sessionId: $sessionId, settings: $settings) {
+  query UltraFeed($limit: Int, $cutoff: Date, $offset: Int, $sessionId: String, $settings: JSON, $filterSettings: JSON) {
+    UltraFeed(limit: $limit, cutoff: $cutoff, offset: $offset, sessionId: $sessionId, settings: $settings, filterSettings: $filterSettings) {
       __typename
       cutoff
       endOffset

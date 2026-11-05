@@ -15,6 +15,7 @@ import {
   commentGetRSSUrl,
   commentGetAbsoluteRSSUrl,
 } from '@/lib/collections/comments/helpers';
+import { rssTermsToUrl } from '@/lib/rss_urls';
 
 const tag = { slug: 'rationality' };
 const forumTypes: ForumTypeString[] = ['LessWrong', 'AlignmentForum'];
@@ -66,6 +67,7 @@ describe('relative and absolute tag and comment URLs', () => {
     expect(commentGetAbsolutePageUrlFromIds({ postId: 'post-id', commentId: 'comment-id' }, 'AlignmentForum')).toBe(`${base}/posts/post-id/?commentId=comment-id`);
     expect(commentGetAbsolutePageUrlFromIds({ postId: 'post-id', postSlug: 'post-slug', commentId: 'comment-id', permalink: false }, 'AlignmentForum')).toBe(`${base}/posts/post-id/post-slug#comment-id`);
     expect(commentGetAbsoluteRSSUrl({ _id: 'comment-id' }, 'AlignmentForum')).toBe(`${base}/feed.xml?type=comments&view=commentReplies&parentCommentId=comment-id`);
+    expect(rssTermsToUrl({ view: 'shortformFrontpage', filterSettings: { tags: [] } }, 'AlignmentForum')).toBe(`${base}/feed.xml?view=shortformFrontpage&filterSettings=${encodeURIComponent('{"tags":[]}')}`);
     expect(commentGetPageUrlFromIds({})).toBe('/');
     expect(commentGetAbsolutePageUrlFromIds({}, 'AlignmentForum')).toBe('/');
   });

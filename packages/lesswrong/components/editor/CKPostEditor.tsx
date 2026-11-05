@@ -16,8 +16,7 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
-import type { Command, Editor } from '@ckeditor/ckeditor5-core';
-import type { ModelNode as Node, ModelRootElement as RootElement, ModelWriter as Writer, ModelElement as CKElement, ModelSelection as Selection, ModelDocumentFragment as DocumentFragment } from '@ckeditor/ckeditor5-engine';
+import type { Command, Editor, ModelNode as Node, ModelRootElement as RootElement, ModelWriter as Writer, ModelElement as CKElement, ModelSelection as Selection, ModelDocumentFragment as DocumentFragment } from 'ckeditor5';
 import { EditorContext } from '../posts/EditorContext';
 import { getCloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
@@ -41,7 +40,7 @@ import { makeEditorConfig } from './editorConfigs';
 import { CkEditorLoadError } from './CkEditorLoadError';
 
 // If any custom commands' execute methods change their signatures, we need to update this declaration
-declare module '@ckeditor/ckeditor5-core' {
+declare module 'ckeditor5' {
   interface CommandsMap {
     getLLMFeedback: Command & {
       execute: ({ userPrompt, afterLlmRequestCallback }: { userPrompt: string, afterLlmRequestCallback: () => Promise<void> }) => { abort: () => void, request: Promise<void> };
@@ -465,7 +464,6 @@ const CKPostEditor = ({
 
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get(forumType) || ckEditorWebsocketUrlSetting.get(forumType);
   const ckEditorCloudConfigured = !!webSocketUrl;
-  const initData = typeof(data) === "string" ? data : ""
 
   const [sendNewDialogueMessageNotification] = useMutation(gql(`
     mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {
@@ -574,8 +572,9 @@ const CKPostEditor = ({
     presenceList: {
       container: hiddenPresenceListRef.current
     },
-    initialData: initData,
-    placeholder: actualPlaceholder,
+    root: {
+      placeholder: actualPlaceholder,
+    },
     mention: mentionPluginConfiguration(portalContext, forumType),
     dialogues: dialogueConfiguration,
     conditionalVisibility: conditionalVisibilityPluginConfiguration,

@@ -57,7 +57,7 @@ pull_envvars () {
 }
 
 run_dev_server () {
-  # We use node directly rather than going through yarn so that we can use some
+  # We use node directly rather than going through npm so that we can use some
   # flags to silence spammy console logs on start.
   #
   # Node flags used:

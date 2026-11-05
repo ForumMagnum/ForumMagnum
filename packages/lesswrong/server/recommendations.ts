@@ -372,13 +372,14 @@ export const graphqlQueries = {
         const strategy = algorithm.af
           ? {...algorithm.strategy, af: true}
           : algorithm.strategy;
-        return await service.recommend(
+        const strategyPosts = await service.recommend(
           currentUser,
           clientId,
           count,
           strategy,
           algorithm.disableFallbacks,
         );
+        return await accessFilterMultiple(currentUser, 'Posts', strategyPosts, context);
       }
 
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser, resolverContext: context})

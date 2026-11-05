@@ -10,7 +10,7 @@ import {
   getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
-import { commentGetAbsolutePageUrlFromDB, commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
+import { commentGetAbsolutePageUrlFromDB, commentGetPageUrlFromDB, getVotingSystemNameForDocument, userCanEditCommentRelevantTags } from "./helpers";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
@@ -18,6 +18,7 @@ import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_A
 import { customBaseScoreReadAccess } from "./voting";
 import { CommentsViews } from "./views";
 import { getWithLoader } from "../../loaders";
+import { getLlmFamilyBySlug } from "@/lib/languageModels/llmRegistry";
 
 function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
   return "postId" in data;
@@ -51,8 +52,7 @@ async function getIsBookmarked(documentId: string, context: ResolverContext): Pr
     `bookmarksByUser:${currentUser._id}:Comments`,
     { userId: currentUser._id, collectionName: "Comments", active: true },
     "documentId",
-    documentId,
-    { limit: 1 }
+    documentId
   );
 
   return bookmarks.length > 0;
@@ -290,6 +290,33 @@ const schema = {
       outputType: "User",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
+    },
+  },
+  llmRunId: {
+    database: {
+      type: "VARCHAR(27)",
+      foreignKey: "LlmRuns",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canCreate: [(user) => !!user && !!getLlmFamilyBySlug(user.slug)],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  llmReplyPublishedAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      canRead: ["admins"],
+      canUpdate: [(user, comment) => !!user && userOwns(user, comment) && !!getLlmFamilyBySlug(user.slug)],
+      validation: { optional: true },
     },
   },
   userIP: {
@@ -1061,7 +1088,7 @@ const schema = {
       outputType: "[String!]!",
       inputType: "[String!]",
       canRead: ["guests"],
-      canUpdate: [userOwns, "admins", "sunshineRegiment"],
+      canUpdate: userCanEditCommentRelevantTags,
       canCreate: ["members", "admins", "sunshineRegiment"],
       onCreate: arrayOfForeignKeysOnCreate,
       validation: {

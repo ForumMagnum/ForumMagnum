@@ -1,4 +1,4 @@
-import React, { ComponentType, useRef } from "react";
+import React, { useRef } from "react";
 import Transition from "react-transition-group/Transition";
 import SectionTitle, { SectionTitleProps } from "./SectionTitle";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -70,7 +70,7 @@ type ExpandableSectionProps = Exclude<SectionTitleProps, "children"> & {
   toggleExpanded: () => void,
   afterTitleText?: string,
   afterTitleTo?: string,
-  AfterTitleComponent?: ComponentType,
+  afterTitle?: React.ReactNode,
   children: React.ReactNode,
 }
 
@@ -81,7 +81,7 @@ const ExpandableSection = ({
   title,
   afterTitleText = "View more",
   afterTitleTo,
-  AfterTitleComponent,
+  afterTitle,
   children,
   ...sectionTitleProps
 }: ExpandableSectionProps) => {
@@ -111,11 +111,9 @@ const ExpandableSection = ({
             </div>
           }
         >
-          {expanded && (AfterTitleComponent || afterTitleTo) &&
+          {expanded && (afterTitle || afterTitleTo) &&
             <div className={classes.afterContainer}>
-              {AfterTitleComponent &&
-                <AfterTitleComponent />
-              }
+              {afterTitle}
               {afterTitleTo &&
                 <Link to={afterTitleTo}>
                   {afterTitleText}

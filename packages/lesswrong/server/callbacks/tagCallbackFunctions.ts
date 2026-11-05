@@ -175,6 +175,9 @@ export async function voteForTagWhenCreated(tagRel: DbTagRel, { context }: After
 /* NEW ASYNC */
 export async function taggedPostNewNotifications(tagRel: DbTagRel, { context }: AfterCreateCallbackProperties<'TagRels'>): Promise<void> {
   const { Posts } = context;
+  if (tagRel.backfilled) {
+    return;
+  }
 
   const subscribedUsers = await getSubscribedUsers({
     documentId: tagRel.tagId,

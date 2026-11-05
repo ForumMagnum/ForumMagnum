@@ -2,7 +2,8 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { matchDatedObLink, parseDatedObLink, resolveOvercomingBiasLinksByDateAndTitle, type DateTitlePost } from "@/scripts/overcomingBiasLinks/resolveByDateAndTitle";
-import { lookupResultSchema, transformContents } from "@/scripts/overcomingBiasLinks/content";
+import { lookupResultSchema, obLinkRepair } from "@/scripts/overcomingBiasLinks/content";
+import { transformContents } from "@/scripts/contentLinkRepair/content";
 
 const mockFind = jest.fn();
 jest.mock("@/server/collections/posts/collection", () => ({
@@ -81,7 +82,7 @@ describe("date/title OB resolver", () => {
   it("leaves original fragment links untouched when using inferred mappings", () => {
     const target = `https://www.lesswrong.com/posts/${post._id}/${post.slug}`;
     const html = `<a href="${source}#comment-123">comment</a><a href="${source}">post</a>`;
-    const result = transformContents({ html, originalContents: { type: "html", data: html } }, new Map([[source, target]]), new Set([source]));
+    const result = transformContents({ html, originalContents: { type: "html", data: html } }, obLinkRepair(new Map([[source, target]]), new Set([source])));
     expect(result.html).toContain(`href="${source}#comment-123"`);
     expect(result.html).toContain(`href="${target}"`);
     expect(result.originalContents?.data).toBe(result.html);

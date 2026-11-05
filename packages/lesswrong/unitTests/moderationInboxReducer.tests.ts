@@ -78,8 +78,36 @@ function createUndoItem(
   };
 }
 
-function createState(state: Omit<InboxState, 'loadedUserIds' | 'loadedPostIds'>): InboxState {
+function createMockReport(id: string): UnclaimedReportsList {
   return {
+    __typename: 'Report',
+    _id: id,
+    userId: 'reporter',
+    commentId: null,
+    postId: null,
+    closedAt: null,
+    createdAt: new Date().toISOString(),
+    claimedUserId: null,
+    link: `/users/reported-${id}`,
+    description: `Report ${id}`,
+    reportedAsSpam: false,
+    markedAsSpam: null,
+    user: null,
+    comment: null,
+    post: null,
+    reportedUser: null,
+    claimedUser: null,
+  };
+}
+
+type QueueTabFields = 'reports' | 'tags' | 'focusedReportId' | 'focusedTagId';
+
+function createState(state: Omit<InboxState, 'loadedUserIds' | 'loadedPostIds' | QueueTabFields> & Partial<Pick<InboxState, QueueTabFields>>): InboxState {
+  return {
+    reports: [],
+    tags: [],
+    focusedReportId: null,
+    focusedTagId: null,
     ...state,
     loadedUserIds: [...new Set([...state.users, ...state.undoQueue.map(item => item.user), ...state.history.map(item => item.user)].map(user => user._id))],
     loadedPostIds: [...new Set([...state.posts, ...state.classifiedPosts].map(post => post._id))],
@@ -701,6 +729,75 @@ describe('Moderation Inbox Reducer', () => {
         documentId: 'post1',
       });
       expect(state.sidebarTab).toBe('reject');
+    });
+  });
+
+  describe('Flagged content tab', () => {
+    function stateWithReports(reportIds: string[], focusedReportId: string | null): InboxState {
+      return createState({
+        users: [],
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        teamInboxThreads: [],
+        doneTeamInboxThreads: [],
+        showDoneTeamInboxThreads: false,
+        reports: reportIds.map(createMockReport),
+        activeTab: 'reports',
+        focusedUserId: null,
+        openedUserId: null,
+        focusedPostId: null,
+        focusedThreadId: null,
+        focusedReportId,
+        focusedContentIndex: 0,
+        sidebarTab: null,
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+        unloadedCounts: {},
+      });
+    }
+
+    test('changing to the tab focuses the first report', () => {
+      const state = inboxStateReducer({ ...stateWithReports(['r1', 'r2'], null), activeTab: 'all' }, { type: 'CHANGE_TAB', tab: 'reports' });
+      expect(state.activeTab).toBe('reports');
+      expect(state.focusedReportId).toBe('r1');
+    });
+
+    test('tab navigation stops at the tab when it has reports', () => {
+      const state = inboxStateReducer({ ...stateWithReports(['r1'], null), activeTab: 'inbox' }, { type: 'NEXT_TAB' });
+      expect(state.activeTab).toBe('reports');
+      expect(state.focusedReportId).toBe('r1');
+    });
+
+    test('down and up arrows wrap around the list', () => {
+      let state = stateWithReports(['r1', 'r2', 'r3'], 'r3');
+      state = inboxStateReducer(state, { type: 'NEXT_REPORT' });
+      expect(state.focusedReportId).toBe('r1');
+      state = inboxStateReducer(state, { type: 'PREV_REPORT' });
+      expect(state.focusedReportId).toBe('r3');
+    });
+
+    test('removing the focused report focuses the one that took its place', () => {
+      const state = inboxStateReducer(stateWithReports(['r1', 'r2', 'r3'], 'r2'), { type: 'REMOVE_REPORT', reportId: 'r2' });
+      expect(state.reports.map(r => r._id)).toEqual(['r1', 'r3']);
+      expect(state.focusedReportId).toBe('r3');
+    });
+
+    test('removing the last report in the list wraps focus to the start', () => {
+      const state = inboxStateReducer(stateWithReports(['r1', 'r2', 'r3'], 'r3'), { type: 'REMOVE_REPORT', reportId: 'r3' });
+      expect(state.focusedReportId).toBe('r1');
+    });
+
+    test('removing a report that is not focused keeps focus where it was', () => {
+      const state = inboxStateReducer(stateWithReports(['r1', 'r2', 'r3'], 'r3'), { type: 'REMOVE_REPORT', reportId: 'r1' });
+      expect(state.focusedReportId).toBe('r3');
+    });
+
+    test('removing the only report leaves nothing focused', () => {
+      const state = inboxStateReducer(stateWithReports(['r1'], 'r1'), { type: 'REMOVE_REPORT', reportId: 'r1' });
+      expect(state.reports).toEqual([]);
+      expect(state.focusedReportId).toBe(null);
     });
   });
 });

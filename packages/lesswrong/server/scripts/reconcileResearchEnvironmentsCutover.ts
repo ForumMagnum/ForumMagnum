@@ -7,7 +7,7 @@ import { getSqlClientOrThrow } from "../sql/sqlClient";
  * Run **manually, once, in a downtime window, AFTER** the committed migration
  * `20260520T000000.researchEnvironmentsCutover.ts` has run:
  *
- *   yarn repl dev lw packages/lesswrong/server/scripts/reconcileResearchEnvironmentsCutover.ts \
+ *   npm run repl -- dev lw packages/lesswrong/server/scripts/reconcileResearchEnvironmentsCutover.ts \
  *     'reconcileResearchEnvironmentsCutover()'
  *
  * The committed migration builds the final schema for fresh DBs/CI and creates

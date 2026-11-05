@@ -7,7 +7,7 @@
  * and tears down. Exists to surface API-shape issues before real integration work.
  *
  * Run with:
- *   yarn ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json \
+ *   npx ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json \
  *     packages/lesswrong/server/research/sandbox/smokeTest.ts
  *
  * Requires Vercel auth in env (VERCEL_OIDC_TOKEN from `vercel env pull`,

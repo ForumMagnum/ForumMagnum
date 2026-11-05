@@ -1,12 +1,14 @@
-import { inlineAutoformatEditing } from '@ckeditor/ckeditor5-autoformat/src/inlineautoformatediting';
-import type { Editor } from '@ckeditor/ckeditor5-core';
-import type { ModelElement as Element } from '@ckeditor/ckeditor5-engine/src/model/element';
-import { ModelText as Text } from '@ckeditor/ckeditor5-engine/src/model/text';
-import { ModelTextProxy as TextProxy } from '@ckeditor/ckeditor5-engine/src/model/textproxy';
-import type { ViewRange as Range } from '@ckeditor/ckeditor5-engine/src/view/range';
+import {
+	inlineAutoformatEditing,
+	ModelText as Text,
+	ModelTextProxy as TextProxy,
+	type Editor,
+	type ModelElement as Element,
+	type ViewRange as Range,
+	type Autoformat,
+} from 'ckeditor5';
 import { modelQueryElement, modelQueryElementsAll } from '../utils';
 import { COMMANDS, ELEMENTS } from '../constants';
-import type { Autoformat } from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 
 /**
  * Adds functionality to support creating footnotes using markdown syntax, e.g. `[^1]`.

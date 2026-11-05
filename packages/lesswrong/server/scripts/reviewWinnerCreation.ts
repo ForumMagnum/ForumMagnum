@@ -1,11 +1,11 @@
 /*
  * Scripts for selecting, creating, inspecting, and repairing ReviewWinner records.
  *
- * All exports in this file are intended to be run via `yarn repl`, e.g.:
- *   yarn repl prod packages/lesswrong/server/scripts/reviewWinnerCreation.ts 'checkReviewWinners()'
- *   yarn repl prod packages/lesswrong/server/scripts/reviewWinnerCreation.ts 'createReviewWinners()'
- *   yarn repl prod packages/lesswrong/server/scripts/reviewWinnerCreation.ts 'createReviewWinnerFromId("postId", 0, "rationality")'
- *   yarn repl prod packages/lesswrong/server/scripts/reviewWinnerCreation.ts 'updateReviewWinnerRankings(2024)'
+ * All exports in this file are intended to be run via `npm run repl`, e.g.:
+ *   npm run repl -- prod packages/lesswrong/server/scripts/reviewWinnerCreation.ts 'checkReviewWinners()'
+ *   npm run repl -- prod packages/lesswrong/server/scripts/reviewWinnerCreation.ts 'createReviewWinners()'
+ *   npm run repl -- prod packages/lesswrong/server/scripts/reviewWinnerCreation.ts 'createReviewWinnerFromId("postId", 0, "rationality")'
+ *   npm run repl -- prod packages/lesswrong/server/scripts/reviewWinnerCreation.ts 'updateReviewWinnerRankings(2024)'
  */
 
 import { Posts } from '@/server/collections/posts/collection';

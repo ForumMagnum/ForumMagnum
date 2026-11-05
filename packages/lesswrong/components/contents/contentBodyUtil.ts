@@ -1,3 +1,4 @@
+import uniq from 'lodash/uniq';
 import type { ContentStyleType } from '../common/ContentStylesValues';
 import JargonTooltip from '../jargon/JargonTooltip';
 import InlineReactHoverableHighlight from '../votes/lwReactions/InlineReactHoverableHighlight';
@@ -106,6 +107,7 @@ export type ContentReplacedSubstringComponentInfo = {
   props: AnyBecauseHard
 };
 
-export const addNofollowToHTML = (html: string): string => {
-  return html.replace(/<a /g, '<a rel="nofollow" ')
+export const addNofollowToRel = (rel: string|undefined): string => {
+  const relTokens = rel?.split(/\s+/).filter(Boolean) ?? [];
+  return uniq([...relTokens, 'nofollow']).join(' ');
 }

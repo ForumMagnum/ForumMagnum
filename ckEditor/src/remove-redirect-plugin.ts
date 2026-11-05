@@ -1,7 +1,4 @@
-import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
-import { ViewUpcastWriter as UpcastWriter } from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
-import { Matcher } from '@ckeditor/ckeditor5-engine/src/view/matcher';
-import type { ClipboardPipeline } from '@ckeditor/ckeditor5-clipboard';
+import { Plugin, ViewUpcastWriter as UpcastWriter, Matcher, type ClipboardPipeline } from 'ckeditor5';
 
 /**
  * CkEditor plugin to replace pasted redirect links with their target (currently only for google redirects)

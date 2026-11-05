@@ -6,11 +6,11 @@ import { exec as execSync } from "child_process";
 const helpMessage = `
 branchdb - create temporary dev databases for git branches \uD83C\uDF3F
 Usage:
-  yarn branchdb create  create a new database for the current git branch
-  yarn branchdb drop    drop the dev database created for the current git branch
-  yarn branchdb clean   drop all branch dbs created by this git clone
-  yarn branchdb list    list current branch dbs created by this git clone
-  yarn branchdb help    show this help message
+  npm run branchdb -- create  create a new database for the current git branch
+  npm run branchdb -- drop    drop the dev database created for the current git branch
+  npm run branchdb -- clean   drop all branch dbs created by this git clone
+  npm run branchdb -- list    list current branch dbs created by this git clone
+  npm run branchdb -- help    show this help message
 `;
 
 const exec = promisify(execSync);

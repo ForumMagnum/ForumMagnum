@@ -8,7 +8,7 @@ import type { ClaimsPlugin, InsertClaimCommand } from './claims';
 // if expressions like `editor.commands.get("math")`. (This pattern appears in
 // other first- and third-party CkEditor plugins and is the intended mechanism
 // for this.)
-declare module '@ckeditor/ckeditor5-core' {
+declare module 'ckeditor5' {
   interface EditorConfig {
     math?: MathConfig
     claims?: ClaimsPluginConfiguration

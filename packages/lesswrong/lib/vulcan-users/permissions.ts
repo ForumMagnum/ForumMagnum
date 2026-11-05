@@ -197,6 +197,24 @@ export const userCanReadField = <N extends CollectionNameString>(
   return false;
 };
 
+const groupGrantsFieldPermission = (userGroups: string[], group: PermissionGroups): boolean =>
+  group === 'guests' || userGroups.includes(group);
+
+/**
+ * Check if a user can view a field on every document, as opposed to `userCanReadField`
+ * which checks a particular one. Permission functions decide per-document, so they
+ * don't count towards this: only group permissions do.
+ */
+export const userCanReadFieldOnAllDocuments = (
+  user: DbUser | null,
+  canRead: FieldPermissions | undefined,
+): boolean => {
+  const userGroups = userGetGroups(user);
+  return [canRead].flat().some(permission =>
+    typeof permission === 'string' && groupGrantsFieldPermission(userGroups, permission)
+  );
+};
+
 export const userHasFieldPermissions = <T extends DbObject>(
   user: DbUser|null,
   userGroups: string[],
@@ -205,12 +223,7 @@ export const userHasFieldPermissions = <T extends DbObject>(
 ): boolean => {
   if (typeof canRead === 'string') {
     // if canRead is just a string, we assume it's the name of a group and pass it to isMemberOf
-    if (canRead === 'guests') return true;
-    for (let group of userGroups) {
-      if (group===canRead)
-        return true;
-    }
-    return false;
+    return groupGrantsFieldPermission(userGroups, canRead);
   } else if (typeof canRead === 'function') {
     // if canRead is a function, execute it with user and document passed. it must return a boolean
     return canRead(user, document);

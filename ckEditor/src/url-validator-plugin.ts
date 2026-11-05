@@ -1,7 +1,5 @@
-import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
+import { Plugin, type ModelDocument as Document, type Batch } from 'ckeditor5';
 import { validateUrl } from "./url-validator-utils";
-import type { ModelDocument as Document } from "@ckeditor/ckeditor5-engine/src/model/document";
-import type { Batch } from '@ckeditor/ckeditor5-engine';
 
 /**
  * CkEditor plugin to validate and fix link URLs

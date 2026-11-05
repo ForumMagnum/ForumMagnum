@@ -4,11 +4,13 @@ These REPL scripts collect current links, resolve destinations, and create patch
 revisions. There are local date/title and archive-based resolver options. They
 do not edit historical revisions. Run against the
 development database first; the commands below select `dev lw` explicitly.
+Content parsing and revision writing live in `../contentLinkRepair/`, which
+`../unwrapOutRedirectLinks.ts` also uses.
 
 ## 1. Collect and deduplicate
 
 ```sh
-yarn repl dev lw packages/lesswrong/scripts/overcomingBiasLinks/collect.ts 'collectOvercomingBiasLinks("/tmp/ob-links.json")'
+npm run repl -- dev lw packages/lesswrong/scripts/overcomingBiasLinks/collect.ts 'collectOvercomingBiasLinks("/tmp/ob-links.json")'
 ```
 
 The inventory contains deduplicated URLs, affected Posts/Comments IDs, and any
@@ -21,7 +23,7 @@ Only hyperlink destinations are collected, not images or URLs quoted as text.
 ## 2a. Resolve dated post links locally (fast)
 
 ```sh
-yarn repl dev lw packages/lesswrong/scripts/overcomingBiasLinks/resolveByDateAndTitle.ts 'resolveOvercomingBiasLinksByDateAndTitle("ob-links.json", "ob-date-targets.json")'
+npm run repl -- dev lw packages/lesswrong/scripts/overcomingBiasLinks/resolveByDateAndTitle.ts 'resolveOvercomingBiasLinksByDateAndTitle("ob-links.json", "ob-date-targets.json")'
 ```
 
 This uses the existing inventory and only reads the database. It makes one
@@ -56,7 +58,7 @@ their existing fragment behavior.
 Use the new file directly for a rewrite preview:
 
 ```sh
-yarn repl dev lw packages/lesswrong/scripts/overcomingBiasLinks/rewrite.ts 'rewriteOvercomingBiasLinks("ob-links.json", "ob-date-targets.json", "/tmp/ob-date-preview.jsonl")'
+npm run repl -- dev lw packages/lesswrong/scripts/overcomingBiasLinks/rewrite.ts 'rewriteOvercomingBiasLinks("ob-links.json", "ob-date-targets.json", "/tmp/ob-date-preview.jsonl")'
 ```
 
 The local output is separate from the archive checkpoint. A local `no-match`
@@ -66,7 +68,7 @@ redirect. The database must contain the historical posts for matches to be found
 ## 2b. Recover redirects and canonicalize targets with archive.org
 
 ```sh
-yarn repl dev lw packages/lesswrong/scripts/overcomingBiasLinks/resolve.ts 'resolveOvercomingBiasLinks("/tmp/ob-links.json", "/tmp/ob-targets.json")'
+npm run repl -- dev lw packages/lesswrong/scripts/overcomingBiasLinks/resolve.ts 'resolveOvercomingBiasLinks("/tmp/ob-links.json", "/tmp/ob-targets.json")'
 ```
 
 The resolver queries the Internet Archive's [CDX API](https://github.com/internetarchive/wayback/tree/master/wayback-cdx-server)
@@ -121,7 +123,7 @@ Do not run concurrent resolvers writing the same checkpoint file.
 ## 3. Preview, then apply
 
 ```sh
-yarn repl dev lw packages/lesswrong/scripts/overcomingBiasLinks/rewrite.ts 'rewriteOvercomingBiasLinks("/tmp/ob-links.json", "/tmp/ob-targets.json", "/tmp/ob-preview.jsonl")'
+npm run repl -- dev lw packages/lesswrong/scripts/overcomingBiasLinks/rewrite.ts 'rewriteOvercomingBiasLinks("/tmp/ob-links.json", "/tmp/ob-targets.json", "/tmp/ob-preview.jsonl")'
 ```
 
 Dry-run is the default. The JSONL report identifies base revisions, draft status,
@@ -129,7 +131,7 @@ proposed versions, URL replacements, and per-document errors. Affected documents
 are reread when applying, rather than using stale contents from the inventory.
 
 ```sh
-yarn repl dev lw packages/lesswrong/scripts/overcomingBiasLinks/rewrite.ts 'rewriteOvercomingBiasLinks("/tmp/ob-links.json", "/tmp/ob-targets.json", "/tmp/ob-applied.jsonl", { dryRun: false })'
+npm run repl -- dev lw packages/lesswrong/scripts/overcomingBiasLinks/rewrite.ts 'rewriteOvercomingBiasLinks("/tmp/ob-links.json", "/tmp/ob-targets.json", "/tmp/ob-applied.jsonl", { dryRun: false })'
 ```
 
 The writer handles raw HTML, CkEditor markup, and both object and string forms of
@@ -165,5 +167,5 @@ all three stages; unresolved mappings intentionally leave existing links intact.
 Unit tests:
 
 ```sh
-yarn unit overcomingBiasLinks --runInBand
+npm run unit -- overcomingBiasLinks --runInBand
 ```

@@ -1,4 +1,5 @@
 import { sharedSettings } from "./sharedSettings";
+import { localSiteUrl } from "./localSiteUrl";
 import merge from "lodash/merge";
 
 export const localLwDevDb = merge({
@@ -7,6 +8,7 @@ export const localLwDevDb = merge({
   tagline: "A community blog devoted to refining the art of rationality",
   logoUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_png/LessWrong_Logo_skglnw.svg",
   siteNameWithArticle: "LessWrong",
+  siteUrl: localSiteUrl,
   sentry: {
     url: "https://1ab1949fc8d04608b43132f37bb2a1b0@sentry.io/1301611",
     environment: "development",

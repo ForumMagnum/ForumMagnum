@@ -1,4 +1,4 @@
-# Generated file - run 'yarn generate' to update.
+# Generated file - run 'npm run generate' to update.
 
 type Query
 
@@ -596,14 +596,6 @@ extend type Query {
 extend type Mutation {
   MarkAllNotificationsAsRead: Boolean
   sendNewDialogueMessageNotification(postId: String!, dialogueHtml: String!): Boolean!
-}
-
-type NotificationDisplaysResult {
-  results: [JSON!]!
-}
-
-extend type Query {
-  NotificationDisplays(type: String, limit: Int): NotificationDisplaysResult
 }
 
 extend type Query {
@@ -1543,7 +1535,7 @@ type UltraFeedEntry {
 }
 
 extend type Query {
-  UltraFeed(limit: Int, cutoff: Date, offset: Int, sessionId: String, settings: JSON): UltraFeedQueryResults!
+  UltraFeed(limit: Int, cutoff: Date, offset: Int, sessionId: String, settings: JSON, filterSettings: JSON): UltraFeedQueryResults!
 }
 
 extend type Query {
@@ -2249,6 +2241,8 @@ type Comment {
   tagCommentType: TagCommentType!
   userId: String!
   user: User
+  llmRunId: String
+  llmReplyPublishedAt: Date
   userIP: String
   userAgent: String
   referrer: String
@@ -2619,8 +2613,7 @@ input CommentsShortformFrontpageInput {
   minimumKarma: Int
   authorIsUnreviewed: Boolean
   maxAgeDays: Int
-  showCommunity: Boolean
-  relevantTagId: String
+  filterSettings: JSON
 }
 
 input CommentsRepliesToCommentThreadInput {
@@ -2723,6 +2716,13 @@ input CommentsModeratorCommentsInput {
   authorIsUnreviewed: Boolean
 }
 
+input CommentsLlmRepliesInput {
+  userId: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
+}
+
 input CommentsDebateResponsesInput {
   userId: String
   commentIds: [String!]
@@ -2809,6 +2809,7 @@ input CommentSelector {
   tagSubforumComments: CommentsTagSubforumCommentsInput
   latestSubforumDiscussion: CommentsLatestSubforumDiscussionInput
   moderatorComments: CommentsModeratorCommentsInput
+  llmReplies: CommentsLlmRepliesInput
   debateResponses: CommentsDebateResponsesInput
   recentDebateResponses: CommentsRecentDebateResponsesInput
   alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput
@@ -2846,9 +2847,12 @@ type Conversation {
   messageCount: Float!
   moderator: Boolean
   awaitingModeratorReply: Boolean
+  moderatorReplyWaitingSince: Date
   archivedByIds: [String!]!
   archivedBy: [User!]!
   latestMessage: Message
+  rejectedPosts: [Post!]
+  rejectedComments: [Comment!]
   rejectionAppeal: RejectionAppeal
   hasUnreadMessages: Boolean
 }
@@ -3335,6 +3339,22 @@ extend type Query {
   adminHomePageDesigns: [AdminHomePageDesign!]!
 }
 
+type LlmRunTranscriptEntry {
+  _id: String!
+  createdAt: Date!
+  llmRunId: String!
+  attempt: Int!
+  index: Int!
+  type: String!
+  text: String
+  toolCallId: String
+  toolName: String
+  query: String
+  url: String
+  title: String
+  extra: JSON
+}
+
 type RejectionAppeal {
   _id: String!
   createdAt: Date!
@@ -3654,6 +3674,42 @@ type LlmMessage {
   conversationId: String
   role: String
   content: String
+}
+
+type LlmRun {
+  _id: String!
+  createdAt: Date!
+  invocationContext: String!
+  post: Post
+  modelName: String!
+  gatewayModelId: String!
+  status: String!
+  systemPrompt: String!
+  contextMessage: String
+  transcriptEntries: [LlmRunTranscriptEntry!]!
+  response: String
+  error: String
+  completedAt: Date
+  triggerCommentId: String
+  replyCommentId: String
+}
+
+type SingleLlmRunOutput {
+  result: LlmRun
+}
+
+input LlmRunSelector {
+  default: EmptyViewInput
+}
+
+type MultiLlmRunOutput {
+  results: [LlmRun!]!
+  totalCount: Int
+}
+
+extend type Query {
+  llmRun(selector: SelectorInput): SingleLlmRunOutput
+  llmRuns(selector: LlmRunSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiLlmRunOutput
 }
 
 type Localgroup {
@@ -7851,6 +7907,7 @@ type User {
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
   hideIntercom: Boolean!
+  hailboxOptIn: Boolean
   markDownPostEditor: Boolean!
   hideElicitPredictions: Boolean
   hideAFNonMemberInitialWarning: Boolean
@@ -7983,6 +8040,7 @@ type User {
   reviewedByUserId: String
   reviewedByUser: User
   isReviewed: Boolean
+  hasApprovedContent: Boolean
   reviewedAt: Date
   afKarma: Float!
   voteCount: Float
@@ -8450,6 +8508,7 @@ input CreateCommentDataInput {
   tagId: String
   tagCommentType: TagCommentType
   userId: String
+  llmRunId: String
   authorIsUnreviewed: Boolean
   answer: Boolean
   parentAnswerId: String
@@ -8498,6 +8557,7 @@ input UpdateCommentDataInput {
   postedAt: Date
   postId: String
   tagId: String
+  llmReplyPublishedAt: Date
   authorIsUnreviewed: Boolean
   answer: Boolean
   shortform: Boolean
@@ -10002,6 +10062,7 @@ input CreateUserDataInput {
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
   hideIntercom: Boolean
+  hailboxOptIn: Boolean
   noSingleLineComments: Boolean
   noCollapseCommentsPosts: Boolean
   noCollapseCommentsFrontpage: Boolean
@@ -10165,6 +10226,7 @@ input UpdateUserDataInput {
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
   hideIntercom: Boolean
+  hailboxOptIn: Boolean
   markDownPostEditor: Boolean
   hideElicitPredictions: Boolean
   hideAFNonMemberInitialWarning: Boolean

@@ -5,7 +5,9 @@ import { Tags } from '../../server/collections/tags/collection';
 import { Votes } from '../../server/collections/votes/collection';
 import { Users } from '../../server/collections/users/collection';
 import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
-import { isElasticEnabled } from '../../lib/instanceSettings';
+import { isElasticEnabled, recombeeEnabledSetting } from '../../lib/instanceSettings';
+import { recombeeApi } from '../recombee/client';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import { backgroundTask } from '../utils/backgroundTask';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 
@@ -103,4 +105,14 @@ export async function updatePostDenormalizedTags(postId: string) {
   if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument("Posts", postId));
   }
+  const context = createAnonymousContext();
+  if (recombeeEnabledSetting.get(context)) {
+    backgroundTask(syncRecombeePostTags(postId, context));
+  }
+}
+
+async function syncRecombeePostTags(postId: string, context: ResolverContext) {
+  const post = await context.loaders.Posts.load(postId);
+  if (post.draft) return;
+  await recombeeApi.upsertPost(post, context);
 }

@@ -5,7 +5,7 @@ import { invalidatePostPageCache } from './postPageCache/invalidatePostPageCache
  *
  * Used by the cron job at `app/api/cron/update-review-vote-totals/route.ts`
  * and can also be run manually:
- *   yarn repl prod packages/lesswrong/server/reviewVoteUpdate.ts 'updateReviewVoteTotals("finalVote")'
+ *   npm run repl -- prod packages/lesswrong/server/reviewVoteUpdate.ts 'updateReviewVoteTotals("finalVote")'
  */
 
 import ReviewVotes from "@/server/collections/reviewVotes/collection";

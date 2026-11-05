@@ -9,7 +9,7 @@ import * as fs from "fs";
  * record the verdict alongside the ground-truth label and the ML model's score.
  *
  * Usage:
- *   yarn repl dev lw packages/lesswrong/scripts/spamClassifier/llmSpamEval.ts "llmSpamEval('/path/llm_eval_sample.jsonl', '/path/llm_verdicts.jsonl')"
+ *   npm run repl -- dev lw packages/lesswrong/scripts/spamClassifier/llmSpamEval.ts "llmSpamEval('/path/llm_eval_sample.jsonl', '/path/llm_verdicts.jsonl')"
  */
 
 const MODEL = "claude-opus-4-8";
