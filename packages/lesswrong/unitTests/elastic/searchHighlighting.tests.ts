@@ -36,11 +36,17 @@ it.each(cases)("returns complete highlighted labels for $index", ({index, fields
 it("preserves markers and labels in mixed search", () => {
   const request = compileSearchQuery({indexes: cases.map(item => item.index), search: "alignment",
     preTag: "<ais-highlight-0000000000>", postTag: "</ais-highlight-0000000000>"});
-  for (const field of ["title", "authorDisplayName", "name", "displayName"]) {
+  for (const field of ["title", "authorDisplayName", "name", "displayName.exact"]) {
     expect(request.highlight?.fields?.[field]).toEqual(expect.objectContaining({
-      number_of_fragments: 0, pre_tags: ["<ais-highlight-0000000000>"],
+      number_of_fragments: 0, no_match_size: 0, pre_tags: ["<ais-highlight-0000000000>"],
     }));
   }
+});
+
+it("highlights user names on the field their recall queries", () => {
+  const fields = compileSearchQuery({indexes: ["users"], search: "alice"}).highlight?.fields;
+  expect(fields?.displayName).toBeUndefined();
+  expect(JSON.stringify(fields?.["displayName.exact"]?.highlight_query)).toContain('"displayName.exact"');
 });
 
 it.each(["alignment", "user:eliezer alignment"])("highlights the fields actually searched for %s", search => {

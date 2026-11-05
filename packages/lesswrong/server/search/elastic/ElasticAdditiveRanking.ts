@@ -477,7 +477,9 @@ export function compileSearchQuery({indexes, search, offset = 0, limit = 10, fil
       ? userNameRecall(search, contentTokens(search).length >= 5 ? "60%" : "2<75%")
       : recall.query;
     for (const [field, highlight] of Object.entries(request.body.highlight?.fields ?? {})) {
-      const name = isAdvanced ? field : field.replace(/\.exact$/, "");
+      // User recall only queries displayName.exact, and require_field_match means
+      // highlighting has to use the field the query actually targets.
+      const name = isAdvanced || index === "users" ? field : field.replace(/\.exact$/, "");
       const highlightQuery = isAdvanced ? highlight.highlight_query : recallQuery;
       const previous = highlightFields[name]?.highlight_query;
       highlightFields[name] = {
