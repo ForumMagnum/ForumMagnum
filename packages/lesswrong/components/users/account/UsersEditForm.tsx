@@ -61,6 +61,7 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   notificationCommentsOnSubscribedPost: 'notifications',
   notificationShortformContent: 'notifications',
   notificationRepliesToMyComments: 'notifications',
+  commentNotificationFilter: 'notifications',
   notificationRepliesToSubscribedComments: 'notifications',
   notificationSubscribedUserPost: 'notifications',
   notificationSubscribedUserComment: 'notifications',

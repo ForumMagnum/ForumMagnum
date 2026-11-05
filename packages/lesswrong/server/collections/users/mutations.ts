@@ -1,5 +1,6 @@
 import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import schema from "@/lib/collections/users/newSchema";
+import { parseCommentNotificationFilter } from "@/lib/collections/users/commentNotificationFilter";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
@@ -19,6 +20,12 @@ import cloneDeep from "lodash/cloneDeep";
 
 function newCheck() {
   return true;
+}
+
+function validateCommentNotificationFilter(filter: string | null | undefined) {
+  if (filter === null || filter === undefined) return;
+  const result = parseCommentNotificationFilter(filter);
+  if (!result.valid) throw new Error(result.error);
 }
 
 function editCheck(user: DbUser | null, document: DbUser) {
@@ -112,6 +119,7 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
 
   const { oldDocument } = updateCallbackProperties;
 
+  validateCommentNotificationFilter(data.commentNotificationFilter);
   await changeDisplayNameRateLimit(updateCallbackProperties);
 
   data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);

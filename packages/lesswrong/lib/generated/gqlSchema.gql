@@ -589,8 +589,18 @@ type NotificationCounts {
   faviconBadgeNumber: Int!
 }
 
+type CommentNotificationFilterFacts {
+  commentKarma: Float!
+  commenterKarma: Float!
+  commenterIsFollowed: Boolean!
+  topLevelOnMyPost: Boolean!
+  downthreadOnMyPost: Boolean!
+  replyToMyComment: Boolean!
+}
+
 extend type Query {
   unreadNotificationCounts: NotificationCounts!
+  commentNotificationFilterHistory(userId: String!): [CommentNotificationFilterFacts!]!
 }
 
 extend type Mutation {
@@ -7968,6 +7978,7 @@ type User {
   notificationCommentsOnSubscribedPost: JSON
   notificationShortformContent: JSON
   notificationRepliesToMyComments: JSON
+  commentNotificationFilter: String
   notificationRepliesToSubscribedComments: JSON
   notificationSubscribedUserPost: JSON
   notificationSubscribedUserComment: JSON
@@ -10278,6 +10289,7 @@ input UpdateUserDataInput {
   notificationCommentsOnSubscribedPost: JSON
   notificationShortformContent: JSON
   notificationRepliesToMyComments: JSON
+  commentNotificationFilter: String
   notificationRepliesToSubscribedComments: JSON
   notificationSubscribedUserPost: JSON
   notificationSubscribedUserComment: JSON

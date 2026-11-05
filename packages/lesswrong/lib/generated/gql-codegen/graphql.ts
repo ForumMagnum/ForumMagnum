@@ -1008,7 +1008,7 @@ const _988=_o4(_8,_o3(_3,"associatedOAuthServices"))
 const _989=_o4(_8,_o3(_3,"reviewForAlignmentForumUserId"))
 const _990=_o4(_8,_o3(_3,"afApplicationText"))
 const _991=_o4(_8,_o3(_3,"afSubmittedApplication"))
-const _992=_o2(_2,_984,_47,_o5(_7,[_985,_986,_987,_654,_962,_963,_964,_956,_957,_965,_959,_972,_971,_973,_958,_974,_955,_977,_445,_970,_967,_968,_969,_140,_o4(_8,_o3(_3,"collapseModerationGuidelines")),_138,_139,_960,_961,_717,_718,_142,_988,_50,_31,_933,_480,_102,_101,_711,_o4(_8,_o3(_3,"hideFromPeopleDirectory")),_61,_989,_141,_990,_991,_976,_975,_o4(_8,_o3(_3,"notificationShortformContent")),_o4(_8,_o3(_3,"notificationCommentsOnSubscribedPost")),_981,_o4(_8,_o3(_3,"notificationRepliesToSubscribedComments")),_o4(_8,_o3(_3,"notificationSubscribedUserPost")),_o4(_8,_o3(_3,"notificationSubscribedUserComment")),_o4(_8,_o3(_3,"notificationSubscribedTagPost")),_o4(_8,_o3(_3,"notificationSubscribedSequencePost")),_o4(_8,_o3(_3,"notificationPostsInGroups")),_o4(_8,_o3(_3,"notificationPrivateMessage")),_o4(_8,_o3(_3,"notificationSharedWithMe")),_o4(_8,_o3(_3,"notificationAlignmentSubmissionApproved")),_o4(_8,_o3(_3,"notificationEventInRadius")),_o4(_8,_o3(_3,"notificationRSVPs")),_o4(_8,_o3(_3,"notificationCommentsOnDraft")),_o4(_8,_o3(_3,"notificationPostsNominatedReview")),_o4(_8,_o3(_3,"notificationGroupAdministration")),_980,_o4(_8,_o3(_3,"notificationNewMention")),_o4(_8,_o3(_3,"notificationTypoSuggestions")),_o4(_8,_o3(_3,"notificationNewDialogueChecks")),_o4(_8,_o3(_3,"notificationYourTurnMatchForm")),_o4(_8,_o3(_3,"notificationDialogueMessages")),_o4(_8,_o3(_3,"notificationPublishedDialogueMessages")),_966,_o4(_8,_o3(_3,"hideTaggingProgressBar")),_978,_982,_55,_o4(_8,_o3(_3,"permanentDeletionRequestedAt")),_o4(_8,_o3(_3,"twitterProfileURLAdmin"))]))
+const _992=_o2(_2,_984,_47,_o5(_7,[_985,_986,_987,_654,_962,_963,_964,_956,_957,_965,_959,_972,_971,_973,_958,_974,_955,_977,_445,_970,_967,_968,_969,_140,_o4(_8,_o3(_3,"collapseModerationGuidelines")),_138,_139,_960,_961,_717,_718,_142,_988,_50,_31,_933,_480,_102,_101,_711,_o4(_8,_o3(_3,"hideFromPeopleDirectory")),_61,_989,_141,_990,_991,_976,_975,_o4(_8,_o3(_3,"notificationShortformContent")),_o4(_8,_o3(_3,"notificationCommentsOnSubscribedPost")),_981,_o4(_8,_o3(_3,"commentNotificationFilter")),_o4(_8,_o3(_3,"notificationRepliesToSubscribedComments")),_o4(_8,_o3(_3,"notificationSubscribedUserPost")),_o4(_8,_o3(_3,"notificationSubscribedUserComment")),_o4(_8,_o3(_3,"notificationSubscribedTagPost")),_o4(_8,_o3(_3,"notificationSubscribedSequencePost")),_o4(_8,_o3(_3,"notificationPostsInGroups")),_o4(_8,_o3(_3,"notificationPrivateMessage")),_o4(_8,_o3(_3,"notificationSharedWithMe")),_o4(_8,_o3(_3,"notificationAlignmentSubmissionApproved")),_o4(_8,_o3(_3,"notificationEventInRadius")),_o4(_8,_o3(_3,"notificationRSVPs")),_o4(_8,_o3(_3,"notificationCommentsOnDraft")),_o4(_8,_o3(_3,"notificationPostsNominatedReview")),_o4(_8,_o3(_3,"notificationGroupAdministration")),_980,_o4(_8,_o3(_3,"notificationNewMention")),_o4(_8,_o3(_3,"notificationTypoSuggestions")),_o4(_8,_o3(_3,"notificationNewDialogueChecks")),_o4(_8,_o3(_3,"notificationYourTurnMatchForm")),_o4(_8,_o3(_3,"notificationDialogueMessages")),_o4(_8,_o3(_3,"notificationPublishedDialogueMessages")),_966,_o4(_8,_o3(_3,"hideTaggingProgressBar")),_978,_982,_55,_o4(_8,_o3(_3,"permanentDeletionRequestedAt")),_o4(_8,_o3(_3,"twitterProfileURLAdmin"))]))
 const _993=_o5(_7,[_483])
 const _994=_o3(_3,"UsersCrosspostInfo")
 const _995=_o2(_2,_994,_47,_o5(_7,[_10,_50,_12,_o4(_8,_o3(_3,"fmCrosspostUserId"))]))
@@ -2701,6 +2701,16 @@ export type CommentModeratorActionSelector = {
 
 export type CommentModeratorActionsActiveCommentModeratorActionsInput = {
   limit?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentNotificationFilterFacts = {
+  __typename?: 'CommentNotificationFilterFacts';
+  commentKarma: Scalars['Float']['output'];
+  commenterIsFollowed: Scalars['Boolean']['output'];
+  commenterKarma: Scalars['Float']['output'];
+  downthreadOnMyPost: Scalars['Boolean']['output'];
+  replyToMyComment: Scalars['Boolean']['output'];
+  topLevelOnMyPost: Scalars['Boolean']['output'];
 };
 
 export type CommentOutput = {
@@ -9633,6 +9643,7 @@ export type Query = {
   comment: Maybe<SingleCommentOutput>;
   commentModeratorAction: Maybe<SingleCommentModeratorActionOutput>;
   commentModeratorActions: Maybe<MultiCommentModeratorActionOutput>;
+  commentNotificationFilterHistory: Array<CommentNotificationFilterFacts>;
   comments: Maybe<MultiCommentOutput>;
   conversation: Maybe<SingleConversationOutput>;
   conversations: Maybe<MultiConversationOutput>;
@@ -10244,6 +10255,11 @@ export type QuerycommentModeratorActionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<CommentModeratorActionSelector>;
+};
+
+
+export type QuerycommentNotificationFilterHistoryArgs = {
+  userId: Scalars['String']['input'];
 };
 
 
@@ -13939,6 +13955,7 @@ export type UpdateUserDataInput = {
   blueskyProfileURL?: InputMaybe<Scalars['String']['input']>;
   careerStage?: InputMaybe<Array<Scalars['String']['input']>>;
   collapseModerationGuidelines?: InputMaybe<Scalars['Boolean']['input']>;
+  commentNotificationFilter?: InputMaybe<Scalars['String']['input']>;
   commentSorting?: InputMaybe<Scalars['String']['input']>;
   commentingOnOtherUsersDisabled?: InputMaybe<Scalars['Boolean']['input']>;
   conversationsDisabled?: InputMaybe<Scalars['Boolean']['input']>;
@@ -14217,6 +14234,7 @@ export type User = {
   coauthoredPostCount: Scalars['Float']['output'];
   collapseModerationGuidelines: Maybe<Scalars['Boolean']['output']>;
   commentCount: Scalars['Float']['output'];
+  commentNotificationFilter: Maybe<Scalars['String']['output']>;
   commentSorting: Maybe<Scalars['String']['output']>;
   commentingOnOtherUsersDisabled: Maybe<Scalars['Boolean']['output']>;
   conversationsDisabled: Maybe<Scalars['Boolean']['output']>;
@@ -21671,6 +21689,13 @@ export type multiUserUsersProfileQueryQuery = { __typename?: 'Query', users: { _
       & UsersProfile
     )> } | null };
 
+export type CommentNotificationFilterSettingsHistoryQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+export type CommentNotificationFilterSettingsHistoryQuery = { __typename?: 'Query', commentNotificationFilterHistory: Array<{ __typename?: 'CommentNotificationFilterFacts', commentKarma: number, commenterKarma: number, commenterIsFollowed: boolean, topLevelOnMyPost: boolean, downthreadOnMyPost: boolean, replyToMyComment: boolean }> };
+
 export type updateUserDeactivateAccountSectionMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdateUserDataInput;
@@ -23288,7 +23313,7 @@ export type UserClientIdsInfo = { __typename?: 'User', _id: string, slug: string
 export type UsersMapEntry = { __typename?: 'User', _id: string, displayName: string, username: string | null, fullName: string | null, slug: string, mapLocationSet: boolean | null, htmlMapMarkerText: string | null, mapLocationLatLng: { __typename?: 'LatLng', lat: number, lng: number } | null };
 
 export type UsersEdit = (
-  { __typename?: 'User', markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, hideIntercom: boolean, hailboxOptIn: boolean | null, commentSorting: string | null, currentFrontpageFilter: string | null, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, noSingleLineComments: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, beta: boolean | null, theme: any | null, email: string | null, whenConfirmationEmailSent: string | null, emailSubscribedToCurated: boolean | null, emailSubscribedToAiDigest: boolean | null, unsubscribeFromAll: boolean | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, associatedOAuthServices: Array<string> | null, username: string | null, displayName: string, fullName: string | null, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, hideFromPeopleDirectory: boolean, reviewedByUserId: string | null, reviewForAlignmentForumUserId: string | null, groups: Array<string> | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, karmaChangeLastOpened: string | null, karmaChangeNotifierSettings: any | null, notificationShortformContent: any | null, notificationCommentsOnSubscribedPost: any | null, notificationRepliesToMyComments: any | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPostsInGroups: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationRSVPs: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationGroupAdministration: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationTypoSuggestions: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2020Ad: boolean | null, deleted: boolean, permanentDeletionRequestedAt: string | null, twitterProfileURLAdmin: string | null, biography: (
+  { __typename?: 'User', markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, hideIntercom: boolean, hailboxOptIn: boolean | null, commentSorting: string | null, currentFrontpageFilter: string | null, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, noSingleLineComments: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, beta: boolean | null, theme: any | null, email: string | null, whenConfirmationEmailSent: string | null, emailSubscribedToCurated: boolean | null, emailSubscribedToAiDigest: boolean | null, unsubscribeFromAll: boolean | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, associatedOAuthServices: Array<string> | null, username: string | null, displayName: string, fullName: string | null, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, hideFromPeopleDirectory: boolean, reviewedByUserId: string | null, reviewForAlignmentForumUserId: string | null, groups: Array<string> | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, karmaChangeLastOpened: string | null, karmaChangeNotifierSettings: any | null, notificationShortformContent: any | null, notificationCommentsOnSubscribedPost: any | null, notificationRepliesToMyComments: any | null, commentNotificationFilter: string | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPostsInGroups: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationRSVPs: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationGroupAdministration: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationTypoSuggestions: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2020Ad: boolean | null, deleted: boolean, permanentDeletionRequestedAt: string | null, twitterProfileURLAdmin: string | null, biography: (
     { __typename?: 'Revision' }
     & RevisionEdit
   ) | null, moderationGuidelines: (
@@ -24534,6 +24559,7 @@ export const UserContentFeedWikiEditsDocument = _o1(_1,[_o11(_1035,_468,_o3(_3,"
 export const UserContentFeedThreadDocument = _o1(_1,[_o11(_1035,_468,_o3(_3,"UserContentFeedThread"),[_o12(_1037,_2005,_1041),_1101],_o5(_7,[_o7(_8,_917,[_o8(_597,_1051,_o14(_1049,[_o8(_1050,_o3(_3,"repliesToCommentThreadIncludingRoot"),_o14(_1049,[_o8(_1050,_170,_2005)]))])),_1104],_o5(_7,[_o6(_8,_1073,_219)]))])),_155,_62,_181,_23,_136,_145,_189,_195,_200,_204,_214]) as unknown as DocumentNode<UserContentFeedThreadQuery, UserContentFeedThreadQueryVariables>;
 export const UsersNameWrapperDocument = _o1(_1,[_o11(_1035,_468,_o3(_3,"UsersNameWrapper"),_1263,_1444),_62]) as unknown as DocumentNode<UsersNameWrapperQuery, UsersNameWrapperQueryVariables>;
 export const multiUserUsersProfileQueryDocument = _o1(_1,[_o11(_1035,_468,_o3(_3,"multiUserUsersProfileQuery"),_1175,_1178),_62,_223,_953]) as unknown as DocumentNode<multiUserUsersProfileQueryQuery, multiUserUsersProfileQueryQueryVariables>;
+export const CommentNotificationFilterSettingsHistoryDocument = _o1(_1,[_o11(_1035,_468,_o3(_3,"CommentNotificationFilterSettingsHistory"),_1670,_o5(_7,[_o7(_8,_o3(_3,"commentNotificationFilterHistory"),_1923,_o5(_7,[_o4(_8,_o3(_3,"commentKarma")),_o4(_8,_o3(_3,"commenterKarma")),_o4(_8,_o3(_3,"commenterIsFollowed")),_o4(_8,_o3(_3,"topLevelOnMyPost")),_o4(_8,_o3(_3,"downthreadOnMyPost")),_o4(_8,_o3(_3,"replyToMyComment"))]))]))]) as unknown as DocumentNode<CommentNotificationFilterSettingsHistoryQuery, CommentNotificationFilterSettingsHistoryQueryVariables>;
 export const updateUserDeactivateAccountSectionDocument = _o1(_1,[_o11(_1035,_1036,_o3(_3,"updateUserDeactivateAccountSection"),_1246,_1621),_62,_223,_953,_983,_268,_992]) as unknown as DocumentNode<updateUserDeactivateAccountSectionMutation, updateUserDeactivateAccountSectionMutationVariables>;
 export const updateUserDeleteAccountSectionDocument = _o1(_1,[_o11(_1035,_1036,_o3(_3,"updateUserDeleteAccountSection"),_1246,_1621),_62,_223,_953,_983,_268,_992]) as unknown as DocumentNode<updateUserDeleteAccountSectionMutation, updateUserDeleteAccountSectionMutationVariables>;
 export const UsersSearchForMergeDocument = _o1(_1,[_o11(_1035,_468,_2006,[_1281],_o5(_7,[_o7(_8,_2006,[_1285],_o5(_7,[_o4(_25,_998)]))])),_62,_999]) as unknown as DocumentNode<UsersSearchForMergeQuery, UsersSearchForMergeQueryVariables>;

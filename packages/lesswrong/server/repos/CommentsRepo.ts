@@ -57,6 +57,15 @@ export interface AiDigestThreadCommentRow {
   anchorIneligible: "readerAuthored" | "onReaderPost" | "replyToReader" | null;
 }
 
+interface CommentInUsersDiscussionRow {
+  _id: string;
+  userId: string;
+  parentCommentId: string | null;
+  baseScore: number;
+  commenterKarma: number;
+  postAuthorIds: string[];
+}
+
 const aiDigestVisibleCommentConditions = (alias: string) => `
   ${getViewableCommentsSelector(alias)}
   AND ${alias}.deleted IS FALSE
@@ -429,48 +438,101 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
   }
 
   /**
-   * Return an array of { commentId: string; userId: string }, where the `commentId`s correspond to
-   * the parents of the given comment, starting with the most recent (and not including the comment given)
+   * For each of the given comments, return its parents as { replyCommentId, commentId, userId },
+   * starting with the most recent (and not including the comment given). `limit` is per comment.
    */
   async getParentCommentIds({
-    commentId,
+    commentIds,
     limit = 20,
   }: {
-    commentId: string;
+    commentIds: string[];
     limit?: number;
-  }): Promise<Array<{ commentId: string; userId: string }>> {
-    return this.getRawDb().any<{ commentId: string; userId: string }>(
+  }): Promise<Array<{ replyCommentId: string; commentId: string; userId: string }>> {
+    return this.getRawDb().any<{ replyCommentId: string; commentId: string; userId: string }>(
       `
-      -- CommentsRepo.getParentCommentIdsAndUserIds
+      -- CommentsRepo.getParentCommentIds
       WITH RECURSIVE parent_comments AS (
         SELECT
+          "_id" AS "replyCommentId",
           "parentCommentId"
         FROM
           "Comments"
         WHERE
-          "_id" = $1
+          "_id" IN ($(commentIds:csv))
         UNION
         SELECT
+          pc."replyCommentId",
           c."parentCommentId"
         FROM
           "Comments" c
           INNER JOIN parent_comments pc ON c."_id" = pc."parentCommentId"
+      ),
+      ranked_parent_comments AS (
+        SELECT
+          pc."replyCommentId",
+          pc."parentCommentId" AS "commentId",
+          c."userId",
+          ROW_NUMBER() OVER (PARTITION BY pc."replyCommentId" ORDER BY c."postedAt" DESC) AS "rank"
+        FROM
+          parent_comments pc
+        LEFT JOIN "Comments" c ON c._id = pc."parentCommentId"
+        WHERE
+          pc."parentCommentId" IS NOT NULL
+          AND c.deleted IS NOT TRUE
+          AND c."deletedPublic" IS NOT TRUE
       )
       SELECT
-        pc."parentCommentId" AS "commentId",
-        c."userId"
+        "replyCommentId",
+        "commentId",
+        "userId"
       FROM
-        parent_comments pc
-      LEFT JOIN "Comments" c ON c._id = pc."parentCommentId"
+        ranked_parent_comments
       WHERE
-        pc."parentCommentId" IS NOT NULL
-        AND c.deleted IS NOT TRUE
-        AND c."deletedPublic" IS NOT TRUE
+        "rank" <= $(limit)
       ORDER BY
-        c."postedAt" DESC LIMIT $2;
+        "replyCommentId",
+        "rank";
     `,
-      [commentId, limit]
+      { commentIds, limit }
     );
+  }
+
+  /**
+   * Visible comments by other users on the user's posts or in threads they've
+   * commented in. A superset of the replies to them: a comment in one of those
+   * threads may be on a branch that doesn't include any of their comments.
+   */
+  async getCommentsInUsersDiscussionsSince({ userId, since }: {
+    userId: string;
+    since: Date;
+  }): Promise<CommentInUsersDiscussionRow[]> {
+    return this.getRawDb().any<CommentInUsersDiscussionRow>(`
+      -- CommentsRepo.getCommentsInUsersDiscussionsSince
+      SELECT
+        c._id,
+        c."userId",
+        c."parentCommentId",
+        c."baseScore",
+        u.karma AS "commenterKarma",
+        ARRAY_REMOVE(ARRAY[p."userId"] || p."coauthorUserIds", NULL) AS "postAuthorIds"
+      FROM "Comments" c
+      JOIN "Users" u ON u._id = c."userId"
+      LEFT JOIN "Posts" p ON p._id = c."postId"
+      WHERE
+        c."postedAt" > $(since)
+        AND c."userId" <> $(userId)
+        AND c.deleted IS NOT TRUE
+        AND ${getViewableCommentsSelector("c")}
+        AND (
+          p."userId" = $(userId)
+          OR $(userId) = ANY(p."coauthorUserIds")
+          OR c."topLevelCommentId" IN (
+            SELECT COALESCE(mine."topLevelCommentId", mine._id)
+            FROM "Comments" mine
+            WHERE mine."userId" = $(userId)
+          )
+        )
+    `, { userId, since });
   }
 
   async getPostReviews(postIds: string[], reviewsPerPost: number, minScore: number): Promise<DbComment[][]> {
