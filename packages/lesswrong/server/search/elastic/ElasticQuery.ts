@@ -94,6 +94,19 @@ function compileAdvancedHighlight(fieldName: string, tokens: QueryToken[]): Quer
   return {bool: {should, minimum_should_match: 1}};
 }
 
+export function compileAuthorshipQuery(collectionName: SearchIndexCollectionName, ids: string[]): QueryDslQueryContainer | undefined {
+  switch (collectionName) {
+  case "Posts":
+    return {bool: {should: [{terms: {userId: ids}}, {terms: {coauthorIds: ids}}], minimum_should_match: 1}};
+  case "Comments":
+    return {terms: {userId: ids}};
+  case "Sequences":
+    return {bool: {should: [{terms: {userId: ids}}, {terms: {collectedAuthorIds: ids}}], minimum_should_match: 1}};
+  default:
+    return undefined;
+  }
+}
+
 class ElasticQuery {
   private collectionName: SearchIndexCollectionName;
   private config: IndexConfig;
@@ -210,18 +223,8 @@ class ElasticQuery {
   }
 
   private compileAuthorFilter(ids: string[]): QueryDslQueryContainer {
-    switch (this.collectionName) {
-    case "Posts":
-      return {bool: {should: [{terms: {userId: ids}}, {terms: {coauthorIds: ids}}], minimum_should_match: 1}};
-    case "Comments":
-      return {terms: {userId: ids}};
-    case "Sequences":
-      return {bool: {should: [{terms: {userId: ids}}, {terms: {collectedAuthorIds: ids}}], minimum_should_match: 1}};
-    case "Users":
-      return {terms: {objectID: ids}};
-    default:
-      return {match_none: {}};
-    }
+    if (this.collectionName === "Users") return {terms: {objectID: ids}};
+    return compileAuthorshipQuery(this.collectionName, ids) ?? {match_none: {}};
   }
 
   private compilePostTypeFilter(types: SearchPostType[]): QueryDslQueryContainer {

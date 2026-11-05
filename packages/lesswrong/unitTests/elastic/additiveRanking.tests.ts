@@ -170,6 +170,14 @@ describe("identifier navigation", () => {
   });
 });
 
+it("gives a sequence's curator the same authorship recall and points as the Author filter", () => {
+  const query = interpretations("sequences", "Alice", {userIds: ["alice"], topic: "", confidence: "exact"})[0];
+  const must = query.bool?.must;
+  if (!Array.isArray(must)) throw new Error("Missing relationship score");
+  expect(JSON.stringify(must[1])).toContain('{"terms":{"userId":["alice"]}}');
+  expect(JSON.stringify(must[1])).toContain('{"terms":{"collectedAuthorIds":["alice"]}}');
+  expect(JSON.stringify(lexicalScore(query).function_score?.query?.bool?.filter)).toContain('{"terms":{"userId":["alice"]}}');
+});
 
 describe("selective freshness", () => {
   it("requires event intent and disables freshness for history and date filters", () => {
