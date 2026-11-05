@@ -153,6 +153,7 @@ class ElasticQuery {
     value: boolean | string | null,
     negated: boolean,
   ): QueryDslQueryContainer {
+    if (field === "af" && this.collectionName === "Tags") return {match_all: {}};
     if (value === null) {
       const term: QueryDslQueryContainer = {
         exists: {
