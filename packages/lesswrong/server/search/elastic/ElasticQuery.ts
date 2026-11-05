@@ -668,6 +668,7 @@ class ElasticQuery {
               ...Object.fromEntries(Object.entries(highlights ?? {}).map(([name, query]) => [name, {
                 ...highlightConfig,
                 number_of_fragments: 0,
+                no_match_size: 0,
                 highlight_query: query ?? searchQuery,
               }])),
             },
