@@ -543,6 +543,7 @@ type Comment = {
   parentAnswerId?: Maybe<Scalars['String']['output']>;
   parentComment?: Maybe<Comment>;
   parentCommentId?: Maybe<Scalars['String']['output']>;
+  pingbackId?: Maybe<Scalars['String']['output']>;
   pingbacks?: Maybe<Scalars['JSON']['output']>;
   post?: Maybe<Post>;
   postId?: Maybe<Scalars['String']['output']>;
@@ -678,6 +679,7 @@ type CommentSelector = {
   moderatorComments?: InputMaybe<CommentsModeratorCommentsInput>;
   nominations2018?: InputMaybe<CommentsNominations2018Input>;
   nominations2019?: InputMaybe<CommentsNominations2019Input>;
+  pingbackReplies?: InputMaybe<CommentsPingbackRepliesInput>;
   postCommentsBest?: InputMaybe<CommentsPostCommentsBestInput>;
   postCommentsDeleted?: InputMaybe<CommentsPostCommentsDeletedInput>;
   postCommentsMagic?: InputMaybe<CommentsPostCommentsMagicInput>;
@@ -862,6 +864,14 @@ type CommentsNominations2019Input = {
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<CommentSortingMode>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type CommentsPingbackRepliesInput = {
+  authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
+  commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1316,6 +1326,7 @@ type CreateCommentDataInput = {
   originalDialogueId?: InputMaybe<Scalars['String']['input']>;
   parentAnswerId?: InputMaybe<Scalars['String']['input']>;
   parentCommentId?: InputMaybe<Scalars['String']['input']>;
+  pingbackId?: InputMaybe<Scalars['String']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
   promotedByUserId?: InputMaybe<Scalars['String']['input']>;
   rejected?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3650,6 +3661,19 @@ type MultiPetrovDayActionOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+type MultiPingbackInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiPingbackOutput = {
+  __typename?: 'MultiPingbackOutput';
+  results: Array<Pingback>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 type MultiPodcastEpisodeInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4148,6 +4172,7 @@ type Mutation = {
   performVoteComment?: Maybe<VoteResultComment>;
   performVoteMessage?: Maybe<VoteResultMessage>;
   performVoteMultiDocument?: Maybe<VoteResultMultiDocument>;
+  performVotePingback?: Maybe<VoteResultPingback>;
   performVotePost?: Maybe<VoteResultPost>;
   performVoteRevision?: Maybe<VoteResultRevision>;
   performVoteTag?: Maybe<VoteResultTag>;
@@ -4178,6 +4203,7 @@ type Mutation = {
   setVoteComment?: Maybe<Comment>;
   setVoteMessage?: Maybe<Message>;
   setVoteMultiDocument?: Maybe<MultiDocument>;
+  setVotePingback?: Maybe<Pingback>;
   setVotePost?: Maybe<Post>;
   setVoteRevision?: Maybe<Revision>;
   setVoteTag?: Maybe<Tag>;
@@ -4747,6 +4773,13 @@ type MutationperformVoteMultiDocumentArgs = {
 };
 
 
+type MutationperformVotePingbackArgs = {
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  extendedVote?: InputMaybe<Scalars['JSON']['input']>;
+  voteType?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 type MutationperformVotePostArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
@@ -4924,6 +4957,13 @@ type MutationsetVoteMessageArgs = {
 
 
 type MutationsetVoteMultiDocumentArgs = {
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  extendedVote?: InputMaybe<Scalars['JSON']['input']>;
+  voteType?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationsetVotePingbackArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
@@ -5424,6 +5464,36 @@ type PetrovDayLaunchMissileData = {
   __typename?: 'PetrovDayLaunchMissileData';
   createdAt?: Maybe<Scalars['Date']['output']>;
   launchCode?: Maybe<Scalars['String']['output']>;
+};
+
+type Pingback = {
+  __typename?: 'Pingback';
+  _id: Scalars['String']['output'];
+  afBaseScore?: Maybe<Scalars['Float']['output']>;
+  afExtendedScore?: Maybe<Scalars['JSON']['output']>;
+  afVoteCount?: Maybe<Scalars['Float']['output']>;
+  baseScore: Scalars['Float']['output'];
+  createdAt: Scalars['Date']['output'];
+  currentUserExtendedVote?: Maybe<Scalars['JSON']['output']>;
+  currentUserVote?: Maybe<Scalars['String']['output']>;
+  excerpt: Scalars['String']['output'];
+  extendedScore?: Maybe<Scalars['JSON']['output']>;
+  score: Scalars['Float']['output'];
+  sourcePost?: Maybe<Post>;
+  sourcePostId: Scalars['String']['output'];
+  targetPost?: Maybe<Post>;
+  targetPostId: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
+  voteCount: Scalars['Float']['output'];
+};
+
+type PingbackSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  pingbacksToPost?: InputMaybe<PingbacksPingbacksToPostInput>;
+};
+
+type PingbacksPingbacksToPostInput = {
+  postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type Podcast = {
@@ -7642,6 +7712,8 @@ type Query = {
   petrov2024checkIfNuked?: Maybe<Scalars['Boolean']['output']>;
   petrovDayAction?: Maybe<SinglePetrovDayActionOutput>;
   petrovDayActions?: Maybe<MultiPetrovDayActionOutput>;
+  pingback?: Maybe<SinglePingbackOutput>;
+  pingbacks?: Maybe<MultiPingbackOutput>;
   podcast?: Maybe<SinglePodcastOutput>;
   podcastEpisode?: Maybe<SinglePodcastEpisodeOutput>;
   podcastEpisodes?: Maybe<MultiPodcastEpisodeOutput>;
@@ -8562,6 +8634,21 @@ type QuerypetrovDayActionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<PetrovDayActionSelector>;
+};
+
+
+type QuerypingbackArgs = {
+  input?: InputMaybe<SinglePingbackInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QuerypingbacksArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiPingbackInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<PingbackSelector>;
 };
 
 
@@ -10165,6 +10252,16 @@ type SinglePetrovDayActionInput = {
 type SinglePetrovDayActionOutput = {
   __typename?: 'SinglePetrovDayActionOutput';
   result?: Maybe<PetrovDayAction>;
+};
+
+type SinglePingbackInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SinglePingbackOutput = {
+  __typename?: 'SinglePingbackOutput';
+  result?: Maybe<Pingback>;
 };
 
 type SinglePodcastEpisodeInput = {
@@ -12698,6 +12795,12 @@ type VoteResultMultiDocument = {
   showVotingPatternWarning: Scalars['Boolean']['output'];
 };
 
+type VoteResultPingback = {
+  __typename?: 'VoteResultPingback';
+  document: Pingback;
+  showVotingPatternWarning: Scalars['Boolean']['output'];
+};
+
 type VoteResultPost = {
   __typename?: 'VoteResultPost';
   document: Post;
@@ -14075,6 +14178,22 @@ type CommentDeletedMetadataQueryVariables = Exact<{
 
 
 type CommentDeletedMetadataQuery = CommentDeletedMetadataQuery_Query;
+
+type CommentPingbackContextQuery_pingback_SinglePingbackOutput_result_Pingback_targetPost_Post = { __typename?: 'Post', _id: string, slug: string, title: string, isEvent: boolean, groupId: string | null };
+
+type CommentPingbackContextQuery_pingback_SinglePingbackOutput_result_Pingback = { __typename?: 'Pingback', _id: string, targetPost: CommentPingbackContextQuery_pingback_SinglePingbackOutput_result_Pingback_targetPost_Post | null };
+
+type CommentPingbackContextQuery_pingback_SinglePingbackOutput = { __typename?: 'SinglePingbackOutput', result: CommentPingbackContextQuery_pingback_SinglePingbackOutput_result_Pingback | null };
+
+type CommentPingbackContextQuery_Query = { __typename?: 'Query', pingback: CommentPingbackContextQuery_pingback_SinglePingbackOutput | null };
+
+
+type CommentPingbackContextQueryVariables = Exact<{
+  pingbackId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type CommentPingbackContextQuery = CommentPingbackContextQuery_Query;
 
 type CommentsNewFormQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
@@ -18210,6 +18329,23 @@ type multiReviewWinnerArtSplashImageEditingOptionsQueryQueryVariables = Exact<{
 
 
 type multiReviewWinnerArtSplashImageEditingOptionsQueryQuery = multiReviewWinnerArtSplashImageEditingOptionsQueryQuery_Query;
+
+type postPingbacksQueryQuery_pingbacks_MultiPingbackOutput_results_Pingback = (
+  { __typename?: 'Pingback' }
+  & PingbackFragment
+);
+
+type postPingbacksQueryQuery_pingbacks_MultiPingbackOutput = { __typename?: 'MultiPingbackOutput', results: Array<postPingbacksQueryQuery_pingbacks_MultiPingbackOutput_results_Pingback> };
+
+type postPingbacksQueryQuery_Query = { __typename?: 'Query', pingbacks: postPingbacksQueryQuery_pingbacks_MultiPingbackOutput | null };
+
+
+type postPingbacksQueryQueryVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type postPingbacksQueryQuery = postPingbacksQueryQuery_Query;
 
 type PostsPageWrapper1Query_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
@@ -24651,6 +24787,25 @@ type performVoteMessageMutationVariables = Exact<{
 
 type performVoteMessageMutation = performVoteMessageMutation_Mutation;
 
+type performVotePingbackMutation_performVotePingback_VoteResultPingback_document_Pingback = (
+  { __typename?: 'Pingback' }
+  & WithVotePingback
+);
+
+type performVotePingbackMutation_performVotePingback_VoteResultPingback = { __typename?: 'VoteResultPingback', showVotingPatternWarning: boolean, document: performVotePingbackMutation_performVotePingback_VoteResultPingback_document_Pingback };
+
+type performVotePingbackMutation_Mutation = { __typename?: 'Mutation', performVotePingback: performVotePingbackMutation_performVotePingback_VoteResultPingback | null };
+
+
+type performVotePingbackMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVotePingbackMutation = performVotePingbackMutation_Mutation;
+
 type emailstestsQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsRevision
@@ -24863,7 +25018,7 @@ type CommentsList_Comment_promotedByUser_User = (
   & UsersMinimumInfo
 );
 
-type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, llmRunId: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
+type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, pingbackId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, llmRunId: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
 
 type CommentsListWithTopLevelComment_Comment_topLevelComment_Comment = (
   { __typename?: 'Comment' }
@@ -25341,6 +25496,16 @@ type WithVoteMultiDocument = (
 type NotificationsList = { __typename?: 'Notification', _id: string, documentId: string | null, documentType: string | null, deleted: boolean | null, userId: string | null, createdAt: string | null, link: string | null, message: string | null, type: string | null, viewed: boolean | null, extraData: any | null };
 
 type PetrovDayActionInfo = { __typename?: 'PetrovDayAction', _id: string, createdAt: string, userId: string | null, actionType: string, data: any | null };
+
+type PingbackFragment_Pingback_sourcePost_Post = (
+  { __typename?: 'Post', postedAt: string, isEvent: boolean, groupId: string | null, frontpageDate: string | null, commentsLocked: boolean | null, commentsLockedToAccountsCreatedAfter: string | null, bannedUserIds: Array<string> | null }
+  & PostsMinimumInfo
+  & PostsAuthors
+);
+
+type PingbackFragment = { __typename?: 'Pingback', _id: string, sourcePostId: string, targetPostId: string, excerpt: string, score: number, baseScore: number, extendedScore: any | null, afBaseScore: number | null, voteCount: number, currentUserVote: string | null, currentUserExtendedVote: any | null, sourcePost: PingbackFragment_Pingback_sourcePost_Post | null };
+
+type WithVotePingback = { __typename: 'Pingback', _id: string, score: number, baseScore: number, extendedScore: any | null, afBaseScore: number | null, voteCount: number, currentUserVote: string | null, currentUserExtendedVote: any | null };
 
 type PodcastEpisodeCreateFragment = { __typename?: 'PodcastEpisode', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, podcastId: string, title: string, episodeLink: string, externalEpisodeId: string };
 

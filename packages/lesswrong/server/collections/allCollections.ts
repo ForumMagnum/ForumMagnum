@@ -62,6 +62,7 @@ import { OAuthAuthorizationCodes } from './oAuthAuthorizationCodes/collection';
 import { OAuthClients } from './oAuthClients/collection';
 import { PetrovDayActions } from './petrovDayActions/collection';
 import { PetrovDayLaunchs } from './petrovDayLaunchs/collection';
+import { Pingbacks } from './pingbacks/collection';
 import { PodcastEpisodes } from './podcastEpisodes/collection';
 import { Podcasts } from './podcasts/collection';
 import { PostEmbeddings } from './postEmbeddings/collection';
@@ -130,7 +131,7 @@ const allCollections = {
   CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks,
   DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, LlmRuns, LlmRunTranscriptEntries, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
-  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
+  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, Pingbacks,
   PodcastEpisodes, Podcasts, PostEmbeddings, PostPreviews, PostRecommendations, PostRelations, PostSummaries, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
   RecommendationsCaches, RejectionAppeals, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,

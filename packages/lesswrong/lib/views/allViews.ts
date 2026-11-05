@@ -34,6 +34,7 @@ import { OAuthAccessTokensViews } from '../collections/oAuthAccessTokens/views';
 import { OAuthAuthorizationCodesViews } from '../collections/oAuthAuthorizationCodes/views';
 import { OAuthClientsViews } from '../collections/oAuthClients/views';
 import { PetrovDayActionsViews } from '../collections/petrovDayActions/views';
+import { PingbacksViews } from '../collections/pingbacks/views';
 import { PodcastEpisodesViews } from '../collections/podcastEpisodes/views';
 import { PostsViews } from '../collections/posts/views';
 import { PostRelationsViews } from '../collections/postRelations/views';
@@ -122,6 +123,7 @@ export const allViews = {
   OAuthClients: OAuthClientsViews,
   PetrovDayActions: PetrovDayActionsViews,
   PetrovDayLaunchs: new CollectionViewSet('PetrovDayLaunchs', {}),
+  Pingbacks: PingbacksViews,
   PodcastEpisodes: PodcastEpisodesViews,
   Podcasts: new CollectionViewSet('Podcasts', {}),
   Posts: PostsViews,

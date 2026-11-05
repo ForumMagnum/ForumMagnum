@@ -440,6 +440,21 @@ const subscriptionCheckAccess: CheckAccessFunction<'Subscriptions'> = async (cur
   return false;
 }
 
+const pingbackCheckAccess: CheckAccessFunction<'Pingbacks'> = async (currentUser, pingback, context): Promise<boolean> => {
+  if (pingback.deleted) {
+    return false;
+  }
+  const [sourcePost, targetPost] = await Promise.all([
+    context.loaders.Posts.load(pingback.sourcePostId),
+    context.loaders.Posts.load(pingback.targetPostId),
+  ]);
+  if (!sourcePost || !targetPost) {
+    return false;
+  }
+  return await postCheckAccess(currentUser, sourcePost, context)
+    && await postCheckAccess(currentUser, targetPost, context);
+};
+
 const tagRelCheckAccess: CheckAccessFunction<'TagRels'> = async (currentUser, tagRel, context): Promise<boolean> => {
   return true;
 }
@@ -529,6 +544,7 @@ const accessFilters = {
   OAuthClients: denyAll,
   PetrovDayActions: allowAccess,
   PetrovDayLaunchs: allowAccess,
+  Pingbacks: pingbackCheckAccess,
   PodcastEpisodes: allowAccess,
   Podcasts: allowAccess,
   Posts: postCheckAccess,

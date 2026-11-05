@@ -16,6 +16,7 @@ export const CommentsList = gql(`
     tagCommentType
     parentCommentId
     topLevelCommentId
+    pingbackId
     descendentCount
     title
     contents {

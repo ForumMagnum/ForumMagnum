@@ -18,6 +18,8 @@ import { postBottomSecondaryVotingComponents } from '@/lib/voting/votingSystemCo
 import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useCurrentUser } from '@/components/common/withUser';
+import { userHasPingbacksInComments } from '@/lib/betas';
 
 const styles = defineStyles("PostsPagePostFooter", (theme: ThemeType) => ({
   footerSection: {
@@ -85,6 +87,7 @@ const PostsPagePostFooter = ({post, sequenceId}: {
 }) => {
   const { isLW } = useForumType();
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
   const votingSystemName = (post.votingSystem || "default") as VotingSystemName;
   const votingSystem = getVotingSystemByName(votingSystemName);
   const wordCount = post.contents?.wordCount || 0
@@ -133,11 +136,11 @@ const PostsPagePostFooter = ({post, sequenceId}: {
       </AnalyticsContext>}
     </div>}
 
-    <SuspenseWrapper name="pingbacks">
+    {!userHasPingbacksInComments(currentUser) && <SuspenseWrapper name="pingbacks">
       <AnalyticsContext pageSectionContext="pingbacks">
         <PingbacksList postId={post._id}/>
       </AnalyticsContext>
-    </SuspenseWrapper>
+    </SuspenseWrapper>}
   </>
 }
 

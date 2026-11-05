@@ -34,6 +34,8 @@ import LWHelpIcon from "../../common/LWHelpIcon";
 import CoreTagIcon from "../../tagging/CoreTagIcon";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
+import CommentPingbackContext from "./CommentPingbackContext";
+import { getReplyFormLevelClass } from '../CommentFrame';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useNavigate } from '@/lib/routeUtil';
 import dynamic from 'next/dynamic';
@@ -41,7 +43,7 @@ import { llmRunGetPageUrl } from '@/lib/collections/llmRuns/helpers';
 
 const RejectedReasonDisplay = dynamic(() => import("../../sunshineDashboard/RejectedReasonDisplay"));
 
-const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
+export const commentsItemStyles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   root: {
     paddingLeft: 12,
     paddingRight: 12,
@@ -205,7 +207,7 @@ export const CommentsItem = ({
   excerptLines?: number,
   className?: string,
 }) => {
-  const classes = useStyles(styles);
+  const classes = useStyles(commentsItemStyles);
   const navigate = useNavigate();
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
@@ -293,11 +295,8 @@ export const CommentsItem = ({
   }
 
   const renderReply = () => {
-    const levelClass = (nestingLevel + (treeOptions.switchAlternatingHighlights ? 0 : 1)) % 2 === 0
-      ? "comments-node-even" : "comments-node-odd"
-
     return (
-      <div className={classNames(classes.replyForm, levelClass, isMinimalist && classes.replyFormMinimalist)}>
+      <div className={classNames(classes.replyForm, getReplyFormLevelClass(nestingLevel, treeOptions), isMinimalist && classes.replyFormMinimalist)}>
         <CommentsNewForm
           post={treeOptions.post}
           parentComment={comment}
@@ -394,6 +393,9 @@ export const CommentsItem = ({
               setShowEdit,
             }}
           />
+          {comment.pingbackId && comment.pingbackId !== treeOptions.parentPingbackId && <CommentPingbackContext
+            pingbackId={comment.pingbackId}
+          />}
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Pinned by {comment.promotedByUser.displayName}
           </div>}
@@ -440,7 +442,7 @@ const CommentTitleRow = ({comment, treeOptions, isChild, showPinnedOnProfile}: {
   isChild?: boolean,
   showPinnedOnProfile?: boolean,
 }) => {
-  const classes = useStyles(styles);
+  const classes = useStyles(commentsItemStyles);
   const { showPostTitle, moderatedCommentId } = treeOptions;
 
   const visible = (

@@ -107,6 +107,16 @@ const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
   stylePriority: -1,
 });
 
+export const getEffectiveNestingLevel = (nestingLevel: number, treeOptions: CommentTreeOptions): number => {
+  return nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
+}
+
+export const getReplyFormLevelClass = (parentNestingLevel: number, treeOptions: CommentTreeOptions): string => {
+  return getEffectiveNestingLevel(parentNestingLevel + 1, treeOptions) % 2 === 0
+    ? "comments-node-even"
+    : "comments-node-odd";
+}
+
 const CommentFrame = ({
   comment,
   treeOptions,
@@ -125,7 +135,8 @@ const CommentFrame = ({
   children,
   className,
 }: {
-  comment: CommentsList,
+  /** Omitted for items in a comment tree that aren't comments, such as pingbacks */
+  comment?: CommentsList,
   treeOptions: CommentTreeOptions,
   onClick?: (event: any) => void,
   id?: string,
@@ -145,20 +156,20 @@ const CommentFrame = ({
   className?: string,
 }) => {
   const classes = useStyles(styles);
-  const { condensed, postPage, switchAlternatingHighlights } = treeOptions;
-  const effectiveNestingLevel = nestingLevel + (switchAlternatingHighlights ? 1 : 0);
-  
+  const { condensed, postPage } = treeOptions;
+  const effectiveNestingLevel = getEffectiveNestingLevel(nestingLevel, treeOptions);
+
   const nodeClass = classNames(
     "comments-node",
     nestingLevelToClass(effectiveNestingLevel, classes),
     classes.node,
     className,
-    comment.af && "af",
+    comment?.af && "af",
     highlighted && classes.highlightAnimation,
     isChild && classes.child,
     isNewComment && classes.new,
-    comment.deleted && classes.deleted,
-    comment.answer && classes.isAnswer,
+    comment?.deleted && classes.deleted,
+    comment?.answer && classes.isAnswer,
     isReplyToAnswer && classes.answerChildComment,
     isChild && isReplyToAnswer && classes.childAnswerComment,
     (effectiveNestingLevel % 2 !== 0) && isReplyToAnswer && classes.oddAnswerComment,
@@ -167,8 +178,8 @@ const CommentFrame = ({
     condensed && classes.condensed,
     postPage && shortform && (effectiveNestingLevel===1) && classes.shortformTop,
     hoverPreview && classes.hoverPreview,
-    comment.hideModeratorHat ? false : comment.moderatorHat && classes.moderatorHat,
-    comment.promoted && classes.promoted,
+    comment?.hideModeratorHat ? false : comment?.moderatorHat && classes.moderatorHat,
+    comment?.promoted && classes.promoted,
   )
   
   return <div className={nodeClass} onClick={onClick} id={id}>

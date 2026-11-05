@@ -13,7 +13,7 @@ type ClientIdsViewName = "getClientId";
 type CollectionsViewName = never
 type CommentEmbeddingsViewName = never
 type CommentModeratorActionsViewName = "activeCommentModeratorActions";
-type CommentsViewName = "afPostCommentsTop"|"afRecentDiscussionThread"|"afSubmissions"|"alignmentSuggestedComments"|"allCommentsDeleted"|"allRecentComments"|"answersAndReplies"|"commentReplies"|"debateResponses"|"defaultModeratorResponses"|"draftComments"|"legacyIdComment"|"llmReplies"|"moderatorComments"|"nominations2018"|"nominations2019"|"postCommentsBest"|"postCommentsDeleted"|"postCommentsMagic"|"postCommentsNew"|"postCommentsOld"|"postCommentsRecentReplies"|"postCommentsTop"|"postLWComments"|"postsItemComments"|"profileComments"|"profileRecentComments"|"questionAnswers"|"recentComments"|"recentDebateResponses"|"recentDiscussionThread"|"rejected"|"repliesToAnswer"|"repliesToCommentThread"|"repliesToCommentThreadIncludingRoot"|"reviews"|"reviews2018"|"reviews2019"|"rss"|"shortform"|"shortformFrontpage"|"shortformLatestChildren"|"sunshineNewCommentsList"|"sunshineNewUsersComments"|"tagDiscussionComments"|"topShortform";
+type CommentsViewName = "afPostCommentsTop"|"afRecentDiscussionThread"|"afSubmissions"|"alignmentSuggestedComments"|"allCommentsDeleted"|"allRecentComments"|"answersAndReplies"|"commentReplies"|"debateResponses"|"defaultModeratorResponses"|"draftComments"|"legacyIdComment"|"llmReplies"|"moderatorComments"|"nominations2018"|"nominations2019"|"pingbackReplies"|"postCommentsBest"|"postCommentsDeleted"|"postCommentsMagic"|"postCommentsNew"|"postCommentsOld"|"postCommentsRecentReplies"|"postCommentsTop"|"postLWComments"|"postsItemComments"|"profileComments"|"profileRecentComments"|"questionAnswers"|"recentComments"|"recentDebateResponses"|"recentDiscussionThread"|"rejected"|"repliesToAnswer"|"repliesToCommentThread"|"repliesToCommentThreadIncludingRoot"|"reviews"|"reviews2018"|"reviews2019"|"rss"|"shortform"|"shortformFrontpage"|"shortformLatestChildren"|"sunshineNewCommentsList"|"sunshineNewUsersComments"|"tagDiscussionComments"|"topShortform";
 type ConversationsViewName = "moderatorConversations"|"teamInboxAwaitingReply"|"teamInboxDone"|"userConversations"|"userConversationsAll"|"userGroupUntitledConversations";
 type CronHistoriesViewName = never
 type CurationEmailsViewName = never
@@ -53,6 +53,7 @@ type OAuthAuthorizationCodesViewName = never
 type OAuthClientsViewName = never
 type PetrovDayActionsViewName = "adminConsole"|"getAction"|"launchDashboard"|"warningConsole";
 type PetrovDayLaunchsViewName = never
+type PingbacksViewName = "pingbacksToPost";
 type PodcastEpisodesViewName = "episodeByExternalId";
 type PodcastsViewName = never
 type PostEmbeddingsViewName = never
@@ -156,6 +157,7 @@ interface ViewTermsByCollectionName {
   OAuthClients: ViewTermsBase
   PetrovDayActions: PetrovDayActionsViewTerms
   PetrovDayLaunchs: ViewTermsBase
+  Pingbacks: PingbacksViewTerms
   PodcastEpisodes: PodcastEpisodesViewTerms
   Podcasts: ViewTermsBase
   PostEmbeddings: ViewTermsBase
@@ -205,4 +207,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AiDigestIssues"|"Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"RejectionAppeals"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AiDigestIssues"|"Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"Pingbacks"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"RejectionAppeals"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

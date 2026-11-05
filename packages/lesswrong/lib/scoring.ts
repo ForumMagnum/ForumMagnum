@@ -13,11 +13,6 @@ export const SCORE_BIAS = 2;
 export const recalculateScore = (item: VoteableType) => {
   // Age Check
   if ((item as any).postedAt) {
-    const postedAt = (item as any).postedAt.valueOf();
-    const now = new Date().getTime();
-    const age = now - postedAt;
-    const ageInHours = age / (60 * 60 * 1000);
-
     // use baseScore if defined, if not just use 0
     let baseScore = item.baseScore || 0;
 
@@ -25,13 +20,16 @@ export const recalculateScore = (item: VoteableType) => {
     const curatedBonus = (item as any).curatedDate ? CURATED_BONUS : 0;
     baseScore = baseScore + frontpageBonus + curatedBonus;
 
-    // HN algorithm
-    const newScore = Math.round((baseScore / Math.pow(ageInHours + SCORE_BIAS, TIME_DECAY_FACTOR))*1000000)/1000000;
-
-    return newScore;
+    return timeDecayedScore(baseScore, (item as any).postedAt, new Date());
   } else {
     return item.baseScore ?? 0;
   }
+};
+
+// HN algorithm
+export const timeDecayedScore = (baseScore: number, postedAt: Date, now: Date): number => {
+  const ageInHours = (now.getTime() - postedAt.valueOf()) / (60 * 60 * 1000);
+  return Math.round((baseScore / Math.pow(ageInHours + SCORE_BIAS, TIME_DECAY_FACTOR))*1000000)/1000000;
 };
 
 type TimeDecayExprProps = {

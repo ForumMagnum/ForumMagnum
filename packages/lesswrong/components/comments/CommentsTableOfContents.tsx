@@ -12,6 +12,8 @@ import TableOfContentsDivider from "../posts/TableOfContents/TableOfContentsDivi
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { getPingbackElementId } from '@/lib/pingback';
+import { isPingbackListEntry, type CommentsListEntry, type PingbackListEntry } from './interleavePingbacks';
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
 const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
@@ -24,6 +26,16 @@ const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
   },
   comment: {
     display: "inline-flex",
+  },
+  pingback: {
+    display: "flex",
+    minWidth: 0,
+  },
+  pingbackTitle: {
+    fontStyle: "italic",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
   commentKarma: {
     width: 20,
@@ -56,21 +68,21 @@ const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
 }));
 
 const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate}: {
-  commentTree?: CommentTreeNode<CommentsList>[],
+  commentTree?: CommentsListEntry[],
   answersTree?: CommentTreeNode<CommentsList>[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   highlightDate: Date|undefined,
 }) => {
   const classes = useStyles(styles);
-  const flattenedComments = flattenCommentTree([
-    ...(answersTree ?? []),
-    ...(commentTree ?? [])
-  ]);
+  const elementIds = [
+    ...getCommentTreeIds(answersTree ?? []),
+    ...getEntryElementIds(commentTree ?? []),
+  ];
   const { landmarkName: highlightedLandmarkName } = useScrollHighlight(
-    flattenedComments.map(comment => commentIdToLandmark(comment._id))
+    elementIds.map(elementId => commentIdToLandmark(elementId))
   );
 
-  if (flattenedComments.length === 0) {
+  if (elementIds.length === 0) {
     return null;
   }
   
@@ -86,13 +98,22 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate}
       />
       <TableOfContentsDivider/>
     </>)}
-    {commentTree && commentTree.map(comment => <ToCCommentBlock
-      key={comment.item._id}
-      commentTree={comment}
-      indentLevel={1}
-      highlightDate={highlightDate}
-      highlightedCommentId={highlightedLandmarkName}
-    />)}
+    {commentTree && commentTree.map(entry => isPingbackListEntry(entry)
+      ? <ToCPingbackBlock
+        key={entry.pingback._id}
+        entry={entry}
+        indentLevel={1}
+        highlightDate={highlightDate}
+        highlightedCommentId={highlightedLandmarkName}
+      />
+      : <ToCCommentBlock
+        key={entry.item._id}
+        commentTree={entry}
+        indentLevel={1}
+        highlightDate={highlightDate}
+        highlightedCommentId={highlightedLandmarkName}
+      />
+    )}
   </div>
 }
 
@@ -140,9 +161,8 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
 }) => {
   const { isAF } = useForumType();
   const classes = useStyles(styles);
-  const navigate = useNavigate();
-  const { query, location } = useLocation();
   const comment = commentTree.item;
+  const onClick = useScrollToElementOnClick(comment._id);
   
   const score = isAF
     ? comment.afBaseScore
@@ -154,26 +174,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
       highlighted={highlightedCommentId===comment._id}
       dense
       href={"#"+comment._id}
-      onClick={ev => {
-        const commentTop = getLandmarkY(commentIdToLandmark(comment._id));
-        if (commentTop) {
-          // Add window.scrollY because window.scrollTo takes a relative scroll distance
-          // rather than an absolute scroll position, and a +1 because of rounding issues
-          // that otherwise cause us to wind up just above the comment such that the ToC
-          // highlights the wrong one.
-          const y = commentTop + window.scrollY - getCurrentSectionMark() + 1;
-          window.scrollTo({ top: y, behavior: "smooth" });
-        }
-
-        delete query.commentId;
-        navigate({
-          ...location,
-          search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
-          hash: `#${comment._id}`,
-        }, { skipRouter: true });
-        ev.stopPropagation();
-        ev.preventDefault();
-      }}
+      onClick={onClick}
     >
       <span className={classNames(classes.comment, {
         [classes.highlightUnread]: highlightDate && new Date(comment.postedAt) > new Date(highlightDate),
@@ -195,6 +196,74 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   </>
 }
 
+const ToCPingbackBlock = ({entry, indentLevel, highlightedCommentId, highlightDate}: {
+  entry: PingbackListEntry,
+  indentLevel: number,
+  highlightedCommentId: string|null,
+  highlightDate: Date|undefined,
+}) => {
+  const { isAF } = useForumType();
+  const classes = useStyles(styles);
+  const { pingback, children } = entry;
+  const elementId = getPingbackElementId(pingback._id);
+  const onClick = useScrollToElementOnClick(elementId);
+
+  return <>
+    <TableOfContentsRow
+      indentLevel={indentLevel}
+      highlighted={highlightedCommentId===elementId}
+      dense
+      href={"#"+elementId}
+      onClick={onClick}
+    >
+      <span className={classes.pingback}>
+        <span className={classes.commentKarma}>{isAF ? pingback.afBaseScore : pingback.baseScore}</span>
+        <span className={classes.pingbackTitle}>{pingback.sourcePost.title}</span>
+      </span>
+    </TableOfContentsRow>
+
+    {children.map(child =>
+      <ToCCommentBlock
+        key={child.item._id}
+        highlightedCommentId={highlightedCommentId}
+        highlightDate={highlightDate}
+        commentTree={child}
+        indentLevel={indentLevel+1}
+      />
+    )}
+  </>
+}
+
+/**
+ * Click handler for a ToC row which scrolls to the element with the given ID
+ * and puts that ID in the URL hash.
+ */
+function useScrollToElementOnClick(elementId: string) {
+  const navigate = useNavigate();
+  const { query, location } = useLocation();
+
+  return (ev: React.MouseEvent) => {
+    const elementTop = getLandmarkY(commentIdToLandmark(elementId));
+    if (elementTop) {
+      // Add window.scrollY because window.scrollTo takes a relative scroll distance
+      // rather than an absolute scroll position, and a +1 because of rounding issues
+      // that otherwise cause us to wind up just above the comment such that the ToC
+      // highlights the wrong one.
+      const y = elementTop + window.scrollY - getCurrentSectionMark() + 1;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+
+    delete query.commentId;
+    navigate({
+      ...location,
+      search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
+      hash: `#${elementId}`,
+    }, { skipRouter: true });
+    ev.stopPropagation();
+    ev.preventDefault();
+  };
+}
+
 /**
  * Username for a comment, shown in the comments table of contents. For hidden/
  * deleted users, this reproduces the logic in CommentUserName (this isn't a
@@ -213,22 +282,15 @@ function CommentToCUsername({comment}: {
   }
 }
 
-function flattenCommentTree(commentTree: CommentTreeNode<CommentsList>[]): CommentsList[] {
-  let result: CommentsList[] = [];
-  
-  function visitComment(c: CommentTreeNode<CommentsList>) {
-    if (c.item) {
-      result.push(c.item);
-    }
-    for (const child of c.children) {
-      visitComment(child);
-    }
-  }
-  
-  for (let comment of commentTree)
-    visitComment(comment);
-  
-  return result;
+function getCommentTreeIds(commentTrees: CommentTreeNode<CommentsList>[]): string[] {
+  return commentTrees.flatMap(tree => [tree.item._id, ...getCommentTreeIds(tree.children)]);
+}
+
+function getEntryElementIds(entries: CommentsListEntry[]): string[] {
+  return entries.flatMap(entry => isPingbackListEntry(entry)
+    ? [getPingbackElementId(entry.pingback._id), ...getCommentTreeIds(entry.children)]
+    : getCommentTreeIds([entry])
+  );
 }
 
 export default registerComponent('CommentsTableOfContents', CommentsTableOfContents, {

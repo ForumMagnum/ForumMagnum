@@ -49,11 +49,12 @@ const getExistingVote = async ({ document, user }: {
 // Add a vote of a specific type on the server
 async function invalidatePostPageCacheForVoteable(
   collectionName: CollectionNameString,
-  document: { _id: string, postId?: string | null, pingbacks?: DbPost['pingbacks'] },
+  document: { _id: string, postId?: string | null },
+  context: ResolverContext,
 ): Promise<void> {
   if (collectionName === 'Posts') {
     // Pages that list the post as a pingback show its score.
-    await invalidatePostPageCache([document._id, ...getPingbackTargetPostIds(document.pingbacks)]);
+    await invalidatePostPageCache([document._id, ...await getPingbackTargetPostIds(document._id, context)]);
   } else if (collectionName === 'Comments' && document.postId) {
     await invalidatePostPageCache(document.postId);
   }
@@ -111,7 +112,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  await invalidatePostPageCacheForVoteable(collection.collectionName, newDocument);
+  await invalidatePostPageCacheForVoteable(collection.collectionName, newDocument, context);
   if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
     backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
   }
@@ -232,7 +233,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
-  await invalidatePostPageCacheForVoteable(collection.collectionName, newDocument);
+  await invalidatePostPageCacheForVoteable(collection.collectionName, newDocument, context);
   if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
     backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
   }

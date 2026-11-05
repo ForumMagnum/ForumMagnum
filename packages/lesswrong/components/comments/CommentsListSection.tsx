@@ -31,6 +31,7 @@ import { NEW_COMMENT_MARGIN_BOTTOM } from './constants';
 import CommentsDraftList from './CommentsDraftList';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { CommentTreeOptions } from './commentTree';
+import type { CommentsListEntry } from './interleavePingbacks';
 
 const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
   root: {
@@ -106,6 +107,7 @@ const CommentsListSection = ({
   hideDateHighlighting,
   setHighlightDate,
   treeOptions: treeOptionsOverride,
+  commentsListEntries,
 }: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
@@ -123,6 +125,11 @@ const CommentsListSection = ({
   hideDateHighlighting?: boolean,
   setHighlightDate: (newValue: Date|undefined) => void,
   treeOptions?: Partial<CommentTreeOptions>,
+  /**
+   * The top-level entries to show, built from `comments` plus other items
+   * such as pingbacks. Defaults to the comment tree of `comments`.
+   */
+  commentsListEntries?: CommentsListEntry[],
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -204,7 +211,7 @@ const CommentsListSection = ({
       <CommentsList
         treeOptions={treeOptions}
         totalComments={totalComments}
-        comments={commentTree}
+        comments={commentsListEntries ?? commentTree}
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
         loading={loading}

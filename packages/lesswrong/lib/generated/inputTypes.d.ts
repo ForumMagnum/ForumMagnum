@@ -135,6 +135,8 @@ interface Query {
   myHomePageDesignSummaries: Array<HomePageDesignSummary>;
   marketplaceHomePageDesigns: Array<MarketplaceHomePageDesign>;
   adminHomePageDesigns: Array<AdminHomePageDesign>;
+  pingback: SinglePingbackOutput | null;
+  pingbacks: MultiPingbackOutput | null;
   rejectionAppeal: SingleRejectionAppealOutput | null;
   rejectionAppeals: MultiRejectionAppealOutput | null;
   typoSuggestion: SingleTypoSuggestionOutput | null;
@@ -245,6 +247,8 @@ interface Mutation {
   performVoteTag: VoteResultTag | null;
   setVoteMultiDocument: MultiDocument | null;
   performVoteMultiDocument: VoteResultMultiDocument | null;
+  setVotePingback: Pingback | null;
+  performVotePingback: VoteResultPingback | null;
   moderateComment: Comment | null;
   MakeElicitPrediction: ElicitBlockData | null;
   MarkAllNotificationsAsRead: boolean | null;
@@ -693,6 +697,11 @@ interface VoteResultTag {
 
 interface VoteResultMultiDocument {
   document: MultiDocument;
+  showVotingPatternWarning: boolean;
+}
+
+interface VoteResultPingback {
+  document: Pingback;
   showVotingPatternWarning: boolean;
 }
 
@@ -1987,6 +1996,7 @@ interface Comment {
   tagCommentType: TagCommentType;
   userId: string;
   user: User | null;
+  pingbackId: string | null;
   llmRunId: string | null;
   llmReplyPublishedAt: Date | null;
   userIP: string | null;
@@ -2090,6 +2100,14 @@ interface CommentsCommentRepliesInput {
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
   parentCommentId?: string | null;
+}
+
+interface CommentsPingbackRepliesInput {
+  userId?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
 }
 
 interface CommentsPostCommentsDeletedInput {
@@ -2497,6 +2515,7 @@ interface CommentsDraftCommentsInput {
 interface CommentSelector {
   default: CommentDefaultViewInput | null;
   commentReplies: CommentsCommentRepliesInput | null;
+  pingbackReplies: CommentsPingbackRepliesInput | null;
   postCommentsDeleted: CommentsPostCommentsDeletedInput | null;
   allCommentsDeleted: CommentsAllCommentsDeletedInput | null;
   postCommentsTop: CommentsPostCommentsTopInput | null;
@@ -3029,6 +3048,56 @@ interface LlmRunTranscriptEntry {
   url: string | null;
   title: string | null;
   extra: any;
+}
+
+interface Pingback {
+  _id: string;
+  createdAt: Date;
+  sourcePostId: string;
+  sourcePost: Post | null;
+  targetPostId: string;
+  targetPost: Post | null;
+  userId: string;
+  excerpt: string;
+  currentUserVote: string | null;
+  currentUserExtendedVote: any;
+  voteCount: number;
+  baseScore: number;
+  extendedScore: any;
+  score: number;
+  afBaseScore: number | null;
+  afExtendedScore: any;
+  afVoteCount: number | null;
+}
+
+interface SinglePingbackInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SinglePingbackOutput {
+  result: Pingback | null;
+}
+
+interface PingbacksPingbacksToPostInput {
+  postId?: string | null;
+}
+
+interface PingbackSelector {
+  default: EmptyViewInput | null;
+  pingbacksToPost: PingbacksPingbacksToPostInput | null;
+}
+
+interface MultiPingbackInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiPingbackOutput {
+  results: Array<Pingback>;
+  totalCount: number | null;
 }
 
 interface RejectionAppeal {
@@ -7800,6 +7869,7 @@ interface CreateCommentDataInput {
   tagId?: string | null;
   tagCommentType?: TagCommentType | null;
   userId?: string | null;
+  pingbackId?: string | null;
   llmRunId?: string | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
@@ -9551,6 +9621,7 @@ interface GraphQLTypeMap {
   VoteResultRevision: VoteResultRevision;
   VoteResultTag: VoteResultTag;
   VoteResultMultiDocument: VoteResultMultiDocument;
+  VoteResultPingback: VoteResultPingback;
   CommentsWithReactsResult: CommentsWithReactsResult;
   PopularCommentsResult: PopularCommentsResult;
   PostKarmaChange: PostKarmaChange;
@@ -9746,6 +9817,7 @@ interface GraphQLTypeMap {
   SingleCommentOutput: SingleCommentOutput;
   CommentDefaultViewInput: CommentDefaultViewInput;
   CommentsCommentRepliesInput: CommentsCommentRepliesInput;
+  CommentsPingbackRepliesInput: CommentsPingbackRepliesInput;
   CommentsPostCommentsDeletedInput: CommentsPostCommentsDeletedInput;
   CommentsAllCommentsDeletedInput: CommentsAllCommentsDeletedInput;
   CommentsPostCommentsTopInput: CommentsPostCommentsTopInput;
@@ -9862,6 +9934,13 @@ interface GraphQLTypeMap {
   MarketplaceHomePageDesign: MarketplaceHomePageDesign;
   AdminHomePageDesign: AdminHomePageDesign;
   LlmRunTranscriptEntry: LlmRunTranscriptEntry;
+  Pingback: Pingback;
+  SinglePingbackInput: SinglePingbackInput;
+  SinglePingbackOutput: SinglePingbackOutput;
+  PingbacksPingbacksToPostInput: PingbacksPingbacksToPostInput;
+  PingbackSelector: PingbackSelector;
+  MultiPingbackInput: MultiPingbackInput;
+  MultiPingbackOutput: MultiPingbackOutput;
   RejectionAppeal: RejectionAppeal;
   SingleRejectionAppealOutput: SingleRejectionAppealOutput;
   RejectionAppealSelector: RejectionAppealSelector;
@@ -10542,6 +10621,7 @@ interface CreateInputsByCollectionName {
   OAuthAuthorizationCodes: never;
   OAuthClients: never;
   PetrovDayLaunchs: never;
+  Pingbacks: never;
   Podcasts: never;
   PostEmbeddings: never;
   PostPreviews: never;
@@ -10645,6 +10725,7 @@ interface UpdateInputsByCollectionName {
   OAuthClients: never;
   PetrovDayActions: never;
   PetrovDayLaunchs: never;
+  Pingbacks: never;
   PodcastEpisodes: never;
   Podcasts: never;
   PostEmbeddings: never;

@@ -56,10 +56,30 @@ async function applyParentCommentContext(
   data.tagId = parentComment.tagId ?? null;
 }
 
+/**
+ * A reply to a pingback is a top-level comment on the post containing the
+ * link. Fill in that post if missing, and reject replies that contradict it.
+ */
+async function applyPingbackContext(data: CreateCommentDataInput, context: ResolverContext) {
+  if (!data.pingbackId) return;
+  if (data.parentCommentId) {
+    throw new Error("A reply to a pingback can't also be a reply to a comment");
+  }
+  const pingback = await context.loaders.Pingbacks.load(data.pingbackId);
+  if (!pingback || !await accessFilterSingle(context.currentUser, "Pingbacks", pingback, context)) {
+    throw new Error("No such pingback");
+  }
+  if (data.postId && data.postId !== pingback.sourcePostId) {
+    throw new Error("A reply to a pingback must be on the post containing the link");
+  }
+  data.postId = pingback.sourcePostId;
+}
+
 async function newCheck(user: DbUser | null, document: CreateCommentDataInput | null, context: ResolverContext) {
   if (!user || !document) return false;
 
   await applyParentCommentContext(document, context, user);
+  await applyPingbackContext(document, context);
   
   newCommentsEmptyCheck(document);
   if (!document.draft) {
@@ -104,6 +124,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   const { currentUser } = context;
 
   await applyParentCommentContext(data, context, currentUser);
+  await applyPingbackContext(data, context);
 
   // rejectedReason is rendered raw on the public /moderation page; sanitize on
   // every write so a compromised mod account can't produce stored XSS.
