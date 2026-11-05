@@ -147,7 +147,7 @@
     "@types/warning": "^3.0.3",
     "@typescript/native-preview": "^7.0.0-dev.20260527.2",
     "@vercel/functions": "^3.1.0",
-    "@vercel/sandbox": "2.0.0-beta.21",
+    "@vercel/sandbox": "2.9.2",
     "ai": "^6.0.312",
     "algoliasearch": "^3.29.0",
     "apollo-errors": "^1.9.0",
@@ -278,7 +278,7 @@
     "warning": "^4.0.3",
     "y-indexeddb": "^9.0.12",
     "yjs": "^13.6.30",
-    "zod": "^4.3.6"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@babel/core": "7.12.3",
