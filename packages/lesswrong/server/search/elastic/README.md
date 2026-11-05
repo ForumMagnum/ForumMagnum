@@ -156,10 +156,10 @@ verdict is "Regression" if fewer expectations pass, and "Better" or "Worse" only
 if the interval excludes zero.
 
 ```sh
-yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'freezeSearchCorpus()'   # once per corpus
-yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'runGoldenSet("baseline")'
+npm run repl -- dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'freezeSearchCorpus()'   # once per corpus
+npm run repl -- dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'runGoldenSet("baseline")'
 # change ranking code, then:
-yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'runGoldenSet("my-change")'
+npm run repl -- dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'runGoldenSet("my-change")'
 packages/lesswrong/server/scripts/serveSearchBaseline.sh   # http://localhost:4111, restarts on ranking-code changes
 ```
 
@@ -207,8 +207,8 @@ The import reads the production analytics database, so run it yourself and
 look at the dry run before writing:
 
 ```sh
-yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'importClickedSearches()'                  # dry run
-yarn repl dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'importClickedSearches({dryRun: false})'
+npm run repl -- dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'importClickedSearches()'                  # dry run
+npm run repl -- dev lw packages/lesswrong/server/scripts/searchBaseline.ts 'importClickedSearches({dryRun: false})'
 ```
 
 After importing, record new runs, since earlier runs do not contain the new queries.
@@ -218,13 +218,13 @@ After importing, record new runs, since earlier runs do not contain the new quer
 Run these development-only helpers through the REPL:
 
 ```sh
-yarn repl dev lw packages/lesswrong/server/scripts/searchRankingFixtures.ts 'runControlledFixtures()'
-yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'calibrateMatchPivots("evidence.csv", "intent-inventory.json", 150)'
-yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'inspectAliasCoverage()'
-yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'evaluateSearchRanking({csvPath: "evidence.csv", inventoryPath: "intent-inventory.json"})'
-yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'evaluateJudgedSearches()'
-yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'benchmarkSearchLatency({csvPath: "evidence.csv", inventoryPath: "intent-inventory.json"})'
-yarn repl dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'showQuery("lab automation")'
+npm run repl -- dev lw packages/lesswrong/server/scripts/searchRankingFixtures.ts 'runControlledFixtures()'
+npm run repl -- dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'calibrateMatchPivots("evidence.csv", "intent-inventory.json", 150)'
+npm run repl -- dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'inspectAliasCoverage()'
+npm run repl -- dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'evaluateSearchRanking({csvPath: "evidence.csv", inventoryPath: "intent-inventory.json"})'
+npm run repl -- dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'evaluateJudgedSearches()'
+npm run repl -- dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'benchmarkSearchLatency({csvPath: "evidence.csv", inventoryPath: "intent-inventory.json"})'
+npm run repl -- dev lw packages/lesswrong/server/scripts/searchRankingEval.ts 'showQuery("lab automation")'
 ```
 
 Calibration, quality evaluation, and latency benchmarking require an explicit inventory
@@ -303,7 +303,7 @@ The rebuild helper was run against the development environment on 2026-09-10
 development environment:
 
 ```sh
-yarn repl dev lw packages/lesswrong/server/scripts/elastic.ts
+npm run repl -- dev lw packages/lesswrong/server/scripts/elastic.ts
 ```
 
 Then invoke `await rebuildRelationshipSearchIndexes()` in the REPL. Confirm the
