@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useId, useRef } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import ChevronDoubleRightIcon from '@heroicons/react/20/solid/ChevronDoubleRightIcon';
@@ -16,6 +16,7 @@ import { useSearchPageState } from './useSearchPageState';
 import { searchPageStyles } from './searchPageStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
+import { useDebouncedCallback } from '@/components/hooks/useDebouncedCallback';
 import SearchPageResults from './SearchPageResults';
 import SearchQueryInput from './SearchQueryInput';
 import ForumIcon from '../common/ForumIcon';
@@ -56,17 +57,28 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
   const resultsRef = useRef<HTMLDivElement>(null);
   const {state, setState} = useSearchPageState(presentation);
   const filtersOpen = state.mobileFiltersOpen;
+  const [debouncedQuery, setDebouncedQuery] = useState(state.query);
+  const updateDebouncedQuery = useDebouncedCallback(setDebouncedQuery, {
+    rateLimitMs: 100,
+    callOnLeadingEdge: false,
+    onUnmount: "cancelPending",
+    allowExplicitCallAfterUnmount: false,
+  });
+
+  useEffect(() => {
+    updateDebouncedQuery(state.query);
+  }, [state.query, updateDebouncedQuery]);
 
   const request = {
     indexName: indexNameForKinds(state.kinds),
-    query: state.query,
+    query: debouncedQuery,
     filters: searchFiltersToParams(state.filters),
   };
   const {hits, loading, error, hasMore, total, loadMore} = useSearchResults(request, true);
   const searchKey = JSON.stringify(request);
   const analyticsContext = presentation === 'modal' ? "searchBar" : "searchPage";
   const handleResultKeyDown = useSearchPageNavigation({
-    inputRef, resultsRef, searchKey, loadMore, query: state.query, enterOpensResult: presentation === 'modal',
+    inputRef, resultsRef, searchKey, loadMore, query: debouncedQuery, enterOpensResult: presentation === 'modal',
   });
 
   useEffect(() => {
