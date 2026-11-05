@@ -169,10 +169,10 @@ describe("ElasticQuery search filters", () => {
     const posts = filterClauses("posts", types);
     expect(posts).toContain('{"term":{"question":true}}');
     expect(posts).toContain('{"term":{"isEvent":true}}');
-    expect(posts).toContain('{"exists":{"field":"url"}}');
+    expect(posts).toContain('{"bool":{"should":[],"filter":[{"exists":{"field":"url"}}],"must_not":[{"term":{"url":""}}]}}');
     expect(posts).toContain('"minimum_should_match":1');
     const articles = filterClauses("posts", [{type: "postType", field: "postType", value: ["article"]}]);
-    expect(articles).toContain('"must_not":[{"term":{"question":true}},{"term":{"isEvent":true}},{"exists":{"field":"url"}}]');
+    expect(articles).toContain('"must_not":[{"term":{"question":true}},{"term":{"isEvent":true}},{"bool":{"should":[],"filter":[{"exists":{"field":"url"}}],"must_not":[{"term":{"url":""}}]}}]');
     for (const index of ["comments", "users", "tags", "sequences"]) {
       expect(filterClauses(index, types)).toContain('{"match_all":{}}');
     }

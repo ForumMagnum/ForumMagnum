@@ -232,7 +232,7 @@ class ElasticQuery {
     const typed: Record<Exclude<SearchPostType, "article">, QueryDslQueryContainer> = {
       question: {term: {question: true}},
       event: {term: {isEvent: true}},
-      linkpost: {exists: {field: "url"}},
+      linkpost: {bool: {should: [], filter: [{exists: {field: "url"}}], must_not: [{term: {url: ""}}]}},
     };
     const should = types.map((type) => type === "article"
       ? {bool: {should: [], must_not: Object.values(typed)}}
