@@ -24,10 +24,8 @@ it("paginates one globally ranked request with default and caller filters", () =
   expect(encoded).toContain('"draft":false');
   expect(encoded).toContain('"deleteContent":false');
   expect(encoded).toContain('"adminOnly":false');
-  for (const indexQuery of request.query?.dis_max?.queries ?? []) {
-    const rankQueries = indexQuery.bool?.must;
-    expect(JSON.stringify(rankQueries)).toContain('"af":true');
-  }
+  const hasAfFilter = (request.query?.dis_max?.queries ?? []).map(indexQuery => JSON.stringify(indexQuery.bool?.must).includes('"af":true'));
+  expect(hasAfFilter).toEqual([true, true, false]);
   expect(request._source).toMatchObject({excludes: expect.arrayContaining(["deleteContent", "unlisted", "exportedAt"])});
 });
 

@@ -191,6 +191,14 @@ describe("ElasticQuery search filters", () => {
     expect(JSON.stringify(body.query.script_score.query.bool.filter)).toContain('"exists":{"field":"url"}');
   });
 
+  it("applies the Alignment Forum facet only to indexes that have the field", () => {
+    const af: QueryData["filters"] = [{type: "facet", field: "af", value: true, negated: false}];
+    expect(filterClauses("tags", af)).not.toContain('"af"');
+    for (const index of ["posts", "comments", "users", "sequences"]) {
+      expect(filterClauses(index, af)).toContain('{"term":{"af":true}}');
+    }
+  });
+
   it("maps karma range filters to the karma field of each index", () => {
     const karma = [{type: "numeric" as const, field: "karma", value: 10, op: "gte" as const}];
     expect(filterClauses("users", karma)).toContain('{"range":{"karma":{"gte":10}}}');
