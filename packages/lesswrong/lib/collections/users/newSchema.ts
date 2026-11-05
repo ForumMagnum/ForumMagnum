@@ -1805,6 +1805,20 @@ const schema = {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
     },
   },
+  commentNotificationFilter: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   notificationRepliesToSubscribedComments: {
     database: {
       type: "JSONB",

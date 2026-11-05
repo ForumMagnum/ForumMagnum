@@ -530,6 +530,7 @@ export const UsersEdit = gql(`
     notificationShortformContent
     notificationCommentsOnSubscribedPost
     notificationRepliesToMyComments
+    commentNotificationFilter
     notificationRepliesToSubscribedComments
     notificationSubscribedUserPost
     notificationSubscribedUserComment

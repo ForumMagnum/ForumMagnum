@@ -1813,6 +1813,7 @@ interface DbUser extends DbObject {
   coauthoredPostCount: number
   collapseModerationGuidelines: boolean | null
   commentCount: number
+  commentNotificationFilter: string | null
   commentSorting: string | null
   commentingOnOtherUsersDisabled: boolean | null
   conversationsDisabled: boolean | null

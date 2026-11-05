@@ -649,6 +649,14 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, { userId, limit });
     return rows.map((row) => row.displayName);
   }
+
+  async getFollowedAuthorIds(userId: string): Promise<string[]> {
+    const rows = await this.getRawDb().manyOrNone<{ documentId: string }>(`
+      -- UsersRepo.getFollowedAuthorIds
+      ${readerFollowedAuthorIds}
+    `, { userId });
+    return rows.map((row) => row.documentId);
+  }
 }
 
 recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });
