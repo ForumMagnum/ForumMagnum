@@ -20,8 +20,9 @@ mappings accordingly and reindex the existing data.
 When a new instance is created it will have an empty list of synonyms. These
 can be edited at the `/admin/synonyms` page. Note that synonyms are not
 duplicated anywhere else, so deleting indexes before rebuilding loses the synonym
-list. Both `configureIndexes` and `recreateIndex` preserve synonyms while replacing
-an existing index.
+list. Both `configureIndexes` and `recreateIndex` copy the current synonym list onto
+the replacement index when they create it. Synonym edits made while a `recreateIndex`
+export is running only reach the old index, so avoid editing synonyms during a rebuild.
 
 ## Search ranking
 
@@ -299,7 +300,9 @@ indexes with no `fullName` values need the same backfill; mapping changes alone
 do not populate aliases.
 
 The rebuild helper was run against the development environment on 2026-09-10
-(Posts and Sequences). It has not been run in production. Start with the
+(Posts and Sequences). It has not been run in production. Run the rebuilds after
+this code is deployed: they copy documents written during the export from the old
+index, and a document written by earlier code lacks the new fields. Start with the
 development environment:
 
 ```sh
@@ -309,7 +312,10 @@ npm run repl -- dev lw packages/lesswrong/server/scripts/elastic.ts
 Then invoke `await rebuildRelationshipSearchIndexes()` in the REPL. Confirm the
 selected database and Elasticsearch environment before doing a production rebuild.
 The helper rebuilds Posts and Sequences from the selected database and switches
-each index alias once its export is complete.
+each index alias once its export is complete. Live writes keep going to the old
+index during an export; `recreateIndex` copies documents written since the export
+started (by their `exportedAt`) into the new index right after the switch. The old
+index is not deleted; run `deleteOrphanedIndexes()` once the new one looks right.
 `configureIndexes()` alone copies existing Elasticsearch documents and does not
 backfill the new relationship fields.
 
