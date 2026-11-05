@@ -2,8 +2,6 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import PostViews from "../../server/collections/postViews/collection";
 import moment from "moment";
 import { getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
-import { randomId } from "../../lib/random";
-import chunk from "lodash/chunk";
 import IncrementalViewRepo, { IncrementalViewDataType } from "./IncrementalViewRepo";
 import { isE2E } from "../../lib/executionEnvironment";
 
@@ -106,49 +104,7 @@ class PostViewsRepo extends IncrementalViewRepo<"PostViews"> {
   }
 
   async upsertData({ data }: { data: IncrementalViewDataType<"PostViews">[] }) {
-    const dataWithIds = data.map((item) => ({
-      ...item,
-      _id: randomId(),
-    }));
-
-    // Avoid doing too many at once, expect about 5000 total per day
-    const chunks = chunk(dataWithIds, 1000);
-
-    for (const chunk of chunks) {
-      const values = chunk
-        .map(
-          (row) =>
-            `('${row._id}', '${row.postId}', '${row.windowStart}', '${row.windowEnd}', ${
-              row.viewCount
-            }, ${row.uniqueViewCount}, NOW(), NOW())`
-        )
-        .join(",");
-
-      const onConflictUpdate = `
-        "postId" = EXCLUDED."postId",
-        "windowStart" = EXCLUDED."windowStart",
-        "windowEnd" = EXCLUDED."windowEnd",
-        "viewCount" = EXCLUDED."viewCount",
-        "uniqueViewCount" = EXCLUDED."uniqueViewCount",
-        "updatedAt" = NOW()
-      `;
-
-      // If the row with this ("postId", "windowStart", "windowEnd") already exists, just update the numbers
-      await this.none(`
-        INSERT INTO "PostViews" (
-          "_id",
-          "postId",
-          "windowStart",
-          "windowEnd",
-          "viewCount",
-          "uniqueViewCount",
-          "createdAt",
-          "updatedAt"
-        ) VALUES ${values}
-        ON CONFLICT ("postId", "windowStart", "windowEnd")
-        DO UPDATE SET ${onConflictUpdate}
-      `);
-    }
+    await this.upsertRows(data, ["postId", "windowStart", "windowEnd"], ["viewCount", "uniqueViewCount"]);
   }
 
   async getDateBounds(): Promise<{ earliestWindowStart: Date | null; latestWindowEnd: Date | null }> {

@@ -9,8 +9,8 @@
  * before their idle timeout elapses.
  *
  * Run with:
- *   yarn research-sandbox-cleanup            # dry run — list only
- *   yarn research-sandbox-cleanup --all      # stop every running sandbox
+ *   npm run research-sandbox-cleanup            # dry run — list only
+ *   npm run research-sandbox-cleanup -- --all      # stop every running sandbox
  */
 import { Sandbox } from "@vercel/sandbox";
 

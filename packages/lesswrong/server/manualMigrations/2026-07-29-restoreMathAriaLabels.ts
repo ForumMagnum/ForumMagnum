@@ -38,8 +38,8 @@ import type { CheerioAPI, Element as CheerioElement } from 'cheerio';
 // unlabeled or missing equations are touched, so this is idempotent and safe
 // to re-run.
 //
-// Dry run: yarn repl dev lw "packages/lesswrong/server/manualMigrations/2026-07-29-restoreMathAriaLabels.ts" 'restoreMathAriaLabels({dryRun: true})'
-// Real run: yarn repl dev lw "packages/lesswrong/server/manualMigrations/2026-07-29-restoreMathAriaLabels.ts"
+// Dry run: npm run repl -- dev lw "packages/lesswrong/server/manualMigrations/2026-07-29-restoreMathAriaLabels.ts" 'restoreMathAriaLabels({dryRun: true})'
+// Real run: npm run repl -- dev lw "packages/lesswrong/server/manualMigrations/2026-07-29-restoreMathAriaLabels.ts"
 
 const AFFECTED_RANGE_START = new Date('2026-02-10');
 

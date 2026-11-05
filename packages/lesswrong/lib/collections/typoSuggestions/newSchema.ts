@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
+import { accessFilterSingle, generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { userCanAccessTypoSuggestion } from "./helpers";
 
 const schema = {
@@ -60,7 +60,8 @@ const schema = {
       resolver: async (suggestion, _args, context) => {
         const vote = await context.loaders.Votes.load(suggestion.voteId);
         if (!vote) return null;
-        return await context.loaders.Users.load(vote.userId);
+        const reactor = await context.loaders.Users.load(vote.userId);
+        return await accessFilterSingle(context.currentUser, "Users", reactor, context);
       },
     },
   },

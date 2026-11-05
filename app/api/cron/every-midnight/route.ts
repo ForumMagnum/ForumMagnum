@@ -1,5 +1,6 @@
 import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import type { NextRequest } from 'next/server';
+import { checkCronRequestAuthorization } from '@/server/utils/cronAuth';
 import { refreshKarmaInflation } from '@/server/karmaInflation/cron';
 import { pruneOldPerfMetrics } from '@/server/analytics/serverAnalyticsWriter';
 import PostRecommendationsRepo from '@/server/repos/PostRecommendationsRepo';
@@ -10,9 +11,9 @@ import { maybeCreateSeasonalOpenThread } from '@/server/posts/seasonalOpenThread
 
 export async function GET(request: NextRequest) {
   const forumType = getForumTypeForRequest(request);
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response('Unauthorized', { status: 401 });
+  const authError = checkCronRequestAuthorization(request);
+  if (authError) {
+    return authError;
   }
 
   await refreshKarmaInflation();

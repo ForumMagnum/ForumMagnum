@@ -6,13 +6,14 @@ import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { createTagRel } from '../collections/tagRels/mutations';
 import { performVoteServer } from '../voteServer';
 
-export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent = false, context, selfVote = false}: {
+export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent = false, context, selfVote = false, backfilled = false}: {
   tagId: string,
   postId: string,
   currentUser: DbUser,
   ignoreParent?: boolean,
   context: ResolverContext,
   selfVote?: boolean,
+  backfilled?: boolean,
 }): Promise<DbTagRel> => {
   // Validate that tagId and postId refer to valid non-deleted documents
   // and that this user can see both.
@@ -26,12 +27,12 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
   // Check whether this document already has this tag applied
   const existingTagRel = await TagRels.findOne({ tagId, postId, deleted: false });
   if (!existingTagRel) {
-    const tagRel = await createTagRel({ data: { tagId, postId, userId: currentUser._id } }, context);
+    const tagRel = await createTagRel({ data: { tagId, postId, userId: currentUser._id, backfilled } }, context);
     
     // If the tag has a parent which has not been applied to this post, apply it
     if (!ignoreParent && tag?.parentTagId && !await TagRels.findOne({ tagId: tag.parentTagId, postId })) {
       // RECURSIVE CALL, should only ever go one level deep because we disallow chaining of parent tags (see packages/lesswrong/lib/collections/tags/schema.ts)
-      await addOrUpvoteTag({tagId: tag?.parentTagId, postId, currentUser, context, selfVote: true});
+      await addOrUpvoteTag({tagId: tag?.parentTagId, postId, currentUser, context, selfVote: true, backfilled});
     }
     return tagRel;
   } else {

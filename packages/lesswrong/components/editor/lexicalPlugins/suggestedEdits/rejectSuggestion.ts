@@ -1,3 +1,4 @@
+import { $getFootnoteItems, $getFootnoteReferences, $removeFootnote } from '../footnotes/helpers'
 import { $createListItemNode, $isListItemNode, $isListNode } from '@lexical/list'
 import type { ElementNode } from 'lexical'
 import { $nodesOfType, $isElementNode, $isTextNode, $isRootOrShadowRoot } from 'lexical'
@@ -24,6 +25,7 @@ import { $isNonInlineLeafElement } from '@/lib/vendor/proton/isNonInlineLeafElem
 import { $isContainerQuoteNode, $wrapInQuote, $unwrapQuote } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode'
 
 export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolean {
+  const footnoteReferences = $getFootnoteReferences()
   const nodes = $nodesOfType(ProtonNode)
   for (const node of nodes) {
     if (!$isSuggestionNode(node)) {
@@ -312,6 +314,13 @@ export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolea
     } else {
       node.remove()
     }
+  }
+  // A rejected insertion can remove a new footnote's last reference. Keep
+  // definitions still used elsewhere, and leave unrelated orphan notes alone.
+  const removedFootnoteIds = new Set(footnoteReferences.filter(ref => !ref.isAttached()).map(ref => ref.getFootnoteId()))
+  for (const ref of $getFootnoteReferences()) removedFootnoteIds.delete(ref.getFootnoteId())
+  for (const item of $getFootnoteItems()) {
+    if (removedFootnoteIds.has(item.getFootnoteId())) $removeFootnote(item)
   }
   return true
 }

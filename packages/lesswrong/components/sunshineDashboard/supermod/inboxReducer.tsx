@@ -37,6 +37,10 @@ export interface InboxState extends ModerationQueueSnapshot {
   doneTeamInboxThreads: TeamInboxThread[];
   // Whether the inbox tab also lists done conversations
   showDoneTeamInboxThreads: boolean;
+  // The local copy of open reports of flagged content
+  reports: UnclaimedReportsList[];
+  // The local copy of wikitags awaiting review
+  tags: SunshineTagFragment[];
   // Current active tab
   activeTab: TabId;
   // Focused user in inbox view
@@ -47,6 +51,10 @@ export interface InboxState extends ModerationQueueSnapshot {
   focusedPostId: string | null;
   // Conversation ID of the focused team inbox thread
   focusedThreadId: string | null;
+  // Focused report in the flagged content tab
+  focusedReportId: string | null;
+  // Focused tag in the wikitags tab
+  focusedTagId: string | null;
   // Index of focused content item in detail view
   focusedContentIndex: number;
   // Which composer is open in the moderation sidebar, or null for neither
@@ -64,21 +72,27 @@ interface InitialInboxData {
   queue: ModerationQueueSnapshot;
   curationPosts: SunshineCurationPostsListItem[];
   teamInboxThreads: TeamInboxThread[];
+  reports: UnclaimedReportsList[];
+  tags: SunshineTagFragment[];
   initialOpenedUserId: string | null;
 }
 
-export function createInitialInboxState({ queue, curationPosts, teamInboxThreads, initialOpenedUserId }: InitialInboxData): InboxState {
+export function createInitialInboxState({ queue, curationPosts, teamInboxThreads, reports, tags, initialOpenedUserId }: InitialInboxData): InboxState {
   const state: InboxState = {
     ...queue,
     curationPosts,
     teamInboxThreads,
     doneTeamInboxThreads: [],
     showDoneTeamInboxThreads: false,
+    reports,
+    tags,
     activeTab: 'curation',
     focusedUserId: null,
     openedUserId: null,
     focusedPostId: null,
     focusedThreadId: null,
+    focusedReportId: null,
+    focusedTagId: null,
     focusedContentIndex: 0,
     sidebarTab: null,
     undoQueue: [],
@@ -88,14 +102,14 @@ export function createInitialInboxState({ queue, curationPosts, teamInboxThreads
   if (initialOpenedUserId) {
     return { ...state, activeTab: 'all', focusedUserId: initialOpenedUserId, openedUserId: initialOpenedUserId };
   }
-  if (!queue.users.length && !queue.posts.length && !queue.classifiedPosts.length && !curationPosts.length && !teamInboxThreads.length) {
+  if (!queue.users.length && !queue.posts.length && !queue.classifiedPosts.length && !curationPosts.length && !teamInboxThreads.length && !reports.length && !tags.length) {
     return state;
   }
 
   const groupedUsers = groupBy(queue.users, user => getUserReviewGroup(user));
   const curationNoticeCount = sumBy(curationPosts, post => post.curationNotices?.length ?? 0);
   // Only loaded items can be selected. Default to curation when it has no notices.
-  const visibleTabs = getVisibleTabsInOrder(groupedUsers, queue.users.length, queue.posts.length, queue.classifiedPosts.length, curationNoticeCount, teamInboxThreads.length, {});
+  const visibleTabs = getVisibleTabsInOrder(groupedUsers, queue.users.length, queue.posts.length, queue.classifiedPosts.length, curationNoticeCount, teamInboxThreads.length, reports.length, tags.length, {});
   const firstQueueTab = curationNoticeCount > 0
     ? visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0)?.group
     : undefined;
@@ -118,6 +132,14 @@ export type InboxAction =
   | { type: 'UPDATE_THREAD'; thread: TeamInboxThread; advanceFocus: boolean; }
   | { type: 'SET_DONE_THREADS'; conversations: DoneTeamInboxConversation[]; }
   | { type: 'SET_SHOW_DONE_THREADS'; show: boolean; }
+  | { type: 'FOCUS_REPORT'; reportId: string; }
+  | { type: 'NEXT_REPORT'; }
+  | { type: 'PREV_REPORT'; }
+  | { type: 'REMOVE_REPORT'; reportId: string; }
+  | { type: 'FOCUS_TAG'; tagId: string; }
+  | { type: 'NEXT_TAG'; }
+  | { type: 'PREV_TAG'; }
+  | { type: 'REMOVE_TAG'; tagId: string; }
   | { type: 'NEXT_TAB'; }
   | { type: 'PREV_TAB'; }
   | { type: 'REMOVE_USER'; userId: string; }
@@ -161,6 +183,8 @@ export function getVisibleTabsInOrder(
   totalClassifiedPosts: number,
   totalCurationNotices: number,
   totalTeamInboxThreads: number,
+  totalReports: number,
+  totalTags: number,
   unloadedCounts: UnloadedCounts,
 ): TabInfo[] {
   const tabs: TabInfo[] = [{ group: 'curation', count: totalCurationNotices }];
@@ -174,11 +198,37 @@ export function getVisibleTabsInOrder(
   tabs.push({ group: 'posts', count: totalPosts });
   tabs.push({ group: 'classifiedPosts', count: totalClassifiedPosts });
   tabs.push({ group: 'inbox', count: totalTeamInboxThreads });
+  tabs.push({ group: 'reports', count: totalReports });
+  tabs.push({ group: 'tags', count: totalTags });
   
   return tabs.map(tab => ({ ...tab, count: tab.count + (unloadedCounts[tab.group] ?? 0) }));
 }
 
-const NON_USER_TABS: ReadonlySet<TabId> = new Set<TabId>(['posts', 'classifiedPosts', 'curation', 'inbox']);
+const NON_USER_TABS: ReadonlySet<TabId> = new Set<TabId>(['posts', 'classifiedPosts', 'curation', 'inbox', 'reports', 'tags']);
+
+/** The ID after (or before) the focused one, wrapping around the ends of the list */
+function getAdjacentId(ids: string[], focusedId: string | null, direction: 1 | -1): string | null {
+  if (ids.length === 0) return null;
+  const focusedIndex = focusedId ? ids.indexOf(focusedId) : -1;
+  if (focusedIndex === -1) {
+    return direction === 1 ? ids[0] : ids[ids.length - 1];
+  }
+  return ids[(focusedIndex + direction + ids.length) % ids.length];
+}
+
+/**
+ * Removes an item, moving focus to the item that takes its place (wrapping to
+ * the start of the list) if the removed item was the focused one.
+ */
+function removeAndRefocus<T extends { _id: string }>(items: T[], removedId: string, focusedId: string | null): { items: T[]; focusedId: string | null } {
+  const remainingItems = items.filter(item => item._id !== removedId);
+  if (focusedId !== removedId) {
+    return { items: remainingItems, focusedId };
+  }
+  const removedIndex = items.findIndex(item => item._id === removedId);
+  const nextFocusedItem = remainingItems[removedIndex] ?? remainingItems[0];
+  return { items: remainingItems, focusedId: nextFocusedItem?._id ?? null };
+}
 
 export function getVisibleTeamInboxThreads(state: InboxState): TeamInboxThread[] {
   return state.showDoneTeamInboxThreads
@@ -197,6 +247,8 @@ export function enterTab(state: InboxState, tab: TabId): InboxState {
     focusedUserId: null,
     focusedPostId: null,
     focusedThreadId: null,
+    focusedReportId: null,
+    focusedTagId: null,
     focusedContentIndex: 0,
   };
   switch (tab) {
@@ -208,6 +260,10 @@ export function enterTab(state: InboxState, tab: TabId): InboxState {
       return { ...unfocused, focusedPostId: state.curationPosts[0]?._id ?? null };
     case 'inbox':
       return { ...unfocused, focusedThreadId: state.teamInboxThreads[0]?.conversation._id ?? null };
+    case 'reports':
+      return { ...unfocused, focusedReportId: state.reports[0]?._id ?? null };
+    case 'tags':
+      return { ...unfocused, focusedTagId: state.tags[0]?._id ?? null };
     default: {
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const orderedUsers = getFilteredGroups(groupedUsers, tab).flatMap(([_, users]) => users);
@@ -446,7 +502,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length, state.unloadedCounts);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length, state.reports.length, state.tags.length, state.unloadedCounts);
 
       if (visibleTabs.length === 0) return state;
 
@@ -472,7 +528,7 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length, state.unloadedCounts);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.teamInboxThreads.length, state.reports.length, state.tags.length, state.unloadedCounts);
 
       if (visibleTabs.length === 0) return state;
 
@@ -724,6 +780,44 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
           ? state.teamInboxThreads[0]?.conversation._id ?? null
           : state.focusedThreadId,
       };
+    }
+
+    case 'FOCUS_REPORT': {
+      return { ...state, focusedReportId: action.reportId };
+    }
+
+    case 'NEXT_REPORT': {
+      if (state.reports.length === 0) return state;
+      return { ...state, focusedReportId: getAdjacentId(state.reports.map(r => r._id), state.focusedReportId, 1) };
+    }
+
+    case 'PREV_REPORT': {
+      if (state.reports.length === 0) return state;
+      return { ...state, focusedReportId: getAdjacentId(state.reports.map(r => r._id), state.focusedReportId, -1) };
+    }
+
+    case 'REMOVE_REPORT': {
+      const { items: reports, focusedId: focusedReportId } = removeAndRefocus(state.reports, action.reportId, state.focusedReportId);
+      return { ...state, reports, focusedReportId };
+    }
+
+    case 'FOCUS_TAG': {
+      return { ...state, focusedTagId: action.tagId };
+    }
+
+    case 'NEXT_TAG': {
+      if (state.tags.length === 0) return state;
+      return { ...state, focusedTagId: getAdjacentId(state.tags.map(t => t._id), state.focusedTagId, 1) };
+    }
+
+    case 'PREV_TAG': {
+      if (state.tags.length === 0) return state;
+      return { ...state, focusedTagId: getAdjacentId(state.tags.map(t => t._id), state.focusedTagId, -1) };
+    }
+
+    case 'REMOVE_TAG': {
+      const { items: tags, focusedId: focusedTagId } = removeAndRefocus(state.tags, action.tagId, state.focusedTagId);
+      return { ...state, tags, focusedTagId };
     }
 
     case 'SET_LLM_CHECK_RUNNING': {

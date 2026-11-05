@@ -321,7 +321,7 @@ const incompleteMergeResult = (failures: MergeAccountsFailure[]): MergeAccountsR
   return {completed: false, success: false, failures}
 }
 
-// Exported to allow usage with "yarn repl". Also wrapped by scripts/mergeUsers.sh.
+// Exported to allow usage with "npm run repl". Also wrapped by scripts/mergeUsers.sh.
 // If `deadlineAt` (a Date.now()-style timestamp) is provided, the merge stops
 // cleanly when it runs out of time and returns `completed: false`; see
 // MergeAccountsResult.

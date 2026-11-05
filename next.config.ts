@@ -50,8 +50,12 @@ const nextConfig: NextConfig = {
   cacheComponents: !isE2E,
   reactStrictMode: false,
   // Lets a second dev instance run from the same checkout (next dev holds a
-  // lock under distDir): NEXT_DIST_DIR=.next-profile yarn start dev -p 3005
+  // lock under distDir): NEXT_DIST_DIR=.next-profile npm run start -- dev -p 3005
   ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
+  // next dev blocks requests for its JS bundles from any host other than
+  // localhost, so pages viewed through a remote URL never become interactive.
+  // Lightcone's hosted dev sandboxes set SANDBOX_PUBLIC_URL to that remote URL.
+  ...(process.env.SANDBOX_PUBLIC_URL ? { allowedDevOrigins: [new URL(process.env.SANDBOX_PUBLIC_URL).hostname] } : {}),
 
   compiler: {
     define: {
@@ -258,8 +262,7 @@ module.exports = nextConfig;
 
 // Injected content via Sentry wizard below
 
-// eslint-disable-next-line no-restricted-imports
-import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 module.exports = isE2E ? module.exports : withSentryConfig(
   module.exports,

@@ -2,14 +2,14 @@
  * AI-generated cover images for Best of LessWrong review winner posts.
  *
  * Bulk generation via repl:
- *   yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'getReviewWinnerArts()'
+ *   npm run repl -- prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'getReviewWinnerArts()'
  *
  * Single-post generation via the /bestoflesswrongadmin page (generateCoverImagesForPost mutation),
  * or via repl:
- *   yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'generateCoverImagesForPost("postId")'
+ *   npm run repl -- prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'generateCoverImagesForPost("postId")'
  *
  * Test illustration prompt generation only (no image generation):
- *   yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'previewIllustrations("postId")'
+ *   npm run repl -- prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'previewIllustrations("postId")'
  */
 
 import { z } from "zod";
@@ -1206,7 +1206,7 @@ export const previewIllustrations = async (postId: string, count = 3): Promise<s
 // bottomJobId (inclusive), filtering for "imagine" jobs (not upscales).
 //
 // Usage via repl:
-//   yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'scrapeMidjourneyJobs("top-job-id", "bottom-job-id")'
+//   npm run repl -- prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'scrapeMidjourneyJobs("top-job-id", "bottom-job-id")'
 
 interface MjApiJob {
   id: string;
@@ -1318,7 +1318,7 @@ export async function scrapeMidjourneyJobs(topJobId: string, bottomJobId: string
 // MJ website) and matches them to existing records by prompt + image comparison.
 //
 // Usage via repl:
-//   yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'backfillMidjourneyMetadata(await scrapeMidjourneyJobs("top-id", "bottom-id"))'
+//   npm run repl -- prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'backfillMidjourneyMetadata(await scrapeMidjourneyJobs("top-id", "bottom-id"))'
 
 interface MjJobInfo {
   jobId: string;

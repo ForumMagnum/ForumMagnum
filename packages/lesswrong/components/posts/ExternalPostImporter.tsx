@@ -223,7 +223,9 @@ const CommentEditor = ({onPublish, onCancel, useLexical}: {
             data={commentValue}
             ref={ckEditorRef}
             config={makeEditorConfig({
-              placeholder: 'Write a review about the imported post...',
+              root: {
+                placeholder: 'Write a review about the imported post...',
+              },
             })}
             onReady={(editor: any) => {
               editorRef.current = editor;

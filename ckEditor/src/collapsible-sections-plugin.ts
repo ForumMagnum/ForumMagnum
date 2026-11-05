@@ -1,9 +1,14 @@
-import { Command, Plugin } from '@ckeditor/ckeditor5-core';
-import { type DowncastConversionApi, type ModelElement as Element, type ModelWriter as Writer } from '@ckeditor/ckeditor5-engine';
-import { ButtonView } from '@ckeditor/ckeditor5-ui';
-import { Widget } from '@ckeditor/ckeditor5-widget';
+import {
+  Command,
+  Plugin,
+  ButtonView,
+  Widget,
+  blockAutoformatEditing,
+  type DowncastConversionApi,
+  type ModelElement as Element,
+  type ModelWriter as Writer,
+} from 'ckeditor5';
 import collapsibleSectionIcon from './ckeditor5-collapsible-section-icon.svg';
-import { blockAutoformatEditing } from '@ckeditor/ckeditor5-autoformat/src/blockautoformatediting';
 
 /**
  * CkEditor5 plugin that makes a collapsible section, using the html <details>

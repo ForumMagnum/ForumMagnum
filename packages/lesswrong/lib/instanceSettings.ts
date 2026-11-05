@@ -324,6 +324,8 @@ export const showSubscribeReminderInFeed = new PublicInstanceSetting<boolean>('f
 
 export const hasGoogleDocImportSetting = new PublicInstanceSetting<boolean>('googleDocImport.enabled', false, "optional");
 
+export const llmMentionsEnabledSetting = new PublicInstanceSetting<boolean>('llmMentions.enabled', false, "optional");
+
 export const recombeeEnabledSetting = new PublicInstanceSetting<boolean>('recombee.enabled', false, "optional");
 export const recommendationsTabManuallyStickiedPostIdsSetting = new PublicInstanceSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', [], "optional");
 
@@ -369,6 +371,7 @@ export const firstCommentAcknowledgeMessageCommentIdSetting = new PublicInstance
 export const ipApiKey: string|null = null;
 
 export const intercomAppIdSetting = new PublicInstanceSetting<string>('intercomAppId', 'wtb8z7sj', "optional");
+export const hailboxUrlSetting = new PublicInstanceSetting<string | null>('hailboxUrl', null, "optional");
 
 export const maintenanceTime = new PublicInstanceSetting<string | null>("maintenanceBannerTime", null, "optional");
 export const explanationText = new PublicInstanceSetting<string>("maintenanceBannerExplanationText", "", "optional");

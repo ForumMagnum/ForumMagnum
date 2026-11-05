@@ -1,14 +1,15 @@
 import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import type { NextRequest } from 'next/server';
+import { checkCronRequestAuthorization } from '@/server/utils/cronAuth';
 import { checkScheduledPosts } from '@/server/posts/cron';
 import { runRSSImport } from '@/server/rss-integration/cron';
 import { getLockOrAbort } from '@/server/utils/advisoryLockUtil';
 import { retryMissingPangramEvaluations } from '@/server/collections/automatedContentEvaluations/cron';
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response('Unauthorized', { status: 401 });
+  const authError = checkCronRequestAuthorization(request);
+  if (authError) {
+    return authError;
   }
 
   // Run all every-ten-minutes tasks in parallel

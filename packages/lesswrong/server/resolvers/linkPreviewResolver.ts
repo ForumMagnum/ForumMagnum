@@ -8,6 +8,7 @@ import { cheerioParse } from "@/server/utils/htmlUtil";
 import type { CheerioAPI } from 'cheerio';
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { randomId } from "@/lib/random";
+import { fetchPublicUrl, isPublicHttpUrl, parsePublicHttpUrl } from "@/server/utils/fetchPublicUrl";
 
 const LINK_PREVIEW_CACHE_VERSION = 3;
 const LINK_PREVIEW_REQUEST_COOLDOWN_MS = 24 * 60 * 60 * 1000;
@@ -143,10 +144,7 @@ function normalizePreviewUrl(url: string): string {
   if (!trimmed) {
     throw new Error("URL is empty");
   }
-  const parsed = new URL(trimmed);
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    throw new Error("Only http(s) URLs are supported");
-  }
+  const parsed = parsePublicHttpUrl(trimmed);
   parsed.hash = "";
   return parsed.toString();
 }
@@ -234,7 +232,7 @@ function extractImageUrl($: CheerioAPI, pageUrl: string): ExtractedValue {
     return fromMeta;
   }
   const normalizedImageUrl = toAbsoluteHttpUrl(fromMeta.value, pageUrl);
-  if (isBlankImageFilename(normalizedImageUrl)) {
+  if (isBlankImageFilename(normalizedImageUrl) || !isPublicHttpUrl(normalizedImageUrl)) {
     return {
       value: null,
       source: null,
@@ -668,9 +666,8 @@ async function fetchImageDimensions(url: string): Promise<ExtractedImageSize | n
   const abortController = new AbortController();
   const timeout = setTimeout(() => abortController.abort(), LINK_PREVIEW_IMAGE_FETCH_TIMEOUT_MS);
   try {
-    const response = await fetch(url, {
+    const response = await fetchPublicUrl(url, {
       signal: abortController.signal,
-      redirect: "follow",
       headers: {
         "User-Agent": "LessWrong-LinkPreviewBot/1.0 (+https://www.lesswrong.com)",
         "Accept": "image/*,*/*;q=0.1",
@@ -871,9 +868,8 @@ async function fetchRemoteHtml(url: string): Promise<string> {
   const timeout = setTimeout(() => abortController.abort(), LINK_PREVIEW_FETCH_TIMEOUT_MS);
 
   try {
-    const response = await fetch(url, {
+    const response = await fetchPublicUrl(url, {
       signal: abortController.signal,
-      redirect: "follow",
       headers: {
         "User-Agent": "LessWrong-LinkPreviewBot/1.0 (+https://www.lesswrong.com)",
         "Accept": "text/html,application/xhtml+xml;q=0.9,*/*;q=0.1",
@@ -1002,7 +998,23 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
   forceRefetch: boolean;
   includeDebug: boolean;
 }): Promise<LinkPreviewResult> {
-  const normalizedUrl = normalizePreviewUrl(url);
+  let normalizedUrl: string;
+  try {
+    normalizedUrl = normalizePreviewUrl(url);
+  } catch (error) {
+    // Nothing is cached for URLs we refuse to fetch. Returning an error (rather
+    // than throwing) makes the client fall back to an ordinary link.
+    return {
+      title: null,
+      imageUrl: null,
+      html: null,
+      error: error instanceof Error ? truncate(error.message) : "Invalid URL",
+      status: "error",
+      cacheVersion: LINK_PREVIEW_CACHE_VERSION,
+      fetchedAt: null,
+      nextRefreshAt: null,
+    };
+  }
   const now = new Date();
 
   const cachedResult = await getCachedPreview(normalizedUrl, includeDebug);

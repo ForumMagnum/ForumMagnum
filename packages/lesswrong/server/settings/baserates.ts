@@ -1,10 +1,12 @@
 import merge from "lodash/merge";
 import { sharedSettings } from "./sharedSettings";
+import { localSiteUrl } from "./localSiteUrl";
 
 export const baserates = merge({
   forumType: "LessWrong",
   title: "LessWrong Development Server",
   siteNameWithArticle: "LessWrong",
+  siteUrl: localSiteUrl,
   sentry: {
     url: "https://1ab1949fc8d04608b43132f37bb2a1b0@sentry.io/1301611",
     environment: "development",

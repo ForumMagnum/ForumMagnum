@@ -2,6 +2,7 @@ import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import FormatDate from '@/components/common/FormatDate';
+import { useCurrentTime } from '@/lib/utils/TimeProvider';
 import type { TeamInboxThread } from './teamInboxThreads';
 
 const styles = defineStyles('TeamInboxThreadItem', (theme: ThemeType) => ({
@@ -20,7 +21,7 @@ const styles = defineStyles('TeamInboxThreadItem', (theme: ThemeType) => ({
     minWidth: 0,
   },
   done: {
-    '& $participants, & $title': {
+    '& $participants': {
       color: theme.palette.grey[600],
       fontWeight: 400,
     },
@@ -31,25 +32,15 @@ const styles = defineStyles('TeamInboxThreadItem', (theme: ThemeType) => ({
     backgroundColor: theme.palette.grey[100],
   },
   participants: {
+    flex: 1,
+    minWidth: 0,
     fontSize: 15,
     fontWeight: 500,
     color: theme.palette.grey[900],
     marginRight: 12,
-    width: 160,
-    flexShrink: 0,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-  },
-  title: {
-    flex: 1,
-    minWidth: 0,
-    fontSize: 14,
-    color: theme.palette.grey[800],
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    marginRight: 12,
   },
   tag: {
     fontSize: 11,
@@ -67,8 +58,12 @@ const styles = defineStyles('TeamInboxThreadItem', (theme: ThemeType) => ({
     fontSize: 13,
     color: theme.palette.grey[600],
     width: 24,
+    marginRight: 12,
     textAlign: 'center',
     flexShrink: 0,
+  },
+  waitingOverdue: {
+    color: theme.palette.error.main,
   },
 }));
 
@@ -79,21 +74,30 @@ const TeamInboxThreadItem = ({ thread, isDone, isFocused, onFocus }: {
   onFocus: () => void;
 }) => {
   const classes = useStyles(styles);
+  const now = useCurrentTime();
   const { conversation, appeal } = thread;
+  const participantNames = conversation.participants?.map(participant => participant.displayName).join(', ');
+  const waitingDays = !isDone && conversation.moderatorReplyWaitingSince
+    ? (now.getTime() - new Date(conversation.moderatorReplyWaitingSince).getTime()) / (24 * 60 * 60 * 1000)
+    : 0;
 
   return (
     <div className={classNames(classes.root, { [classes.focused]: isFocused, [classes.done]: isDone })} onClick={onFocus}>
-      <div className={classes.participants}>
-        {conversation.participants?.map(participant => participant.displayName).join(', ')}
+      <div className={classNames(classes.date, {
+        [classes.waitingOverdue]: waitingDays > 4,
+      })}>
+        {!isDone && conversation.moderatorReplyWaitingSince
+          ? <FormatDate
+              date={conversation.moderatorReplyWaitingSince}
+              tooltip="Time waiting for a reply, measured from the first unanswered user message."
+            />
+          : '—'}
       </div>
-      <div className={classes.title}>
-        {conversation.title}
+      <div className={classes.participants} title={participantNames}>
+        {participantNames}
       </div>
       {appeal && <span className={classNames(classes.tag, classes.appealTag)}>Appeal {appeal.status}</span>}
       {conversation.awaitingModeratorReply && <span className={classes.tag}>Awaiting reply</span>}
-      <div className={classes.date}>
-        {conversation.latestActivity && <FormatDate date={conversation.latestActivity} />}
-      </div>
     </div>
   );
 };

@@ -7,12 +7,12 @@ import {
   aiDigestEmailCadenceDaysSetting,
   aiDigestScheduledEmailsEnabledSetting,
 } from "@/server/databaseSettings";
-import { aiDigestEmailBody } from "@/server/emailComponents/AiDigestEmail";
+import { aiDigestEmailBody, aiDigestEmailWrapperOptions } from "@/server/emailComponents/AiDigestEmail";
 import { AI_DIGEST_UTM_PARAMS } from "@/server/emailComponents/aiDigestEmailLinks";
 import { wrapAndSendEmail } from "@/server/emails/renderEmail";
 import AiDigestSchedulesRepo from "@/server/repos/AiDigestSchedulesRepo";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import { generateAiDigestIssue, notifyAiDigestReady } from "./aiDigestGenerateIssue";
+import { generateAiDigestIssue } from "./aiDigestGenerateIssue";
 
 /**
  * Each run handles only a couple of readers, one after another, and the next
@@ -54,6 +54,7 @@ async function sendAiDigestToReader(schedule: DbAiDigestSchedule): Promise<void>
     subject: spec.subject,
     body: aiDigestEmailBody(spec, issueId),
     utmParams: AI_DIGEST_UTM_PARAMS,
+    ...aiDigestEmailWrapperOptions,
   });
   if (!sent) {
     throw new Error(`Failed to send scheduled AI digest issue ${issueId} to ${user._id}`);
@@ -68,7 +69,6 @@ async function sendAiDigestToReader(schedule: DbAiDigestSchedule): Promise<void>
       issueId: null,
     },
   });
-  await notifyAiDigestReady(user, issueId, spec, context);
 }
 
 export async function sendScheduledAiDigestEmails(): Promise<void> {

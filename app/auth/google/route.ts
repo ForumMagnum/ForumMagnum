@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { generateOAuthState, getGoogleAuthUrl } from '@/lib/auth/googleOAuth';
 import type { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
+import { sanitizeLoginReturnTo } from '@/lib/auth/loginNotices';
 
 
 const GOOGLE_OAUTH_COOKIE_SETTINGS: Omit<ResponseCookie, 'name' | 'value'> = {
@@ -14,7 +15,7 @@ const GOOGLE_OAUTH_COOKIE_SETTINGS: Omit<ResponseCookie, 'name' | 'value'> = {
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const returnTo = searchParams.get('returnTo') ?? '/';
+  const returnTo = sanitizeLoginReturnTo(searchParams.get('returnTo') ?? undefined);
   
   // Generate state for CSRF protection
   const state = generateOAuthState();

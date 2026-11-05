@@ -9,9 +9,9 @@ import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { getCommentParentTitle } from '@/lib/notificationDataHelpers';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
-import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { viewTermsToQuery } from '../lib/utils/viewUtils';
 import { fetchFragment } from './fetchFragment';
+import { performQueryFromViewParameters } from './resolvers/defaultResolvers';
 import { PostsViews } from '@/lib/collections/posts/views';
 import { CommentsViews } from '@/lib/collections/comments/views';
 import { PostsRSSFeed } from '@/lib/collections/posts/fragments';
@@ -65,6 +65,7 @@ export const servePostRSS = async (terms: RSSTerms, req: NextRequest) => {
     context,
     selector: parameters.selector,
     options: parameters.options,
+    syntheticFields: parameters.syntheticFields,
   });
 
   await asyncForeachSequential(postsCursor, async (post: PostsRSSFeed) => {
@@ -107,14 +108,14 @@ export const servePostRSS = async (terms: RSSTerms, req: NextRequest) => {
 };
 
 export const serveCommentRSS = async (terms: RSSTerms, req: NextRequest) => {
-  const context = await getContextFromReqAndRes({req, isSSR: false});
+  const context = createAnonymousContext({forumType: getForumTypeForRequest(req)});
   const url = rssTermsToUrl(terms, context.forumType);
   const feed = new RSS(getMeta(url, context));
 
-  let parameters = await viewTermsToQuery(CommentsViews, terms, undefined, context);
+  const parameters = await viewTermsToQuery(CommentsViews, terms, undefined, context);
   parameters.options.limit = 50;
-  const commentsCursor = await Comments.find(parameters.selector, parameters.options).fetch();
-  const restrictedComments = await accessFilterMultiple(null, 'Comments', commentsCursor, context) as DbComment[];
+  const comments = await performQueryFromViewParameters(Comments, {view: terms.view}, parameters);
+  const restrictedComments = await accessFilterMultiple(null, 'Comments', comments, context) as DbComment[];
 
   await asyncForeachSequential(restrictedComments, async (comment) => {
     const url = await commentGetAbsolutePageUrlFromDB(comment, context);

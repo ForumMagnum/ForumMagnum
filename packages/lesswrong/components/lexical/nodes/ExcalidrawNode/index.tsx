@@ -37,6 +37,7 @@ import {
   EXCALIDRAW_DIAGRAM_RESIZED_CLASS,
   EXCALIDRAW_SCENE_ATTRIBUTE,
 } from '@/lib/lexical/excalidrawDiagrams';
+import { sanitize } from '@/lib/utils/sanitize';
 
 const ExcalidrawComponent = React.lazy(() => import('./ExcalidrawComponent'));
 
@@ -171,9 +172,11 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
       element.style.width = `${this.__widthPercent}%`;
     }
     element.setAttribute(EXCALIDRAW_SCENE_ATTRIBUTE, this.__data);
-    // This is user-provided markup, but the exported HTML is sanitized
-    // server-side before it's shown to anyone, so we don't sanitize it here.
-    element.innerHTML = this.__svg;
+    // This is user-provided markup. It must be sanitized even though exported
+    // HTML is also sanitized server-side, because the editor exports in the
+    // browser (eg on every change), and assigning innerHTML runs event
+    // handlers in the markup even on an element that isn't in the page.
+    element.innerHTML = sanitize(this.__svg);
     return {element};
   }
 

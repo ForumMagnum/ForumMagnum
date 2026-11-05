@@ -29,10 +29,10 @@ import { sandboxNameForConversation } from "@/server/research/sandbox/sandboxMan
  * silently overwriting would mask a real row.
  *
  * Usage:
- *   yarn repl dev lw packages/lesswrong/server/scripts/recoverSandboxSession.ts
+ *   npm run repl -- dev lw packages/lesswrong/server/scripts/recoverSandboxSession.ts
  *
  * Or to target a different conversation than the default-export's:
- *   yarn repl dev lw packages/lesswrong/server/scripts/recoverSandboxSession.ts \
+ *   npm run repl -- dev lw packages/lesswrong/server/scripts/recoverSandboxSession.ts \
  *     'recoverSandboxSession({ conversationId: "abc123" })'
  */
 

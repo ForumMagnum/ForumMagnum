@@ -24,7 +24,7 @@ export function getPlatformAssets(): PlatformAssets {
     if (!fs.existsSync(p)) {
       throw new Error(
         `[platformAssets] missing platform asset at ${p}. ` +
-          `Run \`yarn research-supervisor-build\` to produce the supervisor bundle.`,
+          `Run \`npm run research-supervisor-build\` to produce the supervisor bundle.`,
       );
     }
   }

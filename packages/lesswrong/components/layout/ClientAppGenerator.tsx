@@ -11,6 +11,7 @@ import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/
 import { parsePath } from '@/lib/routeChecks/parseRoute';
 import { MessageContextProvider } from '@/components/layout/FlashMessages';
 import { UserContextProvider } from '../common/withUser';
+import { FilterSettingsContextProvider } from '@/components/hooks/useFilterSettings';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { HelmetProvider } from 'react-helmet-async';
@@ -152,21 +153,23 @@ const ClientAppGenerator = ({ abTestGroupsUsed, requestId, forumType, ssrTimezon
         <ApolloWrapper requestId={requestId}>
           <CookiesProvider>
             <UserContextProvider>
-              <ThemeContextProvider>
-                <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-                  <HelmetProvider>
-                    <LocationContextProvider>
-                      <MessageContextProvider>
-                        <TimezoneWrapper ssrTimezone={ssrTimezone}>
-                          <Layout>
-                            {children}
-                          </Layout>
-                        </TimezoneWrapper>
-                      </MessageContextProvider>
-                    </LocationContextProvider>
-                  </HelmetProvider>
-                </ABTestGroupsUsedContext.Provider>
-              </ThemeContextProvider>
+              <FilterSettingsContextProvider>
+                <ThemeContextProvider>
+                  <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
+                    <HelmetProvider>
+                      <LocationContextProvider>
+                        <MessageContextProvider>
+                          <TimezoneWrapper ssrTimezone={ssrTimezone}>
+                            <Layout>
+                              {children}
+                            </Layout>
+                          </TimezoneWrapper>
+                        </MessageContextProvider>
+                      </LocationContextProvider>
+                    </HelmetProvider>
+                  </ABTestGroupsUsedContext.Provider>
+                </ThemeContextProvider>
+              </FilterSettingsContextProvider>
             </UserContextProvider>
           </CookiesProvider>
         </ApolloWrapper>

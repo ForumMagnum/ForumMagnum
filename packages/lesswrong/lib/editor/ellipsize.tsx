@@ -1,5 +1,6 @@
 import { truncatise } from '../truncatise';
 import uniq from 'lodash/uniq';
+import { getElementSourceRanges, replaceSourceRanges } from '../utils/htmlSourceRanges';
 
 export const highlightMaxChars = 2400;
 export const GTP2_TRUNCATION_CHAR_COUNT = 400;
@@ -7,12 +8,25 @@ export const SMALL_TRUNCATION_CHAR_COUNT = 750;
 export const LARGE_TRUNCATION_CHAR_COUNT = 1600;
 export const TRUNCATION_KARMA_THRESHOLD = 10
 
+/**
+ * Split the <style> elements (eg MathJax's stylesheet) out of an HTML
+ * fragment, so that they can be kept when the rest of it is truncated.
+ */
+export function splitOutStyleElements(html: string): { styles: string[], htmlWithoutStyles: string } {
+  if (!html.includes('<style')) {
+    return { styles: [], htmlWithoutStyles: html };
+  }
+  const styleRanges = getElementSourceRanges(html, 'style');
+  return {
+    styles: styleRanges.map(({ start, end }) => html.slice(start, end)),
+    htmlWithoutStyles: replaceSourceRanges(html, styleRanges, () => ''),
+  };
+}
+
 export const highlightFromHTML = (html: string | null): string => {
   if (!html) return ""
-  const styles: string[]|null = html.match(/<style[\s\S]*?<\/style>/g);
-  const htmlWithoutStyles = styles ? html.replace(/<style[\s\S]*?<\/style>/g, '') : html;
-  const uniqueStyles = uniq(styles);
-  const suffix = !!styles ? `... ${uniqueStyles.join("")}` : '... ';
+  const { styles, htmlWithoutStyles } = splitOutStyleElements(html);
+  const suffix = styles.length > 0 ? `... ${uniq(styles).join("")}` : '... ';
 
   return truncatise(htmlWithoutStyles, {
     TruncateLength: highlightMaxChars,
@@ -20,6 +34,8 @@ export const highlightFromHTML = (html: string | null): string => {
     Suffix: suffix,
   });
 };
+
+const getTruncatedLength = (truncateLength: number) => Math.floor(truncateLength - (truncateLength/4)) || truncateLength;
 
 export const truncate = (
   html: string|null|undefined,
@@ -32,17 +48,15 @@ export const truncate = (
   const newSuffix = (suffix !== undefined) ? suffix : "..."
 
   if(!html) return ""
-  const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
-  const uniqueStyles = uniq(styles);
-  const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
+  const { styles, htmlWithoutStyles } = splitOutStyleElements(html);
 
-  const truncatedHtml = truncatise(htmlRemovedStyles, {
-    TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
+  const truncatedHtml = truncatise(htmlWithoutStyles, {
+    TruncateLength: getTruncatedLength(truncateLength),
     TruncateBy: newTruncateBy,
     Suffix: `${newSuffix}`,
     Strict: allowTruncationMidWord,
   });
-  return uniqueStyles.join("") + truncatedHtml;
+  return uniq(styles).join("") + truncatedHtml;
 }
 
 export const calculateTruncationStatus = (
@@ -59,7 +73,7 @@ export const calculateTruncationStatus = (
     return { willTruncate: false, wordsRemaining: 0 };
   }
   
-  return { willTruncate: true, wordsRemaining: wordsLeft };
+  return { willTruncate: true, wordsRemaining: totalWordCount - getTruncatedLength(maxLengthWords) };
 };
 
 export const truncateWithGrace = (html: string, maxLengthWords: number, graceWords: number, rawWordCount: number, suffix?: string): {
@@ -114,10 +128,9 @@ export function getTruncationCharCount (comment: CommentsList, postPage?: boolea
 
 export const answerTocExcerptFromHTML = (html: string): string => {
   if(!html) return ""
-  const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
-  const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
+  const { styles, htmlWithoutStyles } = splitOutStyleElements(html);
 
-  const firstParagraph = truncatise(htmlRemovedStyles, {
+  const firstParagraph = truncatise(htmlWithoutStyles, {
     TruncateLength: 1,
     TruncateBy: "paragraphs",
     Suffix: '',
@@ -126,29 +139,28 @@ export const answerTocExcerptFromHTML = (html: string): string => {
   return truncatise(firstParagraph, {
     TruncateLength: 70,
     TruncateBy: "characters",
-    Suffix: `...${styles}`,
+    Suffix: `...${styles.join("")}`,
   });
 };
 
 export function commentExcerptFromHTML (comment: CommentsList, postPage?: boolean) {
   const html = comment.contents?.html;
   if(!html) return ""
-  const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
-  const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
+  const { styles, htmlWithoutStyles } = splitOutStyleElements(html);
 
   const truncationCharCount = getTruncationCharCount(comment, postPage)
 
-  if (htmlRemovedStyles.length > truncationCharCount) {
-    return truncatise(htmlRemovedStyles, {
+  if (htmlWithoutStyles.length > truncationCharCount) {
+    return truncatise(htmlWithoutStyles, {
       // We want the amount comments get truncated to to be less than the threshold at which they are truncated, so that users don't have the experience of expanding a comment only to see a couple more words (which just feels silly).
   
       // This varies by the size of the comment or truncation amount, and reducing it by 1/4th seems about right.
       TruncateLength: Math.floor(truncationCharCount - (truncationCharCount/4)),
       TruncateBy: "characters",
-      Suffix: `... <span class="read-more-button">(read more)</span>${styles}`,
+      Suffix: `... <span class="read-more-button">(read more)</span>${styles.join("")}`,
     });
   } else {
-    return htmlRemovedStyles
+    return htmlWithoutStyles
   }
 };
 

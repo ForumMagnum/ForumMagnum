@@ -299,8 +299,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     minimumKarma: Int
     authorIsUnreviewed: Boolean
     maxAgeDays: Int
-    showCommunity: Boolean
-    relevantTagId: String
+    filterSettings: JSON
   }
   
   input CommentsRepliesToCommentThreadInput {
@@ -403,6 +402,13 @@ export const graphqlCommentQueryTypeDefs = gql`
     authorIsUnreviewed: Boolean
   }
   
+  input CommentsLlmRepliesInput {
+    userId: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
+  }
+
   input CommentsDebateResponsesInput {
     userId: String
     commentIds: [String!]
@@ -489,6 +495,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     tagSubforumComments: CommentsTagSubforumCommentsInput
     latestSubforumDiscussion: CommentsLatestSubforumDiscussionInput
     moderatorComments: CommentsModeratorCommentsInput
+    llmReplies: CommentsLlmRepliesInput
     debateResponses: CommentsDebateResponsesInput
     recentDebateResponses: CommentsRecentDebateResponsesInput
     alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput

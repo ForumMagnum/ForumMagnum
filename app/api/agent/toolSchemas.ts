@@ -10,7 +10,11 @@ export const insertLocationSchema = z.union([
   z.literal("end"),
   z.object({ before: z.string().describe("Insert before the paragraph starting with this text") }),
   z.object({ after: z.string().describe("Insert after the paragraph starting with this text") }),
-]).describe("Where to insert: 'start', 'end', { before: '...' }, or { after: '...' }");
+  z.object({
+    inside: z.string().describe("The collapsible section to insert into, matched by its '+++ Title' line"),
+    position: z.enum(["start", "end"]).default("end").describe("Insert at the start or end of the section's body. Defaults to 'end'."),
+  }),
+]).describe("Where to insert: 'start', 'end', { before: '...' }, { after: '...' }, or { inside: '+++ Title', position?: 'start'|'end' }");
 
 export type InsertLocation = z.infer<typeof insertLocationSchema>;
 
@@ -91,6 +95,13 @@ export const replyToCommentToolSchema = z.object({
   agentName: z.string().optional().describe("Name to attribute the reply to"),
   threadId: z.string().describe("The ID of the thread to reply to (from the Comment Threads section of the editPost response)"),
   comment: z.string().describe("The reply text in markdown"),
+});
+
+export const resolveCommentThreadToolSchema = z.object({
+  postId: z.string().describe("The ID of the post"),
+  key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
+  agentName: z.string().optional().describe("Name of the agent resolving the thread"),
+  threadId: z.string().describe("The ID of the comment thread to resolve (from the Comment Threads section of the editPost response)"),
 });
 
 export const deleteBlockToolSchema = z.object({

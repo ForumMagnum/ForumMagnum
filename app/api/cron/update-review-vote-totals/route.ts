@@ -1,4 +1,5 @@
 import type { NextRequest } from 'next/server';
+import { checkCronRequestAuthorization } from '@/server/utils/cronAuth';
 import { updateReviewVoteTotals } from '@/server/reviewVoteUpdate';
 import { 
   REVIEW_YEAR, 
@@ -40,9 +41,9 @@ function getVotePhaseToUpdate(): 'nominationVote' | 'finalVote' | null {
 }
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response('Unauthorized', { status: 401 });
+  const authError = checkCronRequestAuthorization(request);
+  if (authError) {
+    return authError;
   }
 
   const votePhase = getVotePhaseToUpdate();

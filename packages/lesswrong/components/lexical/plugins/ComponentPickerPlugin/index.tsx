@@ -89,9 +89,6 @@ const styles = defineStyles('LexicalComponentPicker', (theme: ThemeType) => ({
   },
   list: {
     ...typeaheadList(theme),
-    // Items are 36px tall (8px padding top and bottom, 20px line height).
-    // The scrollbar is hidden, so cut the last visible item in half to make
-    // it visibly scrollable.
     maxHeight: 36 * 10.5,
   },
   listItem: typeaheadListItem(theme),

@@ -483,28 +483,6 @@ export const TagForm = ({
             </form.Field>
           </div>
 
-          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-            <form.Field name="autoTagModel">
-              {(field) => (
-                <MuiTextField
-                  field={field}
-                  label="Auto-tag classifier model ID"
-                />
-              )}
-            </form.Field>
-          </div>}
-
-          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-            <form.Field name="autoTagPrompt">
-              {(field) => (
-                <MuiTextField
-                  field={field}
-                  label="Auto-tag classifier prompt string"
-                />
-              )}
-            </form.Field>
-          </div>}
-
           {formType === 'edit' && <div className={classes.fieldWrapper}>
             <form.Field name="noindex">
               {(field) => (

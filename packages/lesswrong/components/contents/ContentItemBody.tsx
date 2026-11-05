@@ -1,5 +1,5 @@
 import React, { useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react';
-import { addNofollowToHTML, ContentReplacedSubstringComponentInfo, replacementComponentMap, type ContentItemBodyProps } from './contentBodyUtil';
+import { addNofollowToRel, ContentReplacedSubstringComponentInfo, replacementComponentMap, type ContentItemBodyProps } from './contentBodyUtil';
 import * as htmlparser2 from "htmlparser2";
 import { type ChildNode as DomHandlerChildNode, Element as DomHandlerElement, Text as DomHandlerText } from 'domhandler';
 import pick from 'lodash/pick';
@@ -17,7 +17,6 @@ import { HydratedIframeWidget } from './HydratedIframeWidget';
 import { validateUrl } from '@/lib/vulcan-lib/utils';
 import { useTracking } from '@/lib/analyticsEvents';
 import repeat from 'lodash/repeat';
-import { captureException } from '@/lib/sentryWrapper';
 import { getColorReplacementsCache } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColorPreservingHue, parseColor } from '@/themes/colorUtil';
 import { useAbstractThemeOptions } from '../themes/useTheme';
@@ -159,14 +158,11 @@ function getIdInsertionDescendIndex(childNodes: DomHandlerChildNode[]): number|n
 let nextContentContextId = 0;
 
 export const ContentItemBody = (props: ContentItemBodyProps) => {
-  const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref, invertSubstitutionColors } = props;
+  const { onContentReady, dangerouslySetInnerHTML, replacedSubstrings, className, ref, invertSubstitutionColors } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
   const abstractThemeOptions = useAbstractThemeOptions();
   useStyles(codeHighlightStyles);
-  const html = (nofollow
-    ? addNofollowToHTML(dangerouslySetInnerHTML.__html)
-    : dangerouslySetInnerHTML.__html
-  );
+  const html = dangerouslySetInnerHTML.__html;
   const parsedHtml = useMemo(() => {
     const parsed = htmlparser2.parseDocument(html);
     if (replacedSubstrings && replacedSubstrings.length > 0) {
@@ -307,6 +303,9 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
         TagName = mapTagNames[TagName];
       }
       const attribs = translateAttribs(parsedHtml.attribs);
+      if (TagName === 'a' && passedThroughProps.nofollow) {
+        attribs.rel = addNofollowToRel(attribs.rel);
+      }
       const id = attribs.id;
       const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
       const isSpoilerElement = containsSpoilerClassName(classNames);
@@ -520,32 +519,13 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, inser
  * HTML was validated before it was passed to ContentItemBody and parsed.
  */
 function translateAttribs(attribs: Record<string,string>): Record<string,any> {
-  let attribsCopy: any = {...attribs};
+  // React's server renderer emits string `on*` attributes on custom elements
+  // (such as MathJax's `mjx-*` elements) as-is, so they're dropped here.
+  let attribsCopy: any = Object.fromEntries(
+    Object.entries(attribs).filter(([name]) => !/^on/i.test(name))
+  );
   if ('style' in attribsCopy) {
     attribsCopy.style = parseInlineStyle(attribs.style);
-  }
-
-  // These two are used in the custom Bayes Rule Guide html.
-  // Using `new Function` seemed safer than `eval`.
-  if ('onclick' in attribsCopy) {
-    try {
-      attribsCopy.onClick = new Function(attribsCopy.onclick);
-      delete attribsCopy.onclick;  
-    } catch (e) {
-      captureException(`Error parsing onclick attribute in ContentItemBody.  Original function string: ${attribsCopy.onclick}.  Error: ${e.message}`);
-      // eslint-disable-next-line no-console
-      console.error('Error parsing onclick attribute', e);
-    }
-  }
-  if ('onchange' in attribsCopy) {
-    try {
-      attribsCopy.onChange = new Function(attribsCopy.onchange);
-      delete attribsCopy.onchange;  
-    } catch (e) {
-      captureException(`Error parsing onchange attribute in ContentItemBody.  Original function string: ${attribsCopy.onchange}.  Error: ${e.message}`);
-      // eslint-disable-next-line no-console
-      console.error('Error parsing onchange attribute', e);
-    }
   }
 
   for (const attribKey of Object.keys(attribsCopy)) {
@@ -843,6 +823,7 @@ function splitTextNode(textNode: DomHandlerText, splitOffsets: number[]): DomHan
 
 function findStringMultiple(needle: string, haystack: string): number[] {
   const indices: number[] = [];
+  if (!needle.length) return indices;
   let index = haystack.indexOf(needle);
   while (index !== -1) {
     indices.push(index);
@@ -879,9 +860,23 @@ const legacyHtmlColorAttributes = ["bgcolor"];
 const cssAttributesNeedingTransform: Record<string,boolean> = {
   "background": true,
   "backgroundColor": true,
-  "borderColor": true,
   "color": true,
 };
+
+const borderAttributesNeedingTransform: Record<string,boolean> = {
+  "border": true,
+  "borderTop": true,
+  "borderRight": true,
+  "borderBottom": true,
+  "borderLeft": true,
+  "borderColor": true,
+  "borderTopColor": true,
+  "borderRightColor": true,
+  "borderBottomColor": true,
+  "borderLeftColor": true,
+};
+
+const colorTokenRegex = /rgba?\([^)]*\)|#[0-9a-f]+|[a-z]+/gi;
 
 function transformStylesForDarkMode(styles: Record<string,string>, themeName: UserThemeSetting): Record<string,string> {
   if (themeName === 'dark' || themeName === 'auto') {
@@ -893,6 +888,8 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
         } else {
           return [attribute, darkModeValue];
         }
+      } else if (borderAttributesNeedingTransform[attribute]) {
+        return [attribute, transformBorderValueForDarkMode(value, themeName)];
       } else {
         return [attribute, value];
       }
@@ -903,22 +900,30 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
 }
 
 function transformAttributeValueForDarkMode(attributeValue: string): string {
-  const normalized = attributeValue.trim().toLowerCase();
-  if (!getColorReplacementsCache()[normalized]) {
-    const parsedColor = parseColor(normalized);
-    if (parsedColor) {
-      const invertedColor = invertColorPreservingHue(parsedColor);
-      getColorReplacementsCache()[normalized] = colorToString(invertedColor);
-    } else {
-      // If unable to parse a color (eg an unsupported color format), use black
-      // as a safe dark-mode background color
-      getColorReplacementsCache()[normalized] = "#000000";
+  // If unable to parse a color (eg an unsupported color format), use black
+  // as a safe dark-mode background color
+  return invertColorForDarkMode(attributeValue) ?? "#000000";
+}
+
+function transformBorderValueForDarkMode(attributeValue: string, themeName: UserThemeSetting): string {
+  return attributeValue.replace(colorTokenRegex, (token) => {
+    const darkModeColor = invertColorForDarkMode(token);
+    if (!darkModeColor) {
+      return token;
     }
+    return themeName === "auto" ? `light-dark(${token},${darkModeColor})` : darkModeColor;
+  });
+}
+
+function invertColorForDarkMode(color: string): string|null {
+  const normalized = color.trim().toLowerCase();
+  const colorReplacements = getColorReplacementsCache();
+  if (!colorReplacements[normalized]) {
+    const parsedColor = parseColor(normalized);
+    if (!parsedColor) {
+      return null;
+    }
+    colorReplacements[normalized] = colorToString(invertColorPreservingHue(parsedColor));
   }
-  
-  if (getColorReplacementsCache()[normalized]) {
-    return getColorReplacementsCache()[normalized];
-  } else {
-    return attributeValue;
-  }
+  return colorReplacements[normalized];
 }

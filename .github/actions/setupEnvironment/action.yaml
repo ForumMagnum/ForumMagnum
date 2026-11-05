@@ -18,47 +18,43 @@ runs:
       uses: actions/cache@v4
       with:
         path: node_modules
-        key: forum-env-cache-${{ hashFiles('yarn.lock') }}
+        key: forum-env-cache-${{ hashFiles('package-lock.json') }}
 
     - name: Cache hocuspocus server node modules
       id: cache-hocuspocus-server-node-modules
       uses: actions/cache@v4
       with:
         path: fly/hocuspocusServer/node_modules
-        key: forum-hocuspocus-server-env-cache-${{ hashFiles('fly/hocuspocusServer/yarn.lock') }}
+        key: forum-hocuspocus-server-env-cache-${{ hashFiles('fly/hocuspocusServer/package-lock.json') }}
 
     - name: Cache Excalidraw build dependencies
       id: cache-excalidraw-node-modules
       uses: actions/cache@v4
       with:
         path: excalidraw/node_modules
-        key: forum-excalidraw-env-cache-${{ hashFiles('excalidraw/yarn.lock') }}
-
-    - name: Setup node-gyp
-      shell: bash
-      run: yarn global add node-gyp
+        key: forum-excalidraw-env-cache-${{ hashFiles('excalidraw/package-lock.json') }}
 
     - name: Install dependencies
       if: steps.cache-node-modules.outputs.cache-hit != 'true'
       shell: bash
-      run: yarn install --frozen-lockfile
+      run: npm ci
 
     - name: Install hocuspocus server dependencies
       if: steps.cache-hocuspocus-server-node-modules.outputs.cache-hit != 'true'
       shell: bash
-      run: yarn install --frozen-lockfile --cwd fly/hocuspocusServer
+      run: npm ci --prefix fly/hocuspocusServer
 
     - name: Install Excalidraw build dependencies
       if: steps.cache-excalidraw-node-modules.outputs.cache-hit != 'true'
       shell: bash
-      run: yarn install --frozen-lockfile --cwd excalidraw
+      run: npm ci --prefix excalidraw --include=dev
 
     # The build output of the vendored Excalidraw isn't committed. It's built by
     # scripts/postinstall.sh, which doesn't run if node_modules was restored
     # from the cache. (This is a no-op if postinstall already built it.)
     - name: Build Excalidraw
       shell: bash
-      run: yarn --cwd excalidraw build
+      run: npm run --prefix excalidraw build
 
     - name: Verify dependencies were installed
       shell: bash
@@ -66,4 +62,4 @@ runs:
 
     - name: Generate Next.js route types
       shell: bash
-      run: yarn next typegen .
+      run: npx --no next typegen .
