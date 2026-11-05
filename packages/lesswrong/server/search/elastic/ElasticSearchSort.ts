@@ -12,8 +12,7 @@ const commentsSortScript = `
   return doc['commentCount'].value;
 `;
 
-// Relevance first; date, karma, and comments break ties, which matters for
-// empty queries where every hit scores the same.
+// Relevance first; date, karma, and comments only break exact score ties.
 const searchSort: SortCombinations[] = [
   {_score: {order: "desc"}},
   {publicDateMs: {order: "desc", missing: "_last", unmapped_type: "long"}},
