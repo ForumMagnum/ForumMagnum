@@ -5,7 +5,7 @@
  * diagnose why the supervisor isn't responding on its port.
  *
  * Usage:
- *   yarn ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json \
+ *   npx ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json \
  *     packages/lesswrong/server/research/sandbox/inspectSandbox.ts <sandboxName>
  */
 import { Sandbox } from "@vercel/sandbox";

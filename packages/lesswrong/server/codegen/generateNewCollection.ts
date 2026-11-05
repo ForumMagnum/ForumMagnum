@@ -548,5 +548,5 @@ export async function generateNewCollection(collectionName?: string) {
       ${accessFiltersPath}
   `);
   // eslint-disable-next-line no-console
-  console.log('Now running `yarn generate`...');
+  console.log('Now running `npm run generate`...');
 }

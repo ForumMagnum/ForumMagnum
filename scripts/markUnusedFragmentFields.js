@@ -68,7 +68,7 @@ function countStrsInStr(haystack, needle) {
 }
 
 function hasAnyTypeErrors() {
-  const result = spawnSync('yarn', ['run', '--silent', 'tsc']);
+  const result = spawnSync('npm', ['run', '--silent', 'tsc']);
   const exitStatus = result.status;
   
   return exitStatus!==0;

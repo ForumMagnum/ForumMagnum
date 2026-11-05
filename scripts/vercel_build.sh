@@ -1,4 +1,4 @@
 #!/bin/bash
-yarn research-supervisor-build \
-  && yarn next build
+npm run research-supervisor-build \
+  && npx next build
 

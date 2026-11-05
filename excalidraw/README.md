@@ -19,8 +19,8 @@ commit's URL.
 
 Only the packages that make up the editor were copied
 (`common`, `element`, `excalidraw`, `fractional-indexing`, `laser-pointer`,
-`math`, `utils`), without their tests. `yarn.lock` started as a copy of
-upstream's, so dependency versions match upstream's.
+`math`, `utils`), without their tests. `package-lock.json` was generated from a copy of
+upstream's `yarn.lock`, so dependency versions match upstream's.
 
 ## Local modifications
 
@@ -43,15 +43,15 @@ Changes to vendored source files are marked with `LessWrong patch` comments
 ## Building
 
 The build output isn't committed. It's built by the main app's
-`scripts/postinstall.sh` (so, on every `yarn install`, including in deploys),
+`scripts/postinstall.sh` (so, on every `npm install`, including in deploys),
 and by the `setupEnvironment` GitHub action in CI. `build.mjs` skips the build
 if none of its inputs have changed since the last one; to force a rebuild, run
 
 ```
-yarn rebuild-excalidraw
+npm run rebuild-excalidraw
 ```
 
-(which runs `yarn install && yarn build --force` in this directory). `build.mjs`
+(which runs `npm install && npm run build -- --force` in this directory). `build.mjs`
 produces (both gitignored):
 
 - `dist/`: an ESM bundle (with lazily-loaded chunks) of the editor, with
@@ -78,6 +78,6 @@ The main app imports the bundle as `@excalidraw/excalidraw` (and types as
 3. Reapply the local modifications listed above.
 4. Update `dependencies` in `package.json` to match the `dependencies` of the
    vendored packages, and update `version`.
-5. Run `yarn rebuild-excalidraw`, and check the changelog
+5. Run `npm run rebuild-excalidraw`, and check the changelog
    (`packages/excalidraw/CHANGELOG.md`) for breaking changes to the props and
    functions used by `ExcalidrawModal.tsx`.
