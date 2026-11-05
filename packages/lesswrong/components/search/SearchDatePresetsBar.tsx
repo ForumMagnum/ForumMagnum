@@ -7,14 +7,14 @@ import SearchChip from './SearchChip';
 
 const dayMs = 24 * 60 * 60 * 1000;
 
-export const searchDatePresets = [
+const searchDatePresets = [
   {label: "Past day", days: 1},
   {label: "Past week", days: 7},
   {label: "Past month", days: 30},
   {label: "Past year", days: 365},
 ];
 
-export function searchDatePresetRange(days: number, nowMs: number): SearchDateRange {
+function searchDatePresetRange(days: number, nowMs: number): SearchDateRange {
   const start = nowMs - (days * dayMs);
   return {start: start - (start % dayMs)};
 }

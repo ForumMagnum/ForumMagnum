@@ -1,4 +1,3 @@
-import qs from "qs";
 import { SearchIndexCollectionName, collectionIsSearchIndexed } from "@/lib/search/searchUtil";
 import {
   SearchDateRange,
@@ -91,7 +90,7 @@ function parseDateRange(from: string | undefined, to: string | undefined): Searc
   return {...(start !== undefined ? {start} : {}), ...(end !== undefined ? {end} : {})};
 }
 
-export function searchPageStateFromQuery(query: Record<string, string | undefined>): SearchPageState {
+function searchPageStateFromQuery(query: Record<string, string | undefined>): SearchPageState {
   const kinds = splitList(query.kinds ?? query.contentType).filter(collectionIsSearchIndexed);
   const postTypes = splitList(query.types).filter((type): type is SearchPostType => searchPostTypes.has(type));
   return {
@@ -132,8 +131,4 @@ export function searchPageStateToQuery(state: SearchPageState): Record<string, s
     if (value !== undefined) result[key] = value;
   }
   return result;
-}
-
-export function searchPageLink(query: string, kinds: SearchIndexCollectionName[]): string {
-  return `/search?${qs.stringify({query, ...(kinds.length ? {kinds: kinds.join(",")} : {})})}`;
 }

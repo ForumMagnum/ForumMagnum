@@ -26,11 +26,11 @@ const DEBUG_LOG_ELASTIC_QUERIES = false;
 
 let globalClient: Client | null = null;
 
-export interface SearchExecutor {
+interface SearchExecutor {
   search<TDocument>(request: SearchRequest): Promise<SearchResponse<TDocument>>;
 }
 
-export async function executeSearch(client: SearchExecutor, queryData: SearchQueryData): Promise<HitsOnlySearchResponse> {
+async function executeSearch(client: SearchExecutor, queryData: SearchQueryData): Promise<HitsOnlySearchResponse> {
   const lookup = compilePersonLookup(queryData.search);
   const candidates = lookup ? await completeSearch<PersonCandidate>(client, lookup) : undefined;
   const person = resolvePersonSearch(queryData.search, candidates?.hits.hits.flatMap(hit => hit._source ? [hit._source] : []) ?? []);
