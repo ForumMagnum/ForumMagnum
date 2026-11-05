@@ -42,6 +42,7 @@ interface SearchSequence extends SearchBase {
   userId: string | null,
   createdAt: string,
   af: boolean,
+  curated: boolean,
   authorDisplayName?: string | null,
   authorUserName?: string | null,
   authorSlug?: string | null,

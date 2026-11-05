@@ -1,33 +1,13 @@
-import { compileSearchQuery } from "../../server/search/elastic/ElasticAdditiveRanking";
+import { compileSearchQuery, rankingWeights } from "../../server/search/elastic/ElasticAdditiveRanking";
 import { compilePersonLookup, resolvePersonSearch } from "../../server/search/elastic/ElasticPersonSearch";
-import { compileSearchSort } from "../../server/search/elastic/ElasticSearchSort";
+import { searchSort } from "../../server/search/elastic/ElasticSearchSort";
 
 const eliezer = {objectID: "ey", displayName: "Eliezer Yudkowsky", slug: "eliezer-yudkowsky", karma: 10000};
 
-it("puts curated sequences first before pagination", () => {
-  const now = jest.spyOn(Date, "now").mockReturnValue(1789160075892);
-  const data = {indexes: ["sequences"], search: "alignment", curatedSequenceIds: ["curated"]};
-  const regular = compileSearchQuery({...data, curatedSequenceIds: []});
-  const request = compileSearchQuery({...data, offset: 10, limit: 5});
-  now.mockRestore();
-  expect(request.query).toEqual(regular.query);
-  expect(request).toMatchObject({from: 10, size: 5});
-  expect(request.sort).toEqual([
-    {_script: {type: "number", order: "desc", script: {
-      source: expect.stringContaining("params.ids.contains(doc['objectID'].value)"),
-      params: {ids: ["curated"]},
-    }}},
-    {_score: {order: "desc"}},
-    {publicDateMs: {order: "desc", missing: "_last", unmapped_type: "long"}},
-    {_script: {type: "number", order: "desc", script: {source: expect.stringContaining("'karma'")}}},
-    {_script: {type: "number", order: "desc", script: {source: expect.stringContaining("'commentCount'")}}},
-    {objectID: "asc"}, {_index: "asc"},
-  ]);
-});
-
-it("does not promote curated sequences in mixed results", () => {
-  const request = compileSearchQuery({indexes: ["posts", "sequences"], search: "alignment", curatedSequenceIds: ["curated"]});
-  expect(request.sort).toEqual(compileSearchSort());
+it("scores curated sequences with a bounded bonus rather than sorting them first", () => {
+  const request = compileSearchQuery({indexes: ["sequences"], search: "alignment"});
+  expect(request.sort).toEqual(searchSort);
+  expect(JSON.stringify(request.query)).toContain(`{"weight":${rankingWeights.context.curated},"filter":{"term":{"curated":true}}}`);
 });
 
 it("recognizes exact and prominent first names, retains ambiguity, and extracts topics", () => {
@@ -55,7 +35,7 @@ it("keeps the same ranked query and deterministic tie-breakers across pages", ()
   expect(secondPage.from).toBe(3);
   expect(secondPage.size).toBe(3);
   expect(secondPage.track_total_hits).toBe(true);
-  expect(secondPage.sort).toEqual(compileSearchSort());
+  expect(secondPage.sort).toEqual(searchSort);
 });
 
 it("preserves advanced filters and disables inferred authorship", () => {

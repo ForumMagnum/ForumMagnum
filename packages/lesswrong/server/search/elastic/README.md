@@ -53,7 +53,7 @@ G(T) = 0.1 + 0.9 × min(T / 5, 1)²
 | H, title coverage | Adds 1 for multiple content tokens or 0.5 for a single content token. Complete analyzed coverage or title-prefix coverage qualifies once. |
 | N, navigation | Exact title adds 0/2.5/4.5 for 1/2/3+ content tokens. Unfinished title prefixes receive the same bounded preference. For one-word queries, a wiki/tag page named exactly by the word adds 3, one whose first word is the word or a near spelling adds 1.5, one containing it elsewhere adds 1. A pasted document URL adds 8 within identifier-only eligibility. A bare document ID adds 8 to the document with exactly that ID, alongside ordinary text recall. |
 | A, relationship | Exact/strong/weak/prefix profiles add 8/6/4/3; authored posts and sequences 3/3/2/1; authored comments 2/2/1.5/0.5. Use the strongest relationship once. Profiles under 100 karma receive half the profile points. |
-| C, context | Curated posts add 0.5; unresolved profiles subtract 0.5. Comments have no fixed penalty. Future events can add up to 1 when event intent is present. |
+| C, context | Curated posts and sequences add 0.5; unresolved profiles subtract 0.5. Comments have no fixed penalty. Future events can add up to 1 when event intent is present. |
 
 The constant 2 keeps Elasticsearch function scores nonnegative and does not
 change ordering. Popularity pivots are posts 15, comments 4, users 3,000, tags 5,
@@ -291,7 +291,7 @@ latency remain useful follow-up validation.
 
 The ranking itself needs no PostgreSQL migration. The new Elasticsearch
 fields must be populated from PostgreSQL: post coauthor IDs, sequence collected
-author IDs, sequence karma, and public user `fullName` aliases. Sequence title mappings also gain the normal
+author IDs, sequence karma, sequence `curated`, and public user `fullName` aliases. Sequence title mappings also gain the normal
 full-text subfields. Existing single-record post updates and chapter mutations
 refresh affected sequence documents.
 

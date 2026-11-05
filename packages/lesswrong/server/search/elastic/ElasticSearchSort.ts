@@ -1,4 +1,4 @@
-import type { Sort, SortCombinations } from "@elastic/elasticsearch/lib/api/types";
+import type { SortCombinations } from "@elastic/elasticsearch/lib/api/types";
 
 const karmaSortScript = `
   String field = doc.containsKey('karma') ? 'karma' : 'baseScore';
@@ -13,7 +13,7 @@ const commentsSortScript = `
 `;
 
 // Relevance first; date, karma, and comments only break exact score ties.
-const searchSort: SortCombinations[] = [
+export const searchSort: SortCombinations[] = [
   {_score: {order: "desc"}},
   {publicDateMs: {order: "desc", missing: "_last", unmapped_type: "long"}},
   {_script: {type: "number", order: "desc", script: {source: karmaSortScript}}},
@@ -21,13 +21,3 @@ const searchSort: SortCombinations[] = [
   {objectID: "asc"},
   {_index: "asc"},
 ];
-
-export function compileSearchSort(curatedSequenceIds: string[] = []): Sort {
-  const curatedFirst: SortCombinations[] = curatedSequenceIds.length ? [{_script: {
-    type: "number", order: "desc", script: {
-      source: "return doc['_index'].value.startsWith('sequences') && params.ids.contains(doc['objectID'].value) ? 1 : 0;",
-      params: {ids: curatedSequenceIds},
-    },
-  }}] : [];
-  return [...curatedFirst, ...searchSort];
-}

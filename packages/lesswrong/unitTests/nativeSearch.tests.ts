@@ -2,7 +2,7 @@ import { compileSearchQuery } from "../server/search/elastic/ElasticAdditiveRank
 import ElasticQuery from "../server/search/elastic/ElasticQuery";
 import ElasticService from "../server/search/elastic/ElasticService";
 import ElasticClient from "../server/search/elastic/ElasticClient";
-import { compileSearchSort } from "../server/search/elastic/ElasticSearchSort";
+import { searchSort } from "../server/search/elastic/ElasticSearchSort";
 
 jest.mock("../server/search/elastic/ElasticClient");
 
@@ -14,7 +14,7 @@ it("paginates one globally ranked request with default and caller filters", () =
   expect(request).toMatchObject({
     index: ["posts", "users", "tags"], from: 20, size: 20,
     search_type: "dfs_query_then_fetch", track_total_hits: true,
-    sort: compileSearchSort(),
+    sort: searchSort,
   });
   const encoded = JSON.stringify(request);
   expect(encoded).toContain('"script_score"');
