@@ -63,8 +63,10 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
     filters: searchFiltersToParams(state.filters),
   };
   const {hits, loading, error, hasMore, total, loadMore} = useSearchResults(request, true);
+  const searchKey = JSON.stringify(request);
+  const analyticsContext = presentation === 'modal' ? "searchBar" : "searchPage";
   const handleResultKeyDown = useSearchPageNavigation({
-    inputRef, resultsRef, searchKey: JSON.stringify(request), loadMore,
+    inputRef, resultsRef, searchKey, loadMore,
   });
 
   useEffect(() => {
@@ -79,9 +81,10 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
 
   useEffect(() => {
     if (state.query) {
-      captureSearch("searchPage", {...searchPageStateToQuery(state), query: state.query});
+      captureSearch(analyticsContext, {...searchPageStateToQuery(state), query: state.query});
     }
-  }, [state, captureSearch]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchKey]);
 
   const setFilters = (patch: Partial<SearchFilterState>) => {
     setState(previous => ({...previous, filters: {...previous.filters, ...patch}}));
@@ -99,7 +102,7 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
       resultType: type,
       position,
       indexName: getSearchIndexName(type),
-      context: "searchPage",
+      context: analyticsContext,
     });
   };
 
