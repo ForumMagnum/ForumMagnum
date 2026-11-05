@@ -1,4 +1,13 @@
-import { $getSelection, $isNodeSelection, getDOMSelectionFromTarget, isHTMLElement } from 'lexical';
+import { $findMatchingParent } from '@lexical/utils';
+import {
+  $createNodeSelection,
+  $getSelection,
+  $isNodeSelection,
+  $isRangeSelection,
+  $setSelection,
+  getDOMSelectionFromTarget,
+  isHTMLElement,
+} from 'lexical';
 
 import { $isImageNode, type ImageNode, type ImagePayload } from '@/components/lexical/nodes/ImageNode';
 
@@ -10,6 +19,20 @@ export function $getImageNodeInSelection(): ImageNode | null {
   const nodes = selection.getNodes();
   const node = nodes[0];
   return $isImageNode(node) ? node : null;
+}
+
+export function $selectImageContainingCaret(): void {
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection)) {
+    return;
+  }
+  const image = $findMatchingParent(selection.anchor.getNode(), $isImageNode);
+  if (!image) {
+    return;
+  }
+  const nodeSelection = $createNodeSelection();
+  nodeSelection.add(image.getKey());
+  $setSelection(nodeSelection);
 }
 
 export function getDragImageData(event: DragEvent): null | ImagePayload {

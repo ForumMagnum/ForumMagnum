@@ -65,6 +65,7 @@ import {
   $handleImageCaptionToggleAsSuggestion,
   $handleImageDeleteAsSuggestion,
   $insertImageNodeAsSuggestion,
+  $replaceImageAsSuggestion,
 } from './imageHandling'
 import { $handleDividerDeleteAsSuggestion } from './dividerHandling'
 import { EditorUserMode, type EditorUserModeType } from '@/components/editor/lexicalPlugins/suggestions/EditorUserMode'
@@ -94,7 +95,7 @@ import { $setElementAlignmentAsSuggestion } from './setElementAlignmentAsSuggest
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
 import { eventFiles } from '@lexical/rich-text'
 import { $createImageNode } from '@/components/lexical/nodes/ImageNode'
-import { isImageFile } from '@/components/lexical/plugins/ImagesPlugin/ImageUtils'
+import { $getImageNodeInSelection, isImageFile } from '@/components/lexical/plugins/ImagesPlugin/ImageUtils'
 import { ImageUploadError, uploadToCloudinary } from '@/components/lexical/utils/cloudinaryUpload'
 import { useMessages } from '@/components/common/withMessages'
 
@@ -961,6 +962,10 @@ export function SuggestionModePlugin({
         INSERT_IMAGE_COMMAND,
         (payload: InsertImagePayload) => {
           const imageNode = $createImageNode(payload)
+          const selectedImage = $getImageNodeInSelection()
+          if (selectedImage) {
+            return $replaceImageAsSuggestion(selectedImage, imageNode, addCreatedIDtoSet, suggestionModeLogger)
+          }
           return $selectionInsertClipboardNodes([imageNode], addCreatedIDtoSet, suggestionModeLogger)
         },
         COMMAND_PRIORITY_CRITICAL,
