@@ -72,7 +72,7 @@ not gain it simply because a title continues afterward. A one-word query is
 recalled in titles it starts a word of ("trans" for "Transgender"), from four
 letters on. Shorter fragments such as "udt" continue too many unrelated titles.
 A title containing or continuing the word opens the popularity gate to at least
-0.6. This adds nothing for an unpopular title, so generic exact titles such as
+1.0. This adds nothing for an unpopular title, so generic exact titles such as
 “History” have no unconditional priority. No ordinary title or profile
 is mathematically guaranteed first place.
 
@@ -327,13 +327,8 @@ The Posts rebuild also populates `question`, which the Questions filter needs, a
 entries are comments, so they appear under the comment kind. A document without the
 `shortform` field stays searchable until the rebuild reaches it.
 
-Development refresh completed on 2026-09-10: 150,379 database rows processed,
-49,211 existing search documents updated, 101,168 absent documents skipped, and
-zero indexing errors. One empty-ID database fixture was excluded because
-Elasticsearch cannot index it. Live question and shortform searches were verified
-after the refresh. Other environments still require this explicit backfill.
-
-Results sort by relevance; date, karma, and comment count break ties. Post
+Results sort by score; date, karma, and comment count only break exact ties. A
+filter-only search has no text evidence, so popularity largely decides its order. Post
 types refine posts without removing other selected content kinds. Events are controlled independently, and numeric range bounds both apply.
 
 ### Removing stale documents
