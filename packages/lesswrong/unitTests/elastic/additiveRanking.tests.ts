@@ -1,6 +1,6 @@
 import type { PersonSearch } from "../../server/search/elastic/ElasticPersonSearch";
 import type { QueryDslQueryContainer } from "@elastic/elasticsearch/lib/api/types";
-import { compileSearchQuery, compoundTitleQuery, matchPoints, navigationPoints, parseIdentifier, popularityGate, popularityPoints, rankingWeights, wantsUpcomingEvents } from "../../server/search/elastic/ElasticAdditiveRanking";
+import { compileSearchQuery, compoundTitleQuery, matchPoints, navigationPoints, parseDocumentUrl, popularityGate, popularityPoints, rankingWeights, wantsUpcomingEvents } from "../../server/search/elastic/ElasticAdditiveRanking";
 
 function interpretations(index: string, search: string, person?: PersonSearch): QueryDslQueryContainer[] {
   const request = compileSearchQuery({indexes: [index], search, person});
@@ -127,19 +127,49 @@ describe("independent interpretations and topical evidence", () => {
 
 describe("identifier navigation", () => {
   it.each([
-    ["yekQKwmQJNk7thDtQ", {objectID: "yekQKwmQJNk7thDtQ"}],
     ["/posts/yekQKwmQJNk7thDtQ/title", {objectID: "yekQKwmQJNk7thDtQ", index: "posts"}],
+    ["/events/yekQKwmQJNk7thDtQ/meetup", {objectID: "yekQKwmQJNk7thDtQ", index: "posts"}],
+    ["/g/CCCCCCCCCCCCCCCCC/p/yekQKwmQJNk7thDtQ/", {objectID: "yekQKwmQJNk7thDtQ", index: "posts"}],
+    ["https://www.lesswrong.com/s/SSSSSSSSSSSSSSSSS/p/yekQKwmQJNk7thDtQ", {objectID: "yekQKwmQJNk7thDtQ", index: "posts"}],
+    ["/posts/yekQKwmQJNk7thDtQ/title?commentId=CCCCCCCCCCCCCCCCC", {objectID: "yekQKwmQJNk7thDtQ", index: "posts", commentId: "CCCCCCCCCCCCCCCCC"}],
+    ["/posts/yekQKwmQJNk7thDtQ/title#CCCCCCCCCCCCCCCCC", {objectID: "yekQKwmQJNk7thDtQ", index: "posts", commentId: "CCCCCCCCCCCCCCCCC"}],
+    ["/posts/yekQKwmQJNk7thDtQ/title#a-heading", {objectID: "yekQKwmQJNk7thDtQ", index: "posts"}],
+    ["/s/SSSSSSSSSSSSSSSSS", {objectID: "SSSSSSSSSSSSSSSSS", index: "sequences"}],
+    ["/sequences/SSSSSSSSSSSSSSSSS", {objectID: "SSSSSSSSSSSSSSSSS", index: "sequences"}],
     ["https://www.alignmentforum.org/users/evhub", {slug: "evhub", index: "users"}],
     ["https://lesswrong.com/w/medianworld", {slug: "medianworld", index: "tags"}],
   ])("recognizes %s", (search, expected) => {
     if (typeof search !== "string") throw new Error("Invalid fixture");
-    expect(parseIdentifier(search)).toEqual(expected);
+    expect(parseDocumentUrl(search)).toEqual(expected);
   });
 
   it.each(["https://evil.example/users/evhub", "https://lesswrong.com.evil.example/users/evhub", "//evil.example/users/evhub", "/users/%E0%A4%A", "https://user@lesswrong.com/users/evhub"])("does not navigate for %s", search => {
-    expect(parseIdentifier(search)).toBeUndefined();
+    expect(parseDocumentUrl(search)).toBeUndefined();
+  });
+
+  it.each(["Superintelligence", "Misunderstandings", "yekQKwmQJNk7thDtQ"])("keeps text and person recall for the bare string %s, crediting only a document with that exact ID", search => {
+    const person: PersonSearch = {userIds: ["u1"], topic: "", confidence: "weak"};
+    const query = interpretations("posts", search, person)[0];
+    const filters = JSON.stringify(lexicalScore(query).function_score?.query?.bool?.filter);
+    expect(filters).toContain(`"multi_match":{"query":"${search}"`);
+    expect(filters).toContain('"userId":["u1"]');
+    expect(filters).not.toContain("match_none");
+    expect(outerScore(query).functions).toContainEqual({weight: rankingWeights.navigation.identifier, filter: {term: {objectID: {value: search}}}});
+  });
+
+  it("restricts a pasted document URL to that document", () => {
+    const query = interpretations("posts", "/posts/yekQKwmQJNk7thDtQ/title")[0];
+    expect(lexicalScore(query).function_score?.query?.bool?.filter).toContainEqual({term: {objectID: {value: "yekQKwmQJNk7thDtQ"}}});
+    expect(JSON.stringify(lexicalScore(interpretations("comments", "/posts/yekQKwmQJNk7thDtQ/title")[0]).function_score?.query?.bool?.filter)).toContain("match_none");
+  });
+
+  it("finds both the post and the comment named by a comment link", () => {
+    const search = "/posts/yekQKwmQJNk7thDtQ/title#CCCCCCCCCCCCCCCCC";
+    expect(lexicalScore(interpretations("posts", search)[0]).function_score?.query?.bool?.filter).toContainEqual({term: {objectID: {value: "yekQKwmQJNk7thDtQ"}}});
+    expect(lexicalScore(interpretations("comments", search)[0]).function_score?.query?.bool?.filter).toContainEqual({term: {objectID: {value: "CCCCCCCCCCCCCCCCC"}}});
   });
 });
+
 
 describe("selective freshness", () => {
   it("requires event intent and disables freshness for history and date filters", () => {
@@ -163,8 +193,8 @@ describe("selective freshness", () => {
 
 describe("bounded compound recovery", () => {
   it("splits long joined terms into adjacent fuzzy title tokens", () => {
-    expect(parseIdentifier("infrabayesiansism")).toBeUndefined();
-    expect(parseIdentifier("/posts/infrabayesiansism")).toEqual({index: "posts", objectID: "infrabayesiansism"});
+    expect(parseDocumentUrl("infrabayesiansism")).toBeUndefined();
+    expect(parseDocumentUrl("/posts/infrabayesiansism")).toEqual({index: "posts", objectID: "infrabayesiansism"});
     const query = compoundTitleQuery("posts", "infrabayesiansism");
     const alternatives = query?.dis_max?.queries ?? [];
     expect(alternatives).toHaveLength(12);
