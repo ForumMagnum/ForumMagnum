@@ -41,6 +41,10 @@ it("recognizes exact and prominent first names, retains ambiguity, and extracts 
   expect(compilePersonLookup('user:ey "corrigibility"')).toBeUndefined();
 });
 
+it("compiles a person lookup for letters whose lowercase form adds a combining mark", () => {
+  expect(JSON.stringify(compilePersonLookup("İstanbul"))).toContain('"value":"İstanbul"');
+});
+
 it("keeps the same ranked query and deterministic tie-breakers across pages", () => {
   const data = {indexes: ["users", "posts", "sequences", "comments"], search: "Eliezer", person: {userIds: ["ey"], topic: "", confidence: "strong" as const}};
   const now = jest.spyOn(Date, "now").mockReturnValue(1789160075892);

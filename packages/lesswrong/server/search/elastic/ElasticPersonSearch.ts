@@ -48,7 +48,7 @@ const minActivePrefixLength = 3;
 const minInfixLength = 4;
 
 function words(text: string): string[] {
-  return text.toLowerCase().replace(/[-_]/g, " ").match(/[\p{L}\p{N}]+/gu) ?? [];
+  return (text.replace(/[-_]/g, " ").match(/[\p{L}\p{N}]+/gu) ?? []).map(word => word.toLowerCase());
 }
 
 function editDistance(a: string, b: string): number {
