@@ -167,7 +167,7 @@ export function $handleImageDragAndDropAsSuggestion(
   const data = getDragImageData(event)
   if (!data) {
     logger.info('Could not get image data from event')
-    return true
+    return false
   }
   event.preventDefault()
   if (!$canDropImage(event)) {

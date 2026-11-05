@@ -546,7 +546,13 @@ export default function ImagesPlugin({
         INSERT_IMAGE_COMMAND,
         (payload) => {
           const imageNode = $createImageNode(payload);
-          $insertNodes([imageNode]);
+          const selectedImage = $getImageNodeInSelection();
+          if (selectedImage) {
+            selectedImage.replace(imageNode);
+            imageNode.selectEnd();
+          } else {
+            $insertNodes([imageNode]);
+          }
           if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
             $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd();
           }
