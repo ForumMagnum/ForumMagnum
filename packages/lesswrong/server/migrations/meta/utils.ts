@@ -272,7 +272,7 @@ function getInitialVersion(document: CreateInputsByCollectionName[CollectionName
   }
 }
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl"
 export const normalizeEditableField = async ({ db: maybeDb, collectionName, fieldName, dropField }: {
   db?: SqlClientOrTx,
   collectionName: CollectionNameString,
@@ -420,7 +420,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
   await undraftPublicPostRevisions(db);
 }
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl"
 export const denormalizeEditableField = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collectionOrCollectionName: CollectionBase<N>|string,

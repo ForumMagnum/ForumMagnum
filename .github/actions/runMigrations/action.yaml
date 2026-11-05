@@ -40,10 +40,10 @@ runs:
 
     - name: Type check
       shell: bash
-      run: yarn tsc
+      run: npm run tsc
 
     - name: Run migrations
       shell: bash
       env:
         FORUM_MAGNUM_MIGRATE_CI: 1
-      run: yarn migrate up ${{ inputs.mode }}
+      run: npm run migrate -- up ${{ inputs.mode }}

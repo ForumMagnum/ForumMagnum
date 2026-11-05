@@ -5662,7 +5662,7 @@ export function gql(source: string) {
   if (!hasWarnedAboutUnknownDocument && process.env.NODE_ENV !== 'production') {
     hasWarnedAboutUnknownDocument = true;
     // eslint-disable-next-line no-console
-    console.warn("Unknown GraphQL document string encountered. Types may be stale; run 'yarn generate'.");
+    console.warn("Unknown GraphQL document string encountered. Types may be stale; run 'npm run generate'.");
   }
 
   let parsedDocument = parsedDocumentCache.get(source);

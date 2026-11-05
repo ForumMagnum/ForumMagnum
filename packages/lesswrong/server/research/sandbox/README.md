@@ -19,7 +19,7 @@ for the design context.
 
 ```sh
 set -a && source .env.local && set +a
-yarn ts-node -r tsconfig-paths/register --swc --project tsconfig-repl.json \
+npx ts-node -r tsconfig-paths/register --swc --project tsconfig-repl.json \
   packages/lesswrong/server/research/sandbox/smokeTest.ts
 ```
 

@@ -50,7 +50,7 @@ const nextConfig: NextConfig = {
   cacheComponents: !isE2E,
   reactStrictMode: false,
   // Lets a second dev instance run from the same checkout (next dev holds a
-  // lock under distDir): NEXT_DIST_DIR=.next-profile yarn start dev -p 3005
+  // lock under distDir): NEXT_DIST_DIR=.next-profile npm run start -- dev -p 3005
   ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
   // next dev blocks requests for its JS bundles from any host other than
   // localhost, so pages viewed through a remote URL never become interactive.

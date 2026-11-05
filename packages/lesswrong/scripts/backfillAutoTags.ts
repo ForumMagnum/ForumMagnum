@@ -18,14 +18,14 @@ import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpe
 // to have no core tag. The tags it applies are marked backfilled, so tag
 // subscribers aren't notified about old posts. Dry-run by default:
 //
-//   yarn repl dev lw packages/lesswrong/scripts/backfillAutoTags.ts 'backfillAutoTags()'
-//   yarn repl dev lw packages/lesswrong/scripts/backfillAutoTags.ts 'backfillAutoTags({ dryRun: false })'
+//   npm run repl -- dev lw packages/lesswrong/scripts/backfillAutoTags.ts 'backfillAutoTags()'
+//   npm run repl -- dev lw packages/lesswrong/scripts/backfillAutoTags.ts 'backfillAutoTags({ dryRun: false })'
 //
 // backfillQuickTakeAutoTags does the same for public quick takes posted since
 // 2026-01-01 that have no tags, newest first, so that a limit covers the ones
 // still on the frontpage:
 //
-//   yarn repl dev lw packages/lesswrong/scripts/backfillAutoTags.ts 'backfillQuickTakeAutoTags({ limit: 200 })'
+//   npm run repl -- dev lw packages/lesswrong/scripts/backfillAutoTags.ts 'backfillQuickTakeAutoTags({ limit: 200 })'
 
 const BACKFILL_SINCE = new Date("2026-01-01T00:00:00Z");
 const CONCURRENCY = 8;

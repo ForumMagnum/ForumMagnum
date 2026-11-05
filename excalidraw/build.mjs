@@ -11,7 +11,7 @@
 //  * We emit a list of font faces (readerFontFaces.json), which the main app
 //    uses to define @font-face rules for diagrams displayed outside the editor.
 //
-// The output isn't committed; this runs on every `yarn install` of the main
+// The output isn't committed; this runs on every `npm install` of the main
 // app (see scripts/postinstall.sh), and skips rebuilding if none of its inputs
 // have changed since the last build. Pass --force to rebuild anyway.
 import { build } from "esbuild";
@@ -315,7 +315,7 @@ function buildTypes() {
 const BUILD_INPUTS = [
   "build.mjs",
   "package.json",
-  "yarn.lock",
+  "package-lock.json",
   "tsconfig.json",
   "assets.d.ts",
   "packages",

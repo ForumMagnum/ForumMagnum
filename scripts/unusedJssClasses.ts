@@ -1,7 +1,7 @@
 /**
  * scripts/unusedJssClasses.ts: Analyzes the codebase with ts-morph and
  * outputs a list of JSS classes that look likely to be unused. Run with
- * `yarn unused-jss-classess`.
+ * `npm run unused-jss-classess`.
  *
  * This is subject to false positives, if code takes `classes` from
  * `useStyles` and does anything not-straightforward with it.

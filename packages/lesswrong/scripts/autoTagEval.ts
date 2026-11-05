@@ -14,7 +14,7 @@ import { AUTO_TAG_SLUGS, type AutoTagDecisions, type AutoTagSlug, classifyAutoTa
  * core-tag slugs to booleans. Tags missing from a post's labels aren't scored.
  *
  * Usage:
- *   yarn repl dev lw packages/lesswrong/scripts/autoTagEval.ts "autoTagEval('/path/labels.json', '/path/results.jsonl')"
+ *   npm run repl -- dev lw packages/lesswrong/scripts/autoTagEval.ts "autoTagEval('/path/labels.json', '/path/results.jsonl')"
  */
 
 const CONCURRENCY = 8;

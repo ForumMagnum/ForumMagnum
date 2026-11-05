@@ -335,7 +335,7 @@ module.exports = {
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars": 0,
 
-    // Unused imports are an error (and are auto-fixable with `yarn eslint --fix`).
+    // Unused imports are an error (and are auto-fixable with `npm run eslint -- --fix`).
     // This is narrower than no-unused-vars: it only looks at import
     // specifiers, and is type-aware so imports that are only used as types
     // count as used.

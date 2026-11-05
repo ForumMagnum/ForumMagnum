@@ -714,7 +714,7 @@ function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
   return filterNonnull(orderIds.map(id => tagsByIdMap[id]));
 }
 
-// Exported to allow running from "yarn repl"
+// Exported to allow running from "npm run repl"
 export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
   const context = createAdminContext({ forumType: "LessWrong" });
   const tag = await Tags.findOne({slug: tagSlug});
@@ -734,7 +734,7 @@ export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
   );
 }
 
-// Exported to allow running from "yarn repl"
+// Exported to allow running from "npm run repl"
 export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
   const resolverContext = createAdminContext({ forumType: "LessWrong" });
   const { Tags } = resolverContext;
