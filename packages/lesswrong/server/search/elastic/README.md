@@ -98,7 +98,7 @@ as text, and additionally gives 8 navigation points to a document whose `objectI
 exactly that string, which places a pasted ID first. Internal LW/AF URLs that name a
 document (`/posts/<id>`, `/events/<id>`, `/s/<id>/p/<id>`, `/g/<id>/p/<id>`,
 `/s/<id>`, `/sequences/<id>`, `/users/<slug>`, `/w/<slug>`) are searched for that document
-only, plus the comment when the link names one with `?commentId=` or `#<id>`. Both still apply all eligibility and permission-related filters.
+only, plus the comment when the link names one with `/comment/<id>`, `?commentId=` or `#<id>`. Both still apply all eligibility and permission-related filters.
 
 Person resolution keeps all plausible candidates for the selected name span,
 with confidence per candidate. Public full names, display names, slugs and
