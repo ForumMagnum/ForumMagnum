@@ -92,33 +92,37 @@ export function popularityGate(match: number): number {
 export interface SearchIdentifier {
   objectID?: string;
   slug?: string;
-  index?: string;
+  index: string;
+  commentId?: string;
 }
 
-const objectIdPattern = /^([A-Za-z0-9]{17}|[0-9a-f]{24})$/;
+const documentId = "([A-Za-z0-9]{17}|[0-9a-f]{24})";
+const documentIdPattern = new RegExp(`^${documentId}$`);
 const urlRoutes: [RegExp, string, "objectID" | "slug"][] = [
-  [/^\/posts\/([A-Za-z0-9]{17}|[0-9a-f]{24})(?:\/|$)/, "posts", "objectID"],
-  [/^\/s\/([A-Za-z0-9]{17})(?:\/|$)/, "sequences", "objectID"],
+  [new RegExp(`^/(?:posts|events)/${documentId}(?:/|$)`), "posts", "objectID"],
+  [new RegExp(`^/(?:s|g)/[^/]+/p/${documentId}(?:/|$)`), "posts", "objectID"],
+  [new RegExp(`^/(?:s|sequences)/${documentId}(?:/|$)`), "sequences", "objectID"],
   [/^\/users\/([^/?#]+)/, "users", "slug"],
   [/^\/(?:w|tag|topics)\/([^/?#]+)/, "tags", "slug"],
 ];
 
-export function parseIdentifier(search: string): SearchIdentifier | undefined {
+export function parseDocumentUrl(search: string): SearchIdentifier | undefined {
   const trimmed = search.trim();
-  if (objectIdPattern.test(trimmed) && (/^[0-9a-f]{24}$/.test(trimmed) || /[A-Z0-9]/.test(trimmed))) return {objectID: trimmed};
   if (!/^https?:\/\//i.test(trimmed) && !/^\/(?!\/)/.test(trimmed)) return undefined;
+  let url: URL;
   let pathname: string;
   try {
-    const url = new URL(trimmed, "https://www.lesswrong.com");
+    url = new URL(trimmed, "https://www.lesswrong.com");
     if (!["lesswrong.com", "www.lesswrong.com", "alignmentforum.org", "www.alignmentforum.org"].includes(url.hostname)
         || url.username || url.password) return undefined;
     pathname = decodeURIComponent(url.pathname);
   } catch {
     return undefined;
   }
+  const commentId = [url.searchParams.get("commentId"), url.hash.slice(1)].find(id => id && documentIdPattern.test(id));
   for (const [pattern, index, kind] of urlRoutes) {
     const matched = pattern.exec(pathname);
-    if (matched) return {[kind]: matched[1], index};
+    if (matched) return {[kind]: matched[1], index, ...(commentId ? {commentId} : {})};
   }
   return undefined;
 }
@@ -245,7 +249,8 @@ function relationshipBranches(index: string, person: PersonSearch): Relationship
 }
 
 function identifierQuery(index: string, identifier: SearchIdentifier): QueryDslQueryContainer | undefined {
-  if (identifier.index && identifier.index !== index) return undefined;
+  if (index === "comments" && identifier.commentId) return {term: {objectID: {value: identifier.commentId}}};
+  if (identifier.index !== index) return undefined;
   if (identifier.objectID) return {term: {objectID: {value: identifier.objectID}}};
   if (!identifier.slug) return undefined;
   if (index === "users") return {term: {"slug.sort": {value: identifier.slug, case_insensitive: true}}};
@@ -347,6 +352,7 @@ interface BranchInput {
   tokenCount: number;
   isAdvanced: boolean;
   identifier?: SearchIdentifier;
+  pastedId?: string;
   person?: PersonSearch;
   recall: QueryDslQueryContainer;
   eligibility: QueryDslQueryContainer[];
@@ -363,7 +369,7 @@ export function compileTopicalRecall(index: string, search: string, allowCompoun
 }
 
 function compileInterpretation(input: BranchInput, relationships: RelationshipBranch[]): QueryDslQueryContainer {
-  const {index, matchSearch, tokenCount, isAdvanced, identifier, person, recall, eligibility, eventIntent} = input;
+  const {index, matchSearch, tokenCount, isAdvanced, identifier, pastedId, person, recall, eligibility, eventIntent} = input;
   const fields = indexFields(index);
   const {navigation, context, popularity} = rankingWeights;
   const pivots: RankingPivots = popularity.pivots;
@@ -374,6 +380,7 @@ function compileInterpretation(input: BranchInput, relationships: RelationshipBr
 
   const outerFunctions: QueryDslFunctionScoreContainer[] = [];
   if (identity) outerFunctions.push({weight: navigation.identifier, filter: identity});
+  if (pastedId) outerFunctions.push({weight: navigation.identifier, filter: {term: {objectID: {value: pastedId}}}});
   if (!identity && fields.title && tokenCount && !isAdvanced) {
     const titlePrefix = titlePrefixQuery(fields, matchSearch);
     const titleCoverage: QueryDslQueryContainer = {match: {[fields.title]: {query: matchSearch, operator: "and"}}};
@@ -457,11 +464,13 @@ function compileIndexBranch(input: BranchInput): QueryDslQueryContainer {
   return {bool: {should: [], filter: [{term: {_index: index}}, ...eligibility], must: [{dis_max: {queries: interpretations, tie_breaker: 0}}]}};
 }
 
-export function compileSearchQuery({indexes, search, offset = 0, limit = 10, filters = [], preTag, postTag, person, curatedSequenceIds}: SearchQueryData): SearchRequest {
+export function compileSearchQuery({indexes, search: rawSearch, offset = 0, limit = 10, filters = [], preTag, postTag, person, curatedSequenceIds}: SearchQueryData): SearchRequest {
   const highlightFields: Record<string, SearchHighlightField> = {};
   const excludes = new Set<string>();
   const queries: QueryDslQueryContainer[] = [];
-  const identifier = parseIdentifier(search);
+  const search = rawSearch.trim();
+  const identifier = parseDocumentUrl(search);
+  const pastedId = documentIdPattern.test(search) ? search : undefined;
   const isAdvanced = !!search && parseQuery(search).isAdvanced;
   if (isAdvanced || identifier) person = undefined;
   const matchSearch = isAdvanced
@@ -490,7 +499,7 @@ export function compileSearchQuery({indexes, search, offset = 0, limit = 10, fil
       };
     }
     queries.push(compileIndexBranch({
-      index, matchSearch, tokenCount, isAdvanced, identifier, person,
+      index, matchSearch, tokenCount, isAdvanced, identifier, pastedId, person,
       recall: recallQuery, eligibility: recall.filters ?? [], eventIntent: wantsUpcomingEvents(search, filters),
     }));
   }

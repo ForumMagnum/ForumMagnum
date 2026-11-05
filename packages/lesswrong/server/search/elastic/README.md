@@ -51,7 +51,7 @@ G(T) = 0.1 + 0.9 × min(T / 5, 1)²
 |---|---|
 | T, topical evidence | Raw content-only BM25 contributes 0–3, complete analyzed term coverage adds 1, title/body phrase proximity adds 1. Author metadata and recall boosts never contribute. |
 | H, title coverage | Adds 1 for multiple content tokens or 0.5 for a single content token. Complete analyzed coverage or title-prefix coverage qualifies once. |
-| N, navigation | Exact title adds 0/2.5/4.5 for 1/2/3+ content tokens. Unfinished title prefixes receive the same bounded preference. For one-word queries, a wiki/tag page named exactly by the word adds 3, one whose first word is the word or a near spelling adds 1.5, one containing it elsewhere adds 1. Identifiers add 8 within identifier-only eligibility. |
+| N, navigation | Exact title adds 0/2.5/4.5 for 1/2/3+ content tokens. Unfinished title prefixes receive the same bounded preference. For one-word queries, a wiki/tag page named exactly by the word adds 3, one whose first word is the word or a near spelling adds 1.5, one containing it elsewhere adds 1. A pasted document URL adds 8 within identifier-only eligibility. A bare document ID adds 8 to the document with exactly that ID, alongside ordinary text recall. |
 | A, relationship | Exact/strong/weak/prefix profiles add 8/6/4/3; authored posts and sequences 3/3/2/1; authored comments 2/2/1.5/0.5. Use the strongest relationship once. Profiles under 100 karma receive half the profile points. |
 | C, context | Curated posts add 0.5; unresolved profiles subtract 0.5. Comments have no fixed penalty. Future events can add up to 1 when event intent is present. |
 
@@ -88,11 +88,14 @@ and advanced syntax do not get compound recovery. This specialized fallback
 was added after the general BM25 calibration; its latency and relevance need
 monitoring on production-scale traffic.
 
-Raw 17-character IDs must contain an uppercase letter or digit; lowercase-only
-17-letter strings remain text to avoid interpreting natural-language typos as
-IDs. 24-character hexadecimal IDs and internal LW/AF URLs are recognized.
-Internal URLs also support lowercase-only IDs. Identifier-only searches still
-apply all eligibility and permission-related filters.
+Generated IDs use letters and digits, so a real word such as “Superintelligence”
+can have the shape of one, and no character class separates the two. A bare string
+with the shape of a 17-character or 24-character hexadecimal ID is therefore searched
+as text, and additionally gives 8 navigation points to a document whose `objectID` is
+exactly that string, which places a pasted ID first. Internal LW/AF URLs that name a
+document (`/posts/<id>`, `/events/<id>`, `/s/<id>/p/<id>`, `/g/<id>/p/<id>`,
+`/s/<id>`, `/sequences/<id>`, `/users/<slug>`, `/w/<slug>`) are searched for that document
+only, plus the comment when the link names one with `?commentId=` or `#<id>`. Both still apply all eligibility and permission-related filters.
 
 Person resolution keeps all plausible candidates for the selected name span,
 with confidence per candidate. Public full names, display names, slugs and
