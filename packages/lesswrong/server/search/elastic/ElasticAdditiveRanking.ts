@@ -200,6 +200,15 @@ function userNameRecall(search: string, minimumShouldMatch: string): QueryDslQue
   ]}};
 }
 
+function userRecall(search: string): QueryDslQueryContainer {
+  const minimumShouldMatch = contentTokens(search).length >= 5 ? "60%" : "2<75%";
+  const profileFields = collectionNameToConfig("Users").fields.map(field => field.split("^")[0]).filter(name => name !== "displayName");
+  return {bool: {minimum_should_match: 1, should: [
+    userNameRecall(search, minimumShouldMatch),
+    {multi_match: {query: search, fields: profileFields, minimum_should_match: minimumShouldMatch}},
+  ]}};
+}
+
 function karmaField(index: string): string {
   return index === "users" ? "karma" : "baseScore";
 }
@@ -473,13 +482,11 @@ export function compileSearchQuery({indexes, search: rawSearch, offset = 0, limi
     const request = elasticQuery.compile();
     for (const field of request.body._source.excludes) excludes.add(field);
     const recall = elasticQuery.compileAdditiveRecall();
-    const recallQuery = index === "users" && search && !isAdvanced
-      ? userNameRecall(search, contentTokens(search).length >= 5 ? "60%" : "2<75%")
-      : recall.query;
+    const recallQuery = index === "users" && search && !isAdvanced ? userRecall(search) : recall.query;
     for (const [field, highlight] of Object.entries(request.body.highlight?.fields ?? {})) {
-      // User recall only queries displayName.exact, and require_field_match means
+      // User recall queries names on displayName.exact, and require_field_match means
       // highlighting has to use the field the query actually targets.
-      const name = isAdvanced || index === "users" ? field : field.replace(/\.exact$/, "");
+      const name = isAdvanced || field === "displayName.exact" ? field : field.replace(/\.exact$/, "");
       const highlightQuery = isAdvanced ? highlight.highlight_query : recallQuery;
       const previous = highlightFields[name]?.highlight_query;
       highlightFields[name] = {

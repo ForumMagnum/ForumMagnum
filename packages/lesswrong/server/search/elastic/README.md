@@ -78,6 +78,9 @@ is mathematically guaranteed first place.
 
 Recall searches exact and stemmed/synonym fields together, with bounded fuzzy
 and prefix alternatives. Recall is a filter, separate from topical scoring.
+Users are also recalled by their bio, job title, organization, location and "how
+I can help" text, without fuzzy matching. That text earns no topical points, so a
+profile-only match ranks below name matches, and among such matches karma decides.
 For a single 12–24-letter ASCII word, a bounded fallback tries adjacent title/name
 tokens with one edit per part, two fixed prefix letters and at most five fuzzy
 expansions per part. This handles joined compounds such as
