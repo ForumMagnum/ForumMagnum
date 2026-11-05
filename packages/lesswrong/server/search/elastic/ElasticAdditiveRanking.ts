@@ -98,6 +98,7 @@ export interface SearchIdentifier {
 
 const documentId = "([A-Za-z0-9]{17}|[0-9a-f]{24})";
 const documentIdPattern = new RegExp(`^${documentId}$`);
+const commentRoute = new RegExp(`^/posts/[^/]+/[^/]+/comment/${documentId}(?:/|$)`);
 const urlRoutes: [RegExp, string, "objectID" | "slug"][] = [
   [new RegExp(`^/(?:posts|events)/${documentId}(?:/|$)`), "posts", "objectID"],
   [new RegExp(`^/(?:s|g)/[^/]+/p/${documentId}(?:/|$)`), "posts", "objectID"],
@@ -119,7 +120,7 @@ export function parseDocumentUrl(search: string): SearchIdentifier | undefined {
   } catch {
     return undefined;
   }
-  const commentId = [url.searchParams.get("commentId"), url.hash.slice(1)].find(id => id && documentIdPattern.test(id));
+  const commentId = [commentRoute.exec(pathname)?.[1], url.searchParams.get("commentId"), url.hash.slice(1)].find(id => id && documentIdPattern.test(id));
   for (const [pattern, index, kind] of urlRoutes) {
     const matched = pattern.exec(pathname);
     if (matched) return {[kind]: matched[1], index, ...(commentId ? {commentId} : {})};

@@ -133,6 +133,7 @@ describe("identifier navigation", () => {
     ["https://www.lesswrong.com/s/SSSSSSSSSSSSSSSSS/p/yekQKwmQJNk7thDtQ", {objectID: "yekQKwmQJNk7thDtQ", index: "posts"}],
     ["/posts/yekQKwmQJNk7thDtQ/title?commentId=CCCCCCCCCCCCCCCCC", {objectID: "yekQKwmQJNk7thDtQ", index: "posts", commentId: "CCCCCCCCCCCCCCCCC"}],
     ["/posts/yekQKwmQJNk7thDtQ/title#CCCCCCCCCCCCCCCCC", {objectID: "yekQKwmQJNk7thDtQ", index: "posts", commentId: "CCCCCCCCCCCCCCCCC"}],
+    ["https://www.lesswrong.com/posts/yekQKwmQJNk7thDtQ/title/comment/CCCCCCCCCCCCCCCCC", {objectID: "yekQKwmQJNk7thDtQ", index: "posts", commentId: "CCCCCCCCCCCCCCCCC"}],
     ["/posts/yekQKwmQJNk7thDtQ/title#a-heading", {objectID: "yekQKwmQJNk7thDtQ", index: "posts"}],
     ["/s/SSSSSSSSSSSSSSSSS", {objectID: "SSSSSSSSSSSSSSSSS", index: "sequences"}],
     ["/sequences/SSSSSSSSSSSSSSSSS", {objectID: "SSSSSSSSSSSSSSSSS", index: "sequences"}],
