@@ -66,7 +66,7 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
   const searchKey = JSON.stringify(request);
   const analyticsContext = presentation === 'modal' ? "searchBar" : "searchPage";
   const handleResultKeyDown = useSearchPageNavigation({
-    inputRef, resultsRef, searchKey, loadMore,
+    inputRef, resultsRef, searchKey, loadMore, query: state.query, enterOpensResult: presentation === 'modal',
   });
 
   useEffect(() => {
