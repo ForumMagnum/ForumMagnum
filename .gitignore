@@ -143,3 +143,6 @@ acxMeetupImports/
 # Claude Code
 .claude
 .env*
+
+# Local search baseline data written by packages/lesswrong/server/scripts/searchBaseline.ts
+/packages/lesswrong/server/scripts/searchBaselineData/
