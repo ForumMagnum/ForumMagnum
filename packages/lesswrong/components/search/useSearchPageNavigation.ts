@@ -6,6 +6,8 @@ interface SearchPageNavigationOptions {
   resultsRef: RefObject<HTMLDivElement | null>,
   searchKey: string,
   loadMore: () => Promise<void>,
+  query: string,
+  enterOpensResult: boolean,
 }
 
 function getResultRows(area: HTMLDivElement | null) {
@@ -25,7 +27,7 @@ function resultFromTarget(area: HTMLDivElement | null, target: EventTarget | nul
   return row && area?.contains(row) && row.querySelector('a[href]') ? row : null;
 }
 
-export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMore}: SearchPageNavigationOptions) {
+export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMore, query, enterOpensResult}: SearchPageNavigationOptions) {
   const previousSearchKey = useRef(searchKey);
   const selected = useRef<HTMLElement | null>(null);
   const attachedArea = useRef<HTMLDivElement | null>(null);
@@ -67,7 +69,8 @@ export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMo
       || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     const input = inputRef.current;
     if (event.key === 'Enter' && event.target === input) {
-      const link = selected.current?.querySelector<HTMLAnchorElement>('a[href]');
+      const resultsMatchInput = input?.value === query;
+      const link = enterOpensResult && resultsMatchInput ? selected.current?.querySelector<HTMLAnchorElement>('a[href]') : null;
       if (link) {
         event.preventDefault();
         event.stopPropagation();
