@@ -1,5 +1,6 @@
 import type { SearchRequest, QueryDslQueryContainer } from "@elastic/elasticsearch/lib/api/types";
 import { parseQuery } from "./parseQuery";
+import { englishStopwords } from "./searchTokens";
 
 /**
  * `prefix` covers a query word that only starts a name word or sits inside a
@@ -145,7 +146,17 @@ function isActive(candidate: PersonCandidate): boolean {
   return (candidate.karma ?? 0) >= activeKarma || (candidate.commentCount ?? 0) >= activeComments;
 }
 
+function isStopwordSpan(tokens: string[], {start, length, confidence}: SpanMatch): boolean {
+  // Whole names and first names stay: "And" can be a display name and "will" a first name.
+  if (confidence === "exact" || confidence === "strong") return false;
+  return tokens.slice(start, start + length).every(token => englishStopwords.has(token));
+}
+
 function candidateSpans(tokens: string[], candidate: PersonCandidate): SpanMatch[] {
+  return allCandidateSpans(tokens, candidate).filter(span => !isStopwordSpan(tokens, span));
+}
+
+function allCandidateSpans(tokens: string[], candidate: PersonCandidate): SpanMatch[] {
   const names = [words(candidate.displayName), ...(candidate.fullName ? [words(candidate.fullName)] : [])];
   const handles = [...(candidate.slug ? [words(candidate.slug)] : []), ...(candidate.username ? [words(candidate.username)] : [])];
   const spans = [...names, ...handles].flatMap(name => exactSpans(tokens, name, "exact"));
@@ -212,6 +223,7 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
     {term: {"fullName.sort": {value, case_insensitive: true, boost: 100}}},
     {term: {"username.keyword": {value, case_insensitive: true, boost: 100}}},
   ]);
+  const fragmentTokens = tokens.filter(token => !englishStopwords.has(token));
   const anchor = tokens.join("").slice(0, 4);
   const partial: QueryDslQueryContainer[] = [
     ...(anchor.length === 4 ? ["displayName.sort", "slug.sort", "fullName.sort"].map(field => ({
@@ -227,9 +239,9 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
     {match: {"displayName.exact": {query: joined, operator: "or", fuzziness: "AUTO", prefix_length: 1}}},
     {match: {"slug.exact": {query: joined, operator: "or", fuzziness: "AUTO", prefix_length: 1}}},
     {match: {"fullName.exact": {query: joined, operator: "or", fuzziness: "AUTO", prefix_length: 1}}},
-    ...tokens.filter(token => token.length >= minPrefixLength && token.length < minActivePrefixLength).flatMap(nameFragmentClauses),
+    ...fragmentTokens.filter(token => token.length >= minPrefixLength && token.length < minActivePrefixLength).flatMap(nameFragmentClauses),
   ];
-  const fragments = tokens.filter(token => token.length >= minActivePrefixLength).flatMap(nameFragmentClauses);
+  const fragments = fragmentTokens.filter(token => token.length >= minActivePrefixLength).flatMap(nameFragmentClauses);
   const active: QueryDslQueryContainer = {bool: {should: [
     {range: {karma: {gte: activeKarma}}}, {range: {commentCount: {gte: activeComments}}},
   ], minimum_should_match: 1}};
