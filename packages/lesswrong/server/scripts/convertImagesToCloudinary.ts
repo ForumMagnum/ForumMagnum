@@ -5,7 +5,7 @@ import { ckEditorUploadUrlSetting, cloudinaryCloudName, ckEditorUploadUrlOverrid
 import { randomId } from '../../lib/random';
 import type { UploadApiResponse } from 'cloudinary';
 import cheerio, { type CheerioAPI } from 'cheerio';
-import { cheerioParse } from '../utils/htmlUtil';
+import { cheerioParse, cheerioParseDocument } from '../utils/htmlUtil';
 import { URL } from 'url';
 import uniq from 'lodash/uniq';
 import sumBy from 'lodash/sumBy';
@@ -338,14 +338,12 @@ function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
   }
 }
 
-// Exported to allow use in "npm run repl"
-export async function convertImagesInHTML(
-  html: string,
+async function convertImagesInParsedHTML(
+  parsedHtml: CheerioAPI,
   originDocumentId: string,
-  urlFilterFn: (url: string) => boolean = () => true,
+  urlFilterFn: (url: string) => boolean,
   imageUrlsCache?: Record<string,string>
-): Promise<{count: number, html: string, failedUrls: string[]}> {
-  const parsedHtml = cheerioParse(html);
+): Promise<{count: number, failedUrls: string[]}> {
   const imgTags = parsedHtml("img").toArray();
   const imgUrls: string[] = [];
   const failedUrls: string[] = [];
@@ -406,9 +404,20 @@ export async function convertImagesInHTML(
 
   return {
     count: count + videoResults.count,
-    html: parsedHtml.html(),
     failedUrls: [...failedUrls, ...videoResults.failedUrls],
   };
+}
+
+// Exported to allow use in "npm run repl"
+export async function convertImagesInHTML(
+  html: string,
+  originDocumentId: string,
+  urlFilterFn: (url: string) => boolean = () => true,
+  imageUrlsCache?: Record<string,string>
+): Promise<{count: number, html: string, failedUrls: string[]}> {
+  const parsedHtml = cheerioParse(html);
+  const {count, failedUrls} = await convertImagesInParsedHTML(parsedHtml, originDocumentId, urlFilterFn, imageUrlsCache);
+  return {count, html: parsedHtml.html(), failedUrls};
 }
 
 async function convertImagesInIframeWidget(
@@ -416,9 +425,10 @@ async function convertImagesInIframeWidget(
   originDocumentId: string,
   urlFilterFn: (url: string) => boolean,
 ): Promise<{count: number, failedUrls: string[]}> {
-  const {count, html, failedUrls} = await convertImagesInHTML(widget.html, originDocumentId, urlFilterFn);
+  const parsedHtml = cheerioParseDocument(widget.html);
+  const {count, failedUrls} = await convertImagesInParsedHTML(parsedHtml, originDocumentId, urlFilterFn);
   if (count > 0) {
-    await IframeWidgetSrcdocs.rawUpdateOne({_id: widget._id}, {$set: {html}});
+    await IframeWidgetSrcdocs.rawUpdateOne({_id: widget._id}, {$set: {html: parsedHtml.html()}});
   }
   return {count, failedUrls};
 }
@@ -427,7 +437,7 @@ async function convertImagesInIframeWidget(
  * Widget contents are stored in IframeWidgetSrcdocs rather than in the
  * revision's HTML, which only has a placeholder div for each one.
  */
-async function convertImagesInIframeWidgets(
+export async function convertImagesInIframeWidgets(
   revisionHtml: string,
   originDocumentId: string,
   urlFilterFn: (url: string) => boolean,

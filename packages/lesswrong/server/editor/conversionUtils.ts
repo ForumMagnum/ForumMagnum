@@ -4,7 +4,7 @@ import { draftToHTML } from '../draftConvert';
 import { captureException } from '@/lib/sentryWrapper';
 import type TurndownService from 'turndown';
 import { isAnyTest } from '../../lib/executionEnvironment';
-import { cheerioParse } from '../utils/htmlUtil';
+import { cheerioParse, cheerioParseDocument } from '../utils/htmlUtil';
 import { sanitize } from "@/lib/utils/sanitize";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { getMarkdownIt, getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
@@ -1059,7 +1059,7 @@ export async function extractAndReplaceIframeWidgets(html: string, revisionId: s
     if (!rawSrcdoc) {
       return;
     }
-    const srcdoc = cheerioParse(rawSrcdoc).root().find('del').remove().end().html() ?? '';
+    const srcdoc = cheerioParseDocument(rawSrcdoc).root().find('del').remove().end().html() ?? '';
 
     const srcdocId = randomId();
     srcdocsToInsert.push({
