@@ -1,5 +1,5 @@
 import { calculateActivityFactor } from './collections/useractivities/utils';
-import { type ForumTypeString, defaultActivityHalfLife, defaultActivityWeight, curatedScoreBonus, defaultDecayFactorFastest, defaultDecayFactorSlowest, frontpageScoreBonus, defaultStartingAgeHours, timeDecayFactor } from './instanceSettings';
+import { type ForumTypeString, defaultActivityHalfLife, defaultActivityWeight, curatedScoreBonus, defaultDecayFactorFastest, defaultDecayFactorSlowest, frontpageScoreBonus, defaultStartingAgeHours, timeDecayFactor, newFrontpagePostKarmaFloor, newFrontpagePostKarmaFloorHours } from './instanceSettings';
 
 export const TIME_DECAY_FACTOR = timeDecayFactor;
 // Basescore bonuses for various categories
@@ -70,20 +70,44 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, visitorActivit
     decayFactorFastest
   );
 
-  const ageInHours = {
-    $divide: [
-      {
-        $subtract: [
-          new Date(),
-          "$postedAt", // Age in miliseconds
-        ],
-      },
-      60 * 60 * 1000,
-    ],
-  };
-
-  return { $pow: [{ $add: [ageInHours, startingAgeHours] }, timeDecayFactor] };
+  return { $pow: [{ $add: [hoursSinceFrontpageAppearanceExpr(), startingAgeHours] }, timeDecayFactor] };
 }
+
+/**
+ * Posts only become eligible for the frontpage once a moderator sets
+ * frontpageDate, which is often many hours after postedAt, so the dynamic
+ * frontpage measures age from whichever is later.
+ */
+const hoursSinceFrontpageAppearanceExpr = () => ({
+  $divide: [
+    {
+      $subtract: [
+        new Date(),
+        { $max: ["$postedAt", { $ifNull: ["$frontpageDate", "$postedAt"] }] },
+      ],
+    },
+    60 * 60 * 1000,
+  ],
+});
+
+/**
+ * Gives positive-karma posts a karma floor while they're new to the
+ * frontpage, so that posts by low-karma authors get some exposure to the
+ * readers whose votes would decide whether they should stay there.
+ */
+export const frontpageBaseScoreExpr = () => ({
+  $cond: {
+    if: { $lt: [hoursSinceFrontpageAppearanceExpr(), newFrontpagePostKarmaFloorHours] },
+    then: {
+      $cond: {
+        if: { $gt: ["$baseScore", 0] },
+        then: { $max: ["$baseScore", newFrontpagePostKarmaFloor] },
+        else: "$baseScore",
+      },
+    },
+    else: "$baseScore",
+  },
+});
 
 // SCORE_BIAS is used in updateScores.ts which is used for all votable documents, this here is used for frontpage posts only. SCORE_BIAS is weirdly name. 
 // It is just adding to the age of the post to make the score decay faster, preventing low karma posts getting on the frontpage for very long.
