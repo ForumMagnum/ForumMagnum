@@ -1,19 +1,65 @@
 "use client";
 
 import React from 'react';
+import { useMutation } from '@apollo/client/react';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
 import EmailPreview from "./EmailPreview";
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 
+const SendEmailPreviewToSelfMutation = gql(`
+  mutation SendEmailPreviewToSelf($input: AdminSendTestEmailInput!) {
+    adminSendTestEmail(input: $input) {
+      ok
+      status
+      email
+    }
+  }
+`);
+
+const styles = defineStyles('NotificationEmailPreviewPage', (theme: ThemeType) => ({
+  sendToSelf: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 12,
+  },
+  sendToSelfError: {
+    color: theme.palette.error.main,
+  },
+}));
+
 const parseIds = (urlStr: string): Array<string> => {
   if (!urlStr) return [];
   return urlStr.split(",");
+}
+
+const EmailThisToMeButton = ({email, userId}: {email: EmailPreview, userId: string}) => {
+  const classes = useStyles(styles);
+  const [sendEmail, {data, loading, error}] = useMutation(SendEmailPreviewToSelfMutation);
+  const result = data?.adminSendTestEmail;
+
+  const handleClick = () => {
+    const {subject, html, text} = email;
+    void sendEmail({variables: {input: {userId, subject, html, text}}});
+  };
+
+  return <div className={classes.sendToSelf}>
+    <Button variant="contained" color="primary" onClick={handleClick} disabled={loading}>
+      Email this to me now
+    </Button>
+    {result?.ok && <span>Sent to {result.email}</span>}
+    {result && !result.ok && <span className={classes.sendToSelfError}>Mailgun returned status {result.status}</span>}
+    {error && <span className={classes.sendToSelfError}>{error.message}</span>}
+  </div>;
 }
 
 const NotificationEmailPreviewPage = () => {
@@ -55,7 +101,10 @@ const NotificationEmailPreviewPage = () => {
       
       {loading && <Loading/>}
       {!loading && emails && emails.filter(email => !!email).map((email, i: number) =>
-        <EmailPreview key={i} email={email}/>
+        <div key={i}>
+          <EmailThisToMeButton email={email} userId={currentUser._id}/>
+          <EmailPreview email={email}/>
+        </div>
       )}
   </SingleColumnSection>
   );

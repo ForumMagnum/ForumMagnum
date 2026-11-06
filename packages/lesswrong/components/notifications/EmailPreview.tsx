@@ -106,7 +106,7 @@ export const EmailPreview = ({
           viewport === "mobile" && classes.mobileBodyFrame,
         )}
         srcDoc={email.html}
-        title={`Email preview: ${email.subject ?? "untitled"}`}
+        title={`Email preview: ${email.subject}`}
         onLoad={handleFrameLoad}
       />
     )}
