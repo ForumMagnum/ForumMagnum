@@ -162,5 +162,6 @@ export {
   syncLexicalUpdateToYjsV2__EXPERIMENTAL,
   syncYjsChangesToLexical,
   syncYjsChangesToLexicalV2__EXPERIMENTAL,
+  syncYjsDocToLexical,
   syncYjsStateToLexicalV2__EXPERIMENTAL,
 } from './SyncEditorStates';
