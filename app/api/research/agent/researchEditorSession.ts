@@ -1,4 +1,3 @@
-import type { HocuspocusProvider } from "@hocuspocus/provider";
 import type { LexicalEditor } from "lexical";
 import { withMainDocEditorSession } from "../../agent/editorAgentUtil";
 
@@ -18,7 +17,7 @@ export async function withResearchDocEditorSession<T>({
   documentId: string;
   token: string;
   operationLabel: string;
-  callback: (args: { editor: LexicalEditor; provider: HocuspocusProvider }) => Promise<T>;
+  callback: (args: { editor: LexicalEditor }) => Promise<T>;
 }): Promise<T> {
   return withMainDocEditorSession({
     collectionName: "ResearchDocuments",

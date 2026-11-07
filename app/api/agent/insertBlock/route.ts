@@ -25,7 +25,7 @@ import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugi
 import { $createIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { $isCollapsibleSectionContainerNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode";
 import { $isCollapsibleSectionContentNode } from "@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode";
-import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
+import { deriveAgentAuthor, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
 import { $collectWidgetNodes, $locateBlockByPrefix, $locateCollapsibleSectionByTitle } from "../textIndexQuoteLocator";
@@ -361,7 +361,7 @@ export async function insertMarkdownBlock({
     postId,
     token,
     operationLabel: "InsertBlock",
-    callback: async ({ editor, provider }) => {
+    callback: async ({ editor }) => {
       let result: InsertBlockResult = { inserted: false, note: "No insertion performed." };
 
       await new Promise<void>((resolve) => {
@@ -373,9 +373,6 @@ export async function insertMarkdownBlock({
         }, { onUpdate: resolve });
       });
 
-      if (result.inserted) {
-        await waitForProviderFlush(provider);
-      }
       return result;
     },
   });

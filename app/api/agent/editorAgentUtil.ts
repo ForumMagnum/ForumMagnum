@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Doc, UndoManager } from "yjs";
-import type { Provider as LexicalProvider } from "@lexical/yjs";
 import { createBinding, syncLexicalUpdateToYjs, syncYjsChangesToLexical } from "@lexical/yjs";
 import {
   $createParagraphNode,
@@ -16,7 +14,6 @@ import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import allLexicalNodes from "@/components/lexical/nodes/allLexicalNodes";
 import { buildTextNodeExportMap } from "@/components/editor/lexicalDomExport";
 import { randomId } from "@/lib/random";
-import { sleep } from "@/lib/utils/asyncUtils";
 import { getLatestRev } from "@/server/editor/utils";
 import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
@@ -26,6 +23,13 @@ import { sanitize } from "@/lib/utils/sanitize";
 import { foldCaseOutsideMath, canonicalizeMathTokens } from "@/lib/utils/mathTokens";
 import type MarkdownIt from "markdown-it";
 import { repairOrphanXmlTextsInRoot } from "@/lib/lexical/repairOrphanXmlTexts";
+import {
+  connectAndSync,
+  createHeadlessProvider,
+  getLexicalCompatibleProvider,
+  hydrateEditorFromDoc,
+  withProviderFlush,
+} from "./headlessProvider";
 
 /**
  * Render agent-supplied markdown to sanitized HTML for import into a Lexical
@@ -92,34 +96,6 @@ export function buildHocuspocusDocumentName(collectionName: string, documentId: 
  */
 export function buildHocuspocusCommentsDocName(collectionName: string, documentId: string): string {
   return `${buildHocuspocusDocumentName(collectionName, documentId)}/comments`;
-}
-
-const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
-const INITIAL_SYNC_SETTLE_MS = 25;
-
-const FLUSH_POLL_INTERVAL_MS = 5;
-const FLUSH_TIMEOUT_MS = 2_000;
-
-/**
- * Wait for a HocuspocusProvider's WebSocket send buffer to drain, indicating
- * that all pending updates have been handed off to the OS network layer.
- *
- * The provider sends Yjs updates synchronously during `doc.transact()` via
- * `ws.send()`, which buffers data immediately. We just need to wait for
- * `bufferedAmount` to reach 0 before destroying the provider so that the
- * close handshake doesn't race with pending data frames.
- *
- * Returns immediately if the WebSocket isn't accessible or the buffer is
- * already empty.
- */
-export async function waitForProviderFlush(provider: HocuspocusProvider): Promise<void> {
-  const ws = provider.configuration.websocketProvider.webSocket;
-  if (!ws || ws.bufferedAmount === 0) return;
-
-  const deadline = Date.now() + FLUSH_TIMEOUT_MS;
-  while (ws.bufferedAmount && ws.bufferedAmount > 0 && Date.now() < deadline) {
-    await sleep(FLUSH_POLL_INTERVAL_MS);
-  }
 }
 
 // 1:1 fold of typographic punctuation onto ASCII equivalents. Restricted to
@@ -334,34 +310,6 @@ export async function authorizeAgentDraftAccess({
   return { token: checkResult.token };
 }
 
-export function waitForProviderSync(provider: HocuspocusProvider): Promise<void> {
-  if (provider.synced) {
-    return Promise.resolve();
-  }
-
-  return new Promise<void>((resolve, reject) => {
-    const timeoutHandle = setTimeout(() => {
-      provider.off("synced", handleSynced);
-      reject(new Error("Timed out waiting for Hocuspocus sync"));
-    }, HOCUSPOCUS_SYNC_TIMEOUT_MS);
-
-    const handleSynced = () => {
-      clearTimeout(timeoutHandle);
-      provider.off("synced", handleSynced);
-      resolve();
-    };
-
-    provider.on("synced", handleSynced);
-  });
-}
-
-export function getLexicalCompatibleProvider(provider: HocuspocusProvider): HocuspocusProvider & LexicalProvider {
-  if (!provider.awareness) {
-    throw new Error("Hocuspocus provider awareness is not initialized");
-  }
-  return provider as HocuspocusProvider & LexicalProvider;
-}
-
 export function createHeadlessEditor(errorLabel: string): LexicalEditor {
   return createEditor({
     namespace: `Agent-${errorLabel}`,
@@ -395,16 +343,8 @@ export async function withMainDocEditorSession<T>({
   postId?: string
   token: string
   operationLabel: string
-  callback: (args: {
-    editor: LexicalEditor
-    provider: HocuspocusProvider
-  }) => Promise<T>
+  callback: (args: { editor: LexicalEditor }) => Promise<T>
 }): Promise<T> {
-  const wsUrl = process.env.HOCUSPOCUS_URL;
-  if (!wsUrl) {
-    throw new Error("HOCUSPOCUS_URL is not configured");
-  }
-
   const effectiveCollectionName = collectionName ?? 'Posts';
   const effectiveDocumentId = documentId ?? postId;
   if (!effectiveDocumentId) {
@@ -413,13 +353,10 @@ export async function withMainDocEditorSession<T>({
   const documentName = buildHocuspocusDocumentName(effectiveCollectionName, effectiveDocumentId);
 
   const doc = new Doc();
-  const provider = new HocuspocusProvider({
-    url: wsUrl,
+  const provider = createHeadlessProvider({
     name: documentName,
     document: doc,
     token,
-    connect: false,
-    preserveConnection: false,
     onSynced: () => {
       try {
         const removed = repairOrphanXmlTextsInRoot(doc);
@@ -459,7 +396,6 @@ export async function withMainDocEditorSession<T>({
       );
     }
   };
-  rootSharedType.observeDeep(onYjsTreeChanges);
   const removeLexicalListener = editor.registerUpdateListener(({
     prevEditorState,
     editorState,
@@ -483,9 +419,9 @@ export async function withMainDocEditorSession<T>({
   });
 
   try {
-    await provider.connect();
-    await waitForProviderSync(provider);
-    await sleep(INITIAL_SYNC_SETTLE_MS);
+    await connectAndSync(provider);
+    hydrateEditorFromDoc(binding, lexicalProvider);
+    rootSharedType.observeDeep(onYjsTreeChanges);
 
     // After sync, verify that the Lexical editor actually has content.
     // A Lexical post should always have a non-empty Yjs document in
@@ -505,9 +441,8 @@ export async function withMainDocEditorSession<T>({
       throw err;
     }
 
-    return await callback({ editor, provider });
+    return await withProviderFlush(provider, () => callback({ editor }));
   } finally {
-    rootSharedType.unobserveDeep(onYjsTreeChanges);
     removeLexicalListener();
     provider.destroy();
     doc.destroy();
@@ -530,32 +465,19 @@ export async function withCommentsDocSession<T>({
   collectionName: string
   documentId: string
   token: string
-  callback: (args: {
-    doc: Doc
-    provider: HocuspocusProvider
-  }) => Promise<T>
+  callback: (args: { doc: Doc }) => Promise<T>
 }): Promise<T> {
-  const wsUrl = process.env.HOCUSPOCUS_URL;
-  if (!wsUrl) {
-    throw new Error("HOCUSPOCUS_URL is not configured");
-  }
-
   const doc = new Doc();
-  const provider = new HocuspocusProvider({
-    url: wsUrl,
+  const provider = createHeadlessProvider({
     name: buildHocuspocusCommentsDocName(collectionName, documentId),
     document: doc,
     token,
-    connect: false,
-    preserveConnection: false,
   });
 
   try {
-    await provider.connect();
-    await waitForProviderSync(provider);
-    return await callback({ doc, provider });
+    await connectAndSync(provider);
+    return await withProviderFlush(provider, () => callback({ doc }));
   } finally {
-    await waitForProviderFlush(provider);
     provider.destroy();
     doc.destroy();
   }

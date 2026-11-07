@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
-import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $insertLLMBlockInEditor } from "../../../../agent/insertLLMBlock/route";
 import { $researchMarkdownToNodes } from "../insertBlock/insertMarkdownBlockInResearchDoc";
 import { validateMentionsOrRespond } from "../../researchMentionValidation";
@@ -43,7 +42,7 @@ async function insertLLMBlockInResearchDoc({
     documentId,
     token: hocuspocusToken,
     operationLabel: "ResearchInsertLLMBlock",
-    callback: async ({ editor, provider }) => {
+    callback: async ({ editor }) => {
       let result: InsertLLMBlockResult = { inserted: false, note: "No insertion performed." };
       await new Promise<void>((resolve) => {
         editor.update(
@@ -56,9 +55,6 @@ async function insertLLMBlockInResearchDoc({
           { onUpdate: resolve },
         );
       });
-      if (result.inserted) {
-        await waitForProviderFlush(provider);
-      }
       return result;
     },
   });

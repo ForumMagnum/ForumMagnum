@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
-import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $locateBlockByPrefix } from "../../../../agent/textIndexQuoteLocator";
 import { $removeBlock, $wrapBlockAsDeletionSuggestion } from "../../../../agent/deleteBlock/route";
 import type { ReplaceMode } from "../../../../agent/toolSchemas";
@@ -42,7 +41,7 @@ async function deleteMarkdownBlockInResearchDoc({
     documentId,
     token: hocuspocusToken,
     operationLabel: "ResearchDeleteBlock",
-    callback: async ({ editor, provider }) => {
+    callback: async ({ editor }) => {
       let result: DeleteBlockResult = { deleted: false, note: "No deletion performed." };
       await new Promise<void>((resolve) => {
         editor.update(
@@ -91,9 +90,6 @@ async function deleteMarkdownBlockInResearchDoc({
           { onUpdate: resolve },
         );
       });
-      if (result.deleted) {
-        await waitForProviderFlush(provider);
-      }
       return result;
     },
   });

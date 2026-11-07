@@ -3,7 +3,6 @@ import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { getMarkdownItForResearch } from "@/lib/utils/markdownItPlugins";
-import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $locateQuoteWithTextIndex } from "../../../../agent/textIndexQuoteLocator";
 import { $applyEditModeReplacement } from "../../../../agent/applyEditAtSelection";
 import { $applySuggestionWithNarrowing } from "../../../../agent/replaceText/route";
@@ -50,7 +49,7 @@ async function replaceTextInResearchDoc({
     documentId,
     token: hocuspocusToken,
     operationLabel: "ResearchReplaceText",
-    callback: async ({ editor, provider }) => {
+    callback: async ({ editor }) => {
       let replaced = false;
       let quoteFoundInDocument = false;
       let locateFailureReason: string | undefined;
@@ -102,10 +101,6 @@ async function replaceTextInResearchDoc({
           { onUpdate: resolve },
         );
       });
-
-      if (replaced) {
-        await waitForProviderFlush(provider);
-      }
 
       if (replaced) {
         return {
