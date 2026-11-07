@@ -3,7 +3,7 @@ import Sequences from "../../server/collections/sequences/collection";
 import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { READ_WORDS_PER_MINUTE } from "@/lib/collections/posts/constants";
+import { READ_WORDS_PER_MINUTE, postStatuses } from "@/lib/collections/posts/constants";
 
 class SequencesRepo extends AbstractRepo<"Sequences"> {
   constructor() {
@@ -17,30 +17,46 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         s."_id",
         s."_id" AS "objectID",
         s."title",
-        s."userId",
+        author."_id" AS "userId",
+        COALESCE(collected."authorIds", ARRAY[]::TEXT[]) AS "collectedAuthorIds",
+        COALESCE(collected."baseScore", 0) AS "baseScore",
         s."createdAt",
         EXTRACT(EPOCH FROM s."createdAt") * 1000 AS "publicDateMs",
         COALESCE(s."isDeleted", FALSE) AS "isDeleted",
         COALESCE(s."draft", FALSE) AS "draft",
         COALESCE(s."hidden", FALSE) AS "hidden",
         COALESCE(s."af", FALSE) AS "af",
+        s."curatedOrder" IS NOT NULL AS "curated",
         s."bannerImageId",
-        CASE
-          WHEN author."deleted" THEN NULL
-          ELSE author."slug"
-        END AS "authorSlug",
-        CASE
-          WHEN author."deleted" THEN NULL
-          ELSE author."displayName"
-        END AS "authorDisplayName",
-        CASE
-          WHEN author."deleted" THEN NULL
-          ELSE author."username"
-        END AS "authorUserName",
+        author."slug" AS "authorSlug",
+        author."displayName" AS "authorDisplayName",
+        author."username" AS "authorUserName",
         s."contents"->>'html' AS "plaintextDescription",
         NOW() AS "exportedAt"
       FROM "Sequences" s
-      LEFT JOIN "Users" author on s."userId" = author."_id"
+      LEFT JOIN "Users" author on s."userId" = author."_id" AND author."deleted" IS NOT TRUE
+      LEFT JOIN LATERAL (
+        SELECT
+          ARRAY(
+            SELECT DISTINCT postAuthor."_id"
+            FROM "Posts" p
+            JOIN "Users" postAuthor ON postAuthor."_id" = ANY(ARRAY[p."userId"] || COALESCE(p."coauthorUserIds", ARRAY[]::TEXT[]))
+            WHERE p."_id" = ANY(public_posts.ids)
+              AND p."hideAuthor" IS NOT TRUE
+              AND postAuthor."deleted" IS NOT TRUE
+          ) AS "authorIds",
+          (SELECT AVG(p."baseScore") FROM "Posts" p WHERE p."_id" = ANY(public_posts.ids)) AS "baseScore"
+        FROM (
+          SELECT ARRAY_AGG(DISTINCT p."_id") AS ids
+          FROM "Chapters" c
+          JOIN "Posts" p ON p."_id" = ANY(c."postIds")
+          WHERE c."sequenceId" = s."_id"
+            AND p."draft" IS NOT TRUE AND p."unlisted" IS NOT TRUE
+            AND p."isFuture" IS NOT TRUE AND p."rejected" IS NOT TRUE
+            AND p."authorIsUnreviewed" IS NOT TRUE AND p."status" = ${postStatuses.STATUS_APPROVED}
+            AND p."baseScore" >= 0
+        ) public_posts
+      ) collected ON TRUE
     `;
   }
 

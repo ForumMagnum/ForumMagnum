@@ -1,5 +1,6 @@
 import type {
   QueryDslQueryContainer,
+  SearchHighlightField,
   Sort,
 } from "@elastic/elasticsearch/lib/api/types";
 
@@ -12,7 +13,9 @@ import {
   collectionNameToConfig,
 } from "./ElasticConfig";
 import { parseQuery, QueryToken } from "./parseQuery";
+import { contentTokens } from "./searchTokens";
 import { searchOriginDate } from "@/lib/instanceSettings";
+import type { SearchPostType } from "@/lib/search/searchFilters";
 import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 
 /**
@@ -37,6 +40,16 @@ export type QueryFilter = {
   op: QueryFilterOperator,
 } | {
   type: "exists"
+} | {
+  type: "tag",
+  value: string[],
+  match?: "any" | "all",
+} | {
+  type: "author",
+  value: string[],
+} | {
+  type: "postType",
+  value: SearchPostType[],
 });
 
 export type QueryData = {
@@ -54,13 +67,44 @@ export type QueryData = {
 
 export type Fuzziness = "AUTO" | number;
 
+export interface AdditiveRecall {
+  query: QueryDslQueryContainer,
+  filters?: QueryDslQueryContainer[],
+  tokens: QueryToken[],
+  isAdvanced: boolean,
+}
+
 type CompiledQuery = {
   tokens: QueryToken[],
   searchQuery: QueryDslQueryContainer,
   snippetName: string,
   snippetQuery?: QueryDslQueryContainer,
-  highlightName?: string,
-  highlightQuery?: QueryDslQueryContainer,
+  highlights?: Record<string, QueryDslQueryContainer | undefined>,
+}
+
+function compileAdvancedHighlight(fieldName: string, tokens: QueryToken[]): QueryDslQueryContainer {
+  const should: QueryDslQueryContainer[] = [];
+  for (const {type, token} of tokens) {
+    if (type === "must") {
+      should.push({match_phrase: {[fieldName]: {query: token, analyzer: "simple"}}});
+    } else if (type === "should") {
+      should.push({match: {[fieldName]: {query: token}}});
+    }
+  }
+  return {bool: {should, minimum_should_match: 1}};
+}
+
+export function compileAuthorshipQuery(collectionName: SearchIndexCollectionName, ids: string[]): QueryDslQueryContainer | undefined {
+  switch (collectionName) {
+  case "Posts":
+    return {bool: {should: [{terms: {userId: ids}}, {terms: {coauthorIds: ids}}], minimum_should_match: 1}};
+  case "Comments":
+    return {terms: {userId: ids}};
+  case "Sequences":
+    return {bool: {should: [{terms: {userId: ids}}, {terms: {collectedAuthorIds: ids}}], minimum_should_match: 1}};
+  default:
+    return undefined;
+  }
 }
 
 class ElasticQuery {
@@ -112,6 +156,7 @@ class ElasticQuery {
     value: boolean | string | null,
     negated: boolean,
   ): QueryDslQueryContainer {
+    if (field === "af" && this.collectionName === "Tags") return {match_all: {}};
     if (value === null) {
       const term: QueryDslQueryContainer = {
         exists: {
@@ -154,6 +199,37 @@ class ElasticQuery {
       : term;
   }
 
+  private resolveNumericField(field: string): string {
+    return field === "karma" ? this.config.karmaField ?? "baseScore" : field;
+  }
+
+  private compileTagFilter(ids: string[], match: "any" | "all" = "any"): QueryDslQueryContainer {
+    if (!["Posts", "Users", "Comments", "Tags"].includes(this.collectionName)) return {match_none: {}};
+    const field = this.collectionName === "Tags" ? "objectID"
+      : this.collectionName === "Comments" ? "tags" : "tags._id";
+    return match === "all"
+      ? {bool: {should: [], filter: ids.map(id => ({term: {[field]: id}}))}}
+      : {terms: {[field]: ids}};
+  }
+
+  private compileAuthorFilter(ids: string[]): QueryDslQueryContainer {
+    if (this.collectionName === "Users") return {terms: {objectID: ids}};
+    return compileAuthorshipQuery(this.collectionName, ids) ?? {match_none: {}};
+  }
+
+  private compilePostTypeFilter(types: SearchPostType[]): QueryDslQueryContainer {
+    if (this.collectionName !== "Posts") return {match_all: {}};
+    const typed: Record<Exclude<SearchPostType, "article">, QueryDslQueryContainer> = {
+      question: {term: {question: true}},
+      event: {term: {isEvent: true}},
+      linkpost: {bool: {should: [], filter: [{exists: {field: "url"}}], must_not: [{term: {url: ""}}]}},
+    };
+    const should = types.map((type) => type === "article"
+      ? {bool: {should: [], must_not: Object.values(typed)}}
+      : typed[type]);
+    return {bool: {should: [...should, {term: {isEvent: true}}], minimum_should_match: 1}};
+  }
+
   private compileFilterTermForField(filter: QueryFilter): QueryDslQueryContainer {
     switch (filter.type) {
     case "facet":
@@ -162,11 +238,20 @@ class ElasticQuery {
     case "numeric":
       return {
         range: {
-          [filter.field]: {
+          [this.resolveNumericField(filter.field)]: {
             [filter.op]: filter.value,
           },
         },
       };
+
+    case "tag":
+      return this.compileTagFilter(filter.value, filter.match);
+
+    case "author":
+      return this.compileAuthorFilter(filter.value);
+
+    case "postType":
+      return this.compilePostTypeFilter(filter.value);
 
     case "exists":
       return {
@@ -202,7 +287,9 @@ class ElasticQuery {
       const fieldTerms = filters.map(
         (filter) => this.compileFilterTermForField(filter),
       );
-      if (fieldTerms.length > 1) {
+      if (filters.every(filter => filter.type === "numeric")) {
+        terms.push(...fieldTerms);
+      } else if (fieldTerms.length > 1) {
         terms.push({
           bool: {
             should: fieldTerms,
@@ -225,6 +312,7 @@ class ElasticQuery {
       } else if (type === "tag") {
         tagFilters.push(
           {term: {"tags._id": token}},
+          {term: {tags: token}},
           {term: {"tags.slug": {value: token, case_insensitive: true}}},
           {term: {"tags.name": {value: token, case_insensitive: true}}},
         );
@@ -297,7 +385,7 @@ class ElasticQuery {
         },
       },
       snippetName: snippet,
-      highlightName: highlight,
+      highlights: Object.fromEntries((highlight ?? []).map(name => [name, undefined])),
     };
   }
 
@@ -313,32 +401,26 @@ class ElasticQuery {
   }
 
   private getAdvancedHighlightQuery(
-    mustToken: string,
+    tokens: QueryToken[],
   ): Omit<CompiledQuery, "searchQuery"> {
     const {snippet, highlight} = this.config;
     const snippetName = `${snippet}.exact`;
-    const highlightName = `${highlight}.exact`;
-    const buildQuery = (fieldName: string) => ({
-      match_phrase: {
-        [fieldName]: {
-          query: mustToken,
-          analyzer: "simple",
-        },
-      },
-    });
+    const highlights: Record<string, QueryDslQueryContainer> = {};
+    for (const name of highlight ?? []) {
+      highlights[`${name}.exact`] = compileAdvancedHighlight(`${name}.exact`, tokens);
+    }
     return {
-      tokens: [{ type: "must", token: mustToken }],
+      tokens,
       snippetName,
-      snippetQuery: buildQuery(snippetName),
-      ...(highlight && {
-        highlightName,
-        highlightQuery: buildQuery(highlightName),
-      }),
+      snippetQuery: compileAdvancedHighlight(snippetName, tokens),
+      highlights,
     };
   }
 
-  private compileAdvancedQuery(tokens: QueryToken[]): CompiledQuery {
+  private compileAdvancedQuery(tokens: QueryToken[], exactText = false): CompiledQuery {
     const {fields, snippet, highlight} = this.config;
+    const textFields = exactText ? fields.map((field) => this.textFieldToExactField(field)) : fields;
+    const highlightSuffix = exactText ? ".exact" : "";
 
     const must: QueryDslQueryContainer[] = [];
     const must_not: QueryDslQueryContainer[] = [];
@@ -364,7 +446,7 @@ class ElasticQuery {
         });
         break;
       case "should":
-        should.push(this.getDefaultQuery(token, fields));
+        should.push(this.getDefaultQuery(token, textFields));
         break;
       case "user":
       case "tag":
@@ -383,7 +465,7 @@ class ElasticQuery {
 
     if (must.length) {
       const advancedHighlight = this.getAdvancedHighlightQuery(
-        must[0].multi_match!.query,
+        tokens,
       );
       return {
         ...advancedHighlight,
@@ -393,21 +475,75 @@ class ElasticQuery {
     }
 
     const highlightQueryString = tokens.filter(
-      ({type}) => type !== "user" && type !== "tag",
+      ({type}) => type === "must" || type === "should",
     ).map(({token}) => token).join(" ");
     const highlightQuery = this.getDefaultQuery(
       highlightQueryString,
-      this.config.fields,
+      textFields,
     );
 
     return {
       tokens,
       searchQuery,
-      snippetName: snippet,
+      snippetName: `${snippet}${highlightSuffix}`,
       snippetQuery: highlightQuery,
-      highlightName: highlight,
-      highlightQuery,
+      highlights: Object.fromEntries((highlight ?? []).map(name => [`${name}${highlightSuffix}`, highlightQuery])),
     };
+  }
+
+  compileAdditiveRecall(): AdditiveRecall {
+    const {search} = this.queryData;
+    const {tokens, isAdvanced} = search ? parseQuery(search) : {tokens: [], isAdvanced: false};
+    const filters = this.compileFilters(tokens);
+    if (!search) return {query: {match_all: {}}, filters, tokens, isAdvanced};
+    if (isAdvanced) return {query: this.compileAdvancedQuery(tokens, true).searchQuery, filters, tokens, isAdvanced};
+    const names = this.config.fields.map((field) => field.split("^")[0]);
+    const main = names[0];
+    const titleField = this.collectionName !== "Comments" && isFullTextField(this.collectionName, main) ? main : undefined;
+    const minimumShouldMatch = contentTokens(search).length >= 5 ? "60%" : "2<75%";
+    const should: QueryDslQueryContainer[] = [
+      {term: {objectID: {value: search}}},
+      {multi_match: {
+        query: search,
+        fields: names.map(name => name === titleField ? `${name}^2` : name),
+        type: "best_fields",
+        fuzziness: 1,
+        prefix_length: 2,
+        max_expansions: 10,
+        minimum_should_match: minimumShouldMatch,
+      }},
+      {multi_match: {
+        query: search,
+        fields: names.map((name) => `${name}.exact`),
+        type: "phrase",
+        slop: 2,
+      }},
+      {match_phrase_prefix: {[`${main}.exact`]: {query: search}}},
+    ];
+    if (titleField) should.push({multi_match: {
+      query: search, fields: [`${titleField}^2`], fuzziness: "AUTO", prefix_length: 1,
+      max_expansions: 10, minimum_should_match: minimumShouldMatch,
+    }});
+    return {query: {bool: {should, minimum_should_match: 1}}, filters, tokens, isAdvanced};
+  }
+
+  compileAdditiveHighlights(recallQuery: QueryDslQueryContainer): Record<string, SearchHighlightField> {
+    const {search} = this.queryData;
+    const {snippet, highlight} = this.config;
+    if (!search) return this.compileHighlightFields({snippetName: snippet}, recallQuery);
+    const {tokens, isAdvanced} = parseQuery(search);
+    if (isAdvanced) {
+      const compiled = this.compileAdvancedQuery(tokens, true);
+      return this.compileHighlightFields(compiled, compiled.searchQuery);
+    }
+    // User recall queries names on displayName.exact, and require_field_match means
+    // highlighting has to use the field the query actually targets.
+    const highlights = Object.fromEntries((highlight ?? []).map(name => [name === "displayName" ? `${name}.exact` : name, recallQuery]));
+    return this.compileHighlightFields({snippetName: snippet, highlights}, recallQuery);
+  }
+
+  getSourceExcludes(): string[] {
+    return ["exportedAt", ...this.config.privateFields];
   }
 
   private compileEmptyQuery(): CompiledQuery {
@@ -416,7 +552,7 @@ class ElasticQuery {
       searchQuery: {
         match_all: {},
       },
-      snippetName: "",
+      snippetName: this.config.snippet,
     };
   }
 
@@ -491,30 +627,14 @@ class ElasticQuery {
     return sort;
   }
 
-  compile() {
-    const {
-      preTag,
-      postTag,
-      index,
-      sorting,
-      offset = 0,
-      limit = 10,
-      coordinates,
-    } = this.queryData;
-    const {privateFields} = this.config;
-
-    // When sorting by nearest-geographically we disable custom highlighting as
-    // this isn't supported by elastic and causes an exception
-    const hasCustomHighlight = !coordinates;
-
-    const {
-      tokens,
-      searchQuery,
-      snippetName,
-      snippetQuery,
-      highlightName,
-      highlightQuery,
-    } = this.compileQuery();
+  private compileHighlightFields(
+    {snippetName, snippetQuery, highlights}: Pick<CompiledQuery, "snippetName" | "snippetQuery" | "highlights">,
+    textQuery: QueryDslQueryContainer,
+  ): Record<string, SearchHighlightField> {
+    const {preTag, postTag} = this.queryData;
+    // The plain highlighter can fail while rewriting filter clauses (notably
+    // negated exists queries in article filters). Highlight only the text query,
+    // retaining the specialized queries used for quoted and advanced searches.
     const highlightConfig =  {
       type: "plain",
       pre_tags: [preTag ?? "<em>"],
@@ -528,6 +648,35 @@ class ElasticQuery {
       max_analyzed_offset: 1000000,
     };
     return {
+      [snippetName]: {
+        ...highlightConfig,
+        highlight_query: snippetQuery ?? textQuery,
+      },
+      ...Object.fromEntries(Object.entries(highlights ?? {}).map(([name, query]) => [name, {
+        ...highlightConfig,
+        number_of_fragments: 0,
+        no_match_size: 0,
+        highlight_query: query ?? textQuery,
+      }])),
+    };
+  }
+
+  compile() {
+    const {
+      index,
+      sorting,
+      offset = 0,
+      limit = 10,
+      coordinates,
+    } = this.queryData;
+
+    // When sorting by nearest-geographically we disable custom highlighting as
+    // this isn't supported by elastic and causes an exception
+    const hasCustomHighlight = !coordinates;
+
+    const compiledQuery = this.compileQuery();
+    const {tokens, searchQuery} = compiledQuery;
+    return {
       index,
       from: offset,
       size: limit,
@@ -536,18 +685,7 @@ class ElasticQuery {
         track_total_hits: true,
         ...(hasCustomHighlight && {
           highlight: {
-            fields: {
-              [snippetName]: {
-                ...highlightConfig,
-                highlight_query: snippetQuery,
-              },
-              ...(highlightName && {
-                [highlightName]: {
-                  ...highlightConfig,
-                  highlight_query: highlightQuery,
-                },
-              }),
-            },
+            fields: this.compileHighlightFields(compiledQuery, searchQuery),
             number_of_fragments: 1,
             fragment_size: 140,
             no_match_size: 140,
@@ -569,7 +707,7 @@ class ElasticQuery {
         },
         sort: this.compileSort(sorting, coordinates),
         _source: {
-          excludes: ["exportedAt", ...privateFields],
+          excludes: this.getSourceExcludes(),
         },
       },
     };

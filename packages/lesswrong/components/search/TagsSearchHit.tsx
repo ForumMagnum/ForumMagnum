@@ -1,3 +1,4 @@
+import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -40,7 +41,7 @@ const TagsSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentPro
   const classes = useStyles(styles);
   const tag = hit as SearchTag;
 
-  const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
+  const showSnippet = hit._snippetResult?.description?.matchLevel !== "none"
 
   return <div className={classes.root}>
     {showIcon && <LWTooltip title="Wikitag">
@@ -48,7 +49,7 @@ const TagsSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentPro
     </LWTooltip>}
     <Link to={tagGetUrl(tag)} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div className={classes.name}>
-        {tag.name}
+        <SearchHighlight hit={hit} attribute="name">{tag.name}</SearchHighlight>
       </div>
       {showSnippet && <div className={classes.snippet}>
         <Snippet attribute="description" hit={tag} tagName="mark" />

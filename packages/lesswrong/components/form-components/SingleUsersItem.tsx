@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { Chip } from '@/components/widgets/Chip';
@@ -31,13 +32,23 @@ const styles = defineStyles('SingleUsersItem', (theme: ThemeType) => ({
       paddingBottom: 3,
     },
   },
+  searchChip: {
+    margin: 0,
+    minHeight: 32,
+    borderRadius: 4,
+    backgroundColor: theme.palette.greyAlpha(0.06),
+    '@media (pointer: coarse)': {minHeight: 40},
+    '&:focus-visible': {outline: `2px solid ${theme.palette.primary.main}`, outlineOffset: 2},
+  },
+  searchItem: {minWidth: 0, maxWidth: '100%'},
   wrapper: {
     display: 'flex',
     flexWrap: 'wrap',
   },
 }), { stylePriority: 1 });
 
-const SingleUsersItem = ({userId, removeItem}: {
+const SingleUsersItem = ({userId, removeItem, variant}: {
+  variant?: "search",
   userId: string,
   removeItem: (id: string) => void,
 }) => {
@@ -48,10 +59,10 @@ const SingleUsersItem = ({userId, removeItem}: {
   const document = data?.user?.result;
 
   if (document && !loading) {
-    return <span className="search-results-users-item users-item">
+    return <span className={classNames("search-results-users-item users-item", {[classes.searchItem]: variant === "search"})}>
       <Chip
         onDelete={() => removeItem(document._id)}
-        className={classes.chip}
+        className={classNames(classes.chip, {[classes.searchChip]: variant === "search"})}
         label={document.displayName}
       />
     </span>

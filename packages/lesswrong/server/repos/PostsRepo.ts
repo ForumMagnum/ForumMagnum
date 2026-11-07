@@ -442,7 +442,14 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       SELECT
         p."_id",
         p."_id" AS "objectID",
-        p."userId",
+        author."_id" AS "userId",
+        ARRAY(
+          SELECT coauthor."_id"
+          FROM "Users" coauthor
+          WHERE coauthor."_id" = ANY(p."coauthorUserIds")
+            AND coauthor."deleted" IS NOT TRUE
+            AND p."hideAuthor" IS NOT TRUE
+        ) AS "coauthorIds",
         p."url",
         p."title",
         p."slug",
@@ -456,6 +463,9 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         EXTRACT(EPOCH FROM p."postedAt") * 1000 AS "publicDateMs",
         COALESCE(p."isFuture", FALSE) AS "isFuture",
         COALESCE(p."isEvent", FALSE) AS "isEvent",
+        COALESCE(p."question", FALSE) AS "question",
+        COALESCE(p."shortform", FALSE) AS "shortform",
+        p."startTime",
         COALESCE(p."rejected", FALSE) AS "rejected",
         COALESCE(p."authorIsUnreviewed", FALSE) AS "authorIsUnreviewed",
         COALESCE(p."unlisted", FALSE) AS "unlisted",
@@ -471,18 +481,9 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           t."_id" = ANY(fm_post_tag_ids(p."_id")) AND
           t."deleted" IS NOT TRUE
         ) AS "tags",
-        CASE
-          WHEN author."deleted" THEN NULL
-          ELSE author."slug"
-        END AS "authorSlug",
-        CASE
-          WHEN author."deleted" THEN NULL
-          ELSE author."displayName"
-        END AS "authorDisplayName",
-        CASE
-          WHEN author."deleted" THEN NULL
-          ELSE author."fullName"
-        END AS "authorFullName",
+        author."slug" AS "authorSlug",
+        author."displayName" AS "authorDisplayName",
+        author."fullName" AS "authorFullName",
         rss."nickname" AS "feedName",
         p."feedLink",
         revision."html" AS "body",
@@ -490,6 +491,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       FROM "Posts" p
       LEFT JOIN "Revisions" revision ON p."contents_latest" = revision."_id"
       LEFT JOIN "Users" author ON p."userId" = author."_id"
+        AND author."deleted" IS NOT TRUE AND p."hideAuthor" IS NOT TRUE
       LEFT JOIN "RSSFeeds" rss ON p."feedId" = rss."_id"
     `;
   }

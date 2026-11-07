@@ -1,12 +1,11 @@
+import SearchResultRow from "./SearchResultRow";
+import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
-import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { Link } from "../../lib/reactRouterWrapper";
-import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -15,18 +14,11 @@ import { useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
+    paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 18,
+    marginBottom: 0,
     cursor: 'pointer',
-    '&:hover': {
-      opacity: 0.5
-    }
-  },
-  link: {
-    '&:hover': {
-      opacity: 1
-    }
   },
   authorRow: {
     display: "flex",
@@ -69,11 +61,12 @@ const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => (
   }
 }))
 
-const ExpandedCommentsSearchHit = ({hit}: {
+const ExpandedCommentsSearchHit = ({hit, icon, compact}: {
   hit: Hit<any>,
+  icon?: React.ReactNode,
+  compact?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const navigate = useNavigate();
   const comment: SearchComment = hit
   
   let url = "";
@@ -88,12 +81,9 @@ const ExpandedCommentsSearchHit = ({hit}: {
     url = tagGetCommentLink({tagSlug: comment.tagSlug, commentId: comment._id, tagCommentType: comment.tagCommentType})
   }
   
-  const handleClick = () => {
-    navigate(url)
-  }
 
-  return <div className={classes.root} onClick={handleClick}>
-    <Link to={url} className={classes.link} onClick={(e) => e.stopPropagation()}>
+  return <SearchResultRow href={url} label={comment.postTitle ?? comment.tagName ?? "Comment"} icon={icon} compact={compact} className={classes.root}>
+    <div>
       {comment.postTitle && <div className={classes.title}>
         {comment.postTitle}
       </div>}
@@ -104,15 +94,15 @@ const ExpandedCommentsSearchHit = ({hit}: {
       <div className={classes.snippet}>
         <Snippet className={classes.snippet} attribute="body" hit={comment} tagName="mark" />
       </div>
-    </Link>
+    </div>
     <div className={classes.authorRow}>
-      {comment.authorSlug ? <Link to={userGetProfileUrlFromSlug(comment.authorSlug)} onClick={(e) => e.stopPropagation()}>
-        {comment.authorDisplayName}
-      </Link> : <UserNameDeleted />}
+      {comment.authorSlug ? <span>
+        <SearchHighlight hit={hit} attribute="authorDisplayName">{comment.authorDisplayName}</SearchHighlight>
+      </span> : <UserNameDeleted />}
       <span>{comment.baseScore ?? 0} karma</span>
       <FormatDate date={comment.createdAt} />
     </div>
-  </div>
+  </SearchResultRow>
 }
 
 export default ExpandedCommentsSearchHit;

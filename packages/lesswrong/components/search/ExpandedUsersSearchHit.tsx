@@ -1,5 +1,6 @@
+import SearchResultRow from "./SearchResultRow";
+import SearchHighlight from "./SearchHighlight";
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -12,9 +13,10 @@ import { useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
+    paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 18
+    marginBottom: 0
   },
   link: {
     display: "flex",
@@ -43,7 +45,7 @@ const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
     color: theme.palette.grey[500],
   },
   displayName: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.grey[800],
     fontWeight: 600,
@@ -65,18 +67,20 @@ const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedUsersSearchHit = ({hit}: {
+const ExpandedUsersSearchHit = ({hit, icon, compact}: {
   hit: Hit<any>,
+  icon?: React.ReactNode,
+  compact?: boolean,
 }) => {
   const classes = useStyles(styles);
   const user = hit as SearchUser;
 
-  return <div className={classes.root}>
-    <Link to={`${userGetProfileUrl(user)}?from=search_page`} className={classes.link}>
+  return <SearchResultRow href={`${userGetProfileUrl(user)}?from=search_page`} label={user.displayName} icon={icon} compact={compact} className={classes.root}>
+    <div className={classes.link}>
       <div>
         <div className={classes.displayNameRow}>
           <span className={classes.displayName}>
-            {user.displayName}
+            <SearchHighlight hit={hit} attribute="displayName">{user.displayName}</SearchHighlight>
           </span>
           <FormatDate date={user.createdAt} />
           <span className={classes.metaInfo}>
@@ -93,8 +97,8 @@ const ExpandedUsersSearchHit = ({hit}: {
           <Snippet className={classes.snippet} attribute="bio" hit={user} tagName="mark" />
         </div>
       </div>
-    </Link>
-  </div>
+    </div>
+  </SearchResultRow>
 }
 
 export default ExpandedUsersSearchHit
