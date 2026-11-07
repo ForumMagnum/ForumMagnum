@@ -12,6 +12,7 @@ import { FormComponentDatePicker } from "../form-components/FormComponentDateTim
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
+import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import type { ReviewYear } from "@/lib/reviewUtils";
 import { useCurrentUser } from "../common/withUser";
@@ -74,6 +75,8 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
   },
   submitQuickTakesNewForm: {
     background: theme.palette.grey[100],
+    paddingLeft: getCommentsNewFormPadding(theme),
+    paddingRight: getCommentsNewFormPadding(theme),
   },
   submitQuickTakesButtonAtBottom: {},
   formButton: {
