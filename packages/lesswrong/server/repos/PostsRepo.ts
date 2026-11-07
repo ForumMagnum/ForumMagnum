@@ -81,6 +81,11 @@ export interface AiDigestRecentlyCuratedPostRow {
   isRead: boolean;
 }
 
+export interface ReadPostForFrontpageRanking {
+  postId: string;
+  hasNewComments: boolean;
+}
+
 export interface AiDigestPastPostOutcomeRow {
   postId: string;
   title: string;
@@ -1092,7 +1097,29 @@ class PostsRepo extends AbstractRepo<"Posts"> {
 
     return new Map(result.map(row => [row.postId, row.isRead]));
   }
-  
+
+  /**
+   * Excludes the user's own posts: authors always have a read status on them,
+   * and demoting those would show authors a lower rank than their readers see.
+   */
+  getReadPostsForFrontpageRanking(userId: string, postedAfter: Date): Promise<ReadPostForFrontpageRanking[]> {
+    return this.getRawDb().any<ReadPostForFrontpageRanking>(`
+      -- PostsRepo.getReadPostsForFrontpageRanking
+      SELECT
+        rs."postId",
+        p."lastCommentedAt" > rs."lastUpdated" AS "hasNewComments"
+      FROM "ReadStatuses" rs
+      JOIN "Posts" p ON p."_id" = rs."postId"
+      WHERE
+        rs."userId" = $(userId)
+        AND rs."isRead" IS TRUE
+        AND rs."lastUpdated" > $(postedAfter)
+        AND p."postedAt" > $(postedAfter)
+        AND p."userId" <> $(userId)
+        AND NOT $(userId) = ANY(p."coauthorUserIds")
+    `, { userId, postedAfter });
+  }
+
   async getHomepageCommunityEvents(limit: number): Promise<Array<HomepageCommunityEventMarker>> {
     return this.getRawDb().any<HomepageCommunityEventMarker>(`
       -- PostsRepo.getHomepageCommunityEvents

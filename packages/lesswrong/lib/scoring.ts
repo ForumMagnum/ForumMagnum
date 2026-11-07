@@ -111,3 +111,43 @@ export const postScoreModifiers = () => {
   ];
 };
 
+export const FRESH_POST_KARMA_FLOOR_HOURS = 6;
+const FRESH_POST_KARMA_FLOOR = 12;
+const READ_POST_SCORE_MULTIPLIER = 0.25;
+const READ_POST_WITH_NEW_COMMENTS_SCORE_MULTIPLIER = 0.5;
+
+export interface FrontpageRankingAdjustments {
+  freshPostFloorPostIds: string[]
+  readPostIds: string[]
+  readPostWithNewCommentsIds: string[]
+}
+
+export const noFrontpageRankingAdjustments: FrontpageRankingAdjustments = {
+  freshPostFloorPostIds: [],
+  readPostIds: [],
+  readPostWithNewCommentsIds: [],
+};
+
+export const isInFreshPostFloorTreatmentArm = (postId: string) => postId.charCodeAt(postId.length - 1) % 2 === 0;
+
+export const frontpageBaseKarmaExpr = ({ freshPostFloorPostIds }: FrontpageRankingAdjustments) => {
+  if (!freshPostFloorPostIds.length) {
+    return "$baseScore";
+  }
+  return {$cond: {
+    if: {_id: {$in: freshPostFloorPostIds}},
+    then: {$max: ["$baseScore", FRESH_POST_KARMA_FLOOR]},
+    else: "$baseScore",
+  }};
+};
+
+export const readPostScoreMultipliers = ({ readPostIds, readPostWithNewCommentsIds }: FrontpageRankingAdjustments) => {
+  const tiers: Array<[string[], number]> = [
+    [readPostIds, READ_POST_SCORE_MULTIPLIER],
+    [readPostWithNewCommentsIds, READ_POST_WITH_NEW_COMMENTS_SCORE_MULTIPLIER],
+  ];
+  return tiers
+    .filter(([postIds]) => postIds.length > 0)
+    .map(([postIds, multiplier]) => ({$cond: {if: {_id: {$in: postIds}}, then: multiplier, else: 1}}));
+};
+

@@ -2,12 +2,13 @@ import moment from 'moment';
 import { timeSeriesIndexExpr, TimeSeries } from './karmaInflation';
 import { getKarmaInflationSeries } from '@/server/karmaInflation/cache';
 import { classifyTagFilters, filterModeToAdditiveKarmaModifier, filterModeToMultiplicativeKarmaModifier, type FilterSettings } from '../../filterSettings';
-import { adminAccountSetting, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
-import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
+import { adminAccountSetting, frontpageDaysAgoCutoffSetting, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
+import { FRESH_POST_KARMA_FLOOR_HOURS, type FrontpageRankingAdjustments, frontpageBaseKarmaExpr, frontpageTimeDecayExpr, isInFreshPostFloorTreatmentArm, noFrontpageRankingAdjustments, postScoreModifiers, readPostScoreMultipliers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, reviewExcludedPostIds, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
 import isEmpty from 'lodash/isEmpty';
+import partition from 'lodash/partition';
 import pick from 'lodash/pick';
 import { visitorGetsDynamicFrontpage } from '../../betas';
 import { getWithCustomLoader } from '@/lib/loaders';
@@ -115,6 +116,31 @@ async function getVisitorActivity(context: ResolverContext): Promise<DbUserActiv
   return null;
 }
 
+async function getFreshPostFloorPostIds(context: ResolverContext): Promise<string[]> {
+  const postedAfter = moment().subtract(FRESH_POST_KARMA_FLOOR_HOURS, 'hours').toDate();
+  const freshPosts = await context.Posts.find(
+    { postedAt: {$gt: postedAfter}, baseScore: {$gt: 0} },
+    {},
+    { _id: 1 },
+  ).fetch();
+  return freshPosts.map(post => post._id).filter(isInFreshPostFloorTreatmentArm);
+}
+
+async function getFrontpageRankingAdjustments(visitorActivity: DbUserActivity|null, context: ResolverContext): Promise<FrontpageRankingAdjustments> {
+  const { currentUser, forumType } = context;
+  const postedAfter = moment().subtract(frontpageDaysAgoCutoffSetting.get(forumType), 'days').toDate();
+  const [freshPostFloorPostIds, readPosts] = await Promise.all([
+    visitorActivity ? getFreshPostFloorPostIds(context) : [],
+    currentUser ? context.repos.posts.getReadPostsForFrontpageRanking(currentUser._id, postedAfter) : [],
+  ]);
+  const [readPostsWithNewComments, readPostsWithoutNewComments] = partition(readPosts, post => post.hasNewComments);
+  return {
+    freshPostFloorPostIds,
+    readPostIds: readPostsWithoutNewComments.map(post => post.postId),
+    readPostWithNewCommentsIds: readPostsWithNewComments.map(post => post.postId),
+  };
+}
+
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  *
@@ -182,7 +208,10 @@ async function defaultView(terms: PostsViewTerms, _: ApolloClient | undefined, c
     const visitorActivity = await getWithCustomLoader(context, "visitorActivityLoader", "_",
       async () => [await getVisitorActivity(context)]
     );
-    const filterParams = filterSettingsToParams(terms.filterSettings, terms, visitorActivity, context);
+    const rankingAdjustments = terms.view === "magic" && visitorGetsDynamicFrontpage(context.currentUser, context.forumType)
+      ? await getFrontpageRankingAdjustments(visitorActivity, context)
+      : noFrontpageRankingAdjustments;
+    const filterParams = filterSettingsToParams(terms.filterSettings, terms, visitorActivity, rankingAdjustments, context);
     params = {
       selector: { ...params.selector, ...filterParams.selector },
       options: { ...params.options, ...filterParams.options },
@@ -306,7 +335,7 @@ export function buildInflationAdjustedField(karmaInflationSeries: TimeSeries): a
   }
 }
 
-function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, visitorActivity: DbUserActivity|null, context: ResolverContext): any {
+function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, visitorActivity: DbUserActivity|null, rankingAdjustments: FrontpageRankingAdjustments, context: ResolverContext): any {
   const {
     required: tagsRequired,
     hidden: tagsExcluded,
@@ -334,7 +363,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     filteredScore: {$divide:[
       {$multiply: [
         {$add:[
-          "$baseScore",
+          frontpageBaseKarmaExpr(rankingAdjustments),
           ...tagsSoftFiltered.map(t => (
             {$cond: {
               if: {$gt: ["$tagRelevance."+t.tagId, 0]},
@@ -352,6 +381,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
             else: 1
           }}
         )),
+        ...readPostScoreMultipliers(rankingAdjustments),
       ]},
       useSlowerFrontpage ? frontpageTimeDecayExpr({
         startingAgeHours: terms.algoStartingAgeHours,
