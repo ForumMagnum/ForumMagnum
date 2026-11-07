@@ -420,8 +420,6 @@ export const curatedScoreBonus: number = 10;
 // EA Frontpage time decay algorithm settings
 export const defaultStartingAgeHours: number = 6;
 export const defaultDecayFactorSlowest: number = 0.5;
-// Max reachable exponent is defaultDecayFactorSlowest * (1 + defaultActivityWeight) = 1.2,
-// so with the current weight this ceiling doesn't bind
 export const defaultDecayFactorFastest: number = 1.2;
 export const defaultActivityWeight: number = 1.4;
 export const defaultActivityHalfLife: number = 60;
