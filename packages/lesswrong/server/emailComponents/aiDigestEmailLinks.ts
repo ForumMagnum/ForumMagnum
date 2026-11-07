@@ -33,11 +33,12 @@ export function aiDigestLinkSlotKey({ issueId, sectionKind, itemIndex }: AiDiges
 }
 
 /**
- * The slot key a link's `utm_content` starts with. Links that belong to no
- * item give a key that matches no slot.
+ * The issue and item slot a link's `utm_content` starts with. Links that
+ * belong to no item give a section kind and index that match no item.
  */
-export function aiDigestLinkSlotKeyFromUtmContent(utmContent: string): string {
-  return utmContent.split(".").slice(0, 3).join(".");
+export function parseAiDigestUtmContent(utmContent: string): { issueId: string; sectionKind: string; itemIndex: number } {
+  const [issueId, sectionKind, itemIndex] = utmContent.split(".");
+  return { issueId, sectionKind, itemIndex: Number(itemIndex) };
 }
 
 export function aiDigestItemLinkUrl(url: string, role: AiDigestLinkRole, slot: AiDigestLinkSlot): string {

@@ -3,6 +3,7 @@ import { isAnyTest, isIntegrationTest } from '@/lib/executionEnvironment';
 export const collectionNameToTypeName = {
   AiDigestIssueGenerations: 'AiDigestIssueGeneration',
   AiDigestIssues: 'AiDigestIssue',
+  AiDigestItemClicks: 'AiDigestItemClick',
   AiDigestSchedules: 'AiDigestSchedule',
   ArbitalCaches: 'ArbitalCaches',
   ArbitalTagContentRels: 'ArbitalTagContentRel',
@@ -115,6 +116,7 @@ export const collectionNameToTypeName = {
 export const typeNameToCollectionName = {
   AiDigestIssueGeneration: 'AiDigestIssueGenerations',
   AiDigestIssue: 'AiDigestIssues',
+  AiDigestItemClick: 'AiDigestItemClicks',
   AiDigestSchedule: 'AiDigestSchedules',
   ArbitalCaches: 'ArbitalCaches',
   ArbitalTagContentRel: 'ArbitalTagContentRels',
@@ -227,6 +229,7 @@ export const typeNameToCollectionName = {
 export const tableNameToCollectionName = {
   aidigestissuegenerations: 'AiDigestIssueGenerations',
   aidigestissues: 'AiDigestIssues',
+  aidigestitemclicks: 'AiDigestItemClicks',
   aidigestschedules: 'AiDigestSchedules',
   arbitalcaches: 'ArbitalCaches',
   arbitaltagcontentrels: 'ArbitalTagContentRels',

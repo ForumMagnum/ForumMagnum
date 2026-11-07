@@ -1314,7 +1314,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       authored AS (
         SELECT p."_id" AS "postId", p."postedAt" AS "at"
         FROM "Posts" p
-        WHERE (p."userId" = $(userId) OR $(userId) = ANY(p."coauthorUserIds"))
+        WHERE (p."userId" = $(userId) OR p."coauthorUserIds" @> ARRAY[$(userId)]::TEXT[])
           AND p."postedAt" >= $(since)
           AND ${aiDigestPublishedPostConditions("p")}
         ORDER BY p."postedAt" DESC
@@ -1333,6 +1333,12 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         GROUP BY c."postId"
         ORDER BY "at" DESC
         LIMIT $(limitPerKind)
+      ),
+      engaged_posts AS (
+        SELECT "postId" FROM reads
+        UNION SELECT "postId" FROM likes
+        UNION SELECT "postId" FROM authored
+        UNION SELECT "postId" FROM commented
       )
       SELECT
         p.title,
@@ -1343,13 +1349,13 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         likes."at" AS "likedAt",
         authored."at" AS "authoredAt",
         commented."at" AS "commentedAt"
-      FROM "Posts" p
+      FROM engaged_posts
+      INNER JOIN "Posts" p ON p."_id" = engaged_posts."postId"
       LEFT JOIN "Users" u ON u."_id" = p."userId"
       LEFT JOIN reads ON reads."postId" = p."_id"
       LEFT JOIN likes ON likes."postId" = p."_id"
       LEFT JOIN authored ON authored."postId" = p."_id"
       LEFT JOIN commented ON commented."postId" = p."_id"
-      WHERE COALESCE(reads."postId", likes."postId", authored."postId", commented."postId") IS NOT NULL
       ORDER BY GREATEST(reads."at", likes."at", authored."at", commented."at") DESC, p."_id"
     `, { userId, since, limitPerKind });
   }
