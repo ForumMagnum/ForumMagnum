@@ -4,8 +4,8 @@ import {
   buildHocuspocusCommentsDocName,
   createHeadlessEditor,
   getLexicalCompatibleProvider,
-  waitForProviderFlush,
   waitForProviderSync,
+  withProviderFlush,
 } from "./editorAgentUtil";
 
 import { CommentStore } from "@/components/lexical/commenting";
@@ -71,6 +71,7 @@ export async function createSuggestionThreadInCommentsDoc({
     document: commentsDoc,
     token,
     connect: false,
+    preserveConnection: false,
   });
 
   const lexicalProvider = getLexicalCompatibleProvider(provider);
@@ -87,13 +88,12 @@ export async function createSuggestionThreadInCommentsDoc({
       authorName,
     });
     const serializedSummary = JSON.stringify(summaryItems);
-    await controller.createSuggestionThread(
+    await withProviderFlush(provider, () => controller.createSuggestionThread(
       suggestionId,
       serializedSummary,
       summaryItems[0]?.type ?? "replace",
-    );
+    ));
   } finally {
-    await waitForProviderFlush(provider);
     unregister();
     provider.destroy();
     commentsDoc.destroy();

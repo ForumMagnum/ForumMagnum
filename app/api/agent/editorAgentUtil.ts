@@ -97,31 +97,6 @@ export function buildHocuspocusCommentsDocName(collectionName: string, documentI
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
 
-const FLUSH_POLL_INTERVAL_MS = 5;
-const FLUSH_TIMEOUT_MS = 2_000;
-
-/**
- * Wait for a HocuspocusProvider's WebSocket send buffer to drain, indicating
- * that all pending updates have been handed off to the OS network layer.
- *
- * The provider sends Yjs updates synchronously during `doc.transact()` via
- * `ws.send()`, which buffers data immediately. We just need to wait for
- * `bufferedAmount` to reach 0 before destroying the provider so that the
- * close handshake doesn't race with pending data frames.
- *
- * Returns immediately if the WebSocket isn't accessible or the buffer is
- * already empty.
- */
-export async function waitForProviderFlush(provider: HocuspocusProvider): Promise<void> {
-  const ws = provider.configuration.websocketProvider.webSocket;
-  if (!ws || ws.bufferedAmount === 0) return;
-
-  const deadline = Date.now() + FLUSH_TIMEOUT_MS;
-  while (ws.bufferedAmount && ws.bufferedAmount > 0 && Date.now() < deadline) {
-    await sleep(FLUSH_POLL_INTERVAL_MS);
-  }
-}
-
 // 1:1 fold of typographic punctuation onto ASCII equivalents. Restricted to
 // length-preserving substitutions so that callers which map positions between
 // pre- and post-normalized strings (e.g. `mapNormalizedIndexToRaw`) remain
@@ -334,25 +309,81 @@ export async function authorizeAgentDraftAccess({
   return { token: checkResult.token };
 }
 
-export function waitForProviderSync(provider: HocuspocusProvider): Promise<void> {
-  if (provider.synced) {
+interface ProviderStateWait {
+  provider: HocuspocusProvider
+  event: "synced" | "unsyncedChanges"
+  pending: () => number
+  timeoutMessage: () => string
+}
+
+function waitForProviderState({ provider, event, pending, timeoutMessage }: ProviderStateWait): Promise<void> {
+  // A reconnect resets `unsyncedChanges` to 1, but updates queued during the
+  // outage get their own acks too, so the count can settle below zero.
+  if (pending() <= 0) {
     return Promise.resolve();
   }
 
   return new Promise<void>((resolve, reject) => {
-    const timeoutHandle = setTimeout(() => {
-      provider.off("synced", handleSynced);
-      reject(new Error("Timed out waiting for Hocuspocus sync"));
-    }, HOCUSPOCUS_SYNC_TIMEOUT_MS);
+    const timeOut = () => {
+      provider.off(event, handleChange);
+      reject(new Error(timeoutMessage()));
+    };
 
-    const handleSynced = () => {
+    let timeoutHandle = setTimeout(timeOut, HOCUSPOCUS_SYNC_TIMEOUT_MS);
+    let fewestPending = pending();
+
+    const handleChange = () => {
+      const left = pending();
+      if (left >= fewestPending) return;
+
+      fewestPending = left;
       clearTimeout(timeoutHandle);
-      provider.off("synced", handleSynced);
+      if (left > 0) {
+        timeoutHandle = setTimeout(timeOut, HOCUSPOCUS_SYNC_TIMEOUT_MS);
+        return;
+      }
+
+      provider.off(event, handleChange);
       resolve();
     };
 
-    provider.on("synced", handleSynced);
+    provider.on(event, handleChange);
   });
+}
+
+export function waitForProviderSync(provider: HocuspocusProvider): Promise<void> {
+  return waitForProviderState({
+    provider,
+    event: "synced",
+    pending: () => (provider.synced ? 0 : 1),
+    timeoutMessage: () => "Timed out waiting for Hocuspocus sync",
+  });
+}
+
+/** Hocuspocus discards updates it hasn't applied when the provider is destroyed. */
+function waitForProviderFlush(provider: HocuspocusProvider): Promise<void> {
+  return waitForProviderState({
+    provider,
+    event: "unsyncedChanges",
+    pending: () => provider.unsyncedChanges,
+    timeoutMessage: () => `Hocuspocus confirmed no updates to ${provider.configuration.name} for ${HOCUSPOCUS_SYNC_TIMEOUT_MS / 1000}s, with ${provider.unsyncedChanges} still unconfirmed`,
+  });
+}
+
+export async function withProviderFlush<T>(provider: HocuspocusProvider, write: () => Promise<T>): Promise<T> {
+  let result: T;
+  try {
+    result = await write();
+  } catch (err) {
+    await waitForProviderFlush(provider).catch((flushErr: unknown) => {
+      // eslint-disable-next-line no-console
+      console.error(`Hocuspocus didn't confirm the updates to ${provider.configuration.name} after a failed write`, flushErr);
+    });
+    throw err;
+  }
+
+  await waitForProviderFlush(provider);
+  return result;
 }
 
 export function getLexicalCompatibleProvider(provider: HocuspocusProvider): HocuspocusProvider & LexicalProvider {
@@ -395,10 +426,7 @@ export async function withMainDocEditorSession<T>({
   postId?: string
   token: string
   operationLabel: string
-  callback: (args: {
-    editor: LexicalEditor
-    provider: HocuspocusProvider
-  }) => Promise<T>
+  callback: (args: { editor: LexicalEditor }) => Promise<T>
 }): Promise<T> {
   const wsUrl = process.env.HOCUSPOCUS_URL;
   if (!wsUrl) {
@@ -505,7 +533,7 @@ export async function withMainDocEditorSession<T>({
       throw err;
     }
 
-    return await callback({ editor, provider });
+    return await withProviderFlush(provider, () => callback({ editor }));
   } finally {
     rootSharedType.unobserveDeep(onYjsTreeChanges);
     removeLexicalListener();
@@ -530,10 +558,7 @@ export async function withCommentsDocSession<T>({
   collectionName: string
   documentId: string
   token: string
-  callback: (args: {
-    doc: Doc
-    provider: HocuspocusProvider
-  }) => Promise<T>
+  callback: (args: { doc: Doc }) => Promise<T>
 }): Promise<T> {
   const wsUrl = process.env.HOCUSPOCUS_URL;
   if (!wsUrl) {
@@ -553,9 +578,8 @@ export async function withCommentsDocSession<T>({
   try {
     await provider.connect();
     await waitForProviderSync(provider);
-    return await callback({ doc, provider });
+    return await withProviderFlush(provider, () => callback({ doc }));
   } finally {
-    await waitForProviderFlush(provider);
     provider.destroy();
     doc.destroy();
   }

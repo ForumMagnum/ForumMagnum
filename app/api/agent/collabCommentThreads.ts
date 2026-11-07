@@ -7,7 +7,6 @@ import type { ThreadType, ThreadStatus } from "@/components/lexical/commenting";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import {
   normalizeText,
-  waitForProviderFlush,
   withCommentsDocSession,
   withMainDocEditorSession,
 } from "./editorAgentUtil";
@@ -99,7 +98,7 @@ async function getMainDocQuoteMatchResult({
     documentId,
     token,
     operationLabel: "CommentOnDraftQuoteMatch",
-    callback: async ({ editor, provider: mainDocProvider }) => {
+    callback: async ({ editor }) => {
       let quoteFoundInDocument = false;
       let createdMarkId: string | null = null;
       let locateFailureReason: string | undefined;
@@ -114,10 +113,6 @@ async function getMainDocQuoteMatchResult({
           }
         }, { onUpdate: resolve });
       });
-
-      if (createdMarkId) {
-        await waitForProviderFlush(mainDocProvider);
-      }
 
       return { quoteFoundInDocument, createdMarkId, locateFailureReason };
     },
@@ -304,16 +299,12 @@ async function removeCommentThreadMarksFromMainDoc({
     documentId,
     token,
     operationLabel: "ResolveCommentThread",
-    callback: async ({ editor, provider }) => {
-      let removedCount = 0;
+    callback: async ({ editor }) => {
       await new Promise<void>((resolve) => {
         editor.update(() => {
-          removedCount = $removeCommentThreadMarks(markId);
+          $removeCommentThreadMarks(markId);
         }, { onUpdate: resolve });
       });
-      if (removedCount > 0) {
-        await waitForProviderFlush(provider);
-      }
     },
   });
 }
