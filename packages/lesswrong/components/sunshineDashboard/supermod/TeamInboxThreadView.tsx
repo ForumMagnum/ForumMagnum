@@ -10,6 +10,8 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { commentGetPageUrl } from '@/lib/collections/comments/helpers';
 import UsersName from '@/components/users/UsersName';
+import { useForumType } from '@/components/hooks/useForumType';
+import { adminAccountSetting } from '@/lib/instanceSettings';
 import LLMScoreBadge from './LLMScoreBadge';
 import type { InboxAction } from './inboxReducer';
 import { isTeamInboxThreadOpen, type TeamInboxThread } from './teamInboxThreads';
@@ -63,11 +65,6 @@ const styles = defineStyles('TeamInboxThreadView', (theme: ThemeType) => ({
     gap: '4px 16px',
     fontSize: 14,
     marginBottom: 12,
-  },
-  username: {
-    marginLeft: 6,
-    color: theme.palette.grey[600],
-    overflowWrap: 'anywhere',
   },
   appealedContent: {
     display: 'flex',
@@ -167,14 +164,13 @@ function getAppealedContentInfo({ post, comment }: RejectionAppealsModerationInf
 
 const ConversationParticipants = ({ participants }: { participants: UsersMinimumInfo[] }) => {
   const classes = useStyles(styles);
-  const nonAdminParticipants = participants.filter(participant => !participant.isAdmin);
-  if (!nonAdminParticipants.length) return null;
+  const { forumType } = useForumType();
+  const teamAccountId = adminAccountSetting.get(forumType)?._id;
+  const nonStaffParticipants = participants.filter(participant => !participant.isAdmin && participant._id !== teamAccountId);
+  if (!nonStaffParticipants.length) return null;
 
   return <div className={classes.participants}>
-    {nonAdminParticipants.map(participant => <span key={participant._id}>
-      <UsersName user={participant} />
-      <span className={classes.username}>{participant.username}</span>
-    </span>)}
+    {nonStaffParticipants.map(participant => <UsersName key={participant._id} user={participant} />)}
   </div>;
 };
 
