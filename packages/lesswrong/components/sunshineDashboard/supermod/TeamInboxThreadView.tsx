@@ -9,6 +9,7 @@ import RejectionNotice from '@/components/posts/PostsPage/RejectionNotice';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { commentGetPageUrl } from '@/lib/collections/comments/helpers';
+import UsersName from '@/components/users/UsersName';
 import LLMScoreBadge from './LLMScoreBadge';
 import type { InboxAction } from './inboxReducer';
 import { isTeamInboxThreadOpen, type TeamInboxThread } from './teamInboxThreads';
@@ -54,6 +55,18 @@ const styles = defineStyles('TeamInboxThreadView', (theme: ThemeType) => ({
     fontSize: 16,
     fontWeight: 500,
     lineHeight: 1.4,
+    overflowWrap: 'anywhere',
+  },
+  participants: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '4px 16px',
+    fontSize: 14,
+    marginBottom: 12,
+  },
+  username: {
+    marginLeft: 6,
+    color: theme.palette.grey[600],
     overflowWrap: 'anywhere',
   },
   appealedContent: {
@@ -151,6 +164,19 @@ function getAppealedContentInfo({ post, comment }: RejectionAppealsModerationInf
   }
   return null;
 }
+
+const ConversationParticipants = ({ participants }: { participants: UsersMinimumInfo[] }) => {
+  const classes = useStyles(styles);
+  const nonAdminParticipants = participants.filter(participant => !participant.isAdmin);
+  if (!nonAdminParticipants.length) return null;
+
+  return <div className={classes.participants}>
+    {nonAdminParticipants.map(participant => <span key={participant._id}>
+      <UsersName user={participant} />
+      <span className={classes.username}>{participant.username}</span>
+    </span>)}
+  </div>;
+};
 
 const AppealedContent = ({ appeal }: { appeal: RejectionAppealsModerationInfo }) => {
   const classes = useStyles(styles);
@@ -251,6 +277,7 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
     <div className={classes.root}>
       <div className={classes.actionsSection}>
         {conversation.title && <h2 className={classes.title}>{conversation.title}</h2>}
+        <ConversationParticipants participants={conversation.participants ?? []} />
         {appeal && <AppealedContent appeal={appeal} />}
         <div className={classes.buttonRow}>
           {appeal && appeal.status === 'open'
