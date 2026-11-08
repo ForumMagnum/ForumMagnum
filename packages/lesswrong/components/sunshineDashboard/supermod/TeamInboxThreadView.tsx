@@ -9,7 +9,8 @@ import RejectionNotice from '@/components/posts/PostsPage/RejectionNotice';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { commentGetPageUrl } from '@/lib/collections/comments/helpers';
-import UsersName from '@/components/users/UsersName';
+import UserTooltip from '@/components/users/UserTooltip';
+import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { useForumType } from '@/components/hooks/useForumType';
 import { adminAccountSetting } from '@/lib/instanceSettings';
 import LLMScoreBadge from './LLMScoreBadge';
@@ -63,8 +64,12 @@ const styles = defineStyles('TeamInboxThreadView', (theme: ThemeType) => ({
     display: 'flex',
     flexWrap: 'wrap',
     gap: '4px 16px',
-    fontSize: 14,
     marginBottom: 12,
+  },
+  participantName: {
+    fontSize: 15,
+    fontWeight: 600,
+    color: theme.palette.primary.main,
   },
   appealedContent: {
     display: 'flex',
@@ -170,7 +175,11 @@ const ConversationParticipants = ({ participants }: { participants: UsersMinimum
   if (!nonStaffParticipants.length) return null;
 
   return <div className={classes.participants}>
-    {nonStaffParticipants.map(participant => <UsersName key={participant._id} user={participant} />)}
+    {nonStaffParticipants.map(participant => <UserTooltip key={participant._id} user={participant} placement="bottom-start" inlineBlock={false}>
+      <Link to={`/admin/supermod?user=${participant._id}`} className={classes.participantName}>
+        {userGetDisplayName(participant, forumType)}
+      </Link>
+    </UserTooltip>)}
   </div>;
 };
 
