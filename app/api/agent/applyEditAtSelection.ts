@@ -1,8 +1,11 @@
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
+import { $isLinkNode, type LinkNode } from "@lexical/link";
 import { $appendImportedFootnotes, splitImportedFootnotes } from "./importFootnotes";
 import {
+  $copyNode,
   $createRangeSelection,
+  $findMatchingParent,
   $isBlockElementNode,
   $isDecoratorNode,
   $getNodeByKey,
@@ -12,6 +15,7 @@ import {
   $isRootNode,
   $isTextNode,
   $setSelection,
+  type ElementNode,
   type LexicalEditor,
   type LexicalNode,
   type PointType,
@@ -158,6 +162,7 @@ export function $getInheritedTextFormat(
  * which goes where Lexical would put text typed at that point (see
  * `$insertAtCaret`). A replacement goes where the replaced content began,
  * inside any link or mark that content started in (see `$replaceRange`).
+ * Nodes that include a link of their own never go inside another link.
  * Nodes that include blocks (a multi-paragraph replacement) go through
  * Lexical's paste path instead, which splits the surrounding block around
  * them.
@@ -269,11 +274,62 @@ function $insertAtCaret(point: MarkdownSelectionPoint, nodes: LexicalNode[]): bo
     }
   } else {
     const [, next] = caretNode.splitText(point.offset);
+    const reference = $insertionReference(next, nodes);
     for (const node of nodes) {
-      next.insertBefore(node);
+      reference.insertBefore(node);
     }
   }
   return true;
+}
+
+/**
+ * The node to insert `nodes` before, given that they belong right before
+ * `next`. That's `next` itself, unless `nodes` include a link and `next` is in
+ * one: links can't nest, so then it's outside that link, which is split in
+ * two if `next` isn't at its start.
+ */
+function $insertionReference(next: LexicalNode, nodes: LexicalNode[]): LexicalNode {
+  const parent = next.getParentOrThrow();
+  const enclosingLink = $findMatchingParent(parent, $isLinkNode);
+  if (!enclosingLink || !nodes.some($containsLink)) return next;
+  if ($isAtStartOf(next, enclosingLink)) return enclosingLink;
+  return $splitLinkBefore(next, enclosingLink);
+}
+
+function $containsLink(node: LexicalNode): boolean {
+  if ($isLinkNode(node)) return true;
+  return $isElementNode(node) && node.getChildren().some($containsLink);
+}
+
+function $isAtStartOf(node: LexicalNode, ancestor: ElementNode): boolean {
+  for (let current = node; !current.is(ancestor); current = current.getParentOrThrow()) {
+    if (current.getPreviousSibling()) return false;
+  }
+  return true;
+}
+
+/**
+ * Split `link` in two before its descendant `node`, moving `node` and
+ * everything after it into a copy of the link (and copies of any elements
+ * between them) inserted after it. Returns the copy.
+ */
+function $splitLinkBefore(node: LexicalNode, link: LinkNode): LinkNode {
+  const linkCopy = $copyNode(link);
+  link.insertAfter(linkCopy);
+  $containerInCopy(node, link, linkCopy).append(node, ...node.getNextSiblings());
+  return linkCopy;
+}
+
+/**
+ * The element in `ancestorCopy` that `node` moves into when `ancestor` is
+ * split before it: `ancestorCopy` itself, or a copy of `node`'s parent.
+ */
+function $containerInCopy(node: LexicalNode, ancestor: ElementNode, ancestorCopy: ElementNode): ElementNode {
+  const parent = node.getParentOrThrow();
+  if (parent.is(ancestor)) return ancestorCopy;
+  const parentCopy = $copyNode(parent);
+  $containerInCopy(parent, ancestor, ancestorCopy).append(parentCopy, ...parent.getNextSiblings());
+  return parentCopy;
 }
 
 /**
@@ -309,7 +365,9 @@ export function $addTextFormat(node: LexicalNode, format: number): void {
  * first selected node. The selected nodes are then removed with Lexical's
  * range removal, which also merges the blocks at the range's ends when it
  * spans several. Inserting first means a link or mark whose whole content is
- * replaced is never left empty, which would remove it.
+ * replaced is never left empty, which would remove it. A replacement with a
+ * link of its own goes outside the link instead (see `$insertionReference`),
+ * and the replaced part of that link is removed with the rest of the range.
  */
 function $replaceRange(
   anchor: MarkdownSelectionPoint,
@@ -319,8 +377,9 @@ function $replaceRange(
   const selected = $splitAtRangeEnds(anchor, focus);
   if (!selected) return false;
 
+  const reference = $insertionReference(selected.first, nodes);
   for (const node of nodes) {
-    selected.first.insertBefore(node);
+    reference.insertBefore(node);
   }
   const removal = $createRangeSelection();
   $setPointAtNodeEdge(removal.anchor, selected.first, "start");

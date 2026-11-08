@@ -7,6 +7,7 @@ import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNod
 import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
 import { $applyEditModeReplacement } from "../../../app/api/agent/applyEditAtSelection";
 import { $isListItemNode, $isListNode } from "@lexical/list";
+import { $isLinkNode } from "@lexical/link";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
@@ -573,6 +574,73 @@ describe("replaceText when a quote ends inside or after a link", () => {
 
     expect(await replaceTextInEditMode(editor, "foo", "bar")).toBe(true);
     expect(getMarkdownContent(editor)).toBe("See [bar](https://example.com) now.");
+  });
+});
+
+/** Each link in the document as `url: text`, in document order. */
+function getLinks(editor: LexicalEditor): string[] {
+  const links: string[] = [];
+  editor.getEditorState().read(() => {
+    walkLexicalNodes($getRoot(), (node) => {
+      if ($isLinkNode(node)) {
+        links.push(`${node.getURL()}: ${node.getTextContent()}`);
+      }
+    });
+  });
+  return links;
+}
+
+describe("replaceText edit mode with a replacement that has its own link", () => {
+  it("replaces a link and the text after it without nesting links", async () => {
+    const editor = await setupEditorWithContent(
+      "In order to fix [Russel's paradox](https://example.com/rp), the standard approach fails (uncontrollable), Yampolskiy says.",
+    );
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "In order to fix Russel's paradox, the standard approach fails (uncontrollable), Yampolskiy",
+      "In order to fix [Russell's paradox](https://example.com/rp), the standard approach fails (uncontrollable); Yampolskiy",
+    );
+
+    expect(replaced).toBe(true);
+    expect(getLinks(editor)).toEqual(["https://example.com/rp: Russell's paradox"]);
+    expect(getMarkdownContent(editor)).toBe(
+      "In order to fix [Russell's paradox](https://example.com/rp), the standard approach fails (uncontrollable); Yampolskiy says.",
+    );
+  });
+
+  it("changes a link's target", async () => {
+    const editor = await setupEditorWithContent("Visit [LessWrong](https://old.example) for details.");
+
+    expect(await replaceTextInEditMode(
+      editor, "[LessWrong](https://old.example)", "[LessWrong](https://new.example)",
+    )).toBe(true);
+    expect(getLinks(editor)).toEqual(["https://new.example: LessWrong"]);
+  });
+
+  it("splits a link when the replacement starts partway through it", async () => {
+    const editor = await setupEditorWithContent("See [the draft notes today](https://a.example) here.");
+
+    expect(await replaceTextInEditMode(editor, "draft notes", "[draft](https://b.example) memo")).toBe(true);
+    expect(getLinks(editor)).toEqual([
+      "https://a.example: the ",
+      "https://b.example: draft",
+      "https://a.example:  today",
+    ]);
+    expect(getPlainTextContent(editor)).toBe("See the draft memo today here.");
+  });
+
+  it("splits a link to insert a link into its text", async () => {
+    const editor = await setupEditorWithContent("See [the draft notes](https://a.example) here.");
+
+    expect(await replaceTextInEditMode(
+      editor, "the draft notes", "the draft [new](https://b.example) notes",
+    )).toBe(true);
+    expect(getLinks(editor)).toEqual([
+      "https://a.example: the draft ",
+      "https://b.example: new",
+      "https://a.example: notes",
+    ]);
   });
 });
 
