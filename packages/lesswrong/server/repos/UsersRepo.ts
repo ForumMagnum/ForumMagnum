@@ -236,6 +236,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         u."_id" AS "objectID",
         u."username",
         u."displayName",
+        u."fullName",
         u."createdAt",
         EXTRACT(EPOCH FROM u."createdAt") * 1000 AS "publicDateMs",
         COALESCE(u."isAdmin", FALSE) AS "isAdmin",
@@ -270,6 +271,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
           'title', p."title"
         ) ORDER BY p."baseScore" DESC) FROM "Posts" p WHERE
           p."userId" = u."_id" AND
+          p."hideAuthor" IS NOT TRUE AND
           p."shortform" IS NOT TRUE AND
           ${getViewablePostsSelector("p")}
         ) AS "posts",

@@ -6,7 +6,7 @@ interface SearchBase {
 
 interface SearchComment extends SearchBase {
   _index: "comments",
-  userId: string,
+  userId: string | null,
   baseScore: number,
   isDeleted: boolean,
   retracted: boolean,
@@ -36,10 +36,13 @@ interface SearchComment extends SearchBase {
 
 interface SearchSequence extends SearchBase {
   _index: "sequences",
+  collectedAuthorIds?: string[],
+  baseScore?: number,
   title: string | null,
-  userId: string,
+  userId: string | null,
   createdAt: string,
   af: boolean,
+  curated: boolean,
   authorDisplayName?: string | null,
   authorUserName?: string | null,
   authorSlug?: string | null,
@@ -51,6 +54,7 @@ interface SearchUser extends SearchBase {
   _index: "users",
   username: string,
   displayName: string,
+  fullName?: string | null,
   createdAt: string,
   isAdmin: boolean,
   profileImageId?: string,
@@ -79,6 +83,8 @@ interface SearchUser extends SearchBase {
 
 interface SearchPost extends SearchBase {
   _index: "posts",
+  coauthorIds?: string[],
+  userId: string | null,
   url: string | null,
   title: string | null,
   slug: string,
@@ -92,6 +98,9 @@ interface SearchPost extends SearchBase {
   postedAt: string,
   isFuture: boolean,
   isEvent: boolean,
+  question: boolean,
+  shortform: boolean,
+  startTime: string | null,
   viewCount: number,
   lastCommentedAt: string | null,
   draft: boolean,
@@ -113,6 +122,7 @@ interface SearchTag extends SearchBase {
   defaultOrder: number,
   suggestedAsFilter: boolean,
   postCount: number,
+  baseScore?: number,
   wikiOnly: boolean,
   isSubforum: boolean,
   description: string,
