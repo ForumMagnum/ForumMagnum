@@ -198,7 +198,7 @@ export const filterSettingsToggleLabels = {
 
 const advancedSortingText = "Advanced Sorting/Filtering";
 
-const defaultLimit = 13;
+export const latestPostsDefaultLimit = 13;
 
 function getDefaultDesktopFilterSettingsVisibility(currentUser: UsersCurrent | null) {
   if (!currentUser) {
@@ -587,7 +587,7 @@ const LWHomePosts = ({ children, }: {
     after: dateCutoff,
     view: "magic",
     forum: true,
-    limit: defaultLimit
+    limit: latestPostsDefaultLimit
   };
 
   return (
@@ -618,7 +618,7 @@ const LWHomePosts = ({ children, }: {
               {(selectedTab === 'forum-classic') && <AnalyticsContext feedType={selectedTab}>
                 <SuspenseWrapper
                   name="LWHomePosts-forum-classic"
-                  fallback={<PostsLoading placeholderCount={defaultLimit+2} loadMore/>}
+                  fallback={<PostsLoading placeholderCount={latestPostsDefaultLimit+2} loadMore/>}
                 >
                   <HideRepeatedPostsProvider>
                     <WelcomePostItem repeatedPostsPrecedence={1} />

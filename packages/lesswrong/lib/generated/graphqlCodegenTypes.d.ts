@@ -13582,7 +13582,7 @@ type AdminSendBulkEmailMutation = AdminSendBulkEmailMutation_Mutation;
 
 type multiPostFrontpageAlgorithmTuningPageQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
-  & PostsBase
+  & PostsListWithVotes
 );
 
 type multiPostFrontpageAlgorithmTuningPageQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<multiPostFrontpageAlgorithmTuningPageQueryQuery_posts_MultiPostOutput_results_Post> };

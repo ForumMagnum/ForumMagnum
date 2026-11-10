@@ -11,11 +11,9 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
-import { Link } from '@/lib/reactRouterWrapper';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { useForumType } from '../hooks/useForumType';
 import { useFilterSettings } from '../hooks/useFilterSettings';
-import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { getFrontpageTimeDecayFactor } from '@/lib/scoring';
 import {
   curatedScoreBonus,
@@ -28,22 +26,23 @@ import {
 } from '@/lib/instanceSettings';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
-import SingleColumnSection from '../common/SingleColumnSection';
 import SectionTitle from '../common/SectionTitle';
 import Error404 from '../common/Error404';
 import Loading from '../vulcan-core/Loading';
+import PostsItem from '../posts/PostsItem';
+import { latestPostsDefaultLimit } from '../common/LWHomePosts';
 
 const FrontpageAlgorithmPostsMultiQuery = gql(`
   query multiPostFrontpageAlgorithmTuningPageQuery($selector: PostSelector, $limit: Int) {
     posts(selector: $selector, limit: $limit, enableTotal: false) {
       results {
-        ...PostsBase
+        ...PostsListWithVotes
       }
     }
   }
 `);
 
-const POSTS_LIMIT = 40;
+const latestPostsTerms: PostsViewTerms = { view: "magic", forum: true };
 
 type AlgorithmParamKey =
   | "algoStartingAgeHours"
@@ -103,10 +102,11 @@ type AlgorithmOverrides = Partial<Record<AlgorithmParamKey, number>>;
 
 type ParamDrafts = Partial<Record<AlgorithmParamKey, string>>;
 
-type RankedPost = PostsBase & { rank: number };
-
 const styles = defineStyles("FrontpageAlgorithmTuningPage", (theme: ThemeType) => ({
   root: {
+    maxWidth: 1500,
+    margin: "0 auto",
+    padding: "0 16px",
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
   explanation: {
@@ -149,8 +149,8 @@ const styles = defineStyles("FrontpageAlgorithmTuningPage", (theme: ThemeType) =
   },
   columns: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 24,
+    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+    gap: 32,
     [theme.breakpoints.down("sm")]: {
       gridTemplateColumns: "1fr",
     },
@@ -160,39 +160,26 @@ const styles = defineStyles("FrontpageAlgorithmTuningPage", (theme: ThemeType) =
     fontWeight: 600,
     marginBottom: 8,
   },
-  row: {
+  item: {
     display: "flex",
-    alignItems: "baseline",
+    alignItems: "center",
     gap: 8,
-    fontSize: 13,
-    padding: "4px 0",
-    borderBottom: theme.palette.greyBorder("1px", 0.08),
   },
-  rank: {
-    width: 22,
-    textAlign: "right",
-    color: theme.palette.text.dim,
-    flexShrink: 0,
+  itemPost: {
+    flexGrow: 1,
+    minWidth: 0,
   },
   delta: {
     width: 34,
     flexShrink: 0,
     fontSize: 12,
+    textAlign: "right",
   },
   movedUp: {
     color: theme.palette.text.charsAdded,
   },
   movedDown: {
     color: theme.palette.text.charsRemoved,
-  },
-  title: {
-    flexGrow: 1,
-    color: theme.palette.text.normal,
-  },
-  meta: {
-    flexShrink: 0,
-    color: theme.palette.text.dim,
-    fontSize: 12,
   },
 }));
 
@@ -205,20 +192,15 @@ const parseOverrides = (source: ParamDrafts): AlgorithmOverrides =>
 const overridesToDrafts = (overrides: AlgorithmOverrides): ParamDrafts =>
   Object.fromEntries(algorithmParams.map(({ key }) => [key, overrides[key]?.toString() ?? ""]));
 
-const formatAge = (postedAt: string, now: Date): string => {
-  const hours = moment(now).diff(moment(postedAt), "hours");
-  return hours < 48 ? `${hours}h` : `${Math.round(hours / 24)}d`;
-};
-
 const formatExponent = (exponent: number) => exponent.toFixed(3);
 
-const RankDelta = ({ post, defaultRanks }: { post: RankedPost, defaultRanks: Map<string, number> }) => {
+const RankDelta = ({ postId, rank, defaultRanks }: { postId: string, rank: number, defaultRanks: Map<string, number> }) => {
   const classes = useStyles(styles);
-  const defaultRank = defaultRanks.get(post._id);
+  const defaultRank = defaultRanks.get(postId);
   if (defaultRank === undefined) {
     return <span className={classNames(classes.delta, classes.movedUp)}>new</span>;
   }
-  const delta = defaultRank - post.rank;
+  const delta = defaultRank - rank;
   if (delta === 0) {
     return <span className={classes.delta}>–</span>;
   }
@@ -227,31 +209,10 @@ const RankDelta = ({ post, defaultRanks }: { post: RankedPost, defaultRanks: Map
   </span>;
 };
 
-const PostRow = ({ post, now, defaultRanks }: {
-  post: RankedPost,
-  now: Date,
-  defaultRanks: Map<string, number>|null,
-}) => {
-  const classes = useStyles(styles);
-  const markers = [
-    post.curatedDate ? "curated" : null,
-    post.frontpageDate ? null : "personal",
-  ].filter(Boolean).join(", ");
-  return <div className={classes.row}>
-    <span className={classes.rank}>{post.rank}</span>
-    {defaultRanks && <RankDelta post={post} defaultRanks={defaultRanks} />}
-    <Link to={postGetPageUrl(post)} className={classes.title}>{post.title}</Link>
-    <span className={classes.meta}>
-      {post.baseScore} karma · {formatAge(post.postedAt, now)}{markers && ` · ${markers}`}
-    </span>
-  </div>;
-};
-
-const PostsColumn = ({ title, posts, loading, now, defaultRanks }: {
+const PostsColumn = ({ title, posts, loading, defaultRanks }: {
   title: string,
-  posts: RankedPost[],
+  posts: PostsListWithVotes[],
   loading: boolean,
-  now: Date,
   defaultRanks: Map<string, number>|null,
 }) => {
   const classes = useStyles(styles);
@@ -259,13 +220,15 @@ const PostsColumn = ({ title, posts, loading, now, defaultRanks }: {
     <div className={classes.columnTitle}>{title}</div>
     {loading
       ? <Loading />
-      : posts.map((post) => <PostRow key={post._id} post={post} now={now} defaultRanks={defaultRanks} />)
+      : posts.map((post, index) => <div key={post._id} className={classes.item}>
+        {defaultRanks && <RankDelta postId={post._id} rank={index + 1} defaultRanks={defaultRanks} />}
+        <div className={classes.itemPost}>
+          <PostsItem post={post} terms={latestPostsTerms} />
+        </div>
+      </div>)
     }
   </div>;
 };
-
-const withRanks = (posts: PostsBase[] | undefined): RankedPost[] =>
-  (posts ?? []).map((post, index) => ({ ...post, rank: index + 1 }));
 
 const ExponentSummary = ({ overrides }: { overrides: AlgorithmOverrides }) => {
   const classes = useStyles(styles);
@@ -301,11 +264,11 @@ const FrontpageAlgorithmTuningPage = () => {
   const baseSelector = { filterSettings, after, forum: true };
 
   const { data: defaultData, loading: defaultLoading } = useQuery(FrontpageAlgorithmPostsMultiQuery, {
-    variables: { selector: { magic: baseSelector }, limit: POSTS_LIMIT },
+    variables: { selector: { magic: baseSelector }, limit: latestPostsDefaultLimit },
     skip: !isAdmin,
   });
   const { data: tweakedData, loading: tweakedLoading } = useQuery(FrontpageAlgorithmPostsMultiQuery, {
-    variables: { selector: { magic: { ...baseSelector, ...overrides } }, limit: POSTS_LIMIT },
+    variables: { selector: { magic: { ...baseSelector, ...overrides } }, limit: latestPostsDefaultLimit },
     skip: !isAdmin,
   });
 
@@ -313,9 +276,9 @@ const FrontpageAlgorithmTuningPage = () => {
     return <Error404 />;
   }
 
-  const defaultPosts = withRanks(defaultData?.posts?.results);
-  const tweakedPosts = withRanks(tweakedData?.posts?.results);
-  const defaultRanks = new Map(defaultPosts.map((post) => [post._id, post.rank]));
+  const defaultPosts = defaultData?.posts?.results ?? [];
+  const tweakedPosts = tweakedData?.posts?.results ?? [];
+  const defaultRanks = new Map(defaultPosts.map((post, index) => [post._id, index + 1]));
 
   const applyOverrides = (newOverrides: AlgorithmOverrides) => {
     setDrafts(overridesToDrafts(newOverrides));
@@ -327,7 +290,7 @@ const FrontpageAlgorithmTuningPage = () => {
     applyOverrides(parseOverrides(drafts));
   };
 
-  return <SingleColumnSection className={classes.root}>
+  return <div className={classes.root}>
     <SectionTitle title="Frontpage Algorithm Tuning" noTopMargin />
     <div className={classes.explanation}>
       Latest Posts are sorted by <code>(karma + bonuses) / (ageInHours + startingAge) ^ exponent</code>, where
@@ -358,10 +321,10 @@ const FrontpageAlgorithmTuningPage = () => {
     </form>
     <ExponentSummary overrides={overrides} />
     <div className={classes.columns}>
-      <PostsColumn title="Current defaults" posts={defaultPosts} loading={defaultLoading} now={now} defaultRanks={null} />
-      <PostsColumn title="With your parameters" posts={tweakedPosts} loading={tweakedLoading} now={now} defaultRanks={defaultRanks} />
+      <PostsColumn title="Current defaults" posts={defaultPosts} loading={defaultLoading} defaultRanks={null} />
+      <PostsColumn title="With your parameters" posts={tweakedPosts} loading={tweakedLoading} defaultRanks={defaultRanks} />
     </div>
-  </SingleColumnSection>;
+  </div>;
 };
 
 export default FrontpageAlgorithmTuningPage;
