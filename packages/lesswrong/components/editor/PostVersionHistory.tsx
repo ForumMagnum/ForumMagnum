@@ -6,9 +6,9 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
-import { canUserEditPostMetadata, postGetEditUrl, isCollaborative, EditablePost } from '@/lib/collections/posts/helpers';
+import { canUserEditPostMetadata, EditablePost } from '@/lib/collections/posts/helpers';
 import { useOnNavigate } from '../hooks/useOnNavigate';
-import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useLocation } from "../../lib/routeUtil";
 import { gql } from "@/lib/generated/gql-codegen";
 import EAButton from "../ea-forum/EAButton";
 import LWDialog from "../common/LWDialog";
@@ -118,7 +118,6 @@ const styles = defineStyles('PostVersionHistory', (theme: ThemeType) => ({
 }));
 
 const LIVE_REVISION_TOOLTIP = "This version is currently live"
-const LOAD_VERSION_TOOLTIP = "Load this version into the editor (you will then need to publish it to update the live post)"
 const RESTORE_VERSION_TOOLTIP = "Update the live post to use this version"
 
 export const PostVersionHistoryDialog = ({post, postId, onClose}: {
@@ -130,7 +129,6 @@ export const PostVersionHistoryDialog = ({post, postId, onClose}: {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const location = useLocation();
-  const navigate = useNavigate();
   const normalizedPost = {
     ...post,
     userId: post.userId ?? null,
@@ -138,8 +136,6 @@ export const PostVersionHistoryDialog = ({post, postId, onClose}: {
     sharingSettings: post.sharingSettings ?? null,
     collabEditorDialogue: post.collabEditorDialogue ?? false,
   };
-
-  const isCollabEditor = isCollaborative(normalizedPost, "contents")
 
   const { query } = location;
   const loadedVersion = query.version;
@@ -197,22 +193,6 @@ export const PostVersionHistoryDialog = ({post, postId, onClose}: {
     window.location.reload();
   }, [captureEvent, postId, revertMutation, selectedRevisionId])
 
-  const loadVersion = useCallback(async (version: string) => {
-    captureEvent("loadVersionClicked", {postId, revisionId: selectedRevisionId})
-
-    if (location.pathname.startsWith('/editPost')) {
-      const queryParams = new URLSearchParams(query);
-      queryParams.set('version', version);
-      const newSearchString = queryParams.toString();
-
-      navigate({ ...location.location, search: `?${newSearchString}`});
-    } else {
-      void navigate(postGetEditUrl(postId, post.linkSharingKey ?? undefined, version));
-    }
-
-    onClose();
-  }, [captureEvent, location.location, location.pathname, navigate, onClose, post.linkSharingKey, postId, query, selectedRevisionId])
-
   useOnNavigate(() => {
     onClose();
   })
@@ -269,15 +249,6 @@ export const PostVersionHistoryDialog = ({post, postId, onClose}: {
                       v{revision.version}
                       {isLive(revision) ? " (Live version)" : ""}
                     </div>
-                    {!isCollabEditor && <LWTooltip title={LOAD_VERSION_TOOLTIP} placement="top"  popperClassName={classes.tooltip}>
-                      <EAButton
-                        variant="outlined"
-                        className={classes.button}
-                        onClick={() => loadVersion(revision.version)}
-                      >
-                        Load into editor
-                      </EAButton>
-                    </LWTooltip>}
                     <LWTooltip title={RESTORE_VERSION_TOOLTIP} placement="top" popperClassName={classes.tooltip}>
                       <EAButton variant="contained" className={classes.button} onClick={restoreVersion}>
                         {revertInProgress ? <Loading /> : "Restore"}
