@@ -15,6 +15,8 @@ export interface EmailContextType {
   resolverContext: ResolverContext;
   stylesUsed: Set<StyleDefinition<string, string>>;
   currentUser: UsersCurrent | null;
+  // Like stylesUsed, this is filled in as a byproduct of rendering the email.
+  footerRecommendationPostIds: string[];
   // theme: ThemeType;
 }
 

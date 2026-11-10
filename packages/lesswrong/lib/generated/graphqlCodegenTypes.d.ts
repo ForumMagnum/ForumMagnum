@@ -2336,7 +2336,7 @@ type ElicitUser = {
 type EmailPreview = {
   __typename?: 'EmailPreview';
   html?: Maybe<Scalars['String']['output']>;
-  subject?: Maybe<Scalars['String']['output']>;
+  subject: Scalars['String']['output'];
   text?: Maybe<Scalars['String']['output']>;
   to?: Maybe<Scalars['String']['output']>;
 };
@@ -17268,7 +17268,7 @@ type ClearAiDigestEmailSampleHistoryMutationMutationVariables = Exact<{
 
 type ClearAiDigestEmailSampleHistoryMutationMutation = ClearAiDigestEmailSampleHistoryMutationMutation_Mutation;
 
-type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_email_EmailPreview = { __typename?: 'EmailPreview', to: string | null, subject: string | null, html: string | null, text: string | null };
+type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_email_EmailPreview = { __typename?: 'EmailPreview', to: string | null, subject: string, html: string | null, text: string | null };
 
 type AiDigestEmailSamplePreviewQueryQuery_AiDigestEmailSamplePreview_AiDigestEmailSamplePreview_calls_AiDigestModelCall_toolCalls_AiDigestToolCall = { __typename?: 'AiDigestToolCall', toolName: string, input: string };
 
@@ -17286,7 +17286,19 @@ type AiDigestEmailSamplePreviewQueryQueryVariables = Exact<{
 
 type AiDigestEmailSamplePreviewQueryQuery = AiDigestEmailSamplePreviewQueryQuery_Query;
 
-type EmailPreviewQueryQuery_EmailPreview_EmailPreview = { __typename?: 'EmailPreview', to: string | null, subject: string | null, html: string | null, text: string | null };
+type SendEmailPreviewToSelfMutation_adminSendTestEmail_AdminSendTestEmailResult = { __typename?: 'AdminSendTestEmailResult', ok: boolean, status: number | null, email: string };
+
+type SendEmailPreviewToSelfMutation_Mutation = { __typename?: 'Mutation', adminSendTestEmail: SendEmailPreviewToSelfMutation_adminSendTestEmail_AdminSendTestEmailResult };
+
+
+type SendEmailPreviewToSelfMutationVariables = Exact<{
+  input: AdminSendTestEmailInput;
+}>;
+
+
+type SendEmailPreviewToSelfMutation = SendEmailPreviewToSelfMutation_Mutation;
+
+type EmailPreviewQueryQuery_EmailPreview_EmailPreview = { __typename?: 'EmailPreview', to: string | null, subject: string, html: string | null, text: string | null };
 
 type EmailPreviewQueryQuery_Query = { __typename?: 'Query', EmailPreview: Array<EmailPreviewQueryQuery_EmailPreview_EmailPreview | null> | null };
 

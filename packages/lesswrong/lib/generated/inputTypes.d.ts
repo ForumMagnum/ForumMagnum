@@ -416,7 +416,7 @@ interface EmptyViewInput {
 
 interface EmailPreview {
   to: string | null;
-  subject: string | null;
+  subject: string;
   html: string | null;
   text: string | null;
 }

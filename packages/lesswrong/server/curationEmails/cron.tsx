@@ -61,7 +61,13 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
       forumType: "LessWrong",
       user,
       subject: subject ?? post.title,
-      body: (emailContext) => <PostsEmail postIds={[post._id]} reason={reason} emailContext={emailContext}/>
+      body: (emailContext) => <PostsEmail postIds={[post._id]} reason={reason} emailContext={emailContext}/>,
+      summarizeBodyForLog: (email) => ({
+        curationEmail: {
+          postId: post._id,
+          recommendedPostIds: email.footerRecommendationPostIds,
+        },
+      }),
     });
   }), 10);
 }
