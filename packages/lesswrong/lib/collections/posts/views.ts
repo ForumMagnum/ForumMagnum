@@ -3,7 +3,7 @@ import { timeSeriesIndexExpr, TimeSeries } from './karmaInflation';
 import { getKarmaInflationSeries } from '@/server/karmaInflation/cache';
 import { classifyTagFilters, filterModeToAdditiveKarmaModifier, filterModeToMultiplicativeKarmaModifier, type FilterSettings } from '../../filterSettings';
 import { adminAccountSetting, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
-import { frontpageTimeDecayExpr, newPostScoreBonus, postScoreModifiers, timeDecayExpr } from '../../scoring';
+import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, reviewExcludedPostIds, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
@@ -343,7 +343,6 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
             }}
           )),
           ...postScoreModifiers(),
-          newPostScoreBonus(),
           ...frontpageSoftFilter,
         ]},
         ...tagsSoftFiltered.map(t => (
