@@ -6,6 +6,8 @@ export const TIME_DECAY_FACTOR = timeDecayFactor;
 export const FRONTPAGE_BONUS = frontpageScoreBonus;
 export const CURATED_BONUS = curatedScoreBonus;
 export const SCORE_BIAS = 2;
+const NEW_POST_BONUS = 25;
+const NEW_POST_BONUS_HOURS = 1;
 
 // NB: If you want to change this algorithm, make sure to also change the
 // modifier functions below, and the SQL in updateScores.ts (until the refactor
@@ -109,5 +111,10 @@ export const postScoreModifiers = () => {
     {$cond: {if: "$frontpageDate", then: FRONTPAGE_BONUS, else: 0}},
     {$cond: {if: "$curatedDate", then: CURATED_BONUS, else: 0}}
   ];
+};
+
+export const newPostScoreBonus = () => {
+  const cutoff = new Date(Date.now() - NEW_POST_BONUS_HOURS * 60 * 60 * 1000);
+  return {$cond: {if: {postedAt: {$gt: cutoff}}, then: NEW_POST_BONUS, else: 0}};
 };
 
