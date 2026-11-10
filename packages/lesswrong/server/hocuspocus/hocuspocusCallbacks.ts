@@ -224,11 +224,12 @@ function getHocuspocusHttpUrl(): string | null {
 }
 
 /**
- * Sends a reset-document request to the Hocuspocus admin endpoint.
- * The endpoint does a destructive replacement: it closes all connections,
- * unloads the in-memory Y.Doc, then writes the new Yjs state to the
- * database. When clients auto-reconnect, Hocuspocus loads the new state
- * from the database.
+ * Sends a reset-document request to the Hocuspocus admin endpoint, which
+ * replaces the document's content with the content of `newState`. The
+ * replacement is applied as an ordinary edit to the live document, so
+ * connected clients receive it like any other change, and clients holding
+ * older state (other tabs, offline collaborators) can't undo it when they
+ * sync.
  */
 export async function resetHocuspocusDocument(documentName: string, newState: Uint8Array): Promise<void> {
   const httpUrl = getHocuspocusHttpUrl();
@@ -270,10 +271,6 @@ export async function resetHocuspocusDocument(documentName: string, newState: Ui
  * Restores a collaborative Lexical document to a previous revision by
  * sending the revision's stored Yjs state to the Hocuspocus server.
  *
- * The Hocuspocus server does a destructive replacement: it closes all
- * connections, unloads the in-memory Y.Doc, and writes the new state to
- * the database. When clients reconnect they get the restored state.
- *
  * This function is called from the revertPostToRevision GraphQL mutation
  * (which has already performed permission checks).
  */
@@ -304,8 +301,6 @@ export async function pushRevisionToLexicalCollab(
 
   const yjsState = new Uint8Array(Buffer.from(yjsStateBase64, 'base64'));
 
-  // Send the Yjs state to the Hocuspocus server, which handles the
-  // destructive replacement (evict document + write to DB).
   await resetHocuspocusDocument(buildHocuspocusDocumentName(collectionName, documentId), yjsState);
 
   // eslint-disable-next-line no-console
