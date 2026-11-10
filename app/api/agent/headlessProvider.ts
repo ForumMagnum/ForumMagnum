@@ -124,7 +124,7 @@ export function waitForProviderFlush(provider: HocuspocusProvider): Promise<void
     provider,
     event: "unsyncedChanges",
     pending: () => provider.unsyncedChanges,
-    timeoutMessage: () => `Hocuspocus confirmed no updates to ${provider.configuration.name} for ${HOCUSPOCUS_SYNC_TIMEOUT_MS / 1000}s, with ${provider.unsyncedChanges} still unconfirmed`,
+    timeoutMessage: () => `Hocuspocus confirmed no updates to ${provider.configuration.name} for ${HOCUSPOCUS_SYNC_TIMEOUT_MS / 1000}s, with ${provider.unsyncedChanges} still unconfirmed (connection scope: ${provider.authorizedScope ?? "unauthenticated"})`,
   });
 }
 
@@ -151,6 +151,17 @@ export function getLexicalCompatibleProvider(provider: HocuspocusProvider): Hocu
   }
 
   return provider as HocuspocusProvider & LexicalProvider;
+}
+
+/**
+ * The transaction origin for an orphan repair. A read-only connection can't
+ * save the repair, and the server's refusal never clears from
+ * `unsyncedChanges`, so the session would fail at flush. Using the provider as
+ * the origin keeps the repair local, because the provider doesn't send updates
+ * it originated.
+ */
+export function repairOrigin(provider: HocuspocusProvider): HocuspocusProvider | undefined {
+  return provider.authorizedScope === "readonly" ? provider : undefined;
 }
 
 /**

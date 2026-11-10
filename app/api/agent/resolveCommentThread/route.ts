@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, threadId } = parseResult.data;
 
   try {
-    const auth = await authorizeAgentDraftAccess({ route: "resolveCommentThread", postId, context, linkSharingKey: key, agentName });
+    const auth = await authorizeAgentDraftAccess({ route: "resolveCommentThread", postId, context, linkSharingKey: key, agentName, requiredAccess: "comment" });
     if ("errorResponse" in auth) return auth.errorResponse;
     const { token } = auth;
 

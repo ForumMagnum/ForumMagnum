@@ -25,6 +25,14 @@ export function accessLevelCan(accessLevel: CollaborativeEditingAccessLevel, ope
   }
 }
 
+/**
+ * myEditorAccess deliberately ignores admin powers, but the Hocuspocus token
+ * counts them, so an admin can write to a draft whatever myEditorAccess says.
+ */
+export function canWriteToCollabDocument(accessLevel: CollaborativeEditingAccessLevel, user: { isAdmin: boolean } | null) {
+  return accessLevelCan(accessLevel, "comment") || !!user?.isAdmin;
+}
+
 export function getSharingKeyFromContext(context: Pick<ResolverContext, 'searchParams'|'headers'>|null) {
   // During SSR, searchParams are the page's. Client-side GraphQL requests go
   // to a different URL, so the client forwards the page's key in a header.
