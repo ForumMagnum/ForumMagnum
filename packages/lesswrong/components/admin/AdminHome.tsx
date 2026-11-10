@@ -88,6 +88,7 @@ const AdminHome = () => {
         <li><Link className={classes.link} to="/postListEditorTest">Post List Editor Test</Link></li>
         <li><Link className={classes.link} to="/imageUpload">Image Upload Test</Link></li>
         <li><Link className={classes.link} to="/admin/recommendationsSample">Recommendations Explorer</Link></li>
+        <li><Link className={classes.link} to="/admin/frontpageAlgorithm">Frontpage Algorithm Tuning</Link></li>
         <li><Link className={classes.link} to="/admin/debugDatabaseDifferences">Debug database differences</Link></li>
       </ul>
 

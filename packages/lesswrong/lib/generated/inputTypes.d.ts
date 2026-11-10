@@ -4327,6 +4327,12 @@ interface PostsMagicInput {
   meta?: boolean | null;
   forum?: boolean | null;
   limit?: number | null;
+  algoStartingAgeHours?: number | null;
+  algoDecayFactorSlowest?: number | null;
+  algoDecayFactorFastest?: number | null;
+  algoActivityFactor?: number | null;
+  algoActivityHalfLifeHours?: number | null;
+  algoActivityWeight?: number | null;
 }
 
 interface PostsTopInput {
