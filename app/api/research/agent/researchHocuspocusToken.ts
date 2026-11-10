@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 /**
  * Issue a Hocuspocus session JWT for a ResearchDocument. Mirrors the token
- * issuance in `HocuspocusAuth` (postResolvers.ts:441) but for the research
+ * issuance in `issueHocuspocusAuth` (hocuspocusAuth.ts) but for the research
  * collection: the JWT carries `collectionName: 'ResearchDocuments'` so the
  * Hocuspocus server's JWT decoder (T1 #4) routes it to the right permission
  * lane.

@@ -131,6 +131,34 @@ function $syncEvent(binding: Binding, event: any): void {
   }
 }
 
+/**
+ * Cold-start hydration: materialize the bound shared root's current content
+ * into a fresh editor. The event-driven sync path only paints content that
+ * arrives AFTER the binding observes the doc, so a binding created over an
+ * already-populated Y.Doc starts blank without this.
+ */
+export function syncYjsDocToLexical(
+  binding: Binding,
+  provider: Provider,
+  syncCursorPositionsFn: SyncCursorPositionsFn = syncCursorPositions,
+): void {
+  const editor = binding.editor;
+  editor.update(
+    () => {
+      const root = binding.root;
+      root.applyChildrenYjsDelta(binding, root.getSharedType().toDelta());
+      root.syncChildrenFromYjs(binding);
+    },
+    {
+      onUpdate: () => {
+        syncCursorPositionsFn(binding, provider);
+      },
+      skipTransforms: true,
+      tag: COLLABORATION_TAG,
+    },
+  );
+}
+
 export function syncYjsChangesToLexical(
   binding: Binding,
   provider: Provider,

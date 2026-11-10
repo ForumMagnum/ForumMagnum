@@ -1,6 +1,5 @@
 import type { LexicalEditor } from "lexical";
 import { getMarkdownItForResearch } from "@/lib/utils/markdownItPlugins";
-import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $insertMarkdownBlockInEditor, $markdownToNodes, type MarkdownConversion } from "../../../../agent/insertBlock/route";
 import { withResearchDocEditorSession } from "../../researchEditorSession";
 import type { InsertLocation, ReplaceMode } from "../../../../agent/toolSchemas";
@@ -33,7 +32,7 @@ export async function insertMarkdownBlockInResearchDoc({
     documentId,
     token: hocuspocusToken,
     operationLabel: "ResearchInsertBlock",
-    callback: async ({ editor, provider }) => {
+    callback: async ({ editor }) => {
       let result: InsertBlockResult = { inserted: false, note: "No insertion performed." };
       await new Promise<void>((resolve) => {
         editor.update(
@@ -47,9 +46,6 @@ export async function insertMarkdownBlockInResearchDoc({
           { onUpdate: resolve },
         );
       });
-      if (result.inserted) {
-        await waitForProviderFlush(provider);
-      }
       return result;
     },
   });

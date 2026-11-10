@@ -13,7 +13,7 @@ import { Doc, XmlText } from "yjs";
  * emits a normal Yjs update that self-heals the document. Returns item ids for
  * logging.
  */
-export function repairOrphanXmlTextsInRoot(doc: Doc): string[] {
+export function repairOrphanXmlTextsInRoot(doc: Doc, origin: unknown = "orphan-repair"): string[] {
   const root = doc.get("root", XmlText);
   const removed: string[] = [];
   doc.transact(() => {
@@ -46,6 +46,6 @@ export function repairOrphanXmlTextsInRoot(doc: Doc): string[] {
     for (let i = orphanOffsets.length - 1; i >= 0; i--) {
       root.delete(orphanOffsets[i], 1);
     }
-  }, "orphan-repair");
+  }, origin);
   return removed;
 }

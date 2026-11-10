@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
-import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $insertWidgetInEditor, type InsertWidgetResult } from "../../../../agent/insertWidget/route";
 import {
   authorizeAgentRequest,
@@ -33,7 +32,7 @@ async function insertWidgetInResearchDoc({
     documentId,
     token: hocuspocusToken,
     operationLabel: "ResearchInsertWidget",
-    callback: async ({ editor, provider }) => {
+    callback: async ({ editor }) => {
       let result: InsertWidgetResult = { inserted: false, note: "No insertion performed." };
       await new Promise<void>((resolve) => {
         editor.update(
@@ -43,9 +42,6 @@ async function insertWidgetInResearchDoc({
           { onUpdate: resolve },
         );
       });
-      if (result.inserted) {
-        await waitForProviderFlush(provider);
-      }
       return result;
     },
   });

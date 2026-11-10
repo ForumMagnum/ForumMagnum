@@ -633,6 +633,7 @@ export default function Editor({
   
   // Track when collaboration config is ready (set synchronously, not in useEffect)
   const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);
+  const [hasLostWriteAccess, setHasLostWriteAccess] = useState(false);
 
   const externalModeContext = useContext(EditorUserModeContext);
   const setIsWsConnected = externalModeContext?.setIsWsConnected;
@@ -691,6 +692,10 @@ export default function Editor({
         onConnectionStatusChange: (connected) => {
           setIsWsConnected?.(connected);
           collaborationConfig.onConnectionStatusChange?.(connected);
+        },
+        onWriteAccessLost: () => {
+          setHasLostWriteAccess(true);
+          collaborationConfig.onWriteAccessLost?.();
         },
       };
       setCollaborationConfig(configWithHandlers);
@@ -772,8 +777,8 @@ export default function Editor({
   // In viewing mode the editor is non-editable, which disables toolbars,
   // image resizers, table hover actions, and other interactive features.
   useEffect(() => {
-    editor.setEditable(!isViewingMode);
-  }, [editor, isViewingMode]);
+    editor.setEditable(!isViewingMode && !hasLostWriteAccess);
+  }, [editor, isViewingMode, hasLostWriteAccess]);
 
   const collaboratorIdentity: CollaboratorIdentity | null = useMemo(() => {
     if (!collaborationConfig || !accessLevel) return null;

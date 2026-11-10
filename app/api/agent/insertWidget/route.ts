@@ -3,7 +3,7 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { NextRequest, NextResponse } from "next/server";
 import { $createTextNode } from "lexical";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
+import { withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { $resolveInsertionPoint } from "../insertBlock/route";
 import { insertWidgetToolSchema, type InsertLocation } from "../toolSchemas";
@@ -63,7 +63,7 @@ async function insertWidget({
     postId,
     token,
     operationLabel: "InsertWidget",
-    callback: async ({ editor, provider }) => {
+    callback: async ({ editor }) => {
       let result: InsertWidgetResult = { inserted: false, note: "No insertion performed." };
 
       await new Promise<void>((resolve) => {
@@ -72,9 +72,6 @@ async function insertWidget({
         }, { onUpdate: resolve });
       });
 
-      if (result.inserted) {
-        await waitForProviderFlush(provider);
-      }
       return result;
     },
   });
@@ -95,7 +92,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, content, location } = parseResult.data;
 
   try {
-    const auth = await authorizeAgentDraftAccess({ route: "insertWidget", postId, context, linkSharingKey: key });
+    const auth = await authorizeAgentDraftAccess({ route: "insertWidget", postId, context, linkSharingKey: key, requiredAccess: "edit" });
     if ("errorResponse" in auth) return auth.errorResponse;
     const { token } = auth;
 

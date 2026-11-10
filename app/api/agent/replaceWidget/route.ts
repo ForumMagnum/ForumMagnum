@@ -5,7 +5,7 @@ import { applyPatch } from "diff";
 import { $createTextNode } from "lexical";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import type { IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
+import { deriveAgentAuthor, withMainDocEditorSession, authorizeAgentDraftAccess, requiredAccessForMode } from "../editorAgentUtil";
 
 import { $findWidgetNodesById } from "../textIndexQuoteLocator";
 import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
@@ -169,7 +169,7 @@ export async function replaceWidgetInMainDoc({
     postId,
     token,
     operationLabel: "ReplaceWidget",
-    callback: async ({ editor, provider }) => {
+    callback: async ({ editor }) => {
       let result: ReplaceWidgetResult = {
         replaced: false,
         widgetFound: false,
@@ -182,9 +182,6 @@ export async function replaceWidgetInMainDoc({
         }, { onUpdate: resolve });
       });
 
-      if (result.replaced) {
-        await waitForProviderFlush(provider);
-      }
       return result;
     },
   });
@@ -227,7 +224,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, widgetId, replacement, unifiedDiff, mode } = parseResult.data;
 
   try {
-    const auth = await authorizeAgentDraftAccess({ route: "replaceWidget", postId, context, linkSharingKey: key, agentName });
+    const auth = await authorizeAgentDraftAccess({ route: "replaceWidget", postId, context, linkSharingKey: key, agentName, requiredAccess: requiredAccessForMode(mode) });
     if ("errorResponse" in auth) return auth.errorResponse;
     const { token } = auth;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });

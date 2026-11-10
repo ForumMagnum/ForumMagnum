@@ -11,7 +11,7 @@ import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/sugges
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import type MarkdownIt from "markdown-it";
 import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
-import { deriveAgentAuthor, renderAgentMarkdownToHtml, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
+import { deriveAgentAuthor, renderAgentMarkdownToHtml, withMainDocEditorSession, authorizeAgentDraftAccess, requiredAccessForMode } from "../editorAgentUtil";
 
 import type { MarkdownSelectionPoint } from "../mapMarkdownToLexical";
 import { $locateQuoteWithTextIndex, type LocatedQuoteRange } from "../textIndexQuoteLocator";
@@ -328,7 +328,7 @@ export async function replaceTextInMainDoc({
     postId,
     token,
     operationLabel: "ReplaceText",
-    callback: async ({ editor, provider }) => {
+    callback: async ({ editor }) => {
       let replaced = false;
       let quoteFoundInDocument = false;
       let locateFailureReason: string | undefined;
@@ -375,10 +375,6 @@ export async function replaceTextInMainDoc({
           }
         }, { onUpdate: resolve });
       });
-
-      if (replaced) {
-        await waitForProviderFlush(provider);
-      }
 
       if (replaced) {
         // For "edit" mode, snapshot the post-edit HTML from the live Lexical
@@ -458,7 +454,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, quote, replacement, mode } = parseResult.data;
 
   try {
-    const auth = await authorizeAgentDraftAccess({ route: "replaceText", postId, context, linkSharingKey: key, agentName });
+    const auth = await authorizeAgentDraftAccess({ route: "replaceText", postId, context, linkSharingKey: key, agentName, requiredAccess: requiredAccessForMode(mode) });
     if ("errorResponse" in auth) return auth.errorResponse;
     const { token } = auth;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });

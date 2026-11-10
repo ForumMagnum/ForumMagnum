@@ -39,7 +39,7 @@ import { InlineCommentsPanelContext, EditorUserModeContext } from "../common/sha
 import { useAutoSavePostFields } from "./useAutoSavePostFields";
 import { getDefaultEditorUserMode, getAvailableEditorModes, editorModeLabels, editorModeIcons, type EditorUserModeType } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
 import { useEventListener } from "../hooks/useEventListener";
-import { accessLevelCan, type CollaborativeEditingAccessLevel } from "@/lib/collections/posts/collabEditingPermissions";
+import { accessLevelCan, type CollaborativeEditingAccessLevel, canWriteToCollabDocument } from "@/lib/collections/posts/collabEditingPermissions";
 import { LW_POST_TITLE_FONT_SIZE } from "../posts/PostsPage/PostsPageTitle";
 import CollabEditorPermissionsNotices from "../editor/CollabEditorPermissionsNotices";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -455,7 +455,7 @@ const PostForm = ({
 
   const accessLevel = (initialData.myEditorAccess ?? "edit") as CollaborativeEditingAccessLevel;
   const canEdit = accessLevelCan(accessLevel, "edit") || !!currentUser?.isAdmin;
-  const canComment = accessLevelCan(accessLevel, "comment") || !!currentUser?.isAdmin;
+  const canComment = canWriteToCollabDocument(accessLevel, currentUser);
   const canEditMetadata = canUserEditPostMetadata(currentUser, {
     ...initialData,
     userId: initialData.userId ?? null,

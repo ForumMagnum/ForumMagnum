@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
-import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $replaceWidgetInEditor, truncateForSummary, type ReplaceWidgetResult } from "../../../../agent/replaceWidget/route";
 import type { ReplaceMode } from "../../../../agent/toolSchemas";
 import {
@@ -38,7 +37,7 @@ async function replaceWidgetInResearchDoc({
     documentId,
     token: hocuspocusToken,
     operationLabel: "ResearchReplaceWidget",
-    callback: async ({ editor, provider }) => {
+    callback: async ({ editor }) => {
       let result: ReplaceWidgetResult = {
         replaced: false,
         widgetFound: false,
@@ -52,9 +51,6 @@ async function replaceWidgetInResearchDoc({
           { onUpdate: resolve },
         );
       });
-      if (result.replaced) {
-        await waitForProviderFlush(provider);
-      }
       return result;
     },
   });

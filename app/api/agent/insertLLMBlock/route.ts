@@ -9,7 +9,7 @@ import {
 import { $createLLMContentBlockNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockNode";
 import { $createLLMContentBlockContentNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockContentNode";
 import { $createLLMContentBlockHeaderNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode";
-import { waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
+import { withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { $findWidgetInsertionProblem, $postMarkdownToNodes, $resolveInsertionPoint, type MarkdownConversion } from "../insertBlock/route";
 import { $appendImportedFootnotes, splitImportedFootnotes } from "../importFootnotes";
@@ -104,7 +104,7 @@ async function insertLLMBlock({
     postId,
     token,
     operationLabel: "InsertLLMBlock",
-    callback: async ({ editor, provider }) => {
+    callback: async ({ editor }) => {
       let result: InsertLLMBlockResult = { inserted: false, note: "No insertion performed." };
 
       await new Promise<void>((resolve) => {
@@ -116,9 +116,6 @@ async function insertLLMBlock({
         }, { onUpdate: resolve });
       });
 
-      if (result.inserted) {
-        await waitForProviderFlush(provider);
-      }
       return result;
     },
   });
@@ -139,7 +136,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, modelName, location, markdown } = parseResult.data;
 
   try {
-    const auth = await authorizeAgentDraftAccess({ route: "insertLLMBlock", postId, context, linkSharingKey: key, agentName: modelName });
+    const auth = await authorizeAgentDraftAccess({ route: "insertLLMBlock", postId, context, linkSharingKey: key, agentName: modelName, requiredAccess: "edit" });
     if ("errorResponse" in auth) return auth.errorResponse;
     const { token } = auth;
 
