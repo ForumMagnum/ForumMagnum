@@ -73,6 +73,18 @@ export function postgresStringLiteral(value: string): string {
   return `'${value.replaceAll("'", "''")}'`;
 }
 
+/**
+ * Quote a name for use as an SQL identifier, such as a column alias. Like JSON
+ * path components, identifiers are part of the SQL expression and can't be
+ * passed as Args, so anything that isn't a plain name is rejected.
+ */
+export function postgresIdentifier(name: string): string {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+    throw new Error(`Invalid SQL identifier: ${name}`);
+  }
+  return `"${name}"`;
+}
+
 class NonScalarArrayAccessError extends Error {
   constructor(public fieldName: string, public path: string[]) {
     super("Non-scalar array access");

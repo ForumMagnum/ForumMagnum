@@ -385,16 +385,12 @@ export const performQueryFromViewParameters = async <N extends CollectionNameStr
   parameters.options.skip ??= options.skip;
 
   if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
-    const pipeline = [
+    const pipeline: MongoAggregationPipeline<ObjectsByCollectionName[N]> = [
       // First stage: Filter by selector
       { $match: selector },
       // Second stage: Add computed fields
       { $addFields: parameters.syntheticFields },
-
-      // Third stage: Filter by computed fields (if applicable)
-      ...(parameters.syntheticFieldSelector || []),
-
-      // Fourth stage: Sort
+      // Third stage: Sort
       { $sort: parameters.options.sort },
     ];
 

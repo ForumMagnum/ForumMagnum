@@ -318,6 +318,34 @@ describe("SelectQuery", () => {
       expectedArgs: [3],
     },
     {
+      name: "rejects a lookup whose output name isn't an identifier",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        lookup: {from: "testcollection2", localField: "b", foreignField: "data", as: 'data" 2'},
+      }),
+      expectedError: "Invalid SQL identifier",
+    },
+    {
+      name: "rejects a lookup whose local field isn't an identifier",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        lookup: {from: "testcollection2", localField: 'b" 2', foreignField: "data", as: "data2"},
+      }),
+      expectedError: "Invalid SQL identifier",
+    },
+    {
+      name: "rejects a lookup whose foreign field isn't an identifier",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        lookup: {from: "testcollection2", localField: "b", foreignField: 'data" 2', as: "data2"},
+      }),
+      expectedError: "Invalid SQL identifier",
+    },
+    {
+      name: "rejects a lookup from an inherited property name",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        lookup: {from: "constructor", localField: "b", foreignField: "data", as: "data2"},
+      }),
+      expectedError: "constructor is not a valid table name",
+    },
+    {
       name: "can build select with fields included through projection",
       getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {projection: {b: 1}}),
       expectedSql: 'SELECT "b", "_id" FROM "TestCollection" WHERE "a" = $1',
@@ -395,6 +423,11 @@ describe("SelectQuery", () => {
       }),
       expectedSql: 'SELECT "TestCollection".* , ( ( "a" + $1 ) * $2 ) AS "k" FROM "TestCollection" WHERE "a" = $3',
       expectedArgs: [8, 6, 3],
+    },
+    {
+      name: "rejects a synthetic field name that isn't an identifier",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {addFields: {'k" 2': "$a"}}),
+      expectedError: "Invalid SQL identifier",
     },
     {
       name: "can build select with conditional synthetic fields",
