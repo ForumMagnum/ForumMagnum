@@ -308,6 +308,8 @@ interface MobileEditorBottomBarProps {
   addOnSuccessCallbackCustom: AddOnSuccessCallback<PostsEditMutationFragment>;
   addOnSubmitCallbackModerationGuidelines: AddOnSubmitCallback<PostsEditMutationFragment>;
   addOnSuccessCallbackModerationGuidelines: AddOnSuccessCallback<PostsEditMutationFragment>;
+  isMajorUpdate: boolean;
+  setIsMajorUpdate: (isMajorUpdate: boolean) => void;
 }
 
 const MobileEditorBottomBar = ({
@@ -323,6 +325,8 @@ const MobileEditorBottomBar = ({
   addOnSuccessCallbackCustom,
   addOnSubmitCallbackModerationGuidelines,
   addOnSuccessCallbackModerationGuidelines,
+  isMajorUpdate,
+  setIsMajorUpdate,
 }: MobileEditorBottomBarProps) => {
   const classes = useStyles(styles);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -545,6 +549,8 @@ const MobileEditorBottomBar = ({
             addOnSuccessCallbackCustom={addOnSuccessCallbackCustom}
             addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
             addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
+            isMajorUpdate={isMajorUpdate}
+            setIsMajorUpdate={setIsMajorUpdate}
           />
         </div>
       </div>

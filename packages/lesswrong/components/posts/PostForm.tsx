@@ -452,6 +452,7 @@ const PostForm = ({
   const [showCoauthorSearch, setShowCoauthorSearch] = useState(false);
   const [editingLinkpostUrl, setEditingLinkpostUrl] = useState(false);
   const [linkpostUrlDraft, setLinkpostUrlDraft] = useState("");
+  const [isMajorUpdate, setIsMajorUpdate] = useState(false);
 
   const accessLevel = (initialData.myEditorAccess ?? "edit") as CollaborativeEditingAccessLevel;
   const canEdit = accessLevelCan(accessLevel, "edit") || !!currentUser?.isAdmin;
@@ -537,6 +538,10 @@ const PostForm = ({
           }
           result = data.createPost.data;
         } else {
+          const publishAsMajorUpdate = isMajorUpdate && !formApi.state.values.draft;
+          if (publishAsMajorUpdate) {
+            formApi.setFieldValue('contents', (contents) => contents && { ...contents, updateType: 'major' });
+          }
           const updatedFields = getUpdatedFieldValues(formApi, ['contents', 'customHighlight', 'moderationGuidelines']);
           const { data } = await mutate({
             variables: {
@@ -548,6 +553,9 @@ const PostForm = ({
             throw new Error('Failed to update post');
           }
           result = data.updatePost.data;
+          if (publishAsMajorUpdate) {
+            setIsMajorUpdate(false);
+          }
         }
 
         onSuccessCallback.current?.(result, meta);
@@ -1141,6 +1149,8 @@ const PostForm = ({
           addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
           addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
           addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
+          isMajorUpdate={isMajorUpdate}
+          setIsMajorUpdate={setIsMajorUpdate}
         />,
         sidebarPortalTarget
       )}
@@ -1164,6 +1174,8 @@ const PostForm = ({
         addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
         addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
         addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
+        isMajorUpdate={isMajorUpdate}
+        setIsMajorUpdate={setIsMajorUpdate}
       />}
     </form>
     </InlineCommentsPanelContext.Provider>
