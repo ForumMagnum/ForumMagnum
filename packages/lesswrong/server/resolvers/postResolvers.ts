@@ -1,7 +1,7 @@
 import { Posts } from '../../server/collections/posts/collection';
 import { Comments } from '../../server/collections/comments/collection';
-import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
-import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collections/posts/helpers';
+import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { canUserEditPostMetadata, extractGoogleDocId, userCanSuggestPostsForCuration } from '../../lib/collections/posts/helpers';
 import { buildRevision } from '../editor/conversionUtils';
 import { twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
@@ -14,7 +14,7 @@ import { FilterPostsForReview } from '@/components/bookmarks/ReadHistoryTab';
 import gql from "graphql-tag";
 import { createPaginatedResolver } from './paginatedResolver';
 import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
-import { createPost } from '../collections/posts/mutations';
+import { createPost, updatePost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
@@ -25,7 +25,10 @@ import { getViewablePostsSelector } from '@/server/repos/helpers';
 import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
 import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
+import { throwError } from '../vulcan-lib/errors';
 import jwt from 'jsonwebtoken';
+import uniq from 'lodash/uniq';
+import without from 'lodash/without';
 
 interface PostWithApprovedJargon {
   post: Partial<DbPost>;
@@ -618,6 +621,23 @@ export const postGqlMutations = {
       return post;
     }
   },
+  async setPostSuggestedForCuration(root: void, { postId, suggested }: { postId: string, suggested: boolean }, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userCanSuggestPostsForCuration(currentUser)) {
+      throwError({ id: 'app.operation_not_allowed' });
+    }
+    const post = await context.Posts.findOne({ _id: postId });
+    if (!post || !await accessFilterSingle(currentUser, 'Posts', post, context)) {
+      throwError({ id: 'app.document_not_found' });
+    }
+
+    const previousUserIds = post.suggestForCuratedUserIds ?? [];
+    const suggestForCuratedUserIds = suggested
+      ? uniq([...previousUserIds, currentUser._id])
+      : without(previousUserIds, currentUser._id);
+    const updatedPost = await updatePost({ selector: { _id: post._id }, data: { suggestForCuratedUserIds } }, context);
+    return await accessFilterSingle(currentUser, 'Posts', updatedPost, context);
+  },
 }
 
 export const postGqlTypeDefs = gql`
@@ -647,6 +667,7 @@ export const postGqlTypeDefs = gql`
 
   extend type Mutation {
     ImportGoogleDoc(fileUrl: String!, postId: String): Post
+    setPostSuggestedForCuration(postId: String!, suggested: Boolean!): Post
   }
 
   type UserReadHistoryResult {

@@ -1,17 +1,15 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
-import { userCanDo, userIsMemberOf } from '../../../lib/vulcan-users/permissions';
+import { userCanSuggestPostsForCuration } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
-const PostsListUpdateMutation = gql(`
-  mutation updatePostSuggestCuratedDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
-    updatePost(selector: $selector, data: $data) {
-      data {
-        ...PostsList
-      }
+const SetPostSuggestedForCurationMutation = gql(`
+  mutation setPostSuggestedForCurationSuggestCuratedDropdownItem($postId: String!, $suggested: Boolean!) {
+    setPostSuggestedForCuration(postId: $postId, suggested: $suggested) {
+      ...PostsList
     }
   }
 `);
@@ -19,39 +17,9 @@ const PostsListUpdateMutation = gql(`
 const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   const { isAF } = useForumType();
   const currentUser = useCurrentUser();
-  const [updatePost] = useMutation(PostsListUpdateMutation);
-  
-  if (!currentUser)
-    return null;
-  
-  const handleSuggestCurated = () => {
-    let suggestUserIds = [...post.suggestForCuratedUserIds ?? []]
-    if (!suggestUserIds.includes(currentUser._id)) {
-      suggestUserIds.push(currentUser._id)
-    }
-    void updatePost({
-      variables: {
-        selector: { _id: post._id },
-        data: { suggestForCuratedUserIds: suggestUserIds }
-      }
-    })
-  }
+  const [setPostSuggestedForCuration] = useMutation(SetPostSuggestedForCurationMutation);
 
-  const handleUnsuggestCurated = () => {
-    let suggestUserIds = [...post.suggestForCuratedUserIds ?? []]
-    if (suggestUserIds.includes(currentUser._id)) {
-      suggestUserIds = suggestUserIds.filter(id => id !== currentUser._id);
-    }
-    void updatePost({
-      variables: {
-        selector: { _id: post._id },
-        data: { suggestForCuratedUserIds: suggestUserIds }
-      }
-    })
-  }
-
-  if (!userCanDo(currentUser, "posts.moderate.all")
-    && !userIsMemberOf(currentUser, 'canSuggestCuration')) {
+  if (!currentUser || !userCanSuggestPostsForCuration(currentUser)) {
     return null;
   }
   if (isAF) {
@@ -72,13 +40,14 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
     return null;
   }
 
-  const isSuggested = post.suggestForCuratedUserIds?.includes(currentUser._id);
+  const isSuggested = !!post.suggestForCuratedUserIds?.includes(currentUser._id);
   const title = isSuggested ? "Unsuggest Curation" : "Suggest Curation";
-  const onClick = isSuggested ? handleUnsuggestCurated : handleSuggestCurated;
   return (
     <DropdownItem
       title={title}
-      onClick={onClick}
+      onClick={() => void setPostSuggestedForCuration({
+        variables: { postId: post._id, suggested: !isSuggested }
+      })}
     />
   );
 }

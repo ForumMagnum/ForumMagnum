@@ -90,11 +90,6 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
   if (document.draft && !previewDocument.draft) {
     await commentsRateLimit(document.postId, user, context);
   }
-  if (userCanDo(user, 'comments.alignment.move.all') ||
-      userCanDo(user, 'comments.alignment.suggest')) {
-    return true
-  }
-  
   return userOwns(user, document)
     ? !document.rejected && userCanDo(user, 'comments.edit.own')
     : userCanDo(user, `comments.edit.all`)

@@ -22,17 +22,14 @@ import SidebarAction from "./SidebarAction";
 import OmegaIcon from "../icons/OmegaIcon";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import uniq from 'lodash/uniq';
-import without from 'lodash/without';
+import { SetPostSuggestedForAlignmentMutation } from '../alignment-forum/alignmentSuggestionMutations';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-const SuggestAlignmentPostUpdateMutation = gql(`
-  mutation updatePostAFSuggestPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
-    updatePost(selector: $selector, data: $data) {
-      data {
-        ...SuggestAlignmentPost
-      }
+const ReviewPostForAlignmentMutation = gql(`
+  mutation reviewPostForAlignment($postId: String!, $approved: Boolean!) {
+    reviewPostForAlignment(postId: $postId, approved: $approved) {
+      ...SuggestAlignmentPost
     }
   }
 `);
@@ -66,29 +63,18 @@ const AFSuggestPostsItem = ({post}: {
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
   
-  const [updatePost] = useMutation(SuggestAlignmentPostUpdateMutation);
+  const [setPostSuggestedForAlignment] = useMutation(SetPostSuggestedForAlignmentMutation);
+  const [reviewPostForAlignment] = useMutation(ReviewPostForAlignmentMutation);
 
   const handleMoveToAlignment = () => {
-    void updatePost({
-      variables: {
-        selector: { _id: post._id },
-        data: {
-          reviewForAlignmentUserId: currentUser!._id,
-          afDate: new Date(),
-          af: true,
-        }
-      }
+    void reviewPostForAlignment({
+      variables: { postId: post._id, approved: true }
     })
   }
 
   const handleDisregardForAlignment = () => {
-    void updatePost({
-      variables: {
-        selector: { _id: post._id },
-        data: {
-          reviewForAlignmentUserId: currentUser!._id,
-        }
-      }
+    void reviewPostForAlignment({
+      variables: { postId: post._id, approved: false }
     })
   }
 
@@ -138,22 +124,16 @@ const AFSuggestPostsItem = ({post}: {
         { hover && <SidebarActionMenu>
           { userHasVoted ?
             <SidebarAction title="Unendorse for Alignment" onClick={() => (
-              void updatePost({
-                variables: {
-                  selector: { _id: post._id },
-                  data: { suggestForAlignmentUserIds: without(post.suggestForAlignmentUserIds, currentUser._id) }
-                }
+              void setPostSuggestedForAlignment({
+                variables: { postId: post._id, suggested: false }
               })
             )}>
               <UndoIcon/>
             </SidebarAction>
             :
             <SidebarAction title="Endorse for Alignment" onClick={() => (
-              void updatePost({
-                variables: {
-                  selector: { _id: post._id },
-                  data: { suggestForAlignmentUserIds: uniq([...post.suggestForAlignmentUserIds, currentUser._id]) }
-                }
+              void setPostSuggestedForAlignment({
+                variables: { postId: post._id, suggested: true }
               })
             )}>
               <PlusOneIcon/>
