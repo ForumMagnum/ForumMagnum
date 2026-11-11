@@ -6443,6 +6443,12 @@ type PostsLegacyIdPostInput = {
 type PostsMagicInput = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   after?: InputMaybe<Scalars['String']['input']>;
+  algoActivityFactor?: InputMaybe<Scalars['Float']['input']>;
+  algoActivityHalfLifeHours?: InputMaybe<Scalars['Float']['input']>;
+  algoActivityWeight?: InputMaybe<Scalars['Float']['input']>;
+  algoDecayFactorFastest?: InputMaybe<Scalars['Float']['input']>;
+  algoDecayFactorSlowest?: InputMaybe<Scalars['Float']['input']>;
+  algoStartingAgeHours?: InputMaybe<Scalars['Float']['input']>;
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   curatedAfter?: InputMaybe<Scalars['String']['input']>;
@@ -13573,6 +13579,24 @@ type AdminSendBulkEmailMutationVariables = Exact<{
 
 
 type AdminSendBulkEmailMutation = AdminSendBulkEmailMutation_Mutation;
+
+type multiPostFrontpageAlgorithmTuningPageQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type multiPostFrontpageAlgorithmTuningPageQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<multiPostFrontpageAlgorithmTuningPageQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type multiPostFrontpageAlgorithmTuningPageQueryQuery_Query = { __typename?: 'Query', posts: multiPostFrontpageAlgorithmTuningPageQueryQuery_posts_MultiPostOutput | null };
+
+
+type multiPostFrontpageAlgorithmTuningPageQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type multiPostFrontpageAlgorithmTuningPageQueryQuery = multiPostFrontpageAlgorithmTuningPageQueryQuery_Query;
 
 type randomUserQuery_GetRandomUser_User = (
   { __typename?: 'User' }

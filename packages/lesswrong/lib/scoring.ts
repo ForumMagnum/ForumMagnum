@@ -43,6 +43,21 @@ type TimeDecayExprProps = {
   overrideActivityFactor?: number
 }
 
+interface FrontpageTimeDecayFactorParams {
+  decayFactorSlowest: number
+  decayFactorFastest: number
+  activityWeight: number
+}
+
+/** Higher timeDecayFactor => more recency bias */
+export const getFrontpageTimeDecayFactor = (
+  { decayFactorSlowest, decayFactorFastest, activityWeight }: FrontpageTimeDecayFactorParams,
+  activityFactor: number,
+): number => Math.min(
+  decayFactorSlowest * (1 + (activityWeight * activityFactor)),
+  decayFactorFastest
+);
+
 export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, visitorActivity: DbUserActivity|null) => {
   const {
     startingAgeHours,
@@ -64,11 +79,7 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, visitorActivit
   const activityFactor = overrideActivityFactor ??
     calculateActivityFactor(visitorActivity?.activityArray, activityHalfLifeHours)
 
-  // Higher timeDecayFactor => more recency bias
-  const timeDecayFactor = Math.min(
-    decayFactorSlowest * (1 + (activityWeight * activityFactor)),
-    decayFactorFastest
-  );
+  const timeDecayFactor = getFrontpageTimeDecayFactor({ decayFactorSlowest, decayFactorFastest, activityWeight }, activityFactor);
 
   const ageInHours = {
     $divide: [
