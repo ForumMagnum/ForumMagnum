@@ -417,8 +417,8 @@ export const timeDecayFactor = 1.15;
 export const frontpageScoreBonus: number = 0;
 export const curatedScoreBonus: number = 10;
 
-// EA Frontpage time decay algorithm settings
-export const defaultStartingAgeHours: number = 6;
+// Dynamic frontpage time decay algorithm settings (frontpageTimeDecayExpr)
+export const defaultStartingAgeHours: number = 1;
 export const defaultDecayFactorSlowest: number = 0.5;
 export const defaultDecayFactorFastest: number = 1.2;
 export const defaultActivityWeight: number = 1.4;
