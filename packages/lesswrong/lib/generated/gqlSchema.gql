@@ -666,6 +666,7 @@ extend type Query {
 
 extend type Mutation {
   ImportGoogleDoc(fileUrl: String!, postId: String): Post
+  setPostSuggestedForCuration(postId: String!, suggested: Boolean!): Post
 }
 
 type UserReadHistoryResult {
@@ -836,8 +837,12 @@ extend type Query {
 }
 
 extend type Mutation {
-  alignmentComment(commentId: String, af: Boolean): Comment
+  alignmentComment(commentId: String!, af: Boolean!): Comment
   alignmentPost(postId: String, af: Boolean): Post
+  setPostSuggestedForAlignment(postId: String!, suggested: Boolean!): Post
+  setCommentSuggestedForAlignment(commentId: String!, suggested: Boolean!): Comment
+  reviewPostForAlignment(postId: String!, approved: Boolean!): Post
+  reviewCommentForAlignment(commentId: String!, approved: Boolean!): Comment
 }
 
 type AllTagsActivityFeedQueryResults {
@@ -9124,7 +9129,6 @@ input CreatePostDataInput {
   feedLink: String
   curatedDate: Date
   metaDate: Date
-  suggestForCuratedUserIds: [String!]
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
@@ -9189,7 +9193,6 @@ input CreatePostDataInput {
   af: Boolean
   afDate: Date
   afSticky: Boolean
-  suggestForAlignmentUserIds: [String!]
   reviewForAlignmentUserId: String
   agentFoundationsId: String
   swrCachingEnabled: Boolean
@@ -9240,7 +9243,6 @@ input UpdatePostDataInput {
   feedLink: String
   curatedDate: Date
   metaDate: Date
-  suggestForCuratedUserIds: [String!]
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
@@ -9306,7 +9308,6 @@ input UpdatePostDataInput {
   af: Boolean
   afDate: Date
   afSticky: Boolean
-  suggestForAlignmentUserIds: [String!]
   reviewForAlignmentUserId: String
   agentFoundationsId: String
   swrCachingEnabled: Boolean

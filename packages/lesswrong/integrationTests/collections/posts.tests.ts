@@ -51,6 +51,29 @@ describe('PostsEdit', () => {
     await (response as any).should.be.rejected;
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
+  it.each([
+    'alignmentForum',
+    'alignmentForumAdmins',
+    'canSuggestCuration',
+    'podcasters',
+  ])("fails when non-owner in the %s group edits title", async (group) => {
+    const user = await createDummyUser()
+    const user2 = await createDummyUser({groups: [group]})
+    const post = await createDummyPost(user)
+
+    const query = `
+      mutation PostsEdit {
+        updatePost(selector: {_id:"${post._id}"}, data:{title:"New Test Title"}) {
+          data {
+            title
+          }
+        }
+      }
+    `;
+    const response = runQuery(query,{},{currentUser:user2})
+    await (response as any).should.be.rejected;
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
+  });
 });
 
 describe('Posts RSS Views', () => {

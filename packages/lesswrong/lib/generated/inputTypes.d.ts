@@ -254,8 +254,13 @@ interface Mutation {
   AddGivingSeasonHeart: Array<GivingSeasonHeart>;
   RemoveGivingSeasonHeart: Array<GivingSeasonHeart>;
   ImportGoogleDoc: Post | null;
+  setPostSuggestedForCuration: Post | null;
   alignmentComment: Comment | null;
   alignmentPost: Post | null;
+  setPostSuggestedForAlignment: Post | null;
+  setCommentSuggestedForAlignment: Comment | null;
+  reviewPostForAlignment: Post | null;
+  reviewCommentForAlignment: Comment | null;
   markConversationRead: boolean;
   sendEventTriggeredDM: boolean;
   initiateConversation: Conversation | null;
@@ -8331,7 +8336,6 @@ interface CreatePostDataInput {
   feedLink?: string | null;
   curatedDate?: Date | null;
   metaDate?: Date | null;
-  suggestForCuratedUserIds?: Array<string> | null;
   frontpageDate?: Date | null;
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
@@ -8396,7 +8400,6 @@ interface CreatePostDataInput {
   af?: boolean | null;
   afDate?: Date | null;
   afSticky?: boolean | null;
-  suggestForAlignmentUserIds?: Array<string> | null;
   reviewForAlignmentUserId?: string | null;
   agentFoundationsId?: string | null;
   swrCachingEnabled?: boolean | null;
@@ -8447,7 +8450,6 @@ interface UpdatePostDataInput {
   feedLink?: string | null;
   curatedDate?: Date | null;
   metaDate?: Date | null;
-  suggestForCuratedUserIds?: Array<string> | null;
   frontpageDate?: Date | null;
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
@@ -8513,7 +8515,6 @@ interface UpdatePostDataInput {
   af?: boolean | null;
   afDate?: Date | null;
   afSticky?: boolean | null;
-  suggestForAlignmentUserIds?: Array<string> | null;
   reviewForAlignmentUserId?: string | null;
   agentFoundationsId?: string | null;
   swrCachingEnabled?: boolean | null;
