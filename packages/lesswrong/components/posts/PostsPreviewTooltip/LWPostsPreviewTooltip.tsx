@@ -92,6 +92,13 @@ const highlightStyles = (theme: ThemeType) => ({
   ...highlightSimplifiedStyles
 })
 
+const tooltipInfoStyles = (theme: ThemeType) => ({
+  marginLeft: 2,
+  ...theme.typography.italic,
+  fontSize: "1.1rem",
+  color: theme.palette.grey[600],
+})
+
 const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
   root: {
     width: getPostPreviewWidth(),
@@ -132,10 +139,7 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
     marginBottom: -6,
   },
   tooltipInfo: {
-    marginLeft: 2,
-    ...theme.typography.italic,
-    fontSize: "1.1rem",
-    color: theme.palette.grey[600],
+    ...tooltipInfoStyles(theme),
     display: "flex",
     alignItems: "center",
     // Allow the username child to shrink below its intrinsic width so the
@@ -151,6 +155,10 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
+  },
+  eventInfo: {
+    ...tooltipInfoStyles(theme),
+    marginTop: 4,
   },
   highlight: {
     ...highlightStyles(theme)
@@ -246,6 +254,10 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
   if (post.isEvent && post.location) {
     eventLocation = <div>{post.location}</div>
   }
+  const eventInfo = (post.startTime || eventLocation) && <>
+    {post.startTime && <EventTime post={post} />}
+    {eventLocation}
+  </>
 
   const postTags = post.tags?.slice(0,2)
 
@@ -258,8 +270,7 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
             </div>
             <ContentStyles contentType="comment" className={classes.tooltipInfo}>
               { postsList && <span>
-                {post.startTime && <EventTime post={post} />}
-                {eventLocation}
+                {eventInfo}
                 {postTags?.map((tag, i) => <span key={tag?._id}>{tag?.name}{(i !== (postTags?.length - 1)) ? ",  " : ""}</span>)}
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
@@ -274,6 +285,9 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
                 </div>
               </>}
             </ContentStyles>
+            {!postsList && eventInfo && <ContentStyles contentType="comment" className={classes.eventInfo}>
+              {eventInfo}
+            </ContentStyles>}
           </div>
           <div className={showLlmScore ? classes.headerActions : undefined}>
             {showLlmScore && llmScorePost && <LLMScoreBadge
