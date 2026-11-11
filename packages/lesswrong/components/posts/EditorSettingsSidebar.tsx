@@ -1320,6 +1320,8 @@ interface EditorSettingsSidebarProps {
   addOnSuccessCallbackCustom: AddOnSuccessCallback<PostsEditMutationFragment>;
   addOnSubmitCallbackModerationGuidelines: AddOnSubmitCallback<PostsEditMutationFragment>;
   addOnSuccessCallbackModerationGuidelines: AddOnSuccessCallback<PostsEditMutationFragment>;
+  isMajorUpdate: boolean;
+  setIsMajorUpdate: (isMajorUpdate: boolean) => void;
 }
 
 const EditorSettingsSidebar = ({
@@ -1334,6 +1336,8 @@ const EditorSettingsSidebar = ({
   addOnSuccessCallbackCustom,
   addOnSubmitCallbackModerationGuidelines,
   addOnSuccessCallbackModerationGuidelines,
+  isMajorUpdate,
+  setIsMajorUpdate,
 }: EditorSettingsSidebarProps) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
@@ -1520,6 +1524,22 @@ const EditorSettingsSidebar = ({
             Version History
           </button>
         </div>
+
+        {formType === "edit" && (
+          <form.Subscribe selector={(s) => s.values.draft}>
+            {(draft) => !draft && (
+              <AccordionSection title="Advanced">
+                <div className={classes.toggleRow} onClick={() => setIsMajorUpdate(!isMajorUpdate)}>
+                  <span className={classes.toggleLabel}>Publish as major update</span>
+                  <ToggleSwitch value={isMajorUpdate} smallVersion />
+                </div>
+                <p className={classes.sectionText}>
+                  <em>When you next publish changes, existing comments will be marked as responses to the previous version of the post.</em>
+                </p>
+              </AccordionSection>
+            )}
+          </form.Subscribe>
+        )}
 
         <AccordionSection title="Moderation">
         {!isDialogue && (
