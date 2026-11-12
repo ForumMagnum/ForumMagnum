@@ -12,7 +12,6 @@ import { stickiedPostTerms } from '@/lib/collections/posts/constants';
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq';
 import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMetrics';
-import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
 import { captureException } from '@/lib/sentryWrapper';
 import { randomId } from '../../lib/random';
 import { fetchFragmentSingle } from '../fetchFragment';
@@ -23,6 +22,7 @@ import { RevisionHTML } from '@/lib/collections/revisions/fragments';
 import type { RecommendedPost, RecombeeRecommendedPost, NativeRecommendedPost } from '@/lib/recombee/types';
 import { backgroundTask } from '../utils/backgroundTask';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
+import { getLatestFrontpagePosts } from '../posts/frontpagePosts';
 
 export const getRecombeeClientOrThrow = (() => {
   const clients = new Map<ForumTypeString, ApiClient>();
@@ -398,29 +398,14 @@ const helpers = {
     return interleavedPosts;
   },
 
-  async getNativeLatestPostsPromise(hybridArgs: HybridRecombeeConfiguration, limit: number, fixedArmCount: number, excludedPostIds: string[], context: ResolverContext) {
+  getNativeLatestPostsPromise(hybridArgs: HybridRecombeeConfiguration, limit: number, fixedArmCount: number, excludedPostIds: string[], context: ResolverContext) {
     const loadMoreCount = hybridArgs.loadMore?.loadMoreCount;
-    const loadMoreCountArg = loadMoreCount ? { offset: loadMoreCount * fixedArmCount } : {};
-    const hiddenPostIds = context.currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
-    const excludedAndHiddenPostIds = [...excludedPostIds, ...hiddenPostIds];
-    // Unfortunately, passing in an empty array translates to something like `NOT (_id IN (SELECT NULL::VARCHAR(27)))`, which filters out everything
-    const notPostIdsArg = excludedAndHiddenPostIds.length ? { notPostIds: excludedAndHiddenPostIds } : {};
-    const filterSettings: FilterSettings = context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(context.forumType);
-    const ninetyDaysAgo = new Date(new Date().getTime() - (90*24*60*60*1000));
-
-    const postsTerms: PostsViewTerms = {
-      view: "magic",
-      forum: true,
+    return getLatestFrontpagePosts({
       limit,
-      filterSettings,
-      after: ninetyDaysAgo.toISOString(),
-      ...notPostIdsArg,
-      ...loadMoreCountArg,
-    };
-
-    const postsQuery = await viewTermsToQuery(PostsViews, postsTerms, undefined, context);
-
-    return performQueryFromViewParameters(context.Posts, postsTerms, postsQuery);
+      offset: loadMoreCount ? loadMoreCount * fixedArmCount : undefined,
+      excludedPostIds,
+      filterSettings: context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(context.forumType),
+    }, context);
   },
 
   getReadStatuses(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, postIds: string[], recombeeUser: RecombeeUser, context: ResolverContext) {

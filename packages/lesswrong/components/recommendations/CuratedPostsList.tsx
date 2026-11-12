@@ -4,10 +4,7 @@ import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount"
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import PostsList2 from "../posts/PostsList2";
 
-const CuratedPostsList = ({overrideLimit, repeatedPostsPrecedence}: {
-  overrideLimit?: number
-  repeatedPostsPrecedence?: number
-}) => {
+const CuratedPostsList = () => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
 
 
@@ -16,7 +13,7 @@ const CuratedPostsList = ({overrideLimit, repeatedPostsPrecedence}: {
       <PostsList2
         terms={{
           view: "curated",
-          limit: overrideLimit ?? currentCuratedPostCount,
+          limit: currentCuratedPostCount,
 
         }}
         showNoResults={false}
@@ -26,7 +23,6 @@ const CuratedPostsList = ({overrideLimit, repeatedPostsPrecedence}: {
         curatedIconLeft={true}
         showFinalBottomBorder
         viewType="fromContext"
-        repeatedPostsPrecedence={repeatedPostsPrecedence}
       />
     </AnalyticsContext>
   );

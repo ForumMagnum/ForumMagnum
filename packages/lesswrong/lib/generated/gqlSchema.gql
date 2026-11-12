@@ -804,6 +804,14 @@ extend type Query {
   RecombeeHybridPosts(settings: JSON, limit: Int): RecombeeHybridPostsResult
 }
 
+type ClassicFrontpagePostsResult {
+  results: [RecombeeRecommendedPost!]!
+}
+
+extend type Query {
+  ClassicFrontpagePosts(settings: JSON, limit: Int): ClassicFrontpagePostsResult
+}
+
 type PostsWithActiveDiscussionResult {
   results: [Post!]!
 }

@@ -46,4 +46,21 @@ export const twoLineEventsSidebarABTest = new ABTest({
   },
 });
 
-export const allABTests = [twoLineEventsSidebarABTest];
+export const frontpagePostsPagingABTest = new ABTest({
+  name: "frontpagePostsPaging",
+  active: true,
+  affectsLoggedOut: true,
+  description: "Frontpage posts list is browsed a page at a time, instead of growing with Load More",
+  groups: {
+    control: {
+      description: "Load More adds another page of posts to the list",
+      weight: 0,
+    },
+    paged: {
+      description: "Prev and Next buttons replace the list with another page of posts",
+      weight: 1,
+    },
+  },
+});
+
+export const allABTests = [twoLineEventsSidebarABTest, frontpagePostsPagingABTest];

@@ -102,7 +102,6 @@ export type PostsListConfig = {
    */
   order?: string[],
   header?: ReactNode,
-  repeatedPostsPrecedence?: number
 }
 
 const getDefaultTooltipPlacement = () => isFriendlyUI()
