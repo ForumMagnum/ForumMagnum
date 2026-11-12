@@ -607,6 +607,26 @@ extend type Query {
   LlmModelOptions: [String!]!
 }
 
+type FrontpageScoreTerm {
+  label: String!
+  value: Float!
+}
+
+type FrontpagePostScoreBreakdown {
+  filteredScore: Float!
+  additiveTerms: [FrontpageScoreTerm!]!
+  multiplicativeTerms: [FrontpageScoreTerm!]!
+  ageHours: Float!
+  ageOffsetHours: Float!
+  decayExponent: Float!
+  decayDivisor: Float!
+  activityFactor: Float
+}
+
+extend type Query {
+  FrontpagePostScoreBreakdown(postId: String!, filterSettings: JSON!, activityFactorOverride: Float): FrontpagePostScoreBreakdown
+}
+
 type PetrovDay2024CheckNumberOfIncomingData {
   count: Int
 }
@@ -4809,6 +4829,7 @@ input PostsMagicInput {
   meta: Boolean
   forum: Boolean
   limit: Int
+  algoActivityFactor: Float
 }
 
 input PostsTopInput {

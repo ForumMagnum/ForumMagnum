@@ -1,6 +1,8 @@
 /* See lib/collections/useractivities/collection.ts for a high-level overview */
 import sum from 'lodash/sum';
 
+export const ACTIVITY_WINDOW_HOURS = 21 * 24; // 3 weeks
+
 function expandActivityInfluence(input: number[], influenceHours: number): number[] {
   const output: number[] = new Array(input.length).fill(0);
   
