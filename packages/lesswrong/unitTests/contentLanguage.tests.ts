@@ -1,4 +1,4 @@
-import { getNonEnglishProseRatio } from '@/components/sunshineDashboard/supermod/contentLanguage';
+import { getNonEnglishProseLetterCount, getNonEnglishProseRatio } from '@/components/sunshineDashboard/supermod/contentLanguage';
 import highlightRuleSeed from '@/server/moderatorHighlights/highlightRuleSeed.json';
 
 const turkishComment = 'Aklıma birşey takıldı ciddi soruyorum ben bu siteyi yapay zeka sayesinde öğrendim buranın sorgulayıcı insanların tartışarak ufkunu genişleteceğimi düşündüm madem bu kadar konu merak ediyoruz tartışıyoruz insanlar dinlerini sorguluyor kendine doğru geliyor bu hintli içinde bir Hıristiyan içinde insanlar bu kadar doğruya iten ve tamam bu doğru diyer konuları araştırıyım diyorlar neden diyer dinleri okuyunca mantıklı gelmiyor senin hıristiyanlığa bağlayan şey ne?';
@@ -30,7 +30,10 @@ describe('non-English rejection highlight', () => {
     const rule = highlightRuleSeed.rejectionTemplates['We only accept English-language content'];
     expect(rule).toEqual({
       enabled: true,
-      groups: [[{ signal: 'focusedNonEnglishProseRatio', operator: 'gt', value: 0.25 }]],
+      groups: [
+        [{ signal: 'focusedNonEnglishProseRatio', operator: 'gt', value: 0.25 }],
+        [{ signal: 'focusedNonEnglishProseLetterCount', operator: 'gte', value: 300 }],
+      ],
     });
     expect(getNonEnglishProseRatio(turkishComment)).toBeGreaterThan(rule.groups[0][0].value);
   });
@@ -44,19 +47,24 @@ describe('non-English rejection highlight', () => {
     ['full-width English', 'Ｉ ｔｈｉｎｋ ｔｈｉｓ ｉｓ ａ ｖｅｒｙ ｉｎｔｅｒｅｓｔｉｎｇ ｑｕｅｓｔｉｏｎ ａｎｄ ｗｅ ｓｈｏｕｌｄ ｄｉｓｃｕｓｓ ｉｔ ｍｏｒｅ.'],
   ])('does not flag %s', (_description, text) => {
     expect(getNonEnglishProseRatio(text)).toBeLessThanOrEqual(0.25);
+    expect(getNonEnglishProseLetterCount(text)).toBeLessThan(300);
   });
 
   test.each(['', '<img src="example.png">', 'Merci!', '12345 😀👍', '<p>α + β = γ</p>'])('abstains on insufficient prose: %s', html => {
     expect(getNonEnglishProseRatio(html)).toBeNull();
+    expect(getNonEnglishProseLetterCount(html)).toBeNull();
   });
 
   test.each(['blockquote', 'q', 'pre', 'code', 'math', 'script', 'style'])('ignores foreign text inside %s', tag => {
-    expect(getNonEnglishProseRatio(`<p>${english}</p><${tag}>${turkishComment}</${tag}>`)).toBe(0);
+    const html = `<p>${english}</p><${tag}>${turkishComment.repeat(3)}</${tag}>`;
+    expect(getNonEnglishProseRatio(html)).toBe(0);
+    expect(getNonEnglishProseLetterCount(html)).toBe(0);
   });
 
   test('ignores rendered and editable math', () => {
     const math = '<span class="math-tex">α β γ δ ε ζ η θ λ μ ν ξ π ρ σ τ φ χ ψ ω</span>';
     expect(getNonEnglishProseRatio(`<p>${english}</p>${math.repeat(5)}`)).toBe(0);
+    expect(getNonEnglishProseLetterCount(`<p>${english}</p>${math.repeat(5)}`)).toBe(0);
   });
 
   test('decodes HTML entities and handles decomposed accents', () => {
@@ -68,6 +76,7 @@ describe('non-English rejection highlight', () => {
   test('ignores URL and email noise', () => {
     const links = 'https://example.com/bonjour-comment-allez-vous bonjour@example.fr '.repeat(20);
     expect(getNonEnglishProseRatio(`<p>${english} ${links}</p>`)).toBe(0);
+    expect(getNonEnglishProseLetterCount(`<p>${english} ${links}</p>`)).toBe(0);
   });
 
   test('does not let a short English introduction hide a foreign body', () => {
@@ -85,7 +94,26 @@ describe('non-English rejection highlight', () => {
   });
 
   test('tolerates a small foreign aside in an English discussion', () => {
-    expect(getNonEnglishProseRatio(`<p>${english.repeat(12)}</p><p>Je vous remercie pour cette discussion très intéressante.</p>`)).toBeLessThanOrEqual(0.25);
+    const html = `<p>${english.repeat(12)}</p><p>Je vous remercie pour cette discussion très intéressante.</p>`;
+    expect(getNonEnglishProseRatio(html)).toBeLessThanOrEqual(0.25);
+    expect(getNonEnglishProseLetterCount(html)).toBeLessThan(300);
+  });
+
+  test.each([
+    ['Chinese', '我觉得我们应该先仔细讨论这个问题，再做出最终的判断，而不是没有证据就相信所有的说法。'],
+    ['French', 'Je pense que cette question mérite une discussion plus approfondie et des exemples concrets.'],
+  ])('counts substantial %s prose despite a longer English translation', (_language, text) => {
+    const foreignSection = text.repeat(10);
+    const translation = english.repeat(60);
+    const rule = highlightRuleSeed.rejectionTemplates['We only accept English-language content'];
+    for (const html of [
+      `<p>${foreignSection}</p><p>${translation}</p>`,
+      `<p>${translation}</p><p>${foreignSection}</p>`,
+      `<p>${translation} ${foreignSection}</p>`,
+    ]) {
+      expect(getNonEnglishProseRatio(html)).toBeLessThanOrEqual(rule.groups[0][0].value);
+      expect(getNonEnglishProseLetterCount(html)).toBeGreaterThanOrEqual(rule.groups[1][0].value);
+    }
   });
 
   test('weights mixed-language content by letters, not by paragraph count', () => {

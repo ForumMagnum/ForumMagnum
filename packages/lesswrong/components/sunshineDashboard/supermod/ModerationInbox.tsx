@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
-import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import { userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -30,6 +30,8 @@ import ModerationUndoHistory from './ModerationUndoHistory';
 import { DEFAULT_SIDEBAR_TAB } from './sidebarTabs';
 import { useMessages } from '@/components/common/withMessages';
 import { runQueuedModerationAction } from './runQueuedModerationAction';
+import { hideScrollBars } from '@/themes/styleUtils';
+import ErrorAccessDenied from '@/components/common/ErrorAccessDenied';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -84,6 +86,11 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     overflow: 'hidden',
     position: 'fixed',
     marginTop: -50,
+    // Long template previews overflow the viewport; keep scrolling available
+    // without showing an extra scrollbar alongside the moderation columns.
+    'html:has(&)': {
+      ...hideScrollBars,
+    },
   },
   mainContent: {
     flex: 1,
@@ -515,6 +522,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 const ModerationInbox = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const canModerate = userIsAdminOrMod(currentUser);
   const { query } = useLocation();
 
   const { data, loading } = useQuery(ModerationInboxDataQuery, {
@@ -527,12 +535,13 @@ const ModerationInbox = () => {
       curationLimit: 200,
     },
     fetchPolicy: 'cache-and-network',
+    skip: !canModerate,
   });
 
   const initialOpenedUserId = query.user || null;
 
   const users = useMemo(() => data?.users?.results.filter(user => user.needsReview) ?? [], [data]);
-  const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !users.some(u => u._id === initialOpenedUserId);
+  const shouldFetchDirectUser = canModerate && Boolean(initialOpenedUserId) && !users.some(u => u._id === initialOpenedUserId);
 
   const { data: directUserData, loading: directUserLoading } = useQuery(SingleUserSupermodQuery, {
     variables: { documentId: initialOpenedUserId },
@@ -556,8 +565,11 @@ const ModerationInbox = () => {
   useHydrateModerationPostCache(posts);
   useHydrateModerationPostCache(classifiedPosts);
 
-  if (!currentUser || !userIsAdminOrMod(currentUser)) {
-    return null;
+  if (!currentUser || !canModerate) {
+    return <ErrorAccessDenied explanation={userIsMemberOf(currentUser, 'realAdmins')
+      ? 'Your admin powers are disabled. Open your user menu and select "Re-enable Admin Powers" to access the moderation inbox.'
+      : 'The moderation inbox is only available to admins and moderators.'
+    } />;
   }
 
   const dataNotReady = loading && !data;

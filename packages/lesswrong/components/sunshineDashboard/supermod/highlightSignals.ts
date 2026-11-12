@@ -8,9 +8,11 @@ import {
   LOW_AVERAGE_KARMA_POST_ALERT,
 } from "@/lib/collections/moderatorActions/constants";
 import { areAllContentPermissionsDisabled, isPost, type ContentItem } from "./helpers";
-import { getNonEnglishProseRatio } from "./contentLanguage";
+import { getNonEnglishProseLetterCount, getNonEnglishProseRatio } from "./contentLanguage";
 import { contentHasOffsiteLink } from "./contentLinks";
 import {
+  getBlankLineCountFromHtml,
+  getBlankLineRatioFromHtml,
   getFirstParagraphLength,
   getFormattingParagraphPlaintextsFromHtml,
   getLetters,
@@ -325,6 +327,18 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
       getRepeatedPunctuationRunCountFromHtml(content.contents?.html ?? '')
     ),
   },
+  focusedBlankLineCount: {
+    type: 'number', scope: 'focusedContent', group: 'Selected content',
+    label: "Blank lines in the selected content",
+    description: "Empty paragraphs and repeated line breaks; a run of several blank lines counts once",
+    compute: ctx => focusedNumber(ctx, content => getBlankLineCountFromHtml(content.contents?.html ?? '')),
+  },
+  focusedBlankLineRatio: {
+    type: 'number', scope: 'focusedContent', group: 'Selected content',
+    label: "Fraction of the selected content's lines that are blank",
+    description: "Between 0 and 1; around 0.5 when every paragraph is separated by a blank line",
+    compute: ctx => focusedNumber(ctx, content => getBlankLineRatioFromHtml(content.contents?.html ?? '')),
+  },
   focusedLongestFormattingSentenceLength: {
     type: 'number', scope: 'focusedContent', group: 'Selected content',
     label: "Longest sentence-like run in the selected content",
@@ -383,6 +397,12 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
     label: "Fraction of selected prose confidently detected as non-English",
     description: "Language detection across the whole body, weighted by letters. Excludes quotes, code, math and URLs; uncertain or short samples do not count as non-English",
     compute: ctx => focusedNumber(ctx, content => getNonEnglishProseRatio(content.contents?.html ?? '')),
+  },
+  focusedNonEnglishProseLetterCount: {
+    type: 'number', scope: 'focusedContent', group: 'Selected content',
+    label: "Letters in selected prose confidently detected as non-English",
+    description: "Counts non-English prose even when an English translation is included. Excludes quotes, code, math and URLs; uncertain or short samples do not count",
+    compute: ctx => focusedNumber(ctx, content => getNonEnglishProseLetterCount(content.contents?.html ?? '')),
   },
   focusedLinkCount: {
     type: 'number', scope: 'focusedContent', group: 'Selected content',

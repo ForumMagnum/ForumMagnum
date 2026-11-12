@@ -53,6 +53,22 @@
             "minimumMatches": 2,
             "explanation": "A single content item contains different whole-word political terms from the listed names, parties, institutions, and topics; repeated uses of one term count once."
           }
+        ],
+        [
+          {
+            "signal": "postTitlesAndTexts",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "\\b(?:Democratic Party|Democrats?|Republican Party|Republicans?|GOP|MAGA|Labour Party|Conservative Party|Tories|Tory|Liberal Democrats|Lib Dems|Reform UK|SNP|Liberal Party|NDP|Australian Labor Party|CDU|CSU|SPD|AfD|FDP|Die Linke|National Rally|Front National|La France Insoumise|BJP|Bharatiya Janata|Aam Aadmi|Likud|Fidesz|Law and Justice|United Russia|Chinese Communist Party|CCP|Liberal Democratic Party|Communist Party)\\b",
+            "explanation": "A post names a mainstream political party, such as the Democrats, Republicans, Tories, Labour Party, AfD, BJP, or Likud."
+          }
+        ],
+        [
+          {
+            "signal": "postTitlesAndTexts",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "(?:\\b(?:United States|USA|US|America|United Kingdom|UK|Britain|Great Britain|England|Scotland|Wales|Ireland|Canada|Mexico|Brazil|Argentina|Venezuela|Colombia|Chile|Cuba|Haiti|France|Germany|Italy|Spain|Portugal|Netherlands|Belgium|Switzerland|Austria|Sweden|Norway|Denmark|Finland|Poland|Hungary|Czechia|Greece|Romania|Serbia|Croatia|Ukraine|Russia|Belarus|Turkey|Israel|Palestine|Gaza|Lebanon|Syria|Iraq|Iran|Saudi Arabia|Yemen|Egypt|Libya|Sudan|Ethiopia|Somalia|Nigeria|Kenya|South Africa|Rwanda|Morocco|Algeria|Tunisia|Afghanistan|Pakistan|India|Bangladesh|Sri Lanka|Myanmar|Thailand|Vietnam|Cambodia|Indonesia|Malaysia|Singapore|Philippines|China|Taiwan|Hong Kong|Japan|South Korea|North Korea|Korea|Australia|New Zealand)\\b|U\\.S\\.A?\\.?|U\\.K\\.)",
+            "explanation": "A post names a country, such as the US, China, Russia, Israel, or Ukraine."
+          }
         ]
       ]
     },
@@ -471,6 +487,32 @@
             "minimumMatches": 2,
             "explanation": "A single content item contains different whole-word political terms from the listed names, parties, institutions, and topics; repeated uses of one term count once."
           }
+        ],
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "\\b(?:Democratic Party|Democrats?|Republican Party|Republicans?|GOP|MAGA|Labour Party|Conservative Party|Tories|Tory|Liberal Democrats|Lib Dems|Reform UK|SNP|Liberal Party|NDP|Australian Labor Party|CDU|CSU|SPD|AfD|FDP|Die Linke|National Rally|Front National|La France Insoumise|BJP|Bharatiya Janata|Aam Aadmi|Likud|Fidesz|Law and Justice|United Russia|Chinese Communist Party|CCP|Liberal Democratic Party|Communist Party)\\b",
+            "explanation": "A post names a mainstream political party, such as the Democrats, Republicans, Tories, Labour Party, AfD, BJP, or Likud."
+          }
+        ],
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "(?:\\b(?:United States|USA|US|America|United Kingdom|UK|Britain|Great Britain|England|Scotland|Wales|Ireland|Canada|Mexico|Brazil|Argentina|Venezuela|Colombia|Chile|Cuba|Haiti|France|Germany|Italy|Spain|Portugal|Netherlands|Belgium|Switzerland|Austria|Sweden|Norway|Denmark|Finland|Poland|Hungary|Czechia|Greece|Romania|Serbia|Croatia|Ukraine|Russia|Belarus|Turkey|Israel|Palestine|Gaza|Lebanon|Syria|Iraq|Iran|Saudi Arabia|Yemen|Egypt|Libya|Sudan|Ethiopia|Somalia|Nigeria|Kenya|South Africa|Rwanda|Morocco|Algeria|Tunisia|Afghanistan|Pakistan|India|Bangladesh|Sri Lanka|Myanmar|Thailand|Vietnam|Cambodia|Indonesia|Malaysia|Singapore|Philippines|China|Taiwan|Hong Kong|Japan|South Korea|North Korea|Korea|Australia|New Zealand)\\b|U\\.S\\.A?\\.?|U\\.K\\.)",
+            "explanation": "A post names a country, such as the US, China, Russia, Israel, or Ukraine."
+          }
         ]
       ]
     },
@@ -610,6 +652,13 @@
             "signal": "focusedNonEnglishProseRatio",
             "operator": "gt",
             "value": 0.25
+          }
+        ],
+        [
+          {
+            "signal": "focusedNonEnglishProseLetterCount",
+            "operator": "gte",
+            "value": 300
           }
         ]
       ]
@@ -754,6 +803,18 @@
             "signal": "focusedLongestFormattingSentenceLength",
             "operator": "gte",
             "value": 500
+          }
+        ],
+        [
+          {
+            "signal": "focusedBlankLineCount",
+            "operator": "gte",
+            "value": 3
+          },
+          {
+            "signal": "focusedBlankLineRatio",
+            "operator": "gte",
+            "value": 0.4
           }
         ]
       ]

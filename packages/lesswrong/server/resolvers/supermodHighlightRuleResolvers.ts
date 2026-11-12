@@ -2,6 +2,8 @@ import gql from "graphql-tag";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { upgradeNonEnglishHighlightRules } from "@/server/moderatorHighlights/upgradeNonEnglishHighlightRules";
 import { upgradeOffsiteHighlightRules } from "@/server/moderatorHighlights/upgradeOffsiteHighlightRules";
+import { upgradePoliticalTermHighlightRules } from "@/server/moderatorHighlights/upgradePoliticalTermHighlightRules";
+import { upgradeWhitespaceHighlightRules } from "@/server/moderatorHighlights/upgradeWhitespaceHighlightRules";
 import {
   HIGHLIGHT_RULE_OVERRIDES_METADATA_NAME,
   migrateLegacyTemplateRuleOverrideKeys,
@@ -44,7 +46,9 @@ export const supermodHighlightRuleGqlQueries = {
     const templates = await getModerationTemplateReferences(context);
     // Local servers can run new code against a database whose migration is pending.
     const upgraded = upgradeNonEnglishHighlightRules(migrateLegacyTemplateRuleOverrideKeys(parsed, templates));
-    return serializeHighlightRuleOverrides(upgradeOffsiteHighlightRules(upgraded, templates));
+    const withOffsite = upgradeOffsiteHighlightRules(upgraded, templates);
+    const withWhitespace = upgradeWhitespaceHighlightRules(withOffsite, templates);
+    return serializeHighlightRuleOverrides(upgradePoliticalTermHighlightRules(withWhitespace, templates));
   },
 };
 

@@ -65,8 +65,12 @@ function languageSamples(text: string): string[] {
   return samples;
 }
 
-/** Fraction of authored prose confidently identified as non-English. */
-export function getNonEnglishProseRatio(html: string): number | null {
+interface ProseLanguageCounts {
+  letters: number;
+  nonEnglishLetters: number;
+}
+
+function getProseLanguageCounts(html: string): ProseLanguageCounts | null {
   const text = proseFromHtml(html).normalize('NFKC')
     .replace(/(?:https?:\/\/|www\.)\S+|[\w.+-]+@[\w.-]+\.[a-z]+/gi, ' ');
   const letters = letterCount(text);
@@ -82,5 +86,16 @@ export function getNonEnglishProseRatio(html: string): number | null {
       nonEnglishLetters += sampleLetters;
     }
   }
-  return nonEnglishLetters / letters;
+  return { letters, nonEnglishLetters };
+}
+
+/** Fraction of authored prose confidently identified as non-English. */
+export function getNonEnglishProseRatio(html: string): number | null {
+  const counts = getProseLanguageCounts(html);
+  return counts ? counts.nonEnglishLetters / counts.letters : null;
+}
+
+/** Absolute amount of non-English prose, unaffected by an accompanying translation. */
+export function getNonEnglishProseLetterCount(html: string): number | null {
+  return getProseLanguageCounts(html)?.nonEnglishLetters ?? null;
 }

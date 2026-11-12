@@ -1,5 +1,7 @@
 import { DEFAULT_ACTION_HIGHLIGHT_RULES } from '@/components/sunshineDashboard/supermod/actionHighlightRules';
 import {
+  getBlankLineCountFromHtml,
+  getBlankLineRatioFromHtml,
   getFormattingParagraphPlaintextsFromHtml,
   getLongestFormattingSentenceLengthFromHtml,
   getRepeatedPunctuationRunCountFromHtml,
@@ -26,6 +28,17 @@ function allConditions(rules: Record<string, HighlightRule>): HighlightCondition
 function conditionRegex(condition: HighlightCondition): RegExp {
   if (typeof condition.value !== 'string') throw new Error(`Expected a regex condition on ${condition.signal}`);
   return new RegExp(condition.value, isCaseSensitiveRegexHighlightOperator(condition.operator) ? '' : 'i');
+}
+
+function numericThreshold(group: HighlightCondition[], signal: string): number {
+  const condition = group.find(candidate => candidate.signal === signal);
+  if (typeof condition?.value !== 'number') throw new Error(`Expected a numeric condition on ${signal}`);
+  return condition.value;
+}
+
+function firesOnBlankLines(html: string, minimumBlankLines: number, minimumBlankLineRatio: number): boolean {
+  return getBlankLineCountFromHtml(html) >= minimumBlankLines
+    && (getBlankLineRatioFromHtml(html) ?? 0) >= minimumBlankLineRatio;
 }
 
 function seededRule(category: 'messageTemplates' | 'rejectionTemplates', name: string): HighlightRule {
@@ -121,6 +134,81 @@ describe('the composed AI research pattern', () => {
   it('needs both halves', () => {
     expect(composed.test('a training run with careful methodology')).toBe(false);
     expect(composed.test('some thoughts about AGI')).toBe(false);
+  });
+});
+
+describe('the blank-line formatting rule', () => {
+  const blankLineGroup = seededRule('rejectionTemplates', 'Formatting').groups
+    .find(group => group.some(condition => condition.signal === 'focusedBlankLineCount'));
+  if (!blankLineGroup) throw new Error('No blank-line group in the Formatting rule');
+
+  const minimumBlankLines = numericThreshold(blankLineGroup, 'focusedBlankLineCount');
+  const minimumBlankLineRatio = numericThreshold(blankLineGroup, 'focusedBlankLineRatio');
+  const fires = (html: string) => firesOnBlankLines(html, minimumBlankLines, minimumBlankLineRatio);
+
+  const paragraphs = ['First paragraph.', 'Second paragraph.', 'Third paragraph.', 'Fourth paragraph.'];
+  const spacedWith = (spacer: string) => paragraphs.map(text => `<p>${text}</p>`).join(spacer);
+
+  it('fires on a blank line between every paragraph, however it is marked up', () => {
+    expect(fires(spacedWith('<p>&nbsp;</p>'))).toBe(true);
+    expect(fires(spacedWith('<p><br /></p>'))).toBe(true);
+    expect(fires(spacedWith('<p></p>'))).toBe(true);
+    expect(fires(paragraphs.join('<br /><br />'))).toBe(true);
+  });
+
+  // Editors routinely put each block on its own source line.
+  it('does not fire on ordinary paragraphs or newline-separated source', () => {
+    expect(fires(spacedWith(''))).toBe(false);
+    expect(fires(spacedWith('\n'))).toBe(false);
+    expect(getBlankLineCountFromHtml('<p>One.</p>\n<p>Two.</p>\n')).toBe(0);
+  });
+
+  it('does not fire on occasional blank lines in a long post', () => {
+    const longPost = [...Array(20)].map((_unused, index) => `<p>Paragraph ${index}.</p>`).join('');
+    expect(fires(`${longPost}<p>&nbsp;</p><h2>A heading</h2>${longPost}`)).toBe(false);
+  });
+
+  it('counts a run of several blank lines once', () => {
+    expect(getBlankLineCountFromHtml('<p>One.</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>Two.</p>')).toBe(1);
+  });
+
+  it('ignores leading and trailing gaps', () => {
+    expect(getBlankLineCountFromHtml('<p>&nbsp;</p><p>One.</p><p>Two.</p><p>&nbsp;</p>')).toBe(0);
+  });
+});
+
+describe('the political party and country patterns', () => {
+  const politicalConditions = [
+    ...seededRule('rejectionTemplates', 'Political norm').groups.flat(),
+    ...seededRule('messageTemplates', 'Politics').groups.flat(),
+  ].filter(condition => isCaseSensitiveRegexHighlightOperator(condition.operator));
+
+  function patternMatching(sample: string): RegExp {
+    const condition = politicalConditions.find(candidate => conditionRegex(candidate).test(sample));
+    if (!condition) throw new Error(`No seeded political pattern matches ${sample}`);
+    return conditionRegex(condition);
+  }
+
+  const partyPattern = patternMatching('the Republicans');
+  const countryPattern = patternMatching('a lab in China');
+
+  it('matches a single mainstream party or country', () => {
+    for (const sample of ['The Democrats lost', 'Labour Party policy', 'votes for the AfD', 'the BJP government']) {
+      expect(partyPattern.test(sample)).toBe(true);
+    }
+    for (const sample of ['exports to Russia', 'the US and the UK', 'U.S. policy', 'based in New Zealand']) {
+      expect(countryPattern.test(sample)).toBe(true);
+    }
+  });
+
+  // These only hold while the conditions stay case-sensitive.
+  it('does not match the same words in ordinary lowercase prose', () => {
+    for (const sample of ['democratic norms', 'republican virtue', 'the tory of the story', 'a labour of love']) {
+      expect(partyPattern.test(sample)).toBe(false);
+    }
+    for (const sample of ['let us consider', 'american readers', 'china shop', 'turkey sandwich']) {
+      expect(countryPattern.test(sample)).toBe(false);
+    }
   });
 });
 

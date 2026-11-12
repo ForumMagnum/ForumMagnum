@@ -21,6 +21,47 @@ export const getFormattingParagraphPlaintextsFromHtml = (html: string): string[]
   return plaintext ? [plaintext] : [];
 };
 
+// Source newlines between tags are insignificant, so blank lines only come from markup.
+const BLOCK_BOUNDARY = /<\/(?:p|div|li|h[1-6]|blockquote|figure|table|tr)\s*>|<br\s*\/?>/gi;
+const NON_BREAKING_SPACE = /&nbsp;|&#160;|&#xa0;|\u00a0/gi;
+
+interface BlankLineStats {
+  /** Consecutive blank lines count once, so one gap is one run however it is marked up. */
+  blankRuns: number;
+  textBlocks: number;
+}
+
+const getBlankLineStatsFromHtml = (html: string): BlankLineStats => {
+  const lines = stripHtml(html.replace(/\s+/g, ' ').replace(BLOCK_BOUNDARY, '\n'))
+    .replace(NON_BREAKING_SPACE, ' ')
+    .split('\n')
+    .map(line => line.trim());
+  while (lines.length > 0 && !lines[0]) lines.shift();
+  while (lines.length > 0 && !lines[lines.length - 1]) lines.pop();
+
+  let blankRuns = 0;
+  let textBlocks = 0;
+  let inBlankRun = false;
+  for (const line of lines) {
+    if (line) {
+      textBlocks++;
+      inBlankRun = false;
+    } else if (!inBlankRun) {
+      blankRuns++;
+      inBlankRun = true;
+    }
+  }
+  return { blankRuns, textBlocks };
+};
+
+export const getBlankLineCountFromHtml = (html: string): number => getBlankLineStatsFromHtml(html).blankRuns;
+
+export const getBlankLineRatioFromHtml = (html: string): number | null => {
+  const { blankRuns, textBlocks } = getBlankLineStatsFromHtml(html);
+  if (blankRuns + textBlocks === 0) return null;
+  return blankRuns / (blankRuns + textBlocks);
+};
+
 const FORMATTING_SENTENCE_BOUNDARY = /[.!?]+(?:\s+|$)/;
 
 export const getRepeatedPunctuationRunCountFromHtml = (html: string): number => {
