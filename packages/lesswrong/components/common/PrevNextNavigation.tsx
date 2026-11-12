@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("PrevNextNavigation", (theme: ThemeType) => ({
@@ -40,15 +41,18 @@ const styles = defineStyles("PrevNextNavigation", (theme: ThemeType) => ({
   },
 }));
 
-const PrevNextNavigation = ({ onPrevious, onNext, onNextHoverChange, canGoPrevious = false, canGoNext = true }: {
+export interface PrevNextNavigationProps {
   onPrevious?: () => void,
   onNext?: () => void,
   onNextHoverChange?: (hovered: boolean) => void,
   canGoPrevious?: boolean,
   canGoNext?: boolean,
-}) => {
+  className?: string,
+}
+
+const PrevNextNavigation = ({ onPrevious, onNext, onNextHoverChange, canGoPrevious = false, canGoNext = true, className }: PrevNextNavigationProps) => {
   const classes = useStyles(styles);
-  return <div className={classes.root}>
+  return <div className={classNames(classes.root, className)}>
     <button type="button" className={classes.button} onClick={onPrevious} disabled={!canGoPrevious}>
       Prev
     </button>

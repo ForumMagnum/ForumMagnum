@@ -10,7 +10,7 @@ import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
 import { aboutPostIdSetting } from '@/lib/instanceSettings';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
-import LoadMore from "../common/LoadMore";
+import LoadMore, { LoadMorePlaceholder } from "../common/LoadMore";
 import PostsItem from "./PostsItem";
 import SectionFooter from "../common/SectionFooter";
 import PostsLoading from "./PostsLoading";
@@ -22,9 +22,13 @@ import uniqBy from 'lodash/uniqBy';
 import { useLoadMoreExpansion } from '../hooks/useLoadMoreExpansion';
 import { useABTest } from '../hooks/useAbTests';
 import { frontpagePostsPagingABTest } from '@/lib/abTests';
-import { useListPages } from '../hooks/useListPages';
+import { useListPages, type ListPage } from '../hooks/useListPages';
 import SlidingPages from '../common/SlidingPages';
-import PrevNextNavigation from '../common/PrevNextNavigation';
+import PrevNextNavigation, { type PrevNextNavigationProps } from '../common/PrevNextNavigation';
+import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import { useTheme } from '../themes/useTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isClient } from '@/lib/executionEnvironment';
 import LWPlaceholderPostsItem from './LWPlaceholderPostsItem';
 import range from 'lodash/range';
 
@@ -38,6 +42,25 @@ type LoadMoreSettings = {
   loadMore: (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'];
   excludedPostIds?: never
 } | undefined;
+
+const styles = defineStyles("HomePostsList", (theme: ThemeType) => ({
+  hiddenOnPhones: {
+    [theme.breakpoints.down('xs')]: {
+      '&&': {
+        display: "none",
+      },
+    },
+  },
+  phonesOnly: {
+    [theme.breakpoints.up('sm')]: {
+      '&&': {
+        display: "none",
+      },
+    },
+  },
+}));
+
+const PAGING_MIN_BREAKPOINT = 'sm';
 
 const CLASSIC_ALGORITHM = 'forum-classic';
 const HYBRID_ALGORITHM = 'recombee-hybrid';
@@ -181,6 +204,7 @@ interface HomePostsPagesProps {
   loadMore: () => Promise<unknown>,
   loadingMore: boolean,
   emphasizeIfNew: boolean,
+  paged: boolean,
   children?: React.ReactNode,
 }
 
@@ -203,36 +227,24 @@ const HomePostsItem = ({ result, pageIndex, emphasizeIfNew }: {
   </AnalyticsContext>;
 };
 
-const ExpandingHomePostsPages = ({ results, pageSize, loadMore, loadingMore, emphasizeIfNew, children }: HomePostsPagesProps) => {
-  const { listRef, prepareForLoadMore } = useLoadMoreExpansion({
-    loading: loadingMore,
-    itemCount: results.length,
-  });
+const wholeListAsFirstPage = (pageIndex: number, itemCount: number): ListPage => ({
+  start: pageIndex === 0 ? 0 : itemCount,
+  end: itemCount,
+  placeholderCount: 0,
+});
 
-  return <div>
-    <div ref={listRef}>
-      {results.map((result, index) => <HomePostsItem
-        key={result.post._id}
-        result={result}
-        pageIndex={Math.floor(index / pageSize)}
-        emphasizeIfNew={emphasizeIfNew}
-      />)}
-    </div>
-    <SectionFooter>
-      <LoadMore
-        loading={loadingMore}
-        loadMore={() => {
-          prepareForLoadMore();
-          void loadMore();
-        }}
-        sectionFooterStyles
-      />
-      {children}
-    </SectionFooter>
-  </div>;
+// The paged list is what gets server-rendered for the paged group at every
+// screen width, since the width isn't known until hydration. Until then, CSS
+// shows phones the Load More that they're about to get instead.
+const PagedListControls = (props: PrevNextNavigationProps) => {
+  const classes = useStyles(styles);
+  return <>
+    <PrevNextNavigation {...props} className={classes.hiddenOnPhones} />
+    <LoadMorePlaceholder sectionFooterStyles className={classes.phonesOnly} />
+  </>;
 };
 
-const PagedHomePostsPages = ({ results, pageSize, loadMore, loadingMore, emphasizeIfNew, children }: HomePostsPagesProps) => {
+const HomePostsPages = ({ results, pageSize, loadMore, loadingMore, emphasizeIfNew, paged, children }: HomePostsPagesProps) => {
   const { captureEvent } = useTracking();
   const { pageIndex, getPage, canGoToNextPage, goToNextPage, goToPreviousPage, setNextPageWanted } = useListPages({
     itemCount: results.length,
@@ -240,14 +252,22 @@ const PagedHomePostsPages = ({ results, pageSize, loadMore, loadingMore, emphasi
     loadMore,
     loading: loadingMore,
   });
+  const { listRef, prepareForLoadMore } = useLoadMoreExpansion({
+    loading: loadingMore,
+    itemCount: results.length,
+    enabled: !paged,
+  });
 
+  // Whether paged or not, the posts are rendered through the same tree (the
+  // unpaged list being a single page that holds everything), so that changing
+  // between the two doesn't remount them. Phones do that on every hydration.
   const renderPage = (index: number) => {
-    const { start, end, placeholderCount } = getPage(index);
+    const { start, end, placeholderCount } = paged ? getPage(index) : wholeListAsFirstPage(index, results.length);
     return <>
-      {results.slice(start, end).map(result => <HomePostsItem
+      {results.slice(start, end).map((result, indexInPage) => <HomePostsItem
         key={result.post._id}
         result={result}
-        pageIndex={index}
+        pageIndex={paged ? index : Math.floor((start + indexInPage) / pageSize)}
         emphasizeIfNew={emphasizeIfNew}
       />)}
       {range(placeholderCount).map(placeholderIndex => <LWPlaceholderPostsItem key={placeholderIndex} showBottomBorder />)}
@@ -255,21 +275,33 @@ const PagedHomePostsPages = ({ results, pageSize, loadMore, loadingMore, emphasi
   };
 
   return <div>
-    <SlidingPages page={pageIndex} renderPage={renderPage} />
+    <div ref={listRef}>
+      <SlidingPages page={paged ? pageIndex : 0} renderPage={renderPage} />
+    </div>
     <SectionFooter>
-      <PrevNextNavigation
-        onPrevious={() => {
-          captureEvent("postsFeedPageChanged", { direction: "previous", fromPageIndex: pageIndex });
-          goToPreviousPage();
-        }}
-        onNext={() => {
-          captureEvent("postsFeedPageChanged", { direction: "next", fromPageIndex: pageIndex });
-          goToNextPage();
-        }}
-        onNextHoverChange={setNextPageWanted}
-        canGoPrevious={pageIndex > 0}
-        canGoNext={canGoToNextPage}
-      />
+      {paged
+        ? <PagedListControls
+          onPrevious={() => {
+            captureEvent("postsFeedPageChanged", { direction: "previous", fromPageIndex: pageIndex });
+            goToPreviousPage();
+          }}
+          onNext={() => {
+            captureEvent("postsFeedPageChanged", { direction: "next", fromPageIndex: pageIndex });
+            goToNextPage();
+          }}
+          onNextHoverChange={setNextPageWanted}
+          canGoPrevious={pageIndex > 0}
+          canGoNext={canGoToNextPage}
+        />
+        : <LoadMore
+          loading={loadingMore}
+          loadMore={() => {
+            prepareForLoadMore();
+            void loadMore();
+          }}
+          sectionFooterStyles
+        />
+      }
       {children}
     </SectionFooter>
   </div>;
@@ -281,7 +313,7 @@ const HomePostsLoading = ({ limit, paged, children }: {
   children?: React.ReactNode,
 }) => {
   return <PostsLoading placeholderCount={limit} loadMore={!paged}>
-    {paged && <PrevNextNavigation />}
+    {paged && <PagedListControls />}
     {children}
   </PostsLoading>;
 };
@@ -374,23 +406,33 @@ const HomePostsListLoaded = ({ algorithm, settings, limit, paged, children }: Ho
     });
   };
 
-  const HomePostsPages = paged ? PagedHomePostsPages : ExpandingHomePostsPages;
   return <HomePostsPages
     results={filteredResults}
     pageSize={limit}
     loadMore={loadMore}
     loadingMore={loading || networkStatus === NetworkStatus.fetchMore}
     emphasizeIfNew={algorithm !== CLASSIC_ALGORITHM}
+    paged={paged}
   >
     {children}
   </HomePostsPages>;
 }
 
 const HomePostsListWrapper = ({ algorithm, settings, limit = 15, children }: HomePostsListProps) => {
+  const theme = useTheme();
   const paginationGroup = useABTest(frontpagePostsPagingABTest);
-  const paged = paginationGroup === "paged";
+  const wideEnoughForPaging = useIsAboveBreakpoint(PAGING_MIN_BREAKPOINT);
+  const paged = paginationGroup === "paged" && wideEnoughForPaging;
 
-  return <AnalyticsContext postsFeedPagination={paginationGroup}>
+  // Narrower screens aren't part of the test, whichever group they're in, so
+  // their events carry no group. While hydrating, `wideEnoughForPaging` is
+  // still the server's guess, which events fired on mount would be labelled
+  // with, so this reads the width itself. It mustn't affect what's rendered.
+  const inPagingTest = isClient
+    ? window.innerWidth >= theme.breakpoints.values[PAGING_MIN_BREAKPOINT]
+    : wideEnoughForPaging;
+
+  return <AnalyticsContext postsFeedPagination={inPagingTest ? paginationGroup : undefined}>
     <SuspenseWrapper name="HomePostsList" fallback={
       <HomePostsLoading limit={limit} paged={paged}>{children}</HomePostsLoading>
     }>

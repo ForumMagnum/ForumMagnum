@@ -18,7 +18,7 @@ interface ListExtent {
   awaitedItemCount: number,
 }
 
-interface ListPage {
+export interface ListPage {
   start: number,
   end: number,
   /** Slots that items are still being loaded into */
