@@ -48,6 +48,164 @@ const footnoteAttributes = [
   'data-footnote-back-link-href',
 ]
 
+/**
+ * Inline SVG support. This exists for diagrams made with Excalidraw (see
+ * @/lib/lexical/excalidrawDiagrams), so it covers the parts of SVG that
+ * Excalidraw's SVG export uses, and little else. In particular, there's no
+ * <style>, <script>, <foreignObject> or animation elements, no event handler
+ * attributes, and no references (href or url(...)) to anything other than
+ * elements within the same SVG, except for links and embedded raster images.
+ *
+ * Note that the HTML parser lowercases tag and attribute names, so these are
+ * lowercased here (eg "clippath" rather than "clipPath"). Browsers' HTML
+ * parsers restore the correct casing for SVG elements and attributes.
+ */
+const svgTags = [
+  'svg', 'g', 'defs', 'symbol', 'use', 'path', 'rect', 'text', 'image', 'mask', 'clippath',
+];
+
+const svgPresentationAttributes = [
+  'fill', 'fill-opacity', 'fill-rule', 'stroke', 'stroke-width', 'stroke-opacity',
+  'stroke-linecap', 'stroke-linejoin', 'stroke-dasharray', 'stroke-dashoffset',
+  'stroke-miterlimit', 'opacity', 'transform', 'mask', 'clip-path',
+];
+
+const svgSizeAttributes = ['x', 'y', 'width', 'height'];
+
+const svgAllowedAttributes: Record<string, string[]> = {
+  svg: ['version', 'xmlns', 'viewbox', 'width', 'height', ...svgPresentationAttributes],
+  g: svgPresentationAttributes,
+  defs: [],
+  symbol: ['id', 'viewbox'],
+  use: ['href', ...svgSizeAttributes, 'opacity', 'transform'],
+  path: ['d', ...svgPresentationAttributes],
+  rect: [...svgSizeAttributes, 'rx', 'ry', ...svgPresentationAttributes],
+  text: [
+    ...svgSizeAttributes, 'font-family', 'font-size', 'font-weight', 'font-style',
+    'text-anchor', 'direction', 'dominant-baseline', 'style', ...svgPresentationAttributes,
+  ],
+  image: ['href', ...svgSizeAttributes, 'preserveaspectratio', 'opacity', 'transform'],
+  mask: ['id', 'maskunits', ...svgSizeAttributes, 'fill'],
+  clippath: ['id', 'clippathunits'],
+};
+
+// The only url(...) values allowed are references to elements by ID, eg a
+// mask="url(#mask-123)"
+const svgLocalUrlReferenceRegex = /^url\(#[\w.-]+\)$/;
+const svgLocalHrefRegex = /^#[\w.-]+$/;
+const svgImageHrefRegex = /^data:image\/(?:png|jpeg|gif|webp|avif);base64,[A-Za-z0-9+/=\s]+$/;
+
+function sanitizeSvgTag(tagName: string, attribs: Record<string, string>) {
+  const sanitizedAttribs: Record<string, string> = {};
+  for (const [name, value] of Object.entries(attribs)) {
+    // Presentation attributes are parsed as CSS, where backslash escapes could
+    // be used to disguise a url(...), so we don't allow them at all.
+    if (value.includes('\\')) {
+      continue;
+    }
+    if (value.toLowerCase().includes('url(') && !svgLocalUrlReferenceRegex.test(value)) {
+      continue;
+    }
+    if (name === 'href') {
+      const hrefRegex = tagName === 'image' ? svgImageHrefRegex : svgLocalHrefRegex;
+      if (!hrefRegex.test(value)) {
+        continue;
+      }
+    }
+    sanitizedAttribs[name] = value;
+  }
+  return {
+    tagName,
+    attribs: sanitizedAttribs,
+  };
+}
+
+const svgTransformTags = Object.fromEntries(
+  svgTags.map((tag) => [tag, sanitizeSvgTag])
+);
+
+/**
+ * MathJax CommonHTML output, as produced by renderMathInHtml (in
+ * @/server/editor/conversionUtils), which passes its output through this
+ * sanitizer. Equations are made of custom elements styled by MathJax's
+ * stylesheet, plus the inline styles and attributes allowed here. The
+ * attributes are the ones MathJax's stylesheet selects on.
+ */
+const mathJaxTags = [
+  'mjx-container', 'mjx-math', 'mjx-c', 'mjx-utext', 'mjx-texatom', 'mjx-mi', 'mjx-mo',
+  'mjx-mn', 'mjx-ms', 'mjx-mtext', 'mjx-mspace', 'mjx-mpadded', 'mjx-mphantom', 'mjx-mfrac',
+  'mjx-frac', 'mjx-num', 'mjx-den', 'mjx-dbox', 'mjx-dtable', 'mjx-dstrut', 'mjx-nstrut',
+  'mjx-line', 'mjx-msqrt', 'mjx-mroot', 'mjx-sqrt', 'mjx-surd', 'mjx-root', 'mjx-box',
+  'mjx-mstyle', 'mjx-merror', 'mjx-maction', 'mjx-menclose', 'mjx-mfenced', 'mjx-msub',
+  'mjx-msup', 'mjx-msubsup', 'mjx-munder', 'mjx-mover', 'mjx-munderover', 'mjx-under',
+  'mjx-over', 'mjx-base', 'mjx-script', 'mjx-mmultiscripts', 'mjx-prescripts', 'mjx-scripts',
+  'mjx-mprescripts', 'mjx-none', 'mjx-mtable', 'mjx-table', 'mjx-itable', 'mjx-mtr',
+  'mjx-mlabeledtr', 'mjx-mtd', 'mjx-labels', 'mjx-tstrut', 'mjx-mrow', 'mjx-inferredmrow',
+  'mjx-mglyph', 'mjx-maligngroup', 'mjx-malignmark', 'mjx-mathchoice', 'mjx-semantics',
+  'mjx-annotation', 'mjx-annotation-xml', 'mjx-xml', 'mjx-xml-block', 'mjx-text',
+  'mjx-unknown', 'mjx-stretchy-h', 'mjx-stretchy-v', 'mjx-beg', 'mjx-ext', 'mjx-end',
+  'mjx-mid', 'mjx-mark', 'mjx-cell', 'mjx-row', 'mjx-block', 'mjx-spacer', 'mjx-aline',
+  'mjx-arrow', 'mjx-cbox', 'mjx-rbox', 'mjx-hstrike', 'mjx-vstrike', 'mjx-ustrike',
+  'mjx-dstrike', 'mjx-lbhead', 'mjx-lthead', 'mjx-rbhead', 'mjx-rthead', 'mjx-baseline',
+  'mjx-ex-box', 'mjx-left-box', 'mjx-right-box', 'dbox',
+];
+
+const mathJaxAttributes = [
+  'class', 'style', 'id', 'aria-label', 'role', 'title', 'jax', 'display', 'width',
+  'justify', 'side', 'size', 'space', 'rspace', 'limits', 'variant', 'align', 'rowalign',
+  'script-align', 'type', 'delims', 'atop', 'bevelled', 'extra', 'double',
+];
+
+const mathJaxClasses = ['mjx-*', 'MJX-*', 'TEX-*', 'MathJax'];
+
+// Equation labels (\label, linked to by \eqref) have ids like "mjx-eqn:1"
+const mathJaxIdRegex = /^mjx-[-\w.:]+$/;
+
+function sanitizeMathJaxTag(tagName: string, attribs: Record<string, string>) {
+  if (attribs.id === undefined || mathJaxIdRegex.test(attribs.id)) {
+    return { tagName, attribs };
+  }
+  const { id: _id, ...attribsWithoutId } = attribs;
+  return { tagName, attribs: attribsWithoutId };
+}
+
+const cssNumber = String.raw`-?(?:\d+(?:\.\d*)?|\.\d+)`;
+const cssLength = String.raw`(?:${cssNumber}(?:em|ex|px|pt|rem|%)?|auto)`;
+const cssLengthListRegex = new RegExp(String.raw`^${cssLength}(?:\s+${cssLength})*$`);
+const cssColor = String.raw`(?:[a-zA-Z]+|#[\da-fA-F]{3,8}|(?:rgb|hsl)a?\([\d\s.,%]+\))`;
+const cssColorRegex = new RegExp(`^${cssColor}$`);
+const cssBorderRegex = new RegExp(String.raw`^(?:${cssLength}|${cssColor})(?:\s+(?:${cssLength}|${cssColor}))*$`);
+
+const mathJaxLengthStyleProperties = [
+  'width', 'height', 'min-width', 'max-width', 'top', 'bottom', 'left', 'right',
+  'margin', 'margin-top', 'margin-bottom', 'margin-left', 'margin-right',
+  'padding', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right',
+  'vertical-align', 'font-size', 'border-width',
+];
+
+const mathJaxStyles: Record<string, RegExp[]> = {
+  ...Object.fromEntries(mathJaxLengthStyleProperties.map((property) => [property, [cssLengthListRegex]])),
+  'color': [cssColorRegex],
+  'background-color': [cssColorRegex],
+  'border': [cssBorderRegex],
+  'border-top': [cssBorderRegex],
+  'border-bottom': [cssBorderRegex],
+  'border-left': [cssBorderRegex],
+  'border-right': [cssBorderRegex],
+  'position': [/^relative$/],
+  'display': [/^(?:block|inline|inline-block|inline-table|table|table-cell|table-row|none)$/],
+  'float': [/^(?:left|right|none)$/],
+  'text-align': [/^(?:left|right|center|justify)$/],
+  'font-family': [/^[-\w\s,'"]+$/],
+  'transform': [/^(?:(?:rotate|translate|translateX|translateY|scale|scaleX|scaleY)\([-\w\s.,%]*\)\s*)+$/],
+  'clip-path': [new RegExp(String.raw`^inset\(\s*${cssLength}(?:\s+${cssLength})*\s*\)$`)],
+};
+
+const mathJaxAllowedAttributes = Object.fromEntries(mathJaxTags.map((tag) => [tag, mathJaxAttributes]));
+const mathJaxAllowedClasses = Object.fromEntries(mathJaxTags.map((tag) => [tag, mathJaxClasses]));
+const mathJaxAllowedStyles = Object.fromEntries(mathJaxTags.map((tag) => [tag, mathJaxStyles]));
+const mathJaxTransformTags = Object.fromEntries(mathJaxTags.map((tag) => [tag, sanitizeMathJaxTag]));
+
 function sanitizeIframeTag(tagName: string, attribs: Record<string, string>) {
   const srcdoc = attribs.srcdoc;
   if (srcdoc !== undefined) {
@@ -81,9 +239,11 @@ function sanitizeIframeTag(tagName: string, attribs: Record<string, string>) {
 
 export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
-    allowedTags: sanitizeAllowedTags,
+    allowedTags: [...sanitizeAllowedTags, ...svgTags, ...mathJaxTags],
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
+      ...svgAllowedAttributes,
+      ...mathJaxAllowedAttributes,
       '*': [...footnoteAttributes, 'data-internal-id', 'data-visibility'],
       audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
@@ -98,7 +258,7 @@ export const sanitize = function(s: string): string {
       pre: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck', 'style'],
       code: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck'],
       div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props', 'data-review-results', 'data-model-name'],
-      a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
+      a: ['class', 'href', 'name', 'target', 'rel', 'title', 'data-href'],
       iframe: ['src', 'allowfullscreen', 'allow', 'srcdoc', 'sandbox', 'title', 'data-lexical-iframe-widget'],
       li: ['id', 'role', 'value'],
 
@@ -152,8 +312,14 @@ export const sanitize = function(s: string): string {
       'neuronpedia.org',
       'lwartifacts.vercel.app'
     ],
+    allowedSchemesByTag: {
+      // Embedded raster images in SVGs; see sanitizeSvgTag
+      image: ['data'],
+    },
     transformTags: {
       iframe: sanitizeIframeTag,
+      ...svgTransformTags,
+      ...mathJaxTransformTags,
     },
     // `transformTags.iframe` may strip invalid iframe src values to empty attrs, and we want those empty wrappers removed.
     exclusiveFilter: (frame) => {
@@ -247,8 +413,13 @@ export const sanitize = function(s: string): string {
       li: [ 'footnote-item', 'nested-list-item' ],
       details: ['detailsBlock'],
       summary: ['detailsBlockTitle'],
+      ...mathJaxAllowedClasses,
     },
     allowedStyles: {
+      // sanitize-html doesn't filter the style attribute at all on tags that
+      // have no entry here, so this makes those tags get no styles instead.
+      '*': {},
+      ...mathJaxAllowedStyles,
       figure: {
         'width': [cssSizeRegex],
         'height': [cssSizeRegex],
@@ -264,6 +435,12 @@ export const sanitize = function(s: string): string {
       table: {
         ...allowedTableStyles,
       },
+      tbody: {
+        ...allowedTableStyles,
+      },
+      tr: {
+        ...allowedTableStyles,
+      },
       td: {
         ...allowedTableStyles,
       },
@@ -273,9 +450,16 @@ export const sanitize = function(s: string): string {
       pre: {
         '--gutter-chars': [/^\d+$/],
       },
+      text: {
+        'white-space': [/^pre$/],
+      },
       span: {
         // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899
-        color: [/([a-z]+|#([\da-f]{3}){1,2}|(rgb|hsl)a\((\d{1,3}%?,\s?){3}(1|0?\.\d+)\)|(rgb|hsl)\(\d{1,3}%?(,\s?\d{1,3}%?){2}\))/]
+        color: [/([a-z]+|#([\da-f]{3}){1,2}|(rgb|hsl)a\((\d{1,3}%?,\s?){3}(1|0?\.\d+)\)|(rgb|hsl)\(\d{1,3}%?(,\s?\d{1,3}%?){2}\))/],
+        // Lexical exports every text node as a span with white-space: pre-wrap,
+        // which is what makes typed double spaces visible in the editor.
+        // Keep it so published HTML renders the same whitespace.
+        'white-space': [/^pre-wrap$/],
       },
     }
   });

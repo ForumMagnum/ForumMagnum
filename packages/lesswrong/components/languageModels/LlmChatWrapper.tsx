@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import sortBy from 'lodash/sortBy';
@@ -143,8 +144,9 @@ export const useLlmChat = (): LlmChatContextType => {
 const LlmChatWrapper = ({children}: {
   children: React.ReactNode
 }) => {
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
-  const enabled = currentUser && userHasLlmChat(currentUser);
+  const enabled = currentUser && userHasLlmChat(currentUser, forumType);
   return enabled
     ? <LlmChatWrapperInner>{children}</LlmChatWrapperInner>
     : <>{children}</>;
@@ -153,6 +155,7 @@ const LlmChatWrapper = ({children}: {
 const LlmChatWrapperInner = ({children}: {
   children: React.ReactNode
 }) => {
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
 
   const [updateConversation] = useMutation(LlmConversationsFragmentUpdateMutation);
@@ -164,7 +167,7 @@ const LlmChatWrapperInner = ({children}: {
       limit: 50,
       enableTotal: false,
     },
-    skip: !currentUser || !userHasLlmChat(currentUser),
+    skip: !currentUser || !userHasLlmChat(currentUser, forumType),
     // Not to SSRed because this is a context provider around the whole
     // page, so it would waterfall with the main page contents
     ssr: false,
@@ -199,7 +202,7 @@ const LlmChatWrapperInner = ({children}: {
 
   const { data: dataLlmConversationsWithMessages } = useQuery(LlmConversationsWithMessagesFragmentQuery, {
     variables: { documentId: currentConversationId },
-    skip: !currentConversationId || !userHasLlmChat(currentUser),
+    skip: !currentConversationId || !userHasLlmChat(currentUser, forumType),
     // Not to SSRed because this is a context provider around the whole
     // page, so it would waterfall with the main page contents
     ssr: false,

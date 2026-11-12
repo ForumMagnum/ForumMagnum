@@ -2,13 +2,19 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import CommentsDraftList from '../../comments/CommentsDraftList';
 import RecentComments from '../../comments/RecentComments';
+import { useLocation } from '@/lib/routeUtil';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { dashboardTabStyles } from './dashboardTabStyles';
+import PostsListSortDropdown from '../../posts/PostsListSortDropdown';
+
+/** The dashboard offers a deliberately small subset of the comment sort orders */
+const DASHBOARD_SORT_ORDERS = ['new', 'top', 'old'];
 
 const styles = defineStyles('DashboardCommentsTab', (theme: ThemeType) => ({
   filterRow: {
     display: 'flex',
+    alignItems: 'center',
     gap: 12,
     marginBottom: 12,
   },
@@ -29,15 +35,25 @@ const styles = defineStyles('DashboardCommentsTab', (theme: ThemeType) => ({
     color: theme.palette.grey[900],
     fontWeight: 600,
   },
+  sortDropdown: {
+    marginLeft: 'auto',
+    // RecentComments indents its list 32px from the right, so match that (and drop
+    // the dropdown button's own trailing padding) to line the control up with the cards
+    marginRight: 32,
+    '& button': {
+      paddingRight: 0,
+    },
+  },
 }));
 
 type CommentFilter = 'all' | 'quickTakes' | 'regular';
 
-function getCommentSelector(userId: string, filter: CommentFilter): CommentSelector {
+function getCommentSelector(userId: string, filter: CommentFilter, sortBy: string): CommentSelector {
   const base = {
     authorIsUnreviewed: null,
     includeRejected: true,
     userId,
+    sortBy,
   };
 
   switch (filter) {
@@ -55,6 +71,9 @@ const DashboardCommentsTab = ({userId}: {userId: string}) => {
   const shared = useStyles(dashboardTabStyles);
   const classes = useStyles(styles);
   const [filter, setFilter] = useState<CommentFilter>('all');
+  const { query } = useLocation();
+  const sortByQuery = query.commentsSortBy;
+  const sortBy = (sortByQuery === 'top' || sortByQuery === 'old') ? sortByQuery : 'new';
 
   return (
     <AnalyticsContext pageElementContext="dashboardCommentsTab">
@@ -88,9 +107,16 @@ const DashboardCommentsTab = ({userId}: {userId: string}) => {
               {f === 'all' ? 'All' : f === 'quickTakes' ? 'Quick Takes' : 'Comments'}
             </button>
           ))}
+          <div className={classes.sortDropdown}>
+            <PostsListSortDropdown
+              value={sortBy}
+              options={DASHBOARD_SORT_ORDERS}
+              sortingParam="commentsSortBy"
+            />
+          </div>
         </div>
         <RecentComments
-          selector={getCommentSelector(userId, filter)}
+          selector={getCommentSelector(userId, filter, sortBy)}
           limit={10}
         />
       </div>

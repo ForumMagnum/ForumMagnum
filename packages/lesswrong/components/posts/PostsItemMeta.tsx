@@ -1,6 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { FC } from 'react';
 import classNames from 'classnames';
-import { isAF } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import EventTime from "../localGroups/EventTime";
 import EventVicinity from "../localGroups/EventVicinity";
@@ -49,9 +49,10 @@ const PostsItemMeta = ({post, read, hideTags}: {
   read?: boolean,
   hideTags?: boolean,
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
-  const baseScore = isAF() ? post.afBaseScore : post.baseScore
-  const showAfScore = (!isAF() && post.af);
+  const baseScore = isAF ? post.afBaseScore : post.baseScore
+  const showAfScore = (!isAF && post.af);
   const afBaseScore = showAfScore ? post.afBaseScore : null
   const isOnGrayBackground = useIsOnGrayBackground();
 

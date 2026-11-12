@@ -7,6 +7,7 @@ import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createNotifications } from "@/server/notificationCallbacksHelpers";
 import { captureException } from "@/lib/sentryWrapper";
+import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
 import { $computeNarrowing } from "../../../../app/api/agent/applyEditAtSelection";
 import { findRenderedQuoteInMarkdown } from "../../../../app/api/agent/mapMarkdownToLexical";
@@ -178,6 +179,7 @@ function computeNarrowedDiff(
         quote,
         replacement,
         selectionResult.range,
+        getMarkdownItForAgentPosts(),
       );
       if (narrowing) {
         narrowedQuote = narrowing.quote;

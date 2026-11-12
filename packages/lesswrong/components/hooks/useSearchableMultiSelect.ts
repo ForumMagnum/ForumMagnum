@@ -1,10 +1,12 @@
+import { useForumType } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MultiSelectState, buildMultiSelectSummary } from "./useMultiSelect";
 import { useLRUCache } from "./useLRUCache";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@/lib/sentryWrapper";
 import { getSearchClient } from "@/lib/search/searchUtil";
-import { algoliaPrefixSetting } from '@/lib/instanceSettings';
+import { algoliaIndexPrefix } from '@/lib/instanceSettings';
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 
@@ -65,10 +67,11 @@ const fetchFromElasticIndex = async (
   index: string,
   fieldName: string,
   query: string,
+  forumType: ForumTypeString,
 ): Promise<string[]> => {
   const response = await getSearchClient().search([
     {
-      indexName: algoliaPrefixSetting.get() + index,
+      indexName: algoliaIndexPrefix + index,
       query,
       params: {
         query,
@@ -97,6 +100,7 @@ export const useSearchableMultiSelect = ({
   placeholder?: string,
   defaultSuggestions?: string[],
 } & MultiSelectSearchTarget): SearchableMultiSelectResult => {
+  const { forumType } = useForumType();
   const captureSearch = useSearchAnalytics();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -150,7 +154,7 @@ export const useSearchableMultiSelect = ({
   const fetchSuggestions = useCallback(async (query: string) => {
     try {
       const hits = await (index && fieldName
-        ? fetchFromElasticIndex(index, fieldName, query)
+        ? fetchFromElasticIndex(index, fieldName, query, forumType)
         : fetchFromUserFacet(facetField!, query));
       captureSearch("userFacetSearch", {
         facetField,
@@ -166,7 +170,7 @@ export const useSearchableMultiSelect = ({
       captureException(e);
       return [];
     }
-  }, [captureSearch, facetField, index, fieldName]);
+  }, [captureSearch, facetField, index, fieldName, forumType]);
 
   const getWithCache = useLRUCache<string, Promise<string[]>>(fetchSuggestions);
 

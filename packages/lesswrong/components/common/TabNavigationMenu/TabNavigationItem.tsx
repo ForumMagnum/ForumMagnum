@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
@@ -14,11 +15,11 @@ import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 export const iconWidth = 30
 
-const getIconTransform = () => forumSelect({
+const getIconTransform = (forumType: ForumTypeString) => forumSelect({
   LessWrong: "scale(0.8)",
   EAForum: "scale(0.7)",
   default: undefined,
-});
+}, forumType);
 
 const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   selected: {
@@ -77,7 +78,7 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     "& svg": {
       fill: "currentColor",
       color: theme.palette.icon.navigationSidebarIcon,
-      transform: getIconTransform(),
+      transform: getIconTransform(theme.forumType),
     }
   },
   iconOnlyIcon: {

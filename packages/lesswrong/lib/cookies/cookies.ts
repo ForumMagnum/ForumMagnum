@@ -2,6 +2,12 @@ import { registerCookie } from "./utils";
 
 // First party cookies
 
+export const FORUM_TYPE_COOKIE = registerCookie({
+  name: "forumType",
+  type: "necessary",
+  description: "Set to AlignmentForum to display the Alignment Forum for debugging",
+});
+
 export const CLIENT_ID_COOKIE = registerCookie({
   name: "clientId",
   type: "necessary",
@@ -46,12 +52,6 @@ export const SHOW_QUICK_TAKES_SECTION_COOKIE = registerCookie({
   description: "Whether to show the quick takes section on the EA Forum home page",
 })
 
-export const SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE = registerCookie({
-  name: 'show_quick_takes_community',
-  type: "necessary",
-  description: "Whether to include quick takes tagged with community in the home page quick takes section",
-})
-
 export const SHOW_POPULAR_COMMENTS_SECTION_COOKIE = registerCookie({
   name: 'show_popular_comments_section',
   type: "necessary",
@@ -68,12 +68,6 @@ export const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
   name: "show_post_podcast_player",
   type: "necessary",
   description: "Whether to show the podcast player on a posts pages",
-});
-
-export const HIDE_WELCOME_BOX_COOKIE = registerCookie({
-  name: "hide_welcome_box",
-  type: "necessary",
-  description: "Controls whether the welcome box on a post page is hidden",
 });
 
 export const HIDE_MAP_COOKIE = registerCookie({name: `hideMapFromFrontpage`, type: "necessary", description: "Stores whether the user has hidden the map from the frontpage."});
@@ -297,21 +291,6 @@ registerCookie({
   type: "functional",
   thirdPartyName: "Intercom",
   description: "Miscellaneous cookies which may be set by Intercom",
-});
-
-// Datadog
-registerCookie({
-  name: "dd_cookie_test_",
-  type: "analytics",
-  thirdPartyName: "Datadog",
-  description: "Cookie used by Datadog to test if cookies are enabled",
-});
-
-registerCookie({
-  name: "_dd_s",
-  type: "analytics",
-  thirdPartyName: "Datadog",
-  description: "Main cookie used by datadog to track sessions",
 });
 
 // Hotjar

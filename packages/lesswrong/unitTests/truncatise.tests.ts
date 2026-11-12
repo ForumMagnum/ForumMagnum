@@ -27,7 +27,16 @@ describe('truncatise', () => {
         TruncateLength: 3,
         Suffix: "..."
       }),
-      "<p>one <b><a href=\"www.example.com\">two three</a></b>...</p>"
+      '<p data-truncated="true">one <b data-truncated="true"><a data-truncated="true" href="www.example.com">two three</a></b>...</p>'
+    );
+  });
+  it('ignores markup inside quoted attribute values', () => {
+    chai.assert.equal(
+      truncatise('<p><img alt="x><i><img src=x onerror=alert(1)>" src=\'a>b.png\'>one two three four</p>', {
+        TruncateLength: 2,
+        Suffix: "..."
+      }),
+      '<p data-truncated="true"><img alt="x><i><img src=x onerror=alert(1)>" src=\'a>b.png\'>one two...</p>'
     );
   });
 });

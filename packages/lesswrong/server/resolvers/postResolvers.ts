@@ -1,12 +1,11 @@
 import { Posts } from '../../server/collections/posts/collection';
 import { Comments } from '../../server/collections/comments/collection';
-import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
-import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collections/posts/helpers';
+import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { canUserEditPostMetadata, extractGoogleDocId, userCanSuggestPostsForCuration } from '../../lib/collections/posts/helpers';
 import { buildRevision } from '../editor/conversionUtils';
-import { isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
+import { twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
-import { GoogleDocMetadata } from '../collections/revisions/helpers';
 import { recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { RecommendedPost } from '@/lib/recombee/types';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
@@ -15,7 +14,7 @@ import { FilterPostsForReview } from '@/components/bookmarks/ReadHistoryTab';
 import gql from "graphql-tag";
 import { createPaginatedResolver } from './paginatedResolver';
 import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
-import { createPost } from '../collections/posts/mutations';
+import { createPost, updatePost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
@@ -26,7 +25,10 @@ import { getViewablePostsSelector } from '@/server/repos/helpers';
 import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
 import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
+import { throwError } from '../vulcan-lib/errors';
 import jwt from 'jsonwebtoken';
+import uniq from 'lodash/uniq';
+import without from 'lodash/without';
 
 interface PostWithApprovedJargon {
   post: Partial<DbPost>;
@@ -87,11 +89,11 @@ const {Query: CuratedAndPopularThisWeekQuery, typeDefs: CuratedAndPopularThisWee
   graphQLType: "Post",
   args: { af: "Boolean" },
   callback: async (
-    {repos, currentUser}: ResolverContext,
+    {repos, currentUser, forumType}: ResolverContext,
     limit: number,
     args: { af?: boolean },
   ): Promise<DbPost[]> => {
-    const af = args?.af ?? isAF();
+    const af = args?.af ?? (forumType === 'AlignmentForum');
     return repos.posts.getCuratedAndPopularPosts({
       currentUser,
       limit,
@@ -148,7 +150,7 @@ const {Query: CrossedKarmaThresholdQuery, typeDefs: CrossedKarmaThresholdTypeDef
         throw new Error("You must be an admin to use this resolver")
       }
 
-      const threshold = twitterBotKarmaThresholdSetting.get();
+      const threshold = twitterBotKarmaThresholdSetting.get(context);
 
       const postIds = await repos.tweets.getUntweetedPostsCrossingKarmaThreshold({ limit, threshold });
       return await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: -1 } }).fetch();
@@ -310,7 +312,7 @@ async function getProfileDiamondComments(userId: string, limit: number): Promise
     Comments.find(
       selector,
       {
-        sort: { isPinnedOnProfile: -1, postedAt: -1 },
+        sort: { postedAt: -1 },
         limit,
       },
       {
@@ -591,7 +593,7 @@ export const postGqlMutations = {
         : null;
       const originalContents = { type: fallbackRichTextEditorType, data: importedHtml, yjsState: yjs?.yjsState ?? null };
       let afField = {};
-      if (isAF()) {
+      if (context.forumType === 'AlignmentForum') {
         afField = !userCanDo(currentUser, 'posts.alignment.new')
           ? { suggestForAlignmentUserIds: [currentUser._id] }
           : { af: true };
@@ -618,6 +620,23 @@ export const postGqlMutations = {
 
       return post;
     }
+  },
+  async setPostSuggestedForCuration(root: void, { postId, suggested }: { postId: string, suggested: boolean }, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userCanSuggestPostsForCuration(currentUser)) {
+      throwError({ id: 'app.operation_not_allowed' });
+    }
+    const post = await context.Posts.findOne({ _id: postId });
+    if (!post || !await accessFilterSingle(currentUser, 'Posts', post, context)) {
+      throwError({ id: 'app.document_not_found' });
+    }
+
+    const previousUserIds = post.suggestForCuratedUserIds ?? [];
+    const suggestForCuratedUserIds = suggested
+      ? uniq([...previousUserIds, currentUser._id])
+      : without(previousUserIds, currentUser._id);
+    const updatedPost = await updatePost({ selector: { _id: post._id }, data: { suggestForCuratedUserIds } }, context);
+    return await accessFilterSingle(currentUser, 'Posts', updatedPost, context);
   },
 }
 
@@ -648,6 +667,7 @@ export const postGqlTypeDefs = gql`
 
   extend type Mutation {
     ImportGoogleDoc(fileUrl: String!, postId: String): Post
+    setPostSuggestedForCuration(postId: String!, suggested: Boolean!): Post
   }
 
   type UserReadHistoryResult {

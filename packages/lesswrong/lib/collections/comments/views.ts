@@ -1,11 +1,12 @@
 import moment from 'moment';
-import { isEAForum, hideUnreviewedAuthorCommentsSettings, isAF } from '@/lib/instanceSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { ReviewYear } from '../../reviewUtils';
 import pick from 'lodash/pick';
-import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
+import { TupleSet } from '@/lib/utils/typeGuardUtils';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
-import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import type { ApolloClient } from '@apollo/client';
+import { classifyTagFilters, filterModeToMultiplicativeKarmaModifier, type FilterSettings } from '@/lib/filterSettings';
 
 /**
  * Comment sorting mode, a string which gets translated into a mongodb sort
@@ -30,7 +31,6 @@ declare global {
     shortform?: boolean,
     drafts?: "exclude" | "include-my-draft-replies" | "include" | "drafts-only"
     tagId?: string,
-    relevantTagId?: string,
     maxAgeDays?: number,
     parentCommentId?: string,
     parentAnswerId?: string,
@@ -44,7 +44,7 @@ declare global {
     timeField?: keyof DbComment,
     reviewYear?: ReviewYear
     shortformFrontpage?: boolean,
-    showCommunity?: boolean,
+    filterSettings?: FilterSettings,
     commentIds?: string[],
     minimumKarma?: number,
   }
@@ -118,31 +118,42 @@ const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { dr
   }
 };
 
-function defaultView(terms: CommentsViewTerms, _: ApolloClient, context?: ResolverContext) {
+function defaultView(terms: CommentsViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
   const validFields = pick(terms, 'userId', 'authorIsUnreviewed', 'shortform');
 
-  const alignmentForum = isAF() ? {af: true} : {}
-  const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+  const alignmentForum = context.forumType === 'AlignmentForum' ? {af: true} : {}
+  const hideSince = hideUnreviewedAuthorCommentsSettings.get(context)
   
   const notDeletedOrDeletionIsPublic = {
     $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
   };
   
   // Rejected comments are only visible to their author and to admins, and only
-  // when a view opts in.
-  const includeRejected = !!terms.includeRejected && (!context || context.currentUser?._id === terms.userId || !!context.currentUser?.isAdmin);
+  // when a view of a single user's comments opts in.
+  const includeRejected = !!terms.includeRejected && !!terms.userId && (!context || context.currentUser?._id === terms.userId || !!context.currentUser?.isAdmin);
+
+  // In a post's or comment's thread, the author of a rejected comment can still
+  // see it (it's labeled as rejected), so it doesn't silently disappear for them.
+  // Views can remove this with dontHideDeletedAndUnreviewed, like the other
+  // conditions in $and.
+  const currentUserId = context?.currentUser?._id;
+  const isThreadView = !!(terms.postId || terms.topLevelCommentId || terms.parentCommentId);
+  const includeOwnRejected = !includeRejected && isThreadView && !!currentUserId;
 
   // When we're hiding unreviewed comments, we allow comments that meet any of:
   //  * The author is reviewed
   //  * The comment was posted before the hideSince date
   //  * The comment was posted by the current user
+  // Views that include rejected comments are lists of a single user's comments
+  // shown to that user or to an admin, so they don't hide unreviewed comments
+  // either (most rejected comments are by unreviewed authors).
   // Do not run this on the client (ie: Mingo), because we will not have the
   // resolver context, and return unreviewed comments to ensure cache is
   // properly invalidated.
   // We set `{$ne: true}` instead of `false` to allow for comments that haven't
   // had the default value set yet (ie: those created by the frontend
   // immediately prior to appearing)
-  const shouldHideNewUnreviewedAuthorComments = (hideSince && bundleIsServer);
+  const shouldHideNewUnreviewedAuthorComments = (hideSince && bundleIsServer && !includeRejected);
   const hideNewUnreviewedAuthorComments =
     (shouldHideNewUnreviewedAuthorComments && (
       {$or: [
@@ -162,14 +173,16 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient, context?: Resolv
         { $and: [
           getDraftSelector({ drafts: terms.drafts, context }),
           notDeletedOrDeletionIsPublic
-        ] }
+        ] },
+        ...(includeOwnRejected ? [{$or: [{rejected: {$ne: true}}, {userId: currentUserId}]}] : []),
       ],
       hideAuthor: terms.userId ? false : undefined,
       ...(terms.commentIds && {_id: {$in: terms.commentIds}}),
       ...alignmentForum,
       ...validFields,
       debateResponse: { $ne: true },
-      rejected: includeRejected ? viewFieldAllowAny : { $ne: true },
+      // When includeOwnRejected is set, the condition in $and above handles this.
+      rejected: includeRejected ? viewFieldAllowAny : (includeOwnRejected ? undefined : { $ne: true }),
       ...(typeof terms.minimumKarma === 'number' ? {baseScore: {$gte: terms.minimumKarma}} : {}),
     },
     options: {
@@ -384,9 +397,7 @@ function rejected(terms: CommentsViewTerms) {
 
 // As of 2021-10, JP is unsure if this is used
 function recentDiscussionThread(terms: CommentsViewTerms) {
-  // The forum has fewer comments, and so wants a more expansive definition of
-  // "recent"
-  const eighteenHoursAgo = moment().subtract(isEAForum() ? 36 : 18, 'hours').toDate();
+  const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
   return {
     selector: {
       postId: terms.postId,
@@ -418,7 +429,7 @@ function postsItemComments(terms: CommentsViewTerms) {
       postId: terms.postId,
       deleted: false,
       postedAt: terms.after ? {$gt: new Date(terms.after)} : null,
-      ...(!isEAForum() && {score: {$gt: 0}}),
+      score: {$gt: 0},
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
   };
@@ -510,20 +521,15 @@ function answersAndReplies(terms: CommentsViewTerms) {
 }
 
 function topShortform(terms: CommentsViewTerms) {
-  const shortformFrontpage =
-    isEAForum() && typeof terms.shortformFrontpage === "boolean"
-      ? {shortformFrontpage: terms.shortformFrontpage}
-      : {};
-
+  const sort = sortings[terms.sortBy ?? "top"];
   return {
     selector: {
       shortform: true,
       parentCommentId: viewFieldNullOrMissing,
       deleted: false,
       ...getPostedAtTimeRange(terms),
-      ...shortformFrontpage,
     },
-    options: {sort: {baseScore: -1, postedAt: -1}}
+    options: {sort: {...sort, postedAt: sort.postedAt ?? -1}}
   };
 }
 
@@ -538,29 +544,31 @@ function shortform(terms: CommentsViewTerms) {
   };
 }
 
-function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?: ResolverContext) {
+function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context: ResolverContext) {
   const twoHoursAgo = moment().subtract(2, 'hours').toDate();
   const maxAgeDays = terms.maxAgeDays ?? 5;
-  const currentUserId = context?.currentUser?._id;
-  const hidePersonalShortforms = !context?.currentUser || context.currentUser.frontpageFilterSettings?.personalBlog === "Hidden";
+  const currentUserId = context.currentUser?._id;
+  const tagFilters = classifyTagFilters(terms.filterSettings?.tags ?? [], context.forumType);
+  const tagMultipliers = tagFilters.softFiltered.map(tag => ({$cond: {
+    if: {relevantTagIds: tag.tagId},
+    then: filterModeToMultiplicativeKarmaModifier(tag.filterMode),
+    else: 1,
+  }}));
   return {
     selector: {
       shortform: true,
-      ...(hidePersonalShortforms ? { shortformFrontpage: true } : {}),
+      shortformFrontpage: true,
       deleted: false,
       rejected: {$ne: true},
       parentCommentId: viewFieldNullOrMissing,
       postedAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
       $and: [
-        !!terms.relevantTagId
-          ? {
-            relevantTagIds: terms.relevantTagId,
-          }
-          : {},
+        ...tagFilters.required.map(tag => ({relevantTagIds: tag.tagId})),
+        ...tagFilters.hidden.map(tag => ({relevantTagIds: {$ne: tag.tagId}})),
         {
           $or: [
             {authorIsUnreviewed: false},
-            {userId: currentUserId},
+            ...(currentUserId ? [{userId: currentUserId}] : []),
           ]
         },
       ],
@@ -577,7 +585,16 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
         },
       ],
     },
-    options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
+    syntheticFields: {
+      // score is negative for quick takes with negative karma, and multiplying
+      // it would invert the effect of the tag multipliers
+      filteredScore: {$cond: {
+        if: {$gt: ["$score", 0]},
+        then: {$multiply: ["$score", ...tagMultipliers]},
+        else: "$score",
+      }},
+    },
+    options: {sort: {filteredScore: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };
 }
 
@@ -700,6 +717,17 @@ function moderatorComments(terms: CommentsViewTerms) {
   },
 }};
 
+function llmReplies(terms: CommentsViewTerms) {
+  return {
+    selector: {
+      llmRunId: { $exists: true },
+    },
+    options: {
+      sort: {postedAt: -1},
+    },
+  };
+}
+
 function debateResponses(terms: CommentsViewTerms) {
   return {
   selector: {
@@ -785,6 +813,7 @@ export const CommentsViews = new CollectionViewSet('Comments', {
   reviews,
   tagDiscussionComments,
   moderatorComments,
+  llmReplies,
   debateResponses,
   recentDebateResponses,
   alignmentSuggestedComments,

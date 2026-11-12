@@ -1,10 +1,10 @@
 import React from "react";
-import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
+import { commentIsHiddenPendingReview, commentIsNotPublicForAnyReason, commentIsTopLevelQuickTake } from "@/lib/collections/comments/helpers";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
-import { tagGetDiscussionUrl } from "@/lib/collections/tags/helpers";
-import { userShortformPostTitle } from "@/lib/collections/users/helpers";
+import { tagGetAbsoluteDiscussionUrl } from "@/lib/collections/tags/helpers";
+import { userIsApproved, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { isEAForum, isLW, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 import { fetchFragmentSingle } from "../fetchFragment";
@@ -17,10 +17,9 @@ import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAnalyticsWriter";
 import { commentAncestorsToNotifySetting } from "../databaseSettings";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
-import { swrInvalidatePostRoute } from "../cache/swr";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import moment from "moment";
 import isEqual from "lodash/isEqual";
@@ -34,16 +33,18 @@ import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createMessage } from "../collections/messages/mutations";
 import { createPost, updatePost } from "../collections/posts/mutations";
 import { getRejectionMessage } from "./helpers";
+import { startTeamInboxConversation } from "../utils/teamInbox";
 import { createModeratorAction } from "../collections/moderatorActions/mutations";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
 import { EmailComment } from "../emailComponents/EmailComment";
-import { PostsOriginalContents, PostsRevision } from "@/lib/collections/posts/fragments";
+import { PostsRevision } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "@/server/collections/automatedContentEvaluations/helpers";
+import { getQuickTakeAutoTagsToApply, getTagBotUserId } from "../languageModels/autoTagCallbacks";
+import { escapeHtml } from "@/lib/utils/sanitize";
 
 interface SendModerationPMParams {
-  action: 'deleted' | 'rejected',
   messageContents: string,
   lwAccount: DbUser,
   comment: DbComment,
@@ -80,18 +81,19 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
       afCommentCount: afComments.length,
     },
     selector: { _id: postId }
-  }, createAnonymousContext()))
+  }, createAnonymousContext({ forumType: context.forumType })))
 }
 
 const utils = {
-  enforceCommentRateLimit: async ({user, comment, context}: {
+  enforceCommentRateLimit: async ({user, postId, context}: {
     user: DbUser,
-    comment: CreateCommentDataInput,
+    postId: string | null,
     context: ResolverContext,
   }) => {
-    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId ?? null, context);
+    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, postId, context);
     if (rateLimit) {
       const {nextEligible, rateLimitType:_} = rateLimit;
+      if (nextEligible === null) throw new Error('Rate limit: You cannot comment until your restriction is lifted.');
       if (nextEligible > new Date()) {
         // "fromNow" makes for a more human readable "how long till I can comment/post?".
         // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
@@ -110,13 +112,14 @@ const utils = {
     
     const emailsToNotify = await getUsersToNotifyAboutEvent(post);
     
-    const postLink = postGetPageUrl(post, true);
+    const postLink = postGetAbsolutePageUrl(post, context.forumType);
     
     for (let {userId,email} of emailsToNotify) {
       if (!email) continue;
       const user = await Users.findOne(userId);
 
       await wrapAndSendEmail({
+        forumType: context.forumType,
         user: user,
         to: email,
         subject: `New comment on ${post.title}`,
@@ -146,7 +149,7 @@ const utils = {
   
       const parentComments: { commentId: string; userId: string }[] = await repos.comments.getParentCommentIds({
         commentId: comment._id,
-        limit: commentAncestorsToNotifySetting.get(),
+        limit: commentAncestorsToNotifySetting.get(context),
       });
   
       let newReplyUserIds: string[] = [];
@@ -184,9 +187,9 @@ const utils = {
       newReplyToYouDirectUserIds = uniq(newReplyToYouDirectUserIds);
   
       await Promise.all([
-        createNotifications({userIds: newReplyUserIds, notificationType: 'newReply', documentType: 'comment', documentId: comment._id}),
-        createNotifications({userIds: newReplyToYouDirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: true}}),
-        createNotifications({userIds: newReplyToYouIndirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: false}})
+        createNotifications({ context, userIds: newReplyUserIds, notificationType: 'newReply', documentType: 'comment', documentId: comment._id}),
+        createNotifications({ context, userIds: newReplyToYouDirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: true}}),
+        createNotifications({ context, userIds: newReplyToYouIndirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: false}})
       ]);
   
       notifiedUsers = [...notifiedUsers, ...newReplyUserIds, ...newReplyToYouDirectUserIds];
@@ -209,11 +212,11 @@ const utils = {
       // Filter out debate participants, since they get a different notification type
       // (We shouldn't have notified any users for these comments previously, but leaving that in for sanity)
       const debateSubscriberIdsToNotify = difference(debateSubscriberIds, [...debateParticipantIds, ...notifiedUsers, comment.userId]);
-      await createNotifications({ userIds: debateSubscriberIdsToNotify, notificationType: 'newDebateComment', documentType: 'comment', documentId: comment._id });
+      await createNotifications({ context, userIds: debateSubscriberIdsToNotify, notificationType: 'newDebateComment', documentType: 'comment', documentId: comment._id });
   
       // Handle debate participants
       const subscribedParticipantIds = intersection(debateSubscriberIds, debateParticipantIds);
-      await createNotifications({ userIds: subscribedParticipantIds, notificationType: 'newDebateReply', documentType: 'comment', documentId: comment._id });
+      await createNotifications({ context, userIds: subscribedParticipantIds, notificationType: 'newDebateReply', documentType: 'comment', documentId: comment._id });
   
       // Avoid notifying users who are subscribed to both the debate comments and regular comments on a debate twice 
       notifiedUsers = [...notifiedUsers, ...debateSubscriberIdsToNotify, ...subscribedParticipantIds];
@@ -253,7 +256,7 @@ const utils = {
         type: subscriptionTypes.newShortform
       })
       const userIdsSubscribedToShortform = usersSubscribedToShortform.map(u=>u._id);
-      await createNotifications({userIds: userIdsSubscribedToShortform, notificationType: 'newShortform', documentType: 'comment', documentId: comment._id});
+      await createNotifications({ context, userIds: userIdsSubscribedToShortform, notificationType: 'newShortform', documentType: 'comment', documentId: comment._id});
       notifiedUsers = [ ...userIdsSubscribedToShortform, ...notifiedUsers]
     }
     
@@ -261,7 +264,7 @@ const utils = {
     // and of comment author (they could be replying in a thread they're subscribed to)
     const postSubscriberIdsToNotify = difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
     if (postSubscriberIdsToNotify.length > 0) {
-      await createNotifications({userIds: postSubscriberIdsToNotify, notificationType: 'newComment', documentType: 'comment', documentId: comment._id})
+      await createNotifications({ context, userIds: postSubscriberIdsToNotify, notificationType: 'newComment', documentType: 'comment', documentId: comment._id})
       notifiedUsers = [ ...notifiedUsers, ...postSubscriberIdsToNotify]
     }
     
@@ -284,6 +287,7 @@ const utils = {
       const subforumSubscriberIdsToNotify = difference(subforumSubscriberIdsMaybeNotify, [...notifiedUsers, comment.userId])
   
       await createNotifications({
+        context,
         userIds: subforumSubscriberIdsToNotify,
         notificationType: "newSubforumComment",
         documentType: "comment",
@@ -300,6 +304,7 @@ const utils = {
     const commentAuthorSubscriberIds = commentAuthorSubscribers.map(({ _id }) => _id)
     const commentAuthorSubscriberIdsToNotify = difference(commentAuthorSubscriberIds, notifiedUsers)
     await createNotifications({
+      context,
       userIds: commentAuthorSubscriberIdsToNotify, 
       notificationType: 'newUserComment', 
       documentType: 'comment', 
@@ -327,16 +332,15 @@ const utils = {
   },
 
   // TODO: I don't think this function makes sense anymore, I think should be refactored in some way.
-  sendModerationPM: async ({ messageContents, lwAccount, comment, noEmail, contentTitle, action, context }: SendModerationPMParams) => {
+  sendModerationPM: async ({ messageContents, lwAccount, comment, noEmail, contentTitle, context }: SendModerationPMParams) => {
     const { Conversations, Messages } = context;
 
     const conversationData: CreateConversationDataInput = {
       participantIds: [comment.userId, lwAccount._id],
-      title: `Comment ${action} on ${contentTitle}`,
-      ...(action === 'rejected' ? { moderator: true } : {})
+      title: `Comment deleted on ${contentTitle}`,
     };
 
-    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR, forumType: context.forumType });
 
     const conversation = await createConversation({
       data: conversationData,
@@ -391,23 +395,20 @@ const utils = {
   
       let messageContents =
           `<div>
-            <p>One of your comments on "${contentTitle}" has been removed by ${(moderatingUser?.displayName) || "our automated spam detection"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.</p>
+            <p>One of your comments on "${escapeHtml(contentTitle ?? "")}" has been removed by ${escapeHtml(moderatingUser?.displayName || "our automated spam detection")}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.</p>
             <p>The contents of your message are here:</p>
             <blockquote>
               ${comment.contents?.html}
             </blockquote>
           </div>`
       if (comment.deletedReason && moderatingUser) {
-        messageContents += ` They gave the following reason: "${comment.deletedReason}".`;
+        messageContents += ` They gave the following reason: "${escapeHtml(comment.deletedReason)}".`;
       }
   
-      // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can delete comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-      const noEmail = isEAForum()
-      ? false 
-      : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+      // Only email approved users who are not snoozed, to avoid drawing unapproved users back to the site.
+      const noEmail = !userIsApproved(commentUser)
   
       await utils.sendModerationPM({
-        action: 'deleted',
         comment,
         messageContents,
         lwAccount,
@@ -420,7 +421,7 @@ const utils = {
   },
 
   commentsRejectSendPMAsync: async (comment: DbComment, currentUser: DbUser, context: ResolverContext) => {
-    const { loaders } = context;
+    const { Comments, loaders } = context;
   
     let rejectedContentLink = "[Error: content not found]"
     let contentTitle: string|null = null
@@ -429,13 +430,13 @@ const utils = {
       const tag = await loaders.Tags.load(comment.tagId)
       if (tag) {
         contentTitle = tag.name
-        rejectedContentLink = `<a href=${tagGetDiscussionUrl({slug: tag.slug}, true)}` + `?commentId=${comment._id}">comment on ${tag.name}</a>`
+        rejectedContentLink = `<a href="${tagGetAbsoluteDiscussionUrl({slug: tag.slug}, context.forumType)}?commentId=${comment._id}">comment on ${escapeHtml(tag.name)}</a>`
       }
     } else if (comment.postId) {
       const post = await loaders.Posts.load(comment.postId)
       if (post) {
         contentTitle = post.title
-        rejectedContentLink = `<a href="https://lesswrong.com/posts/${post._id}/${post.slug}?commentId=${comment._id}">comment on ${post.title}</a>`
+        rejectedContentLink = `<a href="https://lesswrong.com/posts/${post._id}/${post.slug}?commentId=${comment._id}">comment on ${escapeHtml(post.title)}</a>`
       }
     }
   
@@ -443,20 +444,18 @@ const utils = {
   
     let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
     
-    // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-    const noEmail = isEAForum() 
-    ? false 
-    : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+    // Only email approved users who are not snoozed, to avoid drawing unapproved users back to the site.
+    const noEmail = !userIsApproved(commentUser)
   
-    await utils.sendModerationPM({
-      action: 'rejected',
-      comment,
-      messageContents,
-      lwAccount: currentUser,
+    const conversation = await startTeamInboxConversation({
+      recipientId: comment.userId,
+      author: currentUser,
+      title: `Comment rejected on ${contentTitle}`,
+      html: messageContents,
       noEmail,
-      contentTitle,
       context,
     });
+    await Comments.rawUpdateOne({ _id: comment._id }, { $set: { rejectionConversationId: conversation._id } });
   },
 
   moderateCommentsPostUpdate: async (comment: DbComment, currentUser: DbUser, action: 'deleted' | 'rejected', context: ResolverContext) => {
@@ -475,7 +474,7 @@ const utils = {
           lastCommentedAt: new Date(lastCommentedAt),
         },
         selector: { _id: comment.postId }
-      }, createAnonymousContext()));
+      }, createAnonymousContext({ forumType: context.forumType })));
     }
     if (action === 'deleted') {
       backgroundTask(utils.commentsDeleteSendPMAsync(comment, currentUser, context));
@@ -494,15 +493,15 @@ export function newCommentsEmptyCheck(comment: CreateCommentDataInput) {
   }
 }
 
-export async function newCommentsRateLimit(newComment: CreateCommentDataInput, currentUser: DbUser, context: ResolverContext) {
+export async function commentsRateLimit(postId: string | null, currentUser: DbUser, context: ResolverContext) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
   }
-  await utils.enforceCommentRateLimit({user: currentUser, comment: newComment, context});
+  await utils.enforceCommentRateLimit({user: currentUser, postId, context});
 }
 
 /* CREATE BEFORE */
-export async function assignPostVersion(comment: CreateCommentDataInput) {
+export async function assignPostVersion(comment: CreateCommentDataInput, context: ResolverContext) {
   if (!comment.postId) {
     return {
       ...comment,
@@ -511,6 +510,7 @@ export async function assignPostVersion(comment: CreateCommentDataInput) {
   }
   
   const post = await fetchFragmentSingle({
+    context,
     collectionName: "Posts",
     fragmentDoc: PostsRevision,
     currentUser: null,
@@ -553,7 +553,7 @@ export async function createShortformPost(comment: CreateCommentDataInput, { cur
         shortformFeedId: post._id
       },
       selector: { _id: currentUser._id }
-    }, createAnonymousContext())
+    }, createAnonymousContext({ forumType: context.forumType }))
 
     return ({
       ...comment,
@@ -664,7 +664,7 @@ export async function commentsNewOperations(comment: CreateCommentDataInput, _: 
     ])
 
     // update the lastCommentedAt field in Recombee version of post
-    if (recombeeEnabledSetting.get() && !comment.debateResponse) {
+    if (recombeeEnabledSetting.get(context) && !comment.debateResponse) {
       const post = await loaders.Posts.load(comment.postId)
       if (post) {
         // eslint-disable-next-line no-console
@@ -695,11 +695,6 @@ export async function commentsNewUserApprovedStatus(comment: CreateCommentDataIn
 
 
 /* CREATE AFTER */
-export function invalidatePostOnCommentCreate({ postId }: DbComment, context: ResolverContext) {
-  if (!postId) return;
-  backgroundTask(swrInvalidatePostRoute(postId, context));
-}
-
 export async function updateDescendentCommentCountsOnCreate(comment: DbComment, properties: AfterCreateCallbackProperties<'Comments'>) {
   if (isIncludedInDescendentCounts(comment)) {
     const { Comments } = properties.context;
@@ -717,6 +712,7 @@ export async function updateDescendentCommentCountsOnCreate(comment: DbComment, 
 /* NEW AFTER */
 // Make users upvote their own new comments
 export async function lwCommentsNewUpvoteOwnComment(comment: DbComment, currentUser: DbUser|null, properties: AfterCreateCallbackProperties<'Comments'>) {
+  const { context } = properties;
   const { context: { Comments, loaders } } = properties;
 
   const start = Date.now();
@@ -724,6 +720,7 @@ export async function lwCommentsNewUpvoteOwnComment(comment: DbComment, currentU
   if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
   const { performVoteServer } = await import("../voteServer");
   const {modifiedDocument: votedComment} = await performVoteServer({
+    context,
     document: comment,
     voteType: 'smallUpvote',
     collection: Comments,
@@ -745,7 +742,7 @@ export async function newCommentTriggerReview({document, context}: AfterCreateCa
   await triggerReviewIfNeeded(document.userId, 'newComment', context);
 }
 
-export async function trackCommentRateLimitHit({document, context}: AfterCreateCallbackProperties<'Comments'>) {
+export async function trackCommentRateLimitHit(document: DbComment, context: ResolverContext) {
   const { loaders } = context;
   const user = await loaders.Users.load(document.userId)
   
@@ -781,9 +778,32 @@ export async function commentsAlignmentNew(comment: DbComment, context: Resolver
 
 export async function commentsNewNotifications(comment: DbComment, context: ResolverContext) {
   // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
-  if (commentIsNotPublicForAnyReason(comment)) return
+  if (commentIsNotPublicForAnyReason(comment, context.forumType)) return
+  // Model replies are created as placeholders, and notify once the model has
+  // written them (see runCommentReply)
+  if (comment.llmRunId) return
   
   backgroundTask(utils.sendNewCommentNotifications(comment, context))
+}
+
+export const sendNewCommentNotifications = utils.sendNewCommentNotifications;
+
+export async function applyQuickTakeAutoTags(comment: DbComment, context: ResolverContext): Promise<DbTag[]> {
+  if (!commentIsTopLevelQuickTake(comment) || comment.relevantTagIds.length > 0) {
+    return [];
+  }
+  if (!await getTagBotUserId(context)) {
+    return [];
+  }
+  const tags = await getQuickTakeAutoTagsToApply(comment, context);
+  if (tags.length) {
+    // Only fill in tags if the author hasn't set some while the classifier was running
+    await context.Comments.rawUpdateOne(
+      { _id: comment._id, relevantTagIds: { $size: 0 } },
+      { $set: { relevantTagIds: tags.map(tag => tag._id) } },
+    );
+  }
+  return tags;
 }
 
 /* UPDATE VALIDATE */
@@ -892,11 +912,6 @@ export async function moveToAnswers(modifier: MongoModifier, comment: DbComment,
 }
 
 /* UPDATE AFTER */
-export function invalidatePostOnCommentUpdate({ postId }: { postId: string | null }, context: ResolverContext) {
-  if (!postId) return;
-  backgroundTask(swrInvalidatePostRoute(postId, context));
-}
-
 export function isIncludedInDescendentCounts(comment: DbComment) {
   return !comment.draft && !comment.deleted && !comment.rejected && !comment.authorIsUnreviewed;
 }
@@ -909,20 +924,6 @@ export async function updateDescendentCommentCountsOnEdit(comment: DbComment, pr
     const ancestorIds: string[] = await getCommentAncestorIds(comment);
     const increment = includedInDescendentCountsAfter ? 1 : -1;
     await properties.context.Comments.rawUpdateMany({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
-  }
-}
-
-
-/* UPDATE ASYNC */
-export async function updatedCommentMaybeTriggerReview({ currentUser, context }: UpdateCallbackProperties<"Comments">) {
-  if (!currentUser) return;
-  if (isEAForum()) {
-    currentUser.snoozedUntilContentCount && await updateUser({ data: {
-      snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
-    }, selector: { _id: currentUser._id } }, createAnonymousContext());
-    // This might create multiple redundant moderator actions if the user is in a state where they'd trigger review
-    // and then update a comment multiple times.
-    await triggerReviewIfNeeded(currentUser._id, 'updatedComment', context)
   }
 }
 
@@ -962,24 +963,26 @@ export async function commentsEditSoftDeleteCallback(comment: DbComment, oldComm
 }
 
 export async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment, context: ResolverContext) {
-  if (commentIsNotPublicForAnyReason(oldComment) && !commentIsNotPublicForAnyReason(comment)) {
+  // Preserve notification suppression for ordinary unrejections, but notify when
+  // a comment hidden pending review is being approved and published together.
+  if (oldComment.rejected && !comment.rejected && !commentIsHiddenPendingReview(oldComment, context.forumType)) return;
+  if (commentIsNotPublicForAnyReason(oldComment, context.forumType) && !commentIsNotPublicForAnyReason(comment, context.forumType)) {
     backgroundTask(utils.sendNewCommentNotifications(comment, context))
   }
 }
 
 /**
  * Create an automated content evaluation for a comment when it transitions from draft to published.
- * Only runs on LessWrong for unreviewed users.
+ * Only runs on LessWrong for unreviewed and snoozed users.
  */
 export async function maybeCreateAutomatedContentEvaluationForComment(
   comment: DbComment,
   oldComment: DbComment | null,
   context: ResolverContext
 ) {
-  // Skip running this by default for reviewed users for now,
-  // since comments are much higher volume than posts and there
-  // isn't any UI for looking at the results yet anyways.
-  if (!isLW() || context.currentUser?.reviewedByUserId) {
+  // Skip running this by default for approved users for now,
+  // since comments are much higher volume than posts.
+  if (context.forumType !== 'LessWrong' || userIsApproved(context.currentUser)) {
     return;
   }
 

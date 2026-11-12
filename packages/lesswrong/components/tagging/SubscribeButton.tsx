@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
-import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { useTracking } from "../../lib/analyticsEvents";
 import { FilterMode } from '../../lib/filterSettings';
 import { useSubscribeUserToTag } from '../hooks/useFilterSettings';
 import { Paper }from '@/components/widgets/Paper';

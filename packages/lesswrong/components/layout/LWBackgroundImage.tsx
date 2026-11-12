@@ -1,28 +1,24 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { useSubscribedLocation } from '@/lib/routeUtil';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import { isHomeRoute, isRouteWithLeftNavigationColumn } from '@/lib/routeChecks';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
-import { SolsticeSeasonBanner } from '../seasonal/solsticeSeason/SolsticeSeasonBanner';
-import { Inkhaven2026Banner } from '../seasonal/Inkhaven2026Banner';
+import { Inkhaven2026Banner, INKHAVEN_RESIDENCY_3_END, INKHAVEN_RESIDENCY_3_START } from '../seasonal/Inkhaven2026Banner';
 import { LessOnline2026Banner } from '../seasonal/LessOnline2026Banner';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
-import { getReviewPhase, reviewIsActive, reviewResultsPostPath } from '@/lib/reviewUtils';
-import ReviewVotingCanvas from '../review/ReviewVotingCanvas';
+import { getReviewPhase, reviewResultsPostPath } from '@/lib/reviewUtils';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { Link } from '@/lib/reactRouterWrapper';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
-
-// Inkhaven Cohort #2 banner active period
-const INKHAVEN_2026_START = new Date('2026-01-10T00:00:00-08:00');
-const INKHAVEN_2026_END = new Date('2026-02-01T00:00:00-08:00');
+import PetrovDayStory from '../seasonal/petrovDay/petrov-day-story/PetrovDayStory';
+import { useIsPetrovDayRitualActive } from '../seasonal/petrovDay/petrov-day-story/useIsPetrovDayRitualActive';
 
 function useIsInkhaven2026Active(): boolean {
   const now = useCurrentTime();
-  return now >= INKHAVEN_2026_START && now < INKHAVEN_2026_END;
+  return now >= INKHAVEN_RESIDENCY_3_START && now < INKHAVEN_RESIDENCY_3_END;
 }
 
 // LessOnline 2026 banner active period
@@ -150,9 +146,10 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
 }));
 
 export const LWBackgroundImage = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const pathname = usePrerenderablePathname();
-  const isHomePage = isHomeRoute(pathname);
+  const isHomePage = isHomeRoute(pathname, forumType);
 
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
   const hideGlobeCookie = cookies[HIDE_SOLSTICE_GLOBE_COOKIE] === "true";
@@ -174,12 +171,15 @@ export const LWBackgroundImage = () => {
   // TODO: clean up related code in FundraisingThermometer when we disable/remove solstice season.
   // let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
   
-  // Show event banners on homepage during active periods. LessOnline takes precedence over Inkhaven.
+  // Show event banners on homepage during active periods. Petrov Day takes precedence over LessOnline, which takes precedence over Inkhaven.
   let homePageImage = defaultImage;
   const inkhaven2026Active = useIsInkhaven2026Active();
   const lessOnline2026 = useIsLessOnline2026Active();
+  const petrovDayRitualActive = useIsPetrovDayRitualActive();
   if (standaloneNavigation && isHomePage) {
-    if (lessOnline2026.active) {
+    if (petrovDayRitualActive) {
+      homePageImage = <PetrovDayStory variant="sidebar"/>;
+    } else if (lessOnline2026.active) {
       homePageImage = <LessOnline2026Banner earlyBirdEndDate={lessOnline2026.earlyBirdEndDate} />;
     } else if (inkhaven2026Active) {
       homePageImage = <Inkhaven2026Banner />;

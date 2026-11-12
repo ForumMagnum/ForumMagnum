@@ -11,7 +11,7 @@ import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 
 /**
  * Please ensure that we know that the user is who they say they are!
- * Exported to allow running manually with "yarn repl"
+ * Exported to allow running manually with "npm run repl"
  */
 export const deleteUserContent = async (
   selector: {_id?: string, slug?: string, email?: string},
@@ -38,7 +38,7 @@ export const deleteUserContent = async (
     throw new Error(`About to delete ${userComments.length} comments, please double-check that you want to do this and comment this line out if so!`);
   }
 
-  const adminContext = createAdminContext();
+  const adminContext = createAdminContext({ forumType: "LessWrong" });
   const adminTeamAccount = await getAdminTeamAccount(adminContext);
   if (!adminTeamAccount) throw new Error("Couldn't find admin team account");
 

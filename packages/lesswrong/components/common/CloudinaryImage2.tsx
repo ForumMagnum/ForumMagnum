@@ -4,7 +4,7 @@ import { useAbstractThemeOptions } from '../themes/useTheme';
 
 const DEFAULT_HEADER_HEIGHT = 300;
 
-// Cloudinary image without using cloudinary-react. Allows SSR.
+// Server-renderable Cloudinary image with dark-mode support.
 const CloudinaryImage2 = ({
   width,
   height,
@@ -78,10 +78,7 @@ const CloudinaryImage2 = ({
     shouldUseDarkImage = "maybe"
   } // themeOption.name must be dark, defaulting to yes
   // Cast is safe because if shouldUseDarkImage is "yes" we know that darkPublicId is defined
-  const basicImageUrl = makeCloudinaryImageUrl(
-    shouldUseDarkImage === "yes" ? darkPublicId! : publicId,
-    cloudinaryProps
-  )
+  const basicImageUrl = makeCloudinaryImageUrl(shouldUseDarkImage === "yes" ? darkPublicId! : publicId, cloudinaryProps)
   const darkImageUrl = darkPublicId && makeCloudinaryImageUrl(darkPublicId, cloudinaryProps)
 
   // fullWidthHeader images are big and so need srcsets
@@ -123,5 +120,4 @@ const CloudinaryImage2 = ({
 };
 
 export default CloudinaryImage2;
-
 

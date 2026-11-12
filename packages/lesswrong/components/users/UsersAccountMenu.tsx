@@ -51,7 +51,7 @@ export const LWUsersAccountMenu = () => {
       >
         <LWClickAwayListener onClickAway={handleRequestClose}>
           <Paper>
-            {open && <LoginForm />}
+            {open && <LoginForm autoFocus />}
           </Paper>
         </LWClickAwayListener>
       </LWPopper>

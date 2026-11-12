@@ -1,11 +1,11 @@
 "use client";
 
-import { postGetEditUrl, isPostCategory, postDefaultCategory, userCanEditCoauthors } from '@/lib/collections/posts/helpers';
+import { useForumType } from '@/components/hooks/useForumType';
+import { postGetEditUrl, isPostCategory, postDefaultCategory } from '@/lib/collections/posts/helpers';
 import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
-import { isAF } from '../../lib/instanceSettings';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -129,7 +129,7 @@ type PrefilledPost = Partial<PrefilledEventTemplate | PrefilledPostBase> & {
   contents: CreateRevisionDataInput | null;
 };
 
-const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: UsersCurrent | null): PrefilledEventTemplate => {
+const prefillFromTemplate = (template: PostsEditMutationFragment): PrefilledEventTemplate => {
   const { startTime, endTime, ...fields } = pick(
     template,
     [
@@ -151,7 +151,7 @@ const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: U
       "types",
       "groupId",
       "title",
-      ...(userCanEditCoauthors(currentUser) ? ["coauthorUserIds"] as const : []),
+      "coauthorUserIds",
     ] as const
   );
 
@@ -173,6 +173,7 @@ const PostsNewForm = () => {
   return <PostsNewFormInner key={pathname}/>;
 }
 const PostsNewFormInner = () => {
+  const { isAF } = useForumType();
   const { query } = useLocation();
   const [error, setError] = useState<string|null>(null);
   const navigate = useNavigate();
@@ -210,7 +211,7 @@ const PostsNewFormInner = () => {
     ? { originalContents: { type: getUserDefaultRichTextEditor(currentUser), data: meetupMonthData } }
     : { originalContents: { type: getUserDefaultEditor(currentUser), data: "" }};
 
-  let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
+  let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
@@ -228,7 +229,7 @@ const PostsNewFormInner = () => {
   if (userIsMemberOf(currentUser, 'alignmentForum')) {
     prefilledProps = {
       ...prefilledProps,
-      af: isAF() || (query && !!query.af),
+      af: isAF || (query && !!query.af),
     };
   }
 
@@ -277,7 +278,7 @@ const PostsNewFormInner = () => {
           const createdPost = data?.createPost?.data;
 
           if (createdPost) {
-            navigate(postGetEditUrl(createdPost._id, false, createdPost.linkSharingKey ?? undefined), {replace: true});
+            navigate(postGetEditUrl(createdPost._id, createdPost.linkSharingKey ?? undefined), {replace: true});
           }
         } catch(e) {
           setError(e.message);

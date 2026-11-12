@@ -1,6 +1,9 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
+import { getLlmReplyHtml } from '@/lib/llmReplies/helpers';
+import { useLocation } from '@/lib/routeUtil';
 import { useFilteredCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import ContentStyles from '../../common/ContentStyles';
@@ -35,8 +38,12 @@ const styles = defineStyles('CommentBody', (theme: ThemeType) => ({
     position: "relative",
     '& .read-more-button': {
       fontSize: ".85em",
-      color: theme.palette.grey[600]
-    }
+      color: theme.palette.grey[600],
+      cursor: "pointer",
+      '& a:visited': {
+        color: theme.palette.link.color,
+      },
+    },
   },
   retracted: {
     textDecoration: "line-through",
@@ -52,7 +59,9 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
   voteProps?: VotingProps<VoteableTypeClient>
   className?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
+  const { pathname } = useLocation();
 
   // Do not truncate for users who have disabled it in their user settings
   const truncationDisabledByUserConfig = useFilteredCurrentUser((u) => u && (postPage ? u.noCollapseCommentsPosts : u.noCollapseCommentsFrontpage));
@@ -68,7 +77,15 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
   if (collapsed) { return null }
 
-  const innerHtml = (truncated && !truncationDisabledByUserConfig) ? commentExcerptFromHTML(comment, postPage) : (html ?? '')
+  const showExcerpt = !!truncated && !truncationDisabledByUserConfig;
+  let innerHtml: string;
+  if (comment.llmRunId) {
+    innerHtml = getLlmReplyHtml(comment, comment.llmRunId, showExcerpt, pathname);
+  } else if (showExcerpt) {
+    innerHtml = commentExcerptFromHTML(comment, postPage);
+  } else {
+    innerHtml = html ?? '';
+  }
 
   let contentType: ContentStyleType;
   if (comment.answer) {
@@ -91,7 +108,7 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
       className={bodyClasses}
       dangerouslySetInnerHTML={{__html: innerHtml }}
       description={`comment ${comment._id}`}
-      nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
+      nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get(forumType)}
       replacedSubstrings={highlights}
       contentStyleType={contentType}
     />

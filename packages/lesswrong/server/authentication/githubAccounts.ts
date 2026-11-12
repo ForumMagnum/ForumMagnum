@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { GitHubUserProfile } from '@/lib/auth/githubOAuth';
 import { Users } from '../collections/users/collection';
 import { createUser, updateUser } from '../collections/users/mutations';
@@ -5,8 +6,9 @@ import { usersFindAllByEmail } from '../commonQueries';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { ConflictingAccountsError, OAuthLoginResult, otherUserHasEmail } from './conflictingAccountsError';
 
-export async function getOrCreateGitHubUser(profile: GitHubUserProfile): Promise<DbUser> {
+export async function getOrCreateGitHubUser(profile: GitHubUserProfile, forumType: ForumTypeString): Promise<OAuthLoginResult> {
   // GitHub IDs are stored as strings in the database (even though they're numbers)
   const githubId = profile.id.toString();
   
@@ -16,6 +18,13 @@ export async function getOrCreateGitHubUser(profile: GitHubUserProfile): Promise
   if (user) {
     // Sync email if changed
     if (profile.email && user.email !== profile.email) {
+      if (await otherUserHasEmail(profile.email, user._id)) {
+        // Another account already has this email, so we can't sync it. Let
+        // the login go through without changing the email, and warn the user.
+        // eslint-disable-next-line no-console
+        console.warn(`Not syncing GitHub email ${profile.email} to user ${user._id}: another user already has that email`);
+        return { user, conflictingAccounts: true };
+      }
       const updatedUser = await updateUser({
         selector: { _id: user._id },
         data: {
@@ -25,12 +34,12 @@ export async function getOrCreateGitHubUser(profile: GitHubUserProfile): Promise
             verified: true
           }]
         }
-      }, createAnonymousContext());
+      }, createAnonymousContext({ forumType }));
       
-      return updatedUser;
+      return { user: updatedUser, conflictingAccounts: false };
     }
     
-    return user;
+    return { user, conflictingAccounts: false };
   }
   
   // If we didn't find them by their GitHub Id, check if there exists a user with this email
@@ -38,7 +47,7 @@ export async function getOrCreateGitHubUser(profile: GitHubUserProfile): Promise
     const matchingUsers = await usersFindAllByEmail(profile.email);
     
     if (matchingUsers.length > 1) {
-      throw new Error(`Multiple existing users found with email ${profile.email}`);
+      throw new ConflictingAccountsError(`Multiple existing users found with email ${profile.email}`);
     }
     
     if (matchingUsers.length === 1) {
@@ -53,9 +62,9 @@ export async function getOrCreateGitHubUser(profile: GitHubUserProfile): Promise
       const updatedUser = await updateUser({
         data: { [servicePath]: githubProfile },
         selector: { _id: matchingUser._id },
-      }, createAnonymousContext());
+      }, createAnonymousContext({ forumType }));
       
-      return updatedUser;
+      return { user: updatedUser, conflictingAccounts: false };
     }
   }
   
@@ -82,7 +91,7 @@ export async function getOrCreateGitHubUser(profile: GitHubUserProfile): Promise
       emailSubscribedToCurated: true,
       ...{ services, emails },
     }
-  }, createAnonymousContext());
+  }, createAnonymousContext({ forumType }));
   
-  return newUser;
+  return { user: newUser, conflictingAccounts: false };
 }

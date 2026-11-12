@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
@@ -41,6 +42,7 @@ const styles = defineStyles("AllTagsAlphabetical", (theme: ThemeType) => ({
 }))
 
 const AllTagsAlphabetical = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { data, loading } = useQuery(TagPreviewFragmentMultiQuery, {
     variables: {
@@ -62,7 +64,7 @@ const AllTagsAlphabetical = () => {
         title={`All Wikitags (${loading ? "loading" : results?.length})`}
         anchor={`all-wikitags`}
       >
-        {tagUserHasSufficientKarma(currentUser, "new") &&
+        {tagUserHasSufficientKarma(currentUser, "new", forumType) &&
           <SectionButton>
             <AddBoxIcon/>
             <Link to={getTagCreateUrl()}>

@@ -6,21 +6,9 @@ import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
 import DropdownItem from "../DropdownItem";
 import OmegaIcon from "../../icons/OmegaIcon";
 import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen/gql";
-import uniq from 'lodash/uniq';
-import without from 'lodash/without';
+import { SetCommentSuggestedForAlignmentMutation } from '../../alignment-forum/alignmentSuggestionMutations';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
-
-const SuggestAlignmentCommentUpdateMutation = gql(`
-  mutation updateCommentSuggestAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
-    updateComment(selector: $selector, data: $data) {
-      data {
-        ...SuggestAlignmentComment
-      }
-    }
-  }
-`);
 
 const styles = defineStyles('SuggestAlignmentCommentDropdownItem', (theme: ThemeType) => ({
   iconRoot: {
@@ -51,7 +39,7 @@ const SuggestAlignmentCommentDropdownItem = ({comment, post}: {
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const [updateComment] = useMutation(SuggestAlignmentCommentUpdateMutation);
+  const [setCommentSuggestedForAlignment] = useMutation(SetCommentSuggestedForAlignmentMutation);
 
   if (
     !post?.af ||
@@ -69,11 +57,8 @@ const SuggestAlignmentCommentDropdownItem = ({comment, post}: {
     return (
       <DropdownItem
         title="Suggest for Alignment"
-        onClick={() => void updateComment({
-          variables: {
-            selector: { _id: comment._id},
-            data: {suggestForAlignmentUserIds: uniq([...comment.suggestForAlignmentUserIds, currentUser._id])}
-          }
+        onClick={() => void setCommentSuggestedForAlignment({
+          variables: { commentId: comment._id, suggested: true }
         })}
         icon={() =>
           <span className={classes.iconRoot}>
@@ -89,11 +74,8 @@ const SuggestAlignmentCommentDropdownItem = ({comment, post}: {
     <DropdownItem
       title="Unsuggest for Alignment"
       onClick={() => (
-        void updateComment({
-          variables: {
-            selector: { _id: comment._id},
-            data: {suggestForAlignmentUserIds: without(comment.suggestForAlignmentUserIds, currentUser._id)}
-          }
+        void setCommentSuggestedForAlignment({
+          variables: { commentId: comment._id, suggested: false }
         })
       )}
       icon={() =>

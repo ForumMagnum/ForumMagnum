@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { HOVER_CLASSNAME } from './MultiToCLayout';
 import { CommentsLink } from '../PostsPage/CommentsLink';

@@ -11,7 +11,7 @@ import { ExpandedDate } from "@/components/common/FormatDate";
 import { Link } from "@/lib/reactRouterWrapper";
 import { profileStyles } from "./profileStyles";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import { cleanPostPreviewText, cssUrl, DEFAULT_PREVIEWS, formatReadableDate, getDefaultPreview, PostWithPreview } from "./userProfilePageUtil";
+import { cleanPostPreviewText, cssUrl, DEFAULT_PREVIEWS, formatReadableDate, getDefaultPreview } from "./userProfilePageUtil";
 import times from "lodash/times";
 import { seededShuffle } from "@/lib/random";
 

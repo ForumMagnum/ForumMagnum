@@ -1,9 +1,11 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { testServerSetting } from "@/lib/instanceSettings";
 import { dropAndCreatePg } from "@/server/testingSqlClient";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
-  if (!testServerSetting.get()) {
+  const forumType = getForumTypeForRequest(req);
+  if (!testServerSetting.get(forumType)) {
     return new Response("Not allowed", { status: 403 });
   }
 

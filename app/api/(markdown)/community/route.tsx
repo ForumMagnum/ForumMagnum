@@ -183,6 +183,7 @@ export async function GET(req: NextRequest) {
       <EventList events={upcomingInPerson} />
       <h2>Global Events</h2>
       <EventList events={globalEvents} />
-    </div>
+    </div>,
+    resolverContext.forumType
   );
 }

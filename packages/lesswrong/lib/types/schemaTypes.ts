@@ -8,14 +8,16 @@ declare global {
 
 type PermissionGroups = UserGroup;
 
-type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|null) => boolean);
+type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|null, context: ResolverContext) => boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
 type SingleFieldPermissions = PermissionGroups | ((user: DbUser|null, object: any) => boolean)
 type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
+type SingleFieldUpdatePermission = PermissionGroups | ((user: DbUser|null, object: any, context: ResolverContext) => boolean);
+type FieldUpdatePermissions = SingleFieldUpdatePermission | Array<SingleFieldUpdatePermission>;
 
 interface CollectionFieldPermissions {
   canRead?: FieldPermissions,
-  canUpdate?: FieldPermissions,
+  canUpdate?: FieldUpdatePermissions,
   canCreate?: FieldCreatePermissions,
 }
 
@@ -142,7 +144,7 @@ interface DatabaseFieldSpecification<N extends CollectionNameString> {
 interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
   inputType?: string,
   canRead: FieldPermissions,
-  canUpdate?: FieldPermissions,
+  canUpdate?: FieldUpdatePermissions,
   canCreate?: FieldCreatePermissions,
   /** @deprecated Prefer to avoid using onCreate callbacks on fields for new collections. */
   onCreate?: (args: {

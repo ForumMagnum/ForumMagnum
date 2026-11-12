@@ -1,29 +1,15 @@
 import React from 'react';
 import { userCanSuggestPostForAlignment } from '../../../lib/alignment-forum/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { isLWorAF } from '../../../lib/instanceSettings';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen/gql";
-import uniq from 'lodash/uniq';
-import without from 'lodash/without';
-
-const PostsListUpdateMutation = gql(`
-  mutation updatePostSuggestAlignmentPostDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
-    updatePost(selector: $selector, data: $data) {
-      data {
-        ...PostsList
-      }
-    }
-  }
-`);
+import { SetPostSuggestedForAlignmentMutation } from '../../alignment-forum/alignmentSuggestionMutations';
 
 const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
-  const [updatePost] = useMutation(PostsListUpdateMutation);
+  const [setPostSuggestedForAlignment] = useMutation(SetPostSuggestedForAlignmentMutation);
 
   if (
-    !isLWorAF() ||
     !currentUser ||
     !userCanSuggestPostForAlignment({currentUser, post})
   ) {
@@ -37,11 +23,8 @@ const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
       <DropdownItem
         title="Ω Unsuggest for Alignment"
         onClick={() => (
-          void updatePost({
-            variables: {
-              selector: { _id: post._id },
-              data: { suggestForAlignmentUserIds: without(post.suggestForAlignmentUserIds, currentUser._id) }
-            }
+          void setPostSuggestedForAlignment({
+            variables: { postId: post._id, suggested: false }
           })
         )}
       />
@@ -52,11 +35,8 @@ const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
     <DropdownItem
       title="Ω Suggest for Alignment"
       onClick={() => (
-        void updatePost({
-          variables: {
-            selector: { _id: post._id },
-            data: { suggestForAlignmentUserIds: uniq([...post.suggestForAlignmentUserIds, currentUser._id]) }
-          }
+        void setPostSuggestedForAlignment({
+          variables: { postId: post._id, suggested: true }
         })
       )}
     />

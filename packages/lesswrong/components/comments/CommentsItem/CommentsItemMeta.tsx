@@ -1,7 +1,8 @@
-import React, { useState }  from "react";
+import { useForumType } from '@/components/hooks/useForumType';
+import React from "react";
 import classNames from "classnames";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { isEAForum, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
+import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLinkState } from "./useCommentLink";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
@@ -15,8 +16,6 @@ import CommentUserName from "./CommentUserName";
 import CommentsItemDate from "./CommentsItemDate";
 import SmallSideVote from "../../votes/SmallSideVote";
 import CommentOutdatedWarning from "./CommentOutdatedWarning";
-import FooterTag from "../../tagging/FooterTag";
-import LoadMore from "../../common/LoadMore";
 import CommentsMenu from "../../dropdowns/comments/CommentsMenu";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
 import { metaNoticeStyles } from "./metaNoticeStyles";
@@ -63,6 +62,9 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
     "& span": {
       fontFamily: "monospace",
     },
+    "@media print": {
+      display: "none",
+    },
   },
   collapseChevron: {
     width: 15,
@@ -92,29 +94,21 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
   moderatorHat: {
     marginRight: 8,
   },
-  relevantTags: {
-    marginLeft: 12,
-    position: "relative",
-    top: -2,
-    "& .FooterTag-root:nth-child(n+4)": {
-      marginTop: 8,
-    },
-  },
-  relevantTag: {
-    marginTop: 4,
-  },
-  showMoreTags: {
-    position: "relative",
-    top: 1,
-    color: theme.palette.grey[500],
-    fontSize: 12,
-    marginLeft: 8,
-  },
   rightSection: {
     position: "absolute",
     right: -26,
     top: 12,
     display: "flex",
+  },
+  // When there are extra right-section elements (eg the participants list on
+  // collapsed quick takes), keep the section in the flex flow so that it wraps
+  // onto its own line rather than overlapping the vote buttons when the row is
+  // too narrow.
+  rightSectionInFlow: {
+    position: "static",
+    marginLeft: "auto",
+    marginRight: -26,
+    alignItems: "center",
   },
   linkIcon: {
     "--icon-size": "15.6px",
@@ -131,6 +125,9 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
   },
   menu: {
     opacity: 0.35,
+    "@media print": {
+      display: "none",
+    },
   }
 }));
 
@@ -165,6 +162,7 @@ export const CommentsItemMeta = ({
   setShowEdit: () => void,
   rightSectionElements?: React.ReactNode,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUserIsAdmin = useFilteredCurrentUser(u => userIsAdmin(u));
   const { scrollToCommentId } = useCommentLinkState();
@@ -201,19 +199,10 @@ export const CommentsItemMeta = ({
     ? "Moderator Comment (Invisible)"
     : "Moderator Comment";
 
-  const reviewingForReview = isEAForum() && comment.reviewingForReview === "2020"
-    ? "the Decade"
-    : comment.reviewingForReview;
+  const reviewingForReview = comment.reviewingForReview;
 
-  const [showMoreClicked, setShowMoreClicked] = useState(false);
-  let relevantTagsTruncated = comment.relevantTags ?? [];
-  let shouldDisplayLoadMore = false;
-  if (!showMoreClicked) {
-    shouldDisplayLoadMore = relevantTagsTruncated.length > 1 && !showMoreClicked;
-    relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
-  }
   // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
-  const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
+  const highlightLinkIcon = commentPermalinkStyleSetting.get(forumType) === 'in-context' && scrollToCommentId === comment._id
   const menuVisible = (!isParentComment && !hideActionsMenu);
 
   return (
@@ -255,11 +244,11 @@ export const CommentsItemMeta = ({
         comment={comment}
         className={classes.username}
       />
-      <UserCommentMarkers
+      {!comment.llmRunId && <UserCommentMarkers
         user={comment.user}
         isPostAuthor={authorIsPostAuthor && !commentIsTopLevelShortform}
         className={classes.userMarkers}
-      />
+      />}
       <CommentsItemDate {...commentLinkProps} />
       {showModeratorCommentAnnotation &&
         <span className={classes.moderatorHat}>
@@ -292,25 +281,9 @@ export const CommentsItemMeta = ({
         </Link>
       }
 
-      {!!relevantTagsTruncated.length && <span className={classes.relevantTags}>
-        {relevantTagsTruncated.map(tag =>
-          <FooterTag
-            tag={tag}
-            hoverable={true}
-            key={tag._id}
-            className={classes.relevantTag}
-            neverCoreStyling
-            smallText
-          />
-        )}
-        {shouldDisplayLoadMore && <LoadMore
-          loadMore={() => setShowMoreClicked(true)}
-          message="Show more"
-          className={classes.showMoreTags}
-        />}
-      </span>}
-
-      {(rightSectionElements || menuVisible) && <span className={classes.rightSection}>
+      {(rightSectionElements || menuVisible) && <span className={classNames(classes.rightSection, {
+        [classes.rightSectionInFlow]: !!rightSectionElements,
+      })}>
         {rightSectionElements}
         {menuVisible &&
           <AnalyticsContext pageElementContext="tripleDotMenu">

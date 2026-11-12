@@ -1,4 +1,4 @@
-import type { EditorConfig } from '@ckeditor/ckeditor5-core';
+import type { EditorConfig } from 'ckeditor5';
 //import type { EditorConfig } from "../../../../ckEditor/src/augmentation";
 
 function getCkEditorLicenseKey() {

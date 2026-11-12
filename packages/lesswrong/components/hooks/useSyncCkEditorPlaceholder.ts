@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import type { Editor } from "@ckeditor/ckeditor5-core";
+import type { Editor } from 'ckeditor5';
 
 export const useSyncCkEditorPlaceholder = (
   editor: Editor | null,

@@ -1,7 +1,20 @@
+import moment from 'moment';
 import { UNREVIEWED_MAP_LOCATION_UPDATE } from '@/lib/collections/moderatorActions/constants';
-import { getFreshReviewTriggerActions } from '@/lib/collections/users/reviewGroups';
+import { getFreshReviewTriggerActions, isAwaitingReview as isDocumentAwaitingReview } from '@/lib/collections/users/reviewGroups';
 
 export type ContentItem = SunshinePostsList | SunshineCommentsList;
+
+export const POSITIVE_KARMA = 2;
+
+export const CONTENT_PERIODS = [
+  { label: 'Last 30 days', shortLabel: '30d', startsAgo: moment.duration(30, 'days') },
+  { label: 'Last year', shortLabel: '1y', startsAgo: moment.duration(1, 'year') },
+  { label: 'Older', shortLabel: 'older', startsAgo: null },
+];
+
+export function getContentPeriodIndex(postedAt: string, now: moment.Moment) {
+  return CONTENT_PERIODS.findIndex(({ startsAgo }) => !startsAgo || moment(postedAt).isAfter(now.clone().subtract(startsAgo)));
+}
 
 export interface ModerationMapPinItem {
   contentType: 'mapPin';
@@ -36,7 +49,7 @@ export function areAllContentPermissionsDisabled(user: {
 }
 
 export function isPost(item: ContentItem): item is SunshinePostsList {
-  return 'title' in item && item.title !== null;
+  return item.__typename === 'Post';
 };
 
 export function isMapPin(item: ModerationContentItem): item is ModerationMapPinItem {
@@ -86,11 +99,30 @@ export function getModerationContentItems(
     ? [...posts, ...comments, mapPin]
     : [...posts, ...comments];
 
-  return items.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+  return items.sort((a, b) =>
+    Number(needsDecision(b)) - Number(needsDecision(a))
+    || new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
+  );
+}
+
+export function needsDecision(item: ModerationContentItem) {
+  return isMapPin(item) || isAwaitingReview(item);
+}
+
+export function isAwaitingReview(item: ContentItem) {
+  return isDocumentAwaitingReview(item, isPost(item) ? 'Posts' : 'Comments');
 }
 
 export function canRejectContent(item: ContentItem | null | undefined) {
-  return !!item && !item.rejected && item.authorIsUnreviewed;
+  return !!item && !item.rejected;
+}
+
+export function isRejectionTemplateRelevant(templateName: string, item: ContentItem): boolean {
+  const name = templateName.trim().toLowerCase();
+  if (name.includes('autoreject')) return false;
+  if (name.endsWith('(posts)')) return isPost(item);
+  if (name.endsWith('(comments)')) return !isPost(item);
+  return true;
 }
 
 const CONTENT_TITLE_MAX_LENGTH = 25;

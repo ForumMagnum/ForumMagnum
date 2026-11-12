@@ -797,13 +797,6 @@ export const PostWithDialogueMessage = gql(`
   }
 `)
 
-export const PostWithGeneratedSummary = gql(`
-  fragment PostWithGeneratedSummary on Post {
-    _id
-    languageModelSummary
-  }
-`)
-
 export const PostsBestOfList = gql(`
   fragment PostsBestOfList on Post {
     ...PostsListWithVotes
@@ -900,3 +893,27 @@ export const ChapterPostSlim = gql(`
     isRead
   }
 `)
+
+export const AiDigestEmailPost = gql(`
+fragment AiDigestEmailPost on Post {
+  _id
+  slug
+  title
+  postedAt
+  user {
+    _id
+    displayName
+  }
+  coauthors {
+    _id
+    displayName
+  }
+  socialPreviewData {
+    imageUrl
+  }
+  contents {
+    plaintextDescription
+    wordCount
+  }
+}
+`);

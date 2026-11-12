@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import type { UndoHistoryItem, InboxAction, HistoryItem } from './inboxReducer';
+import type { UndoHistoryItem, InboxAction } from './inboxReducer';
 import classNames from 'classnames';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import ConcurrentModeratorChangeIndicator from './ConcurrentModeratorChangeIndicator';
 
 const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
   root: {
@@ -111,25 +112,12 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     minWidth: 20,
   },
-  historyItem: {
-    opacity: 0.6,
-  },
   empty: {
     color: theme.palette.grey[500],
     fontSize: 12,
     fontStyle: 'italic',
   },
-  loadMore: {
-    fontSize: 12,
-    color: theme.palette.grey[500],
-    cursor: 'pointer',
-    '&:hover': {
-      color: theme.palette.grey[800],
-    },
-  },
 }));
-
-const HISTORY_PAGE_SIZE = 2;
 
 const ProgressBar = ({ expiresAt, totalDuration }: { expiresAt: number; totalDuration: number }) => {
   const classes = useStyles(styles);
@@ -175,15 +163,12 @@ const TimeRemaining = ({ expiresAt }: { expiresAt: number }) => {
 
 const ModerationUndoHistory = ({
   undoQueue,
-  history,
   dispatch,
 }: {
   undoQueue: UndoHistoryItem[];
-  history: HistoryItem[];
   dispatch: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
-  const [historyLimit, setHistoryLimit] = useState(HISTORY_PAGE_SIZE);
 
   // Warn user if they try to close the tab or navigate away while there are pending actions
   useEffect(() => {
@@ -242,6 +227,7 @@ const ModerationUndoHistory = ({
                 <div className={classes.itemLeft}>
                   <span className={classes.userName}>{item.user.displayName}</span>
                   <span className={classes.actionLabel}>{item.actionLabel}</span>
+                  <ConcurrentModeratorChangeIndicator documentId={item.user._id} variant="badge" />
                 </div>
                 <div className={classes.itemRight}>
                   <TimeRemaining expiresAt={item.expiresAt} />
@@ -250,31 +236,6 @@ const ModerationUndoHistory = ({
               </div>
             </div>
           ))
-        )}
-      </div>
-
-      <div className={classes.section}>
-        <div className={classes.sectionTitle}>History</div>
-        {history.length === 0 ? (
-          <div className={classes.empty}>No history</div>
-        ) : (
-          <>
-            {history.slice(-historyLimit).reverse().map((item) => (
-              <div key={`${item.user._id}-${item.timestamp}`} className={classNames(classes.item, classes.historyItem)}>
-                <div className={classes.itemContent}>
-                  <div className={classes.itemLeft}>
-                    <span className={classes.userName}>{item.user.displayName}</span>
-                    <span className={classes.actionLabel}>{item.actionLabel}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {history.length > historyLimit && (
-              <div className={classes.loadMore} onClick={() => setHistoryLimit(historyLimit + HISTORY_PAGE_SIZE)}>
-                Load more
-              </div>
-            )}
-          </>
         )}
       </div>
     </div>

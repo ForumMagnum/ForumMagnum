@@ -140,7 +140,7 @@ function createAEPostRecord({ post, tags, authors, upvoteCount }: CreateAEPostRe
   };
 }
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl"
 export async function exportAECommentRecords(offsetDate?: Date) {
   const db = getSqlClientOrThrow();
   const context = createAnonymousContext();
@@ -167,7 +167,7 @@ export async function exportAECommentRecords(offsetDate?: Date) {
           _id,
           user: {
             _id: user?._id,
-            displayName: user ? userGetDisplayName(user) : null,
+            displayName: user ? userGetDisplayName(user, context.forumType) : null,
           },
           htmlBody: contents?.html,
           postId,
@@ -193,7 +193,7 @@ export async function exportAECommentRecords(offsetDate?: Date) {
   }
 }
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl"
 export async function exportAEPostRecords(offsetDate?: Date) {
   const db = getSqlClientOrThrow();
 

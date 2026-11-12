@@ -1,11 +1,9 @@
+import { getUrlClass } from "@/server/utils/getUrlClass";
 import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
 import type { RouterLocation, SegmentedUrl } from './routeChecks/parseRoute';
-import { ForumOptions, forumSelect } from './forumTypeUtils';
 import { createPath, type LocationDescriptor, parsePath } from 'history';
 import { parseQuery } from './routeChecks/parseRoute';
-import {siteUrlSetting} from './instanceSettings'
-import { getUrlClass } from '@/server/utils/getUrlClass';
 import { urlIsAbsolute } from './vulcan-lib/utils';
 import { LocationContext, NavigationContext, SubscribeLocationContext } from './locationContexts';
 
@@ -128,6 +126,20 @@ export const useNavigate = () => {
   }, [history]);
 }
 
+/**
+ * React Hook which returns a function that prefetches a route's static shell
+ * (its layouts and loading states, but not its dynamic data), so that
+ * navigating to it can show something immediately instead of waiting for the
+ * server. Next caches prefetches, so calling this repeatedly for the same URL
+ * is cheap.
+ */
+export const usePrefetchRoute = () => {
+  const { history } = useContext(NavigationContext)!;
+  return useCallback((to: string) => {
+    history.prefetch(to);
+  }, [history]);
+}
+
 // HoC which adds a `location` property to an object, which contains the page
 // location (parsed URL and route). See `useLocation`.
 export const withLocation = (WrappedComponent: any) => {
@@ -183,30 +195,7 @@ const LwAfDomainWhitelist: DomainList = {
   ],
 }
 
-const URLClass = getUrlClass()
-const getForumDomainWhitelist = (): ForumOptions<DomainList> => ({
-  LessWrong: LwAfDomainWhitelist,
-  AlignmentForum: LwAfDomainWhitelist,
-  EAForum: {
-    onsiteDomains: [
-      'forum.effectivealtruism.org',
-      'forum-staging.effectivealtruism.org',
-      // TODO: fix this to not use `getCommandLineArguments` anymore
-      // `localhost:${getCommandLineArguments().localhostUrlPort}`,
-    ],
-    mirrorDomains: ['ea.greaterwrong.com'],
-  },
-  default: {
-    onsiteDomains: [
-      new URLClass(siteUrlSetting.get()).host,
-      // TODO: fix this to not use `getCommandLineArguments` anymore
-      // `localhost:${getCommandLineArguments().localhostUrlPort}`,
-    ],
-    mirrorDomains: [],
-  }
-})
-
-const getDomainWhitelist = (): DomainList => forumSelect(getForumDomainWhitelist())
+const URLClass = getUrlClass();
 
 export const classifyHost = (host: string): "onsite"|"offsite"|"mirrorOfUs" => {
   let urlType: "onsite"|"offsite"|"mirrorOfUs" = "offsite";
@@ -216,11 +205,11 @@ export const classifyHost = (host: string): "onsite"|"offsite"|"mirrorOfUs" => {
     return a===b || "www."+a===b || a==="www."+b;
   }
 
-  getDomainWhitelist().onsiteDomains.forEach((domain) => {
+  LwAfDomainWhitelist.onsiteDomains.forEach((domain) => {
     if (isSameDomainModuloWWW(host, domain))
       urlType = "onsite";
   })
-  getDomainWhitelist().mirrorDomains.forEach((domain) => {
+  LwAfDomainWhitelist.mirrorDomains.forEach((domain) => {
     if (isSameDomainModuloWWW(host, domain))
       urlType = "mirrorOfUs";
   })

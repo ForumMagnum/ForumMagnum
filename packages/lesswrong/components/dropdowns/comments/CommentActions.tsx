@@ -17,6 +17,7 @@ import PinToProfileDropdownItem from "./PinToProfileDropdownItem";
 import DropdownMenu from "../DropdownMenu";
 import CopyMarkdownDropdownItem from "../CopyMarkdownDropdownItem";
 import ShortformFrontpageDropdownItem from "./ShortformFrontpageDropdownItem";
+import QuickTakeTagsDropdownItem from "./QuickTakeTagsDropdownItem";
 import { CommentSubscriptionsDropdownItem } from "./CommentSubscriptionsDropdownItem";
 import BanUserFromPostDropdownItem from "./BanUserFromPostDropdownItem";
 import LockThreadDropdownItem from "./LockThreadDropdownItem";
@@ -76,6 +77,7 @@ const CommentActions = ({comment, post, tag, showEdit}: {
       }
 
       <MoveToAnswersDropdownItem comment={comment} post={postDetails} />
+      <QuickTakeTagsDropdownItem comment={comment} />
       <ShortformFrontpageDropdownItem comment={comment} />
       <DeleteCommentDropdownItem comment={comment} post={postDetails} tag={tag} />
       <RetractCommentDropdownItem comment={comment} />

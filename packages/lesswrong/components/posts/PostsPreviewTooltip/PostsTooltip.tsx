@@ -33,6 +33,8 @@ interface PostsTooltipPropsBase {
   flip?: boolean,
   placement?: PopperPlacementType,
   children?: ReactNode,
+  /** Show the automated writing evaluation in the preview header. */
+  showLlmScore?: boolean,
   pageElementContext?: string,
   pageElementSubContext?: string,
   //bypasses the component and just returns the children
@@ -73,6 +75,7 @@ const PostsTooltip = ({
   flip,
   placement,
   children,
+  showLlmScore = false,
   pageElementContext,
   pageElementSubContext,
   disabled,
@@ -106,7 +109,7 @@ const PostsTooltip = ({
   const renderTitle = useCallback(() => {
     if (tagRelId) {
       return (
-        <TaggedPostTooltipSingle tagRelId={tagRelId} />
+        <TaggedPostTooltipSingle tagRelId={tagRelId} showLlmScore={showLlmScore} />
       );
     }
     if (post) {
@@ -116,13 +119,14 @@ const PostsTooltip = ({
           postsList={postsList}
           comment={comment}
           hash={hash}
+          showLlmScore={showLlmScore}
         />
       );
     }
 
     if (postId) {
       if (dialogueMessageInfo) {
-        return <DialogueMessagePreviewTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo}/>
+        return <DialogueMessagePreviewTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo} showLlmScore={showLlmScore}/>
       }
 
       const actualCommentId = commentId ?? comment?._id;
@@ -131,17 +135,19 @@ const PostsTooltip = ({
           <PostsPreviewTooltipSingleWithComment
             postId={postId}
             commentId={actualCommentId}
+            showLlmScore={showLlmScore}
           />
         )
         : (
           <PostsPreviewTooltipSingle
             postId={postId}
             postsList={postsList}
+            showLlmScore={showLlmScore}
           />
         );
     }
     return null;
-  }, [tagRelId, post, postId, postsList, comment, commentId, dialogueMessageInfo, hash]);
+  }, [tagRelId, post, postId, postsList, comment, commentId, dialogueMessageInfo, hash, showLlmScore]);
 
   if (disabled) {
     return <>

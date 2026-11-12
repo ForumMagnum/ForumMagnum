@@ -1,6 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useVote } from './withVote';
-import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { TooltipSpan } from '../common/FMTooltip';
@@ -53,6 +53,7 @@ const LWPostsPageTopHeaderVote = ({post, votingSystem}: {
   post: PostsWithVotes,
   votingSystem: VotingSystem<PostsWithVotes>,
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
   const voteProps = useVote(post, "Posts", votingSystem);
 
@@ -64,7 +65,7 @@ const LWPostsPageTopHeaderVote = ({post, votingSystem}: {
 
   const tooltipText = <div>
     <div>{`${voteProps.voteCount} ${voteProps.voteCount === 1 ? "vote" : "votes"}`}</div>
-    {post.af && !isAF() && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
+    {post.af && !isAF && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
   </div>
 
   return (

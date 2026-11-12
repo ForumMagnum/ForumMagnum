@@ -8,7 +8,7 @@ import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import { captureException } from "@/lib/sentryWrapper";
 import { postMessage } from "@/server/slack/client";
@@ -27,7 +27,7 @@ async function postCurationNoticeToSlack(document: DbCurationNotice, context: Re
   const post = await context.Posts.findOne({ _id: document.postId });
   if (!post) return;
   const author = await context.loaders.Users.load(document.userId);
-  const postUrl = postGetPageUrl(post, true);
+  const postUrl = postGetAbsolutePageUrl(post, context.forumType);
   const noticeText = document.contents?.html ? htmlToTextDefault(document.contents.html) : '(empty)';
   const lines = [
     `:pencil: *New curation draft* by ${author?.displayName ?? 'Unknown'}`,
@@ -48,7 +48,7 @@ async function postCurationPublishToSlack(document: DbCurationNotice, context: R
   const post = await context.Posts.findOne({ _id: document.postId });
   if (!post) return;
   const author = await context.loaders.Users.load(document.userId);
-  const postUrl = postGetPageUrl(post, true);
+  const postUrl = postGetAbsolutePageUrl(post, context.forumType);
   try {
     await postMessage({
       text: `:tada: *Post curated* by ${author?.displayName ?? 'Unknown'}: <${postUrl}|${post.title}>`,

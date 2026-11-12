@@ -15,7 +15,9 @@ const SunshineCommentsListMultiQuery = gql(`
   }
 `);
 
-export function useModeratedUserContents(userId: string, contentLimit = 20) {
+export const MODERATED_USER_CONTENT_LIMIT = 20;
+
+export function useModeratedUserContents(userId: string, contentLimit = MODERATED_USER_CONTENT_LIMIT) {
   const { posts = [] } = usePublishedPosts(userId, contentLimit, false);
   const { data: commentsData } = useQuery(SunshineCommentsListMultiQuery, {
     variables: {

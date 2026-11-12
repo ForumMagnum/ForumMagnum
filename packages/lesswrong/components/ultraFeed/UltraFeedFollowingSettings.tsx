@@ -1,6 +1,6 @@
 import React from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { UltraFeedSettingsType, UltraFeedAlgorithm } from './ultraFeedSettingsTypes';
+import { UltraFeedSettingsType } from './ultraFeedSettingsTypes';
 
 const styles = defineStyles('UltraFeedFollowingSettings', (theme: ThemeType) => ({
   root: {

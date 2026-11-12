@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { useHover } from '../common/withHover';
 import { EXPAND_FOOTNOTES_EVENT } from '../contents/CollapsedFootnotes';
@@ -21,8 +21,12 @@ import { InteractionWrapper } from '../common/useClickableCell';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 import { useTheme } from '../themes/useTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useFootnoteHTML } from './useFootnoteHTML';
 
 export const footnotePreviewStyles = defineStyles("FootnotePreview", (theme: ThemeType) => ({
+  popper: {
+    width: "max-content",
+  },
   hovercard: {
     padding: 16,
     ...theme.typography.body2,
@@ -120,7 +124,7 @@ export const footnotePreviewStyles = defineStyles("FootnotePreview", (theme: The
     top: 160,
     height: 40,
     width: "100%",
-    background: `linear-gradient(0deg,${theme.palette.background.pageActiveAreaBackground},transparent)`,
+    background: "linear-gradient(0deg,var(--page-background),transparent)",
   },
   
   sidenoteHover: {
@@ -167,20 +171,13 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
     },
   });
   const { eventHandlers: sidenoteEventHandlers, hover: sidenoteHovered } = useHover();
+  const footnoteAnchorRef = useRef<HTMLAnchorElement|null>(null);
   const eitherHovered = anchorHovered || sidenoteHovered;
-  const [footnoteHTML,setFootnoteHTML] = useState<string|null>(null);
   const memoizedEmptyArray = useMemo(() => [], []);
   const footnoteAncestors = useContext(FootnoteAncestorsContext) ?? memoizedEmptyArray;
   const newFootnoteAncestors = useMemo(() => [...footnoteAncestors, href], [footnoteAncestors, href])
 
-  useEffect(() => {
-    const extractedFootnoteHTML = footnoteAncestors.includes(href)
-      ? null
-      : extractFootnoteHTML(href);
-    if (extractedFootnoteHTML) {
-      setFootnoteHTML((oldFootnoteHTML) => oldFootnoteHTML ?? extractedFootnoteHTML);
-    }
-  }, [href, footnoteAncestors]);
+  const footnoteHTML = useFootnoteHTML(href, footnoteAncestors);
   
   // TODO: Getting the footnote content from the DOM didn't necessarily work;
   // for example if the page was only showing an excerpt (with the rest hidden
@@ -195,11 +192,15 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
     const openModalOnClick = isMobile() || !isWideEnoughForTooltips;
     if (isRegularClick(ev) && openModalOnClick && footnoteHTML !== null) {
       setDisableHover(true);
+      // Anchor the dialog to the footnote reference in the text (also when
+      // opened from the side-item indicator, which sits beside the same line).
+      const anchorEl = footnoteAnchorRef.current;
       openDialog({
         name: "FootnoteDialog",
         contents: ({onClose}) => <FootnoteDialog
           onClose={onClose}
           footnoteHTML={footnoteHTML}
+          anchorEl={anchorEl}
         />
       });
       ev.preventDefault();
@@ -242,6 +243,7 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
 
       <a
         {...anchorEventHandlers}
+        ref={footnoteAnchorRef}
         href={hasCollapsedFootnotes ? undefined : href}
         id={id}
         rel={rel}
@@ -253,7 +255,7 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
           open={anchorHovered && !sidenoteIsVisible}
           anchorEl={anchorEl}
           placement="bottom-start"
-          allowOverflow
+          className={classes.popper}
           flip
           clickable
         >
@@ -268,47 +270,6 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
       </a>
     </span>
   );
-}
-
-function extractFootnoteHTML(href: string): string|null {
-  // Get the contents of the linked footnote.
-  // This has a try-catch-ignore around it because the link doesn't necessarily
-  // make a valid CSS selector; eg there are some posts in the DB with internal
-  // links to anchors like "#fn:1" which will crash this because it has a ':' in
-  // it.
-  try {
-    // `href` is (probably) an anchor link, of the form `#fn1234`. Since it starts
-    // with a hash it can also be used as a CSS selector, which finds its contents
-    // in the footer.
-    const footnoteContentsElement = document.querySelector(href);
-    const footnoteHTML = footnoteContentsElement?.innerHTML ?? null;
-    
-    
-    if (footnoteContentsElement && isFootnoteContentsNonempty(footnoteContentsElement)) {
-      return footnoteHTML;
-    } else {
-      return null;
-    }
-  // eslint-disable-next-line no-empty
-  } catch(e) {
-    return null;
-  }
-}
-
-const isFootnoteContentsNonempty = (footnoteContentsElement: Element): boolean => {
-  // Decide whether the footnote is nonempty. This is tricky because while there
-  // are consistently formatted footnotes created by our editor plugins, there
-  // are also wacky irregular footnotes present in imported HTML and similar
-  // things. Eg https://www.lesswrong.com/posts/ACGeaAk6KButv2xwQ/the-halo-effect
-  // We can't just condition on the footnote containing non-whitespace text,
-  // because footnotes sometimes have their number and backlink in a place that
-  // would be mistaken for their body. Our current heuristic is that a footnote
-  // is nonempty if it contains at least one <p> which contains non-whitespace
-  // text, which might false-negative on rare cases like an image-only footnote
-  // but which seems to work in practice.
-  return !!footnoteContentsElement
-    && !!Array.from(footnoteContentsElement.querySelectorAll("p, li"))
-      .reduce((acc, p) => acc + p.textContent, "").trim();
 }
 
 const SidenoteDisplay = ({footnoteHref, footnoteHTML, contentStyleType}: {

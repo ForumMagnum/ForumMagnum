@@ -189,3 +189,43 @@ describe('sanitize ordered list numbering', () => {
     expect(result).toContain('<li value="4">Item 4</li>');
   });
 });
+
+describe('sanitize text span whitespace', () => {
+  it('preserves white-space: pre-wrap on spans', () => {
+    const input = '<p><span style="white-space: pre-wrap;">Quiz show:  Can it?</span></p>';
+    const result = sanitize(input);
+    expect(result).toContain('white-space:pre-wrap');
+    expect(result).toContain('Quiz show:  Can it?');
+  });
+
+  it('strips other white-space values from spans', () => {
+    const input = '<p><span style="white-space: pre;">a  b</span></p>';
+    const result = sanitize(input);
+    expect(result).not.toContain('white-space');
+  });
+});
+
+describe('sanitize inline styles', () => {
+  it('drops styles on tags with no allowed styles', () => {
+    const result = sanitize('<audio controls src="https://example.com/a.mp3" style="position:fixed;inset:0;z-index:99999"></audio>');
+    expect(result).not.toContain('style');
+  });
+
+  it('filters styles on table rows', () => {
+    const result = sanitize('<table><tbody style="position:fixed;border:1px solid red"><tr style="background:url(https://example.com/x.png);text-align:left"><td>a</td></tr></tbody></table>');
+    expect(result).toContain('<tbody style="border:1px solid red">');
+    expect(result).toContain('<tr style="text-align:left">');
+  });
+});
+
+describe('sanitize MathJax output', () => {
+  it('keeps the attributes and styles that rendered equations use', () => {
+    const input = '<mjx-container class="MathJax" jax="CHTML" display="true" role="math" aria-label="x" style="font-size: 104.1%;"><mjx-math class=" MJX-TEX"><mjx-mo class="mjx-n" space="4" style="vertical-align: -0.15em;"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mo></mjx-math></mjx-container>';
+    expect(sanitize(input)).toBe('<mjx-container class="MathJax" jax="CHTML" display="true" role="math" aria-label="x" style="font-size:104.1%"><mjx-math class="MJX-TEX"><mjx-mo class="mjx-n" space="4" style="vertical-align:-0.15em"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mo></mjx-math></mjx-container>');
+  });
+
+  it('strips what TeX like \\color and \\href can inject', () => {
+    const input = '<mjx-container class="MathJax"><mjx-math><a href="javascript:alert(1)"><mjx-mstyle style="color: red;position:fixed;top:0" onclick="alert(1)" id="currentUser" class="spoilers mjx-n"></mjx-mstyle></a></mjx-math></mjx-container>';
+    expect(sanitize(input)).toBe('<mjx-container class="MathJax"><mjx-math><a><mjx-mstyle style="color:red;top:0" class="mjx-n"></mjx-mstyle></a></mjx-math></mjx-container>');
+  });
+});

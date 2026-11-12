@@ -1,5 +1,5 @@
 import moment from "moment";
-import { RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, AllRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from "./constants";
+import { RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, AllRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, MODERATOR_ACTION_TYPES } from "./constants";
 
 /**
  * For a given RateLimitType, returns the number of hours a user has to wait before posting again.
@@ -21,7 +21,7 @@ export function getTimeframeForRateLimit(type: AllRateLimitTypes): number {
   }
 }
 
-export function getAverageContentKarma(content: VoteableType[]) {
+export function getAverageContentKarma(content: ReadonlyArray<Pick<VoteableType, "baseScore">>) {
   const runningContentKarma = content.reduce((prev, curr) => prev + (curr.baseScore ?? 0), 0);
   return runningContentKarma / content.length;
 }
@@ -78,3 +78,6 @@ export const isActionActive = (moderatorAction: Pick<DbModeratorAction, "endedAt
   return !moderatorAction.endedAt || moderatorAction.endedAt > new Date();
 };
 
+export function getModeratorActionNoteText(type: DbModeratorAction["type"]): string {
+  return ` "${MODERATOR_ACTION_TYPES[type]}"`;
+}

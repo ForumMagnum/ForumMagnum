@@ -1,5 +1,5 @@
 import React from 'react';
-import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import { useCurrentTime } from '@/lib/utils/timeUtil';

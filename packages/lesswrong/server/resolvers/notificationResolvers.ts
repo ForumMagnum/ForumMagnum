@@ -1,38 +1,13 @@
 import { Notifications } from '../../server/collections/notifications/collection';
-import { NotificationDisplay } from '../../lib/notificationTypes';
 import type { NotificationCountsResult } from '@/components/hooks/useUnreadNotifications';
 import { isDialogueParticipant } from '../../lib/collections/posts/helpers';
 import { notifyDialogueParticipantsNewMessage } from "../notificationCallbacks";
 import { cheerioParse } from '../utils/htmlUtil';
 import type { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { handleDialogueHtml } from '../editor/conversionUtils';
-import { createPaginatedResolver } from './paginatedResolver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import gql from "graphql-tag"
-import { defaultNotificationsView, NotificationsViews } from '@/lib/collections/notifications/views';
-
-const {Query: NotificationDisplaysQuery, typeDefs: NotificationDisplaysTypeDefs} = createPaginatedResolver({
-  name: "NotificationDisplays",
-  graphQLType: "JSON",
-  args: {
-    type: "String",
-  },
-  callback: async (
-    context: ResolverContext,
-    limit: number,
-    args?: {type?: string | null},
-  ): Promise<NotificationDisplay[]> => {
-    const {repos, currentUser} = context;
-    if (!currentUser) {
-      return [];
-    }
-    return repos.notifications.getNotificationDisplays({
-      userId: currentUser._id,
-      type: args?.type ?? undefined,
-      limit,
-    });
-  },
-});
+import { defaultNotificationsView } from '@/lib/collections/notifications/views';
 
 export const notificationResolversGqlTypeDefs = gql`
   type NotificationCounts {
@@ -49,8 +24,6 @@ export const notificationResolversGqlTypeDefs = gql`
     MarkAllNotificationsAsRead: Boolean
     sendNewDialogueMessageNotification(postId: String!, dialogueHtml: String!): Boolean!
   }
-
-  ${NotificationDisplaysTypeDefs}
 `
 
 export const notificationResolversGqlMutations = {
@@ -82,7 +55,7 @@ export const notificationResolversGqlMutations = {
 
     const messageInfo = await extractLatestDialogueMessageByUser(dialogueHtml, currentUser._id, context) 
 
-    await notifyDialogueParticipantsNewMessage(currentUser._id, messageInfo, post)
+    await notifyDialogueParticipantsNewMessage(currentUser._id, messageInfo, post, context)
     
     return true
   },
@@ -154,8 +127,6 @@ export const notificationResolversGqlQueries = {
       faviconBadgeNumber: 0,
     }
   },
-  
-  ...NotificationDisplaysQuery
 }
 
 const extractLatestDialogueMessageByUser = async (dialogueHtml: string, userId: string, context: ResolverContext): Promise<DialogueMessageInfo|undefined> => {

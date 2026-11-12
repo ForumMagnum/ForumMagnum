@@ -1,5 +1,5 @@
 import type { Client, Index } from "algoliasearch/lite";
-import type { MultiResponse, QueryParameters, SearchForFacetValues } from "algoliasearch";
+import type { MultiResponse, SearchForFacetValues } from "algoliasearch";
 import stringify from "json-stringify-deterministic";
 import LRU from "lru-cache";
 import { z } from "zod";

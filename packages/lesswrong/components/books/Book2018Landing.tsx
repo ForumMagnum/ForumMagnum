@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTracking } from "../../lib/analyticsEvents";
 import BookAnimation from "./BookAnimation";
-import BookCheckout from "../review/BookCheckout";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 

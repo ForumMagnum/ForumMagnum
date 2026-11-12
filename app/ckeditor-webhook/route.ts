@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import crypto from "crypto";
 import { handleCkEditorWebhook } from "@/server/ckEditor/ckEditorWebhook";
 import { getCkEditorApiSecretKey } from "@/server/ckEditor/ckEditorServerConfig";
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
   if (rawBody) {
     const body = JSON.parse(rawBody);
     if (body) {
-      await handleCkEditorWebhook(body);
+      await handleCkEditorWebhook(body, getForumTypeForRequest(req));
     }
   }
   return new Response("ok");

@@ -1,7 +1,6 @@
-import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
+import { Plugin } from 'ckeditor5';
 // import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import TurndownService from 'turndown';
-
 
 export default class AIAutocomplete extends Plugin {
     static get pluginName() {

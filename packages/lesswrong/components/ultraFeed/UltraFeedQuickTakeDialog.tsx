@@ -5,13 +5,20 @@ import { DialogContent } from '../widgets/DialogContent';
 import ForumIcon from '../common/ForumIcon';
 import QuickTakesEntry from '../quickTakes/QuickTakesEntry';
 import { useDisableBodyScroll } from '../hooks/useDisableBodyScroll';
+import { useVisualViewportRect } from '../hooks/useVisualViewportRect';
 
 const styles = defineStyles("UltraFeedQuickTakeDialog", (theme: ThemeType) => ({
-  dialogContent: {
-    padding: '0 !important',
+  dialogPaper: {
+    overflow: 'hidden',
+  },
+  visibleArea: {
+    height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    overflow: 'hidden',
+  },
+  dialogContent: {
+    padding: '0 !important',
+    overflowY: 'auto',
   },
   stickyHeader: {
     height: 64,
@@ -22,7 +29,6 @@ const styles = defineStyles("UltraFeedQuickTakeDialog", (theme: ThemeType) => ({
     flexShrink: 0,
     backgroundColor: theme.palette.ultrafeedModalHeader.background,
     borderBottom: theme.palette.border.faint,
-    borderRadius: '12px 12px 0 0',
     zIndex: 1,
     padding: '12px 20px',
     [theme.breakpoints.down('sm')]: {
@@ -53,21 +59,15 @@ const styles = defineStyles("UltraFeedQuickTakeDialog", (theme: ThemeType) => ({
       display: 'block',
     }
   },
-  dialogPaper: {
-    width: '100vw',
-    margin: 0,
-    borderRadius: 0,
-    overflow: 'hidden',
-  },
   formWrapper: {
-    maxHeight: '50%',
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    '& .EditorFormComponent-commentEditorHeight .ck.ck-content': {
-      minHeight: '50dvh',
-      maxHeight: '50dvh',
-    }
+    padding: 16,
+    borderRadius: 0,
+    '& .form-component-EditorFormComponent': {
+      marginTop: 0,
+      marginBottom: 12,
+      borderRadius: 4,
+      '--lexical-comment-min-height': '150px',
+    },
   },
 }));
 
@@ -78,17 +78,25 @@ type UltraFeedQuickTakeDialogProps = {
 
 const UltraFeedQuickTakeDialog = ({ onClose, currentUser }: UltraFeedQuickTakeDialogProps) => {
   const classes = useStyles(styles);
+  const visualViewportRect = useVisualViewportRect();
 
   useDisableBodyScroll();
+
+  const visibleAreaStyle = visualViewportRect
+    ? { height: visualViewportRect.height, transform: `translateY(${visualViewportRect.offsetTop}px)` }
+    : undefined;
 
   return (
     <LWDialog
       open={true}
       onClose={onClose}
-      fullWidth
+      fullScreen
+      maxWidth={false}
+      disableBackdropClick
+      backdrop="none"
       paperClassName={classes.dialogPaper}
     >
-      <DialogContent className={classes.dialogContent}>
+      <div className={classes.visibleArea} style={visibleAreaStyle}>
         <div className={classes.stickyHeader}>
           <ForumIcon
             icon="Close"
@@ -97,16 +105,18 @@ const UltraFeedQuickTakeDialog = ({ onClose, currentUser }: UltraFeedQuickTakeDi
           />
           <div className={classes.headerTitle}>New quick take</div>
         </div>
-        <QuickTakesEntry
-          currentUser={currentUser}
-          successCallback={onClose}
-          className={classes.formWrapper}
-          cancelCallback={onClose}
-          defaultExpanded={true}
-          defaultFocus={true}
-          submitButtonAtBottom={true}
-        />
-      </DialogContent>
+        <DialogContent className={classes.dialogContent}>
+          <QuickTakesEntry
+            currentUser={currentUser}
+            successCallback={onClose}
+            className={classes.formWrapper}
+            cancelCallback={onClose}
+            defaultExpanded={true}
+            defaultFocus={true}
+            submitButtonAtBottom={true}
+          />
+        </DialogContent>
+      </div>
     </LWDialog>
   );
 };

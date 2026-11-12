@@ -54,7 +54,9 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
     var text            = (text || "").trim();
     var currentState    = 0;
     var currentTagStart = 0;
-    var tagStack: string[] = [];
+    let attributeQuoteChar = 0;
+    let previousTagChar = 0;
+    const tagStack: {name: string, start: number}[] = [];
 
     //Counters
     var charCounter         = 0;
@@ -65,6 +67,9 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
     const NOT_TAG = 0;
     const TAG_START = 1;
     const TAG_ATTRIBUTES = 2;
+    // Stored HTML can have `<` and `>` inside quoted attribute values, which
+    // must not be mistaken for the boundaries of tags.
+    const QUOTED_ATTRIBUTE_VALUE = 3;
 
     //Set default values
     const matchByWords = TruncateBy==="words";
@@ -82,11 +87,29 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
     for (; pointer < text.length; pointer++ ) {
       var currentChar = text.charCodeAt(pointer);
 
+      if (currentState === QUOTED_ATTRIBUTE_VALUE) {
+        if (currentChar === attributeQuoteChar) {
+          currentState = TAG_ATTRIBUTES;
+          previousTagChar = currentChar;
+        }
+        continue;
+      }
+
       switch(currentChar) {
         case 60: //"<"
           if(currentState === NOT_TAG){
             currentState = TAG_START;
             currentTagStart = pointer+1;
+            previousTagChar = 0;
+          }
+          break;
+        case 34: //'"'
+        case 39: //"'"
+          if (currentState === NOT_TAG) {
+            charCounter++;
+          } else if (previousTagChar === 61) { //"="
+            currentState = QUOTED_ATTRIBUTE_VALUE;
+            attributeQuoteChar = currentChar;
           }
           break;
         case 62: { //>
@@ -109,7 +132,7 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
               if(tagWithoutAttributes.indexOf("/") >= 0){
                 tagStack.pop();
               } else {
-                tagStack.push(tagWithoutAttributes);
+                tagStack.push({name: tagWithoutAttributes, start: currentTagStart});
               }
             }
           }
@@ -129,6 +152,10 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
             charCounter++;
           }
           break;
+      }
+
+      if (currentState !== NOT_TAG && currentChar !== 32) {
+        previousTagChar = currentChar;
       }
 
       if(matchByWords && wordCounter >= TruncateLength){
@@ -151,15 +178,29 @@ export const truncatise = function(text: string, {TruncateBy="words", TruncateLe
       truncatedText = truncatedText.trimEnd();
     }
 
+    let suffixAdded = false;
     while(tagStack.length > 0){
-      var tag = tagStack.pop();
-      if(tag!=="!--"){
-        truncatedText += "</"+tag+">";
+      const tag = tagStack.pop();
+      if(tag && tag.name!=="!--"){
+        // Consumers such as footnote previews must be able to distinguish a
+        // complete element from one whose closing tag was supplied here.
+        if (pointer < text.length-1) {
+          const attributesStart = tag.start + tag.name.length;
+          truncatedText = truncatedText.substring(0, attributesStart)
+            + ' data-truncated="true"' + truncatedText.substring(attributesStart);
+          if (!suffixAdded && (tag.name === "p" || tag.name === "li")) {
+            truncatedText += Suffix;
+            suffixAdded = true;
+          }
+        }
+        truncatedText += "</"+tag.name+">";
       }
     }
 
     if(pointer < text.length-1) {
-      if(truncatedText.endsWith("</p>") || truncatedText.endsWith("</P>")) {
+      if (suffixAdded) {
+        return truncatedText;
+      } else if(truncatedText.endsWith("</p>") || truncatedText.endsWith("</P>")) {
         return truncatedText.substring(0, truncatedText.length - 4) + Suffix + "</p>";
       } else {
         return truncatedText + Suffix;

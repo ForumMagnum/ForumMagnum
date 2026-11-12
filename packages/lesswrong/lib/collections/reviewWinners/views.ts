@@ -1,4 +1,3 @@
-import { REVIEW_YEAR } from '@/lib/reviewUtils';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 interface PostReviewWinnersViewTerms extends ViewTermsBase {

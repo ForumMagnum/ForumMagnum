@@ -12,8 +12,16 @@ const RegisterClientIdRequestSchema = z.object({
   referrer: z.string(),
 });
 
+/**
+ * Called by the client on every fresh browser session (and whenever the
+ * middleware has just minted a clientId, signalled by the clientIdUnset
+ * cookie). Records new clientIds, and replaces ones that have been
+ * invalidated; for an already-registered, still-valid clientId it only does
+ * the invalidation lookup.
+ */
 export async function POST(req: NextRequest) {
   const clientId = req.cookies.get(CLIENT_ID_COOKIE);
+  const isNewClientId = !!req.cookies.get(CLIENT_ID_NEW_COOKIE);
   const body = RegisterClientIdRequestSchema.safeParse(await req.json());
   if (!body.data) {
     return NextResponse.json("Invalid request", {
@@ -21,12 +29,20 @@ export async function POST(req: NextRequest) {
     });
   }
   const { landingPage, referrer } = body.data;
-  const user = await getUserFromReq(req);
-  
-  const clientIdsRepo = new ClientIdsRepo();
+
   if (!clientId) {
     return new Response("", { status: 200 });
-  } else if (await clientIdsRepo.isClientIdInvalidated(clientId.value)) {
+  }
+
+  const clientIdsRepo = new ClientIdsRepo();
+  const invalidated = await clientIdsRepo.isClientIdInvalidated(clientId.value);
+  if (!isNewClientId && !invalidated) {
+    return new Response("", { status: 200 });
+  }
+
+  const user = await getUserFromReq(req);
+  const cookieStore = await cookies();
+  if (invalidated) {
     const newClientId = randomId();
     backgroundTask(clientIdsRepo.ensureClientId({
       clientId: newClientId,
@@ -34,10 +50,7 @@ export async function POST(req: NextRequest) {
       referrer,
       userId: user?._id,
     }));
-    const cookieStore = await cookies();
     cookieStore.set(CLIENT_ID_COOKIE, newClientId);
-    cookieStore.delete(CLIENT_ID_NEW_COOKIE);
-    return new Response("", { status: 200 });
   } else {
     backgroundTask(clientIdsRepo.ensureClientId({
       clientId: clientId.value,
@@ -45,10 +58,7 @@ export async function POST(req: NextRequest) {
       referrer,
       userId: user?._id,
     }));
-    const cookieStore = await cookies();
-    cookieStore.delete(CLIENT_ID_NEW_COOKIE);
-    return new Response("", {
-      status: 200,
-    });
   }
+  cookieStore.delete(CLIENT_ID_NEW_COOKIE);
+  return new Response("", { status: 200 });
 }

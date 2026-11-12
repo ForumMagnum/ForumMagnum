@@ -23,6 +23,8 @@ const PermanentRedirect = ({url, status}: {
   }, [url, navigate]);
   
   if (isServer) {
+    // Relative URLs are resolved against the request URL by the middleware
+    // (not against siteUrl, which may not match the host/port being served).
     return <StatusCodeSetter status={status ?? 308} redirectTarget={url}/>
   }
 

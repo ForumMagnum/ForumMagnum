@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
 import { CurationNoticesForm } from '@/components/admin/CurationNoticesForm';
@@ -101,7 +101,8 @@ const CurationPostView = ({post, currentUser}: {
         </div>
       </div>
       <div className={classes.postWrapper} key={post._id}>
-        <PostsPageWrapper documentId={post._id} sequenceId={null} embedded />
+        {/* Paging through posts to moderate them is not reading them: don't mark them read for the moderator. */}
+        <PostsPageWrapper documentId={post._id} sequenceId={null} embedded recordView={false} />
       </div>
     </div>
   );

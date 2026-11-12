@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { ZodType, z } from "zod";
 import { combineUrls } from "../vulcan-lib/utils";
 import { fmCrosspostBaseUrlSetting } from "../instanceSettings";
@@ -25,8 +26,8 @@ export class FMCrosspostRoute<
     return `/api/v2/crosspost/${this.config.routeName}`;
   }
 
-  getForeignPath() {
-    const baseUrl = fmCrosspostBaseUrlSetting.get();
+  getForeignPath(forumType: ForumTypeString) {
+    const baseUrl = fmCrosspostBaseUrlSetting.get(forumType);
     if (!baseUrl) {
       throw new Error("Foreign crosspost base URL is not configured");
     }
@@ -35,9 +36,10 @@ export class FMCrosspostRoute<
 
   async makeRequest(
     data: RequestData,
+    forumType: ForumTypeString,
     {foreignRequest}: {foreignRequest?: boolean} = {},
   ): Promise<z.infer<ResponseSchema>> {
-    const path = foreignRequest ? this.getForeignPath() : this.getPath();
+    const path = foreignRequest ? this.getForeignPath(forumType) : this.getPath();
     const parsedData = this.config.requestSchema.parse(data);
     const response = await fetch(path, {
       method: "POST",

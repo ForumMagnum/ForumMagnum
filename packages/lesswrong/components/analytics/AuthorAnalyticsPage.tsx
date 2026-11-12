@@ -8,7 +8,6 @@ import qs from "qs";
 import isEmpty from "lodash/isEmpty";
 import range from "lodash/range";
 import AnalyticsGraph, { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
-import { slugify } from "@/lib/utils/slugify";
 import { capitalize } from "../../lib/vulcan-lib/utils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import SingleColumnSection from "../common/SingleColumnSection";

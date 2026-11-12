@@ -56,7 +56,6 @@ export const graphqlUserQueryTypeDefs = gql`
 
   enum ReviewGroup {
     newContent
-    offboard
     highContext
     maybeSpam
     automod
@@ -96,7 +95,6 @@ export const graphqlUserQueryTypeDefs = gql`
     LWTrustLevel1List: EmptyViewInput
     LWUsersAdmin: EmptyViewInput
     usersWithBannedUsers: EmptyViewInput
-    sunshineNewUsers: EmptyViewInput
     recentlyActive: EmptyViewInput
     allUsers: EmptyViewInput
     usersMapLocations: EmptyViewInput

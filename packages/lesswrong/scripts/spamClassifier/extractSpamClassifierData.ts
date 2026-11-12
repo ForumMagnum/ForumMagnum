@@ -18,8 +18,8 @@ import * as fs from "fs";
  * scoring a *new* user at review time.
  *
  * Usage:
- *   yarn repl dev lw packages/lesswrong/scripts/spamClassifier/extractSpamClassifierData.ts "spamClassifierStats()"
- *   yarn repl dev lw packages/lesswrong/scripts/spamClassifier/extractSpamClassifierData.ts "extractSpamClassifierData('/path/to/out.jsonl')"
+ *   npm run repl -- dev lw packages/lesswrong/scripts/spamClassifier/extractSpamClassifierData.ts "spamClassifierStats()"
+ *   npm run repl -- dev lw packages/lesswrong/scripts/spamClassifier/extractSpamClassifierData.ts "extractSpamClassifierData('/path/to/out.jsonl')"
  */
 
 const DEFAULT_SINCE = "2020-01-01";

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, RefObject, useState, useCallback } from "react";
+import React, { useRef, useEffect, RefObject, useCallback } from "react";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";

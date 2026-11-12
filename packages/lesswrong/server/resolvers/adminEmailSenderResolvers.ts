@@ -361,7 +361,7 @@ export const graphqlMutations = {
     if (!email) throw new Error("User has no email");
 
     const tokenMap = await bulkCreateUnsubscribeAllTokens({ userIds: [user._id] });
-    const unsubscribeUrl = getUnsubscribeAllUrlFromToken(tokenMap[user._id]);
+    const unsubscribeUrl = getUnsubscribeAllUrlFromToken(tokenMap[user._id], context.forumType);
 
     const html = input.html ? input.html.replaceAll("{{unsubscribeUrl}}", unsubscribeUrl) : null;
     const text = input.text ? input.text.replaceAll("{{unsubscribeUrl}}", unsubscribeUrl) : null;
@@ -435,7 +435,7 @@ export const graphqlMutations = {
           const to: string[] = [];
           for (const r of batchRows) {
             const token = tokenByUserId[r.userId];
-            const unsubscribeUrl = getUnsubscribeAllUrlFromToken(token);
+            const unsubscribeUrl = getUnsubscribeAllUrlFromToken(token, context.forumType);
             to.push(r.email);
             recipientVariables[r.email] = { unsubscribeUrl };
           }

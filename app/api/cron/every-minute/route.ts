@@ -1,4 +1,7 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import type { NextRequest } from 'next/server';
+import { checkCronRequestAuthorization } from '@/server/utils/cronAuth';
 import { sendCurationEmails } from '@/server/curationEmails/cron';
 import { testServerSetting } from '@/lib/instanceSettings';
 import { usesCurationEmailsCron } from '@/lib/betas';
@@ -6,20 +9,23 @@ import { dispatchPendingEvents } from '@/server/debouncer';
 import { checkAndSendUpcomingEventEmails } from '@/server/eventReminders';
 import { updateScoreActiveDocuments } from '@/server/votingCron';
 import { getLockOrAbort } from '@/server/utils/advisoryLockUtil';
+import { retryStalledLlmRuns } from '@/server/languageModels/llmRuns';
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response('Unauthorized', { status: 401 });
+  const authError = checkCronRequestAuthorization(request);
+  if (authError) {
+    return authError;
   }
 
-  const isTestServer = testServerSetting.get();
+  const context = createAnonymousContext({ forumType: getForumTypeForRequest(request) });
+
+  const isTestServer = testServerSetting.get(context);
 
   // Run all once-a-minute tasks
   const tasks: Promise<void>[] = [];
 
   // Send curation emails
-  if (!isTestServer && usesCurationEmailsCron()) {
+  if (!isTestServer && usesCurationEmailsCron(context.forumType)) {
     tasks.push(getLockOrAbort('sendCurationEmails', sendCurationEmails));
   }
 
@@ -30,7 +36,11 @@ export async function GET(request: NextRequest) {
 
   // Check upcoming event emails
   if (!isTestServer) {
-    await getLockOrAbort('checkAndSendUpcomingEventEmails', checkAndSendUpcomingEventEmails);
+    await getLockOrAbort('checkAndSendUpcomingEventEmails', checkAndSendUpcomingEventEmails.bind(null, context.forumType));
+  }
+
+  if (!isTestServer) {
+    tasks.push(getLockOrAbort('retryStalledLlmRuns', retryStalledLlmRuns));
   }
 
   // Update score active documents (runs regardless of test server setting)

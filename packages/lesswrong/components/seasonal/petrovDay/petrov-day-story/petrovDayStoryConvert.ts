@@ -77,6 +77,9 @@ function texToHtml(tex: string): string {
   // Comments – strip “% …” to end of line.
   html = html.replace(/^%.*$/gm, "");
 
+  // TeX quotes – ``…'' → “…”
+  html = html.replace(/``/g, "“").replace(/''/g, "”");
+
   // \divider → <hr>
   html = html.replace(/\\divider/g, "<hr />");
 

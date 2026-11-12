@@ -1,15 +1,26 @@
-import cheerio, { type Element } from 'cheerio';
+import cheerio, { load, type Element } from 'cheerio';
 import HtmlLexer from 'html-lexer';
 
 
 /**
- * Parse an HTML string with cheerio. Server-side only. Provides some cheerio
+ * Parse an HTML fragment with cheerio. Server-side only. Provides some cheerio
  * config options, and works around a Typescript annotation problem (which
- * should go away when we version-upgrade Cheerio at some point).
+ * should go away when we version-upgrade Cheerio at some point). This drops any
+ * doctype and <html>, <head> and <body> tags, including their attributes; use
+ * cheerioParseDocument for HTML that a browser will parse as a whole document.
  */
 export function cheerioParse(html: string|null) {
   //@ts-ignore (cheerio type annotations sadly don't quite match the actual imported library)
   return cheerio.load(html ?? "", null, false);
+}
+
+/**
+ * Parse HTML that a browser will parse as a whole document, such as an iframe's
+ * srcdoc. Serializing the result preserves the DOM that the browser would build
+ * from the original, which means a fragment gains <html>, <head> and <body> tags.
+ */
+export function cheerioParseDocument(html: string) {
+  return load(html);
 }
 
 /**

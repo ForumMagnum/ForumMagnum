@@ -10,6 +10,7 @@ import { useUserContentPermissions } from './useUserContentPermissions';
 const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) => ({
   permissionButtonsContainer: {
     display: 'flex',
+    flexWrap: 'wrap',
     gap: 4,
   },
   permissionButton: {
@@ -78,7 +79,7 @@ const ModerationPermissionButtons = ({
         onClick={toggleDisableMessaging}
       >
         <span className={classes.permissionButtonLabel}>Message</span>
-        <KeystrokeDisplay keystroke="M" withMargin activeContext={!!user.conversationsDisabled} />
+        <KeystrokeDisplay keystroke="Shift+M" withMargin splitBeforeTranslation activeContext={!!user.conversationsDisabled} />
       </div>
       <div 
         className={classNames(classes.permissionButton, user.votingDisabled && 'active')}

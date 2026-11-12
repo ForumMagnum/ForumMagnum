@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useMemo } from 'react';
 
 import { getEmbeddedStyleLoaderScript } from "@/components/hooks/embedStyles";
@@ -6,12 +7,16 @@ import { getSsrInjectedGraphqlLoaderScript } from "@/components/hooks/ssrInjecte
 import { toEmbeddableJson } from "@/lib/utils/jsonUtils";
 import { getInstanceSettings } from "@/lib/getInstanceSettings";
 import { globalExternalStylesheets } from "@/themes/globalStyles/externalStyles";
-import { faviconUrlSetting } from '@/lib/instanceSettings';
 
 // These exist as a client component to avoid the RSC rehydration protocol
 // putting them into the initial streamed response chunk twice.
 const SharedScriptsInner = () => {
-  const { public: publicInstanceSettings } = getInstanceSettings();
+  // Include both forums so this bootstrap stays synchronous and independent
+  // of request headers. Setting getters select the forum supplied by callers.
+  const publicInstanceSettings = {
+    LessWrong: getInstanceSettings('LessWrong').public,
+    AlignmentForum: getInstanceSettings('AlignmentForum').public,
+  };
   return (<>
       {globalExternalStylesheets.map(stylesheet => <link key={stylesheet} rel="stylesheet" type="text/css" href={stylesheet}/>)}
       <script dangerouslySetInnerHTML={{__html: `window.publicInstanceSettings = ${toEmbeddableJson(publicInstanceSettings)}`}}/>
@@ -27,7 +32,6 @@ const SharedScriptsInner = () => {
       <script id="jss-insertion-start"/>
       {/*Style tags are dynamically inserted here*/}
       <script id="jss-insertion-end"/>
-      <link rel="icon" href={faviconUrlSetting.get()}/>
   </>)
 };
 

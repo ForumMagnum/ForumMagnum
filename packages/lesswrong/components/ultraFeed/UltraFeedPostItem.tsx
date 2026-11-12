@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -137,8 +138,8 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     },
   },
   title: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontWeight: 600,
+    fontFamily: theme.palette.fonts.serifStack,
+    fontWeight: 500,
     opacity: 0.8,
     lineHeight: 1.15,
     textWrap: 'balance',
@@ -148,7 +149,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       textDecoration: 'none',
       cursor: 'pointer',
     },
-    fontSize: '1.3rem',
+    fontSize: '1.6rem',
     whiteSpace: 'normal',
     [theme.breakpoints.down('sm')]: {
       width: '100%',
@@ -401,6 +402,7 @@ const UltraFeedPostItem = ({
   settings?: UltraFeedSettingsType,
   isHighlightAnimating?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
@@ -609,7 +611,7 @@ const UltraFeedPostItem = ({
             maxWordCount={truncationParams.maxWordCount}
             wordCount={displayWordCount ?? 200}
             continueReadingUrl={postGetPageUrl(post)}
-            nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+            nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get(forumType)}
             onExpand={handleContentExpand}
             hideSuffix={loadingFullPost}
             resetSignal={resetSig}

@@ -19,7 +19,6 @@ import ForumIcon from "../common/ForumIcon";
 import FormatDate from "../common/FormatDate";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
-import { isEAForum } from '@/lib/instanceSettings';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -30,6 +29,14 @@ const SunshineCurationPostsListUpdateMutation = gql(`
       data {
         ...SunshineCurationPostsList
       }
+    }
+  }
+`);
+
+const SetPostSuggestedForCurationMutation = gql(`
+  mutation setPostSuggestedForCurationSunshineCuratedSuggestionsItem($postId: String!, $suggested: Boolean!) {
+    setPostSuggestedForCuration(postId: $postId, suggested: $suggested) {
+      ...SunshineCurationPostsList
     }
   }
 `);
@@ -65,6 +72,7 @@ const SunshineCuratedSuggestionsItem = ({post, setCurationPost}: {
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
   const [updatePost] = useMutation(SunshineCurationPostsListUpdateMutation);
+  const [setPostSuggestedForCuration] = useMutation(SetPostSuggestedForCurationMutation);
 
   const handleDisregardForCurated = () => {
     void updatePost({
@@ -78,33 +86,16 @@ const SunshineCuratedSuggestionsItem = ({post, setCurationPost}: {
   }
 
   const handleSuggestCurated = () => {
-    let suggestUserIds = [...post.suggestForCuratedUserIds ?? []]
-    if (!suggestUserIds.includes(currentUser!._id)) {
-      suggestUserIds.push(currentUser!._id)
-    }
-    void updatePost({
-      variables: {
-        selector: { _id: post._id },
-        data: { suggestForCuratedUserIds: suggestUserIds }
-      }
+    void setPostSuggestedForCuration({
+      variables: { postId: post._id, suggested: true }
     })
   }
 
   const handleUnsuggestCurated = () => {
-    let suggestUserIds = [...post.suggestForCuratedUserIds ?? []]
-    if (suggestUserIds.includes(currentUser!._id)) {
-      suggestUserIds = suggestUserIds.filter(id => id !== currentUser!._id);
-    }
-    void updatePost({
-      variables: {
-        selector: { _id: post._id },
-        data: { suggestForCuratedUserIds: suggestUserIds }
-      }
+    void setPostSuggestedForCuration({
+      variables: { postId: post._id, suggested: false }
     })
   }
-
-  // On the EA Forum, only admins can curate and remove from curation suggestions
-  const canCurate = isEAForum() ? currentUser?.isAdmin : true;
 
   // De-emphasize posts that are 30+ days old
   const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
@@ -165,10 +156,9 @@ const SunshineCuratedSuggestionsItem = ({post, setCurationPost}: {
               <ForumIcon icon="Undo"/>
             </SidebarAction>
           }
-          { canCurate && <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
+          <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
               <ForumIcon icon="Clear"/>
             </SidebarAction>
-          }
         </SidebarActionMenu>}
       </SunshineListItem>
     </span>

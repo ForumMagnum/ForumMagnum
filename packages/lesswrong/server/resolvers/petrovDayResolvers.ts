@@ -37,7 +37,7 @@ export const petrovDayLaunchGraphQLQueries = {
 export const petrovDayLaunchGraphQLMutations = {
   async PetrovDayLaunchMissile(root: void, {launchCode}: {launchCode: string}, context: ResolverContext) {
     const { currentUser } = context
-    if (userCanLaunchPetrovMissile(currentUser)) {
+    if (userCanLaunchPetrovMissile(currentUser, context.forumType)) {
       // TODO: Replace with createPetrovDayLaunch once it's implemented
       const newLaunch = await createPetrovDayLaunch({
         data: {

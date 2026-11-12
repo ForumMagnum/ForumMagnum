@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useTracking } from "../../lib/analyticsEvents";
-import { isEAForum } from '../../lib/instanceSettings';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TabNavigationSubItem from "./TabNavigationMenu/TabNavigationSubItem";
 
@@ -31,12 +30,12 @@ export const SubscribeWidget = () => {
   return (
     <div>
       <a onClick={() => openDialog("rss")} className={classes.root}>
-        <TabNavigationSubItem>{isEAForum() ? "RSS" : "Subscribe (RSS/Email)"}</TabNavigationSubItem>
+        <TabNavigationSubItem>Subscribe (RSS/Email)</TabNavigationSubItem>
       </a>
       { dialogOpen && <SubscribeDialog
         open={true}
         onClose={() => setDialogOpen(false)}
-        view={isEAForum() ? "frontpage" : "curated"}
+        view="curated"
         method={method} /> }
     </div>
   )

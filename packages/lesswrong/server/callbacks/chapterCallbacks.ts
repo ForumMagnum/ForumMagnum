@@ -89,6 +89,6 @@ export async function notifyUsersOfNewPosts({oldDocument, newDocument, context}:
     
     // Don't notify the user who added the post
     subscribedUserIds = context.currentUser?._id ? difference(subscribedUserIds, [context.currentUser._id]) : subscribedUserIds
-    await createNotifications({userIds: subscribedUserIds, notificationType: 'newSequencePosts', documentType: 'sequence', documentId: sequence._id, extraData: {postIds: newPostIds}})
+    await createNotifications({ context, userIds: subscribedUserIds, notificationType: 'newSequencePosts', documentType: 'sequence', documentId: sequence._id, extraData: {postIds: newPostIds}})
   }
 }

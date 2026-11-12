@@ -1,4 +1,5 @@
-import { FLAGGED_FOR_N_DMS, getMaxAllowedContactsBeforeBlock, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from "@/lib/collections/moderatorActions/constants";
+import { userIsApproved } from "@/lib/collections/users/helpers";
+import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from "@/lib/collections/moderatorActions/constants";
 import { loggerConstructor } from '../../lib/utils/logging';
 import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { getAdminTeamAccount } from '../utils/adminTeamAccount';
@@ -38,7 +39,7 @@ export async function flagOrBlockUserOnManyDMs({
   if (!currentUser) {
     throw new Error("You can't create a conversation without being logged in");
   }
-  if (currentUser.reviewedByUserId && !currentUser.snoozedUntilContentCount) {
+  if (userIsApproved(currentUser)) {
     logger('User has been fully approved, ignoring')
     return;
   }
@@ -78,11 +79,11 @@ export async function flagOrBlockUserOnManyDMs({
       usersContactedBeforeReview: allUsersEverContacted,
     },
     selector: { _id: currentUser._id }
-  }, createAnonymousContext()));
+  }, createAnonymousContext({ forumType: context.forumType })));
   
-  if (allUsersEverContacted.length > getMaxAllowedContactsBeforeBlock() && !currentUser.reviewedAt) {
+  if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_BLOCK && !currentUser.reviewedAt) {
     logger('Blocking user')
-    throw new Error(`You cannot message more than ${getMaxAllowedContactsBeforeBlock()} users before your account has been reviewed. Please contact us if you'd like to message more people.`)
+    throw new Error(`You cannot message more than ${MAX_ALLOWED_CONTACTS_BEFORE_BLOCK} users before your account has been reviewed. Please contact us if you'd like to message more people.`)
   }
   
   logger('flagOrBlockUserOnManyDMs() return')
@@ -101,7 +102,7 @@ export async function sendUserLeavingConversationNotication({newDocument, oldDoc
   }
   for (const userId of usersWhoLeft) {
     const leavingUser = (await Users.findOne(userId));
-    const adminAccountContext = computeContextFromUser({ user: adminAccount, isSSR: context.isSSR });
+    const adminAccountContext = computeContextFromUser({ user: adminAccount, isSSR: context.isSSR, forumType: context.forumType });
 
     await createMessage({
       data: {
@@ -140,6 +141,6 @@ export async function conversationEditNotification(
     // Notify newly added users of the most recent message
     const mostRecentMessage = await Messages.findOne({conversationId: conversation._id}, {sort: {createdAt: -1}});
     if (mostRecentMessage) // don't notify if there are no messages, they will still be notified when they receive the first message
-      await createNotifications({userIds: newParticipantIds, notificationType: 'newMessage', documentType: 'message', documentId: mostRecentMessage._id, noEmail: mostRecentMessage.noEmail});
+      await createNotifications({ context, userIds: newParticipantIds, notificationType: 'newMessage', documentType: 'message', documentId: mostRecentMessage._id, noEmail: mostRecentMessage.noEmail});
   }
 }

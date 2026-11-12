@@ -7,7 +7,7 @@ import { PetrovDayPage } from "@/components/seasonal/petrovDay/petrov-day-story/
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('Petrov Day'));
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields('Petrov Day'));
 }
 
 assertRouteAttributes("/petrov/ceremony", {

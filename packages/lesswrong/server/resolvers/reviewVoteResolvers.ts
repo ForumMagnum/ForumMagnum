@@ -1,4 +1,4 @@
-import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { ACCESS_FILTERED, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { Posts } from '../../server/collections/posts/collection'
 import { ReviewVotes } from '../../server/collections/reviewVotes/collection'
 import type { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
@@ -6,7 +6,6 @@ import { REVIEW_YEAR, reviewElectionName } from '../../lib/reviewUtils';
 import { TARGET_REVIEW_VOTING_NUM } from '@/lib/collections/reviewVotes/constants';
 import gql from 'graphql-tag';
 import { createReviewVote, updateReviewVote } from '../collections/reviewVotes/mutations';
-import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 export const reviewVoteGraphQLTypeDefs = gql`
   type GivingSeasonHeart {
@@ -46,7 +45,7 @@ export const reviewVoteGraphQLQueries = {
 }
 
 export const reviewVoteGraphQLMutations = {
-  submitReviewVote: async (root: void, args: { postId: string, qualitativeScore: number, quadraticChange: number, newQuadraticScore: number, comment: string, year: string, dummy: boolean, reactions: string[] }, context: ResolverContext): Promise<DbPost> =>  {
+  submitReviewVote: async (root: void, args: { postId: string, qualitativeScore: number, quadraticChange: number, newQuadraticScore: number, comment: string, year: string, dummy: boolean, reactions: string[] }, context: ResolverContext): Promise<(Partial<DbPost> & { [ACCESS_FILTERED]: true }) | null> =>  {
     const { postId, qualitativeScore, quadraticChange, newQuadraticScore, comment, year, dummy, reactions } = args;
     const { currentUser } = context;
     if (!currentUser) throw new Error("You must be logged in to submit a review vote");
@@ -65,7 +64,7 @@ export const reviewVoteGraphQLMutations = {
       }, context);
       const newPost = await Posts.findOne({_id:postId})
       if (!newPost) throw Error("Can't find post corresponding to Review Vote")
-      return newPost
+      return await accessFilterSingle(currentUser, 'Posts', newPost, context);
     } else {
       // TODO:(Review) this could potentially introduce a race condition where
       // the user does two increments in a row and the second read happens
@@ -88,7 +87,7 @@ export const reviewVoteGraphQLMutations = {
       }, context)
       const newPost = await Posts.findOne({_id:postId})
       if (!newPost) throw Error("Can't find post corresponding to Review Vote")
-      return newPost 
+      return await accessFilterSingle(currentUser, 'Posts', newPost, context);
     }
   },
   AddGivingSeasonHeart: async (

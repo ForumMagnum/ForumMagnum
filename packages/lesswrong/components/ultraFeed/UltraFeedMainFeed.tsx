@@ -5,7 +5,7 @@ import { UltraFeedQuery } from '../common/feeds/feedQueries';
 import { createUltraFeedRenderers } from './renderers/createUltraFeedRenderers';
 import type { UltraFeedSettingsType } from './ultraFeedSettingsTypes';
 import type { FeedType } from './ultraFeedTypes';
-import type { ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
+import type { WatchQueryFetchPolicy } from '@apollo/client';
 import { randomId } from '../../lib/random';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import {
@@ -13,6 +13,7 @@ import {
   UltraFeedDebugHeader,
 } from './UltraFeedDebugItem';
 import type { UltraFeedDebugResult, UltraFeedDebugSortDirection, UltraFeedDebugSortField } from './UltraFeedDebugItem';
+import { useFilterSettings } from '../hooks/useFilterSettings';
 
 const styles = defineStyles("UltraFeedMainFeed", (theme: ThemeType) => ({
   emptyStateMessage: {
@@ -55,6 +56,7 @@ const UltraFeedMainFeed = ({
   const [showEmptyState, setShowEmptyState] = useState(false);
   const [debugSortField, setDebugSortField] = useState<UltraFeedDebugSortField>('score');
   const [debugSortDirection, setDebugSortDirection] = useState<UltraFeedDebugSortDirection>('desc');
+  const { filterSettings } = useFilterSettings();
 
   const handleLoadingStateChange = useCallback((results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => {
     setShowEmptyState(!loading && results.length === 0);
@@ -67,7 +69,8 @@ const UltraFeedMainFeed = ({
       ...settings.resolverSettings,
       debugMode,
     }),
-  }), [actualSessionId, settings, debugMode]);
+    filterSettings,
+  }), [actualSessionId, settings, debugMode, filterSettings]);
 
   const renderers = useMemo(() => createUltraFeedRenderers({ settings, debugMode }), [settings, debugMode]);
   const debugHeader = useMemo(() => debugMode ? (

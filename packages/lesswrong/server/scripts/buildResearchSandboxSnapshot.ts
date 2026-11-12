@@ -112,18 +112,18 @@ async function ensureNodeInstalled(sandbox: Sandbox): Promise<boolean> {
  * time.
  *
  * Intended usage:
- *   yarn repl dev lw packages/lesswrong/server/scripts/buildResearchSandboxSnapshot.ts
- *   yarn repl dev lw packages/lesswrong/server/scripts/buildResearchSandboxSnapshot.ts \
+ *   npm run repl -- dev lw packages/lesswrong/server/scripts/buildResearchSandboxSnapshot.ts
+ *   npm run repl -- dev lw packages/lesswrong/server/scripts/buildResearchSandboxSnapshot.ts \
  *     'buildResearchSandboxSnapshot({ runtime: "node24", noExpire: true })'
  *
- * Run `yarn research-supervisor-build` first to produce the supervisor bundle in
+ * Run `npm run research-supervisor-build` first to produce the supervisor bundle in
  * `sandbox/dist/`. Rebuild a runtime's snapshot whenever the supervisor source,
  * research-tool, or `PINNED_CLAUDE_CODE_VERSION` changes. (Existing sandboxes
  * and saved environments don't need a rebuild for a Claude Code bump — the
  * launch path reconciles their install to the pin — but fresh provisions
  * shouldn't pay that upgrade cost, so keep the baselines current.)
  *
- * Requires Vercel auth in env (via `yarn repl` / `.env.local`: `VERCEL_OIDC_TOKEN`
+ * Requires Vercel auth in env (via `npm run repl` / `.env.local`: `VERCEL_OIDC_TOKEN`
  * from `vercel env pull`, or `VERCEL_TOKEN` + `VERCEL_TEAM_ID` + `VERCEL_PROJECT_ID`).
  */
 export async function buildResearchSandboxSnapshot(args: BuildResearchSandboxSnapshotArgs = {}): Promise<void> {
@@ -132,7 +132,7 @@ export async function buildResearchSandboxSnapshot(args: BuildResearchSandboxSna
 
   if (!fs.existsSync(SUPERVISOR_BUNDLE) || !fs.existsSync(RESEARCH_TOOL_BUNDLE)) {
     throw new Error(
-      `Missing supervisor build artifacts. Run \`yarn research-supervisor-build\` first.\n` +
+      `Missing supervisor build artifacts. Run \`npm run research-supervisor-build\` first.\n` +
       `Expected:\n  ${SUPERVISOR_BUNDLE}\n  ${RESEARCH_TOOL_BUNDLE}`,
     );
   }

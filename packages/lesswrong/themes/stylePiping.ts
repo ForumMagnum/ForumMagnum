@@ -1,9 +1,20 @@
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
+import {
+  EXCALIDRAW_DARK_MODE_FILTER,
+  EXCALIDRAW_DIAGRAM_CLASS,
+  EXCALIDRAW_DIAGRAM_RESIZED_CLASS,
+} from '@/lib/lexical/excalidrawDiagrams';
 
-const hideSpoilers = (theme: ThemeType) => ({
+export const hideSpoilers = (theme: ThemeType) => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
   color: theme.palette.panelBackground.spoilerBlock,
-  '& a, & a:hover, & a:focus, & a::after, & li': {
+  // Keep the insertion cursor visible while the spoiler text is hidden.
+  caretColor: theme.palette.text.spoilerBlockNotice,
+  // Headings, blockquotes, links, etc. set their own text color rather than
+  // inheriting it, so the color has to be forced on every descendant, not just
+  // the container. (In light mode those colors happened to be near-black on the
+  // black block; in dark mode they're white on dark grey.)
+  '& *, & a::after': {
     color: theme.palette.panelBackground.spoilerBlock
   },
   '& code': {
@@ -262,7 +273,9 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
     fontFamily: '"cronos-pro", serif',
     fontSize: 19.1,
     fontWeight: 400,
-    opacity: 0.94,
+    '&:not(:only-child)': {
+      opacity: 0.94,
+    },
     '& h1, & h2, & h3, & h4, & h5, & h6': {
       fontFamily: 'inherit',
     },
@@ -353,6 +366,9 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
       fontWeight: 300,
       letterSpacing: 2.1,
       opacity: 0.6,
+    },
+    '&[data-truncated] > .llm-content-block-content::after, &[data-truncated] > .llm-content-block-content > p:last-child::after': {
+      display: 'none !important',
     },
   },
 });
@@ -497,6 +513,25 @@ const ctaButtonStyles = (theme: ThemeType) => ({
   '& .ck-cta-button-centered': {
     margin: 'auto'
   }
+});
+
+// Diagrams drawn with Excalidraw; see @/lib/lexical/excalidrawDiagrams. Without
+// a width set by the user, they're displayed at their natural size (scaled
+// down if they don't fit). They're stored in light mode, and inverted in dark
+// mode the same way Excalidraw itself does it.
+const excalidrawDiagramStyles = (theme: ThemeType) => ({
+  [`& figure.${EXCALIDRAW_DIAGRAM_CLASS} svg`]: {
+    display: 'inline-block',
+    verticalAlign: 'top',
+    maxWidth: '100%',
+    height: 'auto',
+    ...(theme.dark && {
+      filter: EXCALIDRAW_DARK_MODE_FILTER,
+    }),
+  },
+  [`& figure.${EXCALIDRAW_DIAGRAM_RESIZED_CLASS} svg`]: {
+    width: '100%',
+  },
 });
 
 const baseBodyStyles = (theme: ThemeType) => ({
@@ -680,6 +715,7 @@ const baseBodyStyles = (theme: ThemeType) => ({
     ...theme.typography.caption,
     ...theme.typography.postStyle
   },
+  ...excalidrawDiagramStyles(theme),
   '& ol > li > ol': {
     listStyle: 'lower-alpha',
   },
@@ -806,7 +842,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
     // HACK FIXME: Playing with pointer events is a horrible idea in general, and probably also in this context
     // but it's the only way I was able to make this weird stuff work.
     ...pointerEvents,
-    '& > *:hover ~ .spoiler': {
+    '& > *:hover ~ .spoiler, & > *:hover ~ .spoiler *': {
       color: theme.palette.panelBackground.spoilerBlock,
     },
     '& > *:hover ~ .spoiler:before': {
@@ -816,6 +852,13 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
     '& hr': {
       marginTop: 12,
       marginBottom: 12
+    },
+    // LLM blocks use a slightly larger font in posts, but in comment-style
+    // content they should match the surrounding text. Otherwise the floated
+    // model label is taller than a comment line and displaces two lines.
+    '&& .llm-content-block': {
+      fontSize: 'inherit',
+      margin: 0,
     },
   }
   return commentBodyStyles;
@@ -882,10 +925,12 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '--ck-content-font-color': 'initial',
         '--ck-content-line-height': 'initial',
         '--ck-content-word-break': 'initial',
+        '--ck-content-overflow-wrap': 'initial',
 
         marginLeft: -8,
         '--ck-focus-outer-shadow-geometry': "none",
         '--ck-focus-ring': theme.palette.border.transparent,
+        '--ck-editor-editable-focus-border-color': 'transparent',
         '--ck-focus-outer-shadow': "none",
         '--ck-inner-shadow': "none",
         '& p': {

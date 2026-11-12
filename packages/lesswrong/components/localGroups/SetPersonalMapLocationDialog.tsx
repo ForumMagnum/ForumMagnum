@@ -10,7 +10,6 @@ import { DialogTitle } from "@/components/widgets/DialogTitle";
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { sharedStyles } from './EventNotificationsDialog'
 import { useGoogleMaps } from '../form-components/LocationFormComponent'
-import { isEAForum } from '../../lib/instanceSettings';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
@@ -88,7 +87,7 @@ const SetPersonalMapLocationDialog = ({onClose}: {
             initialValue={label}
           /> : <Loading/>}
         </div>
-        {!isEAForum() && <TextField
+        <TextField
             label={`Description (Make sure to mention whether you want to organize events)}`}
             value={mapText || ""}
             onChange={e => setMapText(e.target.value)}
@@ -96,7 +95,7 @@ const SetPersonalMapLocationDialog = ({onClose}: {
             multiline
             rows={4}
             rowsMax={100}
-          />}
+          />
         <DialogActions className={classes.actions}>
           {currentUser.mapLocation && <a className={classes.removeButton} onClick={()=>{
             void updateCurrentUser({mapLocation: null})

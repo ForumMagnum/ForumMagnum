@@ -111,7 +111,14 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           comment."tagCommentType" AS "commentTagCommentType",
           post."title" AS "postTitle",
           post."slug" AS "postSlug",
-          revision."documentId" AS "revisionTagId"
+          -- Revisions of lenses and summaries belong to MultiDocuments, not
+          -- Tags, so walk up to the tag they're attached to. (A summary can be
+          -- attached to a lens, so this can take two hops.)
+          CASE
+            WHEN revision."collectionName" IS DISTINCT FROM 'MultiDocuments' THEN revision."documentId"
+            WHEN revision_md."collectionName" = 'Tags' THEN revision_md."parentDocumentId"
+            WHEN revision_md_parent."collectionName" = 'Tags' THEN revision_md_parent."parentDocumentId"
+          END AS "revisionTagId"
         FROM (
           SELECT
             "documentId" AS "_id",
@@ -144,6 +151,14 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         LEFT JOIN "Revisions" revision ON (
           v."collectionName" = 'Revisions'
           AND revision._id = v._id
+        )
+        LEFT JOIN "MultiDocuments" revision_md ON (
+          revision."collectionName" = 'MultiDocuments'
+          AND revision_md._id = revision."documentId"
+        )
+        LEFT JOIN "MultiDocuments" revision_md_parent ON (
+          revision_md."collectionName" = 'MultiDocuments'
+          AND revision_md_parent._id = revision_md."parentDocumentId"
         )
         WHERE
           v."scoreChange" ${showNegative ? "<>" : ">"} 0

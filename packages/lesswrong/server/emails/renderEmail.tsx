@@ -2,9 +2,9 @@ import { htmlToText } from 'html-to-text';
 import { sendMailgunEmail } from './sendEmail';
 import React from 'react';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
-import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
+import { forumTitleSetting, type ForumTypeString } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
-import { defaultEmailSetting, enableDevelopmentEmailsSetting } from '../databaseSettings';
+
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { emailTokenTypesByName } from '../emails/emailTokens';
 import { captureException } from '@/lib/sentryWrapper';
@@ -31,7 +31,10 @@ export interface RenderedEmail {
   subject: string,
   html: string,
   text: string,
+  footerRecommendationPostIds: string[],
 }
+
+type BodyLogSummarizer = (email: RenderedEmail) => Record<string, unknown>;
 
 // How many characters to wrap the plain-text version of the email to
 const plainTextWordWrap = 80;
@@ -43,9 +46,9 @@ const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional/
 // handling the top-level table layout; some of it looks like workarounds for
 // specific dysfunctional email clients (like the ".ExternalClass" and
 // ".yshortcuts" entries.)
-const emailGlobalCss = () => `
-  .ReadMsgBody { width: 100%; background-color: #ebebeb;}
-  .ExternalClass {width: 100%; background-color: #ebebeb;}
+const emailGlobalCss = (forumType: ForumTypeString) => `
+  .ReadMsgBody { width: 100%; }
+  .ExternalClass {width: 100%; }
   .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height:100%;}
   body {-webkit-text-size-adjust:none; -ms-text-size-adjust:none;}
   body {margin:0; padding:0;}
@@ -53,9 +56,10 @@ const emailGlobalCss = () => `
   table td {border-collapse:collapse;}
   .yshortcuts a {border-bottom: none !important;}
 
-  /* Constrain email width for small screens */
+  /* Constrain email width for small screens. Gmail and Outlook.com ignore
+     attribute selectors like table[class="container"], so these use classes. */
   @media screen and (max-width: 600px) {
-    table[class="container"] {
+    .container {
       width: 95% !important;
     }
     .wrapper{
@@ -65,7 +69,7 @@ const emailGlobalCss = () => `
 
   /* Give content more room on mobile */
   @media screen and (max-width: 480px) {
-    td[class="container-padding"] {
+    .container-padding {
       padding-left: 12px !important;
       padding-right: 12px !important;
     }
@@ -73,7 +77,7 @@ const emailGlobalCss = () => `
   
   /* Global styles that apply eg inside of posts */
   a {
-    color: ${getForumTheme({name: "default"}).palette.primary.main};
+    color: ${getForumTheme({name: "default"}, forumType).palette.primary.main};
   }
   blockquote {
     border-left: solid 3px #e0e0e0;
@@ -83,16 +87,17 @@ const emailGlobalCss = () => `
   }
 `;
 
-function addEmailBoilerplate({ css, title, body }: {
+function addEmailBoilerplate({ css, title, body, forumType }: {
   css: string,
   title: string,
-  body: string
+  body: string,
+  forumType: ForumTypeString,
 }): string
 {
   return `
     <html lang="en">
     <head>
-      <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8"/>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
       <!-- So that mobile webkit will display zoomed in -->
       <meta name="viewport" content="initial-scale=1.0"/>
       <!-- disable auto telephone linking in iOS -->
@@ -100,7 +105,7 @@ function addEmailBoilerplate({ css, title, body }: {
    
       <title>${title}</title>
       <style>
-        ${emailGlobalCss()}
+        ${emailGlobalCss(forumType)}
         ${css}
       </style>
     </head>
@@ -141,14 +146,13 @@ export async function renderToString(component: React.ReactNode) {
 //     limited and inconsistent subset is supported by mail clients
 //
 
-
 export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate, utmParams, emailContext}: {
   user: DbUser | null,
   to: string,
   from?: string,
   subject: string,
   bodyComponent: React.ReactNode,
-  boilerplateGenerator?: (props: {css: string, title: string, body: string}) => string,
+  boilerplateGenerator?: (props: {css: string, title: string, body: string, forumType: ForumTypeString}) => string,
   utmParams?: Partial<Record<UtmParam, string>>;
   emailContext: EmailContextType,
 }): Promise<RenderedEmail>
@@ -166,7 +170,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   // visited since before that feature was implemented.
   
   const themeOptions: ThemeOptions = {name: "default", siteThemeOverride: {}};
-  const theme = getForumTheme(themeOptions);
+  const theme = getForumTheme(themeOptions, emailContext.resolverContext.forumType);
   
   // Render the REACT tree to an HTML string
   const body = await renderToString(bodyComponent);
@@ -177,11 +181,11 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     stylesUsed: emailContext.stylesUsed,
     theme,
   });
-  const html = boilerplateGenerator({ css, body, title:subject })
+  const html = boilerplateGenerator({ css, body, title:subject, forumType: emailContext.resolverContext.forumType })
   
   // Find any relative links, and convert them to absolute
-  const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl());
-  const htmlWithUtmParams = utmifyForumBacklinks({ html: htmlWithAbsoluteUrls, utmParams, siteUrl: getSiteUrl() });
+  const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl(theme.forumType));
+  const htmlWithUtmParams = utmifyForumBacklinks({ html: htmlWithAbsoluteUrls, utmParams, siteUrl: getSiteUrl(theme.forumType) });
   
   // Since emails can't use <style> tags, only inline styles, use the Juice
   // library to convert accordingly.
@@ -193,12 +197,12 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     wordwrap: plainTextWordWrap
   });
   
-  const fromAddress = from || defaultEmailSetting.get()
+  const fromAddress = from || (process.env.private_defaultEmail ?? "hello@world.com")
   if (!fromAddress) {
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
   }
   
-  const sitename = forumTitleSetting.get();
+  const sitename = forumTitleSetting.get(theme.forumType);
   if (!sitename) {
     throw new Error("No site name configured. Make sure \"title\" is set in your settings.json.");
   }
@@ -208,20 +212,24 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     user,
     to,
     from: fromAddress,
-    subject: isLWorAF() ? taggedSubject : subject,
+    subject: taggedSubject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
+    footerRecommendationPostIds: emailContext.footerRecommendationPostIds,
   }
 }
 
-export async function createEmailContext(user: DbUser|null, resolverContext?: ResolverContext) {
-  const resolverContextWithDefault = resolverContext ?? computeContextFromUser({ user, isSSR: false });
+export async function createEmailContext(user: DbUser|null, forumTypeOrContext: ForumTypeString | ResolverContext): Promise<EmailContextType> {
+  const resolverContextWithDefault = typeof forumTypeOrContext === "string"
+    ? computeContextFromUser({ user, isSSR: false, forumType: forumTypeOrContext })
+    : forumTypeOrContext;
   const currentUser = await runQuery(CurrentUserQuery, {}, resolverContextWithDefault);
 
   return {
     resolverContext: resolverContextWithDefault,
     stylesUsed: new Set<StyleDefinition<string, string>>(),
     currentUser: currentUser.data?.currentUser ?? null,
+    footerRecommendationPostIds: [],
   };
 }
 
@@ -231,18 +239,25 @@ export const wrapAndRenderEmail = async ({
   from,
   subject,
   body,
-  utmParams
+  utmParams,
+  forumType,
+  backgroundColor,
+  includeUnsubscribeFooter = true,
 }: {
+  forumType: ForumTypeString;
   user: DbUser | null;
   to: string;
   from?: string;
   subject: string;
   body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
+  backgroundColor?: string;
+  includeUnsubscribeFooter?: boolean;
 }): Promise<RenderedEmail> => {
-  const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id) : null;
-  
-  const emailContext = await createEmailContext(user);
+  const emailContext = await createEmailContext(user, forumType);
+  const unsubscribeAllLink = user && includeUnsubscribeFooter
+    ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id, emailContext.resolverContext.forumType)
+    : null;
 
   return await generateEmail({
     user,
@@ -252,6 +267,8 @@ export const wrapAndRenderEmail = async ({
     bodyComponent: <EmailWrapper
       unsubscribeAllLink={unsubscribeAllLink}
       emailContext={emailContext}
+      backgroundColor={backgroundColor}
+      includeUnsubscribeFooter={includeUnsubscribeFooter}
     >
       {body(emailContext)}
     </EmailWrapper>,
@@ -267,8 +284,13 @@ export const wrapAndSendEmail = async ({
   from,
   subject,
   body,
-  utmParams
+  utmParams,
+  forumType,
+  backgroundColor,
+  includeUnsubscribeFooter,
+  summarizeBodyForLog,
 }: {
+  forumType: ForumTypeString;
   user: DbUser | null;
   force?: boolean;
   to?: string;
@@ -276,6 +298,13 @@ export const wrapAndSendEmail = async ({
   subject: string;
   body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
+  backgroundColor?: string;
+  includeUnsubscribeFooter?: boolean;
+  /**
+   * The emailSent event stores this in place of the email's html and text. For
+   * high-volume emails whose bodies are too large to store for every recipient.
+   */
+  summarizeBodyForLog?: BodyLogSummarizer;
 }): Promise<boolean> => {
   if (isE2E) {
     return true;
@@ -292,9 +321,9 @@ export const wrapAndSendEmail = async ({
   }
 
   try {
-    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams });
+    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams, forumType, backgroundColor, includeUnsubscribeFooter });
     const succeeded = await sendEmail(email);
-    backgroundTask(logSentEmail(email, user, {succeeded}));
+    backgroundTask(logSentEmail(email, user, {succeeded}, forumType, summarizeBodyForLog));
     return succeeded;
   } catch(e) {
     // eslint-disable-next-line no-console
@@ -306,7 +335,7 @@ export const wrapAndSendEmail = async ({
 
 async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 {
-  if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {
+  if (process.env.NODE_ENV === 'production' || (process.env.private_enableDevelopmentEmails === "true")) {
     console.log("//////// Sending email..."); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
@@ -326,14 +355,14 @@ async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
   }
 }
 
-async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, additionalFields: any) {
-  // Remove the html, which is very large and bloats LWEvents
-  // We still have the text content of the email, which is sufficient for email history
-  const { html, ...emailFields } = renderedEmail;
+async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, additionalFields: any, forumType: ForumTypeString, summarizeBodyForLog?: BodyLogSummarizer) {
+  const { html, text, footerRecommendationPostIds, ...emailFields } = renderedEmail;
+  const loggedBody = summarizeBodyForLog ? summarizeBodyForLog(renderedEmail) : { html, text };
 
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
     ...emailFields,
+    ...loggedBody,
     user: user?._id,
   };
   // Log in LWEvents table
@@ -347,7 +376,7 @@ async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, a
       },
       intercom: false,
     }
-  }, createAnonymousContext())
+  }, createAnonymousContext({ forumType }))
 }
 
 // Returns a string explanation of why we can't send emails to a given user, or

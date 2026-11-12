@@ -1,5 +1,4 @@
 import React from 'react';
-import { isLWorAF } from '@/lib/instanceSettings';
 import { getAllUserGroups, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { FormComponentCheckboxGroup } from '@/components/form-components/FormComponentCheckboxGroup';
 import ExplicitSaveDateSetting from './ExplicitSaveDateSetting';
@@ -40,6 +39,7 @@ const styles = defineStyles('AdminSettingsTab', (theme: ThemeType) => ({
     },
   },
   dangerDone: {
+    marginBottom: 8,
     fontSize: 13,
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.grey[600],
@@ -186,13 +186,11 @@ const AdminSettingsTab = ({
           />
         )}
 
-        {isLWorAF() && userIsAdmin(currentUser) && (
-          <SettingsToggleRow
+        {userIsAdmin(currentUser) && <SettingsToggleRow
             value={settings.hideSunshineSidebar}
             onChange={(value) => void updateSettings({ hideSunshineSidebar: value })}
             label="Hide Sunshine Sidebar"
-          />
-        )}
+          />}
 
         <SettingsToggleRow
           value={settings.viewUnreviewedComments}
@@ -226,21 +224,17 @@ const AdminSettingsTab = ({
 
       <SettingsSection title="Ban & Purge">
         <div className={classes.dangerAction}>
-          {settings.nullifyVotes
-            ? <span className={classes.dangerDone}>This user's past votes have been nullified.</span>
-            : <button type="button" className={classes.dangerButton} onClick={onNullifyVotes}>
-                Nullify all past votes
-              </button>
-          }
+          {settings.nullifyVotes && <div className={classes.dangerDone}>This user's past votes have been nullified.</div>}
+          <button type="button" className={classes.dangerButton} onClick={onNullifyVotes}>
+            {settings.nullifyVotes ? "Nullify all past votes again" : "Nullify all past votes"}
+          </button>
         </div>
 
         <div className={classes.dangerAction}>
-          {settings.deleteContent
-            ? <span className={classes.dangerDone}>This user's content has been deleted.</span>
-            : <button type="button" className={classes.dangerButton} onClick={onDeleteContent}>
-                Delete all user content
-              </button>
-          }
+          {settings.deleteContent && <div className={classes.dangerDone}>This user's content has been deleted.</div>}
+          <button type="button" className={classes.dangerButton} onClick={onDeleteContent}>
+            {settings.deleteContent ? "Delete all user content again" : "Delete all user content"}
+          </button>
         </div>
 
         <ExplicitSaveDateSetting
@@ -274,8 +268,7 @@ const AdminSettingsTab = ({
         </SettingsSection>
       )}
 
-      {isLWorAF() && userIsAdmin(currentUser) && (
-        <SettingsSection title="Prize / Payment Info">
+      {userIsAdmin(currentUser) && <SettingsSection title="Prize / Payment Info">
           <SettingsTextRow
             type="email"
             value={settings.paymentEmail}
@@ -290,8 +283,7 @@ const AdminSettingsTab = ({
             label="PayPal info"
             description="Their PayPal account info for sending small payments"
           />
-        </SettingsSection>
-      )}
+        </SettingsSection>}
 
       <SettingsSection title="Groups & Access">
         {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'realAdmins')) && (

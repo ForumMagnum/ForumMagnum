@@ -24,6 +24,10 @@ const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
   },
   addButton: {
     backgroundColor: theme.palette.panelBackground.default,
+    ...(theme.dark && {
+      backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
+      backdropFilter: theme.palette.filters.bannerAdBlurMedium,
+    }),
     paddingLeft: 10,
     paddingTop: 8,
     paddingBottom: 8,
@@ -32,7 +36,7 @@ const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
     fontWeight: 700,
     marginBottom: 4,
     cursor: "pointer",
-    border: theme.palette.tag.border
+    border: theme.dark ? theme.palette.greyBorder("1px", 0.07) : theme.palette.tag.border
   },
   flexWrapEndGrow: {
     flexGrow: 9999999,
@@ -57,7 +61,7 @@ const TagFilterSettingsInner = ({
 }: {
   filterSettings: FilterSettings,
   suggestedTagsQueryRef: QueryRef<ResultOf<typeof TagBasicInfoMultiQuery>>
-  setPersonalBlogFilter: (filterMode: FilterModeType) => void,
+  setPersonalBlogFilter?: (filterMode: FilterModeType) => void,
   setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterModeType}) => void,
   removeTagFilter: (tagId: string) => void,
   flexWrapEndGrow?: boolean,
@@ -87,7 +91,7 @@ const TagFilterSettingsInner = ({
   
       {/* Combine these two in one div to make sure that there's never a single element on the second row, if there's overflow */}
       <div className={classes.personalAndPlus}>
-        <FilterMode
+        {setPersonalBlogFilter && <FilterMode
           label={personalBlogpostName}
           description={personalBlogpostTooltip}
           mode={filterSettings.personalBlog}
@@ -95,7 +99,7 @@ const TagFilterSettingsInner = ({
           onChangeMode={(mode: FilterModeType) => {
             setPersonalBlogFilter(mode)
           }}
-        />
+        />}
   
         {<LWTooltip title={`Add Wikitag Filter`}>
             <AddTagButton hasTooltip={false} onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
@@ -167,7 +171,7 @@ const TagFilterSettings = ({
 }: {
   filterSettings: FilterSettings,
   suggestedTagsQueryRef: QueryRef<ResultOf<typeof TagBasicInfoMultiQuery>>
-  setPersonalBlogFilter: (filterMode: FilterModeType) => void,
+  setPersonalBlogFilter?: (filterMode: FilterModeType) => void,
   setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterModeType}) => void,
   removeTagFilter: (tagId: string) => void,
   flexWrapEndGrow?: boolean,

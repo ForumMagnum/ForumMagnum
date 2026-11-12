@@ -1,3 +1,5 @@
+import { useForumType } from '@/components/hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React from 'react';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
@@ -95,7 +97,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   }
 }
 
-const getFilters = () => forumSelect(FILTERS_ALL)
+const getFilters = (forumType: ForumTypeString) => forumSelect(FILTERS_ALL, forumType)
 
 const styles = defineStyles('PostsListSettings', (theme: ThemeType) => ({
   root: {
@@ -152,6 +154,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -187,7 +190,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
         <SettingsColumn
           type={'filter'}
           title={'Filtered by:'}
-          options={getFilters()}
+          options={getFilters(forumType)}
           currentOption={currentFilter}
           setSetting={setSetting}
           nofollow

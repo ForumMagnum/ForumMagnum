@@ -2,6 +2,9 @@
  * Typeahead popover container styles
  */
 export const typeaheadPopover = (theme: ThemeType) => ({
+  // Popovers are portaled outside the page's styled content, so they don't
+  // inherit the site font
+  fontFamily: theme.palette.fonts.sansSerifStack,
   background: theme.palette.grey[0],
   boxShadow: `0px 5px 10px ${theme.palette.greyAlpha(0.3)}`,
   borderRadius: 8,
@@ -17,7 +20,10 @@ export const typeaheadList = (theme: ThemeType) => ({
   listStyle: 'none',
   margin: 0,
   borderRadius: 8,
-  maxHeight: 200,
+  // Items are 36px tall (8px padding top and bottom, 20px line height).
+  // The scrollbar is hidden, so cut the last visible item in half to make
+  // it visibly scrollable.
+  maxHeight: 36 * 5.5,
   overflowY: 'scroll' as const,
   // Hide scrollbar
   '&::-webkit-scrollbar': {

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState } from 'react';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
@@ -19,6 +20,24 @@ import ContentStyles from "../../common/ContentStyles";
 import EventTime from "../../localGroups/EventTime";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import LLMScoreBadge from '@/components/sunshineDashboard/supermod/LLMScoreBadge';
+
+const PostLlmScoreQuery = gql(`
+  query PostLlmScorePreview($documentId: String) {
+    post(selector: { documentId: $documentId }) {
+      result {
+        _id
+        automatedContentEvaluations {
+          ...AutomatedContentEvaluationsFragment
+        }
+        contents {
+          _id
+          html
+        }
+      }
+    }
+  }
+`);
 
 const PostWithDialogueMessageQuery = gql(`
   query LWPostsPreviewTooltip1($documentId: String, $dialogueMessageId: String) {
@@ -73,6 +92,13 @@ const highlightStyles = (theme: ThemeType) => ({
   ...highlightSimplifiedStyles
 })
 
+const tooltipInfoStyles = (theme: ThemeType) => ({
+  marginLeft: 2,
+  ...theme.typography.italic,
+  fontSize: "1.1rem",
+  color: theme.palette.grey[600],
+})
+
 const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
   root: {
     width: getPostPreviewWidth(),
@@ -113,10 +139,7 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
     marginBottom: -6,
   },
   tooltipInfo: {
-    marginLeft: 2,
-    ...theme.typography.italic,
-    fontSize: "1.1rem",
-    color: theme.palette.grey[600],
+    ...tooltipInfoStyles(theme),
     display: "flex",
     alignItems: "center",
     // Allow the username child to shrink below its intrinsic width so the
@@ -133,6 +156,10 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
+  eventInfo: {
+    ...tooltipInfoStyles(theme),
+    marginTop: 4,
+  },
   highlight: {
     ...highlightStyles(theme)
   },
@@ -142,6 +169,14 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
   bookmark: {
     marginTop: -4,
     paddingRight: 4
+  },
+  headerActions: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    gap: 8,
+    marginLeft: 8,
+    flexShrink: 0,
   },
   continue: {
     color: theme.palette.grey[500],
@@ -166,9 +201,18 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
   },
 }))
 
-const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageInfo}: PostsPreviewTooltipProps) => {
+const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageInfo, showLlmScore = false}: PostsPreviewTooltipProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false)
+
+  const suppliedLlmScorePost = post && 'automatedContentEvaluations' in post ? post : undefined;
+  const { data: llmScoreData } = useQuery(PostLlmScoreQuery, {
+    variables: { documentId: post?._id },
+    skip: !showLlmScore || !post || !!suppliedLlmScorePost,
+    fetchPolicy: "cache-first",
+  });
+  const llmScorePost = suppliedLlmScorePost ?? llmScoreData?.post?.result;
 
   const { loading, data: dataHighlight } = useQuery(HighlightWithHashQuery, {
     variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, hash },
@@ -210,6 +254,10 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
   if (post.isEvent && post.location) {
     eventLocation = <div>{post.location}</div>
   }
+  const eventInfo = (post.startTime || eventLocation) && <>
+    {post.startTime && <EventTime post={post} />}
+    {eventLocation}
+  </>
 
   const postTags = post.tags?.slice(0,2)
 
@@ -222,26 +270,37 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
             </div>
             <ContentStyles contentType="comment" className={classes.tooltipInfo}>
               { postsList && <span>
-                {post.startTime && <EventTime post={post} />}
-                {eventLocation}
+                {eventInfo}
                 {postTags?.map((tag, i) => <span key={tag?._id}>{tag?.name}{(i !== (postTags?.length - 1)) ? ",  " : ""}</span>)}
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
               { !postsList && <>
                 {post.user && <div className={classes.userAndCoauthors}><PostsUserAndCoauthors post={post}/></div>}
                 <div className={classes.metadata}>
-                  <span className={classes.smallText}>{postGetKarma(post)} karma</span>
-                  <span className={classes.smallText}>{postGetCommentCountStr(post)}</span>
+                  <span className={classes.smallText}>{postGetKarma(post, forumType)} karma</span>
+                  <span className={classes.smallText}>{postGetCommentCountStr(post, forumType)}</span>
                   <span className={classes.smallText}>
                     <FormatDate date={post.postedAt}/>
                   </span>
                 </div>
               </>}
             </ContentStyles>
+            {!postsList && eventInfo && <ContentStyles contentType="comment" className={classes.eventInfo}>
+              {eventInfo}
+            </ContentStyles>}
           </div>
-          { !postsList && <div className={classes.bookmark}>
-            <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked}/>
-          </div>}
+          <div className={showLlmScore ? classes.headerActions : undefined}>
+            {showLlmScore && llmScorePost && <LLMScoreBadge
+              documentId={post._id}
+              automatedContentEvaluations={llmScorePost.automatedContentEvaluations}
+              contentHtml={llmScorePost.contents?.html ?? ''}
+              contentType="Post"
+              showWhenEmpty
+            />}
+            {!postsList && <div className={classes.bookmark}>
+              <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked}/>
+            </div>}
+          </div>
         </div>
         {renderedComment
           ? <div className={classes.comment}>
@@ -278,5 +337,3 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
 }
 
 export default LWPostsPreviewTooltip
-
-

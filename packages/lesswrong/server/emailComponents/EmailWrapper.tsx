@@ -15,19 +15,23 @@ const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-export const EmailWrapper = ({unsubscribeAllLink, emailContext, children}: {
+export const EmailWrapper = ({unsubscribeAllLink, emailContext, backgroundColor, includeUnsubscribeFooter = true, children}: {
   unsubscribeAllLink: string | null,
   emailContext: EmailContextType,
+  backgroundColor?: string,
+  includeUnsubscribeFooter?: boolean,
   children: React.ReactNode,
 }) => {
   const classes = emailUseStyles(styles, emailContext);
-  const accountLink = `${getSiteUrl()}account`
-  const siteNameWithArticle = siteNameWithArticleSetting.get()
+  const accountLink = `${getSiteUrl(emailContext.resolverContext.forumType)}account`
+  const siteNameWithArticle = siteNameWithArticleSetting.get(emailContext.resolverContext)
   
+  const bgcolorProps = backgroundColor ? { bgcolor: backgroundColor } : {};
+
   // Put props for some HTML elements in any-typed objects, because emails use
   // non-HTML5 attributes which the typechecker will complain about
   const bodyProps: any = {
-    bgcolor: "white",
+    ...bgcolorProps,
     leftmargin: "0",
     topmargin: "0",
     marginWidth: "0",
@@ -39,37 +43,36 @@ export const EmailWrapper = ({unsubscribeAllLink, emailContext, children}: {
     height: "100%",
     cellPadding: "0",
     cellSpacing: "0",
-    bgcolor: "#ffffff",
+    ...bgcolorProps,
   };
   const outerTdProps: any = {
     align: "center",
     valign: "top",
-    bgcolor: "#ffffff",
-    style: {"backgroundColor": "#ffffff"},
+    ...bgcolorProps,
+    style: backgroundColor ? {backgroundColor} : undefined,
   };
   const innerTableProps: any = {
     border: "0",
     width: "600",
     cellPadding: "0",
     cellSpacing: "0",
-    bgcolor: "#ffffff",
+    ...bgcolorProps,
   };
   const innerTdProps: any = {
-    bgcolor: "#ffffff",
+    ...bgcolorProps,
   };
   
   return (
     <body {...bodyProps}>
-      <br/>
-
       {/* 100% wrapper */}
       <div className={classes.root}>
         <table {...outerTableProps}>
           <tbody>
             <tr>
               <td className="wrapper" {...outerTdProps}>
+                <br/>
 
-                {/* 600px container (white background) */}
+                {/* 600px container */}
                 <table className="container" {...innerTableProps}>
                   <tbody>
                     <tr>
@@ -78,7 +81,7 @@ export const EmailWrapper = ({unsubscribeAllLink, emailContext, children}: {
                         {children}
                       </td>
                     </tr>
-                    <tr><td className="container-padding">
+                    {includeUnsubscribeFooter && <tr><td className="container-padding">
                       <br/>
                       {unsubscribeAllLink && <>
                         <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
@@ -86,15 +89,15 @@ export const EmailWrapper = ({unsubscribeAllLink, emailContext, children}: {
                         or <a href={accountLink}>Change your notifications settings</a>
                       </>}
                       <br/>
-                    </td></tr>
+                    </td></tr>}
                   </tbody>
                 </table>
+                <br/><br/>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-      <br/><br/>
     </body>
   );
 }

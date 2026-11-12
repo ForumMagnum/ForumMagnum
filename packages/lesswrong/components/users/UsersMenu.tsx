@@ -1,9 +1,9 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { MouseEvent, useContext } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userGetProfileUrl, userCanPost } from '../../lib/collections/users/helpers';
 
-import { Paper, Card }from '@/components/widgets/Paper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import EyeIconCrossed from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import EyeIcon from '@/lib/vendor/@material-ui/icons/src/Visibility';
@@ -15,9 +15,8 @@ import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayA
 import { DisableNoKibitzContext } from '../common/sharedContexts';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isMobile } from '../../lib/utils/isMobile'
-import { isAF, blackBarTitle } from '@/lib/instanceSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import LWPopper from "../common/LWPopper";
+import PopperCard from "../common/PopperCard";
 import LWTooltip from "../common/LWTooltip";
 import ThemePickerMenu from "../themes/ThemePickerMenu";
 import DropdownMenu from "../dropdowns/DropdownMenu";
@@ -103,6 +102,7 @@ const styles = defineStyles('UsersMenu', (theme: ThemeType) => ({
 }))
 
 const UsersMenu = () => {
+  const { isAF, forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
@@ -122,14 +122,14 @@ const UsersMenu = () => {
     </div>
   }
   
-  const showNewButtons = (!isAF() || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
+  const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   const preferredHomeDesignCookie = typeof cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE] === 'string'
     ? cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]
     : null;
   // By default, we show the user's display name as the menu button.
   let userButtonNode = <span className={classes.userButtonContents}>
-    {userGetDisplayName(currentUser)}
+    {userGetDisplayName(currentUser, forumType)}
     {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
       <div>Your account has been deactivated:</div>
       <ul>
@@ -139,7 +139,7 @@ const UsersMenu = () => {
     </div>}>
       <span className={classes.deactivated}>[Deactivated]</span>
     </LWTooltip>}
-    {isAF() && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
+    {isAF && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
   </span>
   
   /** Prevent navigation to your dashboard on mobile, where the only way to open
@@ -164,160 +164,158 @@ const UsersMenu = () => {
           {userButtonNode}
         </Button>
       </Link>
-      <LWPopper
+      <PopperCard
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
       >
-        <Paper>
-          <DropdownMenu>
-            <div
-              onClick={() => {
-                forceUnHover();
-              }}
-            >
-              <div onClick={(ev) => {
-                if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
-                  ev.preventDefault()
-                }
-              }}>
-                {/*
-                  * Creating Quick Takes is currently disabled for unreviewed users
-                  * as there's issues with the new quick takes entry for such users.
-                  * Long-term, we should fix these issues and reenable this option.
-                  */}
-                {(showNewButtons && userCanQuickTake(currentUser)) ? <DropdownItem
-                  title="New Quick Take"
-                  onClick={() => {
-                    openDialog({
-                      name:"NewShortformDialog",
-                      contents: ({onClose}) => <NewShortformDialog onClose={onClose}/>
-                    });
-                  }}
-                /> : null}
-
-                {userCanPost(currentUser) ? <DropdownItem
-                  title="New Post"
-                  to="/newPost"
-                /> : null}
-
-                {tagUserHasSufficientKarma(currentUser, "new") ? (
-                  <NewWikiTagMenu>
-                    <DropdownItem
-                      title={`New Wikitag`}
-                    />
-                  </NewWikiTagMenu>
-                ) : null}
-
-                {userCanPost(currentUser) ? <DropdownItem
-                  title="New Event"
-                  to="/newPost?eventForm=true"
-                /> : null}
-              </div>
-
-              <DropdownDivider />
-
-              {isAF() && !isAfMember &&
-                <DropdownItem
-                  title={"Apply for Membership"}
-                  onClick={() => {
-                    openDialog({
-                      name: "AFApplicationForm",
-                      contents: ({onClose}) => <AFApplicationForm onClose={onClose}/>
-                    })
-                  }}
-                />
+        <DropdownMenu>
+          <div
+            onClick={() => {
+              forceUnHover();
+            }}
+          >
+            <div onClick={(ev) => {
+              if (afNonMemberDisplayInitialPopup(currentUser, openDialog, forumType)) {
+                ev.preventDefault()
               }
-              {currentUser.noKibitz &&
-                <DropdownItem
-                  title={disableNoKibitz
-                    ? "Hide Names"
-                    : "Reveal Names"
-                  }
-                  onClick={() => setDisableNoKibitz(!disableNoKibitz)}
-                  icon={() => disableNoKibitz
-                    ? <EyeIcon className={classes.icon} />
-                    : <EyeIconCrossed className={classes.icon} />
-                  }
-                />
-              }
-
-              {!currentUser.deleted && <DropdownItem
-                title={"User Profile"}
-                to={userGetProfileUrl(currentUser)}
-                icon="User"
-                iconClassName={classes.icon}
-              />}
-              <DropdownItem
-                title={"My Drafts"}
-                to="/drafts"
-                icon="Edit"
-                iconClassName={classes.icon}
-              />
-              <DropdownItem
-                title={"Private Messages"}
-                to="/inbox"
-                icon="Email"
-                iconClassName={classes.icon}
-              />
-              <ThemePickerMenu>
-                <DropdownItem
-                  title="Theme"
-                  onClick={(ev) => {
-                    if (isMobile()) {
-                      ev.stopPropagation();
-                    }
-                  }}
-                  icon="Puzzle"
-                  iconClassName={classes.icon}
-                />
-              </ThemePickerMenu>
-              {hasBookmarks &&<DropdownItem
-                title={"Saved & Read"}
-                to="/bookmarks"
-                icon={"Bookmarks"}
-                iconClassName={classes.icon}
-              />}
-              <DropdownItem
-                title="Account Settings"
-                to="/account?tab=settings-account"
-                icon="Settings"
-                iconClassName={classes.icon}
-              />
-
-              {currentUser.isAdmin && <DropdownItem
-                title="Admin pages"
-                to="/admin"
-              />}
-
+            }}>
               {/*
-                If you're an admin, you can disable your admin + moderator
-                powers and take them back.
-              */}
-              {currentUser.isAdmin && <div className={classes.adminToggleItem}>
-                <DropdownItem
-                  title={"Disable Admin Powers"}
-                  onClick={toggleOff}
-                />
-              </div>}
-              {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <div className={classes.adminToggleItem}>
-                <DropdownItem
-                  title={"Re-enable Admin Powers"}
-                  onClick={toggleOn}
-                />
-              </div>}
+                * Creating Quick Takes is currently disabled for unreviewed users
+                * as there's issues with the new quick takes entry for such users.
+                * Long-term, we should fix these issues and reenable this option.
+                */}
+              {(showNewButtons && userCanQuickTake(currentUser)) ? <DropdownItem
+                title="New Quick Take"
+                onClick={() => {
+                  openDialog({
+                    name:"NewShortformDialog",
+                    contents: ({onClose}) => <NewShortformDialog onClose={onClose}/>
+                  });
+                }}
+              /> : null}
 
-              <DropdownDivider />
+              {userCanPost(currentUser) ? <DropdownItem
+                title="New Post"
+                to="/newPost"
+              /> : null}
 
-              <DropdownItem
-                title={"Log Out"}
-                to="/logout"
-                rawLink
-              />
+              {tagUserHasSufficientKarma(currentUser, "new", forumType) ? (
+                <NewWikiTagMenu>
+                  <DropdownItem
+                    title={`New Wikitag`}
+                  />
+                </NewWikiTagMenu>
+              ) : null}
+
+              {userCanPost(currentUser) ? <DropdownItem
+                title="New Event"
+                to="/newPost?eventForm=true"
+              /> : null}
             </div>
-          </DropdownMenu>
-        </Paper>
-      </LWPopper>
+
+            <DropdownDivider />
+
+            {isAF && !isAfMember &&
+              <DropdownItem
+                title={"Apply for Membership"}
+                onClick={() => {
+                  openDialog({
+                    name: "AFApplicationForm",
+                    contents: ({onClose}) => <AFApplicationForm onClose={onClose}/>
+                  })
+                }}
+              />
+            }
+            {currentUser.noKibitz &&
+              <DropdownItem
+                title={disableNoKibitz
+                  ? "Hide Names"
+                  : "Reveal Names"
+                }
+                onClick={() => setDisableNoKibitz(!disableNoKibitz)}
+                icon={() => disableNoKibitz
+                  ? <EyeIcon className={classes.icon} />
+                  : <EyeIconCrossed className={classes.icon} />
+                }
+              />
+            }
+
+            {!currentUser.deleted && <DropdownItem
+              title={"User Profile"}
+              to={userGetProfileUrl(currentUser)}
+              icon="User"
+              iconClassName={classes.icon}
+            />}
+            <DropdownItem
+              title={"My Drafts"}
+              to="/drafts"
+              icon="Edit"
+              iconClassName={classes.icon}
+            />
+            <DropdownItem
+              title={"Private Messages"}
+              to="/inbox"
+              icon="Email"
+              iconClassName={classes.icon}
+            />
+            <ThemePickerMenu>
+              <DropdownItem
+                title="Theme"
+                onClick={(ev) => {
+                  if (isMobile()) {
+                    ev.stopPropagation();
+                  }
+                }}
+                icon="Puzzle"
+                iconClassName={classes.icon}
+              />
+            </ThemePickerMenu>
+            {hasBookmarks &&<DropdownItem
+              title={"Saved & Read"}
+              to="/bookmarks"
+              icon={"Bookmarks"}
+              iconClassName={classes.icon}
+            />}
+            <DropdownItem
+              title="Account Settings"
+              to="/account?tab=settings-account"
+              icon="Settings"
+              iconClassName={classes.icon}
+            />
+
+            {currentUser.isAdmin && <DropdownItem
+              title="Admin pages"
+              to="/admin"
+            />}
+
+            {/*
+              If you're an admin, you can disable your admin + moderator
+              powers and take them back.
+            */}
+            {currentUser.isAdmin && <div className={classes.adminToggleItem}>
+              <DropdownItem
+                title={"Disable Admin Powers"}
+                onClick={toggleOff}
+              />
+            </div>}
+            {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <div className={classes.adminToggleItem}>
+              <DropdownItem
+                title={"Re-enable Admin Powers"}
+                onClick={toggleOn}
+              />
+            </div>}
+
+            <DropdownDivider />
+
+            <DropdownItem
+              title={"Log Out"}
+              to="/logout"
+              rawLink
+            />
+          </div>
+        </DropdownMenu>
+      </PopperCard>
     </div>
   );
 }

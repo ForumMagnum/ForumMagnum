@@ -35,7 +35,7 @@ async function canMutateParentDocument(user: DbUser | null, multiDocument: DbMul
 
   const { document: parentDocument } = rootDocumentInfo;
   const check = mutation === 'create' ? newTagCheck : editTagCheck;
-  return check(user, parentDocument);
+  return check(user, parentDocument, context.forumType);
 }
 
 function newCheck(user: DbUser | null, multiDocument: CreateMultiDocumentDataInput | null, context: ResolverContext) {

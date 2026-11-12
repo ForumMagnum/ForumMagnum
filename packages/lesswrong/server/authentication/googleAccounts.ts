@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { GoogleUserProfile } from '@/lib/auth/googleOAuth';
 import { Users } from '../collections/users/collection';
 import { createUser, updateUser } from '../collections/users/mutations';
@@ -5,14 +6,22 @@ import { usersFindAllByEmail } from '../commonQueries';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { ConflictingAccountsError, OAuthLoginResult, otherUserHasEmail } from './conflictingAccountsError';
 
-export async function getOrCreateGoogleUser(profile: GoogleUserProfile): Promise<DbUser> {
+export async function getOrCreateGoogleUser(profile: GoogleUserProfile, forumType: ForumTypeString): Promise<OAuthLoginResult> {
   // First, try to find user by Google ID
   const user = await Users.findOne({ 'services.google.id': profile.id });
 
   if (user) {
     // Sync email if changed
     if (profile.email && user.email !== profile.email) {
+      if (await otherUserHasEmail(profile.email, user._id)) {
+        // Another account already has this email, so we can't sync it. Let
+        // the login go through without changing the email, and warn the user.
+        // eslint-disable-next-line no-console
+        console.warn(`Not syncing Google email ${profile.email} to user ${user._id}: another user already has that email`);
+        return { user, conflictingAccounts: true };
+      }
       const updatedUser = await updateUser({
         selector: { _id: user._id },
         data: {
@@ -22,12 +31,12 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile): Promise
             verified: profile.verified_email
           }]
         }
-      }, createAnonymousContext());
+      }, createAnonymousContext({ forumType }));
       
-      return updatedUser;
+      return { user: updatedUser, conflictingAccounts: false };
     }
     
-    return user;
+    return { user, conflictingAccounts: false };
   }
   
   // If we didn't find them by their Google Id, check if there exists a user with this email
@@ -35,7 +44,7 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile): Promise
     const matchingUsers = await usersFindAllByEmail(profile.email);
     
     if (matchingUsers.length > 1) {
-      throw new Error(`Multiple existing users found with email ${profile.email}`);
+      throw new ConflictingAccountsError(`Multiple existing users found with email ${profile.email}`);
     }
     
     if (matchingUsers.length === 1) {
@@ -46,9 +55,9 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile): Promise
       const updatedUser = await updateUser({
         data: { [servicePath]: profile },
         selector: { _id: matchingUser._id },
-      }, createAnonymousContext());
+      }, createAnonymousContext({ forumType }));
       
-      return updatedUser;
+      return { user: updatedUser, conflictingAccounts: false };
     }
 
     // If there's no matching user by email, continue on to create a new user
@@ -73,7 +82,7 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile): Promise
       // this preserves type-checking for the rest of the field assignments.
       ...{ services, emails },
     }
-  }, createAnonymousContext());
+  }, createAnonymousContext({ forumType }));
   
-  return newUser;
+  return { user: newUser, conflictingAccounts: false };
 }

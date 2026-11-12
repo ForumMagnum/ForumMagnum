@@ -1,5 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
-import { hasEventsSetting, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
+import { hasEventsSetting } from '@/lib/instanceSettings';
 import { allowSubscribeToSequencePosts } from '@/lib/betas';
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import KarmaChangeNotifierSettings from '@/components/users/KarmaChangeNotifierSettings';
@@ -18,6 +19,7 @@ const NotificationsSettingsTab = ({
   isCurrentUser,
   fieldWrapperClass,
 }: SettingsTabProps) => {
+  const { isLW, forumType } = useForumType();
   return (
     <div>
       <SettingsSection title="Auto-Subscriptions">
@@ -37,7 +39,7 @@ const NotificationsSettingsTab = ({
           description="Get notified when someone replies to your comments"
         />
 
-        {hasEventsSetting.get() && (
+        {hasEventsSetting.get(forumType) && (
           <SettingsToggleRow
             value={settings.autoSubscribeAsOrganizer}
             onChange={(value) => void updateSettings({ autoSubscribeAsOrganizer: value })}
@@ -91,7 +93,7 @@ const NotificationsSettingsTab = ({
           />
         )}
 
-        {hasEventsSetting.get() && (
+        {hasEventsSetting.get(forumType) && (
           <NotificationSettingsRow
             name="notificationPostsInGroups"
             value={settings.notificationPostsInGroups ?? null}
@@ -104,7 +106,7 @@ const NotificationsSettingsTab = ({
           name="notificationShortformContent"
           value={settings.notificationShortformContent ?? null}
           onChange={(value) => void updateSettings({ notificationShortformContent: value })}
-          label={`${isEAForum() ? "Quick takes" : "Shortform"} by subscribed users`}
+          label="Shortform by subscribed users"
         />
       </SettingsSection>
 
@@ -196,16 +198,14 @@ const NotificationsSettingsTab = ({
           label="New discussions in subscribed topics"
         />
 
-        {isLWorAF() && (
           <NotificationSettingsRow
             name="notificationAlignmentSubmissionApproved"
             value={settings.notificationAlignmentSubmissionApproved ?? null}
             onChange={(value) => void updateSettings({ notificationAlignmentSubmissionApproved: value })}
             label="AF submission approvals"
           />
-        )}
 
-        {hasEventsSetting.get() && (
+        {hasEventsSetting.get(forumType) && (
           <NotificationSettingsRow
             name="notificationEventInRadius"
             value={settings.notificationEventInRadius ?? null}
@@ -214,7 +214,7 @@ const NotificationsSettingsTab = ({
           />
         )}
 
-        {hasEventsSetting.get() && (
+        {hasEventsSetting.get(forumType) && (
           <NotificationSettingsRow
             name="notificationRSVPs"
             value={settings.notificationRSVPs ?? null}
@@ -223,7 +223,7 @@ const NotificationsSettingsTab = ({
           />
         )}
 
-        {hasEventsSetting.get() && (
+        {hasEventsSetting.get(forumType) && (
           <NotificationSettingsRow
             name="notificationGroupAdministration"
             value={settings.notificationGroupAdministration ?? null}
@@ -233,13 +233,15 @@ const NotificationsSettingsTab = ({
         )}
       </SettingsSection>
 
-      <SettingsSection title="Karma & Voting">
+      {/* Only readable by the user themself and admins, so null when a
+          moderator is viewing someone else's settings */}
+      {settings.karmaChangeNotifierSettings && <SettingsSection title="Karma & Voting">
         <HighlightableField name="karmaChangeNotifierSettings">
           <div className={fieldWrapperClass}>
             <KarmaChangeNotifierSettings field={bind('karmaChangeNotifierSettings')} />
           </div>
         </HighlightableField>
-      </SettingsSection>
+      </SettingsSection>}
 
       <SettingsSection title="Emails">
         {/* Operates on the logged-in user's own verification state, so hide it
@@ -248,12 +250,22 @@ const NotificationsSettingsTab = ({
           <UsersEmailVerification />
         </div>}
 
-        {isLW() && <div className={fieldWrapperClass}>
-          <EmailConfirmationRequiredCheckbox
-            field={bind('emailSubscribedToCurated')}
-            label="Email me new posts in Curated"
-          />
-        </div>}
+        {isLW && <>
+          <div className={fieldWrapperClass}>
+            <EmailConfirmationRequiredCheckbox
+              field={bind('emailSubscribedToCurated')}
+              label="Email me new posts in Curated"
+            />
+          </div>
+
+          {settings.isAdmin && <div className={fieldWrapperClass}>
+            <EmailConfirmationRequiredCheckbox
+              field={bind('emailSubscribedToAiDigest')}
+              label="Email me Content for You, an AI-personalized digest"
+            />
+          </div>}
+        </>}
+
 
         <SettingsToggleRow
           value={settings.unsubscribeFromAll}

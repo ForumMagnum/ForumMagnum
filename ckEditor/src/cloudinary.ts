@@ -1,5 +1,4 @@
-import type { Editor } from "@ckeditor/ckeditor5-core";
-import type { UploadAdapter, FileLoader, UploadResponse } from "@ckeditor/ckeditor5-upload";
+import type { Editor, UploadAdapter, FileLoader, UploadResponse } from 'ckeditor5';
 
 export type CloudinaryCkEditorPluginConfig = {
   getCloudName: () => string,

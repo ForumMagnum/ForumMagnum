@@ -2,7 +2,6 @@ import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
-import type { Hit } from 'react-instantsearch-core';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import { SearchHitComponentProps } from './types';
 import MetaInfo from "../common/MetaInfo";

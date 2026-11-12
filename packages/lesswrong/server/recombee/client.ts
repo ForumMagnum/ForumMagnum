@@ -1,3 +1,4 @@
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { ApiClient, BatchResponse, Recommendation, RecommendationResponse, requests, errors } from 'recombee-api-client';
 import { HybridArmsConfig, HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
@@ -16,7 +17,7 @@ import { captureException } from '@/lib/sentryWrapper';
 import { randomId } from '../../lib/random';
 import { fetchFragmentSingle } from '../fetchFragment';
 import { createAdminContext } from '../vulcan-lib/createContexts';
-import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
+import { classifyTagFilters, FilterSettings, filterModeToMultiplicativeKarmaModifier, getDefaultFilterSettings } from '@/lib/filterSettings';
 import { PostsViews } from '@/lib/collections/posts/views';
 import { RevisionHTML } from '@/lib/collections/revisions/fragments';
 import type { RecommendedPost, RecombeeRecommendedPost, NativeRecommendedPost } from '@/lib/recombee/types';
@@ -24,12 +25,13 @@ import { backgroundTask } from '../utils/backgroundTask';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 
 export const getRecombeeClientOrThrow = (() => {
-  let client: ApiClient;
+  const clients = new Map<ForumTypeString, ApiClient>();
 
-  return () => {
+  return (forumType: ForumTypeString) => {
+    let client = clients.get(forumType);
     if (!client) {
-      const databaseId = recombeeDatabaseIdSetting.get();
-      const apiToken = recombeePrivateApiTokenSetting.get();
+      const databaseId = recombeeDatabaseIdSetting.get(forumType);
+      const apiToken = recombeePrivateApiTokenSetting.get(forumType);
 
       if (!databaseId || !apiToken) {
         throw new Error('Missing either databaseId or api token when initializing Recombee client!');
@@ -37,6 +39,7 @@ export const getRecombeeClientOrThrow = (() => {
       
       // TODO - pull out client options like region to db settings?
       client = new ApiClient(databaseId, apiToken, { region: 'us-west' });
+      clients.set(forumType, client);
     }
 
     return client;
@@ -85,6 +88,26 @@ interface UpsertPostData<FieldMask extends PostFieldDependencies[keyof PostField
 }
 
 type RecRequest = requests.RecommendNextItems | requests.RecommendItemsToUser;
+
+interface RecombeeTagFilterExpressions {
+  filter?: string,
+  booster?: string,
+}
+
+const toReqlStringLiteral = (value: string): string => {
+  if (value.includes('\\')) {
+    throw new Error(`ReQL string escaping for backslashes is undocumented; can't build a literal for: ${value}`);
+  }
+  return `"${value.replace(/"/g, '\\"')}"`;
+};
+
+const combineReqlExpressions = (expressions: Array<string | undefined>, operator: 'and' | '*'): string | undefined => {
+  const presentExpressions = filterNonnull(expressions);
+  if (presentExpressions.length === 0) {
+    return undefined;
+  }
+  return presentExpressions.map(expression => `(${expression})`).join(` ${operator} `);
+};
 
 interface DatedRec extends Recommendation {
   generatedAt?: Date;
@@ -240,6 +263,43 @@ const helpers = {
     });
   },
 
+  getFilterSettings(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, context: ResolverContext): FilterSettings {
+    return lwAlgoSettings.filterSettings ?? context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(context.forumType);
+  },
+
+  /**
+   * Recombee items store tag names, not IDs, in their 'tags' property. Only
+   * multiplicative modifiers (eg "Reduced") become boosters, because additive
+   * karma modifiers have no equivalent on Recombee's relevance scale.
+   */
+  async getTagFilterExpressions(filterSettings: FilterSettings, context: ResolverContext): Promise<RecombeeTagFilterExpressions> {
+    const { required, hidden, softFiltered } = classifyTagFilters(filterSettings.tags, context.forumType);
+    const boostedTags = softFiltered
+      .map(tag => ({ tagId: tag.tagId, multiplier: filterModeToMultiplicativeKarmaModifier(tag.filterMode) }))
+      .filter(({ multiplier }) => multiplier !== 1);
+
+    const tagIds = uniq([...required, ...hidden, ...boostedTags].map(({ tagId }) => tagId));
+    const tags = await loadByIds(context, 'Tags', tagIds);
+    const tagNameLiteralsById = new Map(tagIds.map((tagId, index) => {
+      const tag = tags[index];
+      if (!tag) {
+        throw new Error(`Tag filter references nonexistent tag ${tagId}`);
+      }
+      return [tagId, toReqlStringLiteral(tag.name)];
+    }));
+
+    const filter = combineReqlExpressions([
+      ...required.map(({ tagId }) => `${tagNameLiteralsById.get(tagId)} in 'tags'`),
+      ...hidden.map(({ tagId }) => `${tagNameLiteralsById.get(tagId)} not in 'tags'`),
+    ], 'and');
+    const booster = combineReqlExpressions(
+      boostedTags.map(({ tagId, multiplier }) => `if ${tagNameLiteralsById.get(tagId)} in 'tags' then ${multiplier} else 1`),
+      '*'
+    );
+
+    return { filter, booster };
+  },
+
   async getOnsitePostInfo(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, context: ResolverContext, skipOnLoadMore = true): Promise<OnsitePostRecommendationsInfo> {
     if (helpers.isLoadMoreOperation(lwAlgoSettings) && skipOnLoadMore) {
       return {
@@ -249,8 +309,7 @@ const helpers = {
       };
     }
 
-    const filterSettings: FilterSettings = lwAlgoSettings.filterSettings ?? context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
-    const filteredStickiedPostTerms = { ...stickiedPostTerms, filterSettings };
+    const filteredStickiedPostTerms = { ...stickiedPostTerms, filterSettings: helpers.getFilterSettings(lwAlgoSettings, context) };
 
     const postPromises = [curatedPostTerms, filteredStickiedPostTerms]
       .map(terms => viewTermsToQuery(PostsViews, terms, undefined, context)
@@ -259,7 +318,7 @@ const helpers = {
     const [curatedPosts, stickiedPosts] = await Promise.all(postPromises);
 
     const curatedPostIds = curatedPosts.map(post => post._id);
-    const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get();
+    const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get(context);
     const stickiedPostIds = [...manuallyStickiedPostIds, ...stickiedPosts.map(post => post._id)];
     const staleRecPostIds = 'excludedPostIds' in lwAlgoSettings ? lwAlgoSettings.excludedPostIds ?? [] : [];
     const userHiddenPostsIds = context.currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
@@ -346,7 +405,7 @@ const helpers = {
     const excludedAndHiddenPostIds = [...excludedPostIds, ...hiddenPostIds];
     // Unfortunately, passing in an empty array translates to something like `NOT (_id IN (SELECT NULL::VARCHAR(27)))`, which filters out everything
     const notPostIdsArg = excludedAndHiddenPostIds.length ? { notPostIds: excludedAndHiddenPostIds } : {};
-    const filterSettings: FilterSettings = context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
+    const filterSettings: FilterSettings = context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(context.forumType);
     const ninetyDaysAgo = new Date(new Date().getTime() - (90*24*60*60*1000));
 
     const postsTerms: PostsViewTerms = {
@@ -375,12 +434,12 @@ const helpers = {
   },
 
   getManuallyStickiedPostsReadStatuses(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, recombeeUser: RecombeeUser, context: ResolverContext) {
-    const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get();
+    const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get(context);
     return helpers.getReadStatuses(lwAlgoSettings, manuallyStickiedPostIds, recombeeUser, context);
   },
 
   async getUnreadAboutPostId(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, recombeeUser: RecombeeUser, context: ResolverContext): Promise<[string] | []> {
-    const aboutPostId = aboutPostIdSetting.get();
+    const aboutPostId = aboutPostIdSetting.get(context);
     const [aboutPageReadStatus] = await helpers.getReadStatuses(lwAlgoSettings, [aboutPostId], recombeeUser, context);
     return aboutPageReadStatus ? [] : [aboutPostId];
   },
@@ -406,8 +465,8 @@ const helpers = {
     }
   },
 
-  sendRecRequestWithPerfMetrics<T extends RecRequest>(recRequest: T, batch: boolean, backfill = false) {
-    const client = getRecombeeClientOrThrow();
+  sendRecRequestWithPerfMetrics<T extends RecRequest>(recRequest: T, batch: boolean, forumType: ForumTypeString, backfill = false) {
+    const client = getRecombeeClientOrThrow(forumType);
     
     return wrapWithPerfMetric(
       () => client.send(recRequest).catch(helpers.handleRecombeeError) as Promise<RecommendationResponse | null>,
@@ -418,9 +477,9 @@ const helpers = {
   backfillRecommendationsCache(userId: string, scenario: string, recResponse: RecommendationResponse, context: ResolverContext) {
     const createdAt = new Date();
     const attributionId = recResponse.recommId;
-    const ttlMs = recombeeCacheTtlMsSetting.get();
+    const ttlMs = recombeeCacheTtlMsSetting.get(context);
 
-    backgroundTask(context.RecommendationsCaches.rawInsertMany(
+    backgroundTask(context.repos.recommendationsCaches.insertRecommendations(
       recResponse.recomms.map((rec) => ({
         _id: randomId(),
         userId,
@@ -438,7 +497,7 @@ const helpers = {
 
   async getCachedRecommendations({ recRequest, scenario, batch, skipCache, context }: GetCachedRecommendationsArgs): Promise<RecResponse[]> {
     if (recRequest instanceof requests.RecommendNextItems || skipCache) {
-      const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest, batch);
+      const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest, batch, context.forumType);
       if (!recResponse) {
         return [];
       }
@@ -456,7 +515,7 @@ const helpers = {
 
     let formattedRecommendations: RecResponse[]; 
     if (unexpiredRecommendations.length <= (count / 2)) {
-      const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest, batch);
+      const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest, batch, context.forumType);
       if (!recResponse) {
         formattedRecommendations = [];
       } else {
@@ -479,7 +538,7 @@ const helpers = {
     }
 
     backgroundTask(helpers
-      .sendRecRequestWithPerfMetrics(recRequest, batch, true)
+      .sendRecRequestWithPerfMetrics(recRequest, batch, context.forumType, true)
       .then((recResponse) => recResponse && helpers.backfillRecommendationsCache(userId, scenario, recResponse, context))
     );
 
@@ -580,7 +639,12 @@ const recombeeApi = {
       return [];
     }
 
-    const recommendationsRequestBody = helpers.createRecommendationsForUserRequest(recombeeUser, modifiedCount, { ...lwAlgoSettings, filter: excludedPostFilter });
+    const tagFilterExpressions = await helpers.getTagFilterExpressions(helpers.getFilterSettings(lwAlgoSettings, context), context);
+    const recommendationsRequestBody = helpers.createRecommendationsForUserRequest(recombeeUser, modifiedCount, {
+      ...lwAlgoSettings,
+      filter: combineReqlExpressions([excludedPostFilter, tagFilterExpressions.filter], 'and'),
+      booster: combineReqlExpressions([lwAlgoSettings.booster, tagFilterExpressions.booster], '*'),
+    });
 
     const [recombeeResponseWithScenario] = await helpers.getCachedRecommendations({
       recRequest: recommendationsRequestBody,
@@ -599,7 +663,8 @@ const recombeeApi = {
     const recommendedPostIds = recomms.map(({ id }) => id);
     const postIds = [...includedTopOfListPostIds, ...recommendedPostIds];
 
-    const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
+    // Rejected posts can still be in Recombee (and pass the access filter), since rejecting a post doesn't update Recombee
+    const posts = filterNonnull(await loadByIds(context, 'Posts', postIds)).filter(post => !post.rejected);
     const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', posts, context)
 
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recsWithMetadata, curatedPostIds, stickiedPostIds }));
@@ -608,7 +673,7 @@ const recombeeApi = {
   },
 
   async getHybridRecommendationsForUser(recombeeUser: RecombeeUser, count: number, lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext) {
-    const client = getRecombeeClientOrThrow();
+    const client = getRecombeeClientOrThrow(context.forumType);
 
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
 
@@ -700,7 +765,9 @@ const recombeeApi = {
       loadByIds(context, 'Posts', postIds)
         .then(filterNonnull)
         .then(posts => postIds.map(id => posts.find(post => post._id === id)))
-        .then(filterNonnull),
+        .then(filterNonnull)
+        // Rejected posts can still be in Recombee (and pass the access filter), since rejecting a post doesn't update Recombee
+        .then(posts => posts.filter(post => !post.rejected)),
       // Here is where we get the results of the non-awaited request for latest posts
       // Hopefully we don't actually need to wait at all, since the recombee call + fetching all the other posts from the DB should take longer than this request
       // In the case we're making a batch request to recombee, we don't launch the request at the top, since we're only using it as a fallback in case recombee returns an error
@@ -717,8 +784,8 @@ const recombeeApi = {
     const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', [...orderedPosts, ...topDeferredPosts], context);
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recsWithMetadata, stickiedPostIds, curatedPostIds }));
 
-    const topOfListPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !!(result.post._id === aboutPostIdSetting.get() || result.curated || result.stickied));
-    const nativeRecommendedPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !(result.post._id === aboutPostIdSetting.get() || result.curated || result.stickied || result.recommId));
+    const topOfListPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !!(result.post._id === aboutPostIdSetting.get(context) || result.curated || result.stickied));
+    const nativeRecommendedPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !(result.post._id === aboutPostIdSetting.get(context) || result.curated || result.stickied || result.recommId));
     const recombeeRecommendedPosts = postsWithMetadata.filter((result): result is RecombeeRecommendedPost => !!result.recommId);
 
     const interleavedRecommendedPosts = helpers.interleaveHybridRecommendedPosts([...nativeRecommendedPosts, ...recombeeRecommendedPosts]);
@@ -727,8 +794,8 @@ const recombeeApi = {
   },
 
   async upsertPost(post: DbPost, context: ResolverContext) {
-    if (!isRecombeeRecommendablePost(post)) return;
-    const client = getRecombeeClientOrThrow();
+    if (!isRecombeeRecommendablePost(post, context.forumType)) return;
+    const client = getRecombeeClientOrThrow(context.forumType);
 
     const contents = await fetchFragmentSingle({
       collectionName: "Revisions",
@@ -750,8 +817,8 @@ const recombeeApi = {
     await client.send(request).catch(helpers.handleRecombeeError);
   },
 
-  async createReadStatus(readStatus: DbReadStatus) {
-    const client = getRecombeeClientOrThrow();
+  async createReadStatus(readStatus: DbReadStatus, forumType: ForumTypeString) {
+    const client = getRecombeeClientOrThrow(forumType);
     const request = helpers.createReadStatusRequest(readStatus);
     if (!request) {
       return;
@@ -760,8 +827,8 @@ const recombeeApi = {
     await client.send(request).catch(helpers.handleRecombeeError);
   },
 
-  async createVote(vote: DbVote) {
-    const client = getRecombeeClientOrThrow();
+  async createVote(vote: DbVote, forumType: ForumTypeString) {
+    const client = getRecombeeClientOrThrow(forumType);
     const request = helpers.createVoteRequest(vote);
     if (!request) {
       return;
@@ -770,8 +837,8 @@ const recombeeApi = {
     await client.send(request).catch(helpers.handleRecombeeError);
   },
 
-  async createUser(user: DbUser) {
-    const client = getRecombeeClientOrThrow();
+  async createUser(user: DbUser, forumType: ForumTypeString) {
+    const client = getRecombeeClientOrThrow(forumType);
     const request = helpers.createUpsertUserDetailsRequest(user);
     await client.send(request).catch(helpers.handleRecombeeError);
   },
@@ -780,15 +847,15 @@ const recombeeApi = {
    * Primarily for admin use; you'll need to modify the query that returns the relevant postIds if you want something different
    */
   async listPosts() {
-    const client = getRecombeeClientOrThrow();
-    const context = createAdminContext();
+    const context = createAdminContext({ forumType: "LessWrong" });
+    const client = getRecombeeClientOrThrow(context.forumType);
     const postIds = (await context.Posts.find({ unlisted: true }, undefined, { _id: 1 }).fetch()).map(({ _id }) => _id);
     const request = helpers.createListPostsRequest(postIds);
     return await client.send(request).catch(helpers.handleRecombeeError);
   },
 
-  async deletePosts(postIds: string[]) {
-    const client = getRecombeeClientOrThrow();
+  async deletePosts(postIds: string[], forumType: ForumTypeString) {
+    const client = getRecombeeClientOrThrow(forumType);
     const request = helpers.createDeletePostsRequest(postIds);
     return await client.send(request).catch(helpers.handleRecombeeError);
   },

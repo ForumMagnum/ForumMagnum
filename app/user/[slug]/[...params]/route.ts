@@ -1,5 +1,6 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import Users from "@/server/collections/users/collection";
-import { userGetProfileUrl } from "@/lib/collections/users/helpers";
+import { userGetAbsoluteProfileUrl } from "@/lib/collections/users/helpers";
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
 
@@ -26,7 +27,7 @@ export async function GET(
     
   if (user) {
     // Redirect to the user's profile page
-    redirect(userGetProfileUrl(user, true));
+    redirect(userGetAbsoluteProfileUrl(user, getForumTypeForRequest(req)));
   } else {
     //eslint-disable-next-line no-console
     console.log('// Missing legacy user', { slug, additionalParams });

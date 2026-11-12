@@ -1,3 +1,4 @@
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import Users from '../../server/collections/users/collection';
 import { urlIsBroken } from './utils'
 import { Parser } from 'htmlparser2';
@@ -116,7 +117,7 @@ const checkPost = async (post: FetchedFragment<PostsPage, 'Posts'>) => {
   }
 };
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl"
 export const findBrokenLinks = async (
   startDate: Date, endDate: Date,
   output: string|((message: string) => void)
@@ -146,6 +147,7 @@ export const findBrokenLinks = async (
     }};
   }
   const postsToCheck = await fetchFragment({
+    context: computeContextFromUser({ user: null, isSSR: false, forumType: "LessWrong" }),
     collectionName: "Posts",
     fragmentDoc: PostsPage,
     selector: filter,

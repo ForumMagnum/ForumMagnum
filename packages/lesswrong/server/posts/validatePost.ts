@@ -6,7 +6,7 @@ registerCollectionValidator({
   collection: Posts,
   name: "Canonical sequence contains post",
   validateBatch: async (documents: DbPost[], recordError: (field: string, message: string) => void) => {
-    const context = createAdminContext();
+    const context = createAdminContext({ forumType: "LessWrong" });
     for (let post of documents) {
       // If the post has a canonicalSequenceId, make sure that sequence contains the post
       if (post.canonicalSequenceId) {

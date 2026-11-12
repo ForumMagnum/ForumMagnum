@@ -1,7 +1,5 @@
 import React from 'react';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 
 import classNames from 'classnames';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
@@ -9,9 +7,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
 import { useRecentDiscussionViewTracking } from './useRecentDiscussionViewTracking';

@@ -9,12 +9,13 @@ import ConversationsRepo from "./ConversationsRepo";
 import CurationEmailsRepo from "./CurationEmailsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
+import FieldChangesRepo from "./FieldChangesRepo";
 import HomePageDesignsRepo from "./HomePageDesignsRepo";
 import JargonTermsRepo from "./JargonTermsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
+import LlmRunsRepo from "./LlmRunsRepo";
 import LWEventsRepo from "./LWEventsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
-import NotificationsRepo from "./NotificationsRepo";
 import OAuthAuthorizationCodesRepo from "./OAuthAuthorizationCodesRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
@@ -60,12 +61,13 @@ const allRepos = {
   curationEmails: CurationEmailsRepo,
   databaseMetadata: DatabaseMetadataRepo,
   debouncerEvents: DebouncerEventsRepo,
+  fieldChanges: FieldChangesRepo,
   homePageDesigns: HomePageDesignsRepo,
   jargonTerms: JargonTermsRepo,
+  llmRuns: LlmRunsRepo,
   localgroups: LocalgroupsRepo,
   lwEvents: LWEventsRepo,
   manifoldProbabilitiesCachesRepo: ManifoldProbabilitiesCachesRepo,
-  notifications: NotificationsRepo,
   oAuthAuthorizationCodes: OAuthAuthorizationCodesRepo,
   postEmbeddings: PostEmbeddingsRepo,
   postRecommendations: PostRecommendationsRepo,

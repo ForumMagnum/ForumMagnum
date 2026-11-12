@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, useState, useCallback, useEffect } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -5,7 +6,7 @@ import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { useTracking } from '../../lib/analyticsEvents';
-import { truncateWithGrace } from '../../lib/editor/ellipsize';
+import { splitOutStyleElements, truncateWithGrace } from '../../lib/editor/ellipsize';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import ContentStyles from "../common/ContentStyles";
@@ -72,6 +73,7 @@ const FeedPostHighlightBody = ({
   expandedLoading: boolean,
   expandedDocument?: PostsExpandedHighlight,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { htmlHighlight = "", wordCount = 0 } = post.contents ?? {};
 
@@ -92,7 +94,7 @@ const FeedPostHighlightBody = ({
   const rawWordCount = wordCount ?? 0;
   const readMoreId = `feed-post-read-more-${post._id}`;
 
-  const styleNodes = html.match(/<style[\s\S]*?<\/style>/g) ?? ""
+  const styleNodes = splitOutStyleElements(html).styles.join("")
   const suffix = expanded ? undefined : `... <span id="${readMoreId}" class="read-more-button">(read more)</span>${styleNodes}`
 
   useEffect(() => {
@@ -109,7 +111,7 @@ const FeedPostHighlightBody = ({
     <ContentItemBody
       dangerouslySetInnerHTML={{__html: truncatedHtml}}
       description={`post ${post._id}`}
-      nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
+      nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get(forumType)}
       className={classNames({[classes.expandedTextBody]: expanded, [classes.maxHeight]: !expanded})}
     />
     {expanded && wasTruncated && <TruncatedSuffix

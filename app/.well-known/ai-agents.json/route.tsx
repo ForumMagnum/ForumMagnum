@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { siteNameWithArticleSetting, taglineSetting } from "@/lib/instanceSettings";
 import { NextRequest, NextResponse } from "next/server";
 import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
@@ -10,10 +11,11 @@ import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
  * documentationUrl that points to SKILL.md, which is the real documentation.
  */
 export async function GET(req: NextRequest) {
+  const forumType = getForumTypeForRequest(req);
   const siteUrl = getSiteUrlFromReq(req);
   return NextResponse.json({
-    name: siteNameWithArticleSetting.get(),
-    description: taglineSetting.get(),
+    name: siteNameWithArticleSetting.get(forumType),
+    description: taglineSetting.get(forumType),
     url: siteUrl,
     documentationUrl: `${siteUrl}/api/SKILL.md`,
   });

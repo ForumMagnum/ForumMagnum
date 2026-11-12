@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useForumType } from '@/components/hooks/useForumType';
+import React, { useEffect, useState } from 'react';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import {useCurrentUser} from "../common/withUser";
 import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { isEAForum, isLW } from '../../lib/instanceSettings';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
-import type { Editor } from '@ckeditor/ckeditor5-core';
+import type { Editor } from 'ckeditor5';
 import DeferRender from '../common/DeferRender';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -16,32 +16,25 @@ import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
 import Error404 from "../common/Error404";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
-import PostsAcceptTos from "./PostsAcceptTos";
 import ForeignCrosspostEditForm from "./ForeignCrosspostEditForm";
 import RateLimitWarning from "../editor/RateLimitWarning";
 import PostForm from "./PostForm";
 import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
 import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
-import NewPostHowToGuides from "./NewPostHowToGuides";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { PostsEditFormQuery } from './queries';
+import { getPageTitleString } from '@/lib/pageTitle';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { usePathname } from 'next/navigation';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
-import {
-  SHARE_POPUP_QUERY_PARAM,
-  CENTRAL_COLUMN_WIDTH,
-  RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
-  RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
-  RIGHT_COLUMN_WIDTH_XS,
-  sidenotesHiddenBreakpoint,
-} from './PostsPage/constants';
+import { CENTRAL_COLUMN_WIDTH, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, sidenotesHiddenBreakpoint } from './PostsPage/constants';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
     user(input: { selector: { documentId: $documentId } }) {
       result {
         ...UsersCurrentPostRateLimit
+        hasApprovedContent
       }
     }
   }
@@ -159,6 +152,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   documentId: string,
   version?: string | null,
 }) => {
+  const { isLW, forumType } = useForumType();
   const classes = useStyles(styles);
   const { query } = useLocation();
   const navigate = useNavigate();
@@ -197,6 +191,12 @@ const PostsEditFormInner = ({ documentId, version }: {
     setLiveTitle(document?.title ?? "");
   }, [document?.title]);
 
+  const savedTitle = document?.title;
+  useEffect(() => {
+    if (savedTitle === undefined) return;
+    window.document.title = getPageTitleString(liveTitle || savedTitle, forumType);
+  }, [liveTitle, savedTitle, forumType]);
+
   const { data: dataUser } = useQuery(UsersCurrentPostRateLimitQuery, {
     variables: { documentId: currentUser?._id, eventForm: document?.isEvent },
     skip: !currentUser,
@@ -205,15 +205,6 @@ const PostsEditFormInner = ({ documentId, version }: {
 
 
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost;
-
-  const isDraft = document && document.draft;
-  const wasEverDraft = useRef(isDraft);
-
-  useEffect(() => {
-    if (wasEverDraft.current === undefined && isDraft !== undefined) {
-      wasEverDraft.current = isDraft;
-    }
-  }, [isDraft]);
 
   if (loading) {
     return <Loading/>
@@ -232,7 +223,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   // permissions so it will only be present if we've either already used the
   // link-sharing key, or have access through something other than link-sharing.)
   if (document?.linkSharingKey && !(query?.key)) {
-    return <PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
+    return <PermanentRedirect url={postGetEditUrl(document._id, document.linkSharingKey)} status={302}/>
   }
 
   // If we don't have the post and none of the earlier cases applied, we either
@@ -246,8 +237,9 @@ const PostsEditFormInner = ({ documentId, version }: {
     return <ForeignCrosspostEditForm post={document} />;
   }
 
-  // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId && currentUser?._id === document.userId;
+  // on LW, show a moderation message to new users who haven't had any content approved yet
+  const isUnapprovedNewUser = !currentUser?.reviewedByUserId && userWithRateLimit?.hasApprovedContent === false;
+  const showNewUserModerationWarning = isLW && isUnapprovedNewUser && currentUser?._id === document.userId;
   const rightColumnChildren = <>
     {/* We render a portal target div in the right column. PostForm will use
     createPortal to render the EditorSettingsSidebar into this target, since it needs
@@ -262,8 +254,7 @@ const PostsEditFormInner = ({ documentId, version }: {
     <SideItemsContainer>
     <DynamicTableOfContents title={liveTitle || document.title} rightColumnChildren={rightColumnChildren}>
       <div className={classes.postForm}>
-        {currentUser && <PostsAcceptTos currentUser={currentUser} />}
-        {postWillBeHidden && <NewPostModerationWarning />}
+        {showNewUserModerationWarning && <NewPostModerationWarning />}
         {rateLimitNextAbleToPost && <RateLimitWarning
           contentType="post"
           lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible}
@@ -280,18 +271,11 @@ const PostsEditFormInner = ({ documentId, version }: {
                 if (options?.submitOptions?.skipRedirect) {
                   return;
                 } else if (options?.submitOptions?.redirectToEditor) {
-                  const redirectPath = postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined);
+                  const redirectPath = postGetEditUrl(post._id, post.linkSharingKey ?? undefined);
                   navigate(redirectPath);
                 } else {
-                  // If they are publishing a draft, show the share popup
-                  // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
-                  const showSharePopup = isEAForum() && wasEverDraft.current && !post.draft
-                  const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
-                  navigate({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
-
-                  if (!showSharePopup) {
-                    flash({ messageString: `Post "${post.title}" edited`, type: 'success'});
-                  }
+                  navigate({pathname: postGetPageUrl(post), search: ''});
+                  flash({ messageString: `Post "${post.title}" edited`, type: 'success'});
                 }
               }}
               

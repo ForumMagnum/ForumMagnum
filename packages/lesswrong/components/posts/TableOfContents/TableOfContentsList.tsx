@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
-import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
+import type { ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
 import { useScrollHighlight } from '../../hooks/useScrollHighlight';
-import { getCurrentSectionMark, scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
-import { isLWorAF } from '@/lib/instanceSettings';
+import { getCurrentSectionMark, ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
 import TableOfContentsRow from "./TableOfContentsRow";
 import AnswerTocRow from "./AnswerTocRow";
@@ -60,13 +59,9 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
         skipRouter: true,
       });
 
-      // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
-      if (!isLWorAF()) {
-        scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
-      } else {
-        let sectionYdocumentSpace = anchorY + window.scrollY;
-        jumpToY(sectionYdocumentSpace);
-      }
+      // TODO: Consider scrollFocusOnElement for smooth scrolling and keyboard focus.
+      const sectionYdocumentSpace = anchorY + window.scrollY;
+      jumpToY(sectionYdocumentSpace);
     }
   }
   let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)

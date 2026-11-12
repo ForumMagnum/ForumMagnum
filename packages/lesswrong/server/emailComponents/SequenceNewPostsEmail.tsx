@@ -1,7 +1,7 @@
 import React from 'react';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetAbsolutePageUrl } from '../../lib/collections/posts/helpers';
 import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
-import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
+import { sequenceGetAbsolutePageUrl } from '../../lib/collections/sequences/helpers';
 import { defineStyles } from "@/components/hooks/defineStyles";
 import { EmailContextType, emailUseStyles } from "./emailContext";
 
@@ -37,12 +37,12 @@ export const SequenceNewPostsEmail = ({sequence, posts, emailContext}: {
   return <div className={classes.root}>
     {imgUrl && <img src={imgUrl} className={classes.img} />}
     <p>
-      The following posts have been added to <a href={sequenceGetPageUrl(sequence, true)}>{sequence.title}</a>:
+      The following posts have been added to <a href={sequenceGetAbsolutePageUrl(sequence, emailContext.resolverContext.forumType)}>{sequence.title}</a>:
     </p>
     <ul>
       {posts.map(post => {
         return <li key={post._id}>
-          <a href={postGetPageUrl(post, true)}>{post.title}</a>
+          <a href={postGetAbsolutePageUrl(post, emailContext.resolverContext.forumType)}>{post.title}</a>
         </li>
       })}
     </ul>

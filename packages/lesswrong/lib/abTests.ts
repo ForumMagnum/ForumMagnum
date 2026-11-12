@@ -29,23 +29,6 @@ import { ABTest } from "./abTestClass";
  *   });
  */
 
-export const welcomeBoxABTest = new ABTest({
-  name: "welcomeBoxABTest",
-  active: true,
-  affectsLoggedOut: true,
-  description: "Tests the new Welcome Box on post pages for logged out users",
-  groups: {
-    control: {
-      description: "Don't show Welcome Box on post pages",
-      weight: 1
-    },
-    welcomeBox: {
-      description: "Show Welcome Box on post pages",
-      weight: 1
-    }
-  }
-});
-
 export const twoLineEventsSidebarABTest = new ABTest({
   name: "twoLineEventsSidebar",
   active: true,
@@ -63,4 +46,4 @@ export const twoLineEventsSidebarABTest = new ABTest({
   },
 });
 
-export const allABTests = [welcomeBoxABTest, twoLineEventsSidebarABTest];
+export const allABTests = [twoLineEventsSidebarABTest];

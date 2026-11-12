@@ -13,7 +13,6 @@ import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
-import { isEAForum } from '../../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import Loading from "../vulcan-core/Loading";
@@ -174,7 +173,7 @@ const EventNotificationsDialog = ({ onClose }: {
             }}
           />
         </div>
-        {!isEAForum() && <div className={classes.peopleThreshold}>
+        <div className={classes.peopleThreshold}>
           <InputLabel className={classes.peopleThresholdText}>
             <Checkbox
               className={classes.peopleThresholdCheckbox}
@@ -183,7 +182,7 @@ const EventNotificationsDialog = ({ onClose }: {
             />
             Notify me when there are {peopleThresholdInput} or more people in my area
           </InputLabel>
-        </div>}
+        </div>
         <DialogActions className={classes.actions}>
           {currentUser?.nearbyEventsNotifications && <a className={classes.removeButton} onClick={()=>{
             void updateCurrentUser({

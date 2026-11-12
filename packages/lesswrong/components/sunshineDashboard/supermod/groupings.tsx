@@ -26,7 +26,7 @@ export function partitionModeratorActions(user: SunshineUsersList): PartitionedM
   return { fresh, stale, nonTriggerActions };
 }
 
-export type TabId = ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation';
+export type TabId = ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation' | 'inbox' | 'reports' | 'tags';
 
 // Computed server-side via the `reviewGroup` resolver on the User schema.
 export function getUserReviewGroup(user: SunshineUsersList): ReviewGroup {
@@ -42,37 +42,6 @@ export function getDisplayedReasonForGroupAssignment(user: SunshineUsersList): R
   }
 
   return getPrimaryDisplayedModeratorAction(actionForGroup.type);
-}
-
-export function getTabsInPriorityOrder(): ReviewGroup[] {
-  return ['newContent', 'offboard', 'highContext', 'maybeSpam', 'automod', 'snoozeExpired', 'unknown'];
-}
-
-export function getReviewGroupDisplayName(group: TabId): string {
-  switch (group) {
-    case 'newContent':
-      return 'New Content';
-    case 'offboard':
-      return 'Offboard?';
-    case 'highContext':
-      return 'High Context';
-    case 'maybeSpam':
-      return 'Maybe Spam';
-    case 'automod':
-      return 'Automod';
-    case 'snoozeExpired':
-      return 'Snooze Expired';
-    case 'unknown':
-      return 'Unknown';
-    case 'all':
-      return 'All';
-    case 'posts':
-      return 'Posts';
-    case 'classifiedPosts':
-      return 'Auto-Classified';
-    case 'curation':
-      return 'Curation';
-  }
 }
 
 const styles = defineStyles('BadgeIcon', (theme: ThemeType) => ({

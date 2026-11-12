@@ -1,12 +1,14 @@
 import { Images } from '../../server/collections/images/collection';
-import { cloudinaryApiKey, cloudinaryApiSecret } from '../databaseSettings';
-import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting, ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
+import IframeWidgetSrcdocs from '../../server/collections/iframeWidgetSrcdocs/collection';
+
+import { ckEditorUploadUrlSetting, cloudinaryCloudName, ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import type { UploadApiResponse } from 'cloudinary';
-import cheerio from 'cheerio';
-import { cheerioParse } from '../utils/htmlUtil';
+import cheerio, { type CheerioAPI } from 'cheerio';
+import { cheerioParse, cheerioParseDocument } from '../utils/htmlUtil';
 import { URL } from 'url';
 import uniq from 'lodash/uniq';
+import sumBy from 'lodash/sumBy';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { Posts } from '../../server/collections/posts/collection';
 import { getAtPath, setAtPath } from '../../lib/helpers';
@@ -19,7 +21,6 @@ import { sleep } from '@/lib/utils/asyncUtils';
 import SideCommentCaches from '@/server/collections/sideCommentCaches/collection';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
-
 export type CloudinaryCredentials = {
   cloud_name: string,
   api_key: string,
@@ -30,9 +31,9 @@ export type CloudinaryCredentials = {
  * Credentials that can be spread into `cloudinary.v2` functions, like so: `cloudinary.v2.url(publicId, { ...credentials })`
  */
 const getCloudinaryCredentials = () => {
-  const cloudName = cloudinaryCloudNameSetting.get();
-  const apiKey = cloudinaryApiKey.get();
-  const apiSecret = cloudinaryApiSecret.get();
+  const cloudName = cloudinaryCloudName;
+  const apiKey = (process.env.private_cloudinaryApiKey ?? "");
+  const apiSecret = (process.env.private_cloudinaryApiSecret ?? "");
 
   if (!cloudName || !apiKey || !apiSecret) {
     // eslint-disable-next-line no-console
@@ -62,7 +63,7 @@ export async function findAlreadyMovedImage(identifier: string): Promise<string|
  * stored as the identifier in the Images table. This is useful when the image needs to be downloaded
  * through a proxy (e.g. the Midjourney browser bridge) but you want to preserve the original source URL.
  *
- * Exported to allow use in "yarn repl"
+ * Exported to allow use in "npm run repl"
  */
 export async function moveImageToCloudinary({oldUrl, originDocumentId, imageData}: {oldUrl: string, originDocumentId: string, imageData?: string}): Promise<string|null> {
   const cloudinary = await import('cloudinary');
@@ -197,7 +198,7 @@ export async function getOrCreateCloudinaryImage({
 }: {
   identifier: string;
   identifierType: 'originalUrl' | 'sha256Hash';
-  upload: (credentials: CloudinaryCredentials) => Promise<UploadApiResponse>;
+  upload: (credentials: CloudinaryCredentials, cloudinary: typeof import('cloudinary')) => Promise<UploadApiResponse>;
 }) {
   const cloudinary = await import('cloudinary');
   const logger = loggerConstructor("image-conversion");
@@ -208,25 +209,107 @@ export async function getOrCreateCloudinaryImage({
 
   if (!credentials) return null;
 
-  const uploadResponse = await upload(credentials);
+  const uploadResponse = await upload(credentials, cloudinary);
   logger(`Result of uploading image: ${uploadResponse.secure_url}`);
 
-  // Serve all images with automatic quality and format transformations to save on bandwidth
-  const autoQualityFormatUrl = cloudinary.v2.url(uploadResponse.public_id, {
-    ...credentials,
-    quality: "auto",
-    fetch_format: "auto",
-    secure: true,
-  });
+  // Serve all images with automatic quality and format transformations to save on bandwidth.
+  // Videos are served as the uploaded file, because <source type="video/mp4; codecs=hvc1"> promises
+  // a specific encoding, which a format transformation wouldn't preserve.
+  const cdnHostedUrl = uploadResponse.resource_type === "image"
+    ? cloudinary.v2.url(uploadResponse.public_id, {
+      ...credentials,
+      quality: "auto",
+      fetch_format: "auto",
+      secure: true,
+    })
+    : uploadResponse.secure_url;
 
   await Images.rawInsert({
     identifier,
     identifierType,
-    cdnHostedUrl: autoQualityFormatUrl,
+    cdnHostedUrl,
     originalUrl: null,
   });
 
-  return autoQualityFormatUrl;
+  return cdnHostedUrl;
+}
+
+const VIDEO_UPLOAD_TIMEOUT_MS = 10 * 60 * 1000;
+
+/**
+ * The public ID is derived from the URL, with overwrite off, because a large
+ * video may not finish uploading before the server process is halted. Retrying
+ * then reuses what Cloudinary already has, rather than storing another copy.
+ */
+function moveVideoFileToCloudinary({oldUrl, originDocumentId, resourceType}: {
+  oldUrl: string,
+  originDocumentId: string,
+  resourceType: "video" | "raw",
+}): Promise<string|null> {
+  const urlHash = crypto.createHash('sha256').update(oldUrl).digest('hex');
+  return getOrCreateCloudinaryImage({
+    identifier: oldUrl,
+    identifierType: 'originalUrl',
+    upload: (credentials, cloudinary) => cloudinary.v2.uploader.upload(oldUrl, {
+      ...credentials,
+      resource_type: resourceType,
+      folder: `mirroredImages/${originDocumentId}/${urlHash}`,
+      use_filename: true,
+      unique_filename: false,
+      overwrite: false,
+      timeout: VIDEO_UPLOAD_TIMEOUT_MS,
+    }),
+  });
+}
+
+const videoElementAssets = [
+  {selector: "video[src], video source[src]", attribute: "src", resourceType: "video"},
+  {selector: "video track[src]", attribute: "src", resourceType: "raw"},
+  {selector: "video[poster]", attribute: "poster", resourceType: "image"},
+] as const;
+
+function moveVideoElementAssetToCloudinary(oldUrl: string, originDocumentId: string, resourceType: "video" | "raw" | "image") {
+  return resourceType === "image"
+    ? moveImageToCloudinary({oldUrl, originDocumentId})
+    : moveVideoFileToCloudinary({oldUrl, originDocumentId, resourceType});
+}
+
+/**
+ * Mirror the files used by <video> elements, updating parsedHtml in place. A
+ * file that can't be mirrored keeps its original URL.
+ */
+async function convertVideosInParsedHTML(
+  parsedHtml: CheerioAPI,
+  originDocumentId: string,
+  urlFilterFn: (url: string) => boolean,
+  mirrorUrls: Record<string,string>,
+): Promise<{count: number, failedUrls: string[]}> {
+  let count = 0;
+  const failedUrls: string[] = [];
+
+  for (const {selector, attribute, resourceType} of videoElementAssets) {
+    for (const element of parsedHtml(selector).toArray()) {
+      const tag = cheerio(element);
+      const url = tag.attr(attribute);
+      if (!url || !/^https?:\/\//i.test(url) || !urlNeedsMirroring(url, urlFilterFn)) {
+        continue;
+      }
+      try {
+        const mirroredUrl = mirrorUrls[url] ?? await moveVideoElementAssetToCloudinary(url, originDocumentId, resourceType);
+        if (mirroredUrl) {
+          mirrorUrls[url] = mirroredUrl;
+          tag.attr(attribute, mirroredUrl);
+          count++;
+        }
+      } catch(e) {
+        // eslint-disable-next-line no-console
+        console.error(`Failed to mirror ${url} for document ${originDocumentId}:`, e);
+        failedUrls.push(url);
+      }
+    }
+  }
+
+  return {count, failedUrls: uniq(failedUrls)};
 }
 
 /**
@@ -234,7 +317,7 @@ export async function getOrCreateCloudinaryImage({
  * their src updated.
  */
 function getImageUrlWhitelist() {
-  const localUploadUrl = ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get()
+  const localUploadUrl = ckEditorUploadUrlOverrideSetting.get("LessWrong") || ckEditorUploadUrlSetting.get("LessWrong")
   return [
     "cloudinary.com",
     "res.cloudinary.com",
@@ -255,14 +338,12 @@ function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
   }
 }
 
-// Exported to allow use in "yarn repl"
-export async function convertImagesInHTML(
-  html: string,
+async function convertImagesInParsedHTML(
+  parsedHtml: CheerioAPI,
   originDocumentId: string,
-  urlFilterFn: (url: string) => boolean = () => true,
+  urlFilterFn: (url: string) => boolean,
   imageUrlsCache?: Record<string,string>
-): Promise<{count: number, html: string, failedUrls: string[]}> {
-  const parsedHtml = cheerioParse(html);
+): Promise<{count: number, failedUrls: string[]}> {
   const imgTags = parsedHtml("img").toArray();
   const imgUrls: string[] = [];
   const failedUrls: string[] = [];
@@ -319,10 +400,63 @@ export async function convertImagesInHTML(
     }
   }
   
+  const videoResults = await convertVideosInParsedHTML(parsedHtml, originDocumentId, urlFilterFn, mirrorUrls);
+
   return {
-    count,
-    html: parsedHtml.html(),
-    failedUrls,
+    count: count + videoResults.count,
+    failedUrls: [...failedUrls, ...videoResults.failedUrls],
+  };
+}
+
+// Exported to allow use in "npm run repl"
+export async function convertImagesInHTML(
+  html: string,
+  originDocumentId: string,
+  urlFilterFn: (url: string) => boolean = () => true,
+  imageUrlsCache?: Record<string,string>
+): Promise<{count: number, html: string, failedUrls: string[]}> {
+  const parsedHtml = cheerioParse(html);
+  const {count, failedUrls} = await convertImagesInParsedHTML(parsedHtml, originDocumentId, urlFilterFn, imageUrlsCache);
+  return {count, html: parsedHtml.html(), failedUrls};
+}
+
+async function convertImagesInIframeWidget(
+  widget: DbIframeWidgetSrcdoc,
+  originDocumentId: string,
+  urlFilterFn: (url: string) => boolean,
+): Promise<{count: number, failedUrls: string[]}> {
+  const parsedHtml = cheerioParseDocument(widget.html);
+  const {count, failedUrls} = await convertImagesInParsedHTML(parsedHtml, originDocumentId, urlFilterFn);
+  if (count > 0) {
+    await IframeWidgetSrcdocs.rawUpdateOne({_id: widget._id}, {$set: {html: parsedHtml.html()}});
+  }
+  return {count, failedUrls};
+}
+
+/**
+ * Widget contents are stored in IframeWidgetSrcdocs rather than in the
+ * revision's HTML, which only has a placeholder div for each one.
+ */
+export async function convertImagesInIframeWidgets(
+  revisionHtml: string,
+  originDocumentId: string,
+  urlFilterFn: (url: string) => boolean,
+): Promise<{count: number, failedUrls: string[]}> {
+  const parsedHtml = cheerioParse(revisionHtml);
+  const widgetIds = parsedHtml(".iframe-widget[data-iframe-widget-id]").toArray()
+    .map((element) => cheerio(element).attr("data-iframe-widget-id"))
+    .filter((widgetId): widgetId is string => !!widgetId);
+  if (widgetIds.length === 0) {
+    return {count: 0, failedUrls: []};
+  }
+
+  const widgets = await IframeWidgetSrcdocs.find({_id: {$in: uniq(widgetIds)}}).fetch();
+  // In parallel, so that a large video in one widget can't use up all the
+  // server's remaining time and stop the widgets after it from being mirrored.
+  const results = await Promise.all(widgets.map((widget) => convertImagesInIframeWidget(widget, originDocumentId, urlFilterFn)));
+  return {
+    count: sumBy(results, (result) => result.count),
+    failedUrls: results.flatMap((result) => result.failedUrls),
   };
 }
 
@@ -356,8 +490,10 @@ function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
 }
 
 /**
- * Reupload all images in an object (post, tag, user, etc) to Cloudinary, for a
- * specific editable field. Creates a new revision with the updated HTML.
+ * Reupload all images and videos in an object (post, tag, user, etc) to
+ * Cloudinary, for a specific editable field, including those inside iframe
+ * widgets. Creates a new revision if the field's HTML changed; widgets are
+ * updated in place.
  *
  * @param collectionName - The collection that this object is in
  * @param _id - The object to reupload images for
@@ -365,7 +501,7 @@ function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
  * @param urlFilterFn - A function that takes a URL and returns true if it should be mirrored, by default all URLs are mirrored except those in getImageUrlWhitelist()
  * @returns The number of images that were mirrored
  *
- * Exported to allow use in "yarn repl"
+ * Exported to allow use in "npm run repl"
  */
 export async function convertImagesInObject<N extends CollectionNameString>(
   collectionName: N,
@@ -379,7 +515,6 @@ export async function convertImagesInObject<N extends CollectionNameString>(
 }> {
   const { Revisions } = context;
   const logger = loggerConstructor("image-conversion")
-  let totalUploaded = 0;
   try {
     // Cast instead of assignment to avoid an expensive mapped type inference
     const collection = context[collectionName] as CollectionBase<CollectionNameString>;
@@ -415,44 +550,44 @@ export async function convertImagesInObject<N extends CollectionNameString>(
     const {count: uploadCount, html: newHtml, failedUrls} = await convertImagesInHTML(oldHtml, _id, urlFilterFn);
     if (!uploadCount) {
       logger("No images to convert.");
-      return {numUploaded: 0, failedUrls: []};
     } else {
       logger(`Converted ${uploadCount} images`)
-    }
-    
-    const newRevision = {
-      ...latestRev,
-      _id: randomId(),
-      html: newHtml,
-      editedAt: now,
-      updateType: "patch" as const,
-      version: newVersion,
-      commitMessage: "Move images to CDN",
-      changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),
-    };
-    const insertedRevisionId: string = await Revisions.rawInsert(newRevision);
-    await collection.rawUpdateOne({_id}, {
-      $set: {
-        [`${fieldName}_latest`]: insertedRevisionId,
-        [fieldName]: {
-          ...(obj as AnyBecauseHard)[fieldName],
-          html: newHtml,
-          version: newVersion,
-          editedAt: now,
-          updateType: "patch",
-        },
+
+      const newRevision = {
+        ...latestRev,
+        _id: randomId(),
+        html: newHtml,
+        editedAt: now,
+        updateType: "patch" as const,
+        version: newVersion,
+        commitMessage: "Move images to CDN",
+        changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),
+      };
+      const insertedRevisionId: string = await Revisions.rawInsert(newRevision);
+      await collection.rawUpdateOne({_id}, {
+        $set: {
+          [`${fieldName}_latest`]: insertedRevisionId,
+          [fieldName]: {
+            ...(obj as AnyBecauseHard)[fieldName],
+            html: newHtml,
+            version: newVersion,
+            editedAt: now,
+            updateType: "patch",
+          },
+        }
+      });
+
+      // HACK: If this is a post's contents, delete any corresponding entry in SideCommentCaches. This is necessary because the cache determines if it's valid based on editedAt, rather than the ID of the latest revision, and we just created a revision without bumping editedAt.
+      if (collectionName === "Posts" && fieldName === "contents") {
+        await SideCommentCaches.rawRemove({ postId: _id });
       }
-    });
-    totalUploaded += uploadCount;
-    
-    // HACK: If this is a post's contents, delete any corresponding entry in SideCommentCaches. This is necessary because the cache determines if it's valid based on editedAt, rather than the ID of the latest revision, and we just created a revision without bumping editedAt.
-    if (collectionName === "Posts" && fieldName === "contents") {
-      await SideCommentCaches.rawRemove({ postId: _id });
     }
-    
+
+    const widgetResults = await convertImagesInIframeWidgets(oldHtml, _id, urlFilterFn);
+
     return {
-      numUploaded: totalUploaded,
-      failedUrls,
+      numUploaded: uploadCount + widgetResults.count,
+      failedUrls: [...failedUrls, ...widgetResults.failedUrls],
     };
   } catch (e) {
     // Always catch the error because the obj should mostly load fine without rehosting the images
@@ -472,7 +607,7 @@ const postMetaImageFields: string[][] = [
   ["socialPreviewImageId"],
 ];
 
-// Exported to allow use in "yarn repl"
+// Exported to allow use in "npm run repl"
 export const rehostPostMetaImages = async (post: DbPost) => {
   const operations: MongoBulkWriteOperations<DbPost> = [];
 
@@ -515,7 +650,7 @@ export const rehostPostMetaImages = async (post: DbPost) => {
   await Posts.rawCollection().bulkWrite(operations);
 }
 
-// Exported to allow use in "yarn repl"
+// Exported to allow use in "npm run repl"
 export const rehostPostMetaImagesById = async (postId: string) => {
   const post = await Posts.findOne({_id: postId});
   if (!post) {
@@ -524,7 +659,7 @@ export const rehostPostMetaImagesById = async (postId: string) => {
   await rehostPostMetaImages(post);
 }
 
-// Exported to allow use in "yarn repl"
+// Exported to allow use in "npm run repl"
 export const rehostAllPostMetaImages = async () => {
   const projection: Partial<Record<keyof DbPost, 1>> = {_id: 1};
   for (const field of postMetaImageFields) {
@@ -624,7 +759,7 @@ export async function importImageMirrors(csvFilename: string) {
   console.log(`Finished processing images. Already moved: ${alreadyMovedCount}, skipped: ${skippedCount}, uploaded: ${uploadedCount}, failed: ${failedCount}`);
 }
 
-// Exported to allow use in "yarn repl"
+// Exported to allow use in "npm run repl"
 export async function rehostImagesInAllPosts(postFilter: MongoSelector<DbPost>, urlFilter = (url: string) => true) {
   let stats = getEmptyImageUploadStats();
   const context = createAnonymousContext();
@@ -651,7 +786,7 @@ export async function rehostImagesInAllPosts(postFilter: MongoSelector<DbPost>, 
   saveImageUploadResults(stats);
 }
 
-// Exported to allow use in "yarn repl"
+// Exported to allow use in "npm run repl"
 export async function rehostImagesInPost(_id: string) {
   let stats = getEmptyImageUploadStats();
   const context = createAnonymousContext();

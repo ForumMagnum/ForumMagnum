@@ -76,8 +76,8 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with $jsonArrayContains operator",
       getQuery: () => new SelectQuery(testTable, {$expr: {$jsonArrayContains: ["a.b.c.d", 3]}}),
-      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE "a" @> (' { "b": { "c": { "d": ["' || $1 || '"] } } } ')::JSONB`,
-      expectedArgs: [3],
+      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE "a" @> $1 ::JSONB`,
+      expectedArgs: ['{"b":{"c":{"d":["3"]}}}'],
     },
     {
       name: "can build select query with nested boolean combiners",
@@ -185,7 +185,7 @@ describe("SelectQuery", () => {
     {
       name: "can build select query with array length filter",
       getQuery: () => new SelectQuery(testTable, {a: {$size: 2}}),
-      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ARRAY_LENGTH("a", 1) = $1',
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE CARDINALITY("a") = $1',
       expectedArgs: [2],
     },
     {
@@ -217,6 +217,17 @@ describe("SelectQuery", () => {
       getQuery: () => new SelectQuery(testTable, {"c.d.e": "test"}),
       expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ("c"->\'d\'->>\'e\')::TEXT = $1',
       expectedArgs: ["test"],
+    },
+    {
+      name: "escapes quotes in json path components",
+      getQuery: () => new SelectQuery(testTable, {"c.key') OR TRUE --": 3}),
+      expectedSql: 'SELECT "TestCollection".* FROM "TestCollection" WHERE ("c"->\'key\'\') OR TRUE --\')::INTEGER = $1',
+      expectedArgs: [3],
+    },
+    {
+      name: "rejects pg-promise placeholders in json path components",
+      getQuery: () => new SelectQuery(testTable, {"c.key$1": 3}),
+      expectedError: "Invalid character in SQL string literal",
     },
     {
       name: "can build select query with array fields",
@@ -282,6 +293,12 @@ describe("SelectQuery", () => {
       expectedArgs: [],
     },
     {
+      name: "sanitizes line breaks and placeholders in sql comments",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {comment: "Posts::view\rSELECT $1"}),
+      expectedSql: '-- Posts::view_SELECT _1 SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1',
+      expectedArgs: [3],
+    },
+    {
       name: "can build select from a subquery",
       getQuery: () => new SelectQuery(new SelectQuery(testTable, {a: 3}), {b: "test"}),
       expectedSql: 'SELECT * FROM ( SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 ) A WHERE "b" = $2',
@@ -299,6 +316,34 @@ describe("SelectQuery", () => {
       }),
       expectedSql: 'SELECT * FROM "TestCollection" , LATERAL (SELECT jsonb_agg("TestCollection2".*) AS "data2" FROM "TestCollection2" WHERE "TestCollection"."b" = "TestCollection2"."data") Q WHERE "a" = $1',
       expectedArgs: [3],
+    },
+    {
+      name: "rejects a lookup whose output name isn't an identifier",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        lookup: {from: "testcollection2", localField: "b", foreignField: "data", as: 'data" 2'},
+      }),
+      expectedError: "Invalid SQL identifier",
+    },
+    {
+      name: "rejects a lookup whose local field isn't an identifier",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        lookup: {from: "testcollection2", localField: 'b" 2', foreignField: "data", as: "data2"},
+      }),
+      expectedError: "Invalid SQL identifier",
+    },
+    {
+      name: "rejects a lookup whose foreign field isn't an identifier",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        lookup: {from: "testcollection2", localField: "b", foreignField: 'data" 2', as: "data2"},
+      }),
+      expectedError: "Invalid SQL identifier",
+    },
+    {
+      name: "rejects a lookup from an inherited property name",
+      getQuery: () => new SelectQuery(testTable, {a: 3}, {}, {
+        lookup: {from: "constructor", localField: "b", foreignField: "data", as: "data2"},
+      }),
+      expectedError: "constructor is not a valid table name",
     },
     {
       name: "can build select with fields included through projection",
@@ -378,6 +423,11 @@ describe("SelectQuery", () => {
       }),
       expectedSql: 'SELECT "TestCollection".* , ( ( "a" + $1 ) * $2 ) AS "k" FROM "TestCollection" WHERE "a" = $3',
       expectedArgs: [8, 6, 3],
+    },
+    {
+      name: "rejects a synthetic field name that isn't an identifier",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {a: 3}, {}, {addFields: {'k" 2': "$a"}}),
+      expectedError: "Invalid SQL identifier",
     },
     {
       name: "can build select with conditional synthetic fields",
@@ -464,12 +514,24 @@ describe("SelectQuery", () => {
         c: {
           $geoWithin: {
             $centerSphere: [ [ 123, 456 ], 789 ],
-            $comment: { locationName: `"c"->'location'` },
+            $comment: { locationName: "c.location" },
           },
         },
       }),
-      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE (EARTH_DISTANCE(LL_TO_EARTH(("c"->'location'->>'lng')::FLOAT8, ("c"->'location'->>'lat')::FLOAT8), LL_TO_EARTH( $1 , $2 )) / 6378000) < $3`,
+      expectedSql: `SELECT "TestCollection".* FROM "TestCollection" WHERE (EARTH_DISTANCE(LL_TO_EARTH((("c"->'location')->>'lng')::FLOAT8, (("c"->'location')->>'lat')::FLOAT8), LL_TO_EARTH( $1 , $2 )) / 6378000) < $3`,
       expectedArgs: [123, 456, 789],
+    },
+    {
+      name: "rejects raw sql as the $geoWithin location",
+      getQuery: () => new SelectQuery<DbTestObject>(testTable, {
+        c: {
+          $geoWithin: {
+            $centerSphere: [ [ 0, 0 ], 1 ],
+            $comment: { locationName: `"c") IS NULL OR TRUE OR ("c"` },
+          },
+        },
+      }),
+      expectedError: "Cannot resolve field name",
     },
     {
       name: "can build select with group by",

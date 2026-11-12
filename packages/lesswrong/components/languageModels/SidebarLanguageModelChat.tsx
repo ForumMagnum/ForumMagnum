@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import { LanguageModelChat } from './LanguageModelChat';

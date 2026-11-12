@@ -440,7 +440,7 @@ async function resolveSnapshotSource(
   if (!baseline) {
     throw new Error(
       `[sandbox] No SandboxBaselineSnapshots row for runtime "${baselineRuntime}". ` +
-        "Build one with `yarn research-supervisor-build && yarn research-sandbox-build-snapshot`.",
+        "Build one with `npm run research-supervisor-build && npm run research-sandbox-build-snapshot`.",
     );
   }
   return { snapshotId: baseline.vercelSnapshotId };
@@ -523,7 +523,7 @@ async function buildLaunchEnv(args: {
   // (RESEARCH_BACKEND_PUBLIC_URL, set by runDevWithResearchSandbox.sh, since the
   // configured siteUrl is localhost). Otherwise derive it from the firing
   // request's forwarded headers.
-  const backendBaseUrl = process.env.RESEARCH_BACKEND_PUBLIC_URL ?? getSiteUrlFromHeaders(context.headers);
+  const backendBaseUrl = process.env.RESEARCH_BACKEND_PUBLIC_URL ?? getSiteUrlFromHeaders(context.headers, context.forumType);
   const claudeToken = await resolveClaudeCodeToken(conversation.userId, context);
   const callbackToken = mintSupervisorCallbackToken({
     sandboxId: sandboxName,

@@ -1,4 +1,7 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import type { NextRequest } from 'next/server';
+import { checkCronRequestAuthorization } from '@/server/utils/cronAuth';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import { captureException } from '@/lib/sentryWrapper';
 import { postMessage } from '@/server/slack/client';
@@ -10,8 +13,8 @@ interface CurationStatus {
   averageDaysPerCuration: number | null;
 }
 
-async function getCurationStatus(): Promise<CurationStatus> {
-  const context = createAnonymousContext();
+async function getCurationStatus(forumType: ForumTypeString): Promise<CurationStatus> {
+  const context = createAnonymousContext({ forumType });
   // Days since most recent curation
   const mostRecentCuration = await context.Posts.findOne(
     { curatedDate: { $gt: new Date(0) } },
@@ -151,12 +154,12 @@ async function postCurationStatusToSlack(status: CurationStatus) {
 }
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response('Unauthorized', { status: 401 });
+  const authError = checkCronRequestAuthorization(request);
+  if (authError) {
+    return authError;
   }
 
-  const status = await getCurationStatus();
+  const status = await getCurationStatus(getForumTypeForRequest(request));
   
   const shouldPost = status.daysSinceCurated >= 3 || status.unpublishedDraftCount === 0;
   if (shouldPost) {

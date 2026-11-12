@@ -1,3 +1,4 @@
+import { getForumTypeForRequest } from "@/server/utils/requestUtil";
 import { handleAnalyticsEventWriteRequest } from "@/server/analytics/serverAnalyticsWriter";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import type { NextRequest } from "next/server";
@@ -19,6 +20,6 @@ export async function POST(req: NextRequest) {
     return new Response('analyticsEvent endpoint should be JSON with fields "events" and "now"', { status: 400 });
   }
   
-  backgroundTask(handleAnalyticsEventWriteRequest(bodyJson.events, bodyJson.now));
+  backgroundTask(handleAnalyticsEventWriteRequest(bodyJson.events, bodyJson.now, getForumTypeForRequest(req)));
   return new Response("ok", { status: 200 });
 }

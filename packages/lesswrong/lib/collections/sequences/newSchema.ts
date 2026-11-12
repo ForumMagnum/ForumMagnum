@@ -3,7 +3,7 @@ import {
   accessFilterSingle,
   accessFilterMultiple, generateIdResolverSingle
 } from "../../utils/schemaUtils";
-import { getWithCustomLoader, getWithLoader } from "../../loaders";
+import { getWithCustomLoader } from "../../loaders";
 import { documentIsNotDeleted, userOwns } from "../../vulcan-users/permissions";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";

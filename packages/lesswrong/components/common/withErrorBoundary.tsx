@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 import ErrorBoundary from "./ErrorBoundary";
 
 /// Higher-order component which adds an error boundary around a component.

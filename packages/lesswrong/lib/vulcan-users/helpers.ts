@@ -1,17 +1,26 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { checkNested } from '../vulcan-lib/utils';
-import { userGetDisplayName, userGetProfileUrl } from '../collections/users/helpers';
+import { userGetDisplayName, userGetProfileUrl, userGetAbsoluteProfileUrl } from '../collections/users/helpers';
 import moment from 'moment';
 
 export const userGetDisplayNameById = async function(userId: string, context: ResolverContext): Promise<string> {
   const user = await context.loaders.Users.load(userId);
-  return userGetDisplayName(user);
+  return userGetDisplayName(user, context.forumType);
 };
 
-// Get a user's account edit URL
-// @param {Object} user (note: we only actually need either the _id or slug properties)
-// @param {Boolean} isAbsolute
-export const userGetEditUrl = function(user: DbUser|UsersMinimumInfo|null, isAbsolute=false): string {
-  return `${userGetProfileUrl(user, isAbsolute)}/edit`;
+// Get a user's account edit URL. If the user being edited is the current
+// user, this is the slug-free /account route, so that changing displayName
+// (which changes the slug) doesn't invalidate the URL of the page you're on.
+// Other users' (admin-only) settings pages are keyed by slug.
+export const userGetEditUrl = function(user: DbUser|UsersMinimumInfo|null, currentUser: UsersCurrent|DbUser|null): string {
+  if (user && currentUser && user._id === currentUser._id) {
+    return '/account';
+  }
+  return `${userGetProfileUrl(user)}/edit`;
+};
+
+export const userGetAbsoluteEditUrl = (user: DbUser|UsersMinimumInfo|null, forumType: ForumTypeString): string => {
+  return `${userGetAbsoluteProfileUrl(user, forumType)}/edit`;
 };
 
 // Get a user's GitHub name

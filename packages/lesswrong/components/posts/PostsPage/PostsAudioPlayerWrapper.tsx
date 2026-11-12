@@ -1,4 +1,6 @@
-import React from 'react';
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { isPostAllowedType3Audio } from '../../../lib/collections/posts/helpers';
 import PostsPodcastPlayer from "./PostsPodcastPlayer";
@@ -15,25 +17,61 @@ const styles = defineStyles('PostsAudioPlayerWrapper', (theme: ThemeType) => ({
   },
 }));
 
-export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes) => {
+export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes, forumType: ForumTypeString) => {
   return (('podcastEpisode' in post) && post.podcastEpisode)
-    || isPostAllowedType3Audio(post);
+    || isPostAllowedType3Audio(post, forumType);
+}
+
+interface PostsPodcastPlayerWithFallbackProps {
+  podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>
+  postId: string
+  showEmbeddedPlayer: boolean
+}
+
+export const PostsPodcastPlayerWithFallback = ({
+  podcastEpisode,
+  postId,
+  showEmbeddedPlayer,
+}: PostsPodcastPlayerWithFallbackProps) => {
+  const classes = useStyles(styles);
+  const [failedEpisodeLink, setFailedEpisodeLink] = useState<string | null>(null);
+
+  // Some legacy podcast hosts remove their embed scripts while Type3 retains
+  // the synced audio. Fall back without hiding audio that is still available.
+  if (failedEpisodeLink === podcastEpisode.episodeLink) {
+    return <T3AudioPlayer
+      showEmbeddedPlayer={showEmbeddedPlayer}
+      documentId={postId}
+      collectionName="Posts"
+    />;
+  }
+
+  return <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
+    <PostsPodcastPlayer
+      podcastEpisode={podcastEpisode}
+      postId={postId}
+      onLoadError={setFailedEpisodeLink}
+    />
+  </div>;
 }
 
 export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer: boolean,
 }) => {
-  const classes = useStyles(styles);
+  const { forumType } = useForumType();
+  const podcastEpisode = ('podcastEpisode' in post) ? post.podcastEpisode : null;
 
   return <>
-    {('podcastEpisode' in post) && post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
-      <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
-    </div>}
-    {isPostAllowedType3Audio(post) && <T3AudioPlayer showEmbeddedPlayer={!!showEmbeddedPlayer} documentId={post._id} collectionName="Posts" />}
+    {podcastEpisode
+      ? <PostsPodcastPlayerWithFallback
+        podcastEpisode={podcastEpisode}
+        postId={post._id}
+        showEmbeddedPlayer={showEmbeddedPlayer}
+      />
+      : isPostAllowedType3Audio(post, forumType) && <T3AudioPlayer showEmbeddedPlayer={showEmbeddedPlayer} documentId={post._id} collectionName="Posts" />}
   </>;
 }
 
 export default PostsAudioPlayerWrapper;
-
 

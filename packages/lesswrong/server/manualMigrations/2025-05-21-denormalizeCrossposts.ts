@@ -36,6 +36,7 @@ export default registerMigration({
               continue;
             }
 
+            const context = createAnonymousContext({currentUser: user});
             const res = await makeCrossSiteRequest(
               "getCrosspost",
               {
@@ -43,7 +44,8 @@ export default registerMigration({
                 fragmentName: "PostsPage",
                 documentId: foreignPostId,
               },
-              "Failed to get crosspost"
+              "Failed to get crosspost",
+              context.forumType
             );
 
             const document = res?.document as unknown as PostsPage | undefined;
@@ -54,7 +56,6 @@ export default registerMigration({
               continue;
             }
 
-            const context = createAnonymousContext({currentUser: user})
             await updatePost({
               selector: {_id: post._id},
               data: {

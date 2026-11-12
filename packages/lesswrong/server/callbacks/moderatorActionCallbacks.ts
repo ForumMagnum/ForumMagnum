@@ -1,6 +1,6 @@
-import { isActionActive } from "@/lib/collections/moderatorActions/helpers";
-import { MODERATOR_ACTION_TYPES, reviewTriggerModeratorActions } from "@/lib/collections/moderatorActions/constants";
-import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
+import { getModeratorActionNoteText, isActionActive } from "@/lib/collections/moderatorActions/helpers";
+import { reviewTriggerModeratorActions } from "@/lib/collections/moderatorActions/constants";
+import { appendToSunshineNotes } from '../users/sunshineNotes';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { triggerReview } from './helpers';
@@ -21,7 +21,7 @@ export async function triggerReviewAfterModeration({ newDocument, currentUser, c
   await appendToSunshineNotes({
     moderatedUserId,
     adminName: responsibleAdminName,
-    text: ` "${MODERATOR_ACTION_TYPES[moderatorAction.type]}"`,
+    text: getModeratorActionNoteText(moderatorAction.type),
     context,
   });
 }

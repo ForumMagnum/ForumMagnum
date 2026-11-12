@@ -1,6 +1,6 @@
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 import moment from 'moment';
-import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import type { ApolloClient } from '@apollo/client';
 
 declare global {
   interface VotesViewTerms extends ViewTermsBase {

@@ -3,6 +3,7 @@
 
 // Helper imports
 import { CollectionViewSet } from './collectionViewSet';
+import { AiDigestIssuesViews } from '../collections/aiDigestIssues/views';
 
 // Collection imports
 import { BookmarksViews } from '../collections/bookmarks/views';
@@ -21,6 +22,7 @@ import { HomePageDesignsViews } from '../collections/homePageDesigns/views';
 import { IframeWidgetSrcdocsViews } from '../collections/iframeWidgetSrcdocs/views';
 import { JargonTermsViews } from '../collections/jargonTerms/views';
 import { LlmConversationsViews } from '../collections/llmConversations/views';
+import { LlmRunsViews } from '../collections/llmRuns/views';
 import { LocalgroupsViews } from '../collections/localgroups/views';
 import { LWEventsViews } from '../collections/lwevents/views';
 import { MessagesViews } from '../collections/messages/views';
@@ -35,6 +37,7 @@ import { PetrovDayActionsViews } from '../collections/petrovDayActions/views';
 import { PodcastEpisodesViews } from '../collections/podcastEpisodes/views';
 import { PostsViews } from '../collections/posts/views';
 import { PostRelationsViews } from '../collections/postRelations/views';
+import { RejectionAppealsViews } from '../collections/rejectionAppeals/views';
 import { ReportsViews } from '../collections/reports/views';
 import { ResearchConversationEventsViews } from '../collections/researchConversationEvents/views';
 import { ResearchConversationsViews } from '../collections/researchConversations/views';
@@ -64,6 +67,9 @@ import { VotesViews } from '../collections/votes/views';
 import { YjsDocumentsViews } from '../collections/yjsDocuments/views';
 
 export const allViews = {
+  AiDigestIssueGenerations: new CollectionViewSet('AiDigestIssueGenerations', {}),
+  AiDigestIssues: AiDigestIssuesViews,
+  AiDigestSchedules: new CollectionViewSet('AiDigestSchedules', {}),
   ArbitalCaches: new CollectionViewSet('ArbitalCaches', {}),
   ArbitalTagContentRels: new CollectionViewSet('ArbitalTagContentRels', {}),
   AutomatedContentEvaluations: new CollectionViewSet('AutomatedContentEvaluations', {}),
@@ -98,6 +104,8 @@ export const allViews = {
   LinkPreviewCaches: new CollectionViewSet('LinkPreviewCaches', {}),
   LlmConversations: LlmConversationsViews,
   LlmMessages: new CollectionViewSet('LlmMessages', {}),
+  LlmRuns: LlmRunsViews,
+  LlmRunTranscriptEntries: new CollectionViewSet('LlmRunTranscriptEntries', {}),
   Localgroups: LocalgroupsViews,
   LoginTokens: new CollectionViewSet('LoginTokens', {}),
   LWEvents: LWEventsViews,
@@ -118,12 +126,15 @@ export const allViews = {
   Podcasts: new CollectionViewSet('Podcasts', {}),
   Posts: PostsViews,
   PostEmbeddings: new CollectionViewSet('PostEmbeddings', {}),
+  PostPreviews: new CollectionViewSet('PostPreviews', {}),
   PostRecommendations: new CollectionViewSet('PostRecommendations', {}),
   PostRelations: PostRelationsViews,
+  PostSummaries: new CollectionViewSet('PostSummaries', {}),
   PostViewTimes: new CollectionViewSet('PostViewTimes', {}),
   PostViews: new CollectionViewSet('PostViews', {}),
   ReadStatuses: new CollectionViewSet('ReadStatuses', {}),
   RecommendationsCaches: new CollectionViewSet('RecommendationsCaches', {}),
+  RejectionAppeals: RejectionAppealsViews,
   Reports: ReportsViews,
   ResearchConversationEvents: ResearchConversationEventsViews,
   ResearchConversations: ResearchConversationsViews,

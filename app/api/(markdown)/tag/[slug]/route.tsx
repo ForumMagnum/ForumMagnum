@@ -56,7 +56,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       <div>
         <div className={markdownClasses.title}>Tag Not Found</div>
         <div>No tag found with slug: {slug}</div>
-      </div>
+      </div>,
+      resolverContext.forumType
     );
     return new Response(markdown, {
       status: 404,
@@ -106,6 +107,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
           <MarkdownPostsList posts={taggedPosts} includeExcerpt={false} />
         </>
       ) : null}
-    </div>
+    </div>,
+    resolverContext.forumType
   );
 }

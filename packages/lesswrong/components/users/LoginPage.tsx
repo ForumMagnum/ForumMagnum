@@ -4,6 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/routeUtil';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import LoginForm from "./LoginForm";
+import { sanitizeLoginReturnTo } from '@/lib/auth/loginNotices';
 
 const styles = defineStyles("LoginPage", (theme: ThemeType) => ({
   root: {
@@ -23,7 +24,7 @@ const LoginPage = ({ returnTo }: { returnTo?: string }) => {
     // If already logged in, redirect to the front page
     if (currentUser) {
       if (returnTo) {
-        navigate(returnTo);
+        navigate(sanitizeLoginReturnTo(returnTo));
       } else {
         navigate({pathname: "/"});
       }

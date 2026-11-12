@@ -1,3 +1,5 @@
+import React from "react";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 import { markdownClasses, markdownResponse } from "@/server/markdownApi/markdownResponse";
 import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
@@ -17,6 +19,12 @@ import {
   type LexicalNode,
 } from "lexical";
 import { captureException } from "@/lib/sentryWrapper";
+import { MarkdownUserLink } from "@/server/markdownComponents/MarkdownUserLink";
+
+interface EditorDraftMarkdownAuthor {
+  slug: string
+  displayName: string
+}
 
 export function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNode[] {
   const normalized: LexicalNode[] = [];
@@ -54,6 +62,8 @@ const MarkdownPostMetadataQuery = `
         _id
         title
         linkSharingKey
+        user { slug displayName }
+        coauthors { slug displayName }
       }
     }
   }
@@ -65,6 +75,8 @@ const LinkSharedPostMetadataQuery = `
       _id
       title
       linkSharingKey
+      user { slug displayName }
+      coauthors { slug displayName }
     }
   }
 `;
@@ -101,7 +113,7 @@ function formatSuggestionSummaryForMarkdown(content: string): string {
   }
 }
 
-const POST_REPLY_INSTRUCTIONS = "To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }";
+const POST_REPLY_INSTRUCTIONS = "To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }. To resolve a comment thread: POST /api/agent/resolveCommentThread { postId, key, threadId }";
 
 function serializeThreadsToMarkdown(threads: SerializedThread[], replyInstructions: string): string {
   if (threads.length === 0) return "";
@@ -300,9 +312,12 @@ export async function renderLiveEditorDraftMarkdownRoute({
     const response = await renderEditorDraftMarkdown({
       title,
       postId: resolvedPostId,
+      author: post?.user ?? null,
+      coauthors: post?.coauthors ?? [],
       version,
       bodyMarkdown,
       commentThreadsMarkdown,
+      forumType: resolverContext.forumType,
     });
     response.headers.set("Cache-Control", NO_CACHE_HEADERS["Cache-Control"]);
     return response;
@@ -317,15 +332,21 @@ export async function renderLiveEditorDraftMarkdownRoute({
 export async function renderEditorDraftMarkdown({
   title,
   postId,
+  author,
+  coauthors,
   bodyMarkdown,
   version,
   commentThreadsMarkdown,
+  forumType,
 }: {
   title: string
   postId: string
+  author?: EditorDraftMarkdownAuthor | null
+  coauthors?: EditorDraftMarkdownAuthor[] | null
   bodyMarkdown: string
   version?: string
   commentThreadsMarkdown?: string
+  forumType: ForumTypeString
 }): Promise<Response> {
   return markdownResponse(
     <div>
@@ -333,6 +354,17 @@ export async function renderEditorDraftMarkdown({
         {"Title: "}
         {title}
       </div>
+      {author ? (
+        <div>
+          By <MarkdownUserLink user={author} />
+          {coauthors?.map((coauthor) => (
+            <React.Fragment key={coauthor.slug}>
+              {", "}
+              <MarkdownUserLink user={coauthor} />
+            </React.Fragment>
+          ))}
+        </div>
+      ) : null}
       <div>
         Post ID: <code>{postId}</code>
       </div>
@@ -353,6 +385,7 @@ export async function renderEditorDraftMarkdown({
       <hr />
       {commentThreadsMarkdown ? <MarkdownNode markdown={commentThreadsMarkdown} /> : null}
       <hr />
-    </div>
+    </div>,
+    forumType
   );
 }

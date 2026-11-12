@@ -210,6 +210,7 @@ export interface EditorChangeEvent {
 export interface FormProps {
   commentMinimalistStyle?: boolean
   maxHeight?: boolean,
+  fitToContent?: boolean,
 }
 
 interface EditorProps {
@@ -607,6 +608,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         collectionName={collectionName}
         fieldName={this.props.fieldName}
         accessLevel={this.props.accessLevel}
+        fitToContent={this.props.formProps?.fitToContent}
       />
     </div>
   }
@@ -743,9 +745,10 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       return classes.commentMinimalistEditorHeight;
     }
 
+    const fitToContent = !!formProps?.fitToContent;
     return classNames({
-      [classes.commentEditorHeight]: commentStyles,
-      [classes.postEditorHeight]: !commentStyles,
+      [classes.commentEditorHeight]: commentStyles && !fitToContent,
+      [classes.postEditorHeight]: !commentStyles && !fitToContent,
       [classes.maxHeight]: maxHeight,
     });
   }

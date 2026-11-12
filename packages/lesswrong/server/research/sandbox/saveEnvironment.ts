@@ -1,5 +1,6 @@
 import { Sandbox, Snapshot } from "@vercel/sandbox";
 import { signSupervisorToken } from "./supervisor/auth";
+import { CLAUDE_DIR, SANDBOX_HOME_DIR } from "./sandboxLayout";
 import {
   getRunningSandbox,
   sandboxNameForConversation,
@@ -89,18 +90,28 @@ function deriveLabel(repoDir: string | null, conversationTitle: string | null): 
 }
 
 async function scrubAgentSession(clone: Sandbox): Promise<void> {
-  // `~/.claude/projects` is the session transcript; `~/.claude/history.jsonl` is
-  // the global cross-conversation prompt log (outside projects/); `~/.claude.json`
-  // may hold MRU prompt state. This removes only the agent session — it is NOT a
+  // `.claude/projects` is the session transcript (and Claude Code's auto-memory
+  // under it); `.claude/history.jsonl` is the global cross-conversation prompt
+  // log (outside projects/); `.claude.json` may hold MRU prompt state. Paths are
+  // spelled out under SANDBOX_HOME_DIR and removed as root: `runCommand` runs as
+  // the unprivileged `vercel-sandbox` user, whose `~` is /home/vercel-sandbox,
+  // not the agent's home. This removes only the agent session — it is NOT a
   // secrets scrub (the env keeps the user's functional setup, e.g. `.env`).
-  await clone.runCommand({
-    cmd: "sh",
+  const result = await clone.runCommand({
+    cmd: "rm",
     args: [
-      "-c",
-      "rm -rf ~/.claude/projects ~/.claude/history.jsonl; " +
-        "[ -f ~/.claude.json ] && rm -f ~/.claude.json; true",
+      "-rf",
+      `${CLAUDE_DIR}/projects`,
+      `${CLAUDE_DIR}/history.jsonl`,
+      `${SANDBOX_HOME_DIR}/.claude.json`,
     ],
+    sudo: true,
   });
+  if (result.exitCode !== 0) {
+    throw new Error(
+      `Failed to scrub the agent session from the environment clone (exit ${result.exitCode}): ${(await result.stderr()).slice(0, 500)}`,
+    );
+  }
 }
 
 async function createCloneFromSnapshot(snapshotId: string): Promise<Sandbox> {

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useRef, useState, useEffect, useContext, useCallback } from 'react'
 import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
@@ -15,10 +16,9 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
-import type { Command, Editor } from '@ckeditor/ckeditor5-core';
-import type { ModelNode as Node, ModelRootElement as RootElement, ModelWriter as Writer, ModelElement as CKElement, ModelSelection as Selection, ModelDocumentFragment as DocumentFragment } from '@ckeditor/ckeditor5-engine';
+import type { Command, Editor, ModelNode as Node, ModelRootElement as RootElement, ModelWriter as Writer, ModelElement as CKElement, ModelSelection as Selection, ModelDocumentFragment as DocumentFragment } from 'ckeditor5';
 import { EditorContext } from '../posts/EditorContext';
-import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
+import { getCloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
 import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVisibilityBlock/conditionalVisibility';
@@ -37,9 +37,10 @@ import { useEditorCommands } from './EditorCommandsContext';
 import { CkEditorShortcut, augmentEditor } from './editorAugmentations';
 import { useCommandPalette } from '../hooks/useCommandPalette';
 import { makeEditorConfig } from './editorConfigs';
+import { CkEditorLoadError } from './CkEditorLoadError';
 
 // If any custom commands' execute methods change their signatures, we need to update this declaration
-declare module '@ckeditor/ckeditor5-core' {
+declare module 'ckeditor5' {
   interface CommandsMap {
     getLLMFeedback: Command & {
       execute: ({ userPrompt, afterLlmRequestCallback }: { userPrompt: string, afterLlmRequestCallback: () => Promise<void> }) => { abort: () => void, request: Promise<void> };
@@ -418,6 +419,7 @@ const CKPostEditor = ({
   placeholder?: string,
   document?: any,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(ckEditorPluginStyles);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -451,6 +453,7 @@ const CKPostEditor = ({
   
     // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
+  const [loadError, setLoadError] = useState<Error | null>(null);
   useEffect(() => {
     setLayoutReady(true)
   }, [])
@@ -459,9 +462,8 @@ const CKPostEditor = ({
   const sidebarRef = useRef<HTMLDivElement>(null)
   const hiddenPresenceListRef = useRef<HTMLDivElement>(null)
 
-  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
+  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get(forumType) || ckEditorWebsocketUrlSetting.get(forumType);
   const ckEditorCloudConfigured = !!webSocketUrl;
-  const initData = typeof(data) === "string" ? data : ""
 
   const [sendNewDialogueMessageNotification] = useMutation(gql(`
     mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {
@@ -552,7 +554,7 @@ const CKPostEditor = ({
     ...postEditorToolbarConfig,
     cloudServices: ckEditorCloudConfigured ? {
       tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, key),
-      uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
+      uploadUrl: ckEditorUploadUrlOverrideSetting.get(forumType) || ckEditorUploadUrlSetting.get(forumType),
       webSocketUrl: webSocketUrl,
       documentId: getCKEditorDocumentId(documentId),
       bundleVersion: ckEditorBundleVersion,
@@ -570,12 +572,13 @@ const CKPostEditor = ({
     presenceList: {
       container: hiddenPresenceListRef.current
     },
-    initialData: initData,
-    placeholder: actualPlaceholder,
-    mention: mentionPluginConfiguration(portalContext),
+    root: {
+      placeholder: actualPlaceholder,
+    },
+    mention: mentionPluginConfiguration(portalContext, forumType),
     dialogues: dialogueConfiguration,
     conditionalVisibility: conditionalVisibilityPluginConfiguration,
-    ...cloudinaryConfig,
+    ...getCloudinaryConfig(forumType),
     claims: claimsConfig(portalContext, openDialog),
   });
 
@@ -672,8 +675,17 @@ const CKPostEditor = ({
     <div className={classes.hidden} ref={hiddenPresenceListRef}/>
     <div ref={sidebarRef} className={classes.sidebar}/>
 
-    {layoutReady && <CKEditor
+    {loadError && <CkEditorLoadError error={loadError} />}
+
+    {layoutReady && !loadError && <CKEditor
       ref={editorRef}
+      onError={(error, { phase }) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        if (phase === 'initialization') {
+          setLoadError(error);
+        }
+      }}
       onChange={onChange}
       onFocus={onFocus}
       editor={getCkPostEditor(!!isCollaborative)}

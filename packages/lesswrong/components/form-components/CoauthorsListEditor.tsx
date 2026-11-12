@@ -41,7 +41,6 @@ interface CoauthorsListEditorProps {
 export const CoauthorsListEditor = ({ field, post, label }: CoauthorsListEditorProps) => {
   const classes = useStyles(coauthorsListEditorStyles);
   const value = field.state.value ?? [];
-  const hasPermission = !!post.hasCoauthorPermission;
 
   const addUserId = useCallback((userId: string) => {
     const newValue = uniq([...(field.state.value ?? []), userId]);

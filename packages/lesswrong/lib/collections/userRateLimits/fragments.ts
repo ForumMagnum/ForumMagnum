@@ -28,5 +28,7 @@ export const UserRateLimitDisplay = gql(`
     intervalLength
     createdAt
     endedAt
+    liftAtAverageKarma
+    liftAverageKarmaCount
   }
 `)

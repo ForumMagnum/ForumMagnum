@@ -1,11 +1,9 @@
 import type {
   QueryDslQueryContainer,
-  SearchRequest as SearchRequestInfo,
   Sort,
 } from "@elastic/elasticsearch/lib/api/types";
-import type {
-  SearchRequest as SearchRequestBody,
-} from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
+
+
 import {
   IndexConfig,
   Ranking,
@@ -23,7 +21,7 @@ import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
  * be exact - just a date a little older than the oldest searchable
  * records.
  */
-export const getSearchOriginDate = () => new Date(searchOriginDate.get());
+export const getSearchOriginDate = () => new Date(searchOriginDate);
 
 export type QueryFilterOperator = "gt" | "gte" | "lt" | "lte" | "eq";
 

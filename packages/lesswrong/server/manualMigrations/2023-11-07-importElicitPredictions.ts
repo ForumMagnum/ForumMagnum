@@ -1,3 +1,4 @@
+import { forumTypeSetting } from '@/lib/forumTypeUtils';
 import { executePromiseQueue } from '../../lib/utils/asyncUtils';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import CommentsRepo from '../repos/CommentsRepo';
@@ -32,7 +33,7 @@ async function getPredictionsFromElicit(questionId: string): Promise<null | Arra
     method: 'GET',
     redirect: 'follow',
     headers: {
-      'Authorization': `API_KEY ${elicitAPIKey.get()}`
+      'Authorization': `API_KEY ${elicitAPIKey.get(forumTypeSetting.get())}`
     }
   })
   const responseText = await response.text()
@@ -47,7 +48,7 @@ async function getPredictionDataFromElicit(questionId: string) {
     method: 'GET',
     redirect: 'follow',
     headers: {
-      'Authorization': `API_KEY ${elicitAPIKey.get()}`
+      'Authorization': `API_KEY ${elicitAPIKey.get(forumTypeSetting.get())}`
     }
   })
   if (response.status !== 200) throw new Error(`Cannot get elicit prediction for questionId ${questionId}, got: ${response.status}: ${response.statusText}`)

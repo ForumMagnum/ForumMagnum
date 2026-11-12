@@ -80,7 +80,8 @@ export async function renderCollectionMarkdown(req: NextRequest, config: Markdow
       <div>
         <div className={markdownClasses.title}>Collection Not Found</div>
         <div>No collection found for route: {config.routePath}</div>
-      </div>
+      </div>,
+      resolverContext.forumType
     );
     return new Response(markdown, {
       status: 404,
@@ -145,6 +146,7 @@ export async function renderCollectionMarkdown(req: NextRequest, config: Markdow
       ) : (
         <div><em>No books found in this collection.</em></div>
       )}
-    </div>
+    </div>,
+    resolverContext.forumType
   );
 }

@@ -1,5 +1,5 @@
 import { UltraFeedBookmark } from '@/server/repos/BookmarksRepo';
-import { FeedCommentMetaInfo, FeedItemSourceType, FeedCommentsThread, PreDisplayFeedComment, FeedPostStub } from '@/components/ultraFeed/ultraFeedTypes';
+import { FeedCommentMetaInfo, FeedCommentsThread, PreDisplayFeedComment, FeedPostStub } from '@/components/ultraFeed/ultraFeedTypes';
 
 export type PreparedBookmarkItem =
   | { type: "feedPost"; feedPostStub: FeedPostStub }

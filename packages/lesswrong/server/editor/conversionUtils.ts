@@ -4,7 +4,7 @@ import { draftToHTML } from '../draftConvert';
 import { captureException } from '@/lib/sentryWrapper';
 import type TurndownService from 'turndown';
 import { isAnyTest } from '../../lib/executionEnvironment';
-import { cheerioParse } from '../utils/htmlUtil';
+import { cheerioParse, cheerioParseDocument } from '../utils/htmlUtil';
 import { sanitize } from "@/lib/utils/sanitize";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { getMarkdownIt, getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
@@ -171,8 +171,217 @@ function stripIframeWidgetSrcdocs(html: string): string {
   return $.html();
 }
 
+// Turndown escapes every `[` and `]` in text as `\[` / `\]`. That's valid
+// CommonMark, but the agent markdown dialect also reads `\[…\]` as display
+// math, so prose like "He said [...] and" came back as an equation when an
+// agent re-inserted it. How a bracket can be written instead depends on its
+// surroundings, which can come from other nodes (a `(` in the next text node,
+// an enclosing link), so text brackets, and the brackets of link labels
+// (which constrain the text brackets inside them), go into Turndown's output
+// as placeholders, and `resolveBracketPlaceholders` writes each one with the
+// whole document's markdown in view. The placeholders are Unicode
+// noncharacters, which are reserved for internal use like this;
+// `markTextBrackets` replaces any that occur in the text itself.
+const TEXT_BRACKET_OPEN = '\uFDD0';
+const TEXT_BRACKET_CLOSE = '\uFDD1';
+const LABEL_BRACKET_OPEN = '\uFDD2';
+const LABEL_BRACKET_CLOSE = '\uFDD3';
+const BRACKET_PLACEHOLDERS = /[\uFDD0-\uFDD3]/g;
+// Stands in for a text `[` that must be escaped, until `writeEscapedOpeners`
+// picks how.
+const ESCAPED_TEXT_BRACKET_OPEN = '\uFDD4';
+const INTERNAL_CHARACTERS = /[\uFDD0-\uFDD4]/g;
+
+function markTextBrackets(text: string): string {
+  return text
+    .replace(INTERNAL_CHARACTERS, '\uFFFD')
+    .replace(/\[/g, TEXT_BRACKET_OPEN)
+    .replace(/\]/g, TEXT_BRACKET_CLOSE);
+}
+
+function escapeMarkingTextBrackets(defaultEscape: (text: string) => string, text: string): string {
+  return defaultEscape(markTextBrackets(text));
+}
+
+interface TextBracketMatches {
+  /** The index of every bracket placeholder, in order. */
+  placeholders: number[]
+  /** Each paired text bracket's index, mapped to its partner's. */
+  partners: Map<number, number>
+  /** The indices of text brackets inside a link label. */
+  insideLabel: Set<number>
+}
+
+/**
+ * Pair up the text brackets in Turndown output. Each `]` pairs with the
+ * nearest unpaired `[` in the same paragraph and the same link label; a pair
+ * straddling a label bracket couldn't be written bare without moving where
+ * the label ends.
+ */
+function matchTextBrackets(markdown: string): TextBracketMatches {
+  const placeholders: number[] = [];
+  const partners = new Map<number, number>();
+  const insideLabel = new Set<number>();
+  // A stack of unpaired openers per enclosing label, outermost first.
+  let openers: number[][] = [[]];
+  for (let i = 0; i < markdown.length; i++) {
+    const ch = markdown[i];
+    if (ch === '\n' && markdown[i + 1] === '\n') {
+      openers = [[]];
+    } else if (ch === LABEL_BRACKET_OPEN) {
+      placeholders.push(i);
+      openers.push([]);
+    } else if (ch === LABEL_BRACKET_CLOSE) {
+      placeholders.push(i);
+      if (openers.length > 1) openers.pop();
+    } else if (ch === TEXT_BRACKET_OPEN || ch === TEXT_BRACKET_CLOSE) {
+      placeholders.push(i);
+      if (openers.length > 1) insideLabel.add(i);
+      const labelOpeners = openers[openers.length - 1];
+      if (ch === TEXT_BRACKET_OPEN) {
+        labelOpeners.push(i);
+      } else {
+        const opener = labelOpeners.pop();
+        if (opener !== undefined) {
+          partners.set(opener, i);
+          partners.set(i, opener);
+        }
+      }
+    }
+  }
+  return { placeholders, partners, insideLabel };
+}
+
+/** The character at `index` of Turndown output, reading placeholders as brackets. */
+function outputCharAt(markdown: string, index: number): string | undefined {
+  const ch = markdown[index];
+  if (ch === TEXT_BRACKET_OPEN || ch === LABEL_BRACKET_OPEN) return '[';
+  if (ch === TEXT_BRACKET_CLOSE || ch === LABEL_BRACKET_CLOSE) return ']';
+  return ch;
+}
+
+/**
+ * Whether a pair of text brackets can be written bare. Not when its
+ * surroundings would make it markdown syntax: an inline link, reference link
+ * or link definition (`](`, `][`, `]:`), a footnote reference (`[^`), an
+ * inline footnote (`^[`) or a research mention (`@[`). Nor after a
+ * backslash, which would make `\\[`, the reader dialect's display-math
+ * opener.
+ */
+function canWritePairBare(markdown: string, open: number, close: number): boolean {
+  const following = outputCharAt(markdown, close + 1);
+  const preceding = outputCharAt(markdown, open - 1);
+  return !(following && '([:'.includes(following))
+    && outputCharAt(markdown, open + 1) !== '^'
+    && !(preceding && '^@\\'.includes(preceding));
+}
+
+/**
+ * Whether a text `[` that isn't in a bare pair can still be written bare.
+ * Outside link labels it can't start a link: the text `]`s that aren't bare
+ * are escaped, so every bare `]` after it in its paragraph closes a `[` that
+ * comes after it. Inside a label it would leave the label's brackets
+ * unbalanced, so the label wouldn't close. Before `^` it could start a
+ * footnote definition, whose parser ignores the `]`'s escape; after a
+ * backslash it would make `\\[`.
+ */
+function canWriteOpenerBare(markdown: string, index: number, matches: TextBracketMatches): boolean {
+  return !matches.insideLabel.has(index)
+    && outputCharAt(markdown, index + 1) !== '^'
+    && outputCharAt(markdown, index - 1) !== '\\';
+}
+
+function writeBracketPlaceholder(markdown: string, index: number, matches: TextBracketMatches): string {
+  switch (markdown[index]) {
+    case LABEL_BRACKET_OPEN:
+      return '[';
+    case LABEL_BRACKET_CLOSE:
+      return ']';
+    case TEXT_BRACKET_OPEN: {
+      const close = matches.partners.get(index);
+      const bare = (close !== undefined && canWritePairBare(markdown, index, close))
+        || canWriteOpenerBare(markdown, index, matches);
+      return bare ? '[' : ESCAPED_TEXT_BRACKET_OPEN;
+    }
+    default: {
+      const open = matches.partners.get(index);
+      return open !== undefined && canWritePairBare(markdown, open, index) ? ']' : '\\]';
+    }
+  }
+}
+
+function writeEscapedOpenersInParagraph(paragraph: string): string {
+  const lastEscapedCloser = paragraph.lastIndexOf('\\]');
+  let result = '';
+  let start = 0;
+  for (
+    let marker = paragraph.indexOf(ESCAPED_TEXT_BRACKET_OPEN);
+    marker >= 0;
+    marker = paragraph.indexOf(ESCAPED_TEXT_BRACKET_OPEN, start)
+  ) {
+    result += paragraph.slice(start, marker) + (marker < lastEscapedCloser ? '&#91;' : '\\[');
+    start = marker + 1;
+  }
+  return result + paragraph.slice(start);
+}
+
+/**
+ * Write each text `[` marked for escaping as `\[`, or, where a `\]` follows
+ * it in its paragraph, as `&#91;`: the agent dialect reads `\[…\]` as display
+ * math however much other syntax lies between them.
+ */
+function writeEscapedOpeners(markdown: string): string {
+  if (!markdown.includes(ESCAPED_TEXT_BRACKET_OPEN)) return markdown;
+  return markdown.split('\n\n').map(writeEscapedOpenersInParagraph).join('\n\n');
+}
+
+/**
+ * Write the bracket placeholders in Turndown output (see `TEXT_BRACKET_OPEN`).
+ * Label brackets are written bare, and so are text brackets wherever that
+ * can't be read as markdown syntax. Other text `]`s are escaped as `\]`, and
+ * other text `[`s as `\[` or `&#91;` (see `canWriteOpenerBare` and
+ * `writeEscapedOpeners`).
+ */
+function resolveBracketPlaceholders(markdown: string): string {
+  if (markdown.search(BRACKET_PLACEHOLDERS) < 0) return markdown;
+  const matches = matchTextBrackets(markdown);
+  let result = '';
+  let start = 0;
+  for (const index of matches.placeholders) {
+    result += markdown.slice(start, index) + writeBracketPlaceholder(markdown, index, matches);
+    start = index + 1;
+  }
+  return writeEscapedOpeners(result + markdown.slice(start));
+}
+
+function hasBalancedParentheses(text: string): boolean {
+  let depth = 0;
+  for (const ch of text) {
+    if (ch === '(') {
+      depth++;
+    } else if (ch === ')') {
+      depth--;
+      if (depth < 0) return false;
+    }
+  }
+  return depth === 0;
+}
+
+/**
+ * Write a URL as a markdown link destination. CommonMark accepts a bare
+ * destination only without whitespace and with balanced parentheses, and
+ * reads a backslash in it as an escape; any other URL is written in the
+ * `<…>` form, which parses back to the same URL.
+ */
+function markdownLinkDestination(url: string): string {
+  if (/^[^\s<>\\]*$/.test(url) && hasBalancedParentheses(url)) {
+    return url;
+  }
+  return `<${url.replace(/[\r\n]/g, '').replace(/([<>\\])/g, '\\$1')}>`;
+}
+
 let _turndownService: TurndownService|null = null;
-const TURNDOWN_BUILD_MARKER = 'widget-markdown-v7-singleline-links';
+const TURNDOWN_BUILD_MARKER = 'widget-markdown-v11-bracket-placeholders';
 function getTurndown(): TurndownService {
   const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
   if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
@@ -319,15 +528,14 @@ function getTurndown(): TurndownService {
         // Use the data-footnote-id attribute to get the footnote id
         const id = (node as unknown as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
 
-        // Get the content of the footnote from the footnote-content div.
-        // `textContent` of the div as a whole jams adjacent block children
-        // together ("…bonus post?A fellow Resident…"); join the blocks'
-        // texts with spaces instead.
-        const contentElement = (node as unknown as Element).querySelector('.footnote-content')
-        const blockChildren = contentElement ? Array.from(contentElement.children) : []
-        const text = blockChildren.length > 0
-          ? blockChildren.map((child) => (child.textContent ?? '').trim()).filter(Boolean).join(' ')
-          : (contentElement?.textContent || '')
+        // Convert the footnote-content div with the same rules as the body,
+        // so links and emphasis inside footnotes survive (`textContent` drops
+        // them). A footnote definition is a single line, so block breaks
+        // between its paragraphs collapse to spaces.
+        const contentElement = (node as unknown as Element).querySelector<HTMLElement>('.footnote-content')
+        const text = contentElement
+          ? turndownService.turndown(contentElement).replace(/\s*\n\s*/g, ' ').trim()
+          : ''
         return `[^${id}]: ${text} \n\n`
       }
     })
@@ -348,7 +556,25 @@ function getTurndown(): TurndownService {
         const title = rawTitle ? ` "${rawTitle.replace(/(\n+\s*)+/g, ' ').replace(/"/g, '\\"')}"` : '';
         const singleLineContent = content.replace(/\s*\n\s*/g, ' ').trim();
         if (!singleLineContent) return '';
-        return `[${singleLineContent}](${href}${title})`;
+        return `${LABEL_BRACKET_OPEN}${singleLineContent}${LABEL_BRACKET_CLOSE}(${href}${title})`;
+      }
+    })
+    // Turndown's default image rule writes the URL and alt text raw, which
+    // doesn't parse back as an image when the URL contains spaces or
+    // unbalanced parentheses, or the alt text has unbalanced brackets or
+    // line breaks.
+    turndownService.addRule('image', {
+      filter: 'img',
+      replacement: (_content, node) => {
+        const element = node as Element;
+        const src = element.getAttribute('src') ?? '';
+        if (!src) return '';
+        const alt = markTextBrackets((element.getAttribute('alt') ?? '')
+          .replace(/\s*\n\s*/g, ' ')
+          .replace(/\\/g, '\\\\'));
+        const rawTitle = element.getAttribute('title');
+        const title = rawTitle ? ` "${rawTitle.replace(/(\n+\s*)+/g, ' ').replace(/"/g, '\\"')}"` : '';
+        return `!${LABEL_BRACKET_OPEN}${alt}${LABEL_BRACKET_CLOSE}(${markdownLinkDestination(src)}${title})`;
       }
     })
     turndownService.addRule('subscript', {
@@ -443,6 +669,7 @@ function getTurndown(): TurndownService {
         return prefixed ? `\n\n${prefixed}\n\n` : '';
       },
     });
+    turndownService.escape = escapeMarkingTextBrackets.bind(null, turndownService.escape.bind(turndownService));
     (turndownService as AnyBecauseHard).__buildMarker = TURNDOWN_BUILD_MARKER;
     _turndownService = turndownService;
   }
@@ -482,7 +709,8 @@ function getMathjax3() {
 }
 
 /**
- * Render LaTeX math expressions in an HTML fragment using MathJax 3.
+ * Render LaTeX math expressions in an HTML fragment using MathJax 3, and
+ * sanitize the result.
  *
  * Replaces inline (\(...\)) and display ($$...$$ / \[...\]) TeX delimiters
  * with pre-rendered CHTML elements. The required MathJax CSS is inlined
@@ -490,6 +718,18 @@ function getMathjax3() {
  * into RSS feeds, scrapers, etc.
  */
 export function renderMathInHtml(html: string): string {
+  return renderMath(html, true);
+}
+
+/**
+ * Like `renderMathInHtml`, but for HTML that is deliberately left unsanitized
+ * (admin-authored contents of type "html").
+ */
+export function renderMathInUnsanitizedHtml(html: string): string {
+  return renderMath(html, false);
+}
+
+function renderMath(html: string, sanitizeOutput: boolean): string {
   if (isAnyTest) return html;
 
   try {
@@ -502,56 +742,58 @@ export function renderMathInHtml(html: string): string {
 
     doc.render();
 
-    // Attach the TeX source to each rendered equation. CHTML output has no
-    // text content (glyphs are drawn via CSS), so without this the equation is
-    // invisible to screen readers; MathNode.importDOM also relies on
-    // aria-label to recover the equation when converting rendered HTML back
-    // into the editor.
     for (const item of doc.math) {
-      if (item.typesetRoot) {
-        adaptor.setAttribute(item.typesetRoot, 'aria-label', item.math);
-        adaptor.setAttribute(item.typesetRoot, 'role', 'math');
+      const container = item.typesetRoot;
+      if (!container) {
+        continue;
       }
+      if (item.display && isEmptyMathContainer(adaptor, container)) {
+        adaptor.remove(container);
+        continue;
+      }
+      // Attach the TeX source to each rendered equation. CHTML output has no
+      // text content (glyphs are drawn via CSS), so without this the equation is
+      // invisible to screen readers; MathNode.importDOM also relies on
+      // aria-label to recover the equation when converting rendered HTML back
+      // into the editor.
+      adaptor.setAttribute(container, 'aria-label', item.math);
+      adaptor.setAttribute(container, 'role', 'math');
     }
 
     const renderedHtml: string = adaptor.innerHTML(adaptor.body(doc.document));
+    // MathJax's serializer doesn't escape `<` and `>` in attribute values, or
+    // anything at all in style attributes (which TeX like \color{...} controls),
+    // so its output must be sanitized again.
+    const outputHtml = sanitizeOutput ? sanitize(renderedHtml) : renderedHtml;
     const css: string = adaptor.textContent(chtml.styleSheet(doc));
-
-    if (!css || !renderedHtml.includes('mjx-container')) {
-      return renderedHtml;
-    }
-
-    // Inline the CSS with the first MathJax element so it's included in
-    // RSS feeds, external scrapers, etc. (same rationale as the old
-    // trimLatexAndAddCSS callback used with mathjax-node-page).
-    const $ = cheerioParse(renderedHtml);
-    // Drop only truly empty display equations.
-    // In MathJax v3, valid display equations can have empty text() while still
-    // containing rendered child nodes (<mjx-math>...), so text().trim()===""
-    // alone is not a safe emptiness check.
-    $('mjx-container[display="true"]').each((_, elem) => {
-      const node = $(elem);
-      const hasRenderedChildren = node.children().length > 0;
-      const hasMeaningfulText = node.text().trim() !== '';
-      if (!hasRenderedChildren && !hasMeaningfulText) {
-        node.remove();
-      }
-    });
-
-    const firstMathContainer = $('mjx-container').first();
-    if (firstMathContainer.length > 0) {
-      const styleNode = $('<style></style>').text(css);
-      firstMathContainer.before(styleNode);
-      return $.html();
-    }
-
-    return renderedHtml;
+    return insertStylesheetBeforeFirstEquation(outputHtml, css);
   } catch (err) {
     captureException(err);
     // eslint-disable-next-line no-console
     console.error('Error rendering math with MathJax:', err);
+    return sanitizeOutput ? sanitize(html) : html;
+  }
+}
+
+/**
+ * Whether a rendered equation is empty. Valid equations can have no text
+ * (glyphs are drawn with CSS) while still having rendered child elements.
+ */
+function isEmptyMathContainer(adaptor: LiteAdaptor, container: LiteElement): boolean {
+  const hasRenderedChildren = adaptor.childNodes(container).some((child) => adaptor.kind(child) !== '#text');
+  return !hasRenderedChildren && adaptor.textContent(container).trim() === '';
+}
+
+/**
+ * Inline the MathJax CSS before the first equation, so that it's included in
+ * RSS feeds, external scrapers, etc.
+ */
+function insertStylesheetBeforeFirstEquation(html: string, css: string): string {
+  const firstEquationIndex = html.indexOf('<mjx-container');
+  if (!css || firstEquationIndex < 0) {
     return html;
   }
+  return `${html.slice(0, firstEquationIndex)}<style>${css}</style>${html.slice(firstEquationIndex)}`;
 }
 
 // Adapted from: https://github.com/cheeriojs/cheerio/issues/748
@@ -679,7 +921,7 @@ const isEmptyParagraphOrBreak = (elem: CheerioElement) => {
 export async function draftJSToHtmlWithLatex(draftJS: AnyBecauseTodo) {
   const html = draftToHTML(convertFromRaw(draftJS))
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
-  return wrapSpoilerTags(trimmedHtml)
+  return sanitize(wrapSpoilerTags(trimmedHtml))
 }
 
 // Fold non-breaking spaces in TEXT content to plain spaces. Turndown's
@@ -709,13 +951,17 @@ function foldNbspInTextNodes(html: string): string {
   return $.html();
 }
 
+function turndownToMarkdown(html: string): string {
+  return resolveBracketPlaceholders(getTurndown().turndown(html))
+}
+
 export function htmlToMarkdown(html: string): string {
-  return getTurndown().turndown(foldNbspInTextNodes(html))
+  return turndownToMarkdown(foldNbspInTextNodes(html))
 }
 
 export function ckEditorMarkupToMarkdown(markup: string): string {
   // Sanitized CKEditor markup is just html
-  return getTurndown().turndown(sanitize(markup))
+  return turndownToMarkdown(sanitize(markup))
 }
 
 export function markdownToHtmlNoLaTeX(markdown: string): string {
@@ -813,7 +1059,7 @@ export async function extractAndReplaceIframeWidgets(html: string, revisionId: s
     if (!rawSrcdoc) {
       return;
     }
-    const srcdoc = cheerioParse(rawSrcdoc).root().find('del').remove().end().html() ?? '';
+    const srcdoc = cheerioParseDocument(rawSrcdoc).root().find('del').remove().end().html() ?? '';
 
     const srcdocId = randomId();
     srcdocsToInsert.push({
@@ -842,15 +1088,18 @@ interface DataToHTMLOptions {
   skipMathjax?: boolean,
 }
 
+function htmlToRenderedHtml(html: string, shouldSanitize: boolean, skipMathjax: boolean): string {
+  if (!shouldSanitize) {
+    return skipMathjax ? html : renderMathInUnsanitizedHtml(html);
+  }
+  const sanitizedHtml = sanitize(html);
+  return skipMathjax ? sanitizedHtml : renderMathInHtml(sanitizedHtml);
+}
+
 export async function dataToHTML(data: AnyBecauseTodo, type: string, context: ResolverContext, options?: DataToHTMLOptions) {
   switch (type) {
     case "html":
-      const maybeSanitized = options?.sanitize ? sanitize(data) : data;
-      if (options?.skipMathjax) {
-        return maybeSanitized;
-      } else {
-        return renderMathInHtml(maybeSanitized)
-      }
+      return htmlToRenderedHtml(data, !!options?.sanitize, !!options?.skipMathjax);
     case "lexical":
       return lexicalMarkupToHtml(data, context, !!options?.skipMathjax)
     case "ckEditorMarkup":
@@ -1008,6 +1257,7 @@ export async function buildRevisionWithUser({ originalContents, user, isAdmin, d
   if (!originalContents) throw new Error ("Can't build revision without originalContents")
 
   const { data, type } = originalContents;
+  if (type === "draftJS") throw new Error("Can't build new revisions in draftJS format")
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
   const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !isAdmin || originalContents.type !== "html" })
   const wordCount = await dataToWordCount(readerVisibleData, type, context)

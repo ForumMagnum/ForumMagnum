@@ -22,7 +22,7 @@ const nullifyVotesForUserAndCollectionByTarget = async (
   dateRange: DateRange,
 ) => {
   const collectionName = capitalize(collection.collectionName);
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType: "LessWrong" });
   const votes = await Votes.find({
     collectionName: collectionName,
     userId: user._id,

@@ -2,7 +2,7 @@ import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import type { TabId } from './groupings';
-import { getReviewGroupDisplayName } from './groupings';
+import { getReviewGroupDisplayName } from '@/lib/collections/users/reviewGroups';
 import FormatDate from '@/components/common/FormatDate';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 
@@ -93,7 +93,7 @@ const ModerationTabs = ({
   const classes = useStyles(styles);
   const now = useCurrentTime();
 
-  const separatorAfter = new Set(['curation', 'all']);
+  const separatorAfter = new Set(['curation', 'all', 'classifiedPosts']);
   const daysSinceLastCuration = lastCuratedDate ? (now.getTime() - new Date(lastCuratedDate).getTime()) / (1000 * 60 * 60 * 24) : null;
 
   return (

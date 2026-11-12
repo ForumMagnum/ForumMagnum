@@ -109,8 +109,8 @@ export const getVotePower = ({ user, voteType, document }: {
   document: VoteableType,
 }) => {
   const userKarma = user.karma;
-  if (user._id === karmaRewarderId100.get()) return 100;
-  if (user._id === karmaRewarderId1000.get()) return 1000;
+  if (user._id === karmaRewarderId100) return 100;
+  if (user._id === karmaRewarderId1000) return 1000;
   return calculateVotePower(userKarma, voteType);
 };
 

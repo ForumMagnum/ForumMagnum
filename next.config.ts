@@ -16,6 +16,11 @@ const serverExternalPackages = [
   // rendering). This has a somewhat high risk of causing problems related to there
   // being multiple different versions of React present.
   'react-dom/static',
+  // yjs warns ("Yjs was already imported") and breaks its instanceof checks if
+  // it's evaluated more than once per process. If bundled, it gets a separate
+  // module instance in each server layer (app-rsc, app-ssr, app-route), so it
+  // needs to be external so that they all share a single copy.
+  'yjs',
 ];
 
 const webpackExternalPackages = [
@@ -40,11 +45,17 @@ const isE2E = (process.env.E2E === "true");
 
 /** @type {NextConfig} */
 const nextConfig: NextConfig = {
+  // Keep our repository-maintained agent instructions unchanged by next dev.
+  agentRules: false,
   cacheComponents: !isE2E,
   reactStrictMode: false,
   // Lets a second dev instance run from the same checkout (next dev holds a
-  // lock under distDir): NEXT_DIST_DIR=.next-profile yarn start dev -p 3005
+  // lock under distDir): NEXT_DIST_DIR=.next-profile npm run start -- dev -p 3005
   ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
+  // next dev blocks requests for its JS bundles from any host other than
+  // localhost, so pages viewed through a remote URL never become interactive.
+  // Lightcone's hosted dev sandboxes set SANDBOX_PUBLIC_URL to that remote URL.
+  ...(process.env.SANDBOX_PUBLIC_URL ? { allowedDevOrigins: [new URL(process.env.SANDBOX_PUBLIC_URL).hostname] } : {}),
 
   compiler: {
     define: {
@@ -64,6 +75,9 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    // LW/AF metadata intentionally reads request headers and cookies. Only
+    // validate instant navigations for routes that explicitly opt in.
+    instantInsights: { validationLevel: 'manual-warning' },
     serverSourceMaps: true,
     turbopackFileSystemCacheForDev: true,
   },
@@ -152,7 +166,9 @@ const nextConfig: NextConfig = {
       // We need to prevent sentry externalization because the Webpack build breaks
       // in mysterious ways otherwise, and we really only use webpack for deployments
       // so it doesn't matter as much.
-      ].filter(pkg => pkg !== '@sentry/nextjs').flatMap(pkg => [pkg, `commonjs ${pkg}`])
+      // yjs is also used client-side, and these externals apply to the client
+      // build too, so we leave it to Next's own serverExternalPackages handling.
+      ].filter(pkg => pkg !== '@sentry/nextjs' && pkg !== 'yjs').flatMap(pkg => [pkg, `commonjs ${pkg}`])
     ];
 
     // What follows is the result of absolutely deranged behavior by NextJS.
@@ -246,8 +262,7 @@ module.exports = nextConfig;
 
 // Injected content via Sentry wizard below
 
-// eslint-disable-next-line no-restricted-imports
-import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 module.exports = isE2E ? module.exports : withSentryConfig(
   module.exports,

@@ -26,10 +26,10 @@ interface ModeratorNoteEntryDraft {
   bodyLines: string[];
 }
 
-// Either "Aug 15" (optionally with a year) or "8/15/2025", optionally followed
+// "Aug 15" or "15 Aug" (optionally with a year) or "8/15/2025", optionally followed
 // by a time. Old notes were written by hand or by earlier signature formats, so
 // this is deliberately looser than what `getSignature` currently produces.
-const DATE_PATTERN = String.raw`(?:[A-Z][a-z]{2}\s+\d{1,2}(?:,\s*\d{4})?|\d{1,2}\/\d{1,2}\/\d{2,4})(?:,?\s*\d{1,2}:\d{2}(?::\d{2})?\s*(?:[AP]M)?)?`;
+const DATE_PATTERN = String.raw`(?:[A-Z][a-z]{2}\s+\d{1,2}(?:,\s*\d{4})?|\d{1,2}\s+[A-Z][a-z]{2}(?:,?\s*\d{4})?|\d{1,2}\/\d{1,2}\/\d{2,4})(?:,?\s*\d{1,2}:\d{2}(?::\d{2})?\s*(?:[AP]M)?)?`;
 const SIGNATURE_LINE = new RegExp(String.raw`^(${DATE_PATTERN}),\s*([^:\n]{1,60}?)\s*:[ \t]*(.*)$`);
 
 // `getSignature` writes timestamps in Pacific time, and most legacy notes were
@@ -45,8 +45,8 @@ function withTimes(dateFormats: string[]) {
   return dateFormats.flatMap(date => [date, ...TIME_FORMATS.map(time => `${date} ${time}`)]);
 }
 
-const DATED_FORMATS = withTimes(['MMM D YYYY', 'M/D/YYYY', 'M/D/YY']);
-const YEARLESS_FORMATS = withTimes(['MMM D']);
+const DATED_FORMATS = withTimes(['MMM D YYYY', 'D MMM YYYY', 'M/D/YYYY', 'M/D/YY']);
+const YEARLESS_FORMATS = withTimes(['MMM D', 'D MMM']);
 
 function finishDraft(draft: ModeratorNoteEntryDraft | null): Omit<ModeratorNoteEntry, 'date'> | null {
   if (!draft) return null;

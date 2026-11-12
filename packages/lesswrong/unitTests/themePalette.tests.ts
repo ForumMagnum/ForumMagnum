@@ -84,8 +84,8 @@ describe('JSS', () => {
    * dark mode and accidentally make something black-on-black.
    */
   it('uses only colors that come from the theme palette or change in dark mode', () => {
-    const lightTheme = getForumTheme({name: "default", siteThemeOverride: {}}) as unknown as ThemeType;
-    const darkTheme = getForumTheme({name: "dark", siteThemeOverride: {}}) as unknown as ThemeType;
+    const lightTheme = getForumTheme({name: "default", siteThemeOverride: {}}, "LessWrong");
+    const darkTheme = getForumTheme({name: "dark", siteThemeOverride: {}}, "LessWrong");
     const stubbedLightTheme = replacePaletteWithStubs(lightTheme);
     const stubbedDarkTheme = replacePaletteWithStubs(darkTheme);
     let nonPaletteColors: string[] = [];
@@ -120,7 +120,7 @@ describe('JSS', () => {
    * stops matching.
    */
   it('cross-component CSS class references point to existing styles', () => {
-    const theme = getForumTheme({name: "default", siteThemeOverride: {}}) as unknown as ThemeType;
+    const theme = getForumTheme({name: "default", siteThemeOverride: {}}, "LessWrong");
 
     // Build a set of all valid CSS class names (ComponentName-styleKey)
     const validClassNames = new Set<string>();

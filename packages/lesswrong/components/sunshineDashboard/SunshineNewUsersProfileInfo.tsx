@@ -1,3 +1,4 @@
+import { userIsApproved } from "@/lib/collections/users/helpers";
 import React, { useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
@@ -48,7 +49,7 @@ const SunshineNewUsersProfileInfoInner = ({userId, startExpanded = false}: {user
   if (!user) return null
   if (!currentUser) return null;
 
-  if (user.reviewedByUserId && !user.snoozedUntilContentCount && !expanded) {
+  if (userIsApproved(user) && !expanded) {
     return <div className={classes.root} onClick={() => setExpanded(true)}>
       <SectionButton>Expand Moderation Tools</SectionButton>
     </div>

@@ -14,9 +14,10 @@ import {
   $isTextNode,
   ElementNode,
   $getNodeByKey,
+  $isParagraphNode,
 } from 'lexical';
 import { $setBlocksType } from '@lexical/selection';
-import { mergeRegister } from '@lexical/utils';
+import { $insertNodeToNearestRoot, mergeRegister } from '@lexical/utils';
 import { SpoilerNode, $createSpoilerNode, $isSpoilerNode } from './SpoilerNode';
 import { useMessages } from '@/components/common/withMessages';
 
@@ -54,17 +55,14 @@ export function SpoilersPlugin({ isSuggestionMode }: { isSuggestionMode?: boolea
             
             return true;
           }
-          editor.update(() => {
-            const selection = $getSelection();
-            if (!$isRangeSelection(selection)) return;
-
-            const spoilerNode = $createSpoilerNode();
-            const paragraph = $createParagraphNode();
-            spoilerNode.append(paragraph);
-            
-            selection.insertNodes([spoilerNode]);
-            paragraph.selectStart();
-          });
+          if (editor.getEditorState().read($selectionIsInsideSpoiler)) {
+            flash({
+              messageString: "Spoiler blocks can't be nested inside each other",
+              type: 'error',
+            });
+            return true;
+          }
+          editor.update($insertEmptySpoilerAtSelection);
           return true;
         },
         COMMAND_PRIORITY_LOW
@@ -202,6 +200,39 @@ export function SpoilersPlugin({ isSuggestionMode }: { isSuggestionMode?: boolea
   }, [editor, isSuggestionMode, flash]);
 
   return null;
+}
+
+function $selectionIsInsideSpoiler(): boolean {
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection)) return false;
+  return !!findSpoilerParent(selection.anchor.getNode());
+}
+
+/**
+ * Insert a new spoiler block containing an empty paragraph at the current
+ * selection, and place the cursor inside it. If the cursor is in an empty
+ * paragraph (e.g. after the slash menu has removed the "/spoiler" text), the
+ * paragraph is replaced rather than left behind as a stray blank line.
+ */
+function $insertEmptySpoilerAtSelection(): void {
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection)) return;
+
+  const spoilerNode = $createSpoilerNode();
+  const paragraph = $createParagraphNode();
+  spoilerNode.append(paragraph);
+
+  const topLevelElement = selection.anchor.getNode().getTopLevelElement();
+  if (
+    selection.isCollapsed()
+    && $isParagraphNode(topLevelElement)
+    && topLevelElement.getTextContent() === ''
+  ) {
+    topLevelElement.replace(spoilerNode);
+  } else {
+    $insertNodeToNearestRoot(spoilerNode);
+  }
+  paragraph.selectStart();
 }
 
 /**

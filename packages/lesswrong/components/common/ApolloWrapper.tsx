@@ -1,7 +1,8 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { use, useCallback, useMemo } from 'react';
-import { headerLink, createErrorLink, createHttpLink } from "@/lib/apollo/links";
+import { headerLink, createErrorLink, createHttpLink, createNonStreamingHttpLink, isNonStreamingOperation } from "@/lib/apollo/links";
 import { isServer } from "@/lib/executionEnvironment";
-import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { ApolloLink } from "@apollo/client";
 import {
   ApolloClient,
@@ -14,7 +15,6 @@ import { SSRResolverContext } from "@/lib/crud/ssrResolverContext";
 import { disableFragmentWarnings } from "graphql-tag";
 import { HTMLInjector } from '../hooks/useInjectHTML';
 import { useSearchParams } from 'next/navigation';
-import Cookies from 'universal-cookie';
 
 // In the internals of apollo client, they do two round-trips that look like `gql(print(gql(options.query)))`
 // This causes graphql-tag to emit warnings that look like "Warning: fragment with name PostsMinimumInfo already exists",
@@ -34,8 +34,8 @@ const makeApolloClientForServer = async (searchParamsStr: string, requestId: str
   return { client, context };
 }
 
-function makeApolloClientForClient({ loginToken }: {
-  loginToken: string|null
+function makeApolloClientForClient({ forumType }: {
+  forumType: ForumTypeString,
 }): ApolloClient {
   if (isServer) {
     throw new Error("Not client")
@@ -45,7 +45,11 @@ function makeApolloClientForClient({ loginToken }: {
     link: ApolloLink.from([
       headerLink,
       createErrorLink(),
-      createHttpLink(isServer ? getSiteUrl() : '/', loginToken)
+      ApolloLink.split(
+        isNonStreamingOperation,
+        createNonStreamingHttpLink('/'),
+        createHttpLink('/', forumType),
+      ),
     ])
   });
 
@@ -72,20 +76,17 @@ export const ApolloWrapper = ({ requestId, children }: React.PropsWithChildren<{
   const urlSearchParams = useSearchParams();
 
   if (isServer) {
-    const searchParamsStr = JSON.stringify(urlSearchParams);
+    const searchParamsStr = JSON.stringify(Object.fromEntries(urlSearchParams.entries()));
     return (
       <ApolloWrapperServer searchParamsStr={searchParamsStr} requestId={requestId}>
         {children}
       </ApolloWrapperServer>
     );
   } else {
-    const browserCookies = document.cookie;
-    const cookies = new Cookies(browserCookies);
-    const loginToken = cookies.get('loginToken');
     const searchParams = Object.fromEntries(urlSearchParams.entries())
 
     return (
-      <ApolloWrapperClient loginToken={loginToken} searchParams={searchParams}>
+      <ApolloWrapperClient searchParams={searchParams}>
         {children}
       </ApolloWrapperClient>
     );
@@ -93,11 +94,11 @@ export const ApolloWrapper = ({ requestId, children }: React.PropsWithChildren<{
 }
 
 
-const ApolloWrapperClient = ({ loginToken, searchParams, children }: React.PropsWithChildren<{
-  loginToken: string|null,
+const ApolloWrapperClient = ({ searchParams, children }: React.PropsWithChildren<{
   searchParams: Record<string, string>,
 }>) => {
-  const makeClient = useCallback(() => makeApolloClientForClient({ loginToken }), [loginToken]);
+  const { forumType } = useForumType();
+  const makeClient = useCallback(() => makeApolloClientForClient({ forumType }), [forumType]);
   return (
     <ApolloNextAppProvider makeClient={makeClient}>
       {children}

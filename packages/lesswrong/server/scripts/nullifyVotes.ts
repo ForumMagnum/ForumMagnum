@@ -7,11 +7,11 @@ import { silentlyReverseVote } from '../voteServer';
 import { nullifyVotesForUser } from '../nullifyVotesForUser';
 import { backgroundTask } from '../utils/backgroundTask';
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl"
 export const nullifyVotesForNullifiedUsers = async () => {
   const users = await Users.find({nullifyVotes: true}).fetch();
   users.forEach((user) => {
-    backgroundTask(nullifyVotesForUser(user));
+    backgroundTask(nullifyVotesForUser(user, "LessWrong"));
   })
   //eslint-disable-next-line no-console
   console.warn(`Nullified votes for ${users.length} users`);
@@ -22,7 +22,7 @@ interface DateRangeInput {
   before?: string;
 }
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl"
 export const wrappedNullifyVotesForUserByTarget = async (sourceUserId: string, targetUserId: string, dateRange: DateRangeInput = {}) => {
   let afterDate = undefined;
   let beforeDate = undefined;
@@ -45,7 +45,7 @@ export const wrappedNullifyVotesForUserByTarget = async (sourceUserId: string, t
 /**
  * Nullify votes where both user1 and user2 voted on the same document, this is intended for
  * nullifying duplicate votes from someone using an alt account.
- * Exported to allow running manually with "yarn repl"
+ * Exported to allow running manually with "npm run repl"
  */
 export const nullifySharedVotesForUsers = async (user1Id: string, user2Id: string, dryRun = false) => {
   const voteIds = await(new VotesRepo()).getSharedVoteIds({ user1Id, user2Id });

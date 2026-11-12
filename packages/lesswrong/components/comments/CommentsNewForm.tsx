@@ -1,9 +1,10 @@
-import React, {useState, useEffect, useRef, useMemo, Suspense} from 'react';
+import { useForumType } from '@/components/hooks/useForumType';
+import React, {useState, useEffect, useRef, useMemo} from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
-import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
+import { hideUnreviewedAuthorCommentsSettings, type ForumTypeString } from '@/lib/instanceSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { PermissionsPostMinimumInfo, requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
@@ -18,7 +19,6 @@ import { getCommentsNewFormPadding } from '@/lib/collections/comments/constants'
 import { CommentForm, type CommentInteractionType } from './CommentForm';
 import NewUserGuidelinesDialog from "./NewUserGuidelinesDialog";
 import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelinesBox";
-import RecaptchaWarning from "../common/RecaptchaWarning";
 import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerationWarning";
 import RateLimitWarning from "../editor/RateLimitWarning";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -96,10 +96,11 @@ export type CommentSuccessCallback = ((
 export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>;
 
 const shouldOpenNewUserGuidelinesDialog = (
-  maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo }
+  maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo },
+  forumType: ForumTypeString,
 ): maybeProps is { user: UsersCurrent, post: PostsMinimumInfo } => {
   const { user, post } = maybeProps;
-  return !!user && requireNewUserGuidelinesAck(user) && !!post;
+  return !!user && requireNewUserGuidelinesAck(user, forumType) && !!post;
 };
 
 const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
@@ -135,6 +136,7 @@ export type CommentsNewFormProps = {
 }
 
 const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSION", parentComment, successCallback, interactionType, cancelCallback, removeFields, formProps, enableGuidelines=true, padding=true, formStyle="default", overrideHintText, quickTakesSubmitButtonAtBottom, isAnswer, cancelLabel, hideAlignmentForumCheckbox, className}: CommentsNewFormProps) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
@@ -149,7 +151,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
   });
   const document = data?.user?.result;
   const userNextAbleToComment = document?.rateLimitNextAbleToComment;
-  const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment.nextEligible)) ?? null;
+  const lastRateLimitExpiry: Date|null = userNextAbleToComment?.nextEligible ? new Date(userNextAbleToComment.nextEligible) : null;
   const rateLimitMessage = userNextAbleToComment ? userNextAbleToComment.rateLimitMessage : null
   
   // Disable the form if there's a rate limit and it's more than 1 minute until it
@@ -158,12 +160,12 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
   // comment anyways, and this avoids an awkward interaction with the 15-second
   // rate limit that's only supposed to be there to prevent accidental double posts.
   // TODO
-  const formDisabledDueToRateLimit = !!lastRateLimitExpiry && isInFuture(moment(lastRateLimitExpiry).subtract(1,'minutes').toDate());
+  const formDisabledDueToRateLimit = userNextAbleToComment?.nextEligible === null || (!!lastRateLimitExpiry && isInFuture(moment(lastRateLimitExpiry).subtract(1,'minutes').toDate()));
 
   const {flash} = useMessages();
   prefilledProps = {
     ...prefilledProps,
-    af: commentDefaultToAlignment(currentUser, post, parentComment),
+    af: commentDefaultToAlignment(currentUser, post, forumType, parentComment),
   };
   
   const isQuickTake = !!prefilledProps.shortform
@@ -185,7 +187,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
       // TODO: user field for showing new user guidelines
       // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
       const dialogProps = { user: currentUser, post };
-      if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
+      if (shouldOpenNewUserGuidelinesDialog(dialogProps, forumType)) {
         openDialog({
           name: 'NewUserGuidelinesDialog',
           contents: ({onClose}) => <NewUserGuidelinesDialog
@@ -255,7 +257,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
     answer: !!isAnswer,
   };
 
-  const hideDate = hideUnreviewedAuthorCommentsSettings.get();
+  const hideDate = hideUnreviewedAuthorCommentsSettings.get(forumType);
   const commentWillBeHidden = (
     hideDate
     && new Date(hideDate) < now
@@ -312,58 +314,56 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
         [classes.quickTakesSubmitButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
       }
     )} onFocus={onFocusCommentForm}>
-      <RecaptchaWarning currentUser={currentUser}>
-        <div className={padding
-          ? classNames({
-            [classes.form]: !isMinimalist && !(isQuickTake && quickTakesSubmitButtonAtBottom),
-            [classes.formMinimalist]: isMinimalist,
-          })
-          : undefined
-        }>
-          {formDisabledDueToRateLimit && <RateLimitWarning
-            contentType="comment"
-            lastRateLimitExpiry={lastRateLimitExpiry}
-            rateLimitMessage={rateLimitMessage}
-          />}
-          <div onFocus={(ev) => {
-            afNonMemberDisplayInitialPopup(currentUser, openDialog)
-            ev.preventDefault()
-          }}>
-            <CommentForm
-              key={commentFormInstance}
-              prefilledProps={prefilledProps}
-              commentSubmitProps={commentSubmitProps}
-              // Note: This is overly restrictive at the moment to focus on the core use case first, many of these would work
-              disableSubmitDropdown={isAnswer || post?.question || prefilledProps.tagId}
-              interactionType={interactionType}
-              alignmentForumPost={post?.af}
-              hideAlignmentForumCheckbox={hideAlignmentForumCheckbox}
-              formClassName={mergedFormProps.formClassName}
-              editorHintText={mergedFormProps.editorHintText}
-              commentMinimalistStyle={mergedFormProps.commentMinimalistStyle}
-              maxHeight={mergedFormProps.maxHeight}
-              submitLabel={getSubmitLabel(isQuickTake, isAnswer)}
-              cancelLabel={cancelLabel}
-              onSuccess={wrappedSuccessCallback}
-              onCancel={wrappedCancelCallback}
-              onSubmit={() => {
-                setLoading(true);
-                commentSubmitStartTimeRef.current = Date.now()
-                captureEvent("wrappedSubmitCallbackStarted")
-              }}
-              onError={() => {
-                setLoading(false)
-              }}
-            />
-          </div>
+      <div className={padding
+        ? classNames({
+          [classes.form]: !isMinimalist && !(isQuickTake && quickTakesSubmitButtonAtBottom),
+          [classes.formMinimalist]: isMinimalist,
+        })
+        : undefined
+      }>
+        {formDisabledDueToRateLimit && <RateLimitWarning
+          contentType="comment"
+          lastRateLimitExpiry={lastRateLimitExpiry}
+          rateLimitMessage={rateLimitMessage}
+        />}
+        <div onFocus={(ev) => {
+          afNonMemberDisplayInitialPopup(currentUser, openDialog, forumType)
+          ev.preventDefault()
+        }}>
+          <CommentForm
+            key={commentFormInstance}
+            prefilledProps={prefilledProps}
+            commentSubmitProps={commentSubmitProps}
+            // Note: This is overly restrictive at the moment to focus on the core use case first, many of these would work
+            disableSubmitDropdown={isAnswer || post?.question || prefilledProps.tagId}
+            interactionType={interactionType}
+            alignmentForumPost={post?.af}
+            hideAlignmentForumCheckbox={hideAlignmentForumCheckbox}
+            formClassName={mergedFormProps.formClassName}
+            editorHintText={mergedFormProps.editorHintText}
+            commentMinimalistStyle={mergedFormProps.commentMinimalistStyle}
+            maxHeight={mergedFormProps.maxHeight}
+            submitLabel={getSubmitLabel(isQuickTake, isAnswer)}
+            cancelLabel={cancelLabel}
+            onSuccess={wrappedSuccessCallback}
+            onCancel={wrappedCancelCallback}
+            onSubmit={() => {
+              setLoading(true);
+              commentSubmitStartTimeRef.current = Date.now()
+              captureEvent("wrappedSubmitCallbackStarted")
+            }}
+            onError={() => {
+              setLoading(false)
+            }}
+          />
         </div>
-        {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
-          {commentWillBeHidden && <div className={classes.modNote}>
-            <NewCommentModerationWarning />
-          </div>}
-          <ModerationGuidelinesBox documentId={parentDocumentId} commentType={post?._id ? "post" : "subforum"} />
+      </div>
+      {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+        {commentWillBeHidden && <div className={classes.modNote}>
+          <NewCommentModerationWarning />
         </div>}
-      </RecaptchaWarning>
+        <ModerationGuidelinesBox documentId={parentDocumentId} commentType={post?._id ? "post" : "subforum"} />
+      </div>}
     </div>
   );
 };
@@ -371,6 +371,5 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
 export default registerComponent('CommentsNewForm', CommentsNewForm, {
   hocs: [withErrorBoundary]
 });
-
 
 

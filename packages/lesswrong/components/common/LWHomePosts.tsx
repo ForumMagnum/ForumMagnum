@@ -1,4 +1,5 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useForumType } from '@/components/hooks/useForumType';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -7,7 +8,6 @@ import { FilterSettings } from '../../lib/filterSettings';
 import { useFilterSettings } from '../hooks/useFilterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
@@ -17,9 +17,8 @@ import { useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import TabPicker, { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { LAST_VISITED_FRONTPAGE_COOKIE, RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../lib/cookies/cookies';
+import { RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
-import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
 import { capitalize } from "../../lib/vulcan-lib/utils";
 import SettingsButton from "../icons/SettingsButton";
@@ -53,6 +52,16 @@ import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
 
+const expandedTagFilterSettingsStyles = {
+  gridTemplateRows: "1fr",
+  transitionDelay: "0ms",
+  '& $tagFilterSettingsContent': {
+    opacity: 1,
+    visibility: "visible",
+    transitionDelay: "180ms, 0ms",
+  },
+};
+
 const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
   hideOnMobile: {
     [theme.breakpoints.down('sm')]: {
@@ -74,6 +83,30 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
     minWidth: 0,
     marginRight: 10,
   },
+  tagFilterSettings: {
+    display: "grid",
+    gridTemplateRows: "0fr",
+    // Expand before fading in; fade out before collapsing.
+    transition: "grid-template-rows 180ms ease 120ms",
+    '@media (prefers-reduced-motion: reduce)': {
+      '&, & $tagFilterSettingsContent': {
+        transition: "none",
+      },
+    },
+  },
+  tagFilterSettingsContent: {
+    minHeight: 0,
+    overflow: "hidden",
+    opacity: 0,
+    visibility: "hidden",
+    transition: "opacity 120ms ease, visibility 0ms linear 120ms",
+  },
+  tagFilterSettingsExpandedDesktop: {
+    [theme.breakpoints.up('md')]: expandedTagFilterSettingsStyles,
+  },
+  tagFilterSettingsExpandedMobile: {
+    [theme.breakpoints.down('sm')]: expandedTagFilterSettingsStyles,
+  },
   tagFilterSettingsButtonContainerDesktop: {
     [theme.breakpoints.up('md')]: {
       alignSelf: "end",
@@ -89,13 +122,6 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       alignSelf: "end",
       opacity: 0.8,
-    },
-    [theme.breakpoints.up('md')]: {
-      display: "none",
-    },
-  },
-  tagFilterSettingsButtonContainerMobileBackground: {
-    [theme.breakpoints.down('sm')]: {
       display: "flex",
       border: theme.palette.greyBorder("1px", 0.07),
       borderRadius: 3,
@@ -339,7 +365,6 @@ const FrontpageSettingsButton = ({
   toggleMobileSettingsVisible,
   desktopSettingsVisible,
   mobileSettingsVisible,
-  mobileSettingsButtonLabel,
   filterSettings,
   styleDesktopButton = true,
   labelOverride,
@@ -350,29 +375,26 @@ const FrontpageSettingsButton = ({
   toggleMobileSettingsVisible?: (newVisibilityState: boolean) => void;
   desktopSettingsVisible: boolean;
   mobileSettingsVisible: boolean;
-  mobileSettingsButtonLabel: string;
   filterSettings: FilterSettings;
   styleDesktopButton?: boolean;
   labelOverride?: (settingsVisible: boolean) => string;
   labelClassName?: string;
 }) => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
 
   const desktopConfiguration = labelOverride ? {
     showIcon: false,
     label: labelOverride(desktopSettingsVisible)
   } : {
-    showIcon: !!currentUser,
+    showIcon: true,
   } as const;
 
   const mobileConfiguration = labelOverride ? {
     showIcon: false,
     label: labelOverride(mobileSettingsVisible)
   } : {
-    showIcon: !!currentUser,
-    label: !currentUser ? mobileSettingsButtonLabel : undefined
+    showIcon: true,
   } as const;
 
   return <>
@@ -387,9 +409,7 @@ const FrontpageSettingsButton = ({
       />
     </div>
     {/* Mobile button */}
-    {toggleMobileSettingsVisible && <div className={classNames(classes.tagFilterSettingsButtonContainerMobile, {
-      [classes.tagFilterSettingsButtonContainerMobileBackground]: !!currentUser
-    })}>
+    {toggleMobileSettingsVisible && <div className={classes.tagFilterSettingsButtonContainerMobile}>
       <SettingsButton
         {...mobileConfiguration}
         onClick={() => {
@@ -416,6 +436,7 @@ const useHasContinueReadingTab = (currentUser: UsersCurrent|null) => {
 const LWHomePosts = ({ children, }: {
   children: React.ReactNode,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
 
@@ -424,7 +445,7 @@ const LWHomePosts = ({ children, }: {
   const now = useCurrentTime();
   const hasContinueReading = useHasContinueReadingTab(currentUser);
 
-  const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
+  const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get(forumType)
   const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, hasContinueReading ?? false));
 
   const [selectedTab, setSelectedTab] = useSelectedTab(currentUser, enabledTabs);
@@ -474,9 +495,7 @@ const LWHomePosts = ({ children, }: {
     (userIsAdmin(currentUser) && selectedTab.includes('recombee'))
   );
 
-  const mobileSettingsButtonLabel = mobileSettingsVisible ? 'Hide' : 'Customize'
-
-  const settingsButtonProps = { selectedTab, changeShowTagFilterSettingsDesktop, desktopSettingsVisible, mobileSettingsVisible, mobileSettingsButtonLabel, filterSettings };
+  const settingsButtonProps = { selectedTab, changeShowTagFilterSettingsDesktop, desktopSettingsVisible, mobileSettingsVisible, filterSettings };
 
   const inlineTabSettingsButton = <FrontpageSettingsButton
     {...settingsButtonProps}
@@ -495,20 +514,24 @@ const LWHomePosts = ({ children, }: {
 
   const filterSettingsElement = (
     <AnalyticsContext pageSectionContext="tagFilterSettings">
-      {settingsPotentiallyVisible && <div className={settingsVisibleClassName}>
-        <TagFilterSettings
-          filterSettings={filterSettings} 
-          suggestedTagsQueryRef={suggestedTagsQueryRef}
-          setPersonalBlogFilter={setPersonalBlogFilter} 
-          setTagFilter={setTagFilter} 
-          removeTagFilter={removeTagFilter} 
-          flexWrapEndGrow={false}
-        />
-        {selectedTab === 'recombee-hybrid' && hasSetAnyFilters && <div className={classes.enrichedTagFilterNotice}>
-          In the Enriched tab, filters apply only to "Recent" posts, not "Recommended" posts.
-        </div>}
-  
-      </div>}
+      <div className={classNames(classes.tagFilterSettings, {
+        [classes.tagFilterSettingsExpandedDesktop]: desktopSettingsVisible,
+        [classes.tagFilterSettingsExpandedMobile]: mobileSettingsVisible,
+      })}>
+        <div className={classes.tagFilterSettingsContent}>
+          <TagFilterSettings
+            filterSettings={filterSettings}
+            suggestedTagsQueryRef={suggestedTagsQueryRef}
+            setPersonalBlogFilter={setPersonalBlogFilter}
+            setTagFilter={setTagFilter}
+            removeTagFilter={removeTagFilter}
+            flexWrapEndGrow={false}
+          />
+          {selectedTab === 'recombee-hybrid' && hasSetAnyFilters && <div className={classes.enrichedTagFilterNotice}>
+            In the Enriched tab, filters apply only to "Recent" posts, not "Recommended" posts.
+          </div>}
+        </div>
+      </div>
     </AnalyticsContext>
   );
 
@@ -557,7 +580,7 @@ const LWHomePosts = ({ children, }: {
     settings = recombeeSettingsElement;
   }
 
-  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString();
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(forumType)*24, 'hours').startOf('hour').toISOString();
 
   const recentPostsTerms: PostsViewTerms = {
     filterSettings,
@@ -603,6 +626,7 @@ const LWHomePosts = ({ children, }: {
                     <PostsList2
                       terms={recentPostsTerms}
                       alwaysShowLoadMore
+                      animateLoadMore
                       hideHiddenFrontPagePosts
                       repeatedPostsPrecedence={3}
                     >
@@ -685,6 +709,7 @@ const LWHomePosts = ({ children, }: {
                 <PostsList2 
                   terms={{...recentPostsTerms, view: "new"}} 
                   alwaysShowLoadMore 
+                  animateLoadMore
                   hideHiddenFrontPagePosts
                 >
                   <Link to={"/allPosts"}>{advancedSortingText}</Link>
@@ -711,5 +736,3 @@ function ContinueReadingTab() {
 export default registerComponent("LWHomePosts", LWHomePosts, {
   areEqual: "auto",
 });
-
-

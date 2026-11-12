@@ -177,9 +177,6 @@ const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
 
 ```
 
-**See Also**:
-- `@/lib/collections/posts/views.ts` - Comprehensive examples of complex views
-
 ---
 
 ## Client-Side GraphQL Queries
@@ -187,9 +184,8 @@ const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
 **Purpose**: Execute type-safe GraphQL queries from React components with proper TypeScript inference.
 
 **Key Concepts**:
-- MUST use `gql` from `@/lib/generated/gql-codegen` (NOT from `graphql-tag` or `@apollo/client`)
+- Use `gql` from `@/lib/generated/gql-codegen` (not from `graphql-tag` or `@apollo/client`)
 - Use `useQuery` from `@/lib/crud/useQuery` (wrapper around a relatively complicated replacement for Apollo's useQuery, which otherwise has the same interface)
-- Run `yarn generate` after modifying schemas, database indexes, resolvers, GraphQL definitions, or fragments
 - Query results are fully typed based on the generated types.  Do not use `as any` or any other type casts to work around type errors that seem to be caused by missing generated types.
 - Style note: define queries at the top level of the component file they're used in, not nested inside the component function.  Exception: when the same query is used in multiple files, define it in a separate file.
 
@@ -197,33 +193,21 @@ const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
 - Use fragments to share field selections across queries
 - Our `useQuery` wrapper handles SSR with Suspense automatically
 
-**See Also**:
-- `@/components/admin/CurationPage.tsx` - Real example of useQuery usage
-
 ---
 
 
 ## Client-Side GraphQL Mutations
 
-**Purpose**: Execute type-safe mutations from React components.
-
 **Key Concepts**:
 - Use `useMutation` from `@apollo/client/react` (standard Apollo hook)
 - Define mutations at the top level of the file, same as queries, using `gql` from `@/lib/generated/gql-codegen`
-- Mutations are fully typed with inference for variables and return types
-
-**See Also**:
-- `@/components/admin/CurationNoticesForm.tsx` - Example with both a "create" and "update" mutation
 
 ---
 
 ## Collection-Based Querying
 
-**Purpose**: Execute database queries from server-side code (resolvers, callbacks, scripts).
-
 **Key Concepts**:
 - For simple queries: use `Collection.find()` or `Collection.findOne()`
-- For complex queries: use collection-specific Repos with raw SQL
 - Queries use MongoDB-style selectors (translated to SQL automatically)
 - Use Repos when you need JOINs, CTEs, or complex SQL features
 
@@ -276,13 +260,7 @@ const taggedPosts = await context.repos.posts.getPostsByTag(tagId, 10);
 ```
 
 **Important Notes**:
-- Repos inherit from `AbstractRepo` which provides `one()`, `many()`, `any()`, `oneOrNone()`, etc.
 - Use parameterized queries with named parameters (e.g. $startDate, $endDate) for clarity and to prevent SQL injection
-- Repos are available via `context.repos.{collectionName}` in GraphQL resolvers
-
-**See Also**:
-- `@/server/repos/PostsRepo.ts` - Many complex query examples
-- `@/server/sql/PgCollection.ts` - Collection query methods
 
 ---
 
@@ -369,23 +347,21 @@ Implementation: `@/server/utils/backgroundTask.ts`
 
 ---
 
+## Package Manager
+
+We use npm. Arguments starting with `-` must come after a `--` separator (e.g. `npm run unit -- path/to/test.ts --runInBand`); without it, npm consumes them instead of passing them to the script, and doesn't report an error. To run a binary that has no `package.json` script, use `npx --no <bin>`.
+
+Every package with its own `package.json` and lockfile needs its own `.npmrc` with `legacy-peer-deps=true`. The root's setting is inherited through the environment by the installs that `scripts/postinstall.sh` runs, so a package without one resolves peers differently depending on how it's installed, and `npm ci` can fail when run directly.
+
+---
+
 ## Code Generation
 
-**Purpose**: Generate TypeScript types, GraphQL schemas, and boilerplate code from collection definitions.
-
 **Key Commands**:
-- `yarn generate` - Run after ANY schema or GraphQL changes. Generates types and GraphQL artifacts.
-- `yarn create-collection PascalCasedPluralObjects` - Create a new collection with all boilerplate files.  This is a rare operation; only do this if you're creating a new collection from scratch.
+- `npm run generate` - See below for when to run this.
+- `npm run create-collection -- PascalCasedPluralObjects` - Create a new collection with all boilerplate files.  This is a rare operation; only do this if you're creating a new collection from scratch.
 
-**What `yarn generate` does**:
-Generates TypeScript types for:
-1. GraphQL schemas, queries, mutations, and fragments
-2. Database schemas
-Also updates:
-1. The collectionTypeNames module
-2. The routeManifest module
-
-**When to run `yarn generate`**:
+**When to run `npm run generate`**:
 - After adding a field to any schema file (`newSchema.ts`)
 - After modifying any GraphQL type definitions
 - After adding a new collection view
@@ -398,7 +374,7 @@ Also updates:
 
 ## Migrations
 
-A migration is required for any change that modifies the database schema. Automatic migrations are at `@/server/migrations/yyyymmddThhmmss.migrationName.ts`; these are run automatically when a new version is deployed, inside a github action runner. Migrations are created from a template by running `yarn migrate create migrationName`. There are also "manual migrations", which are run manually by developers with `yarn repl`. Manual migrations are used when a migration performs operations that could time out if run inside a github action runner.
+A migration is required for any change that modifies the database schema. Automatic migrations are at `@/server/migrations/yyyymmddThhmmss.migrationName.ts`; these are run automatically when a new version is deployed, inside a github action runner. Migrations are created from a template by running `npm run migrate -- create migrationName`. There are also "manual migrations", which are run manually by developers with `npm run repl`. Manual migrations are used when a migration performs operations that could time out if run inside a github action runner.
 
 Migrations are run before the new version is deployed, without downtime, so if a migration modifies the database schema it must be backwards-compatible with the immediately preceding deployment. Eg, if a new column is added it must have a default value, and if a column is deleted it must have already been unused. If a schema change can't be made backwards-compatible, this might require using a manual migration that will be run after deployment finishes, or splitting a PR into two stages that will be deployed separately.
 
@@ -406,7 +382,7 @@ Migrations are run before the new version is deployed, without downtime, so if a
 
 ## Scripts
 
-In the course of your work, you may occasionally decide (or be asked) to write and/or run scripts.  Despite being a NextJS codebase, we support running scripts that import arbitrary parts of the codebase via `yarn repl`.  If the script you're writing doesn't import any part of the codebase, then you don't need to use `yarn repl` - run it however you normally would.  If it does (for example, because it wants to talk to our database), then you should write it in the `packages/lesswrong/scripts/` directory and export the entrypoint function so that it can be invoked via the repl.  Default to running scripts against the dev db (via `yarn repl dev lw`) unless explicitly asked to do otherwise.
+In the course of your work, you may occasionally decide (or be asked) to write and/or run scripts.  Despite being a NextJS codebase, we support running scripts that import arbitrary parts of the codebase via `npm run repl`.  If the script you're writing doesn't import any part of the codebase, then you don't need to use `npm run repl` - run it however you normally would.  If it does (for example, because it wants to talk to our database), then you should write it in the `packages/lesswrong/scripts/` directory and export the entrypoint function so that it can be invoked via the repl.  Default to running scripts against the dev db (via `npm run repl -- dev lw`) unless explicitly asked to do otherwise.
 
 ---
 
@@ -422,7 +398,7 @@ If a server-only or client-only file is imported from the wrong context, and the
 
 ## Fragments
 
-Fragments are reusable field selections that can be shared across queries. They're typically defined in `@/lib/collections/{collectionName}/fragments.ts`. Fragment names correspond to Typescript types with the same name, which are created by `yarn generate`. A fragment can be used inside any graphql query by writing `...FragmentName`. These are expanded at codegen time by `yarn generate`.
+Fragments are reusable field selections that can be shared across queries. They're typically defined in `@/lib/collections/{collectionName}/fragments.ts`. Fragment names correspond to Typescript types with the same name, which are created by `npm run generate`. A fragment can be used inside any graphql query by writing `...FragmentName`. These are expanded at codegen time by `npm run generate`.
 Fragments can inherit from other fragments using `...ParentFragmentName`. 
 If a fragment corresponds to a database object, it must have (or inherit a fragment that has) an `_id` field to be stored correctly in the apollo-client cache.
 If a query will load many results or is on a performance-sensitive page such as the front page, try to use the smallest suitable fragment to minimize loading time. When adding a field to existing fragments, try to add it to the most specific suitable fragment, to avoid downloading that field on pages that do not need it.
@@ -535,14 +511,32 @@ Use `useNavigate` for performing client-side navigations.  You need to preserve 
 
 ## Editor
 
-The current default editor provided to users is our implementation of lexical.  Other supported editors are ckEditor (the previous default editor, now only supported for existing documents that were written in ckEditor), markdown, and html (admin-only).  We used to support DraftJS and no longer do, but some older documents may still be written in DraftJS (these are autoconverted to lexical when opened).  If working on editor features, assume lexical is the editor in question unless otherwise specified (or strongly suggested by the surrounding context).  We have a separate [AGENTS.md](packages/lesswrong/components/editor/AGENTS.md) with instructions for doing UI testing in the editor; read that if needed.
+The current default editor provided to users is our implementation of lexical.  Other supported editors are ckEditor (the previous default editor, now only supported for existing documents that were written in ckEditor), markdown, and html (admin-only).  We used to support DraftJS and no longer do, but some older documents may still be written in DraftJS (these are autoconverted to lexical when opened).  If working on editor features, assume lexical is the editor in question unless otherwise specified (or strongly suggested by the surrounding context).
 
 ## Subagent Guidance
 
 We are not token-constrained and do not need to save money.  As such, strongly prefer to use subagents of the same model family and version as you, even for basic exploration tasks, rather than using smaller/cheaper subagents.
 
+## Database Design
+
+When doing work that involves updating the database schema, strongly prefer normalized designs.  Almost everything should be at least 4NF or 5NF by default, absent compelling reasons otherwise.  (You should approximately never propose using a jsonb field, and very rarely propose using an array field.)  Our existing schema violates this rule in several places, but those were mostly poor design choices made earlier, rather than decisions that should be taken as examples to follow.
+
+## Unit Tests
+
+Unit tests should only be committed in cases where you encounter an actual bug in unit-testable code which can faithfully be reproduced via a failing unit test, or in cases where the user explicitly requests a unit test.  Do not add tests just to increase test coverage, or tests that test trivial functionality, implementation details, or code paths whose correctness in practice depend on external resources (such as database queries) that would be mocked or stubbed out during the tests.  (There's no issue with creating temporary test files for real-time testing/verification purposes; they just shouldn't be committed to the codebase.)  If you find that you've committed unit tests which don't meet the criteria in the first sentence, please remember to clean them up before committing your code.
+
+## Fail loud and early
+
+All code should fail loud and early when encountering unexpected or invalid invariants, rather than trying to "make things work".  Adding additional schema, complexity, or epicycles in order to avoid the need for a `throw` is almost never the right move - similarly, for trying to preserve backwards-compatibility when explicitly changing business logic or data models.  (We should avoid ever _losing_ data, but when practical this should be handled via migrations rather than by writing code that supports both legacy and new invariants.)
+
+Another random thing that falls into this bucket: it's almost never the case that having any sort of fallback value for a missing environment variable is correct.
+
+## Comments
+
+Do not add new comments to the code, unless you are documenting a non-obvious property of a complicated state machine, or a very subtle behavior that was previously broken.  If you add new comments in the course of writing code that don't satisfy that criteria, please remember to clean them up before committing your changes.
+
 ## Style / Conventions
-Never apply `as any` type casts, and try very hard to avoid any other type casts.  Consider whether you are applying a type cast because you've forgotten to run `yarn generate`.  If you absolutely must apply a type cast somewhere, always leave the following comment above it:
+Never apply `as any` type casts, and try very hard to avoid any other type casts.  Consider whether you are applying a type cast because you've forgotten to run `npm run generate`.  If you absolutely must apply a type cast somewhere, always leave the following comment above it:
 ```typescript
 // TODO: I AM AN INSTANCE OF ${MODEL_NAME} AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
 ```
@@ -550,13 +544,91 @@ Never apply `as any` type casts, and try very hard to avoid any other type casts
 Never add new inline dynamic imports (i.e. `await import(...)` or `require(...)`).
 Strongly prefer to avoid writing classes to encapsulate functionality.  Write top-level functions and only export those that are meant to be used by other parts of the codebase.
 Strongly prefer to avoid declaring inline functions that capture scope; declare them at the top of the module and pass in all the necessary dependencies.  This does not include standard React component patterns like `useEffect` callbacks and defining event handlers inside of the component; those are fine.
+Avoid writing code with high "cognitive complexity" for humans trying to read it.  Make judicious use of intermediate declarations with clear variable names rather than, for example, trying to stuff a five-layer-deep inline expression into a function argument.  Nested ternaries and ternaries that are evaluating some kind of complex expression(s) in their branches are especially pernicious.
 If you need to combine multiple classNames, use `import classNames from 'classnames';` rather than combining them via template string.
 Prefer interfaces to types where possible.
+Prefer functional and concise assignments and declarations, unless there would be a substantial performance impact or other meaningful downside from doing so.
+If you have a choice between writing an implementation that relies on mutation and an implementation which doesn't, pick the second one if it has no meaningful downsides in performance, correctness, comprehensibility, and maintainability.
 Do not create barrel import/export files.
 Do not use `ReturnType<...>`.  Instead, check the return type of the relevant function and use that type directly (with an additional import, if necessary).
-If you have access to the typescript LSP, strongly prefer to use the tools it provides to check for type errors in files that you've changed while in the middle of coding, rather than using the project's top-level `yarn lint` or `yarn tsc` (which can take up to 30 seconds).  You should use the project-level command after finishing an entire feature, if you've made any changes to types/type signatures that might have been used from elsewhere in the codebase.
-Avoid using `npx [command]`, like `npx jest` or `npx tsc`, if there's an appropriate command in our package.json that seems like it's intended to perform the relevant function.  (In those two cases, it'll be `yarn unit [test-file-path]` and `yarn tsc`.)
+If you have access to the typescript LSP, strongly prefer to use the tools it provides to check for type errors in files that you've changed while in the middle of coding, rather than using the project's top-level `npm run lint` or `npm run tsc` (which can take up to 30 seconds).  You should use the project-level command after finishing an entire feature, if you've made any changes to types/type signatures that might have been used from elsewhere in the codebase.
+Avoid using `npx [command]`, like `npx jest` or `npx tsc`, if there's an appropriate command in our package.json that seems like it's intended to perform the relevant function.  (In those two cases, it'll be `npm run unit -- [test-file-path]` and `npm run tsc`.)
 When asked to conduct a code review against `master`, ensure any diffs you perform are against `origin/master`, not against local `master`, which might be out of date.
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
 
+
+## Working in this codebase
+
+**Work from latest master.** `git fetch` before branching, base branches on
+`origin/master`, and diff against `origin/master` (three-dot merge-base diffs) — a stale
+local `master` produces diffs that silently revert other people's merged work. Update
+branches by merging `origin/master` into them, never by rebasing — merges keep the
+accurate historical record. Do not rewrite published history (no rebase, no
+force-push).
+
+The goal when authoring is a diff that would survive a senior review with zero comments.
+That reviewer asks, in order: (1) should this code exist at all? (2) does the codebase
+already have a way to do this? (3) is the logic in the right layer, implemented exactly
+once? (4) only then — is it correct? Grade your diff against the smaller diff an
+experienced team member would have written.
+
+**Extend, don't add sideways.** A common failure mode of agent-written code is growing
+the codebase sideways: adding a parallel function/mechanism next to an existing one because changing
+the existing one feels riskier. (Classic shapes: a copy-pasted query helper differing in
+one constant; a second client-side cache added beside the first, both left active.)
+Before adding any function, module, or mechanism, name the existing thing it most
+resembles and extend it — or state in one sentence why you can't.
+
+**Protect shared abstractions from local convenience.** A feature can work correctly
+while making the shared code it uses harder to understand and safely reuse. Repeated
+one-off flags, special cases, and escape hatches accumulate into an implicit contract
+that every future caller must learn. Before extending shared code, state its responsibility
+and decide whether the new behavior belongs there or with the caller. Keep domain-specific
+state and policy with their owner; share coherent capabilities with explicit semantics.
+Options must compose predictably: avoid hidden coupling, ambiguous combinations, and
+parameters that silently disable other behavior. When the contract needs to change,
+reshape it deliberately and review all consumers instead of layering on another exception.
+Judge the result by the abstraction left for future callers, not just whether the current
+feature works. The more widely code is shared, the stronger this standard should be.
+
+**Policy predicates exactly once.** Visibility, permission, eligibility, and "does X
+relate to Y" conditions get one implementation — including inside SQL strings. (Failure
+shape: the same visibility condition hand-written into four queries, which then drift.)
+
+**Fail loud and early.** Throw on unexpected or invalid invariants rather than "making
+things work." No fallback values for missing env vars; no backwards-compat shims when
+business logic changes (migrate the data instead); no epicycles added to avoid a `throw`.
+
+**Configure only what the task varies.** Constants stay constants until a second real
+consumer appears; each knob adds schema, UI, and admin burden for as long as it exists.
+(Failure
+shape: "make the copy editable" becoming thirteen per-kind settings.) For each new
+setting ask: who will ever set this to a non-default value, and when? No concrete answer
+→ it's a constant.
+
+**App-level fallbacks: replace, don't accrete.** When a fix adds a second detector,
+listener, or fallback for the same condition, remove the first or comment why both are
+needed. "Can't hurt" is not a reason.
+
+**Fix the trap, not just your instance.** When something in the codebase made you write
+the wrong thing — a shadowing name, a misleading default, two near-identical helpers —
+fix that thing in the same PR or name the follow-up PR. A fix at your own call site warns
+exactly one reader.
+
+**Session hygiene.** The PR presents the final state, not the history: squash migrations
+to final form; delete scratch scripts, debug scaffolding, and analysis files; no drive-by
+changes to unrelated code inside a feature diff. End every session with each changed file
+assigned to a nameable PR or reverted. Small fixes surfaced by the work belong in the
+current PR, not a someday list.
+
+**Correct despite the checks.** For any new code, reflect on how it could fail and be
+incorrect despite passing all existing checks.
+
+**Answer every review comment.** When you act on a reviewer's comment — or decide not
+to — say so on the PR: reply on the thread stating what changed or why you didn't, and
+resolve it. For top-level review comments, post a response comment. Never fix silently.
+
+**Finally: re-review your own diff** end to end — including untracked files — against
+this document before finishing, and fix what you find. Passing typecheck and lint is
+necessary, not sufficient.

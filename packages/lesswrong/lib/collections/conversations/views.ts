@@ -1,6 +1,7 @@
-import { isAF, isLW } from '../../instanceSettings';
+import type { ApolloClient } from '@apollo/client';
 import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 
 declare global {
   interface ConversationsViewTerms extends ViewTermsBase {
@@ -13,8 +14,8 @@ declare global {
 }
 
 // will be common to all other view unless specific properties are overwritten
-function defaultView(terms: ConversationsViewTerms) {
-  const alignmentForum = isAF() ? {af: true} : {}
+function defaultView(terms: ConversationsViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
+  const alignmentForum = context.forumType === 'AlignmentForum' ? {af: true} : {}
   return {
     selector: {
       ...alignmentForum
@@ -34,9 +35,14 @@ function moderatorConversations(terms: ConversationsViewTerms) {
 }
 
 // notifications for a specific user (what you see in the notifications menu)
-function userConversations(terms: ConversationsViewTerms) {
+function userConversations(terms: ConversationsViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
   const showArchivedFilter = terms.showArchive ? {} : {archivedByIds: {$ne: terms.userId}}
-  const moderatorSelector = isLW() ? {moderator: {$ne: true}} : {}
+  // Moderator conversations (such as rejection messages) belong in the moderation inbox
+  // for moderators, but should still appear in the normal inbox of the users they were sent to.
+  const isModeratorViewingOwnInbox = !!context.currentUser
+    && context.currentUser._id === terms.userId
+    && userIsAdminOrMod(context.currentUser);
+  const moderatorSelector = (context.forumType === 'LessWrong' && isModeratorViewingOwnInbox) ? {moderator: {$ne: true}} : {}
   return {
     selector: {participantIds: terms.userId, messageCount: {$gt: 0}, ...showArchivedFilter, ...moderatorSelector},
     options: {sort: {latestActivity: -1}}
@@ -47,6 +53,22 @@ function userConversationsAll(terms: ConversationsViewTerms) {
   const showArchivedFilter = terms.showArchive ? {} : {archivedByIds: {$ne: terms.userId}}
   return {
     selector: {participantIds: terms.userId, ...showArchivedFilter},
+    options: {sort: {latestActivity: -1}}
+  };
+}
+
+// Moderator conversations waiting on a moderator, longest-waiting first
+function teamInboxAwaitingReply(terms: ConversationsViewTerms) {
+  return {
+    selector: {moderator: true, awaitingModeratorReply: true},
+    options: {sort: {latestActivity: 1}}
+  };
+}
+
+// Moderator conversations that have been replied to or marked done
+function teamInboxDone(terms: ConversationsViewTerms) {
+  return {
+    selector: {moderator: true, awaitingModeratorReply: {$ne: true}, messageCount: {$gt: 0}},
     options: {sort: {latestActivity: -1}}
   };
 }
@@ -74,5 +96,7 @@ export const ConversationsViews = new CollectionViewSet('Conversations', {
   moderatorConversations,
   userConversations,
   userConversationsAll,
+  teamInboxAwaitingReply,
+  teamInboxDone,
   userGroupUntitledConversations
 }, defaultView);

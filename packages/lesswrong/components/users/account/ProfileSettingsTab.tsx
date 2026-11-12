@@ -1,8 +1,8 @@
 import React from 'react';
 import classNames from 'classnames';
-import { isEAForum, isLWorAF } from '@/lib/instanceSettings';
 import { TopPostsManager } from './TopPostsManager';
-import AutoSavedEditorField from './AutoSavedEditorField';
+import AutoSavedEditorField from '@/components/editor/AutoSavedEditorField';
+import { commitUserEditorField } from './useAutoSavedUserSettings';
 import SettingsSection from './SettingsSection';
 import SettingsTextRow from './SettingsTextRow';
 import type { SettingsTabProps } from './settingsTabTypes';
@@ -23,21 +23,22 @@ const ProfileSettingsTab = ({
         />
       </SettingsSection>
 
-      {!isEAForum() && (
         <SettingsSection title="Biography" description="Tell other users about yourself">
           <div className={classNames("form-component-EditorFormComponent", fieldWrapperClass)}>
             <AutoSavedEditorField
-              name="biography"
-              settings={settings}
-              updateSettings={updateSettings}
+              document={settings}
+              fieldName="biography"
+              collectionName="Users"
               hintText="Tell us about yourself"
               label="Bio"
+              commentEditor
+              commentStyles
+              hideControls={false}
+              onCommit={commitUserEditorField(updateSettings, "biography")}
             />
           </div>
         </SettingsSection>
-      )}
 
-      {isLWorAF() && (
         <SettingsSection title="Full Name">
           <SettingsTextRow
             value={settings.fullName}
@@ -46,7 +47,6 @@ const ProfileSettingsTab = ({
             description="Your legal name, if different from your display name"
           />
         </SettingsSection>
-      )}
     </div>
   );
 };

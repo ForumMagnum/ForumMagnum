@@ -1,15 +1,16 @@
 import { SENT_MODERATOR_MESSAGE } from "@/lib/collections/moderatorActions/constants";
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { loadByIds } from '../../lib/loaders';
 import type { AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateConversation } from '../collections/conversations/mutations';
 import { backgroundTask } from "../utils/backgroundTask";
+import { isTeamInboxConversation } from "../utils/teamInbox";
+import { getAdminTeamAccountId } from "../utils/adminTeamAccount";
 
-export function checkIfNewMessageIsEmpty(message: CreateMessageDataInput) {
+export function checkIfNewMessageIsEmpty(message: Pick<CreateMessageDataInput, 'contents'>) {
   const { data } = (message.contents && message.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot send an empty message");
@@ -58,7 +59,8 @@ export async function updateUserNotesOnModMessage({ document, context }: AfterCr
 /**
  * If the current user is not part of the conversation then add them to make
  * sure they get notified about future messages (only mods have permission to
- * add themselves to conversations).
+ * add themselves to conversations). Team inbox conversations are the exception,
+ * since they're meant to stay out of individual moderators' inboxes.
  */
 export async function addParticipantIfNew({ document, currentUser, context }: AfterCreateCallbackProperties<'Messages'>) {
   const { Conversations, loaders } = context;
@@ -72,7 +74,8 @@ export async function addParticipantIfNew({ document, currentUser, context }: Af
   if (
     currentUser &&
     conversation &&
-    !conversation.participantIds.includes(currentUser._id)
+    !conversation.participantIds.includes(currentUser._id) &&
+    !await isTeamInboxConversation(conversation, context)
   ) {
     await updateConversation({
       data: { participantIds: [...conversation.participantIds, currentUser._id] },
@@ -82,15 +85,27 @@ export async function addParticipantIfNew({ document, currentUser, context }: Af
 }
 
 export async function updateConversationActivity(message: DbMessage, context: ResolverContext) {
-  const { Conversations, Users } = context;
+  const { Conversations, Messages, Users } = context;
+
+  // Message creation callbacks can finish out of order. In particular, an
+  // automated reply must not mark a newer user message done.
+  const latestMessage = await Messages.findOne({ conversationId: message.conversationId }, { sort: { createdAt: -1, _id: -1 } });
+  if (latestMessage?._id !== message._id) return;
 
   // Update latest Activity timestamp on conversation when new message is added
   const user = await Users.findOne(message.userId);
   const conversation = await Conversations.findOne(message.conversationId);
   if (!conversation) throw Error(`Can't find conversation for message ${message}`)
     
-  const userContext = await computeContextFromUser({ user: user, isSSR: false });
-  await updateConversation({ data: {latestActivity: message.createdAt}, selector: { _id: conversation._id } }, userContext);
+  // In moderator conversations, a message from the user puts the conversation in the
+  // moderator inbox. Staff replies, including automated appeal-link replies from
+  // the team account, mark it done. A later user message reopens it.
+  const teamInboxFields = conversation.moderator
+    ? { awaitingModeratorReply: !userIsAdminOrMod(user) && message.userId !== await getAdminTeamAccountId(context) }
+    : {};
+
+  const userContext = await computeContextFromUser({ user: user, isSSR: false, forumType: context.forumType });
+  await updateConversation({ data: {latestActivity: message.createdAt, ...teamInboxFields}, selector: { _id: conversation._id } }, userContext);
 }
 
 export async function sendMessageNotifications(message: DbMessage, context: ResolverContext) {
@@ -107,5 +122,5 @@ export async function sendMessageNotifications(message: DbMessage, context: Reso
   const recipientIds = conversation.participantIds.filter((id) => (id !== message.userId));
 
   // Create notification
-  await createNotifications({userIds: recipientIds, notificationType: 'newMessage', documentType: 'message', documentId: message._id, noEmail: message.noEmail});
+  await createNotifications({ context, userIds: recipientIds, notificationType: 'newMessage', documentType: 'message', documentId: message._id, noEmail: message.noEmail});
 }

@@ -1,5 +1,6 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useCallback, useRef, useState } from 'react';
-import { reCaptchaSiteKeySetting, isAF, isEAForum } from '../../lib/instanceSettings';
+import { reCaptchaSiteKey } from '../../lib/instanceSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from '../common/withMessages';
@@ -11,8 +12,8 @@ import ReCaptcha from "../common/ReCaptcha";
 import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 import DeferRender from '../common/DeferRender';
 import { ErrorLike } from '@apollo/client';
-import useCookies from '@/lib/vendor/react-cookie/useCookies.tsx';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
+import { sanitizeLoginReturnTo } from '@/lib/auth/loginNotices';
 
 const styles = defineStyles('LoginForm', (theme: ThemeType) => ({
   root: {
@@ -99,13 +100,15 @@ const currentActionToButtonText: Record<possibleActions, string> = {
   pwReset: "Request Password Reset"
 }
 
-const LoginForm = ({ startingState = "login", returnTo }: {
+const LoginForm = ({ startingState = "login", returnTo, autoFocus = false }: {
   startingState?: possibleActions,
-  returnTo?: string
+  returnTo?: string,
+  /** Only enable when the form is opened by a user interaction. */
+  autoFocus?: boolean,
 }) => {
+  const { isAF } = useForumType();
   const classes = useStyles(styles);
-  const hasSubscribeToCuratedCheckbox = !isEAForum() && !isAF();
-  const hasOauthSection = !isEAForum();
+  const hasSubscribeToCuratedCheckbox = !isAF;
 
   const { pathname } = useLocation()
   const reCaptchaToken = useRef<string|null>(null);
@@ -115,19 +118,6 @@ const LoginForm = ({ startingState = "login", returnTo }: {
   const { flash } = useMessages();
   const [currentAction, setCurrentAction] = useState<possibleActions>(startingState)
   const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(hasSubscribeToCuratedCheckbox)
-  const [_, setCookie] = useCookies(["loginToken"]);
-
-  const saveLoginToken = useCallback((token: string) => {
-    // The graphql request with a "login" or "signup" mutation returns a login
-    // token in the graphql response. It will also use a header to set a cookie,
-    // but only if using the non-streaming graphql API, so we have to convert
-    // the token into a cookie ourselves.
-    setCookie("loginToken", token, {
-      maxAge: 315360000,
-      path: "/",
-    });
-  }, [setCookie]);
-
 
   const [loginMutation] = useMutation(gql(`
     mutation login($username: String, $password: String) {
@@ -135,7 +125,12 @@ const LoginForm = ({ startingState = "login", returnTo }: {
         token
       }
     }
-  `), { errorPolicy: 'all' })
+  `), {
+    errorPolicy: 'all',
+    // The server sets the login token as an HttpOnly cookie, which only works
+    // through the non-streaming endpoint
+    context: { nonStreaming: true },
+  })
 
   const [signupMutation] = useMutation(gql(`
     mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean, $reCaptchaToken: String, $abTestKey: String) {
@@ -143,7 +138,10 @@ const LoginForm = ({ startingState = "login", returnTo }: {
         token
       }
     }
-  `), { errorPolicy: 'all' })
+  `), {
+    errorPolicy: 'all',
+    context: { nonStreaming: true },
+  })
 
   const [pwResetMutation] = useMutation(gql(`
     mutation resetPassword($email: String) {
@@ -160,7 +158,7 @@ const LoginForm = ({ startingState = "login", returnTo }: {
   
   const loginSuccess = useCallback(() => {
     if (returnTo) {
-      window.location.href = returnTo;
+      window.location.href = sanitizeLoginReturnTo(returnTo);
     } else {
       location.reload()
     }
@@ -178,7 +176,6 @@ const LoginForm = ({ startingState = "login", returnTo }: {
         showError(error);
       }
       if (data?.login?.token) {
-        saveLoginToken(data.login.token);
         loginSuccess();
       }
     } else if (currentAction === 'signup') {
@@ -194,7 +191,6 @@ const LoginForm = ({ startingState = "login", returnTo }: {
         showError(error);
       }
       if (data?.signup?.token) {
-        saveLoginToken(data.signup.token);
         loginSuccess();
       }
     } else if (currentAction === 'pwReset') {
@@ -210,10 +206,10 @@ const LoginForm = ({ startingState = "login", returnTo }: {
     }
   }
 
-  const oauthReturnTo = encodeURIComponent(returnTo ?? pathname);
+  const oauthReturnTo = encodeURIComponent(sanitizeLoginReturnTo(returnTo ?? pathname));
 
   return <ContentStyles contentType="commentExceptPointerEvents">
-    {reCaptchaSiteKeySetting.get() && <DeferRender ssr={false}>
+    {reCaptchaSiteKey && <DeferRender ssr={false}>
       <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>
     </DeferRender>}
     <form className={classes.root} onSubmit={submitFunction}>
@@ -222,6 +218,7 @@ const LoginForm = ({ startingState = "login", returnTo }: {
         <input
           value={username} type="text" name="username"
           autoComplete="username"
+          autoFocus={autoFocus}
           placeholder={currentAction === "signup" ? "username" : "username or email"}
           className={classes.input}
           onChange={event => setUsername(event.target.value)}
@@ -244,18 +241,17 @@ const LoginForm = ({ startingState = "login", returnTo }: {
         {currentAction !== "signup" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span>}
         {currentAction !== "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("pwReset")}> Reset Password </span>}
       </div>
-      {hasOauthSection && <>
+      <>
         <div className={classes.oAuthComment}>...or continue with</div>
         <div className={classes.oAuthBlock}>
           <a className={classes.oAuthLink} href={`/auth/google?returnTo=${oauthReturnTo}`}>GOOGLE</a>
           <a className={classes.oAuthLink} href={`/auth/github?returnTo=${oauthReturnTo}`}>GITHUB</a>
         </div>
-      </>}
+      </>
       {displayedError && <div className={classes.error}>{displayedError}</div>}
     </form>
   </ContentStyles>;
 }
 
 export default LoginForm;
-
 

@@ -1,6 +1,6 @@
-import Query, { Atom, sanitizeSqlComment } from "./Query";
+import Query, { Atom, postgresIdentifier, sanitizeSqlComment } from "./Query";
 import Table from "./Table";
-import { DefaultValueType, IdType, NotNullType, Type, UnknownType } from "./Type";
+import { DefaultValueType, IdType, NotNullType, UnknownType } from "./Type";
 import { tableNameToCollectionName } from "@/lib/generated/collectionTypeNames";
 import { inspect } from "util";
 import { getCollationType } from "./collation";
@@ -215,7 +215,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     this.atoms = this.atoms.concat(["FROM", this.table, "GROUP BY"]);
     const keys = Object.keys(group).filter((key: string) => !isGroupByAggregateExpression((group as AnyBecauseTodo)[key]));
     const fields = keys.map((key) =>
-      `"${typeof (group as AnyBecauseTodo)[key] === "string" && (group as AnyBecauseTodo)[key][0] === "$" ? (group as AnyBecauseTodo)[key].slice(1) : key}"`
+      postgresIdentifier(typeof (group as AnyBecauseTodo)[key] === "string" && (group as AnyBecauseTodo)[key][0] === "$" ? (group as AnyBecauseTodo)[key].slice(1) : key)
     );
     this.atoms.push(fields.map((f) => this.prefixify(f)).join(", "));
   }
@@ -232,15 +232,15 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       throw new Error("Invalid $lookup");
     }
 
-    if (!(from in tableNameToCollectionName)) {
+    if (!Object.hasOwn(tableNameToCollectionName, from)) {
       throw new Error(`Invalid $lookup: ${from} is not a valid table name`);
     }
 
     if ("localField" in lookup && "foreignField" in lookup) {
       const {localField, foreignField} = lookup;
       const table = tableNameToCollectionName[from as keyof typeof tableNameToCollectionName];
-      this.atoms.push(`, LATERAL (SELECT jsonb_agg("${table}".*) AS "${as}" FROM "${table}" WHERE`);
-      this.atoms.push(`${this.resolveTableName()}"${localField}" = "${table}"."${foreignField}") Q`);
+      this.atoms.push(`, LATERAL (SELECT jsonb_agg("${table}".*) AS ${postgresIdentifier(as)} FROM "${table}" WHERE`);
+      this.atoms.push(`${this.resolveTableName()}${postgresIdentifier(localField)} = "${table}".${postgresIdentifier(foreignField)}) Q`);
       this.syntheticFields[as] = new UnknownType();
     } else if ("let" in lookup && "pipeline" in lookup) {
       throw new Error("Pipeline joins are not implemented - write raw SQL");
@@ -254,7 +254,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       this.syntheticFields[field] = new UnknownType();
     }
     return Object.keys(addFields).flatMap((field) =>
-      [",", ...this.compileExpression(addFields[field]), "AS", `"${field}"`]
+      [",", ...this.compileExpression(addFields[field]), "AS", postgresIdentifier(field)]
     ).slice(leadingComma ? 0 : 1);
   }
 
@@ -311,7 +311,8 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       autoIncludeId = false;
     }
 
-    let fields: string[] = [this.getStarSelector()];
+    const starSelector = this.getStarSelector();
+    let fields: string[] = [starSelector];
     if (include.length && !exclude.length) {
       if (autoIncludeId && !include.includes("_id")) {
         include.push("_id");
@@ -332,7 +333,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       fields = [];
     }
 
-    const compiledFields = fields.map((field) => field.indexOf("*") > -1 ? field : `"${field}"`).join(", ");
+    const compiledFields = fields.map((field) => field === starSelector ? field : postgresIdentifier(field)).join(", ");
     let projectedAtoms: Atom<T>[] = compiledFields ? [compiledFields] : [];
     if (Object.keys(addFields).length) {
       projectedAtoms = projectedAtoms.concat(this.getSyntheticFields(addFields, !!projectedAtoms.length));

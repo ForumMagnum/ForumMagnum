@@ -121,12 +121,12 @@ export async function updateTag({ selector, data }: UpdateTagInput, context: Res
 }
 
 export const createTagGqlMutation = makeGqlCreateMutation('Tags', createTag, {
-  newCheck: async (user, tag: CreateTagDataInput | null, context) => newCheck(user, tag) && await validateTagCreate(tag, context),
+  newCheck: async (user, tag: CreateTagDataInput | null, context) => newCheck(user, tag, context.forumType) && await validateTagCreate(tag, context),
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context)
 });
 
 export const updateTagGqlMutation = makeGqlUpdateMutation('Tags', updateTag, {
-  editCheck: async (user, tag: DbTag, context, previewTag) => editCheck(user, tag) && await validateTagUpdate(tag, previewTag, context),
+  editCheck: async (user, tag: DbTag, context, previewTag) => editCheck(user, tag, context.forumType) && await validateTagUpdate(tag, previewTag, context),
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context)
 });
 

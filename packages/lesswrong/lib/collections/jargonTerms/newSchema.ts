@@ -70,7 +70,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
-        const botAccountId = adminAccountSetting.get()?._id ?? await getAdminTeamAccountId(context);
+        const botAccountId = adminAccountSetting.get(context)?._id ?? await getAdminTeamAccountId(context);
         if (!botAccountId) {
           return null;
         }

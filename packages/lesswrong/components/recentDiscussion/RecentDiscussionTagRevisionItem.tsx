@@ -1,5 +1,4 @@
 import React from 'react';
-import { isEAForum } from "../../lib/instanceSettings"
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TagRevisionItem from "../tagging/TagRevisionItem";
 
@@ -23,9 +22,6 @@ const styles = defineStyles("RecentDiscussionTagRevisionItem", (theme) => ({
   },
 }));
 
-// Pablo, Leo, Lizka
-const megaTagUsers = ['BkbwT5TzSj4aRxJMN', 'pkJTc4xXhsCbNqkZM', 'SuPnfB9qqKWsucNzm']
-const onlyStyleEditors = ['pkJTc4xXhsCbNqkZM']
 
 /**
  * This component's only job is to filter out tag edits that shouldn't be shown.
@@ -49,18 +45,7 @@ function RecentDiscussionTagRevisionItem({
     return null
   }
   
-  // reduce the amount of room the EA frontpage gives to the most particularly
-  // active tag users doing routine cleanup
-  if (
-    // Only a problem for the forum
-    isEAForum() &&
-    // Only restrict the most active tag users
-    megaTagUsers.includes(revision.userId ?? '') &&
-    // Restrict all from cleanup-only users, restrict small edits from other mega users
-    (onlyStyleEditors.includes(revision.userId ?? '') || revision.changeMetrics.added < 600)
-  ) {
-    return null
-  }
+
   return <div className={classes.root}>
     <TagRevisionItem
       noContainer

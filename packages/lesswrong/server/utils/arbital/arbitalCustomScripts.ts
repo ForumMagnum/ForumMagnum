@@ -1,4 +1,3 @@
-import { isLWorAF } from "@/lib/instanceSettings";
 import { cheerioParse } from "../htmlUtil";
 
 const getArbitalScripts = async (): Promise<Record<string, string>> => {
@@ -7,12 +6,12 @@ const getArbitalScripts = async (): Promise<Record<string, string>> => {
 
   <div class="options">
     <label class="option">
-      <input id="bayes-guide-basic-radio" type="radio" name="preference" value="basic" data-not-wants="62d,62f" onchange="handleRadioChange(document.getElementById('bayes-guide-basic-radio'))" />
+      <input id="bayes-guide-basic-radio" type="radio" name="preference" value="basic" data-not-wants="62d,62f" />
       <span for="bayes-guide-basic-radio">I want to have a basic theoretical and practical understanding of the Bayes' rule.</span>
     </label>
 
     <label class="option">
-      <input id="bayes-guide-quick-radio" type="radio" name="preference" value="quick" data-wants="62d" data-not-wants="62f" onchange="handleRadioChange(document.getElementById('bayes-guide-quick-radio'))" />
+      <input id="bayes-guide-quick-radio" type="radio" name="preference" value="quick" data-wants="62d" data-not-wants="62f" />
       <span for="bayes-guide-quick-radio"
         >I can easily read algebra and don't mind the explanation moving at a fast pace. Just give me the basics,
         quick!
@@ -20,7 +19,7 @@ const getArbitalScripts = async (): Promise<Record<string, string>> => {
     </label>
 
     <label class="option">
-      <input id="bayes-guide-theoretical-radio" type="radio" name="preference" value="theoretical" data-wants="62f" data-not-wants="62d" onchange="handleRadioChange(document.getElementById('bayes-guide-theoretical-radio'))" />
+      <input id="bayes-guide-theoretical-radio" type="radio" name="preference" value="theoretical" data-wants="62f" data-not-wants="62d" />
       <span for="bayes-guide-theoretical-radio"
         >I want the basics, but I'm also interested in reading more about the theoretical implications and the reasons
         why Bayes' rule is considered so important.
@@ -28,7 +27,7 @@ const getArbitalScripts = async (): Promise<Record<string, string>> => {
     </label>
 
     <label class="option">
-      <input id="bayes-guide-deep-radio" type="radio" name="preference" value="deep" data-wants="62d,62f" onchange="handleRadioChange(document.getElementById('bayes-guide-deep-radio'))" />
+      <input id="bayes-guide-deep-radio" type="radio" name="preference" value="deep" data-wants="62d,62f" />
       <span for="bayes-guide-deep-radio"
         >I'd like to read everything! I want to have a <em>deep</em> theoretical and practical understanding of the
         Bayes' rule.
@@ -38,7 +37,7 @@ const getArbitalScripts = async (): Promise<Record<string, string>> => {
 
   <div id="pathDescription" class="path-description" style="display: none">
     <div class="content"></div>
-    <button class="ck-cta-button start-reading" onclick="startPath()" style="display: none">Start Reading</button>
+    <button class="ck-cta-button start-reading" style="display: none">Start Reading</button>
   </div>
 </div>
 `;
@@ -75,9 +74,5 @@ async function applyArbitalPathReplacements(html: string) {
 }
 
 export function applyCustomArbitalScripts(html: string) {
-  if (!isLWorAF()) {
-    return html;
-  }
-
   return applyArbitalPathReplacements(html);
 }

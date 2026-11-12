@@ -4,6 +4,7 @@ import { isAnyTest } from "@/lib/executionEnvironment";
 import mapValues from "lodash/mapValues";
 import { VoyageAIClient } from "voyageai";
 import { EmbedResponseDataItem } from "voyageai/api/types";
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { gql } from "@/lib/generated/gql-codegen";
 import { getApolloClientForSSRWithContext } from "../rendering/ssrApolloClient";
@@ -111,28 +112,29 @@ export const getEmbeddingsFromApi = async <T extends string | Record<string, str
   return getEmbeddingsFromVoyage(inputs, inputType);
 };
 
-const enrichCommentDocumentForEmbedding = (comment: EmbeddingCommentInfo) => {
+const enrichCommentDocumentForEmbedding = (comment: EmbeddingCommentInfo, forumType: ForumTypeString) => {
   const text = htmlToTextDefault(comment.contents?.html ?? "");
   const { user, post } = comment;
   const parentPostTitleNode = `<parent-post-title>${post?.title}</parent-post-title>`;
-  const commentAuthorNode = `<comment-author>${userGetDisplayName(user)}</comment-author>`;
+  const commentAuthorNode = `<comment-author>${userGetDisplayName(user, forumType)}</comment-author>`;
   const commentTextNode = `<comment-text>${text}</comment-text>`;
   return `<comment>\n${parentPostTitleNode}\n${commentAuthorNode}\n${commentTextNode}\n</comment>`;
 }
 
-const getEmbeddingsForComment = async (comment: EmbeddingCommentInfo): Promise<EmbeddingsResult> => {
-  const enrichedComment = enrichCommentDocumentForEmbedding(comment);
+const getEmbeddingsForComment = async (comment: EmbeddingCommentInfo, forumType: ForumTypeString): Promise<EmbeddingsResult> => {
+  const enrichedComment = enrichCommentDocumentForEmbedding(comment, forumType);
   const { embeddings, model } = await getEmbeddingsFromVoyage(enrichedComment, 'document');
   return { embeddings: embeddings, model };
 };
 
 const getEmbeddingsForComments = async (
-  comments: EmbeddingCommentInfo[]
+  comments: EmbeddingCommentInfo[],
+  forumType: ForumTypeString,
 ): Promise<Record<string, EmbeddingsResult>> => {
   const textMappings: Record<string, string> = Object.fromEntries(
     comments.map((comment) => [
       comment._id,
-      enrichCommentDocumentForEmbedding(comment)
+      enrichCommentDocumentForEmbedding(comment, forumType)
     ]).filter(([_, text]) => !!text)
   );
 
@@ -148,12 +150,12 @@ const getEmbeddingsForComments = async (
   }));
 };
 
-export const updateCommentEmbeddings = async (commentId: string) => {
+export const updateCommentEmbeddings = async (commentId: string, forumType: ForumTypeString) => {
   if (isAnyTest) {
     return;
   }
   
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType });
   const { repos } = context;
   const apolloClient = await getApolloClientForSSRWithContext(context);
 
@@ -165,13 +167,13 @@ export const updateCommentEmbeddings = async (commentId: string) => {
   const comment = data?.comments?.results?.[0];
   if (!comment) throw new Error(`Comment ${commentId} not found`);
   
-  const { embeddings, model } = await getEmbeddingsForComment(comment);
+  const { embeddings, model } = await getEmbeddingsForComment(comment, context.forumType);
   await repos.commentEmbeddings.setCommentEmbeddings(commentId, model, embeddings);
 };
 
 const batchUpdateCommentEmbeddings = async (comments: EmbeddingCommentInfo[], context: ResolverContext) => {
   const { repos } = context;
-  const commentEmbeddings = await getEmbeddingsForComments(comments);
+  const commentEmbeddings = await getEmbeddingsForComments(comments, context.forumType);
   
   const updates = Object.entries(commentEmbeddings).map(([commentId, { model, embeddings }]) => 
     repos.commentEmbeddings.setCommentEmbeddings(commentId, model, embeddings)
@@ -182,8 +184,8 @@ const batchUpdateCommentEmbeddings = async (comments: EmbeddingCommentInfo[], co
   await Promise.all(updates);
 };
 
-export const updateMissingCommentEmbeddings = async () => {
-  const context = createAdminContext();
+export const updateMissingCommentEmbeddings = async (forumType: ForumTypeString) => {
+  const context = createAdminContext({ forumType });
   const { repos } = context;
 
   const apolloClient = await getApolloClientForSSRWithContext(context);

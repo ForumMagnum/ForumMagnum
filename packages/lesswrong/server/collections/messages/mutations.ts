@@ -10,6 +10,9 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import { loadByIds } from "@/lib/loaders";
 import gql from "graphql-tag";
+import { sendAppealLinkReplyIfFirstReply } from "@/server/collections/rejectionAppeals/helpers";
+import { backgroundTask } from "@/server/utils/backgroundTask";
+import { captureException } from "@/lib/sentryWrapper";
 
 async function newCheck(user: DbUser | null, document: DbMessage | null, context: ResolverContext) {
   const { Conversations } = context;
@@ -81,6 +84,8 @@ export async function createMessage({ data }: CreateMessageInput, context: Resol
 
   await updateConversationActivity(documentWithId, context);
   await sendMessageNotifications(documentWithId, context);
+  // An optional automated reply must not make a delivered message appear unsent.
+  backgroundTask(sendAppealLinkReplyIfFirstReply(documentWithId, context).catch(captureException));
 
   uploadImagesInEditableFields({
     newDoc: documentWithId,

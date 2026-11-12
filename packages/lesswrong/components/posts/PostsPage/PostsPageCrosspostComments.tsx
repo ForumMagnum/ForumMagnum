@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useState } from "react";
 import { fmCrosspostSiteNameSetting } from "../../../lib/instanceSettings";
 import { crosspostDetailsRoute } from "@/lib/fmCrosspost/routes";
@@ -27,6 +28,7 @@ const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere}: {
   foreignPostId: string,
   hostedHere: boolean,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [response, setResponse] = useState<Response>({ loading: true });
 
@@ -35,6 +37,7 @@ const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere}: {
       try {
         const data = await crosspostDetailsRoute.makeRequest(
           {postId: foreignPostId},
+          forumType,
           {foreignRequest: true},
         );
         setResponse({ loading: false, data });
@@ -44,7 +47,7 @@ const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere}: {
         setResponse({ loading: false });
       }
     })();
-  }, [foreignPostId]);
+  }, [foreignPostId, forumType]);
 
   if (response.loading) {
     return (
@@ -68,7 +71,7 @@ const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere}: {
     <div>
       <a href={canonicalLink} target="_blank" rel="noreferrer">
         <Typography variant="body2" className={classes.root}>
-          Crossposted {relation} {fmCrosspostSiteNameSetting.get()}. {commentsText}
+          Crossposted {relation} {fmCrosspostSiteNameSetting.get(forumType)}. {commentsText}
         </Typography>
       </a>
     </div>

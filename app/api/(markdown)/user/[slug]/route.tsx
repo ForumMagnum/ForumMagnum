@@ -107,7 +107,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       <div>
         <div className={markdownClasses.title}>User Not Found</div>
         <div>No user found with slug: {slug}</div>
-      </div>
+      </div>,
+      resolverContext.forumType
     );
     return new Response(markdown, {
       status: 404,
@@ -206,6 +207,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
           </div>
         </>
       ) : null}
-    </div>
+    </div>,
+    resolverContext.forumType
   );
 }

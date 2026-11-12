@@ -36,6 +36,13 @@ interface InlineCommentsPanelContextType {
   commentCount: number;
   setCommentCount: React.Dispatch<React.SetStateAction<number>>;
   /**
+   * Number of open threads (and standalone comments) that aren't attached to
+   * a range in the document, eg because the commented text was deleted. These
+   * are only visible in the comments panel, so the panel toggle shows a badge.
+   */
+  unanchoredCommentCount: number;
+  setUnanchoredCommentCount: React.Dispatch<React.SetStateAction<number>>;
+  /**
    * When set, the editor's comments panel renders docked inside this element
    * (the host owns open/close) instead of floating over the page.
    */
@@ -47,6 +54,8 @@ export const InlineCommentsPanelContext = createContext<InlineCommentsPanelConte
   setShowComments: () => {},
   commentCount: 0,
   setCommentCount: () => {},
+  unanchoredCommentCount: 0,
+  setUnanchoredCommentCount: () => {},
 });
 
 interface EditorUserModeContextType {

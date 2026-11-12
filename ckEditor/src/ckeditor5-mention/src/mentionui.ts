@@ -2,18 +2,28 @@
  * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
-import { Plugin, type Editor } from '@ckeditor/ckeditor5-core';
-import { ButtonView, ContextualBalloon, clickOutsideHandler } from 'ckeditor5/src/ui';
-import { Collection, keyCodes, env, Rect, CKEditorError, logWarning } from 'ckeditor5/src/utils';
-import { TextWatcher } from 'ckeditor5/src/typing';
+import {
+	Plugin,
+	ButtonView,
+	ContextualBalloon,
+	clickOutsideHandler,
+	Collection,
+	keyCodes,
+	env,
+	Rect,
+	CKEditorError,
+	logWarning,
+	TextWatcher,
+	type Editor,
+	type ModelPosition as Position,
+	type Marker,
+} from 'ckeditor5';
 
 import { debounce } from 'lodash-es';
 
 import MentionsView from './ui/mentionsview';
 import DomWrapperView from './ui/domwrapperview';
 import MentionListItemView from './ui/mentionlistitemview';
-import type { ModelPosition as Position } from '@ckeditor/ckeditor5-engine/src/model/position';
-import type { Marker } from '@ckeditor/ckeditor5-engine/src/model/markercollection';
 
 const VERTICAL_SPACING = 3;
 

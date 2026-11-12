@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -62,6 +63,7 @@ const UsersNameDisplay = ({
   /** An additional class to apply to the text */
   className?: string,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const {eventHandlers, hover} = useHover({
     eventProps: {
@@ -76,7 +78,7 @@ const UsersNameDisplay = ({
   if (!user || user.deleted) {
     return <UserNameDeleted userShownToAdmins={user}/>
   }
-  const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user);
+  const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user, forumType);
   const colorClass = color?classes.color:classes.noColor;
 
   if (simple) {

@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { commentIsHiddenPendingReview } from '../../../lib/collections/comments/helpers';
@@ -19,6 +20,7 @@ const styles = defineStyles("CommentBottomCaveats", (theme: ThemeType) => ({
 const CommentBottomCaveats = ({comment}: {
   comment: CommentsList,
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const now = useCurrentTime();
   const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
@@ -41,7 +43,7 @@ const CommentBottomCaveats = ({comment}: {
         [This comment is no longer endorsed by its author]
       </MetaInfo>
     }
-    {commentIsHiddenPendingReview(comment) && !comment.rejected
+    {commentIsHiddenPendingReview(comment, forumType) && !comment.rejected
       && <MetaInfo className={classes.caveatText}>
         [This comment will not be visible to other users until the moderation team has reviewed it.]
       </MetaInfo>

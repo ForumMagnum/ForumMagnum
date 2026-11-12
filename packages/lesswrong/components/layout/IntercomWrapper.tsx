@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { intercomAppIdSetting } from '@/lib/instanceSettings';
@@ -32,6 +33,7 @@ const styles = defineStyles('IntercomWrapper', (theme: ThemeType) => ({
 }));
 
 const IntercomWrapper = () => {
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
   const _classes = useStyles(styles);
@@ -51,7 +53,7 @@ const IntercomWrapper = () => {
   if (currentUser && !currentUser.hideIntercom) {
     return <div id="intercom-outer-frame">
       <Intercom
-        appID={intercomAppIdSetting.get()}
+        appID={intercomAppIdSetting.get(forumType)}
         user_id={currentUser._id}
         email={getUserEmail(currentUser)}
         name={currentUser.displayName}
@@ -59,7 +61,7 @@ const IntercomWrapper = () => {
     </div>
   } else if (!currentUser) {
     return <div id="intercom-outer-frame">
-      <Intercom appID={intercomAppIdSetting.get()} />
+      <Intercom appID={intercomAppIdSetting.get(forumType)} />
     </div>
   } else {
     return null

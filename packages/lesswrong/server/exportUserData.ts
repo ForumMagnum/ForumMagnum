@@ -43,7 +43,7 @@ type Entry<N extends CollectionNameString> = [
 
 /**
  * Please ensure that we know that the user is who they say they are!
- * Exported to allow running with "yarn repl".
+ * Exported to allow running with "npm run repl".
  */
 export const exportUserData = async (
   selector: {_id?: string, slug?: string, email?: string},
@@ -98,7 +98,7 @@ export const exportUserData = async (
     [Votes, Votes.find({userId})],
   ];
 
-  const context = createAnonymousContext();
+  const context = createAnonymousContext({ forumType: "LessWrong" });
   context.currentUser = user;
 
   const values = await Promise.all(entries.map(async ([collection, {fetch}]) =>

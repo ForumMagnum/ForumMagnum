@@ -2,7 +2,6 @@ import { isCollaborative, canUserEditPostMetadata, userIsPostCoauthor } from '@/
 import { Posts } from '../../server/collections/posts/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { constantTimeCompare } from '../../lib/helpers';
-import { randomSecret } from '../../lib/random';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { restrictViewableFields } from '@/lib/vulcan-users/restrictViewableFields';
@@ -132,7 +131,7 @@ export const ckEditorCallbacksGraphQLMutations = {
       // CKEditor collaborative post: push to CKEditor Cloud Services
       // eslint-disable-next-line no-console
       console.log("Reverting to a CkEditor collaborative revision");
-      await pushRevisionToCkEditor(post._id, revision.originalContents.data);
+      await pushRevisionToCkEditor(post._id, revision.originalContents.data, context.forumType);
     } else if (revision.originalContents.type === "lexical") {
       // Lexical collaborative post: send the revision's stored Yjs state
       // to the Hocuspocus server, which replaces the live document state.

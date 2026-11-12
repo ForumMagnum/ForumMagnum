@@ -1,4 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useForumType } from '@/components/hooks/useForumType';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
+import Transition from 'react-transition-group/Transition';
 import { useCurrentUser } from '../common/withUser';
 import type { ObservableQuery } from '@apollo/client';
 import { randomId } from '../../lib/random';
@@ -22,7 +25,6 @@ import { ultraFeedEnabledSetting } from '@/lib/instanceSettings';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import type { UltraFeedSettingsType, TruncationLevel } from './ultraFeedSettingsTypes';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
-import Loading from '../vulcan-core/Loading';
 import UltraFeedSubscriptionsFeed from './UltraFeedSubscriptionsFeed';
 import UltraFeedMainFeed from './UltraFeedMainFeed';
 import { UltraFeedContextProvider } from './UltraFeedContextProvider';
@@ -132,6 +134,32 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     marginTop: 16,
     marginBottom: 32,
   },
+  settingsReveal: {
+    display: 'grid',
+    gridTemplateRows: '0fr',
+    transition: 'grid-template-rows 180ms ease 120ms',
+    '@media (prefers-reduced-motion: reduce)': {
+      '&, & $settingsRevealContent': {
+        transition: 'none',
+      },
+    },
+  },
+  settingsRevealContent: {
+    minHeight: 0,
+    overflow: 'hidden',
+    opacity: 0,
+    visibility: 'hidden',
+    transition: 'opacity 120ms ease, visibility 0ms linear 120ms',
+  },
+  settingsRevealExpanded: {
+    gridTemplateRows: '1fr',
+    transitionDelay: '0ms',
+    '& $settingsRevealContent': {
+      opacity: 1,
+      visibility: 'visible',
+      transitionDelay: '180ms, 0ms',
+    },
+  },
   composerButton: {
     display: 'none',
     [theme.breakpoints.down('sm')]: {
@@ -215,10 +243,17 @@ const UltraFeedContent = ({
   const forYouWrapperRef = useRef<HTMLDivElement | null>(null);
   const followingWrapperRef = useRef<HTMLDivElement | null>(null);
   const debugWrapperRef = useRef<HTMLDivElement | null>(null);
+  const settingsRevealRef = useRef<HTMLDivElement>(null);
+  const [settingsTab, setSettingsTab] = useState(activeTab);
   const [hasRenderedForYou, setHasRenderedForYou] = useState(activeTab === 'ultraFeed');
   const [hasRenderedFollowing, setHasRenderedFollowing] = useState(activeTab === 'following');
   const [hasRenderedDebug, setHasRenderedDebug] = useState(activeTab === 'debug');
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useLayoutEffect(() => {
+    // Keep the outgoing settings panel intact when a tab switch closes it.
+    if (settingsVisible) setSettingsTab(activeTab);
+  }, [activeTab, settingsVisible]);
 
   const handleOpenQuickTakeDialog = () => {
     captureEvent("ultraFeedComposerQuickTakeDialogOpened");
@@ -257,24 +292,44 @@ const UltraFeedContent = ({
       <div className={classes.root} ref={feedContainerRef}>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
-            {settingsVisible && (
-              <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
-                {activeTab === 'following' ? (
-                  <UltraFeedFollowingSettings
-                    settings={settings}
-                    updateSettings={updateSettings}
-                    onClose={() => onCloseSettings?.()}
-                  />
-                ) : (
-                  <UltraFeedSettings 
-                    settings={settings}
-                    updateSettings={updateSettings}
-                    onClose={() => onCloseSettings?.()} 
-                    truncationMaps={truncationMaps}
-                  />
-                )}
-              </div>
-            )}
+            <Transition
+              nodeRef={settingsRevealRef}
+              in={!!settingsVisible}
+              timeout={300}
+              mountOnEnter
+              unmountOnExit
+              onEnter={() => {
+                // Establish the collapsed layout before animating newly mounted settings.
+                settingsRevealRef.current?.getBoundingClientRect();
+              }}
+            >
+              {state => <div
+                ref={settingsRevealRef}
+                className={classNames(classes.settingsReveal, {
+                  [classes.settingsRevealExpanded]: state === 'entering' || state === 'entered',
+                })}
+                inert={!settingsVisible}
+              >
+                <div className={classes.settingsRevealContent}>
+                  <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
+                    {settingsTab === 'following' ? (
+                      <UltraFeedFollowingSettings
+                        settings={settings}
+                        updateSettings={updateSettings}
+                        onClose={() => onCloseSettings?.()}
+                      />
+                    ) : (
+                      <UltraFeedSettings
+                        settings={settings}
+                        updateSettings={updateSettings}
+                        onClose={() => onCloseSettings?.()}
+                        truncationMaps={truncationMaps}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>}
+            </Transition>
 
             {infoVisible && activeTab === 'ultraFeed' && (
               <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
@@ -360,6 +415,7 @@ const UltraFeed = ({
   settingsVisible?: boolean
   onSettingsToggle?: () => void
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_ACTIVE_TAB_COOKIE]);
@@ -395,7 +451,7 @@ const UltraFeed = ({
     captureEvent("ultraFeedTabChanged", { tab });
   };
 
-  if (!ultraFeedEnabledSetting.get()) {
+  if (!ultraFeedEnabledSetting.get(forumType)) {
     return (
       <SingleColumnSection>
         <div className={classes.disabledMessage}>

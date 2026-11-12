@@ -4,11 +4,11 @@ import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents
 import TableOfContents from "./TableOfContents";
 import MultiToCLayout, { HOVER_CLASSNAME } from "./MultiToCLayout";
 import { DynamicTableOfContentsContext } from '@/components/common/sharedContexts';
-import { isLWorAF } from '@/lib/instanceSettings';
 import type { ToCData, ToCSection } from '@/lib/tableOfContents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useDebouncedCallback } from '@/components/hooks/useDebouncedCallback';
-import classNames from 'classnames';
+
+
 
 const TOC_REFRESH_DEBOUNCE_MS = 300;
 
@@ -169,13 +169,11 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
   });
   const resolvedSectionData = useMemo(() => sectionData ?? EMPTY_TOC_DATA, [sectionData]);
 
-  const useFixedPositionToc = isLWorAF();
-
   // Sync heading IDs to the live editor DOM so FixedPositionToC can measure positions
   useEffect(() => {
-    if (!useFixedPositionToc || !resolvedSectionData.sections.length) return;
+    if (!resolvedSectionData.sections.length) return;
     syncHeadingIdsToEditorDom(resolvedSectionData.sections);
-  }, [useFixedPositionToc, resolvedSectionData]);
+  }, [resolvedSectionData]);
 
   // Debounce TOC refreshes so that typing in the editor doesn't recompute the
   // ToC (parse-document + extract-sections + re-render every row) on every
@@ -211,7 +209,7 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
     fixedPositionToc={true}
   />;
 
-  return <div className={classNames(useFixedPositionToc && classes.editorLayout)}>
+  return <div className={classes.editorLayout}>
     <DynamicTableOfContentsContext.Provider value={context}>
       <MultiToCLayout
         segments={[{

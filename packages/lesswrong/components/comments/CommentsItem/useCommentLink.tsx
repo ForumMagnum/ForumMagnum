@@ -1,4 +1,5 @@
-import React, { FC, MouseEvent, PropsWithChildren, useContext, useSyncExternalStore } from "react";
+import { useForumType } from '@/components/hooks/useForumType';
+import React, { MouseEvent, useSyncExternalStore } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import qs from "qs";
@@ -6,7 +7,6 @@ import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
 import { isSpecialClick } from "@/lib/utils/eventUtils";
-import { useMatchSSR } from "@/components/common/DeferRender";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "postId" | "tagCommentType">,
@@ -90,6 +90,7 @@ export const CommentLinkWrapper = ({
  * will be taken from the `#id` part of the URL if present.
  */
 export const useCommentLinkState = () => {
+  const { forumType } = useForumType();
   const { query, hash } = useSubscribedLocation();
 
   const queryId = query.commentId
@@ -99,8 +100,8 @@ export const useCommentLinkState = () => {
   // the SSR mismatch
   const scrollToCommentId = useSyncExternalStore(
     ()=>()=>{},
-    () => commentPermalinkStyleSetting.get() === 'in-context' ? (queryId ?? hashId) : hashId,
-    () => commentPermalinkStyleSetting.get() === 'in-context' ? queryId : "",
+    () => commentPermalinkStyleSetting.get(forumType) === 'in-context' ? (queryId ?? hashId) : hashId,
+    () => commentPermalinkStyleSetting.get(forumType) === 'in-context' ? queryId : "",
   ) ?? "";
 
   return { linkedCommentId: queryId, scrollToCommentId }

@@ -15,7 +15,6 @@ export const defaultZIndexes = {
   sequencesPageContent: 2,
   sequencesImageScrim: 2,
   linkCard: 2,
-  editSequenceTitleInput: 3,
   postsVote: 2,
   postItemAuthor: 2,
   singleLineCommentMeta: 3,

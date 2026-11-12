@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { manifoldAPIKeySetting, highlightReviewWinnerThresholdSetting } from "../../instanceSettings";
 import { getWithCustomLoader, loadByIds } from "../../loaders";
@@ -72,8 +73,8 @@ export const getMarketInfo = (post: PostsBase): AnnualReviewMarketInfo | undefin
   }
 }
 
-export const highlightMarket = (info: AnnualReviewMarketInfo | undefined): boolean =>
-  !!info && !info.isResolved && info.probability > highlightReviewWinnerThresholdSetting.get()
+export const highlightMarket = (info: AnnualReviewMarketInfo | undefined, forumType: ForumTypeString): boolean =>
+  !!info && !info.isResolved && info.probability > highlightReviewWinnerThresholdSetting.get(forumType)
 
 
 export const postGetMarketInfoFromManifold = async (marketId: string, year: number): Promise<AnnualReviewMarketInfo | null > => {
@@ -132,8 +133,8 @@ export const postGetMarketInfoFromManifold = async (marketId: string, year: numb
   }
 }
 
-export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number, idKey: string): Promise<LiteMarket | undefined> => {
-  const manifoldAPIKey = manifoldAPIKeySetting.get()
+export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number, idKey: string, forumType: ForumTypeString): Promise<LiteMarket | undefined> => {
+  const manifoldAPIKey = manifoldAPIKeySetting.get(forumType)
 
   //eslint-disable-next-line no-console
   if (!manifoldAPIKey) console.error("Manifold API key not found");

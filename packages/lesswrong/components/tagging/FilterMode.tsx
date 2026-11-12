@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState } from 'react';
 import { FilterMode as FilterModeType, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
 import classNames from 'classnames';
@@ -52,7 +53,11 @@ const styles = defineStyles("FilterMode", (theme: ThemeType) => ({
     paddingLeft: 10,
     paddingRight: 10,
     backgroundColor: theme.palette.panelBackground.default,
-    border: theme.palette.tag.border,
+    ...(theme.dark && {
+      backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
+      backdropFilter: theme.palette.filters.bannerAdBlurMedium,
+    }),
+    border: theme.dark ? theme.palette.greyBorder("1px", 0.07) : theme.palette.tag.border,
     borderRadius: 3,
     ...theme.typography.commentStyle,
     display: "inline-block",
@@ -160,6 +165,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   onRemove?: () => void,
   description?: React.ReactNode
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { hover, anchorEl, eventHandlers } = useHover({
     eventProps: {tagId, label, mode},
@@ -175,9 +181,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
 
   const standardFilterModes = getStandardFilterModes();
 
-  if (mode === "TagDefault" && defaultVisibilityTags.get().find(t => t.tagId === tagId)) {
+  if (mode === "TagDefault" && defaultVisibilityTags.get(forumType).find(t => t.tagId === tagId)) {
     // We just found it, it's guaranteed to be in the defaultVisibilityTags list
-    mode = defaultVisibilityTags.get().find(t => t.tagId === tagId)!.filterMode
+    mode = defaultVisibilityTags.get(forumType).find(t => t.tagId === tagId)!.filterMode
   }
   
   const reducedName = 'Reduced'
@@ -237,7 +243,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const tagPreviewPostCount = forumSelect({
     LessWrong: 0,
     default: 3
-  });
+  }, forumType);
 
   // Show a `+` in front of the custom "other" input if there's a custom additive value (rather than multiplicative)
   const showPlusSign = typeof otherValue === 'number' && otherValue >= 1;

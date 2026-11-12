@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, use, useContext, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { createContext, use, useContext, useMemo, useRef, useSyncExternalStore } from "react";
 // eslint-disable-next-line no-restricted-imports
 import { useQuery as useQueryApollo, useSuspenseQuery as useSuspenseQueryApollo, useReadQuery as useReadQueryApollo, useBackgroundQuery as useBackgroundQueryApollo, useApolloClient, type SuspenseQueryHookFetchPolicy } from "@apollo/client/react";
 import { CombinedGraphQLErrors, NetworkStatus } from "@apollo/client";
@@ -100,6 +100,17 @@ function waitForInjection(injectedKey: string): Promise<void> | null {
   return waitForInjectionsPromises[injectedKey];
 }
 
+/**
+ * During a hydration render, suspend until the SSR-injected result for
+ * `injectedKey` has arrived (or a timeout passes).
+ *
+ * When the promise resolves, React replays the suspended component reusing the
+ * hooks from the suspended attempt, and only switches back to the mount
+ * dispatcher when the replay reaches the same `use` call. So whether we call
+ * `use` must not depend on whether the injection has arrived in the meantime;
+ * `waitForInjection` handles that by returning the same (now-resolved) promise
+ * on the replay. Callers must not gate `shouldWait` on the injected store.
+ */
 function useHydrationWaitForInjectedKey(injectedKey: string, shouldWait: boolean) {
   const isHydrationRender = useIsHydrationWithNoRerender();
   if (isHydrationRender && shouldWait) {
@@ -186,7 +197,7 @@ function getOrCreateSsrQueryPromise(
     return existingPromise;
   }
   const queryPromise = (async () => {
-    const { runQueryNonThrowing } = await import("@/server/vulcan-lib/query");
+    const { runQueryNonThrowingWithAnonymousCache } = await import("@/server/postPageCache/anonymousQueryCache");
     // Modify selection sets to add __typename. Because apollo-client will
     // do this transform when the same query is given to useQuery, we need
     // to do it for the injected version, or else there would be a mismatch in
@@ -194,7 +205,7 @@ function getOrCreateSsrQueryPromise(
     // apollo-client to look for fields in the wrong place and return
     //  incorrect empty objects.
     const transformedQuery = addTypenameToDocument(query);
-    const result = await runQueryNonThrowing(transformedQuery, variables, resolverContext);
+    const result = await runQueryNonThrowingWithAnonymousCache(transformedQuery, variables, resolverContext);
 
     if (result.errors?.length) {
       const serializedErrors = serializeGraphQLErrors(result.errors);
@@ -283,7 +294,7 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
     // query isn't skipped, wait briefly for injection before letting apollo
     // fire a duplicate request.
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useHydrationWaitForInjectedKey(injectedKey, !isSkipped && !injectedBeforeWait);
+    useHydrationWaitForInjectedKey(injectedKey, !isSkipped);
 
     const injectedStoreAfterWait = typeof globalThis !== "undefined" ? (globalThis as unknown as Window).__LW_SSR_GQL__ : undefined;
     const injectedAfterWait = injectedStoreAfterWait?.[injectedKey];
@@ -393,7 +404,7 @@ export const useSuspenseQuery: typeof useSuspenseQueryApollo = ((query: any, opt
   const isNoSSR = (options && 'ssr' in options && !options.ssr);
   const isSkipped = (options as any)?.skip || isNoSSR;
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  useHydrationWaitForInjectedKey(injectedKey, !isSkipped && !injectedBeforeWait);
+  useHydrationWaitForInjectedKey(injectedKey, !isSkipped);
 
   const injectedStoreAfterWait = typeof globalThis !== "undefined" ? (globalThis as unknown as Window).__LW_SSR_GQL__ : undefined;
   const injectedAfterWait = injectedStoreAfterWait?.[injectedKey];
@@ -497,7 +508,7 @@ export const useBackgroundQuery: typeof useBackgroundQueryApollo = ((query: any,
     const isNoSSR = (options && 'ssr' in options && !options.ssr);
     const isSkipped = options?.skip || isNoSSR;
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useHydrationWaitForInjectedKey(injectedKey, !isSkipped && !injectedBeforeWait);
+    useHydrationWaitForInjectedKey(injectedKey, !isSkipped);
 
     const injectedStoreAfterWait = typeof globalThis !== "undefined" ? (globalThis as unknown as Window).__LW_SSR_GQL__ : undefined;
     const injectedAfterWait = injectedStoreAfterWait?.[injectedKey];

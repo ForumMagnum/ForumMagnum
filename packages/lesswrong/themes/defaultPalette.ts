@@ -87,7 +87,6 @@
 
 import { grey, greyAlpha, inverseGreyAlpha, primaryAlpha, boxShadowColor, greyBorder, invertIfDarkMode } from "./colorUtil";
 import { isBlackBarTitle } from '../components/seasonal/petrovDay/petrov-day-story/petrovConsts';
-import { isAF } from '@/lib/instanceSettings';
 
 export const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently

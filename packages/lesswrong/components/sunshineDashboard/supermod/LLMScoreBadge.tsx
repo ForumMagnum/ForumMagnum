@@ -7,6 +7,7 @@ import classNames from 'classnames';
 
 const styles = defineStyles('LLMScoreBadge', (theme: ThemeType) => ({
   badge: {
+    ...theme.typography.commentStyle,
     fontSize: 11,
     padding: '2px 6px',
     borderRadius: 3,
@@ -21,7 +22,16 @@ const styles = defineStyles('LLMScoreBadge', (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[300],
     },
   },
+  highScore: {
+    color: theme.palette.error.main,
+    backgroundColor: 'light-dark(rgba(191,54,12,0.1),rgba(191,54,12,0.25))',
+    '&:hover': {
+      backgroundColor: 'light-dark(rgba(191,54,12,0.18),rgba(191,54,12,0.35))',
+    },
+  },
 }));
+
+const HIGH_SCORE_THRESHOLD = 0.2;
 
 const LLMScoreBadge = ({
   documentId,
@@ -45,7 +55,9 @@ const LLMScoreBadge = ({
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
 
-  const isPangramV3 = automatedContentEvaluations?.pangramApiVersion === 'v3';
+  const apiVersion = automatedContentEvaluations?.pangramApiVersion;
+  const hasFractionScores = automatedContentEvaluations?.pangramApiVersion === 'v3'
+    || automatedContentEvaluations?.pangramApiVersion === 'pangram-4';
   const score = automatedContentEvaluations?.pangramScore;
   const maxScore = automatedContentEvaluations?.pangramMaxScore;
   const hasScore = typeof score === 'number';
@@ -72,10 +84,10 @@ const LLMScoreBadge = ({
   return (
     <HoverOver
       title={hasScore
-        ? isPangramV3
+        ? hasFractionScores
           ? (
             <div>
-              AI-involved: {score.toFixed(2)}, AI-written: {automatedContentEvaluations.pangramFractionAi?.toFixed(2) ?? 'N/A'},
+              Model: {apiVersion}, AI-involved: {score.toFixed(2)}, AI-written: {automatedContentEvaluations.pangramFractionAi?.toFixed(2) ?? 'N/A'},
               {' '}AI-assisted: {automatedContentEvaluations.pangramFractionAiAssisted?.toFixed(2) ?? 'N/A'},
               {' '}Max window: {maxScore?.toFixed(2) ?? 'N/A'}
             </div>
@@ -83,7 +95,7 @@ const LLMScoreBadge = ({
           : <div>Average: {score.toFixed(2)}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</div>
         : <div>No LLM evaluation — click to run check</div>}
     >
-      <span className={classNames(classes.badge, className)} onClick={handleClick}>
+      <span className={classNames(classes.badge, hasScore && score > HIGH_SCORE_THRESHOLD && classes.highScore, className)} onClick={handleClick}>
         LLM: {hasScore ? score.toFixed(2) : '—'}
       </span>
     </HoverOver>

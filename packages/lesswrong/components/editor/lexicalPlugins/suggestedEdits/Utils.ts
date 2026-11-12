@@ -52,6 +52,10 @@ export function $wrapSelectionInSuggestionNode(
   const nodesLength = nodes.length
   const startOffset = isBackward ? focusOffset : anchorOffset
   const endOffset = isBackward ? anchorOffset : focusOffset
+  // An element point's offset is a child index, not a character offset, so
+  // it only bounds the first/last text node when that point is a text point.
+  const startIsTextPoint = (isBackward ? focus : anchor).type === 'text'
+  const endIsTextPoint = (isBackward ? anchor : focus).type === 'text'
 
   let currentNodeParent
   let lastCreatedMarkNode: ProtonNode | null = null
@@ -83,8 +87,8 @@ export function $wrapSelectionInSuggestionNode(
 
     if ($isTextNode(node)) {
       const textContentSize = node.getTextContentSize()
-      const startTextOffset = isFirstNode ? startOffset : 0
-      const endTextOffset = isLastNode ? endOffset : textContentSize
+      const startTextOffset = isFirstNode && startIsTextPoint ? startOffset : 0
+      const endTextOffset = isLastNode && endIsTextPoint ? endOffset : textContentSize
       const loggerInfo = { textContentSize, startTextOffset, endTextOffset }
       logger?.info('Splitting text node', loggerInfo)
 

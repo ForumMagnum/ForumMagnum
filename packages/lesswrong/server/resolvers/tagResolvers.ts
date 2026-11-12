@@ -2,7 +2,6 @@ import { Comments } from '../../server/collections/comments/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { Tags } from '../../server/collections/tags/collection';
 import { TagRels } from '../../server/collections/tagRels/collection';
-import { Posts } from '../../server/collections/posts/collection';
 import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
@@ -715,9 +714,9 @@ function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
   return filterNonnull(orderIds.map(id => tagsByIdMap[id]));
 }
 
-// Exported to allow running from "yarn repl"
+// Exported to allow running from "npm run repl"
 export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
-  const context = createAdminContext();
+  const context = createAdminContext({ forumType: "LessWrong" });
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
   const latestRev = await getLatestRev(tag._id, "description", context);
@@ -735,9 +734,9 @@ export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
   );
 }
 
-// Exported to allow running from "yarn repl"
+// Exported to allow running from "npm run repl"
 export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
-  const resolverContext = createAdminContext();
+  const resolverContext = createAdminContext({ forumType: "LessWrong" });
   const { Tags } = resolverContext;
 
   const tag = await Tags.findOne({slug: tagSlug});

@@ -1,7 +1,6 @@
 import SelectFragmentQuery from "./sql/SelectFragmentQuery";
 import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
-import { computeContextFromUser } from "./vulcan-lib/apollo-server/context";
 import { getSqlFragment } from "@/lib/fragments/sqlFragments";
 import { TypedDocumentNode } from "@apollo/client";
 import { FragmentDefinitionNode } from "graphql";
@@ -24,10 +23,12 @@ type FetchFragmentOptions<
   selector?: string | MongoSelector<ObjectsByCollectionName[CollectionName]>,
   /** The mongo options for the query */
   options?: MongoFindOptions<ObjectsByCollectionName[CollectionName]>,
+  /** Synthetic fields from a view, which the view's sort may refer to */
+  syntheticFields?: Partial<Record<keyof ObjectsByCollectionName[CollectionName], MongoSelector<ObjectsByCollectionName[CollectionName]>>>,
   /** Arguments to pass to code resolvers and SQL resolvers */
   resolverArgs?: Record<string, unknown> | null,
-  /** Optional resolver context */
-  context?: ResolverContext,
+  /** Resolver context, including the request forum. */
+  context: ResolverContext,
   /**
    * By default, the results are passed through `accessFilterMultiple` to
    * restrict the data for the current user. If you need unrestricted data
@@ -69,15 +70,12 @@ export const fetchFragment = async <
   currentUser,
   selector,
   options,
+  syntheticFields,
   resolverArgs,
-  context: maybeContext,
+  context,
   skipFiltering,
   skipCodeResolvers,
 }: FetchFragmentOptions<F, V, CollectionName>): Promise<FetchedFragment<F, CollectionName>[]> => {
-  const context = maybeContext ?? await computeContextFromUser({
-    user: currentUser,
-    isSSR: false,
-  });
 
   const fragmentDefinitions = fragmentDoc.definitions.filter((def): def is FragmentDefinitionNode => def.kind === 'FragmentDefinition')
   if (!fragmentDefinitions.length) {
@@ -92,7 +90,7 @@ export const fetchFragment = async <
     currentUser ?? null,
     resolverArgs,
     selector,
-    undefined,
+    syntheticFields,
     options,
   );
   const {sql, args} = query.compile();

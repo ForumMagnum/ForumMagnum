@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef } from 'react';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from '@/lib/crud/useQuery';
+import { useMessages } from '@/components/common/withMessages';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateRejectContentDialogQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -34,6 +35,12 @@ const rejectCommentMutation = gql(`
   }
 `);
 
+const RecordRejectionTemplatesUsedMutation = gql(`
+  mutation recordModerationTemplatesUsedRejectContent($templateIds: [String!]!, $documentId: String!, $collectionName: ContentCollectionName!) {
+    recordModerationTemplatesUsed(templateIds: $templateIds, documentId: $documentId, collectionName: $collectionName)
+  }
+`);
+
 export type RejectContentParams = {
   collectionName: "Posts",
   document: SunshinePostsList
@@ -42,17 +49,16 @@ export type RejectContentParams = {
   document: CommentsListWithParentMetadata
 }
 
-export type RejectContentWithReason = {
-  collectionName: "Posts",
-  document: SunshinePostsList
-  reason: string
-} | {
-  collectionName: "Comments",
-  document: CommentsListWithParentMetadata
-  reason: string
+export interface RejectContentWithReason {
+  collectionName: "Posts" | "Comments";
+  document: { _id: string };
+  reason: string;
+  templateIds?: string[];
 }
 
 export function useRejectContent() {
+  const { flash } = useMessages();
+  const [recordTemplatesUsed] = useMutation(RecordRejectionTemplatesUsedMutation);
   const [updatePost] = useMutation(rejectPostMutation);
   const [updateComment] = useMutation(rejectCommentMutation);
 
@@ -69,16 +75,16 @@ export function useRejectContent() {
   // Mutation queue to ensure sequential execution and prevent race conditions from sending the opposite-direction action before the previous one has finished
   const mutationQueueRef = useRef<Promise<void>>(Promise.resolve());
 
-  const queueMutation = useCallback(async (mutationFn: () => Promise<any>) => {
-    const currentQueue = mutationQueueRef.current;
-    const newMutation = currentQueue
-      .then(mutationFn)
-      .catch(_ => {});
-    mutationQueueRef.current = newMutation;
-    return newMutation;
-  }, []);
-  
-  const rejectContent = useCallback(({ collectionName, document, reason }: RejectContentWithReason) => {
+  const queueMutation = useCallback((mutationFn: () => Promise<void>) => {
+    const result = mutationQueueRef.current.then(mutationFn).then(() => true, (error: unknown) => {
+      flash({ messageString: error instanceof Error ? error.message : String(error), type: "error" });
+      return false;
+    });
+    mutationQueueRef.current = result.then(() => {});
+    return result;
+  }, [flash]);
+
+  const rejectContent = useCallback(({ collectionName, document, reason, templateIds }: RejectContentWithReason) => {
     return queueMutation(async () => {
       const variables = {
         selector: { _id: document._id },
@@ -88,18 +94,21 @@ export function useRejectContent() {
       if (collectionName === "Posts") {
         await updatePost({
           variables,
-          optimisticResponse: { updatePost: { data: { ...document, rejected: true, rejectedReason: reason } } },
-          onError: () => {},
         });
       } else {
         await updateComment({
           variables,
-          optimisticResponse: { updateComment: { data: { ...document, rejected: true, rejectedReason: reason } } },
-          onError: () => {}
         });
       }
+      if (templateIds?.length) {
+        try {
+          await recordTemplatesUsed({ variables: { templateIds, documentId: document._id, collectionName } });
+        } catch (error) {
+          flash({ messageString: `Content was rejected, but template usage could not be recorded: ${error instanceof Error ? error.message : String(error)}`, type: "error" });
+        }
+      }
     });
-  }, [updatePost, updateComment, queueMutation]);
+  }, [updatePost, updateComment, queueMutation, recordTemplatesUsed, flash]);
   
   const unrejectContent = useCallback(({ collectionName, document }: RejectContentParams) => {
     return queueMutation(async () => {
@@ -112,13 +121,11 @@ export function useRejectContent() {
         await updatePost({
           variables,
           optimisticResponse: { updatePost: { data: { ...document, rejected: false, rejectedReason: null } } },
-          onError: () => {}
         });
       } else {
         await updateComment({
           variables,
           optimisticResponse: { updateComment: { data: { ...document, rejected: false, rejectedReason: null } } },
-          onError: () => {}
         });
       }
     });

@@ -3,7 +3,7 @@ import PostEmbeddings from '../collections/postEmbeddings/collection';
 import { frontpageClassifierModel, type FrontpageClassifierModel } from '../../lib/frontpageClassifier/model';
 import { getSqlClientOrThrow } from '../sql/sqlClient';
 import { postStatuses } from '../../lib/collections/posts/constants';
-import { adminAccountSetting, isLW } from '../../lib/instanceSettings';
+import { adminAccountSetting } from '../../lib/instanceSettings';
 
 export type ClassifierModel = FrontpageClassifierModel;
 
@@ -134,7 +134,7 @@ interface PostWithPrediction {
  */
 export async function maybeAutoFrontpagePost(postId: string, context: ResolverContext): Promise<void> {
   const { Posts } = context;
-  if (!isLW()) {
+  if (context.forumType !== 'LessWrong') {
     return;
   }
 
@@ -171,7 +171,7 @@ export async function maybeAutoFrontpagePost(postId: string, context: ResolverCo
     return;
   }
 
-  const adminTeamAccountId = adminAccountSetting.get()?._id;
+  const adminTeamAccountId = adminAccountSetting.get(context)?._id;
   if (!adminTeamAccountId) {
     return;
   }
@@ -195,7 +195,7 @@ export async function maybeAutoFrontpagePost(postId: string, context: ResolverCo
  * whether frontpageDate is set) for posts published after the model was trained.
  *
  * Usage:
- *   yarn repl prod packages/lesswrong/server/frontpageClassifier/predictions.ts "analyzeClassifierAccuracy()"
+ *   npm run repl -- prod packages/lesswrong/server/frontpageClassifier/predictions.ts "analyzeClassifierAccuracy()"
  *
  * @param startDate - Start of the analysis period (default: model training date)
  * @param endDate - End of the analysis period (default: now)

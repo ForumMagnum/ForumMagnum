@@ -1,15 +1,16 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import { petrovBeforeTime } from './instanceSettings';
 import moment from "moment";
 
-export const getPetrovDayKarmaThreshold = (): number => {
-  const petrovStartTime = petrovBeforeTime.get()
+export const getPetrovDayKarmaThreshold = (forumType: ForumTypeString): number => {
+  const petrovStartTime = petrovBeforeTime.get(forumType)
   const currentTime = (new Date()).valueOf()
   const karmaStartingThreshold = 2300
   return karmaStartingThreshold - (100*Math.floor((currentTime - petrovStartTime)/(3600*1000)))
 }
 
-export const userCanLaunchPetrovMissile = (user: UsersCurrent|DbUser|null): boolean  => {
-  const currentKarmaThreshold = getPetrovDayKarmaThreshold()
+export const userCanLaunchPetrovMissile = (user: UsersCurrent|DbUser|null, forumType: ForumTypeString): boolean  => {
+  const currentKarmaThreshold = getPetrovDayKarmaThreshold(forumType)
   const manuallyExcludedUsers: string[] = ['KneTmopEjYGsaPYNi', 'DuGWafuKMcBx8uXWY']
   const userCreatedBeforeCutoff = moment('2022-09-21').isSameOrAfter(moment(user?.createdAt))
   

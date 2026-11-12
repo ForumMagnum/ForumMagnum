@@ -2,82 +2,57 @@ import "../integrationTestSetup";
 import { runQuery } from '../../server/vulcan-lib/query';
 import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError, withNoLogs } from '../utils'
 
-describe('AlignmentForum PostsEdit', () => {
+const suggestForAlignmentQuery = (postId: string) => `
+  mutation {
+    setPostSuggestedForAlignment(postId: "${postId}", suggested: true) {
+      suggestForAlignmentUserIds
+    }
+  }
+`;
+
+const reviewForAlignmentQuery = (postId: string) => `
+  mutation {
+    reviewPostForAlignment(postId: "${postId}", approved: false) {
+      reviewForAlignmentUserId
+    }
+  }
+`;
+
+describe('AlignmentForum post suggestions', () => {
   let graphQLerrors = catchGraphQLErrors();
 
-  it("succeeds when alignmentForum user edits the suggestForAlignmentUserIds field", async () => {
+  it("succeeds when alignmentForum user suggests a post for alignment", async () => {
     const user = await createDummyUser({groups:['alignmentForum']})
     const post = await createDummyPost()
 
-    const userIds = user._id
-
-    const query = `
-      mutation PostsEdit {
-        updatePost(selector: {_id:"${post._id}"},data:{suggestForAlignmentUserIds:["${userIds}"]}) {
-          data {
-            suggestForAlignmentUserIds
-          }
-        }
-      }
-    `;
-    const response = runQuery(query,{},{currentUser:user})
-    const expectedOutput = { data: { updatePost: { data: {suggestForAlignmentUserIds: [`${userIds}`] } } } }
+    const response = runQuery(suggestForAlignmentQuery(post._id),{},{currentUser:user})
+    const expectedOutput = { data: { setPostSuggestedForAlignment: { suggestForAlignmentUserIds: [user._id] } } }
     return (response as any).should.eventually.deep.equal(expectedOutput);
   });
-  it("succeeds when alignmentForumAdmin edits the suggestForAlignmentUserIds field", async () => {
+  it("succeeds when alignmentForumAdmin suggests a post for alignment", async () => {
     const user = await createDummyUser({groups:['alignmentForumAdmins']})
     const post = await createDummyPost()
 
-    const userIds = user._id
-
-    const query = `
-      mutation PostsEdit {
-        updatePost(selector: {_id:"${post._id}"},data:{suggestForAlignmentUserIds:["${userIds}"]}) {
-          data {
-            suggestForAlignmentUserIds
-          }
-        }
-      }
-    `;
-    const response = runQuery(query,{},{currentUser:user})
-    const expectedOutput = { data: { updatePost: { data: {suggestForAlignmentUserIds: [`${userIds}`] } } } }
+    const response = runQuery(suggestForAlignmentQuery(post._id),{},{currentUser:user})
+    const expectedOutput = { data: { setPostSuggestedForAlignment: { suggestForAlignmentUserIds: [user._id] } } }
     return (response as any).should.eventually.deep.equal(expectedOutput);
   });
-  it("fails when alignmentForum user edits the reviewForAlignmentUserId field", async () => {
+  it("fails when alignmentForum user reviews a post for alignment", async () => {
     const user = await createDummyUser({groups:['alignmentForum']})
     const post = await createDummyPost()
 
-    const query = `
-      mutation PostsEdit {
-        updatePost(selector: {_id:"${post._id}"},data:{reviewForAlignmentUserId:"${user._id}"}) {
-          data {
-            reviewForAlignmentUserId
-          }
-        }
-      }
-    `;
-
     await withNoLogs(async () => {
-      const response = runQuery(query,{},{currentUser:user})
+      const response = runQuery(reviewForAlignmentQuery(post._id),{},{currentUser:user})
       await (response as any).should.be.rejected;
     });
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
-  it("succeeds when alignmentForumAdmin edits the reviewForAlignmentUserId field", async () => {
+  it("succeeds when alignmentForumAdmin reviews a post for alignment", async () => {
     const user = await createDummyUser({groups:['alignmentForumAdmins']})
     const post = await createDummyPost()
 
-    const query = `
-      mutation PostsEdit {
-        updatePost(selector: {_id:"${post._id}"},data:{reviewForAlignmentUserId:"${user._id}"}) {
-          data {
-            reviewForAlignmentUserId
-          }
-        }
-      }
-    `;
-    const response = runQuery(query,{},{currentUser:user})
-    const expectedOutput = { data: { updatePost: { data: { reviewForAlignmentUserId: `${user._id}` } } } }
+    const response = runQuery(reviewForAlignmentQuery(post._id),{},{currentUser:user})
+    const expectedOutput = { data: { reviewPostForAlignment: { reviewForAlignmentUserId: user._id } } }
     return (response as any).should.eventually.deep.equal(expectedOutput);
   });
 })

@@ -1,10 +1,11 @@
+import { invalidatePostPageCache } from './postPageCache/invalidatePostPageCache';
 /*
  * Review vote tallying: aggregates individual review votes into per-post
  * score fields on the Posts collection.
  *
  * Used by the cron job at `app/api/cron/update-review-vote-totals/route.ts`
  * and can also be run manually:
- *   yarn repl prod packages/lesswrong/server/reviewVoteUpdate.ts 'updateReviewVoteTotals("finalVote")'
+ *   npm run repl -- prod packages/lesswrong/server/reviewVoteUpdate.ts 'updateReviewVoteTotals("finalVote")'
  */
 
 import ReviewVotes from "@/server/collections/reviewVotes/collection";
@@ -60,6 +61,7 @@ async function writeVoteResultsToDb(
       [scoreFieldName]: totalScore,
     }});
   }
+  await invalidatePostPageCache(Object.keys(voteValuesByPost));
 }
 
 async function updateVoteTotals(

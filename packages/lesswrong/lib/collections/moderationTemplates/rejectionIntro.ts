@@ -8,6 +8,9 @@ export const standardRejectionIntroHtml = `
   <p>Your content didn't meet the bar for at least the following reason(s):</p>
 `;
 
+/** Appended to the rejection message when the moderator also disables the user's permissions */
+export const disabledPermissionsRejectionHtml = `<p>I've also disabled your account's ability to post, comment, vote and send messages.</p>`;
+
 /** One-line version, for the composer's collapsed intro */
 export const standardRejectionIntroPlaintext = standardRejectionIntroHtml
   .replace(/<[^>]+>/g, ' ')

@@ -11,6 +11,12 @@ interface PostEmbeddingDistanceInfo {
   quality_adjusted_score: unknown
 }
 
+export interface NearestPostFilters {
+  /** Inclusive karma floor; the selector always requires positive karma too. */
+  minKarma?: number;
+  publishedAfter?: Date | null;
+}
+
 class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
   constructor() {
     super(PostEmbeddings);
@@ -62,7 +68,17 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
   async getNearestPostIdsWeightedByQuality(
     inputEmbedding: number[],
     limit = 5,
+    { minKarma = 0, publishedAfter = null }: NearestPostFilters = {},
   ): Promise<string[]> {
+    // Filter the requested corpus before the nearest-neighbor limit, retaining
+    // the existing all-time query for callers that do not request a filter.
+    const eligibilityFilter = minKarma > 0 || publishedAfter ? `
+      JOIN "Posts" p ON p."_id" = pe."postId"
+      WHERE ${getViewablePostsSelector("p")}
+        AND p."baseScore" > 0
+        AND p."baseScore" >= $(minKarma)
+        AND ($(publishedAfter)::timestamptz IS NULL OR p."postedAt" >= $(publishedAfter))
+    ` : "";
     const results = await this.getRawDb().any<PostEmbeddingDistanceInfo>(`
       -- PostEmbeddingsRepo.getNearestPostsWeightedByQuality
       WITH embedding_distances AS (
@@ -70,11 +86,12 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
           pe."postId", 
           pe.embeddings <#> $(inputEmbedding)::VECTOR(1536) AS distance
         FROM public."PostEmbeddings" pe
+        ${eligibilityFilter}
         ORDER BY distance
         LIMIT 200 
       )
       ${this.postIdsByEmbeddingDistanceSelector}
-    `, { inputEmbedding, limit });
+    `, { inputEmbedding, limit, minKarma, publishedAfter });
 
     return results.map(({ _id }) => _id);
   }
@@ -100,7 +117,7 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
         LIMIT 200 
       )
       ${this.postIdsByEmbeddingDistanceSelector}
-    `, { postId, limit });
+    `, { postId, limit, minKarma: 0, publishedAfter: null });
 
     return results.map(({ _id }) => _id);
   }

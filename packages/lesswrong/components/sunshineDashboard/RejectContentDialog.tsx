@@ -1,3 +1,4 @@
+import { useMessages } from '@/components/common/withMessages';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Paper, Card }from '@/components/widgets/Paper';
@@ -21,7 +22,8 @@ import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
 import { standardRejectionIntroHtml } from '@/lib/collections/moderationTemplates/rejectionIntro';
 import dynamic from 'next/dynamic';
 
-const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
+// `loading` adds a Suspense boundary; without one, loading the editor blanks the page
+const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'), { loading: () => null });
 
 const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
   dialogContent: {
@@ -311,11 +313,14 @@ const STORAGE_KEY_PREFIX = 'rejectionTemplateConfig_';
 const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displayName}: {
   rejectionTemplates: ModerationTemplateFragment[],
   onClose?: () => void,
-  rejectContent: (reason: string) => void,
+  rejectContent: (reason: string) => boolean | Promise<boolean>,
   displayName?: string,
 }) => {
   const classes = useStyles(styles);
+  const { flash } = useMessages();
   const currentUser = useCurrentUser();
+  const submittingRef = useRef(false);
+  const [submitting, setSubmitting] = useState(false);
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
   // Live editor contents go in a ref so typing doesn't re-render the template
@@ -468,10 +473,21 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
     saveConfig(hiddenTemplateIds, fullOrder);
   }, [hiddenTemplateIds, templateOrder, saveConfig]);
 
-  const handleClick = useCallback(() => {
-    rejectContent(rejectedReasonRef.current);
-    onClose?.();
-  }, [rejectContent, onClose]);
+  const handleClick = useCallback(async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    setSubmitting(true);
+    const reason = rejectedReasonRef.current;
+    try {
+      const succeeded = await rejectContent(reason);
+      if (succeeded && rejectedReasonRef.current === reason) onClose?.();
+    } catch (error) {
+      flash({ messageString: error instanceof Error ? error.message : String(error), type: "error" });
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
+    }
+  }, [rejectContent, onClose, flash]);
 
   const handleEditorChange = useCallback((html: string) => {
     rejectedReasonRef.current = html;
@@ -511,7 +527,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
         if (e.ctrlKey || e.metaKey) {
           e.preventDefault();
           if (hasRejectedReason) {
-            handleClick();
+            void handleClick();
           }
         } else {
           e.preventDefault();
@@ -543,7 +559,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       if (hasRejectedReason) {
         e.preventDefault();
-        handleClick();
+        void handleClick();
       }
     }
   }, [hasRejectedReason, handleClick]));
@@ -639,7 +655,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displa
   const dialogElement = <Paper>
     <div className={classes.dialogContent}>
       {dialogContent}
-      <Button onClick={handleClick} disabled={!hasRejectedReason}>
+      <Button onClick={handleClick} disabled={!hasRejectedReason || submitting}>
         Reject
         <KeystrokeDisplay keystroke="Ctrl+Enter" withMargin splitBeforeTranslation />
       </Button>

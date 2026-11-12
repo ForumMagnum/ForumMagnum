@@ -1,13 +1,14 @@
 import { getRootDocument } from "@/lib/collections/multiDocuments/helpers";
 import { accessLevelCan, getCollaborativeEditorAccess, getSharingKeyFromContext } from "@/lib/collections/posts/collabEditingPermissions";
 import { postStatusLabels } from "@/lib/collections/posts/constants";
-import { userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
+import { postIsPublic, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { userIsSharedOn } from "@/lib/collections/users/helpers";
 import { extractVersionsFromSemver } from "@/lib/editor/utils";
 import { constantTimeCompare } from "@/lib/helpers";
 import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { userCanAccessTypoSuggestion } from "@/lib/collections/typoSuggestions/helpers";
+import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 
 
 const denyAll: CheckAccessFunction<CollectionNameString> = async () => false;
@@ -18,6 +19,11 @@ const adminOnly: CheckAccessFunction<CollectionNameString> = async (currentUser)
 const typoSuggestionCheckAccess: CheckAccessFunction<'TypoSuggestions'> = async (currentUser, document, context): Promise<boolean> => {
   if (!document) return false;
   return userCanAccessTypoSuggestion(currentUser, document);
+};
+
+const aiDigestIssueCheckAccess: CheckAccessFunction<'AiDigestIssues'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!currentUser || !document) return false;
+  return document.recipientId === currentUser._id || userIsAdmin(currentUser);
 };
 
 const automatedContentEvaluationCheckAccess: CheckAccessFunction<'AutomatedContentEvaluations'> = async (currentUser, document, context): Promise<boolean> => {
@@ -137,6 +143,38 @@ const llmConversationCheckAccess: CheckAccessFunction<'LlmConversations'> = asyn
   return userIsAdmin(currentUser) || userOwns(currentUser, document);
 };
 
+const llmRunCheckAccess: CheckAccessFunction<"LlmRuns"> = async (currentUser, document, context) => {
+  if (userIsAdmin(currentUser)) return true;
+  // GraphQL may only have selected a subset of the run's fields.
+  const run = await context.LlmRuns.findOne(document._id);
+  if (!run?.triggerCommentId) {
+    return false;
+  }
+  const comment = await context.loaders.Comments.load(run.triggerCommentId);
+  return !!comment && await commentIsPubliclyVisible(comment, context);
+};
+
+/**
+ * What our models write is public, so a model may only see content that a
+ * logged-out visitor could see. Everything a model reads from our database (as
+ * opposed to through the public Markdown API, which is already served to
+ * logged-out visitors) must pass these checks.
+ */
+export async function postIsPubliclyVisible(post: DbPost, context: ResolverContext): Promise<boolean> {
+  if (!postIsPublic(post) || post.rejected) {
+    return false;
+  }
+  return postCheckAccess(null, post, { ...context, headers: undefined, searchParams: undefined });
+}
+
+export async function commentIsPubliclyVisible(comment: DbComment, context: ResolverContext): Promise<boolean> {
+  if (commentIsNotPublicForAnyReason(comment, context.forumType) || !comment.postId) {
+    return false;
+  }
+  const post = await context.loaders.Posts.load(comment.postId);
+  return !!post && await postIsPubliclyVisible(post, context);
+}
+
 const researchProjectCheckAccess: CheckAccessFunction<'ResearchProjects'> = async (currentUser, document, context): Promise<boolean> => {
   return userIsAdmin(currentUser) || userOwns(currentUser, document);
 };
@@ -250,6 +288,10 @@ const postCheckAccess: CheckAccessFunction<'Posts'> = async (currentUser, post, 
     if (!status) return false;
     return userCanDo(currentUser, `posts.view.${status.label}`);
   }
+};
+
+const rejectionAppealCheckAccess: CheckAccessFunction<'RejectionAppeals'> = async (currentUser, document, context): Promise<boolean> => {
+  return userIsAdminOrMod(currentUser) || userOwns(currentUser, document);
 };
 
 const reportCheckAccess: CheckAccessFunction<'Reports'> = async (currentUser, document, context): Promise<boolean> => {
@@ -431,6 +473,9 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 }
 
 const accessFilters = {
+  AiDigestIssueGenerations: adminOnly,
+  AiDigestIssues: aiDigestIssueCheckAccess,
+  AiDigestSchedules: adminOnly,
   ArbitalCaches: allowAccess,
   ArbitalTagContentRels: allowAccess,
   AutomatedContentEvaluations: automatedContentEvaluationCheckAccess,
@@ -465,6 +510,9 @@ const accessFilters = {
   LinkPreviewCaches: denyAll,
   LlmConversations: llmConversationCheckAccess,
   LlmMessages: llmMessageCheckAccess,
+  LlmRuns: llmRunCheckAccess,
+  // Transcript entries are exposed only through an access-checked LlmRun.
+  LlmRunTranscriptEntries: allowAccess,
   Localgroups: allowAccess,
   LoginTokens: denyAll,
   LWEvents: lweventCheckAccess,
@@ -485,12 +533,15 @@ const accessFilters = {
   Podcasts: allowAccess,
   Posts: postCheckAccess,
   PostEmbeddings: allowAccess,
+  PostPreviews: allowAccess,
   PostRecommendations: allowAccess,
   PostRelations: allowAccess,
+  PostSummaries: allowAccess,
   PostViewTimes: allowAccess,
   PostViews: allowAccess,
   ReadStatuses: allowAccess,
   RecommendationsCaches: allowAccess,
+  RejectionAppeals: rejectionAppealCheckAccess,
   Reports: reportCheckAccess,
   ResearchConversationEvents: researchConversationEventCheckAccess,
   ResearchConversations: researchConversationCheckAccess,

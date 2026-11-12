@@ -1,14 +1,11 @@
-import React from "react";
-import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
+import { useForumType } from '@/components/hooks/useForumType';
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
 import { userCanQuickTake } from "../../lib/vulcan-users/permissions";
-import {
-  SHOW_QUICK_TAKES_SECTION_COOKIE,
-  SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
-} from "../../lib/cookies/cookies";
-import { isEAForum, quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
+import { SHOW_QUICK_TAKES_SECTION_COOKIE } from "../../lib/cookies/cookies";
+import { quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import ExpandableSection from "../common/ExpandableSection";
@@ -22,6 +19,11 @@ import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { SuspenseWrapper } from "../common/SuspenseWrapper";
+import { useFilterSettings } from "../hooks/useFilterSettings";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import AnimatedCollapse from "../common/AnimatedCollapse";
+import SettingsButton from "../icons/SettingsButton";
+import TagFilterSettings from "../tagging/TagFilterSettings";
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentQuickTakesSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -35,22 +37,6 @@ const ShortformCommentsMultiQuery = gql(`
 `);
 
 const styles = defineStyles("QuickTakesSection", (theme: ThemeType) => ({
-  communityToggle: {
-    userSelect: "none",
-    cursor: "pointer",
-    "& .MuiIconButton-root": {
-      height: 0,
-      padding: 0,
-      color: theme.palette.grey[600],
-      transform: "scale(0.7) translate(-2px, -1px)",
-    },
-    "& .MuiIconButton-root.MuiCheckbox-checked": {
-      color: theme.palette.primary.main,
-    },
-    [theme.breakpoints.down("xs")]: {
-      display: "none",
-    },
-  },
   list: {
     marginTop: 4,
     display: "flex",
@@ -59,37 +45,104 @@ const styles = defineStyles("QuickTakesSection", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: '1.16rem',
   },
+  loading: {
+    // Include the dots' overflow and preserve the space normally occupied by the footer.
+    padding: '16px 0 24px',
+  },
+  filterSettings: {
+    backgroundColor: theme.palette.background.paper,
+    border: theme.palette.border.grey300,
+    borderRadius: 4,
+    padding: 16,
+    marginBottom: 12,
+  },
+  filterSettingsDescription: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.text.dim,
+    fontSize: '1.1rem',
+    marginTop: 0,
+    marginBottom: 12,
+  },
 }));
 
-const QuickTakesSectionLoaded = ({showCommunity}: {
-  showCommunity: boolean
-}) => {
+const QuickTakesFilterSettings = () => {
+  const classes = useStyles(styles);
+  const { filterSettings, suggestedTagsQueryRef, setTagFilter, removeTagFilter } = useFilterSettings();
+  return <AnalyticsContext pageSectionContext="tagFilterSettings">
+    <div className={classes.filterSettings}>
+      <p className={classes.filterSettingsDescription}>
+        Shared with Latest Posts and the feed. Quick takes are tagged automatically; Hidden and Required filter them, and Reduced ranks them lower. Karma adjustments only affect posts.
+      </p>
+      <TagFilterSettings
+        filterSettings={filterSettings}
+        suggestedTagsQueryRef={suggestedTagsQueryRef}
+        setTagFilter={setTagFilter}
+        removeTagFilter={removeTagFilter}
+        flexWrapEndGrow={false}
+      />
+    </div>
+  </AnalyticsContext>
+}
+
+const QuickTakesSectionLoaded = () => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const maxAgeDays = quickTakesMaxAgeDaysSetting.get()
+  const { filterSettings } = useFilterSettings();
+  const maxAgeDays = quickTakesMaxAgeDaysSetting.get(forumType)
 
   const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {
-      selector: { shortformFrontpage: { showCommunity, maxAgeDays } },
+      selector: { shortformFrontpage: { maxAgeDays, filterSettings } },
       limit: 7,
       enableTotal: true,
     },
   });
 
   const results = data?.comments?.results;
+  const listRef = useRef<HTMLDivElement>(null);
+  const heightBeforeLoadMoreRef = useRef<number|null>(null);
+
+  useLayoutEffect(() => {
+    const element = listRef.current;
+    const previousHeight = heightBeforeLoadMoreRef.current;
+    if (!element || previousHeight === null) return;
+
+    if (loading) {
+      // Measure with the centered spinner in place while waiting for the new items.
+      heightBeforeLoadMoreRef.current = element.getBoundingClientRect().height;
+      return;
+    }
+
+    heightBeforeLoadMoreRef.current = null;
+    const expandedHeight = element.getBoundingClientRect().height;
+    if (expandedHeight <= previousHeight || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const animation = element.animate([
+      { height: `${previousHeight}px`, overflow: 'clip' },
+      { height: `${expandedHeight}px`, overflow: 'clip' },
+    ], { duration: 200, easing: 'ease-out' });
+
+    return () => animation.cancel();
+  }, [loading, results]);
+
+  const handleLoadMore = () => {
+    heightBeforeLoadMoreRef.current = listRef.current?.getBoundingClientRect().height ?? null;
+    return loadMoreProps.loadMore();
+  };
 
   const showLoadMore = !loadMoreProps.hidden;
 
   return <>
     {(userCanQuickTake(currentUser) || !currentUser) && <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />}
-    <div className={classes.list}>
+    <div ref={listRef} className={classes.list}>
       {results?.map((result: FrontpageShortformComments) => (
         <QuickTakesListItem key={result._id} quickTake={result} />
       ))}
-      {loading && <Loading />}
-      {showLoadMore && (
+      {loading && <div className={classes.loading}><Loading /></div>}
+      {showLoadMore && !loading && (
         <SectionFooter>
-          <LoadMore {...loadMoreProps} sectionFooterStyles />
+          <LoadMore {...loadMoreProps} loadMore={handleLoadMore} sectionFooterStyles />
         </SectionFooter>
       )}
     </div>
@@ -97,7 +150,8 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
 }
 
 const QuickTakesSection = () => {
-  const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
+  const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
 
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "quickTakes",
@@ -107,20 +161,13 @@ const QuickTakesSection = () => {
     cookieName: SHOW_QUICK_TAKES_SECTION_COOKIE,
   });
 
-  const {
-    expanded: showCommunity,
-    toggleExpanded: toggleShowCommunity,
-  } = useExpandedFrontpageSection({
-    section: "quickTakesCommunity",
-    defaultExpanded: (currentUser: UsersCurrent | null) =>
-      currentUser?.hideCommunitySection
-        ? false
-        : !!currentUser?.expandedFrontpageSections?.community,
-    onExpandEvent: "quickTakesSectionShowCommunity",
-    onCollapseEvent: "quickTakesSectionHideCommunity",
-    cookieName: SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
-    forceSetCookieIfUndefined: true,
-  });
+  const toggleFilterSettings = () => {
+    setFilterSettingsVisible(!filterSettingsVisible);
+    captureEvent("filterSettingsClicked", {
+      settingsVisible: !filterSettingsVisible,
+      pageSectionContext: "quickTakesSection",
+    });
+  };
 
   const titleTooltip = (
     <div>
@@ -132,21 +179,9 @@ const QuickTakesSection = () => {
   </LWTooltip>
 
   const afterTitleTo = isFriendlyUI() ? "/quicktakes" : undefined;
-
-  const AfterTitleComponent = isEAForum() 
-    ? () => (
-      <LWTooltip
-        title='Show quick takes tagged "Community"'
-        placement="left"
-        hideOnTouchScreens
-      >
-        <div className={classes.communityToggle} onClick={toggleShowCommunity}>
-          <Checkbox checked={showCommunity} />
-          <span>Show community</span>
-        </div>
-      </LWTooltip>
-    )
-  : undefined;
+  const filterSettingsButton = <LWTooltip title="Tag filters" hideOnTouchScreens>
+    <SettingsButton onClick={toggleFilterSettings} />
+  </LWTooltip>
 
   return <ExpandableSection
     pageSectionContext="quickTakesSection"
@@ -154,10 +189,13 @@ const QuickTakesSection = () => {
     toggleExpanded={toggleExpanded}
     title={title}
     afterTitleTo={afterTitleTo}
-    AfterTitleComponent={AfterTitleComponent}
+    afterTitle={filterSettingsButton}
   >
+    <AnimatedCollapse expanded={filterSettingsVisible}>
+      <QuickTakesFilterSettings />
+    </AnimatedCollapse>
     <SuspenseWrapper name="QuickTakesSection">
-      <QuickTakesSectionLoaded showCommunity={showCommunity}/>
+      <QuickTakesSectionLoaded />
     </SuspenseWrapper>
   </ExpandableSection>
 }
@@ -165,5 +203,3 @@ const QuickTakesSection = () => {
 export default registerComponent("QuickTakesSection", QuickTakesSection, {
   areEqual: "auto"
 });
-
-

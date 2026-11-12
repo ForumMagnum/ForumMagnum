@@ -122,7 +122,8 @@ export function getPlaintextMainText(html: string): string {
 
   const mainTextHtml = sanitizeHtml(document.body.innerHTML, {
     allowedTags: sanitizeAllowedTags.filter((tag) => tag !== "blockquote"),
-    nonTextTags: ["blockquote", "style"],
+    // svg: the text labels of diagrams aren't part of the main text
+    nonTextTags: ["blockquote", "style", "svg"],
     exclusiveFilter: (element) => {
       return isPlaintextPreviewHiddenClass(element.attribs?.class);
     },

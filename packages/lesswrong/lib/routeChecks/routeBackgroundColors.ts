@@ -12,9 +12,6 @@
  * centralized route lists.
  */
 import type { ParamMap } from '../../../../.next/types/routes';
-import type { RoutePreviewPattern } from './hoverPreviewRoutes';
-import type { PingbackRoutePattern } from './pingbackRoutes';
-import type { LeftNavigationRoutePattern } from './index';
 
 type NextExistingRoute = keyof ParamMap;
 

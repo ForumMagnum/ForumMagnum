@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
-import { Card } from "@/components/widgets/Paper";
 import { ReviewYear } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';

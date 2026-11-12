@@ -8,6 +8,7 @@ import DropdownItem from "../DropdownItem";
 const PostAnalyticsDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const isEditor = canUserEditPostMetadata(currentUser, post);
+  // TODO: Consider author analytics for LW/AF together with the resolver permissions and analytics crons.
   if (!isEAForum() || !isEditor) {
     return null;
   }

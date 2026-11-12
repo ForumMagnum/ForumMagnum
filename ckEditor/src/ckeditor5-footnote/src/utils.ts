@@ -1,10 +1,4 @@
-import { ModelElement } from '@ckeditor/ckeditor5-engine/src/model/element';
-import { ModelText } from '@ckeditor/ckeditor5-engine/src/model/text';
-import { ModelTextProxy } from '@ckeditor/ckeditor5-engine/src/model/textproxy';
-import { ViewElement } from '@ckeditor/ckeditor5-engine/src/view/element';
-import { ViewText } from '@ckeditor/ckeditor5-engine/src/view/text';
-import { ViewTextProxy } from '@ckeditor/ckeditor5-engine/src/view/textproxy';
-import type { Editor } from '@ckeditor/ckeditor5-core';
+import { ModelElement, ModelText, ModelTextProxy, ViewElement, ViewText, ViewTextProxy, type Editor } from 'ckeditor5';
 
 // There's ample DRY violation in this file; type checking
 // polymorphism without full typescript is just incredibly finicky.

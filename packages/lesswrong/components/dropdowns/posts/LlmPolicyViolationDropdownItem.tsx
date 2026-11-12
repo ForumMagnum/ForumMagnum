@@ -1,3 +1,4 @@
+import { useMessages } from '@/components/common/withMessages';
 import React from "react";
 import { useCurrentUser } from "../../common/withUser";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
@@ -30,6 +31,7 @@ const LlmPolicyViolationDropdownItem = ({post, closeMenu}: {
   closeMenu: () => void,
 }) => {
   const currentUser = useCurrentUser();
+  const { flash } = useMessages();
   const { openDialog } = useDialog();
   const { rejectContent, rejectionTemplates } = useRejectContent();
   const [unlistLlmPost] = useMutation(unlistLlmPostMutation);
@@ -65,17 +67,13 @@ const LlmPolicyViolationDropdownItem = ({post, closeMenu}: {
           <RejectContentDialog
             rejectionTemplates={rejectionTemplates}
             displayName={post.user?.displayName}
-            rejectContent={(reason) => {
-              void rejectContent({
+            rejectContent={async (reason) => {
+              const succeeded = await rejectContent({
                 collectionName: "Posts",
-                // This expects a SunshinePostsList because useRejectContent does an optimisticResponse
-                // for its mutation, but the mutation itself returns a SunshinePostsList, so it
-                // expects the optimisticResponse to match. In this case it doesn't matter if the
-                // optimistic response is missing some fields, since we're in a context where we
-                // didn't have those fields anyways.
-                document: post as SunshinePostsList,
+                document: post,
                 reason,
               });
+              if (!succeeded) return false;
               // Also unapprove the user
               void updateUser({
                 variables: {
@@ -85,7 +83,10 @@ const LlmPolicyViolationDropdownItem = ({post, closeMenu}: {
                     needsReview: true,
                   },
                 },
+              }).catch(error => {
+                flash({ messageString: `Content was rejected, but the user could not be unapproved: ${error.message}`, type: "error" });
               });
+              return true;
             }}
             onClose={onClose}
           />

@@ -1,6 +1,5 @@
 import schema from '@/lib/collections/notifications/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 

@@ -3,7 +3,6 @@ import { useMessages } from '../../common/withMessages';
 import { useApolloClient, useMutation } from "@apollo/client/react";
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import ArrowRightAlt from '@/lib/vendor/@material-ui/icons/src/ArrowRightAlt';
 import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
 import DropdownItem from "../DropdownItem";
@@ -12,12 +11,10 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-const CommentsListUpdateMutation = gql(`
-  mutation updateCommentMoveToAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
-    updateComment(selector: $selector, data: $data) {
-      data {
-        ...CommentsList
-      }
+const AlignmentCommentMutation = gql(`
+  mutation alignmentComment($commentId: String!, $af: Boolean!) {
+    alignmentComment(commentId: $commentId, af: $af) {
+      ...CommentsList
     }
   }
 `);
@@ -52,34 +49,19 @@ const MoveToAlignmentCommentDropdownItem = ({comment, post}: {
   const currentUser = useCurrentUser();
   const client = useApolloClient();
   const {flash} = useMessages();
-  const [updateComment] = useMutation(CommentsListUpdateMutation);
+  const [setAlignmentComment] = useMutation(AlignmentCommentMutation);
 
   const handleMoveToAlignmentCommentForum = async () => {
-    if (!currentUser) return;
-    await updateComment({
-      variables: {
-        selector: { _id: comment._id },
-        data: {
-          af: true,
-          afDate: new Date(),
-          moveToAlignmentUserId: currentUser._id
-        }
-      }
+    await setAlignmentComment({
+      variables: { commentId: comment._id, af: true }
     })
     await client.resetStore()
     flash("Comment and its parents moved to AI Alignment Forum")
   }
 
   const handleRemoveFromAlignmentForum = async () => {
-    await updateComment({
-      variables: {
-        selector: { _id: comment._id },
-        data: {
-          af: false,
-          afDate: null,
-          moveToAlignmentUserId: null
-        }
-      }
+    await setAlignmentComment({
+      variables: { commentId: comment._id, af: false }
     })
 
     await client.resetStore()

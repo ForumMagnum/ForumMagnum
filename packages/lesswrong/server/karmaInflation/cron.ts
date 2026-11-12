@@ -4,7 +4,7 @@ import DatabaseMetadataRepo from '../repos/DatabaseMetadataRepo';
 
 const AVERAGING_WINDOW_MS = 1000 * 60 * 60 * 24 * 28; // 28 days
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl"
 export async function refreshKarmaInflation() {
   // eslint-disable-next-line no-console
   console.log("Refreshing karma inflation");

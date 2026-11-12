@@ -1,3 +1,5 @@
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import schema from "@/lib/collections/comments/newSchema";
 import { getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
@@ -5,7 +7,7 @@ import { captureException } from "@/lib/sentryWrapper";
 import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { addReferrerToComment, assignPostVersion, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, maybeCreateAutomatedContentEvaluationForComment, moveToAnswers, newCommentsEmptyCheck, newCommentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
+import { addReferrerToComment, applyQuickTakeAutoTags, assignPostVersion, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleReplyToAnswer, lwCommentsNewUpvoteOwnComment, maybeCreateAutomatedContentEvaluationForComment, moveToAnswers, newCommentsEmptyCheck, commentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
@@ -13,6 +15,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { updateCommentEmbeddings } from "@/server/voyage/client";
+import { assertLlmMentionAllowed, assertSubmittedLlmMentionAllowed, startLlmReplyForComment } from "@/server/llmReplies/startLlmReplies";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
@@ -59,7 +62,9 @@ async function newCheck(user: DbUser | null, document: CreateCommentDataInput | 
   await applyParentCommentContext(document, context, user);
   
   newCommentsEmptyCheck(document);
-  await newCommentsRateLimit(document, user, context);
+  if (!document.draft) {
+    await commentsRateLimit(document.postId ?? null, user, context);
+  }
 
   if (!document.postId) return userCanDo(user, 'comments.new')
   const post = await context.loaders.Posts.load(document.postId)
@@ -80,13 +85,11 @@ async function newCheck(user: DbUser | null, document: CreateCommentDataInput | 
   return userCanDo(user, 'comments.new')
 }
 
-async function editCheck(user: DbUser | null, document: DbComment | null, context: ResolverContext) {
+async function editCheck(user: DbUser | null, document: DbComment | null, context: ResolverContext, previewDocument: DbComment) {
   if (!user || !document) return false;
-  if (userCanDo(user, 'comments.alignment.move.all') ||
-      userCanDo(user, 'comments.alignment.suggest')) {
-    return true
+  if (document.draft && !previewDocument.draft) {
+    await commentsRateLimit(document.postId, user, context);
   }
-  
   return userOwns(user, document)
     ? !document.rejected && userCanDo(user, 'comments.edit.own')
     : userCanDo(user, `comments.edit.all`)
@@ -115,11 +118,15 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
 
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-  data = await assignPostVersion(data);
+  data = await assignPostVersion(data, context);
   data = await createShortformPost(data, callbackProps);
   data = addReferrerToComment(data, callbackProps) ?? data;
   data = await handleReplyToAnswer(data, callbackProps);
   data = await setTopLevelCommentId(data, callbackProps);  
+
+  if (!data.draft) {
+    await assertSubmittedLlmMentionAllowed(data.postId ?? null, data.contents?.originalContents, context);
+  }
 
   data = await createInitialRevisionsForEditableFields({
     doc: data,
@@ -132,7 +139,6 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Comments', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  invalidatePostOnCommentCreate(documentWithId, context);
   backgroundTask(updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties));
 
   documentWithId = await updateRevisionsDocumentIds({
@@ -156,7 +162,9 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   };
 
   await newCommentTriggerReview(asyncProperties);
-  await trackCommentRateLimitHit(asyncProperties);
+  if (!documentWithId.draft) {
+    await trackCommentRateLimitHit(documentWithId, context);
+  }
 
   if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Comments', documentWithId._id));
@@ -171,9 +179,16 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   });
 
   if (!documentWithId.draft) {
-    backgroundTask(updateCommentEmbeddings(documentWithId._id));
+    backgroundTask(updateCommentEmbeddings(documentWithId._id, context.forumType));
+    backgroundTask(applyQuickTakeAutoTags(documentWithId, context));
   }
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(documentWithId, null, context));
+
+  if (documentWithId.postId) {
+    await invalidatePostPageCache(documentWithId.postId);
+  }
+
+  await startLlmReplyForComment(documentWithId, context).catch(captureException);
 
   return documentWithId;
 }
@@ -204,6 +219,15 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   data = handleDraftState(data, updateCallbackProperties);
   data = await validateDeleteOperations(data, updateCallbackProperties);  
 
+  if (oldDocument.draft && data.draft === false) {
+    const newContents = data.contents?.originalContents;
+    if (newContents) {
+      await assertSubmittedLlmMentionAllowed(oldDocument.postId, newContents, context);
+    } else {
+      await assertLlmMentionAllowed(oldDocument.postId, oldDocument.contents?.html ?? "", context);
+    }
+  }
+
   data = await createRevisionsForEditableFields({
     docData: data,
     props: updateCallbackProperties,
@@ -215,7 +239,6 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   data = modifierToData(modifier);
   let updatedDocument = await updateAndReturnDocument(data, Comments, commentSelector, context);
 
-  invalidatePostOnCommentUpdate(updatedDocument, context);
   backgroundTask(updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties));
 
   updatedDocument = await notifyUsersOfNewPingbackMentions({
@@ -225,14 +248,13 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Comments', updatedDocument, oldDocument);
 
-  await updatedCommentMaybeTriggerReview(updateCallbackProperties);
   await updateUserNotesOnCommentRejection(updateCallbackProperties);
 
   await commentsAlignmentEdit(updatedDocument, oldDocument, context);
   // There really has to be a currentUser here.
   await commentsEditSoftDeleteCallback(updatedDocument, oldDocument, currentUser!, context);
   await commentsPublishedNotifications(updatedDocument, oldDocument, context);
-  await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);  
+  await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument, context);
 
   reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
@@ -244,13 +266,32 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   }
 
   if (!updatedDocument.draft) {
-    backgroundTask(updateCommentEmbeddings(updatedDocument._id));
+    backgroundTask(updateCommentEmbeddings(updatedDocument._id, context.forumType));
   }
 
   backgroundTask(logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData }));
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(updatedDocument, oldDocument, context));
 
+  await invalidatePostPageCache(
+    filterNonnull([updatedDocument.postId, oldDocument.postId]),
+    { hardDelete: commentVisibilityChanged(oldDocument, updatedDocument) },
+  );
+
+  if (oldDocument.draft && !updatedDocument.draft) {
+    await trackCommentRateLimitHit(updatedDocument, context);
+    await startLlmReplyForComment(updatedDocument, context).catch(captureException);
+    backgroundTask(applyQuickTakeAutoTags(updatedDocument, context));
+  }
+
   return updatedDocument;
+}
+
+function commentVisibilityChanged(oldComment: DbComment, newComment: DbComment): boolean {
+  return oldComment.deleted !== newComment.deleted
+    || oldComment.deletedPublic !== newComment.deletedPublic
+    || oldComment.rejected !== newComment.rejected
+    || oldComment.authorIsUnreviewed !== newComment.authorIsUnreviewed
+    || oldComment.draft !== newComment.draft;
 }
 
 export const createCommentGqlMutation = makeGqlCreateMutation('Comments', createComment, {

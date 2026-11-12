@@ -1,3 +1,4 @@
+import type { ForumTypeString } from '@/lib/instanceSettings';
 import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useOnNavigate } from '../hooks/useOnNavigate';
@@ -280,13 +281,13 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth, latestUnrea
  * Reacty way because React doesn't rerender components while the tab is in the
  * background.
  */
-function setFaviconBadge(notificationCount: number) {
+function setFaviconBadge(notificationCount: number, forumType: ForumTypeString) {
   const faviconLinkRel = document.querySelector("link[rel$=icon]");
   if (faviconLinkRel) {
     if (notificationCount > 0) {
-      faviconLinkRel.setAttribute("href", faviconWithBadgeSetting.get() ?? faviconUrlSetting.get());
+      faviconLinkRel.setAttribute("href", faviconWithBadgeSetting.get(forumType) ?? faviconUrlSetting.get(forumType));
     } else {
-      faviconLinkRel.setAttribute("href", faviconUrlSetting.get());
+      faviconLinkRel.setAttribute("href", faviconUrlSetting.get(forumType));
     }
   }
 }

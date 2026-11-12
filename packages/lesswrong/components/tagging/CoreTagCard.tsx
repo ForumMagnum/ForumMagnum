@@ -1,3 +1,4 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
@@ -60,6 +61,7 @@ const styles = defineStyles("CoreTagCard", (theme: ThemeType) => ({
 const CoreTagCard = ({tag}: {
   tag: TagDetailsFragment
 }) => {
+  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const imageId = tag.squareImageId || tag.bannerImageId
 
@@ -69,7 +71,7 @@ const CoreTagCard = ({tag}: {
         {imageId ? (
           <CloudinaryImage2 publicId={imageId} height={85} width={85} className={classes.image} />
         ) : (
-          <img src={siteImageSetting.get()} className={classes.fallbackImage} />
+          <img src={siteImageSetting.get(forumType)} className={classes.fallbackImage} />
         )}
       </div>
       <div className={classes.tagInfo}>

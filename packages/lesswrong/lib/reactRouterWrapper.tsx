@@ -1,10 +1,10 @@
 'use client';
 
-import React, { CSSProperties, FC, useState } from 'react';
+import React, { CSSProperties, FC } from 'react';
 import { useTracking } from '../lib/analyticsEvents';
 import NextLink from 'next/link';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
-import { classifyHost, useLocation } from './routeUtil';
+import { classifyHost, useLocation, usePrefetchRoute } from './routeUtil';
 import qs from 'qs'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
@@ -37,15 +37,6 @@ const isPrefetchablePostLink = (to: string) => {
   return to.startsWith('/posts/') || /^\/s\/[a-z0-9]+\/p\/[a-z0-9]+$/.test(to);
 };
 
-const getLinkPrefetch = (to: string, everHovered: boolean) => {
-  // TODO: disabled to see if this makes a meaningful impact on post page request count and other expensive things.
-  // if (isPrefetchablePostLink(to)) {
-  //   return true;
-  // }
-
-  return everHovered ? true : false;
-}
-
 export const Link = ({eventProps, ...props}: LinkProps) => {
   
   const { captureEvent } = useTracking({
@@ -55,9 +46,23 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
       ...(eventProps ?? {}),
     },
   });
+  const prefetchRoute = usePrefetchRoute();
   const handleClick = (e: AnyBecauseTodo) => {
     captureEvent(undefined, {buttonPressed: e.button})
     props.onMouseDown && props.onMouseDown(e)
+  }
+  // Viewport-based prefetching (nextjs's default) is disabled for all links,
+  // but for post links we prefetch the route's static shell on hover/touch, so
+  // that clicking through renders the post page's loading state (which shows
+  // the post, if it's in the apollo cache) without waiting for the server.
+  const prefetchIfPostLink = () => {
+    if (typeof props.to === 'string' && isPrefetchablePostLink(props.to)) {
+      prefetchRoute(props.to);
+    }
+  }
+  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    props.onMouseEnter?.(e);
+    prefetchIfPostLink();
   }
 
   if (!isLinkValid(props)) {
@@ -66,11 +71,18 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
     return <span>Broken Link</span>
   }
 
-  const {to, ...otherProps} = props;
+  // These navigation options are only used by HashLink, not native anchors.
+  const {to, smooth, doOnDown, scroll, ...otherProps} = props;
   if (to && typeof to === 'string' && isOffsiteLink(to)) {
     return <a href={to} {...otherProps} onMouseDown={handleClick}/>
   } else {
-    return <HashLink {...props} prefetch={false} onMouseDown={handleClick} />
+    return <HashLink
+      {...props}
+      prefetch={false}
+      onMouseDown={handleClick}
+      onMouseEnter={handleMouseEnter}
+      onTouchStart={prefetchIfPostLink}
+    />
   }
 }
 

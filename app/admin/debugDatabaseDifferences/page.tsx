@@ -22,7 +22,7 @@ assertRouteAttributes("/admin/debugDatabaseDifferences", {
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields("Debug Database Differences"), {
+  return merge({}, await getDefaultMetadata(), await getPageTitleFields("Debug Database Differences"), {
     robots: { index: true },
   });
 }

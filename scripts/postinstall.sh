@@ -29,14 +29,21 @@ else
   exit 1
 fi
 
-echo -n "Checking for yarn... "
-if which yarn >/dev/null; then
-  yarn --version
+echo -n "Checking that this is an npm install... "
+if [[ "$npm_config_user_agent" == npm/* ]]; then
+  npm --version
 else
-  echo not found
-  echo "Install yarn.js to continue. https://yarnpkg.com/getting-started/install"
+  echo "no"
+  echo "This project is installed with npm. Remove any node_modules and yarn.lock left by another package manager, then run 'npm install'."
   exit 1
 fi
+
+# Excalidraw (the diagram editor) is vendored as source and built here, rather
+# than having its build output committed; see excalidraw/README.md. The app
+# can't build without it, so this happens in production too. (`--include=dev`
+# because the build tools are devDependencies.)
+echo 'Building Excalidraw (excalidraw/)'
+(cd excalidraw && npm ci --include=dev && npm run build) || exit 1
 
 if [ "$NODE_ENV" == "production" ]; then
   echo "production run, skipping unnecessary checks"
@@ -96,13 +103,13 @@ else
 fi
 
 
-echo 'Running yarn install in ckEditor/'
-(cd ckEditor && yarn install)
+echo 'Running npm install in ckEditor/'
+(cd ckEditor && npm install)
 
-echo 'Running yarn install in fly/hocuspocusServer'
-(cd fly/hocuspocusServer && yarn install)
+echo 'Running npm install in fly/hocuspocusServer'
+(cd fly/hocuspocusServer && npm install)
 
 echo
-echo 'For development, you might need to run (cd ckEditor && yarn install)'
-echo 'To start a local development server, run "yarn start development"'
+echo 'For development, you might need to run (cd ckEditor && npm install)'
+echo 'To start a local development server, run "npm run start -- development"'
 

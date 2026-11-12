@@ -1,11 +1,12 @@
+import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
-import { isAF } from '../../lib/instanceSettings';
 import LWTooltip from "../common/LWTooltip";
 
 const AlignmentCrosspostLink = ({post}: {
   post: PostsBase,
 }) => {
-  if (post.af && !isAF()) {
+  const { isAF } = useForumType();
+  if (post.af && !isAF) {
     return (
       <LWTooltip title={<div><p>This is an alignment forum post. <br/>May contain more technical jargon than usual.</p>
       <p>{post.afBaseScore} Ω karma</p></div>}>
