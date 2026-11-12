@@ -57,7 +57,11 @@ export const frontpagePostsPagingABTest = new ABTest({
       weight: 0,
     },
     paged: {
-      description: "Prev and Next buttons replace the list with another page of posts",
+      description: "Prev and Next buttons replace the list with another page of posts, sliding sideways",
+      weight: 0,
+    },
+    pagedVertical: {
+      description: "Prev and Next buttons replace the list with another page of posts, sliding vertically",
       weight: 1,
     },
   },

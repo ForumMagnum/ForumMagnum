@@ -17,15 +17,35 @@ const styles = defineStyles("SlidingPages", () => ({
   },
 }));
 
+export type SlideAxis = 'horizontal' | 'vertical';
+
 interface DisplayedPages {
   current: number,
   outgoing: number | null,
+}
+
+interface SlideOffsets {
+  outgoingEnd: string,
+  currentStart: string,
 }
 
 const slideOptions: KeyframeAnimationOptions = { duration: 250, easing: 'ease-in-out' };
 
 const withoutOutgoingPage = (outgoing: number) => (displayed: DisplayedPages): DisplayedPages =>
   displayed.outgoing === outgoing ? { ...displayed, outgoing: null } : displayed;
+
+// A vertical slide moves both pages by the height of whichever one is on top,
+// which keeps them edge to edge even if their heights differ.
+const getSlideOffsets = (axis: SlideAxis, forwards: boolean, outgoingHeight: number, currentHeight: number): SlideOffsets => {
+  if (axis === 'horizontal') {
+    return forwards
+      ? { outgoingEnd: 'translate(-100%, 0)', currentStart: 'translate(100%, 0)' }
+      : { outgoingEnd: 'translate(100%, 0)', currentStart: 'translate(-100%, 0)' };
+  }
+  return forwards
+    ? { outgoingEnd: `translate(0, ${-outgoingHeight}px)`, currentStart: `translate(0, ${outgoingHeight}px)` }
+    : { outgoingEnd: `translate(0, ${currentHeight}px)`, currentStart: `translate(0, ${-currentHeight}px)` };
+};
 
 const scrollToTopIfAboveViewport = (root: HTMLElement, behavior: ScrollBehavior) => {
   const topOfVisibleArea = parseFloat(getComputedStyle(root).scrollMarginTop);
@@ -34,9 +54,11 @@ const scrollToTopIfAboveViewport = (root: HTMLElement, behavior: ScrollBehavior)
   }
 };
 
-const SlidingPages = ({ page, renderPage }: {
+const SlidingPages = ({ page, renderPage, axis }: {
   page: number,
   renderPage: (page: number) => React.ReactNode,
+  /** Later pages come in from the right, or from below */
+  axis: SlideAxis,
 }) => {
   const classes = useStyles(styles);
   const [displayed, setDisplayed] = useState<DisplayedPages>({ current: page, outgoing: null });
@@ -67,19 +89,19 @@ const SlidingPages = ({ page, renderPage }: {
     }
     scrollToTopIfAboveViewport(root, 'smooth');
 
-    const slideDistance = current > outgoing ? 100 : -100;
     const outgoingHeight = outgoingPage.getBoundingClientRect().height;
     const currentHeight = currentPage.getBoundingClientRect().height;
+    const { outgoingEnd, currentStart } = getSlideOffsets(axis, current > outgoing, outgoingHeight, currentHeight);
 
     const outgoingSlide = outgoingPage.animate([
-      { transform: 'translateX(0)', visibility: 'visible' },
-      { transform: `translateX(${-slideDistance}%)`, visibility: 'visible' },
+      { transform: 'translate(0, 0)', visibility: 'visible' },
+      { transform: outgoingEnd, visibility: 'visible' },
     ], slideOptions);
     const animations = [
       outgoingSlide,
       currentPage.animate([
-        { transform: `translateX(${slideDistance}%)` },
-        { transform: 'translateX(0)' },
+        { transform: currentStart },
+        { transform: 'translate(0, 0)' },
       ], slideOptions),
       // Clipping only for the duration of the slide leaves things that hang
       // outside the pages' box (like post actions menus) visible the rest of the time
@@ -91,7 +113,7 @@ const SlidingPages = ({ page, renderPage }: {
     outgoingSlide.onfinish = () => setDisplayed(withoutOutgoingPage(outgoing));
 
     return () => animations.forEach(animation => animation.cancel());
-  }, [current, outgoing]);
+  }, [current, outgoing, axis]);
 
   return <div ref={rootRef} className={classes.root}>
     {outgoing !== null && <div key={outgoing} ref={outgoingPageRef} className={classes.outgoingPage} inert>

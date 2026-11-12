@@ -23,7 +23,7 @@ import { useLoadMoreExpansion } from '../hooks/useLoadMoreExpansion';
 import { useABTest } from '../hooks/useAbTests';
 import { frontpagePostsPagingABTest } from '@/lib/abTests';
 import { useListPages, type ListPage } from '../hooks/useListPages';
-import SlidingPages from '../common/SlidingPages';
+import SlidingPages, { type SlideAxis } from '../common/SlidingPages';
 import PrevNextNavigation, { type PrevNextNavigationProps } from '../common/PrevNextNavigation';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import { useTheme } from '../themes/useTheme';
@@ -205,6 +205,7 @@ interface HomePostsPagesProps {
   loadingMore: boolean,
   emphasizeIfNew: boolean,
   paged: boolean,
+  slideAxis: SlideAxis,
   children?: React.ReactNode,
 }
 
@@ -244,7 +245,7 @@ const PagedListControls = (props: PrevNextNavigationProps) => {
   </>;
 };
 
-const HomePostsPages = ({ results, pageSize, loadMore, loadingMore, emphasizeIfNew, paged, children }: HomePostsPagesProps) => {
+const HomePostsPages = ({ results, pageSize, loadMore, loadingMore, emphasizeIfNew, paged, slideAxis, children }: HomePostsPagesProps) => {
   const { captureEvent } = useTracking();
   const { pageIndex, getPage, canGoToNextPage, goToNextPage, goToPreviousPage, setNextPageWanted } = useListPages({
     itemCount: results.length,
@@ -276,7 +277,7 @@ const HomePostsPages = ({ results, pageSize, loadMore, loadingMore, emphasizeIfN
 
   return <div>
     <div ref={listRef}>
-      <SlidingPages page={paged ? pageIndex : 0} renderPage={renderPage} />
+      <SlidingPages page={paged ? pageIndex : 0} renderPage={renderPage} axis={slideAxis} />
     </div>
     <SectionFooter>
       {paged
@@ -318,9 +319,10 @@ const HomePostsLoading = ({ limit, paged, children }: {
   </PostsLoading>;
 };
 
-const HomePostsListLoaded = ({ algorithm, settings, limit, paged, children }: HomePostsListProps & {
+const HomePostsListLoaded = ({ algorithm, settings, limit, paged, slideAxis, children }: HomePostsListProps & {
   limit: number,
   paged: boolean,
+  slideAxis: SlideAxis,
 }) => {
   const { forumType } = useForumType();
   const [loadMoreCount, setLoadMoreCount] = useState(1);
@@ -413,6 +415,7 @@ const HomePostsListLoaded = ({ algorithm, settings, limit, paged, children }: Ho
     loadingMore={loading || networkStatus === NetworkStatus.fetchMore}
     emphasizeIfNew={algorithm !== CLASSIC_ALGORITHM}
     paged={paged}
+    slideAxis={slideAxis}
   >
     {children}
   </HomePostsPages>;
@@ -422,7 +425,8 @@ const HomePostsListWrapper = ({ algorithm, settings, limit = 15, children }: Hom
   const theme = useTheme();
   const paginationGroup = useABTest(frontpagePostsPagingABTest);
   const wideEnoughForPaging = useIsAboveBreakpoint(PAGING_MIN_BREAKPOINT);
-  const paged = paginationGroup === "paged" && wideEnoughForPaging;
+  const paged = paginationGroup !== "control" && wideEnoughForPaging;
+  const slideAxis = paginationGroup === "pagedVertical" ? "vertical" : "horizontal";
 
   // Narrower screens aren't part of the test, whichever group they're in, so
   // their events carry no group. While hydrating, `wideEnoughForPaging` is
@@ -443,6 +447,7 @@ const HomePostsListWrapper = ({ algorithm, settings, limit = 15, children }: Hom
         settings={settings}
         limit={limit}
         paged={paged}
+        slideAxis={slideAxis}
       >
         {children}
       </HomePostsListLoaded>
