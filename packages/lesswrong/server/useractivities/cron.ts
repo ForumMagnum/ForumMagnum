@@ -7,8 +7,8 @@ import { ID_LENGTH, randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { ActivityWindowData, getUserActivityData } from './getUserActivityData';
 import { isAnyTest } from '../../lib/executionEnvironment';
+import { ACTIVITY_WINDOW_HOURS } from '@/lib/collections/useractivities/utils';
 
-const ACTIVITY_WINDOW_HOURS = 21 * 24; // 3 weeks
 
 /**
  * Assert that all the activityArrays in the UserActivities table are the correct (and identical) length,

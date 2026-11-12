@@ -131,6 +131,7 @@ export interface RecombeeConfiguration {
   },
   excludedPostIds?: string[],
   filterSettings?: FilterSettings,
+  algoActivityFactor?: number,
 }
 
 export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
@@ -155,6 +156,7 @@ export interface HybridRecombeeConfiguration {
   },
   excludedPostIds?: string[],
   filterSettings?: FilterSettings,
+  algoActivityFactor?: number,
 }
 
 

@@ -1,5 +1,5 @@
 import { createAdminContext } from '@/server/vulcan-lib/createContexts';
-import { recalculateScore, timeDecayExpr } from '@/lib/scoring';
+import { recalculateScore, getStandardTimeDecayParams } from '@/lib/scoring';
 import { isVoteWithReactsAllowed, type NamesAttachedReactionsScore, type UserVoteOnSingleReaction } from '@/lib/voting/namesAttachedReactions';
 
 const document: DbVoteableType = {
@@ -34,8 +34,8 @@ describe('shared voting constants', () => {
     try {
       const post = { ...document, baseScore: 100, postedAt: new Date('2026-01-01T00:00:00Z') };
       expect(recalculateScore(post)).toBeCloseTo(100 / Math.pow(26, 1.15), 6);
-      expect(timeDecayExpr('LessWrong').$pow[1]).toBe(1.15);
-      expect(timeDecayExpr('AlignmentForum').$pow[1]).toBe(1.15);
+      expect(getStandardTimeDecayParams('LessWrong').exponent).toBe(1.15);
+      expect(getStandardTimeDecayParams('AlignmentForum').exponent).toBe(1.15);
     } finally {
       jest.useRealTimers();
     }

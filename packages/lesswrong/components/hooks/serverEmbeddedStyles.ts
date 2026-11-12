@@ -5,61 +5,70 @@ import { abstractThemeToConcrete, themeOptionsAreConcrete } from "@/themes/theme
 import { getForumTheme } from "@/themes/forumTheme";
 import { styleNodeToString } from "@/lib/jssStyles";
 
-// JSON-serialized theme => style name => style script tag
-const serverEmbeddedStylesCache: Record<string, Record<string,string>> = {};
+// JSON-serialized theme => style definition => cached string. Keyed by the
+// definition object rather than its name: hot reloading re-runs defineStyles,
+// which creates a new definition with the same name, and a name-keyed cache
+// kept serving the CSS from before the edit until the server restarted.
+type StyleStringCache = Map<string, WeakMap<StyleDefinition, string>>;
+
+function getThemeStyleCache(cache: StyleStringCache, themeKey: string): WeakMap<StyleDefinition, string> {
+  const existing = cache.get(themeKey);
+  if (existing) {
+    return existing;
+  }
+  const created = new WeakMap<StyleDefinition, string>();
+  cache.set(themeKey, created);
+  return created;
+}
+
+const serverEmbeddedStylesCache: StyleStringCache = new Map();
 
 export function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions, styleDefinitions: StyleDefinition[], forumType: ForumTypeString) {
   const themeKey = JSON.stringify([forumType, abstractThemeOptions]);
+  const themeCache = getThemeStyleCache(serverEmbeddedStylesCache, themeKey);
 
-  if (!serverEmbeddedStylesCache[themeKey]) {
-    serverEmbeddedStylesCache[themeKey] = {};
-  }
-  
   const result: string[] = [];
   for (const styleDefinition of styleDefinitions) {
-    const styleName = styleDefinition.name;
-    if (!serverEmbeddedStylesCache[themeKey][styleName]) {
+    let styleScriptTag = themeCache.get(styleDefinition);
+    if (styleScriptTag === undefined) {
       const priority = styleDefinition.options?.stylePriority ?? 0;
       const stylesStr = styleDefinitionToCSS(abstractThemeOptions, styleDefinition, forumType);
-      const styleScriptTag = `_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})`;
-      serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
+      styleScriptTag = `_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})`;
+      themeCache.set(styleDefinition, styleScriptTag);
     }
-    result.push(serverEmbeddedStylesCache[themeKey][styleName]);
+    result.push(styleScriptTag);
   }
   return result.join(";");
 }
 
 
-// JSON-serialized theme => style name => CSS
-const serverEmbeddedStylesCSSCache: Record<string, Record<string,string>> = {};
+const serverEmbeddedStylesCSSCache: StyleStringCache = new Map();
+
+function generateStyleDefinitionCSS(abstractThemeOptions: AbstractThemeOptions, styleDefinition: StyleDefinition, forumType: ForumTypeString): string {
+  if (themeOptionsAreConcrete(abstractThemeOptions)) {
+    const theme = getForumTheme(abstractThemeOptions, forumType);
+    return styleNodeToString(theme, styleDefinition);
+  }
+  const lightThemeOptions = abstractThemeToConcrete(abstractThemeOptions, false);
+  const darkThemeOptions = abstractThemeToConcrete(abstractThemeOptions, true);
+  const lightTheme = getForumTheme(lightThemeOptions, forumType);
+  const darkTheme = getForumTheme(darkThemeOptions, forumType);
+  const lightStylesStr = styleNodeToString(lightTheme, styleDefinition);
+  const darkStylesStr = styleNodeToString(darkTheme, styleDefinition);
+  return (lightStylesStr === darkStylesStr)
+    ? lightStylesStr
+    : `@media (prefers-color-scheme: light) {\n${lightStylesStr}\n}\n@media (prefers-color-scheme: dark) {\n${darkStylesStr}\n}`;
+}
 
 export function styleDefinitionToCSS(abstractThemeOptions: AbstractThemeOptions, styleDefinition: StyleDefinition, forumType: ForumTypeString): string {
   const themeKey = JSON.stringify([forumType, abstractThemeOptions]);
+  const themeCache = getThemeStyleCache(serverEmbeddedStylesCSSCache, themeKey);
 
-  if (!serverEmbeddedStylesCSSCache[themeKey]) {
-    serverEmbeddedStylesCSSCache[themeKey] = {};
+  const cached = themeCache.get(styleDefinition);
+  if (cached !== undefined) {
+    return cached;
   }
-  
-  const styleName = styleDefinition.name;
-  if (!serverEmbeddedStylesCSSCache[themeKey][styleName]) {
-    const priority = styleDefinition.options?.stylePriority ?? 0;
-
-    if (themeOptionsAreConcrete(abstractThemeOptions)) {
-      const theme = getForumTheme(abstractThemeOptions, forumType);
-      const stylesStr = styleNodeToString(theme, styleDefinition);
-      serverEmbeddedStylesCSSCache[themeKey][styleName] = stylesStr;
-    } else {
-      const lightThemeOptions = abstractThemeToConcrete(abstractThemeOptions, false);
-      const darkThemeOptions = abstractThemeToConcrete(abstractThemeOptions, true);
-      const lightTheme = getForumTheme(lightThemeOptions, forumType);
-      const darkTheme = getForumTheme(darkThemeOptions, forumType);
-      const lightStylesStr = styleNodeToString(lightTheme, styleDefinition);
-      const darkStylesStr = styleNodeToString(darkTheme, styleDefinition);
-      const stylesStr = (lightStylesStr === darkStylesStr)
-        ? lightStylesStr
-        : `@media (prefers-color-scheme: light) {\n${lightStylesStr}\n}\n@media (prefers-color-scheme: dark) {\n${darkStylesStr}\n}`
-      serverEmbeddedStylesCSSCache[themeKey][styleName] = stylesStr;
-    }
-  }
-  return serverEmbeddedStylesCSSCache[themeKey][styleName];
+  const stylesStr = generateStyleDefinitionCSS(abstractThemeOptions, styleDefinition, forumType);
+  themeCache.set(styleDefinition, stylesStr);
+  return stylesStr;
 }

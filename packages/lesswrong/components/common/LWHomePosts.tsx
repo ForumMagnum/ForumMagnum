@@ -1,5 +1,5 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -46,6 +46,10 @@ import UltraFeedFollowingSettings from '../ultraFeed/UltraFeedFollowingSettings'
 import { IsReturningVisitorContext } from '@/components/layout/IsReturningVisitorContextProvider';
 import ErrorBoundary from './ErrorBoundary';
 import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
+import ForumIcon from './ForumIcon';
+import LWTooltip from './LWTooltip';
+import PostsListDebugSettings from '../posts/PostsListDebugSettings';
+import { PostsListDebugContext, getVisitorScenarioActivityFactor, type VisitorScenario } from '../posts/postsListDebugContext';
 
 
 
@@ -141,6 +145,22 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
   ultraFeedFollowingSettingsContainer: {
     marginTop: 16,
   },
+  controlButtons: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+  },
+  debugIcon: {
+    cursor: "pointer",
+    color: theme.palette.grey[600],
+    fontSize: 18,
+  },
+  debugIconActive: {
+    color: theme.palette.primary.main,
+  },
+  debugIconTooltip: {
+    display: "flex",
+  },
   hideDesktopSettingsButtonOnMobile: {
     [theme.breakpoints.down('sm')]: {
       display: "none",
@@ -199,6 +219,8 @@ export const filterSettingsToggleLabels = {
 const advancedSortingText = "Advanced Sorting/Filtering";
 
 const defaultLimit = 13;
+
+const postsListDebugTabs = ['forum-classic', 'recombee-hybrid', 'recombee-lesswrong-custom'];
 
 function getDefaultDesktopFilterSettingsVisibility(currentUser: UsersCurrent | null) {
   if (!currentUser) {
@@ -425,6 +447,29 @@ const FrontpageSettingsButton = ({
   </>;
 }
 
+const PostsListDebugButton = ({ active, onClick }: {
+  active: boolean,
+  onClick: () => void,
+}) => {
+  const classes = useStyles(styles);
+  const icon = <LWTooltip title="Scoring debug" placement="top" inlineBlock={false} className={classes.debugIconTooltip}>
+    <ForumIcon
+      icon="Insights"
+      className={classNames(classes.debugIcon, { [classes.debugIconActive]: active })}
+      onClick={onClick}
+    />
+  </LWTooltip>;
+
+  return <>
+    <div className={classNames(classes.hideDesktopSettingsButtonOnMobile, classes.tagFilterSettingsButtonContainerDesktop)}>
+      {icon}
+    </div>
+    <div className={classes.tagFilterSettingsButtonContainerMobile}>
+      {icon}
+    </div>
+  </>;
+}
+
 const useHasContinueReadingTab = (currentUser: UsersCurrent|null) => {
   if (currentUser) {
     return currentUser.hasContinueReading;
@@ -459,6 +504,19 @@ const LWHomePosts = ({ children, }: {
   
   const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs, filterSettings);
   const { settings: ultraFeedSettings, updateSettings: updateUltraFeedSettings, truncationMaps } = useUltraFeedSettings();
+
+  const [postsListDebugVisible, setPostsListDebugVisible] = useState(false);
+  const [visitorScenario, setVisitorScenario] = useState<VisitorScenario>("actual");
+  const showPostsListDebugButton = (userIsAdmin(currentUser) || query.postsListDebug === '1')
+    && postsListDebugTabs.includes(selectedTab);
+  const postsListDebugActive = showPostsListDebugButton && postsListDebugVisible;
+  const algoActivityFactor = postsListDebugActive ? getVisitorScenarioActivityFactor(visitorScenario) : undefined;
+  const postsListDebugSettings = useMemo(
+    () => postsListDebugActive
+      ? { filterSettings, scenario: visitorScenario, activityFactorOverride: algoActivityFactor }
+      : null,
+    [postsListDebugActive, filterSettings, visitorScenario, algoActivityFactor],
+  );
 
   const changeShowTagFilterSettingsDesktop = () => {
     toggleDesktopSettingsVisible(!desktopSettingsVisible);
@@ -567,6 +625,10 @@ const LWHomePosts = ({ children, }: {
     </>
   );
 
+  const postsListDebugSettingsElement = postsListDebugActive && settingsPotentiallyVisible && <div className={settingsVisibleClassName}>
+    <PostsListDebugSettings scenario={visitorScenario} onScenarioChange={setVisitorScenario} />
+  </div>;
+
   let settings = null;
   if (selectedTab === 'forum-classic') { 
     settings = filterSettingsElement;
@@ -607,9 +669,17 @@ const LWHomePosts = ({ children, }: {
               showDescriptionOnHover
             />
           </div>
-          {showInlineTabSettingsButton && inlineTabSettingsButton}
+          <div className={classes.controlButtons}>
+            {showPostsListDebugButton && <PostsListDebugButton
+              active={postsListDebugVisible}
+              onClick={() => setPostsListDebugVisible(!postsListDebugVisible)}
+            />}
+            {showInlineTabSettingsButton && inlineTabSettingsButton}
+          </div>
         </div>
         {settings}
+        {postsListDebugSettingsElement}
+        <PostsListDebugContext.Provider value={postsListDebugSettings}>
         <SuspenseWrapper name="LWHomePostsInner">
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
@@ -624,7 +694,7 @@ const LWHomePosts = ({ children, }: {
                     <WelcomePostItem repeatedPostsPrecedence={1} />
                     <CuratedPostsList overrideLimit={2} repeatedPostsPrecedence={2}/>
                     <PostsList2
-                      terms={recentPostsTerms}
+                      terms={{...recentPostsTerms, algoActivityFactor}}
                       alwaysShowLoadMore
                       animateLoadMore
                       hideHiddenFrontPagePosts
@@ -645,7 +715,8 @@ const LWHomePosts = ({ children, }: {
                     hybridScenarios: {
                       fixed: 'forum-classic', 
                       configurable: 'recombee-lesswrong-custom'
-                    }
+                    },
+                    algoActivityFactor,
                   }} 
                 />
               </AnalyticsContext>}
@@ -718,6 +789,7 @@ const LWHomePosts = ({ children, }: {
 
             </AllowHidingFrontPagePostsContext.Provider>
         </SuspenseWrapper>
+        </PostsListDebugContext.Provider>
         
         {!selectedTabSettings.isInfiniteScroll && <>
           {children}
