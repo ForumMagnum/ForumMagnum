@@ -406,6 +406,11 @@ type CkEditorUserSessionSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
+type ClassicFrontpagePostsResult = {
+  __typename?: 'ClassicFrontpagePostsResult';
+  results: Array<RecombeeRecommendedPost>;
+};
+
 type ClientId = {
   __typename?: 'ClientId';
   _id: Scalars['String']['output'];
@@ -7534,6 +7539,7 @@ type Query = {
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   AnalyticsSeries?: Maybe<Array<Maybe<AnalyticsSeriesValue>>>;
   ArbitalPageData?: Maybe<ArbitalPageData>;
+  ClassicFrontpagePosts?: Maybe<ClassicFrontpagePostsResult>;
   CommentEmbeddingSearch: Array<Comment>;
   CommentEmbeddingSimilaritySearch: Array<Comment>;
   CommentsWithReacts?: Maybe<CommentsWithReactsResult>;
@@ -7774,6 +7780,12 @@ type QueryAnalyticsSeriesArgs = {
 
 type QueryArbitalPageDataArgs = {
   pageAlias?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type QueryClassicFrontpagePostsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  settings?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 
@@ -17673,6 +17685,66 @@ type FeedPostsHighlightQueryVariables = Exact<{
 
 type FeedPostsHighlightQuery = FeedPostsHighlightQuery_Query;
 
+type getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult_results_RecombeeRecommendedPost_post_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult_results_RecombeeRecommendedPost = { __typename?: 'RecombeeRecommendedPost', scenario: string | null, recommId: string | null, generatedAt: string | null, curated: boolean | null, stickied: boolean | null, post: getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult_results_RecombeeRecommendedPost_post_Post };
+
+type getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult = { __typename?: 'RecombeeLatestPostsResult', results: Array<getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult_results_RecombeeRecommendedPost> };
+
+type getRecombeeLatestPostsQuery_Query = { __typename?: 'Query', RecombeeLatestPosts: getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult | null };
+
+
+type getRecombeeLatestPostsQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  settings: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type getRecombeeLatestPostsQuery = getRecombeeLatestPostsQuery_Query;
+
+type getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost_post_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost = { __typename?: 'RecombeeRecommendedPost', scenario: string | null, recommId: string | null, generatedAt: string | null, curated: boolean | null, stickied: boolean | null, post: getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost_post_Post };
+
+type getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult = { __typename?: 'RecombeeHybridPostsResult', results: Array<getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost> };
+
+type getRecombeeHybridPostsQuery_Query = { __typename?: 'Query', RecombeeHybridPosts: getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult | null };
+
+
+type getRecombeeHybridPostsQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  settings: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type getRecombeeHybridPostsQuery = getRecombeeHybridPostsQuery_Query;
+
+type getClassicFrontpagePostsQuery_ClassicFrontpagePosts_ClassicFrontpagePostsResult_results_RecombeeRecommendedPost_post_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type getClassicFrontpagePostsQuery_ClassicFrontpagePosts_ClassicFrontpagePostsResult_results_RecombeeRecommendedPost = { __typename?: 'RecombeeRecommendedPost', scenario: string | null, recommId: string | null, generatedAt: string | null, curated: boolean | null, stickied: boolean | null, post: getClassicFrontpagePostsQuery_ClassicFrontpagePosts_ClassicFrontpagePostsResult_results_RecombeeRecommendedPost_post_Post };
+
+type getClassicFrontpagePostsQuery_ClassicFrontpagePosts_ClassicFrontpagePostsResult = { __typename?: 'ClassicFrontpagePostsResult', results: Array<getClassicFrontpagePostsQuery_ClassicFrontpagePosts_ClassicFrontpagePostsResult_results_RecombeeRecommendedPost> };
+
+type getClassicFrontpagePostsQuery_Query = { __typename?: 'Query', ClassicFrontpagePosts: getClassicFrontpagePostsQuery_ClassicFrontpagePosts_ClassicFrontpagePostsResult | null };
+
+
+type getClassicFrontpagePostsQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  settings: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type getClassicFrontpagePostsQuery = getClassicFrontpagePostsQuery_Query;
+
 type multiPostLWPostsByVoteQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsListWithVotes
@@ -18446,46 +18518,6 @@ type multiPostPostsTimeBlockQueryQueryVariables = Exact<{
 
 type multiPostPostsTimeBlockQueryQuery = multiPostPostsTimeBlockQueryQuery_Query;
 
-type getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult_results_RecombeeRecommendedPost_post_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult_results_RecombeeRecommendedPost = { __typename?: 'RecombeeRecommendedPost', scenario: string | null, recommId: string | null, generatedAt: string | null, curated: boolean | null, stickied: boolean | null, post: getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult_results_RecombeeRecommendedPost_post_Post };
-
-type getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult = { __typename?: 'RecombeeLatestPostsResult', results: Array<getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult_results_RecombeeRecommendedPost> };
-
-type getRecombeeLatestPostsQuery_Query = { __typename?: 'Query', RecombeeLatestPosts: getRecombeeLatestPostsQuery_RecombeeLatestPosts_RecombeeLatestPostsResult | null };
-
-
-type getRecombeeLatestPostsQueryVariables = Exact<{
-  limit: InputMaybe<Scalars['Int']['input']>;
-  settings: InputMaybe<Scalars['JSON']['input']>;
-}>;
-
-
-type getRecombeeLatestPostsQuery = getRecombeeLatestPostsQuery_Query;
-
-type getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost_post_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost = { __typename?: 'RecombeeRecommendedPost', scenario: string | null, recommId: string | null, generatedAt: string | null, curated: boolean | null, stickied: boolean | null, post: getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost_post_Post };
-
-type getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult = { __typename?: 'RecombeeHybridPostsResult', results: Array<getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost> };
-
-type getRecombeeHybridPostsQuery_Query = { __typename?: 'Query', RecombeeHybridPosts: getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult | null };
-
-
-type getRecombeeHybridPostsQueryVariables = Exact<{
-  limit: InputMaybe<Scalars['Int']['input']>;
-  settings: InputMaybe<Scalars['JSON']['input']>;
-}>;
-
-
-type getRecombeeHybridPostsQuery = getRecombeeHybridPostsQuery_Query;
-
 type createCommentDialogueSubmitMutation_createComment_CommentOutput_data_Comment = (
   { __typename?: 'Comment' }
   & CommentEdit
@@ -18708,23 +18740,6 @@ type multiPostRecommendationsSamplePageQueryQueryVariables = Exact<{
 
 
 type multiPostRecommendationsSamplePageQueryQuery = multiPostRecommendationsSamplePageQueryQuery_Query;
-
-type WelcomePostItemQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type WelcomePostItemQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: WelcomePostItemQuery_post_SinglePostOutput_result_Post | null };
-
-type WelcomePostItemQuery_Query = { __typename?: 'Query', post: WelcomePostItemQuery_post_SinglePostOutput | null };
-
-
-type WelcomePostItemQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type WelcomePostItemQuery = WelcomePostItemQuery_Query;
 
 type observeRecommendationMutation_Mutation = { __typename?: 'Mutation', observeRecommendation: boolean | null };
 

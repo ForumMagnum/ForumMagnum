@@ -107,6 +107,9 @@ export type AnalyticsProps = {
   ultraFeedCardId?: string,
   ultraFeedType?: FeedType,
   feedCardIndex?: number,
+  postsFeedPagination?: string,
+  /** Zero-based. Items on page 1 and later were only shown after clicking Load More or Next. */
+  postsFeedPageIndex?: number,
   modalInstanceId?: string,
   recentDiscussionContext?: { feedSessionId: string },
   /** @deprecated Use `pageSectionContext` instead */

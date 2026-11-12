@@ -44,6 +44,7 @@ interface Query {
   CrossedKarmaThreshold: CrossedKarmaThresholdResult | null;
   RecombeeLatestPosts: RecombeeLatestPostsResult | null;
   RecombeeHybridPosts: RecombeeHybridPostsResult | null;
+  ClassicFrontpagePosts: ClassicFrontpagePostsResult | null;
   PostsWithActiveDiscussion: PostsWithActiveDiscussionResult | null;
   PostsBySubscribedAuthors: PostsBySubscribedAuthorsResult | null;
   PostsWithApprovedJargon: PostsWithApprovedJargonResult | null;
@@ -999,6 +1000,10 @@ interface RecombeeLatestPostsResult {
 }
 
 interface RecombeeHybridPostsResult {
+  results: Array<RecombeeRecommendedPost>;
+}
+
+interface ClassicFrontpagePostsResult {
   results: Array<RecombeeRecommendedPost>;
 }
 
@@ -9597,6 +9602,7 @@ interface GraphQLTypeMap {
   CrossedKarmaThresholdResult: CrossedKarmaThresholdResult;
   RecombeeLatestPostsResult: RecombeeLatestPostsResult;
   RecombeeHybridPostsResult: RecombeeHybridPostsResult;
+  ClassicFrontpagePostsResult: ClassicFrontpagePostsResult;
   PostsWithActiveDiscussionResult: PostsWithActiveDiscussionResult;
   PostsBySubscribedAuthorsResult: PostsBySubscribedAuthorsResult;
   PostsWithApprovedJargonResult: PostsWithApprovedJargonResult;

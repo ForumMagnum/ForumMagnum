@@ -9,7 +9,6 @@ import { useFilterSettings } from '../hooks/useFilterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
-import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { PostFeedDetails, homepagePostFeedsSetting, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
@@ -25,15 +24,12 @@ import SettingsButton from "../icons/SettingsButton";
 import SingleColumnSection from "./SingleColumnSection";
 import PostsList2 from "../posts/PostsList2";
 import TagFilterSettings from "../tagging/TagFilterSettings";
-import { RecombeePostsList } from "../posts/RecombeePostsList";
-import CuratedPostsList from "../recommendations/CuratedPostsList";
+import { HomePostsList } from "../posts/HomePostsList";
 import RecombeePostsListSettings from "../posts/RecombeePostsListSettings";
 import BookmarksList from "../bookmarks/BookmarksList";
 import ContinueReadingList from "../recommendations/ContinueReadingList";
-import WelcomePostItem from "../recommendations/WelcomePostItem";
 import { SuspenseWrapper } from './SuspenseWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import PostsLoading from '../posts/PostsLoading';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import AnalyticsInViewTracker from './AnalyticsInViewTracker';
 import UltraFeedSubscriptionsFeed from '../ultraFeed/UltraFeedSubscriptionsFeed';
@@ -616,29 +612,14 @@ const LWHomePosts = ({ children, }: {
               {/* LATEST POSTS (Hacker News Algorithm) */}
               {/* Frustratingly, the AnalyticsContext update doesn't update upon switching tab so it's necessary to have a wrapper around each section individually, could be investigated further */}
               {(selectedTab === 'forum-classic') && <AnalyticsContext feedType={selectedTab}>
-                <SuspenseWrapper
-                  name="LWHomePosts-forum-classic"
-                  fallback={<PostsLoading placeholderCount={defaultLimit+2} loadMore/>}
-                >
-                  <HideRepeatedPostsProvider>
-                    <WelcomePostItem repeatedPostsPrecedence={1} />
-                    <CuratedPostsList overrideLimit={2} repeatedPostsPrecedence={2}/>
-                    <PostsList2
-                      terms={recentPostsTerms}
-                      alwaysShowLoadMore
-                      animateLoadMore
-                      hideHiddenFrontPagePosts
-                      repeatedPostsPrecedence={3}
-                    >
-                      <Link to={"/allPosts"}>{advancedSortingText}</Link>
-                    </PostsList2> 
-                  </HideRepeatedPostsProvider>
-                </SuspenseWrapper>
+                <HomePostsList algorithm={'forum-classic'} settings={{ filterSettings }}>
+                  <Link to={"/allPosts"}>{advancedSortingText}</Link>
+                </HomePostsList>
               </AnalyticsContext>}
               
               {/* ENRICHED LATEST POSTS */}
               {selectedTab === 'recombee-hybrid' && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList 
+                <HomePostsList 
                   algorithm={'recombee-hybrid'} 
                   settings={{
                     ...scenarioConfig,
@@ -652,7 +633,7 @@ const LWHomePosts = ({ children, }: {
 
               {/* JUST RECOMMENDATIONS */}
               {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
+                <HomePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
               </AnalyticsContext>}
 
               {/* BOOKMARKS */}
