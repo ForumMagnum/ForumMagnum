@@ -12,6 +12,7 @@ import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { getOptimisticNotes, useAddModeratorNote } from '../useAddModeratorNote';
 import type { InboxAction } from './inboxReducer';
 import { isAwaitingReview } from '@/lib/collections/users/reviewGroups';
+import { useCompleteUserModeration } from './useCompleteUserModeration';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -70,6 +71,7 @@ export function useModerationUserActions({
   const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
   const [approveCurrentContentOnly] = useMutation(ApproveCurrentContentOnlyMutation);
   const addModeratorNote = useAddModeratorNote();
+  const completeModeration = useCompleteUserModeration(dispatch);
 
   const { posts, comments } = useModeratedUserContents(selectedUser?._id ?? '', 20);
 
@@ -274,12 +276,55 @@ export function useModerationUserActions({
     });
   }, [selectedUser, posts, comments, handleAction, rejectContentAndRemoveFromQueue, openDialog, rejectionTemplates]);
 
+  // The chosen reason goes on the latest unapproved item; the server rejects the
+  // rest of the user's pending content alongside it, each with its own notice.
+  const handleRejectAllAndRemove = useCallback(() => {
+    if (!selectedUser) return;
+
+    const mostRecentUnapproved = getMostRecentUnapprovedContent(posts, comments);
+    if (!mostRecentUnapproved) {
+      alert('No unapproved content found for this user');
+      return;
+    }
+
+    openDialog({
+      name: 'RejectContentDialog',
+      contents: ({ onClose }) => (
+        <RejectContentDialog
+          rejectionTemplates={rejectionTemplates}
+          displayName={selectedUser.displayName}
+          rejectContent={(rejectedReason: string) => {
+            onClose();
+            handleAction('Rejected All & Removed', async () => {
+              await completeModeration({
+                userId: selectedUser._id,
+                rejection: {
+                  documentId: mostRecentUnapproved._id,
+                  collectionName: mostRecentUnapproved.collectionName,
+                  reason: rejectedReason,
+                  templateIds: [],
+                },
+                rateLimits: [],
+                disablePermissions: false,
+                rejectAll: true,
+                removeFromQueue: true,
+              });
+            });
+            return true;
+          }}
+          onClose={onClose}
+        />
+      ),
+    });
+  }, [selectedUser, posts, comments, handleAction, completeModeration, openDialog, rejectionTemplates]);
+
   return {
     handleReview,
     handleApproveCurrentOnly,
     handleSnooze,
     handleSnoozeChoice,
     handleRejectContentAndRemove,
+    handleRejectAllAndRemove,
     handleRestrictAndNotify,
     handleRemoveNeedsReview,
     handleRemoveKeepingReviewStatus,

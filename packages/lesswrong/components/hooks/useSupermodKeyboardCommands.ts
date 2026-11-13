@@ -4,6 +4,7 @@ import { parseKeystroke, getCode } from '@/lib/vendor/ckeditor5-util/keyboard';
 import type { CommandPaletteItem } from '@/components/common/CommandPalette';
 import { useDialog } from '../common/withDialog';
 import { useCommandPalette } from './useCommandPalette';
+import { isInTextInput } from '@/components/sunshineDashboard/supermod/helpers';
 
 function specialKeyPressed(event: KeyboardEvent) {
   return event.metaKey || event.ctrlKey || event.altKey;
@@ -47,14 +48,7 @@ export function useSupermodKeyboardCommands({
         }
 
         // Don't handle keyboard shortcuts if user is typing in an input/textarea
-        const target = event.target as HTMLElement;
-        const isInTextInput = (
-          target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.isContentEditable
-        );
-
-        if (isInTextInput) {
+        if (isInTextInput(event.target)) {
           // "Handle" specific keys even in text inputs (e.g., Escape)
           if (!handleWhileInTextInputs.includes(event.key)) {
             return;

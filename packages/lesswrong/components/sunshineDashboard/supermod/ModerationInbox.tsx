@@ -466,7 +466,7 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
   const isReportsTab = state.activeTab === 'reports';
   const isTagsTab = state.activeTab === 'tags';
 
-  const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
+  const { posts: userPosts, comments: userComments, loading: userContentsLoading } = useModeratedUserContents(openedUser?._id ?? '');
 
   return (
     <ConcurrentModeratorChangesContext.Provider value={concurrentModeratorChanges}>
@@ -569,6 +569,7 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
               user={openedUser}
               posts={userPosts}
               comments={userComments}
+              contentsLoading={userContentsLoading}
               focusedContentIndex={state.focusedContentIndex}
               runningLlmCheckId={state.runningLlmCheckId}
               sidebarTab={state.sidebarTab}

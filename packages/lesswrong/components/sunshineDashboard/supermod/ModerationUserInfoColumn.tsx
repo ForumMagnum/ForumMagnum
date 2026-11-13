@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import ModerationUserIdentityColumn from './ModerationUserIdentityColumn';
+import ModerationUserIdentityColumn, { ModerationUserClientInfo } from './ModerationUserIdentityColumn';
+import ModerationUserBioColumn from './ModerationUserBioColumn';
 import ModerationActivityFeed from './ModerationActivityFeed';
 import ModerationActiveRateLimits from './ModerationActiveRateLimits';
 import { getPrimaryDisplayedModeratorAction, partitionModeratorActions } from './groupings';
@@ -50,9 +51,11 @@ const ModerationUserInfoColumn = ({
   return (
     <div className={classes.header}>
       <ModerationUserIdentityColumn user={user} likelyReviewTrigger={likelyReviewTrigger} />
+      <ModerationUserClientInfo user={user} />
       <ModerationKarmaSummary user={user} items={items} />
       <ModerationActiveRateLimits user={user} />
       <ModerationActivityFeed key={user._id} user={user} currentUser={currentUser} dispatch={dispatch} />
+      <ModerationUserBioColumn user={user} />
     </div>
   );
 };

@@ -15,14 +15,17 @@ import { useMutation } from '@apollo/client/react';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem';
+import { CHECKBOX_SIZE, ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem';
 import { ModerationTemplatesForm } from '../moderationTemplates/ModerationTemplateForm';
 import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
 import { useCurrentUser } from '../common/withUser';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
+import { isInTextInput } from './supermod/helpers';
+import { KEYSTROKE_GUTTER } from './supermod/constants';
 import type { TemplateType } from '@/lib/collections/moderationTemplates/constants';
+import { getHighlightRuleTemplateKey } from '@/lib/moderatorHighlights/highlightRuleTypes';
 
 const ModerationTemplatesListQuery = gql(`
   query multiModerationTemplateGroupedTemplateListQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -109,11 +112,6 @@ function templateMatchesQuery(template: ModerationTemplateFragment, lowercaseQue
   return template.name.toLowerCase().includes(lowercaseQuery);
 }
 
-export function isInTextInput(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) return false;
-  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
-}
-
 function getGroupLabelUpdateOptions(template: ModerationTemplateFragment, newGroupLabel: string | null) {
   return {
     variables: {
@@ -145,6 +143,23 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
     // Typing in the search box doesn't count as hovering, so keep the list lit while it has focus
     "&:focus-within": {
       opacity: 1,
+    },
+  },
+  // The collapsed (highlighted-only) list sits at the top of its sidebar section,
+  // so it drops the full list's margin and resting fade. Keep each row full-width
+  // so the whole line is hoverable and its action buttons stay right-aligned.
+  onlyHighlightedList: {
+    marginTop: 0,
+    opacity: 1,
+    '& .ModerationTemplateSunshineItem-templateItem': {
+      paddingLeft: 0,
+      gap: 8,
+    },
+    // Centre the checkbox in a keystroke-chip-sized gutter so these labels line up
+    // with the labels of the keystroke command rows above and below them.
+    '& .ModerationTemplateSunshineItem-checkbox': {
+      marginLeft: (KEYSTROKE_GUTTER - CHECKBOX_SIZE) / 2,
+      marginRight: (KEYSTROKE_GUTTER - CHECKBOX_SIZE) / 2,
     },
   },
   listHeader: {
@@ -354,11 +369,12 @@ const TemplateSearchBar = ({searchOpen, searchQuery, focusToken, onOpen, onClose
   );
 };
 
-const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected, shortcutNumber, onHideTemplate, dragDisabled = false}: {
+const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected, checked, shortcutNumber, onHideTemplate, dragDisabled = false}: {
   template: ModerationTemplateFragment,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlighted: boolean,
   selected: boolean,
+  checked?: boolean,
   shortcutNumber?: string,
   onHideTemplate: (template: ModerationTemplateFragment) => void,
   dragDisabled?: boolean,
@@ -393,6 +409,7 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected
         onTemplateClick={onTemplateClick}
         highlighted={highlighted}
         selected={selected}
+        checked={checked}
         shortcutNumber={shortcutNumber}
         dragHandleProps={dragDisabled ? undefined : {ref: setActivatorNodeRef, attributes, listeners}}
         onHide={onHideTemplate}
@@ -401,7 +418,7 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected
   );
 };
 
-const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, selectedTemplateId, shortcutNumbers}: {
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, insertedTemplateIds, selectedTemplateId, shortcutNumbers}: {
   group: string,
   templatesInGroup: ModerationTemplateFragment[],
   expanded: boolean,
@@ -412,6 +429,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
   onAddTemplate: (group: string) => void,
   newTemplateForm: React.ReactNode,
   highlightedTemplateNames?: Set<string>,
+  insertedTemplateIds?: Set<string>,
   selectedTemplateId: string | null,
   shortcutNumbers: Map<string, string>,
 }) => {
@@ -476,8 +494,9 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
           key={template._id}
           template={template}
           onTemplateClick={onTemplateClick}
-          highlighted={!!highlightedTemplateNames?.has(template.name)}
+          highlighted={!!highlightedTemplateNames?.has(getHighlightRuleTemplateKey(template))}
           selected={template._id === selectedTemplateId}
+          checked={insertedTemplateIds ? insertedTemplateIds.has(template._id) : undefined}
           shortcutNumber={shortcutNumbers.get(template._id)}
           onHideTemplate={onHideTemplate}
         />
@@ -486,13 +505,14 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
   );
 };
 
-const FlatTemplateList = ({templates, onTemplateClick, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, selectedTemplateId, shortcutNumbers}: {
+const FlatTemplateList = ({templates, onTemplateClick, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, insertedTemplateIds, selectedTemplateId, shortcutNumbers}: {
   templates: ModerationTemplateFragment[],
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   onHideTemplate: (template: ModerationTemplateFragment) => void,
   onAddTemplate: () => void,
   newTemplateForm: React.ReactNode,
   highlightedTemplateNames?: Set<string>,
+  insertedTemplateIds?: Set<string>,
   selectedTemplateId: string | null,
   shortcutNumbers: Map<string, string>,
 }) => {
@@ -505,8 +525,9 @@ const FlatTemplateList = ({templates, onTemplateClick, onHideTemplate, onAddTemp
           key={template._id}
           template={template}
           onTemplateClick={onTemplateClick}
-          highlighted={!!highlightedTemplateNames?.has(template.name)}
+          highlighted={!!highlightedTemplateNames?.has(getHighlightRuleTemplateKey(template))}
           selected={template._id === selectedTemplateId}
+          checked={insertedTemplateIds ? insertedTemplateIds.has(template._id) : undefined}
           shortcutNumber={shortcutNumbers.get(template._id)}
           onHideTemplate={onHideTemplate}
           dragDisabled
@@ -563,10 +584,16 @@ const HiddenTemplatesSection = ({hiddenTemplates, expanded, onToggleExpanded, on
  * presses ArrowDown on its last line; it opens and focuses the search with nothing
  * selected, so the next ArrowDown steps into the template list.
  */
-const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, onFocusComposer, focusSearchToken, active = true, onEscape, layout = "grouped", compareTemplates, templateFilter, numberShortcuts = false }: {
+const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, insertedTemplateIds, onlyHighlighted, onFocusComposer, focusSearchToken, active = true, onEscape, layout = "grouped", compareTemplates, templateFilter, numberShortcuts = false }: {
   collectionName: TemplateType,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlightedTemplateNames?: Set<string>,
+  // Templates whose text is currently in the composer above the list; when provided,
+  // every row gets a checkbox reflecting membership
+  insertedTemplateIds?: Set<string>,
+  // Render just the highlighted templates as a flat list (no groups or search);
+  // used to keep them visible while the section containing the full list is collapsed
+  onlyHighlighted?: boolean,
   onFocusComposer?: () => void,
   focusSearchToken?: number,
   // False while the list's composer tab is hidden (but kept mounted to
@@ -693,6 +720,27 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   const lowercaseQuery = searchQuery.trim().toLowerCase();
   const orderedTemplates = compareTemplates ? [...templates].sort(compareTemplates) : templates;
   const applicableTemplates = templateFilter ? orderedTemplates.filter(templateFilter) : orderedTemplates;
+
+  if (onlyHighlighted) {
+    const highlightedTemplates = applicableTemplates.filter(template => highlightedTemplateNames?.has(getHighlightRuleTemplateKey(template)));
+    // Ordered by the same groups as the full list, so templates from one group stay adjacent.
+    const displayedHighlightedTemplates = layout === "flat"
+      ? highlightedTemplates
+      : groupTemplatesByLabel(highlightedTemplates).flatMap(([, templatesInGroup]) => templatesInGroup);
+    if (displayedHighlightedTemplates.length === 0) return null;
+    return <div className={classNames(classes.root, classes.onlyHighlightedList)}>
+      {displayedHighlightedTemplates.map(template => (
+        <ModerationTemplateSunshineItem
+          key={template._id}
+          template={template}
+          onTemplateClick={onTemplateClick}
+          highlighted
+          checked={insertedTemplateIds ? insertedTemplateIds.has(template._id) : undefined}
+        />
+      ))}
+    </div>;
+  }
+
   const matchingTemplates = lowercaseQuery
     ? applicableTemplates.filter(template => templateMatchesQuery(template, lowercaseQuery))
     : applicableTemplates;
@@ -818,6 +866,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
           onAddTemplate={() => setNewTemplateGroup(UNGROUPED_TEMPLATES_LABEL)}
           newTemplateForm={newTemplateForm}
           highlightedTemplateNames={highlightedTemplateNames}
+          insertedTemplateIds={insertedTemplateIds}
           selectedTemplateId={searchOpen ? (selectedTemplate?._id ?? null) : null}
           shortcutNumbers={shortcutNumbers}
         />
@@ -835,6 +884,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
           onAddTemplate={handleAddTemplate}
           newTemplateForm={newTemplateGroup === group && newTemplateForm}
           highlightedTemplateNames={highlightedTemplateNames}
+          insertedTemplateIds={insertedTemplateIds}
           selectedTemplateId={searchOpen ? (selectedTemplate?._id ?? null) : null}
           shortcutNumbers={shortcutNumbers}
         />

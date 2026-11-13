@@ -1,6 +1,5 @@
-/**
- * Which composer is open in the moderation sidebar. Null until the moderator
- * picks one, so no editor holds focus and the keyboard shortcuts keep working.
- */
-export type SidebarTab = 'dm' | 'reject';
+/** Which right-panel section is expanded. Null means every section is collapsed. */
+export type SidebarTab = 'userMessages' | 'reject' | 'dm' | 'moderatorActions';
 export type SelectedSidebarTab = SidebarTab | null;
+
+export const DEFAULT_SIDEBAR_TAB: SidebarTab = 'userMessages';

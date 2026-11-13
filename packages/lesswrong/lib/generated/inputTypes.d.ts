@@ -299,6 +299,7 @@ interface Mutation {
   unlistLlmPost: boolean;
   addModeratorNote: User | null;
   recordModerationTemplatesUsed: boolean;
+  setSupermodHighlightRuleOverrides: any;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;

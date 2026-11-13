@@ -56,6 +56,7 @@ const AdminHome = () => {
       <h3>Moderation</h3>
       <ul>
         <li><Link className={classes.link} to="/admin/supermod">Supermod</Link></li>
+        <li><Link className={classes.link} to="/admin/supermodHighlights">Supermod Highlight Rules (what gets called out in the inbox)</Link></li>
         <li><Link className={classes.link} to="/moderation/altAccounts">Alt-Accounts Investigator</Link></li>
         <li><Link className={classes.link} to="/admin/moderationTemplates">Moderation Templates</Link></li>
         <li><Link className={classes.link} to="/admin/random-user">Random User</Link></li>

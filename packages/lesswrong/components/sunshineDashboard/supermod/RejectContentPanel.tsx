@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import classNames from 'classnames';
 import LexicalEditor from '@/components/editor/LexicalEditor';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -6,18 +7,14 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from '@/components/common/ContentStyles';
 import { focusLexicalEditorAtEnd } from '@/components/editor/focusLexicalEditor';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
-import { useCompleteUserModeration } from './useCompleteUserModeration';
-import { useMessages } from '@/components/common/withMessages';
-import { useIsMounted } from '@/components/hooks/useIsMounted';
-import { disabledPermissionsRejectionHtml, standardRejectionIntroHtml, standardRejectionIntroPlaintext } from '@/lib/collections/moderationTemplates/rejectionIntro';
+import { useDialog } from '@/components/common/withDialog';
+import { useRejectContent } from '@/components/hooks/useRejectContent';
+import { standardRejectionIntroHtml, standardRejectionIntroPlaintext } from '@/lib/collections/moderationTemplates/rejectionIntro';
 import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
 import GroupedModerationTemplateList from '../GroupedModerationTemplateList';
 import ComposerKeydownWrapper from './ComposerKeydownWrapper';
 import ComposerSubmitButton from './ComposerSubmitButton';
-import { areAllContentPermissionsDisabled, isPost, isRejectionTemplateRelevant, type ContentItem } from './helpers';
-import type { InboxAction } from './inboxReducer';
-import ModerationSendOptions from './ModerationSendOptions';
-import { DEFAULT_REJECTION_RATE_LIMIT_SETTINGS, getRateLimitParagraphHtml, getRateLimitsToCreate, type RejectionRateLimitSettings } from './RejectionRateLimitForm';
+import { getContentTitle, isPost, isRejectionTemplateRelevant, type ContentItem } from './helpers';
 
 const ModerationTemplateUsageCountsQuery = gql(`
   query moderationTemplateUsageCountsRejectContentPanelQuery {
@@ -52,16 +49,24 @@ const styles = defineStyles('RejectContentPanel', (theme: ThemeType) => ({
     fontWeight: 600,
     marginTop: 6,
   },
+  previewRejectButton: {
+    marginTop: 10,
+  },
   editorContainer: {
     marginBottom: 10,
-    padding: '6px 12px',
-    border: theme.palette.greyBorder('1px', 0.15),
-    borderRadius: 4,
-    backgroundColor: theme.palette.greyAlpha(0.02),
     // One line tall until the moderator types or inserts a template
     '--lexical-comment-min-height': '1em',
   },
+  // The full panel stays mounted while collapsed (so drafts survive), just hidden
+  hiddenPanel: {
+    display: 'none',
+  },
+  collapsedSendButton: {
+    marginTop: 4,
+  },
 }));
+
+const TEMPLATE_SEPARATOR = '<p><br></p>';
 
 interface AddedRejectionTemplate {
   templateId: string;
@@ -69,26 +74,13 @@ interface AddedRejectionTemplate {
   html: string;
 }
 
-function joinTemplateHtml(templates: AddedRejectionTemplate[]) {
-  return templates.map(t => t.html).join('');
+function appendHtml(existingHtml: string, newHtml: string) {
+  const separator = existingHtml.trim() ? TEMPLATE_SEPARATOR : '';
+  return `${existingHtml}${separator}${newHtml}`;
 }
 
-/**
- * Inserts html ahead of the paragraphs that close the message (the rate limit
- * and disabled-permissions notices), which stay last. A closing paragraph that
- * has been edited beyond recognition stays where it is.
- */
-function insertBeforeParagraphs(message: string, html: string, laterParagraphs: string[]) {
-  let rest = message;
-  const moved: string[] = [];
-  for (const paragraph of laterParagraphs) {
-    const withoutParagraph = removeTemplateChunk(rest, paragraph);
-    if (withoutParagraph !== null) {
-      rest = withoutParagraph;
-      moved.push(paragraph);
-    }
-  }
-  return rest + [html, ...moved].join('');
+function joinTemplateHtml(templates: AddedRejectionTemplate[]) {
+  return templates.map(t => t.html).join(TEMPLATE_SEPARATOR);
 }
 
 function normalizeText(text: string) {
@@ -101,13 +93,15 @@ function normalizeText(text: string) {
  * been re-serialized by the editor). Once the moderator has typed, the editor
  * rewrites the whole document's markup, so it falls back to finding the
  * contiguous run of block elements whose text matches the template's text and
- * removing those. Returns null when
+ * removing those (plus one adjacent separator paragraph). Returns null when
  * the template can't be found — i.e. its own text has been edited — in which
  * case the caller leaves the document alone.
  */
 function removeTemplateChunk(fullHtml: string, chunkHtml: string): string | null {
-  if (fullHtml.includes(chunkHtml)) {
-    return fullHtml.replace(chunkHtml, '');
+  const candidates = [TEMPLATE_SEPARATOR + chunkHtml, chunkHtml + TEMPLATE_SEPARATOR, chunkHtml];
+  const foundCandidate = candidates.find(candidate => fullHtml.includes(candidate));
+  if (foundCandidate) {
+    return fullHtml.replace(foundCandidate, '');
   }
   return removeTemplateChunkByText(fullHtml, chunkHtml);
 }
@@ -120,7 +114,8 @@ function removeTemplateChunkByText(fullHtml: string, chunkHtml: string): string 
   const doc = parser.parseFromString(fullHtml, 'text/html');
   const blocks = Array.from(doc.body.children);
   for (let start = 0; start < blocks.length; start++) {
-    // Runs start on a block with text, so blank lines around the template stay put
+    // Runs start on a block with text, so separator paragraphs stay adjacent
+    // to their own template and the cleanup below removes exactly one
     if (!normalizeText(blocks[start].textContent ?? '')) continue;
     let combined = '';
     for (let end = start; end < blocks.length; end++) {
@@ -129,7 +124,17 @@ function removeTemplateChunkByText(fullHtml: string, chunkHtml: string): string 
         combined = combined ? `${combined} ${blockText}` : blockText;
       }
       if (combined === targetText) {
-        blocks.slice(start, end + 1).forEach(block => block.remove());
+        const blocksToRemove = blocks.slice(start, end + 1);
+        // The separator paragraph between templates would otherwise linger
+        // as a stray blank line
+        const previousBlock = blocks[start - 1];
+        const nextBlock = blocks[end + 1];
+        if (previousBlock && !normalizeText(previousBlock.textContent ?? '')) {
+          blocksToRemove.push(previousBlock);
+        } else if (nextBlock && !normalizeText(nextBlock.textContent ?? '')) {
+          blocksToRemove.push(nextBlock);
+        }
+        blocksToRemove.forEach(block => block.remove());
         return doc.body.innerHTML;
       }
       if (combined && !targetText.startsWith(combined)) break;
@@ -167,96 +172,70 @@ function extractBoldLead(html: string): string {
  * uses it verbatim, substituting the content link for the "[content]"
  * placeholder.
  */
-const RejectContentPanel = ({ user, focusedContent, active, rejectComposerFocusToken, onEscape, onRejected, dispatch }: {
+const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef, composerFocusToken, registerToggleTemplate, registerReject, addedTemplates, setAddedTemplates, editorOpen, setEditorOpen, onRejectStart, onRejected, onRejectFailed, onArrowDownPastEnd, onEscape }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
+  // False while the panel is hidden (but kept mounted to preserve the draft)
   active: boolean,
-  rejectComposerFocusToken: number,
+  editorContainerRef: React.RefObject<HTMLDivElement | null>,
+  // Bumped when the template list hands focus to the composer; opens the editor
+  composerFocusToken: number,
+  registerToggleTemplate: (fn: (template: ModerationTemplateFragment) => void) => void,
+  // Like registerToggleTemplate: lets the panel submit the rejection from outside
+  // the composer (the collapsed Send Rejection button and its Cmd+R shortcut)
+  registerReject: (fn: () => void) => void,
+  // Source of truth while the preview is showing; the reasons html is derived.
+  // Owned by the panel so the template list can show which templates are inserted.
+  addedTemplates: AddedRejectionTemplate[],
+  setAddedTemplates: React.Dispatch<React.SetStateAction<AddedRejectionTemplate[]>>,
+  // Owned by the panel (like addedTemplates) because an open editor counts as a
+  // submittable draft even with no templates toggled, and the panel's collapsed
+  // Reject button needs to know that
+  editorOpen: boolean,
+  setEditorOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  // Called before the mutation begins so the surrounding supermod UI can
+  // update its user and conversation state optimistically
+  onRejectStart?: (content: ContentItem) => void,
+  // Called once the rejection mutation has completed (the server will have sent
+  // the rejection PM by then)
+  onRejected?: (content: ContentItem) => void,
+  // Called when the mutation fails so optimistic state can be rolled back
+  onRejectFailed?: (content: ContentItem) => void,
+  onArrowDownPastEnd: () => void,
+  // Escape in the composer closes the panel's tab, as if it were clicked again
   onEscape: () => void,
-  onRejected?: () => void,
-  dispatch: React.ActionDispatch<[action: InboxAction]>,
 }) => {
-  const { data: usageData } = useQuery(ModerationTemplateUsageCountsQuery, { ssr: false });
-  const usageCounts = useMemo(
-    () => new Map((usageData?.moderationTemplateUsageCounts ?? []).map(({ templateId, count }) => [templateId, count])),
-    [usageData],
-  );
-  const compareTemplates = useCallback(
-    (a: ModerationTemplateFragment, b: ModerationTemplateFragment) => (usageCounts.get(b._id) ?? 0) - (usageCounts.get(a._id) ?? 0),
-    [usageCounts],
-  );
-  const [templateSearchToken, setTemplateSearchToken] = useState(0);
-  const editorContainerRef = useRef<HTMLDivElement>(null);
-  const templateFilter = useCallback(
-    (template: ModerationTemplateFragment) => isRejectionTemplateRelevant(template.name, focusedContent),
-    [focusedContent],
-  );
-
   const classes = useStyles(styles);
-  const completeModeration = useCompleteUserModeration(dispatch);
-  const { getIsMounted } = useIsMounted();
-  const { flash } = useMessages();
-  const [disablePermissions, setDisablePermissions] = useState(false);
-  const permissionsAlreadyDisabled = areAllContentPermissionsDisabled(user);
-  const [rateLimitEnabled, setRateLimitEnabled] = useState(false);
-  const [rateLimitSettings, setRateLimitSettings] = useState<RejectionRateLimitSettings>(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
-  // The rate limit paragraph currently in the message, to replace as the settings change
-  const insertedRateLimitHtmlRef = useRef<string | null>(null);
-  const [rejectAll, setRejectAll] = useState(false);
-  // Templates and the side options rewrite the message without taking focus from where it is
-  const [keepFocusOnEditorLoad, setKeepFocusOnEditorLoad] = useState(false);
-  const submittingRef = useRef(false);
-  const [submitting, setSubmitting] = useState(false);
-
-  // Source of truth while the preview is showing; the reasons html is derived
-  const [addedTemplates, setAddedTemplates] = useState<AddedRejectionTemplate[]>([]);
+  const { rejectContent } = useRejectContent();
   // Full message (intro + reasons), canonical once the editor is open
   const fullMessageRef = useRef('');
-  const [editorOpen, setEditorOpen] = useState(false);
   const [editorHtml, setEditorHtml] = useState('');
   const [lexicalEditorVersion, setLexicalEditorVersion] = useState(0);
   const handledFocusTokenRef = useRef(0);
 
-  // Rewrite the editable draft without moving focus away from the selected option.
-  const loadMessage = useCallback((html: string, { keepFocus }: { keepFocus: boolean }) => {
-    fullMessageRef.current = html;
-    setEditorHtml(html);
-    setLexicalEditorVersion(prev => prev + 1);
-    setKeepFocusOnEditorLoad(keepFocus);
-    setEditorOpen(true);
-  }, []);
-
-  const rateLimitHtml = rateLimitEnabled ? getRateLimitParagraphHtml(rateLimitSettings) : null;
-  const previewReason = joinTemplateHtml(addedTemplates)
-    + (rateLimitHtml ?? '')
-    + (disablePermissions ? disabledPermissionsRejectionHtml : '');
-
   const openEditor = useCallback(() => {
-    if (editorOpen) {
-      focusLexicalEditorAtEnd(editorContainerRef.current);
-      return;
-    }
-    insertedRateLimitHtmlRef.current = rateLimitHtml;
-    loadMessage(standardRejectionIntroHtml + previewReason, { keepFocus: false });
-  }, [editorOpen, previewReason, rateLimitHtml, loadMessage]);
+    if (editorOpen) return;
+    fullMessageRef.current = standardRejectionIntroHtml + joinTemplateHtml(addedTemplates);
+    setEditorHtml(fullMessageRef.current);
+    setLexicalEditorVersion(prev => prev + 1);
+    setEditorOpen(true);
+  }, [editorOpen, setEditorOpen, addedTemplates]);
 
   // Focus once the editor has mounted after opening
   useEffect(() => {
-    if (editorOpen && !keepFocusOnEditorLoad) {
+    if (editorOpen) {
       focusLexicalEditorAtEnd(editorContainerRef.current);
     }
-  }, [editorOpen, keepFocusOnEditorLoad, editorContainerRef]);
+  }, [editorOpen, editorContainerRef]);
 
   useEffect(() => {
-    if (!rejectComposerFocusToken) handledFocusTokenRef.current = 0;
-    if (active && !rejectComposerFocusToken) setTemplateSearchToken(token => token + 1);
-  }, [active, rejectComposerFocusToken]);
-
-  useEffect(() => {
-    if (!active || !rejectComposerFocusToken || rejectComposerFocusToken === handledFocusTokenRef.current) return;
-    handledFocusTokenRef.current = rejectComposerFocusToken;
-    openEditor();
-  }, [active, rejectComposerFocusToken, openEditor]);
+    if (composerFocusToken && composerFocusToken !== handledFocusTokenRef.current) {
+      handledFocusTokenRef.current = composerFocusToken;
+      openEditor();
+      // No-op while the editor is still mounting (the effect above covers it)
+      focusLexicalEditorAtEnd(editorContainerRef.current);
+    }
+  }, [composerFocusToken, openEditor, editorContainerRef]);
 
   const handleEditorChange = useCallback((html: string) => {
     // Contents live in a ref so typing doesn't re-render the template list
@@ -269,14 +248,12 @@ const RejectContentPanel = ({ user, focusedContent, active, rejectComposerFocusT
     const existing = addedTemplates.find(t => t.templateId === template._id);
 
     if (!existing) {
-      const added = { templateId: template._id, lead: extractBoldLead(html), html };
-      setAddedTemplates(prev => [...prev, added]);
+      setAddedTemplates(prev => [...prev, { templateId: template._id, lead: extractBoldLead(html), html }]);
       if (editorOpen) {
-        const closingParagraphs = [
-          insertedRateLimitHtmlRef.current,
-          disablePermissions ? disabledPermissionsRejectionHtml : null,
-        ].filter((paragraph): paragraph is string => !!paragraph);
-        loadMessage(insertBeforeParagraphs(fullMessageRef.current, html, closingParagraphs), { keepFocus: true });
+        fullMessageRef.current = appendHtml(fullMessageRef.current, html);
+        setEditorHtml(fullMessageRef.current);
+        setLexicalEditorVersion(prev => prev + 1);
+        focusLexicalEditorAtEnd(editorContainerRef.current);
       }
       return;
     }
@@ -287,97 +264,53 @@ const RejectContentPanel = ({ user, focusedContent, active, rejectComposerFocusT
       // anymore, and the toggle leaves everything (custom edits included) alone
       const withChunkRemoved = removeTemplateChunk(fullMessageRef.current, existing.html);
       if (withChunkRemoved === null) return;
-      loadMessage(withChunkRemoved, { keepFocus: true });
+      fullMessageRef.current = withChunkRemoved;
+      setEditorHtml(withChunkRemoved);
+      setLexicalEditorVersion(prev => prev + 1);
     }
     setAddedTemplates(prev => prev.filter(t => t.templateId !== template._id));
-  }, [addedTemplates, editorOpen, disablePermissions, user.displayName, loadMessage]);
+  }, [addedTemplates, setAddedTemplates, editorOpen, user.displayName, editorContainerRef]);
 
-  // Like a template: the paragraph announcing the disabled permissions goes into the editable message
-  const toggleDisablePermissions = useCallback((checked: boolean) => {
-    if (!editorOpen) {
-      setDisablePermissions(checked);
-      return;
-    }
-    let message = fullMessageRef.current;
-    if (checked) {
-      message += disabledPermissionsRejectionHtml;
-    } else {
-      // As with templates, an edited paragraph can't be found, so it stays (and so does the checkbox)
-      const withParagraphRemoved = removeTemplateChunk(message, disabledPermissionsRejectionHtml);
-      if (withParagraphRemoved === null) return;
-      message = withParagraphRemoved;
-    }
-    setDisablePermissions(checked);
-    loadMessage(message, { keepFocus: true });
-  }, [editorOpen, loadMessage]);
-
-  // Rewrites the rate limit paragraph as the settings change; it sits above the permissions paragraph
-  const updateRateLimit = useCallback((enabled: boolean, settings: RejectionRateLimitSettings) => {
-    setRateLimitEnabled(enabled);
-    setRateLimitSettings(settings);
-    if (!editorOpen) return;
-    const newHtml = enabled ? getRateLimitParagraphHtml(settings) : null;
-    const oldHtml = insertedRateLimitHtmlRef.current;
-    if (newHtml === oldHtml) return;
-
-    let message = fullMessageRef.current;
-    if (oldHtml) {
-      const withoutOldParagraph = removeTemplateChunk(message, oldHtml);
-      // The moderator has edited it by hand, so their wording stays
-      if (withoutOldParagraph === null) return;
-      message = withoutOldParagraph;
-    }
-    if (newHtml) {
-      message = insertBeforeParagraphs(message, newHtml, disablePermissions ? [disabledPermissionsRejectionHtml] : []);
-    }
-    insertedRateLimitHtmlRef.current = newHtml;
-    loadMessage(message, { keepFocus: true });
-  }, [editorOpen, disablePermissions, loadMessage]);
+  useEffect(() => {
+    registerToggleTemplate(toggleTemplate);
+    return () => registerToggleTemplate(() => {});
+  }, [registerToggleTemplate, toggleTemplate]);
 
   const hasRejectedReason = editorOpen || addedTemplates.length > 0;
 
-  const handleReject = useCallback(async () => {
-    const reason = editorOpen ? fullMessageRef.current : previewReason;
-    if (!reason || submittingRef.current) return;
-    submittingRef.current = true;
-    setSubmitting(true);
-    try {
-      const rateLimits = rateLimitEnabled ? getRateLimitsToCreate(rateLimitSettings, user._id) : [];
-      await completeModeration({
-        userId: user._id,
-        rejection: { documentId: focusedContent._id, collectionName: isPost(focusedContent) ? 'Posts' : 'Comments', reason, templateIds: addedTemplates.map(template => template.templateId) },
-        rateLimits,
-        disablePermissions: disablePermissions && !permissionsAlreadyDisabled,
-        rejectAll,
-        removeFromQueue: rejectAll,
-      });
-      // A different content item now owns the composer if this keyed panel unmounted.
-      if (!getIsMounted()) return;
-      if (editorOpen && fullMessageRef.current !== reason) return;
-      setDisablePermissions(false);
-      setRateLimitEnabled(false);
-      setRateLimitSettings(DEFAULT_REJECTION_RATE_LIMIT_SETTINGS);
-      insertedRateLimitHtmlRef.current = null;
-      setRejectAll(false);
-      fullMessageRef.current = '';
-      setAddedTemplates([]);
-      setEditorOpen(false);
-      setEditorHtml('');
-      setLexicalEditorVersion(prev => prev + 1);
-      onRejected?.();
-    } catch (error) {
-      flash({ messageString: `Moderation action did not complete. Retry to finish it: ${error instanceof Error ? error.message : String(error)}`, type: 'error' });
-    } finally {
-      submittingRef.current = false;
-      if (getIsMounted()) setSubmitting(false);
-    }
-  }, [editorOpen, previewReason, addedTemplates, disablePermissions, permissionsAlreadyDisabled, rateLimitEnabled, rateLimitSettings, rejectAll, focusedContent, completeModeration, user._id, flash, onRejected, getIsMounted]);
+  const handleReject = useCallback(() => {
+    const reason = editorOpen ? fullMessageRef.current : joinTemplateHtml(addedTemplates);
+    if (!reason) return;
+
+    const templateIds = addedTemplates.map(template => template.templateId);
+    const rejectPromise = isPost(focusedContent)
+      ? rejectContent({ collectionName: 'Posts', document: focusedContent, reason, templateIds })
+      : rejectContent({ collectionName: 'Comments', document: focusedContent, reason, templateIds });
+    onRejectStart?.(focusedContent);
+    void rejectPromise.then(succeeded => {
+      if (succeeded) {
+        onRejected?.(focusedContent);
+      } else {
+        onRejectFailed?.(focusedContent);
+      }
+    });
+    fullMessageRef.current = '';
+    setAddedTemplates([]);
+    setEditorOpen(false);
+    setEditorHtml('');
+    setLexicalEditorVersion(prev => prev + 1);
+  }, [editorOpen, setEditorOpen, addedTemplates, setAddedTemplates, focusedContent, rejectContent, onRejectStart, onRejected, onRejectFailed]);
+
+  useEffect(() => {
+    registerReject(handleReject);
+    return () => registerReject(() => {});
+  }, [registerReject, handleReject]);
 
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
     if (!active) return;
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && hasRejectedReason) {
       e.preventDefault();
-      void handleReject();
+      handleReject();
     }
   }, [active, hasRejectedReason, handleReject]));
 
@@ -385,45 +318,176 @@ const RejectContentPanel = ({ user, focusedContent, active, rejectComposerFocusT
     {!editorOpen && <div className={classes.messagePreview} onClick={openEditor}>
       <div className={classes.collapsedIntro}>{standardRejectionIntroPlaintext}</div>
       {addedTemplates.map(template => <div key={template.templateId} className={classes.reasonLead}>{template.lead}</div>)}
+      {/* Clicking the button shouldn't also open the hand-editing editor */}
+      <div className={classes.previewRejectButton} onClick={(e) => e.stopPropagation()}>
+        <ComposerSubmitButton label="Reject" danger disabled={!hasRejectedReason} onClick={handleReject} />
+      </div>
     </div>}
-    {editorOpen && <ComposerKeydownWrapper className={classes.editorContainer} containerRef={editorContainerRef} onArrowDownPastEnd={() => setTemplateSearchToken(token => token + 1)} onEscape={onEscape}>
-      <ContentStyles contentType='comment'>
-        <LexicalEditor
-          key={lexicalEditorVersion}
-          data={editorHtml}
-          placeholder={`Why is ${user.displayName}'s content being rejected?`}
-          onChange={handleEditorChange}
-          commentEditor
-          keepFocusOnLoad={keepFocusOnEditorLoad}
-        />
-      </ContentStyles>
-    </ComposerKeydownWrapper>}
-    <ModerationSendOptions
-      rateLimitEnabled={rateLimitEnabled}
-      rateLimitSettings={rateLimitSettings}
-      onRateLimitChange={updateRateLimit}
-      showDisablePermissions={!permissionsAlreadyDisabled}
-      disablePermissions={disablePermissions}
-      onDisablePermissionsChange={toggleDisablePermissions}
-      rejectAll={rejectAll}
-      rejectAllLabel="Reject all pending content, remove from queue"
-      rejectAllTooltip="User receives rejection notice for each rejected submission."
-      onRejectAllChange={setRejectAll}
-    />
-    <ComposerSubmitButton label="Reject" disabled={!hasRejectedReason || submitting} onClick={handleReject} />
-    <GroupedModerationTemplateList
-      collectionName="Rejections"
-      onTemplateClick={toggleTemplate}
-      focusSearchToken={templateSearchToken}
-      active={active}
-      onFocusComposer={openEditor}
-      onEscape={onEscape}
-      layout="flat"
-      compareTemplates={compareTemplates}
-      templateFilter={templateFilter}
-      numberShortcuts
-    />
+    {editorOpen && <>
+      <ComposerKeydownWrapper className={classes.editorContainer} containerRef={editorContainerRef} onArrowDownPastEnd={onArrowDownPastEnd} onEscape={onEscape}>
+        <ContentStyles contentType='comment'>
+          <LexicalEditor
+            key={lexicalEditorVersion}
+            data={editorHtml}
+            placeholder={`Why is ${user.displayName}'s content being rejected?`}
+            onChange={handleEditorChange}
+            commentEditor
+          />
+        </ContentStyles>
+      </ComposerKeydownWrapper>
+      <ComposerSubmitButton label="Reject" danger disabled={!hasRejectedReason} onClick={handleReject} />
+    </>}
   </div>;
+};
+
+/**
+ * Inline replacement for RejectContentDialog in the moderation sidebar:
+ * clicking a template below the composer toggles it as a rejection reason.
+ * Stays mounted while `active` is false so the draft survives the tab
+ * being toggled closed and reopened. While collapsed, it shows highlighted
+ * templates followed by a Reject button (Cmd+R) that stays disabled until the
+ * draft has a reason.
+ */
+const RejectContentPanel = ({ user, focusedContent, active, rejectComposerFocusToken, highlightedTemplateNames, showCollapsedActions, onRejectStart, onRejected, onRejectFailed, onEscape }: {
+  user: SunshineUsersList,
+  focusedContent: ContentItem,
+  active: boolean,
+  // Bumped by the "Edit Rejection Message" shortcut, which also opens this panel's tab
+  rejectComposerFocusToken: number,
+  highlightedTemplateNames: Set<string>,
+  // False while another sidebar section is expanded: the collapsed view drops
+  // its highlighted templates and Reject button, leaving just the header
+  showCollapsedActions: boolean,
+  // Called immediately before the rejection mutation begins
+  onRejectStart?: (content: ContentItem) => void,
+  // Called once the rejection mutation has completed
+  onRejected?: (content: ContentItem) => void,
+  // Called if the rejection mutation fails
+  onRejectFailed?: (content: ContentItem) => void,
+  // Escape anywhere in the panel closes its tab, as if it were clicked again
+  onEscape: () => void,
+}) => {
+  const classes = useStyles(styles);
+  const { data: usageData } = useQuery(ModerationTemplateUsageCountsQuery, { ssr: false });
+  const usageCounts = useMemo(
+    () => new Map((usageData?.moderationTemplateUsageCounts ?? []).map(({ templateId, count }) => [templateId, count])),
+    [usageData],
+  );
+  const compareTemplates = useCallback(
+    (a: ModerationTemplateFragment, b: ModerationTemplateFragment) => (usageCounts.get(b._id) ?? 0) - (usageCounts.get(a._id) ?? 0),
+    [usageCounts],
+  );
+  const templateFilter = useCallback(
+    (template: ModerationTemplateFragment) => isRejectionTemplateRelevant(template.name, focusedContent),
+    [focusedContent],
+  );
+  const [templateSearchToken, setTemplateSearchToken] = useState(0);
+  const [composerFocusToken, setComposerFocusToken] = useState(0);
+  const [addedTemplates, setAddedTemplates] = useState<AddedRejectionTemplate[]>([]);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
+  const toggleTemplateRef = useRef<(template: ModerationTemplateFragment) => void>(() => {});
+  const rejectRef = useRef<() => void>(() => {});
+
+  const insertedTemplateIds = useMemo(() => new Set(addedTemplates.map(t => t.templateId)), [addedTemplates]);
+
+  const registerToggleTemplate = useCallback((fn: (template: ModerationTemplateFragment) => void) => {
+    toggleTemplateRef.current = fn;
+  }, []);
+
+  const registerReject = useCallback((fn: () => void) => {
+    rejectRef.current = fn;
+  }, []);
+
+  // An open editor counts as a draft even with no templates toggled, matching
+  // the editor's own submit-button logic
+  const hasDraftReasons = addedTemplates.length > 0 || editorOpen;
+
+  const { isDialogOpen } = useDialog();
+
+  // Cmd/Ctrl+R sends the drafted rejection from anywhere in the inbox; with no
+  // draft it stays the browser's reload shortcut
+  useGlobalKeydown(useCallback((e: KeyboardEvent) => {
+    if (isDialogOpen || !hasDraftReasons) return;
+    if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'r') {
+      e.preventDefault();
+      rejectRef.current();
+    }
+  }, [isDialogOpen, hasDraftReasons]));
+
+  // The template search is the initial keyboard target whenever the tab is picked
+  useEffect(() => {
+    if (active && !rejectComposerFocusToken) {
+      setTemplateSearchToken(token => token + 1);
+    }
+  }, [active, rejectComposerFocusToken]);
+
+  useEffect(() => {
+    if (active && rejectComposerFocusToken) {
+      setComposerFocusToken(token => token + 1);
+    }
+  }, [active, rejectComposerFocusToken]);
+
+  return <>
+    {!active && showCollapsedActions && (
+      <GroupedModerationTemplateList
+        collectionName="Rejections"
+        onTemplateClick={(template) => toggleTemplateRef.current(template)}
+        highlightedTemplateNames={highlightedTemplateNames}
+        insertedTemplateIds={insertedTemplateIds}
+        onlyHighlighted
+        active={false}
+        layout="flat"
+        compareTemplates={compareTemplates}
+        templateFilter={templateFilter}
+      />
+    )}
+    <div className={classNames({ [classes.hiddenPanel]: !active })}>
+      <RejectContentEditor
+        user={user}
+        focusedContent={focusedContent}
+        active={active}
+        editorContainerRef={editorContainerRef}
+        composerFocusToken={composerFocusToken}
+        registerToggleTemplate={registerToggleTemplate}
+        registerReject={registerReject}
+        addedTemplates={addedTemplates}
+        setAddedTemplates={setAddedTemplates}
+        editorOpen={editorOpen}
+        setEditorOpen={setEditorOpen}
+        onRejectStart={onRejectStart}
+        onRejected={onRejected}
+        onRejectFailed={onRejectFailed}
+        onArrowDownPastEnd={() => setTemplateSearchToken(token => token + 1)}
+        onEscape={onEscape}
+      />
+      <GroupedModerationTemplateList
+        collectionName="Rejections"
+        onTemplateClick={(template) => toggleTemplateRef.current(template)}
+        highlightedTemplateNames={highlightedTemplateNames}
+        insertedTemplateIds={insertedTemplateIds}
+        focusSearchToken={templateSearchToken}
+        active={active}
+        onFocusComposer={() => setComposerFocusToken(token => token + 1)}
+        onEscape={onEscape}
+        layout="flat"
+        compareTemplates={compareTemplates}
+        templateFilter={templateFilter}
+        numberShortcuts
+      />
+    </div>
+    {!active && showCollapsedActions && (
+      <div className={classes.collapsedSendButton}>
+        <ComposerSubmitButton
+          label={`Reject “${getContentTitle(focusedContent)}”`}
+          keystroke="Ctrl+R"
+          danger
+          disabled={!hasDraftReasons}
+          onClick={() => rejectRef.current()}
+        />
+      </div>
+    )}
+  </>;
 };
 
 export default RejectContentPanel;

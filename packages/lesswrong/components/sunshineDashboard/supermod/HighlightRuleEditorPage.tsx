@@ -1,0 +1,322 @@
+"use client";
+
+import React, { useCallback, useEffect, useState } from 'react';
+import { useMutation } from '@apollo/client/react';
+import classNames from 'classnames';
+import jsonStringifyDeterministic from 'json-stringify-deterministic';
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from '@/lib/generated/gql-codegen';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useCurrentUser } from '@/components/common/withUser';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import ErrorAccessDenied from '@/components/common/ErrorAccessDenied';
+import SingleColumnSection from '@/components/common/SingleColumnSection';
+import SectionTitle from '@/components/common/SectionTitle';
+import { useSubscribedLocation } from '@/lib/routeUtil';
+import {
+  getHighlightRuleTemplateKey,
+  parseHighlightRuleOverrides,
+  serializeHighlightRuleOverrides,
+  type HighlightRule,
+  type HighlightRuleCategory,
+  type HighlightRuleOverrides,
+} from '@/lib/moderatorHighlights/highlightRuleTypes';
+import { HIGHLIGHT_RULES_FILE_PATH, highlightRuleOverrides } from '@/lib/moderatorHighlights/highlightRules';
+import {
+  DEFAULT_ACTION_HIGHLIGHT_RULES,
+  highlightableModeratorActions,
+  moderatorActionHighlightColors,
+  moderatorActionHighlightLabels,
+} from './actionHighlightRules';
+import HighlightRuleEditor, { type SignalScope } from './HighlightRuleEditor';
+
+const SetSupermodHighlightRuleOverridesMutation = gql(`
+  mutation setSupermodHighlightRuleOverrides($overrides: JSON!) {
+    setSupermodHighlightRuleOverrides(overrides: $overrides)
+  }
+`);
+
+const ModerationTemplatesForHighlightRulesQuery = gql(`
+  query moderationTemplatesForHighlightRules($selector: ModerationTemplateSelector, $limit: Int) {
+    moderationTemplates(selector: $selector, limit: $limit) {
+      results {
+        _id
+        name
+        collectionName
+      }
+    }
+  }
+`);
+
+const styles = defineStyles('HighlightRuleEditorPage', (theme: ThemeType) => ({
+  intro: {
+    ...theme.typography.body2,
+    color: theme.palette.grey[700],
+    marginBottom: 16,
+  },
+  saveBar: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    padding: '8px 0',
+    marginBottom: 12,
+    background: theme.palette.background.pageActiveAreaBackground,
+    borderBottom: theme.palette.border.faint,
+  },
+  saveButton: {
+    ...theme.typography.body2,
+    padding: '4px 12px',
+    borderRadius: 3,
+    border: 'none',
+    cursor: 'pointer',
+    background: theme.palette.primary.main,
+    color: theme.palette.text.invertedBackgroundText,
+    '&:disabled': {
+      opacity: 0.4,
+      cursor: 'default',
+    },
+  },
+  discardButton: {
+    ...theme.typography.body2,
+    background: 'none',
+    border: 'none',
+    color: theme.palette.primary.main,
+    cursor: 'pointer',
+    '&:disabled': {
+      opacity: 0.4,
+      cursor: 'default',
+    },
+  },
+  saveStatus: {
+    ...theme.typography.body2,
+    fontSize: 12,
+    color: theme.palette.grey[600],
+  },
+  errorStatus: {
+    color: theme.palette.error.main,
+  },
+}));
+
+interface RuleSectionEntry {
+  key: string;
+  title: string;
+  anchor?: string;
+  description?: string;
+  warning?: string;
+}
+
+interface HighlightRuleTemplate {
+  _id: string;
+  name: string;
+}
+
+function getActionEntries(): RuleSectionEntry[] {
+  return highlightableModeratorActions.map(action => ({
+    key: action,
+    title: moderatorActionHighlightLabels[action],
+    description: `Level 2 outline color: ${moderatorActionHighlightColors[action]}`,
+  }));
+}
+
+function getTemplateEntries(
+  categoryRules: Record<string, HighlightRule>,
+  templates: HighlightRuleTemplate[],
+  templatesLoaded: boolean,
+): RuleSectionEntry[] {
+  const templatesByKey = new Map(templates.map(template => [getHighlightRuleTemplateKey(template), template]));
+  const templateKeys = [...new Set([
+    ...templatesByKey.keys(),
+    ...Object.keys(categoryRules),
+  ])];
+  return templateKeys.map(templateKey => {
+    const template = templatesByKey.get(templateKey);
+    return {
+      key: templateKey,
+      title: templateKey,
+      anchor: templateKey,
+      warning: templatesLoaded && !template ? "No template with this name" : undefined,
+    };
+  });
+}
+
+function withRule(
+  overrides: HighlightRuleOverrides,
+  category: HighlightRuleCategory,
+  key: string,
+  rule: HighlightRule,
+): HighlightRuleOverrides {
+  return { ...overrides, [category]: { ...overrides[category], [key]: rule } };
+}
+
+function withoutRule(
+  overrides: HighlightRuleOverrides,
+  category: HighlightRuleCategory,
+  key: string,
+): HighlightRuleOverrides {
+  const remaining = { ...overrides[category] };
+  delete remaining[key];
+  return { ...overrides, [category]: remaining };
+}
+
+function emptyRule(): HighlightRule {
+  return { enabled: true, groups: [] };
+}
+
+// Templates with no rule are the long tail of each list, so they sort last.
+function withRulesFirst(
+  entries: RuleSectionEntry[],
+  hasRule: (key: string) => boolean,
+): RuleSectionEntry[] {
+  return [...entries.filter(entry => hasRule(entry.key)), ...entries.filter(entry => !hasRule(entry.key))];
+}
+
+const RuleSection = ({category, defaults, entries, scope, supportsLevel2, collapsible, expandedAnchor, overrides, onChange}: {
+  category: HighlightRuleCategory,
+  defaults: Record<string, HighlightRule>,
+  entries: RuleSectionEntry[],
+  scope: SignalScope,
+  supportsLevel2?: boolean,
+  collapsible?: boolean,
+  expandedAnchor?: string | null,
+  overrides: HighlightRuleOverrides,
+  onChange: (overrides: HighlightRuleOverrides) => void,
+}) => <>
+  {withRulesFirst(entries, key => !!(overrides[category][key] ?? defaults[key])).map(entry => {
+    const rule = overrides[category][entry.key] ?? defaults[entry.key] ?? emptyRule();
+    return <div key={entry.key} id={entry.anchor}>
+      <HighlightRuleEditor
+        title={entry.title}
+        description={entry.description}
+        warning={entry.warning}
+        rule={rule}
+        scope={scope}
+        supportsLevel2={supportsLevel2}
+        collapsible={collapsible}
+        initiallyExpanded={!!entry.anchor && entry.anchor === expandedAnchor}
+        isCustomized={!!overrides[category][entry.key]}
+        hasDefault={!!defaults[entry.key]}
+        onChange={updated => onChange(withRule(overrides, category, entry.key, updated))}
+        onReset={() => onChange(withoutRule(overrides, category, entry.key))}
+      />
+    </div>;
+  })}
+</>;
+
+const HighlightRuleEditorPage = () => {
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const canEdit = userIsAdminOrMod(currentUser);
+  const { hash } = useSubscribedLocation();
+
+  const { data: messageTemplateData } = useQuery(ModerationTemplatesForHighlightRulesQuery, {
+    variables: { selector: { moderationTemplatesList: { collectionName: 'Messages' } }, limit: 200 },
+    ssr: false,
+    skip: !canEdit,
+  });
+  const { data: rejectionTemplateData } = useQuery(ModerationTemplatesForHighlightRulesQuery, {
+    variables: { selector: { moderationTemplatesList: { collectionName: 'Rejections' } }, limit: 200 },
+    ssr: false,
+    skip: !canEdit,
+  });
+  const [saveOverrides, { loading: saving, error: saveError }] = useMutation(SetSupermodHighlightRuleOverridesMutation);
+
+  const [draft, setDraft] = useState<HighlightRuleOverrides | null>(null);
+  const [savedOverrides, setSavedOverrides] = useState<HighlightRuleOverrides>(highlightRuleOverrides);
+  const [copied, setCopied] = useState(false);
+  const overrides = draft ?? savedOverrides;
+  const isDirty = jsonStringifyDeterministic(overrides) !== jsonStringifyDeterministic(savedOverrides);
+
+  const messageTemplates = messageTemplateData?.moderationTemplates?.results ?? [];
+  const rejectionTemplates = rejectionTemplateData?.moderationTemplates?.results ?? [];
+  const targetTemplateKey = hash.startsWith('#') ? decodeURIComponent(hash.slice(1)) : null;
+
+  useEffect(() => {
+    if (!targetTemplateKey) return;
+    document.getElementById(targetTemplateKey)?.scrollIntoView({ block: 'center' });
+  }, [targetTemplateKey, messageTemplateData, rejectionTemplateData]);
+
+  const onSave = useCallback(async () => {
+    const { data } = await saveOverrides({ variables: { overrides } });
+    if (!data) return;
+    setSavedOverrides(parseHighlightRuleOverrides(data.setSupermodHighlightRuleOverrides));
+    setDraft(null);
+  }, [saveOverrides, overrides]);
+
+  const onCopyJson = useCallback(async () => {
+    await navigator.clipboard.writeText(JSON.stringify(serializeHighlightRuleOverrides(overrides), null, 2) + "\n");
+    setCopied(true);
+  }, [overrides]);
+
+  if (!canEdit) {
+    return <ErrorAccessDenied />;
+  }
+
+  return <SingleColumnSection>
+    <SectionTitle title="Supermod Highlight Rules" />
+    <div className={classes.intro}>
+      Which moderator actions and templates get called out in the moderation inbox for a given user.
+      A rule highlights when every condition in a set holds; extra sets are alternatives (OR).
+      A condition on a value the user doesn&apos;t have — an LLM score for content that was never scored,
+      say — never passes. Text conditions use JavaScript regular expressions; the editor shows
+      whether matching ignores case and can require several distinct matches. Rules are stored
+      in <code>{HIGHLIGHT_RULES_FILE_PATH}</code> and ship with the code: saving writes that file on a
+      local dev server; elsewhere, copy the JSON into it and commit.
+    </div>
+
+    <div className={classes.saveBar}>
+      <button type="button" className={classes.saveButton} disabled={!isDirty || saving} onClick={onSave}>
+        {saving ? "Saving…" : "Save to file"}
+      </button>
+      <button type="button" className={classes.discardButton} disabled={!isDirty || saving} onClick={() => setDraft(null)}>
+        Discard changes
+      </button>
+      <button type="button" className={classes.discardButton} onClick={onCopyJson}>
+        {copied ? "Copied" : "Copy JSON"}
+      </button>
+      <span className={classNames(classes.saveStatus, { [classes.errorStatus]: !!saveError })}>
+        {saveError ? saveError.message : (isDirty ? "Unsaved changes" : "Up to date")}
+      </span>
+    </div>
+
+    <SectionTitle title="Moderator Actions" />
+    <RuleSection
+      category="actions"
+      defaults={DEFAULT_ACTION_HIGHLIGHT_RULES}
+      entries={getActionEntries()}
+      scope="user"
+      supportsLevel2
+      collapsible
+      overrides={overrides}
+      onChange={setDraft}
+    />
+
+    <SectionTitle title="Message Templates" />
+    <RuleSection
+      category="messageTemplates"
+      defaults={{}}
+      entries={getTemplateEntries(overrides.messageTemplates, messageTemplates, !!messageTemplateData)}
+      scope="user"
+      collapsible
+      expandedAnchor={targetTemplateKey}
+      overrides={overrides}
+      onChange={setDraft}
+    />
+
+    <SectionTitle title="Rejection Templates" />
+    <RuleSection
+      category="rejectionTemplates"
+      defaults={{}}
+      entries={getTemplateEntries(overrides.rejectionTemplates, rejectionTemplates, !!rejectionTemplateData)}
+      scope="all"
+      collapsible
+      expandedAnchor={targetTemplateKey}
+      overrides={overrides}
+      onChange={setDraft}
+    />
+  </SingleColumnSection>;
+};
+
+export default HighlightRuleEditorPage;

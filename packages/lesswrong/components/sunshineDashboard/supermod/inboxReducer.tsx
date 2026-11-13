@@ -6,7 +6,7 @@ import { getUserReviewGroup, type TabId } from './groupings';
 import { compareReviewQueueUsers, REVIEW_GROUPS_IN_PRIORITY_ORDER } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
-import type { SelectedSidebarTab } from './sidebarTabs';
+import { DEFAULT_SIDEBAR_TAB, type SelectedSidebarTab } from './sidebarTabs';
 import { isTeamInboxThreadOpen, mergeDoneTeamInboxThreads, sortDoneTeamInboxThreads, sortOpenTeamInboxThreads, type TeamInboxThread } from './teamInboxThreads';
 import type { ModerationQueueSnapshot, UnloadedCounts } from './moderationQueue';
 
@@ -57,7 +57,7 @@ export interface InboxState extends ModerationQueueSnapshot {
   focusedTagId: string | null;
   // Index of focused content item in detail view
   focusedContentIndex: number;
-  // Which composer is open in the moderation sidebar, or null for neither
+  // Which right-panel section is expanded, or null when all are collapsed
   sidebarTab: SelectedSidebarTab;
   rejectComposerFocusToken?: number;
   // Undo queue - actions that can be undone (within 30 seconds) - only for users
@@ -150,6 +150,7 @@ export type InboxAction =
   | { type: 'FOCUS_REJECT_COMPOSER' }
   | { type: 'SET_SIDEBAR_TAB'; tab: SelectedSidebarTab; }
   | { type: 'UPDATE_USER'; userId: string; fields: Partial<SunshineUsersList>; }
+  | { type: 'ADJUST_USER_REJECTED_CONTENT_COUNT'; userId: string; delta: number; }
   | { type: 'UPDATE_POST'; postId: string; fields: Partial<SunshinePostsList>; }
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
   | { type: 'UNDO_ACTION'; userId: string; }
@@ -273,10 +274,10 @@ export function enterTab(state: InboxState, tab: TabId): InboxState {
 }
 
 /**
- * Actions that close the open composer, so an editor never silently holds
- * focus and swallows the moderation shortcuts. Mid-draft actions (permission
- * toggles, LLM checks, undo bookkeeping) are deliberately absent, as is
- * OPEN_CONTENT, which sets `sidebarTab` itself.
+ * Actions that leave a composer or user-specific section return the sidebar to
+ * its default User Messages section. Mid-draft actions (permission toggles,
+ * LLM checks, undo bookkeeping) are deliberately absent, as is OPEN_CONTENT,
+ * which sets `sidebarTab` itself.
  */
 const SIDEBAR_TAB_CLEARING_ACTIONS: ReadonlySet<InboxAction['type']> = new Set([
   'OPEN_USER', 'CLOSE_DETAIL', 'NEXT_CONTENT', 'PREV_CONTENT',
@@ -286,10 +287,10 @@ const SIDEBAR_TAB_CLEARING_ACTIONS: ReadonlySet<InboxAction['type']> = new Set([
 
 export function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
   const newState = reduceInboxAction(state, action);
-  if (!SIDEBAR_TAB_CLEARING_ACTIONS.has(action.type) || (newState.sidebarTab === null && !newState.rejectComposerFocusToken)) {
+  if (newState === state || !SIDEBAR_TAB_CLEARING_ACTIONS.has(action.type)) {
     return newState;
   }
-  return { ...newState, sidebarTab: null, rejectComposerFocusToken: 0 };
+  return { ...newState, sidebarTab: DEFAULT_SIDEBAR_TAB, rejectComposerFocusToken: 0 };
 }
 
 function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
@@ -394,9 +395,9 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
       return {
         ...state,
         focusedContentIndex: action.contentIndex,
-        // Closes the composer, unless the caller is opening one — the row's
-        // Reject button selects the row and opens the reject tab in one action
-        sidebarTab: action.sidebarTab ?? null,
+        // Returns to User Messages, unless the caller is opening another section —
+        // the row's Reject button selects the row and opens Rejections in one action
+        sidebarTab: action.sidebarTab ?? DEFAULT_SIDEBAR_TAB,
         rejectComposerFocusToken: 0,
       };
     }
@@ -441,6 +442,17 @@ function reduceInboxAction(state: InboxState, action: InboxAction): InboxState {
     case 'UPDATE_USER': {
       const updatedUsers = state.users.map(user => user._id === action.userId
         ? { ...user, ...action.fields }
+        : user
+      );
+      return {
+        ...state,
+        users: updatedUsers,
+      };
+    }
+
+    case 'ADJUST_USER_REJECTED_CONTENT_COUNT': {
+      const updatedUsers = state.users.map(user => user._id === action.userId
+        ? { ...user, rejectedContentCount: Math.max(0, (user.rejectedContentCount ?? 0) + action.delta) }
         : user
       );
       return {

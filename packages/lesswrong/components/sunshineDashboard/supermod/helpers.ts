@@ -117,6 +117,38 @@ export function canRejectContent(item: ContentItem | null | undefined) {
   return !!item && !item.rejected;
 }
 
+export interface IndexedRejectableContent {
+  _id: string;
+  rejected?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+}
+
+/**
+ * Finds the next unapproved item after `currentContentId`, wrapping around the
+ * list once. The current item is never returned, even before its optimistic
+ * rejection has reached the Apollo cache.
+ */
+export function getNextUnapprovedContentIndex(items: IndexedRejectableContent[], currentContentId: string) {
+  if (items.length === 0) return null;
+
+  const currentIndex = items.findIndex(item => item._id === currentContentId);
+  for (let offset = 1; offset <= items.length; offset++) {
+    const candidateIndex = (currentIndex + offset) % items.length;
+    const candidate = items[candidateIndex];
+    if (candidate._id !== currentContentId && !candidate.rejected && !!candidate.authorIsUnreviewed) {
+      return candidateIndex;
+    }
+  }
+
+  return null;
+}
+
+/** Whether a keyboard event target is a place the moderator is typing, so plain-letter shortcuts should be ignored */
+export function isInTextInput(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+}
+
 export function isRejectionTemplateRelevant(templateName: string, item: ContentItem): boolean {
   const name = templateName.trim().toLowerCase();
   if (name.includes('autoreject')) return false;

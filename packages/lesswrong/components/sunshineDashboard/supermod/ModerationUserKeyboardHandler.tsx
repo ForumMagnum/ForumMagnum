@@ -59,6 +59,7 @@ const ModerationUserKeyboardHandler = ({
     handleApproveCurrentOnly,
     handleSnoozeChoice,
     handleRejectContentAndRemove,
+    handleRejectAllAndRemove,
     handleRestrictAndNotify,
     handleRemoveNeedsReview,
     handleRemoveKeepingReviewStatus,
@@ -247,6 +248,13 @@ const ModerationUserKeyboardHandler = ({
     execute: handleRejectContentAndRemove,
   }), [isDetailView, selectedUser, handleRejectContentAndRemove]);
 
+  const rejectAllAndRemoveCommand: CommandPaletteItem = useMemo(() => ({
+    label: 'Reject All Pending & Remove',
+    keystroke: 'Shift+X',
+    isDisabled: () => !isDetailView || !selectedUser,
+    execute: handleRejectAllAndRemove,
+  }), [isDetailView, selectedUser, handleRejectAllAndRemove]);
+
   const restrictAndNotifyCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Reject Latest, Restrict, & Notify',
     keystroke: 'Shift+R',
@@ -344,7 +352,7 @@ const ModerationUserKeyboardHandler = ({
     approveCommand, approveCurrentOnlyCommand,
     snoozeChoiceCommand,
     removeCommand, removeKeepingReviewStatusCommand,
-    rejectOrUnrejectCommand, editRejectionCommand, messageCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand,
+    rejectOrUnrejectCommand, editRejectionCommand, messageCommand, rejectLatestAndRemoveCommand, rejectAllAndRemoveCommand, restrictAndNotifyCommand,
     purgeCommand,
     flagCommand,
     copyUserIdCommand,
@@ -352,7 +360,7 @@ const ModerationUserKeyboardHandler = ({
     nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand,
     openOrCloseDetailViewCommand, undoMostRecentActionCommand,
     ban3moCommand,
-  ], [rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snoozeChoiceCommand, removeCommand, removeKeepingReviewStatusCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, editRejectionCommand, messageCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, toggleAllPermissionsCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
+  ], [rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snoozeChoiceCommand, removeCommand, removeKeepingReviewStatusCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, editRejectionCommand, messageCommand, rejectLatestAndRemoveCommand, rejectAllAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, toggleAllPermissionsCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
 
   useSupermodKeyboardCommands({
     commands,

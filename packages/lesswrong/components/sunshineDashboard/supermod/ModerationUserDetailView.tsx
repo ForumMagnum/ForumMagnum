@@ -5,9 +5,9 @@ import type { InboxAction, InboxState } from './inboxReducer';
 import ModerationSidebar from './ModerationSidebar';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
-import { hideScrollBars, prettyScrollbars } from '@/themes/styleUtils';
+import { prettyScrollbars } from '@/themes/styleUtils';
 import type { SelectedSidebarTab } from './sidebarTabs';
-import { getModerationContentItems, isMapPin } from './helpers';
+import { getModerationContentItems, getNextUnapprovedContentIndex, isMapPin, type ContentItem } from './helpers';
 import ConcurrentModeratorChangeIndicator from './ConcurrentModeratorChangeIndicator';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
@@ -36,8 +36,7 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   },
   sidebarColumn: {
     height: 'calc(100vh - 64px)',
-    overflow: 'auto',
-    ...hideScrollBars,
+    ...prettyScrollbars(theme),
   },
   // Sits flush against the bottom of the column, taking only the height its
   // contents need, so the rest goes to the user info above it.
@@ -51,6 +50,7 @@ const ModerationUserDetailView = ({
   user,
   posts,
   comments,
+  contentsLoading,
   focusedContentIndex,
   runningLlmCheckId,
   sidebarTab,
@@ -62,6 +62,7 @@ const ModerationUserDetailView = ({
   user: SunshineUsersList;
   posts: SunshinePostsList[];
   comments: SunshineCommentsList[];
+  contentsLoading: boolean;
   focusedContentIndex: number;
   runningLlmCheckId: string | null;
   sidebarTab: SelectedSidebarTab;
@@ -84,10 +85,18 @@ const ModerationUserDetailView = ({
     [dispatch]
   );
 
+  const handleContentRejectStart = useCallback((content: ContentItem) => {
+    const nextContentIndex = getNextUnapprovedContentIndex(allContent, content._id);
+    if (nextContentIndex !== null) {
+      dispatch({ type: 'OPEN_CONTENT', contentIndex: nextContentIndex });
+    }
+  }, [allContent, dispatch]);
+
   return (
     <div className={classes.root}>
       <div className={classes.contentSection}>
         <div className={classes.userColumn}>
+          <ConcurrentModeratorChangeIndicator documentId={user._id} variant="banner" />
           <ModerationUserInfoColumn
             user={user}
             items={allContent}
@@ -112,18 +121,19 @@ const ModerationUserDetailView = ({
           />
         </div>
         <div className={classes.sidebarColumn}>
-          <ConcurrentModeratorChangeIndicator documentId={user._id} variant="banner" />
           <ModerationSidebar
             user={user}
             currentUser={currentUser}
             posts={posts}
             comments={comments}
+            contentsLoading={contentsLoading}
             focusedContent={focusedContent}
             sidebarTab={sidebarTab}
             rejectComposerFocusToken={state.rejectComposerFocusToken ?? 0}
             setSidebarTab={setSidebarTab}
             addToUndoQueue={addToUndoQueue}
             dispatch={dispatch}
+            onContentRejectStart={handleContentRejectStart}
           />
         </div>
       </div>
