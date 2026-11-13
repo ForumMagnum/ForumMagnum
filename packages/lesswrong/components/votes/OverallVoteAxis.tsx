@@ -94,7 +94,7 @@ const OverallVoteAxis = ({
   const { isAF } = useForumType();
   const classes = useStyles(styles);
   const collectionName = voteProps.collectionName;
-  const extendedScore = voteProps.document?.extendedScore
+  const extendedScore = isAF ? voteProps.document?.afExtendedScore : voteProps.document?.extendedScore
   const voteCount = extendedScore && ("approvalVoteCount" in extendedScore)
     ? extendedScore.approvalVoteCount
     : (voteProps.voteCount || 0);

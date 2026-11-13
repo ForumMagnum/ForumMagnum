@@ -172,7 +172,7 @@ export const useVote = <T extends VoteableTypeClient, CollectionName extends Vot
 
   const result = optimisticResponseDocument || document;
   const baseScore = (isAF ? result.afBaseScore : result.baseScore) || 0;
-  const voteCount = (result.voteCount) || 0;
+  const voteCount = (isAF ? result.afVoteCount : result.voteCount) || 0;
   return useMemo(
     () => ({ vote, collectionName, document: result, baseScore, voteCount }),
     [vote, collectionName, result, baseScore, voteCount]

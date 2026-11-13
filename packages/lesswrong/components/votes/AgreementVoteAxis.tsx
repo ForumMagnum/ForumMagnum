@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import VoteAgreementIcon from "./VoteAgreementIcon";
 import AxisVoteButton from "./AxisVoteButton";
 import LWTooltip from "../common/LWTooltip";
+import { useForumType } from '@/components/hooks/useForumType';
 
 const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
   root: {
@@ -38,8 +39,10 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScor
   agreementScoreClassName?: string,
 }) => {
   const classes = useStyles(styles);
-  const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
-  const karma = voteProps.document?.extendedScore?.agreement || 0;
+  const { isAF } = useForumType();
+  const extendedScore = isAF ? voteProps.document?.afExtendedScore : voteProps.document?.extendedScore;
+  const voteCount = extendedScore?.agreementVoteCount || 0;
+  const karma = extendedScore?.agreement || 0;
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
 

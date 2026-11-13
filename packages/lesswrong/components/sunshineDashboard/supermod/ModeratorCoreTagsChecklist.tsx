@@ -92,6 +92,7 @@ const ModeratorCoreTagsChecklist = ({
       currentUserExtendedVote: null,
       currentUserCanVote: true,
       afBaseScore: null,
+      afVoteCount: null,
       extendedScore: null,
       score: 1,
       voteCount: 1,

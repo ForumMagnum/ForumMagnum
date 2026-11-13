@@ -4,6 +4,7 @@ import { Votes } from '../../../server/collections/votes/collection';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import type { VoteDocTuple } from '../../../lib/voting/vote';
 import UsersRepo from "../../repos/UsersRepo";
+import sumBy from "lodash/sumBy";
 
 export const recalculateAFBaseScore = async (document: VoteableType): Promise<number> => {
   let votes = await Votes.find({
@@ -53,10 +54,19 @@ export async function revokeUserAFKarmaForCancelledVote ({newDocument, vote}: Vo
 
 }
 
-export async function moveToAFUpdatesUserAFKarma (document: Pick<DbPost|DbComment, 'af' | 'afBaseScore' | 'userId' | '_id'>, oldDocument: Pick<DbPost|DbComment, 'af' | 'afBaseScore' | 'userId' | '_id'>) {
+async function getAFKarmaFromOtherUsersVotes(document: Pick<DbPost|DbComment, 'userId' | '_id'>): Promise<number> {
+  const votes = await Votes.find({
+    documentId: document._id,
+    cancelled: false,
+    userId: {$ne: document.userId},
+  }).fetch();
+  return sumBy(votes, vote => vote.afPower ?? 0);
+}
+
+export async function moveToAFUpdatesUserAFKarma (document: Pick<DbPost|DbComment, 'af' | 'userId' | '_id'>, oldDocument: Pick<DbPost|DbComment, 'af' | 'userId' | '_id'>) {
   if (document.af && !oldDocument.af) {
     await Users.rawUpdateOne({_id:document.userId}, {
-      $inc: {afKarma: document.afBaseScore ?? 0},
+      $inc: {afKarma: await getAFKarmaFromOtherUsersVotes(document)},
       $addToSet: {groups: 'alignmentVoters'}
     })
     await Votes.rawUpdateMany({documentId: document._id}, {
@@ -65,7 +75,7 @@ export async function moveToAFUpdatesUserAFKarma (document: Pick<DbPost|DbCommen
   } else if (!document.af && oldDocument.af) {
     const documentUser = await Users.findOne({_id:document.userId})
     if (!documentUser) throw Error("Can't find user for updating karma after moving document to AIAF")
-    const karmaUpdate = -(document.afBaseScore ?? 0);
+    const karmaUpdate = -(await getAFKarmaFromOtherUsersVotes(document));
     const newAfKarma = (documentUser.afKarma || 0) + karmaUpdate;
     if (newAfKarma > 0) {
       await Users.rawUpdateOne({_id:document.userId}, {$inc: {afKarma: karmaUpdate}})

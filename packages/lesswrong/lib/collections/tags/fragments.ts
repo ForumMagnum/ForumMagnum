@@ -26,6 +26,7 @@ export const TagBasicInfo = gql(`
     extendedScore
     score
     afBaseScore
+    afVoteCount
     afExtendedScore
     voteCount
     currentUserVote

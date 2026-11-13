@@ -30,6 +30,7 @@ export const WithVoteMessage = gql(`
     baseScore
     extendedScore
     afBaseScore
+    afVoteCount
     voteCount
     currentUserVote
     currentUserExtendedVote

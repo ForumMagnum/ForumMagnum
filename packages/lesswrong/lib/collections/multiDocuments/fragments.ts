@@ -22,6 +22,7 @@ export const MultiDocumentMinimumInfo = gql(`
     extendedScore
     score
     afBaseScore
+    afVoteCount
     afExtendedScore
     voteCount
     currentUserVote

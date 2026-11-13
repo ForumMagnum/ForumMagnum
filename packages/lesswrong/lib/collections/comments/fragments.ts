@@ -50,6 +50,7 @@ export const CommentsList = gql(`
     afDate
     moveToAlignmentUserId
     afBaseScore
+    afVoteCount
     afExtendedScore
     suggestForAlignmentUserIds
     reviewForAlignmentUserId
@@ -208,6 +209,7 @@ export const WithVoteComment = gql(`
     extendedScore
     score
     afBaseScore
+    afVoteCount
     afExtendedScore
     voteCount
   }

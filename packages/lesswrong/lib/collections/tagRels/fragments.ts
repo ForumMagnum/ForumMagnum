@@ -7,6 +7,7 @@ export const TagRelBasicInfo = gql(`
     baseScore
     extendedScore
     afBaseScore
+    afVoteCount
     voteCount
     tagId
     postId
@@ -83,6 +84,7 @@ export const WithVoteTagRel = gql(`
     baseScore
     extendedScore
     afBaseScore
+    afVoteCount
     voteCount
     currentUserVote
     currentUserExtendedVote

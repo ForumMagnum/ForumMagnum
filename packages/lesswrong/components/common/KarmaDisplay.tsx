@@ -12,6 +12,9 @@ const KarmaDisplay = ({document, placement="left", linkItem}: {
   const baseScore = isAF
     ? document.afBaseScore
     : document.baseScore;
+  const voteCount = isAF
+    ? document.afVoteCount
+    : document.voteCount;
   const afBaseScore = !isAF && document.af
     ? document.afBaseScore
     : null;
@@ -22,7 +25,7 @@ const KarmaDisplay = ({document, placement="left", linkItem}: {
       title={
         <div>
           <div>{baseScore ?? 0} karma</div>
-          <div>({document.voteCount} votes)</div>
+          <div>({voteCount ?? 0} votes)</div>
           {linkItem}
           {afBaseScore &&
             <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>

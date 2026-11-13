@@ -61,6 +61,7 @@ function getDefaultLens(tag: TagPageWithArbitalContentFragment | TagPageRevision
     score: tag.score,
     afBaseScore: tag.afBaseScore,
     afExtendedScore: tag.afExtendedScore,
+    afVoteCount: tag.afVoteCount,
     voteCount: tag.voteCount,
     currentUserVote: tag.currentUserVote,
     currentUserExtendedVote: tag.currentUserExtendedVote,

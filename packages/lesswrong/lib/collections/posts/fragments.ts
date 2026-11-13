@@ -109,6 +109,7 @@ export const PostsBase = gql(`
     suggestForAlignmentUserIds
     reviewForAlignmentUserId
     afBaseScore
+    afVoteCount
     afExtendedScore
     afCommentCount
     afLastCommentedAt
@@ -775,6 +776,7 @@ export const WithVotePost = gql(`
     extendedScore
     score
     afBaseScore
+    afVoteCount
     afExtendedScore
     voteCount
   }
