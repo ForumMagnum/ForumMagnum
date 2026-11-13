@@ -15,9 +15,12 @@ import { gql } from "@/lib/generated/gql-codegen";
 export const useInitiateConversation = (props?: {
   includeModerators?: boolean;
 }) => {
+  // Callers pass a fresh props object every render. useTracking rebuilds
+  // captureEvent when eventProps' identity changes, and the supermod composer
+  // starts a conversation from an effect keyed on that callback — so passing
+  // props through here retriggers the mutation (and its error flash) forever.
   const {captureEvent} = useTracking({
     eventType: "initiateConversation",
-    eventProps: props,
   });
   const { includeModerators = false } = props || {};
 
@@ -48,7 +51,7 @@ export const useInitiateConversation = (props?: {
       variables: { participantIds, ...moderatorField },
     });
 
-    captureEvent();
+    captureEvent(undefined, { includeModerators });
   }, [captureEvent, currentUser?._id, includeModerators, initateConversation, skip]);
 
   return {
