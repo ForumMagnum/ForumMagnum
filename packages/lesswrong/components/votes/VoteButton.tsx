@@ -1,5 +1,4 @@
 import React, { useEffect, useReducer, useRef } from 'react';
-import { isMobile } from '../../lib/utils/isMobile'
 import { defineStyles } from '../hooks/useStyles';
 import { JssStyles } from '@/lib/jssStyles';
 import { strongVoteDelay } from './constants';
@@ -40,6 +39,7 @@ export const voteButtonSharedStyles = defineStyles("VoteButton", theme => ({
     margin: 0, // Remove the margin in Safari
     cursor: 'pointer',
     userSelect: 'none',
+    touchAction: 'manipulation',
     verticalAlign: 'middle',
     '-moz-appearance': 'none', // Reset
     '-webkit-appearance': 'none', // Reset
@@ -111,6 +111,7 @@ type VoteButtonAnimationState =
 export type VoteButtonAnimationHandlers = {
   state: VoteButtonAnimationState
   eventHandlers: {
+    onPointerDown: (e: React.PointerEvent) => void,
     onMouseDown: any,
     onMouseUp: any,
     onMouseOut: any,
@@ -134,6 +135,16 @@ export const VoteButtonAnimation = ({
     vote: currentStrength
   });
   
+  const lastPointerType = useRef<string|null>(null);
+  // Decide by the input device rather than by isMobile(), because iPad Safari
+  // sends a desktop user agent and then only fires mouse events after the
+  // finger lifts, which made press-and-hold strong votes impossible.
+  const isTapInput = () => lastPointerType.current !== "mouse";
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    lastPointerType.current = e.pointerType;
+  }
+
   useEffect(() => {
     if (animationState.current.mode === "idle" && animationState.current.vote !== currentStrength) {
       animationState.current = {
@@ -144,8 +155,8 @@ export const VoteButtonAnimation = ({
     }
   }, [currentStrength]);
 
-  const handleMouseDown = () => { // This handler is only used on desktop
-    if(!isMobile()) {
+  const handleMouseDown = () => {
+    if(!isTapInput()) {
       if (animationState.current.mode === "idle") {
         if (animationState.current.vote === "big") {
           vote("small");
@@ -183,8 +194,8 @@ export const VoteButtonAnimation = ({
     }
   }
 
-  const handleMouseUp = () => { // This handler is only used on desktop
-    if(!isMobile()) {
+  const handleMouseUp = () => {
+    if(!isTapInput()) {
       if (animationState.current.mode === "completed") {
         vote("big");
         animationState.current = {
@@ -211,8 +222,8 @@ export const VoteButtonAnimation = ({
     }
   }
   
-  const handleClick = () => { // This handler is only used for mobile
-    if(isMobile()) {
+  const handleClick = () => {
+    if(isTapInput()) {
       // This causes the following behavior (repeating after 3rd click):
       // 1st Click: small upvote; 2nd Click: big upvote; 3rd Click: cancel big upvote (i.e. going back to no vote)
       if (currentStrength === "small") {
@@ -244,6 +255,7 @@ export const VoteButtonAnimation = ({
 
   return children({
     eventHandlers: {
+      onPointerDown: handlePointerDown,
       onMouseDown: handleMouseDown,
       onMouseUp: handleMouseUp,
       onClick: handleClick,
