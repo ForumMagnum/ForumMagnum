@@ -8,6 +8,7 @@ import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers
 import { assignUserIdToData, getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import { sendIntercomEvent, updatePartiallyReadSequences, updateReadStatus } from "./helpers";
+import { recordAiDigestItemClick } from "@/server/aiDigest/aiDigestItemClicks";
 
 // The events that clients record. Other events are created by the server, and
 // some of their properties are trusted (eg rateLimitActivated's message, which
@@ -53,7 +54,9 @@ export async function createLWEvent({ data }: { data: CreateLWEventDataInput & {
   };
 
   await updatePartiallyReadSequences(asyncProperties);
-  
+
+  await recordAiDigestItemClick(documentWithId);
+
   await sendIntercomEvent(documentWithId, currentUser);
 
   return documentWithId;

@@ -14,7 +14,6 @@ import HomePageDesignsRepo from "./HomePageDesignsRepo";
 import JargonTermsRepo from "./JargonTermsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import LlmRunsRepo from "./LlmRunsRepo";
-import LWEventsRepo from "./LWEventsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import OAuthAuthorizationCodesRepo from "./OAuthAuthorizationCodesRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
@@ -66,7 +65,6 @@ const allRepos = {
   jargonTerms: JargonTermsRepo,
   llmRuns: LlmRunsRepo,
   localgroups: LocalgroupsRepo,
-  lwEvents: LWEventsRepo,
   manifoldProbabilitiesCachesRepo: ManifoldProbabilitiesCachesRepo,
   oAuthAuthorizationCodes: OAuthAuthorizationCodesRepo,
   postEmbeddings: PostEmbeddingsRepo,

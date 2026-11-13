@@ -1,12 +1,9 @@
 import { AI_DIGEST_CLEAR_HISTORY_MAX_DAYS, DAY_MS } from "@/lib/aiDigest/constants";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
+import AiDigestItemClicks from "@/server/collections/aiDigestItemClicks/collection";
 import type { AiDigestPastQuickTakeOutcomeRow } from "@/server/repos/CommentsRepo";
 import type { AiDigestPastPostOutcomeRow } from "@/server/repos/PostsRepo";
-import {
-  AI_DIGEST_UTM_PARAMS,
-  aiDigestLinkSlotKey,
-  aiDigestLinkSlotKeyFromUtmContent,
-} from "@/server/emailComponents/aiDigestEmailLinks";
+import { aiDigestLinkSlotKey } from "@/server/emailComponents/aiDigestEmailLinks";
 import groupBy from "lodash/groupBy";
 import uniq from "lodash/uniq";
 import { aiDigestPlainText } from "./aiDigestPostText";
@@ -135,17 +132,9 @@ function pastQuickTakeRecommendation(
   };
 }
 
-async function loadFirstClickTimes(userId: string, since: Date, context: ResolverContext): Promise<Map<string, Date>> {
-  const firstClickAt = new Map<string, Date>();
-  const views = await context.repos.lwEvents.getPostViewsFromUtmCampaign(userId, AI_DIGEST_UTM_PARAMS.utm_campaign, since);
-  for (const { utmContent, createdAt } of views) {
-    const slotKey = aiDigestLinkSlotKeyFromUtmContent(utmContent);
-    const previous = firstClickAt.get(slotKey);
-    if (!previous || createdAt < previous) {
-      firstClickAt.set(slotKey, createdAt);
-    }
-  }
-  return firstClickAt;
+async function loadFirstClickTimes(issueIds: string[]): Promise<Map<string, Date>> {
+  const clicks = await AiDigestItemClicks.find({ issueId: { $in: issueIds } }).fetch();
+  return new Map(clicks.map((click) => [aiDigestLinkSlotKey(click), click.firstClickedAt]));
 }
 
 export async function loadAiDigestHistory(userId: string, context: ResolverContext): Promise<AiDigestHistory> {
@@ -157,12 +146,11 @@ export async function loadAiDigestHistory(userId: string, context: ResolverConte
   if (issues.length === 0) {
     return { previousInclusions: new Map(), pastRecommendations: [] };
   }
-  const oldestIssue = issues[issues.length - 1];
   const items = issues.flatMap(recommendedItems);
   const [postOutcomes, quickTakeOutcomes, firstClickAtBySlotKey] = await Promise.all([
     context.repos.posts.getAiDigestPastPostOutcomes({ userId, postIds: documentIdsOfType(items, "post") }),
     context.repos.comments.getAiDigestPastQuickTakeOutcomes({ userId, commentIds: documentIdsOfType(items, "quickTake") }),
-    loadFirstClickTimes(userId, oldestIssue.createdAt, context),
+    loadFirstClickTimes(issues.map((issue) => issue._id)),
   ]);
   const itemsByDocumentId = groupBy(items, (item) => item.documentId);
   return {

@@ -81,6 +81,13 @@ export function getDbIndexesOnUsers() {
       AND "email" IS NOT NULL;
   `);
 
+  // Used by AiDigestSchedulesRepo.addMissingSchedules
+  indexSet.addCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_subscribed_to_aiDigest"
+    ON "Users" ("_id")
+    WHERE "emailSubscribedToAiDigest" IS TRUE;
+  `);
+
   indexSet.addIndex("Users", { afKarma:1, reviewForAlignmentForumUserId:1, groups:1, createdAt:1 });
   indexSet.addIndex("Users", { afSubmittedApplication:1, reviewForAlignmentForumUserId:1, groups:1, createdAt:1 });
   indexSet.addIndex("Users", {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
