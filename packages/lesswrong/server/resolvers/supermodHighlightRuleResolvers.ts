@@ -1,68 +1,34 @@
 import gql from "graphql-tag";
+import fs from "fs/promises";
+import path from "path";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { upgradeNonEnglishHighlightRules } from "@/server/moderatorHighlights/upgradeNonEnglishHighlightRules";
-import { upgradeOffsiteHighlightRules } from "@/server/moderatorHighlights/upgradeOffsiteHighlightRules";
-import { upgradePoliticalTermHighlightRules } from "@/server/moderatorHighlights/upgradePoliticalTermHighlightRules";
-import { upgradeWhitespaceHighlightRules } from "@/server/moderatorHighlights/upgradeWhitespaceHighlightRules";
+import { isDevelopment } from "@/lib/executionEnvironment";
+import { HIGHLIGHT_RULES_FILE_PATH } from "@/lib/moderatorHighlights/highlightRules";
 import {
-  HIGHLIGHT_RULE_OVERRIDES_METADATA_NAME,
-  migrateLegacyTemplateRuleOverrideKeys,
   parseHighlightRuleOverrides,
   serializeHighlightRuleOverrides,
   type HighlightRuleOverrides,
 } from "@/lib/moderatorHighlights/highlightRuleTypes";
 
 export const supermodHighlightRuleGqlTypeDefs = gql`
-  extend type Query {
-    supermodHighlightRuleOverrides: JSON
-  }
   extend type Mutation {
     setSupermodHighlightRuleOverrides(overrides: JSON!): JSON!
   }
 `;
-
-async function getModerationTemplateReferences(context: ResolverContext) {
-  return context.ModerationTemplates.find(
-    { collectionName: { $in: ['Messages', 'Rejections'] } },
-    {},
-    { _id: 1, name: 1, collectionName: 1 },
-  ).fetch();
-}
-
-export const supermodHighlightRuleGqlQueries = {
-  async supermodHighlightRuleOverrides(_root: void, _args: {}, context: ResolverContext) {
-    if (!userIsAdminOrMod(context.currentUser)) {
-      throw new Error("You must be a moderator to read the supermod highlight rules");
-    }
-    const [row] = await context.repos.databaseMetadata.getByNames([HIGHLIGHT_RULE_OVERRIDES_METADATA_NAME]);
-    if (!row?.value) return null;
-    let parsed: HighlightRuleOverrides;
-    try {
-      parsed = parseHighlightRuleOverrides(row.value);
-    } catch {
-      // Client falls back to defaults; the editor's next save overwrites this.
-      return row.value;
-    }
-    const templates = await getModerationTemplateReferences(context);
-    // Local servers can run new code against a database whose migration is pending.
-    const upgraded = upgradeNonEnglishHighlightRules(migrateLegacyTemplateRuleOverrideKeys(parsed, templates));
-    const withOffsite = upgradeOffsiteHighlightRules(upgraded, templates);
-    const withWhitespace = upgradeWhitespaceHighlightRules(withOffsite, templates);
-    return serializeHighlightRuleOverrides(upgradePoliticalTermHighlightRules(withWhitespace, templates));
-  },
-};
 
 export const supermodHighlightRuleGqlMutations = {
   async setSupermodHighlightRuleOverrides(_root: void, { overrides }: { overrides: unknown }, context: ResolverContext) {
     if (!userIsAdminOrMod(context.currentUser)) {
       throw new Error("You must be a moderator to edit the supermod highlight rules");
     }
+    // Deployed servers can't change the repo; the rules ship with the code.
+    if (!isDevelopment) {
+      throw new Error(`Highlight rules can only be saved from a local dev server. Copy the JSON into ${HIGHLIGHT_RULES_FILE_PATH} and commit it instead.`);
+    }
 
     const validated: HighlightRuleOverrides = parseHighlightRuleOverrides(overrides);
-    const templates = await getModerationTemplateReferences(context);
-    const migrated = migrateLegacyTemplateRuleOverrideKeys(validated, templates);
-    const serialized = serializeHighlightRuleOverrides(migrated);
-    await context.repos.databaseMetadata.upsertByName(HIGHLIGHT_RULE_OVERRIDES_METADATA_NAME, serialized);
+    const serialized = serializeHighlightRuleOverrides(validated);
+    await fs.writeFile(path.join(process.cwd(), HIGHLIGHT_RULES_FILE_PATH), JSON.stringify(serialized, null, 2) + "\n");
     return serialized;
   },
 };

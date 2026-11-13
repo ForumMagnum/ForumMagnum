@@ -7640,7 +7640,6 @@ type Query = {
   spotlights?: Maybe<MultiSpotlightOutput>;
   subscription?: Maybe<SingleSubscriptionOutput>;
   subscriptions?: Maybe<MultiSubscriptionOutput>;
-  supermodHighlightRuleOverrides?: Maybe<Scalars['JSON']['output']>;
   supermodQueueChanges: Array<SupermodQueueChange>;
   supermodQueueSnapshotTime: Scalars['Date']['output'];
   supermodQueueUsers: MultiUserOutput;
@@ -21968,14 +21967,6 @@ type updateModeratorActionSupermodMutationVariables = Exact<{
 
 
 type updateModeratorActionSupermodMutation = updateModeratorActionSupermodMutation_Mutation;
-
-type SupermodHighlightRuleOverridesQuery_Query = { __typename?: 'Query', supermodHighlightRuleOverrides: any | null };
-
-
-type SupermodHighlightRuleOverridesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-type SupermodHighlightRuleOverridesQuery = SupermodHighlightRuleOverridesQuery_Query;
 
 type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }

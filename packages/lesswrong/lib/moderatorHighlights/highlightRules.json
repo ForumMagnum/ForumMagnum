@@ -1,4 +1,187 @@
 {
+  "actions": {
+    "remove": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "unapprovedContentCount",
+            "operator": "eq",
+            "value": 0
+          },
+          {
+            "signal": "averagePostKarma",
+            "operator": "lt",
+            "value": 8
+          },
+          {
+            "signal": "averageCommentKarma",
+            "operator": "lt",
+            "value": 1.5
+          }
+        ]
+      ],
+      "level2Groups": [
+        [
+          {
+            "signal": "rejectedContentCount",
+            "operator": "gte",
+            "value": 1
+          }
+        ]
+      ]
+    },
+    "approve": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "averagePostKarma",
+            "operator": "gte",
+            "value": 0
+          },
+          {
+            "signal": "averageCommentKarma",
+            "operator": "gte",
+            "value": 0
+          },
+          {
+            "signal": "approvedContentCount",
+            "operator": "gte",
+            "value": 2
+          },
+          {
+            "signal": "unapprovedContentCount",
+            "operator": "gte",
+            "value": 1
+          },
+          {
+            "signal": "maxPangramScoreAmongUnapproved",
+            "operator": "lte",
+            "value": 0.2
+          },
+          {
+            "signal": "userKarma",
+            "operator": "gte",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "signal": "averagePostKarma",
+            "operator": "gte",
+            "value": 0
+          },
+          {
+            "signal": "averageCommentKarma",
+            "operator": "gte",
+            "value": 0
+          },
+          {
+            "signal": "userKarma",
+            "operator": "gte",
+            "value": 10
+          },
+          {
+            "signal": "unapprovedContentCount",
+            "operator": "gte",
+            "value": 1
+          },
+          {
+            "signal": "maxPangramScoreAmongUnapproved",
+            "operator": "lte",
+            "value": 0.2
+          }
+        ],
+        [
+          {
+            "signal": "userKarma",
+            "operator": "gte",
+            "value": 1
+          },
+          {
+            "signal": "approvedContentCount",
+            "operator": "gte",
+            "value": 1
+          }
+        ]
+      ],
+      "level2Groups": [
+        [
+          {
+            "signal": "maxContentBaseScore",
+            "operator": "gt",
+            "value": 12
+          },
+          {
+            "signal": "minContentBaseScore",
+            "operator": "gte",
+            "value": 1
+          },
+          {
+            "signal": "averagePostKarma",
+            "operator": "gte",
+            "value": 5
+          },
+          {
+            "signal": "averageCommentKarma",
+            "operator": "gte",
+            "value": 1
+          }
+        ],
+        [
+          {
+            "signal": "userKarma",
+            "operator": "gte",
+            "value": 100
+          }
+        ]
+      ]
+    },
+    "snoozeCustom": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "unapprovedContentCount",
+            "operator": "gte",
+            "value": 1
+          },
+          {
+            "signal": "maxPangramScoreAmongUnapproved",
+            "operator": "lte",
+            "value": 0.2
+          }
+        ],
+        [
+          {
+            "signal": "unapprovedContentCount",
+            "operator": "eq",
+            "value": 0
+          },
+          {
+            "signal": "approvedContentCount",
+            "operator": "gte",
+            "value": 1
+          }
+        ]
+      ],
+      "level2Groups": [
+        [
+          {
+            "signal": "unapprovedContentMissingPangramScoreCount",
+            "operator": "eq",
+            "value": 0
+          },
+          {
+            "signal": "approvedContentCount",
+            "operator": "gte",
+            "value": 1
+          }
+        ]
+      ]
+    }
+  },
   "messageTemplates": {
     "No Org Usernames": {
       "enabled": true,
@@ -151,6 +334,11 @@
             "operator": "matchesRegex",
             "value": "\\b(AI|AGI|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b",
             "explanation": "The selected content mentions AI, a language model, or a technical AI topic such as machine learning, neural networks, transformers, or mechanistic interpretability."
+          },
+          {
+            "signal": "unapprovedContentCount",
+            "operator": "gte",
+            "value": 1
           }
         ]
       ]
@@ -180,9 +368,14 @@
       "groups": [
         [
           {
-            "signal": "hasActiveDownvotedContentAlert",
-            "operator": "isTrue",
-            "value": null
+            "signal": "minContentBaseScore",
+            "operator": "lt",
+            "value": 0
+          },
+          {
+            "signal": "contentCount",
+            "operator": "gte",
+            "value": 1
           }
         ]
       ]
@@ -192,9 +385,26 @@
       "groups": [
         [
           {
-            "signal": "hasActiveLowAverageKarmaAlert",
-            "operator": "isTrue",
-            "value": null
+            "signal": "averagePostKarma",
+            "operator": "lte",
+            "value": 2
+          },
+          {
+            "signal": "postCount",
+            "operator": "gt",
+            "value": 4
+          }
+        ],
+        [
+          {
+            "signal": "averageCommentKarma",
+            "operator": "lt",
+            "value": 1
+          },
+          {
+            "signal": "commentCount",
+            "operator": "gte",
+            "value": 4
           }
         ]
       ]
@@ -270,7 +480,7 @@
           {
             "signal": "focusedTitleAndText",
             "operator": "matchesRegex",
-            "value": "\\b(AI|AGI|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b",
+            "value": "\\b(AI|AGI|Agent|agent|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b",
             "explanation": "The selected content mentions AI, a language model, or a technical AI topic such as machine learning, neural networks, transformers, or mechanistic interpretability."
           }
         ]
@@ -288,7 +498,7 @@
           {
             "signal": "focusedTitleAndText",
             "operator": "matchesRegex",
-            "value": "\\b(AI|AGI|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b",
+            "value": "\\b(AI|AGI|agent|Agent|ASI|LLMs?|GPT|ChatGPT|language models?|machine learning|deep learning|neural networks?|transformers?|mechanistic interpretability|model interpretability)\\b",
             "explanation": "The selected content mentions AI, a language model, or a technical AI topic such as machine learning, neural networks, transformers, or mechanistic interpretability."
           }
         ]
@@ -458,11 +668,6 @@
       "groups": [
         [
           {
-            "signal": "focusedIsPost",
-            "operator": "isTrue",
-            "value": null
-          },
-          {
             "signal": "hasPriorRejection",
             "operator": "isTrue",
             "value": null
@@ -567,7 +772,7 @@
           {
             "signal": "focusedPangramScore",
             "operator": "lt",
-            "value": 0.3
+            "value": 0.5
           }
         ]
       ]
@@ -579,7 +784,7 @@
           {
             "signal": "focusedPangramScore",
             "operator": "gt",
-            "value": 0.3
+            "value": 0.1
           }
         ]
       ]
@@ -641,6 +846,14 @@
             "operator": "isTrue",
             "value": null
           }
+        ],
+        [
+          {
+            "signal": "focusedPlaintext",
+            "operator": "matchesRegex",
+            "value": "\\(\\s*at\\s*\\)|\\[\\s*at\\s*\\]|\\s+at\\s+\\S+\\s+dot\\s+(?:com|org|net|edu)\\b|\\(\\s*dot\\s*\\)",
+            "explanation": "The selected content contains an obfuscated contact address such as \"name (at) example (dot) com\"."
+          }
         ]
       ]
     },
@@ -676,6 +889,19 @@
             "signal": "focusedTextLength",
             "operator": "lt",
             "value": 50
+          }
+        ],
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegex",
+            "value": "^\\s*untitled draft\\b",
+            "explanation": "The post still has the placeholder \"Untitled Draft\" title."
           }
         ]
       ]
@@ -815,6 +1041,81 @@
             "signal": "focusedBlankLineRatio",
             "operator": "gte",
             "value": 0.4
+          }
+        ]
+      ]
+    },
+    "Difficult to evaluate, with potential yellow flags.": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedTextLength",
+            "operator": "gte",
+            "value": 1000
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "hasAtLeastDistinctRegexMatches",
+            "value": "\\b(consciousness|qualia|noumen\\w*|ontolog\\w*|metaphysic\\w*|cosmolog\\w*|theodicy|souls?|spiritual\\w*|the divine|the bible|biblical|god|karma|enlighten\\w*|awakening|transcend\\w*|sentien\\w*|free will|the nature of (?:reality|mind|being|existence)|first principles?)\\b",
+            "minimumMatches": 1,
+            "explanation": "The selected content contains a metaphysical or spiritual term such as consciousness, qualia, ontology, the divine, karma, enlightenment, transcendence, or \"the nature of reality\"."
+          },
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "hasAtLeastDistinctRegexMatches",
+            "value": "\\b(entropy|entropic|thermodynamic\\w*|quantum|wave function|relativity|space-?time|frequenc(?:y|ies)|vibration\\w*|resonan\\w*|dimensions?|dimensional|geometr\\w+|field theory|great filter|holograph\\w*|fractal\\w*|attractor|substrate|topolog\\w+|physical laws?)\\b",
+            "minimumMatches": 2,
+            "explanation": "The selected content contains distinct physics-flavored terms such as entropy, quantum, wave function, spacetime, vibration, resonance, fractal, or holographic; repeated uses of one term count once."
+          }
+        ]
+      ]
+    },
+    "LLM (English translation)": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedTitleAndText",
+            "operator": "matchesRegex",
+            "value": "\\btranslat\\w+\\b[^.]{0,80}\\b(?:codex|chatgpt|gpt[-\\w]*|claude|gemini|grok|llm|deepl|machine translation|ai)\\b|\\b(?:codex|chatgpt|gpt[-\\w]*|claude|gemini|grok|an llm|the llm)\\b[^.]{0,80}\\btranslat\\w+",
+            "explanation": "The selected content says it was translated with an LLM or machine-translation tool, such as \"translated by Claude\" or \"ChatGPT translated this\"."
+          }
+        ]
+      ]
+    },
+    "No fiction/poetry from new users": {
+      "enabled": true,
+      "groups": [
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedPlaintext",
+            "operator": "matchesRegex",
+            "value": "^[\\s\\S]{0,500}?\\b(?:short stor(?:y|ies)|piece of fiction|work of fiction|writing (?:some |a bit of )?fiction|bit of fiction|fictional (?:story|account|narrative|scenario)|a poem|poems|poetry|this (?:story|tale|fable|parable)|a (?:tale|fable|parable|vignette)|narrative (?:expression|form))\\b",
+            "explanation": "The first 500 characters declare the piece to be fiction or poetry, such as \"a short story\", \"a poem\", or \"this fable\"."
+          }
+        ],
+        [
+          {
+            "signal": "focusedIsPost",
+            "operator": "isTrue",
+            "value": null
+          },
+          {
+            "signal": "focusedPlaintext",
+            "operator": "matchesRegexCaseSensitive",
+            "value": "[\"“][^\"”]{4,}[\"”]\\s*,?\\s*(?:he|she|they|I)\\s+(?:said|says|asked|asks|replied|whispered|murmured)\\b|,\\s*(?:he|she|they)\\s+(?:says|said|asked|replied)\\b",
+            "explanation": "The selected content contains quoted dialogue with a speaker attribution, such as \"...,\" she said."
           }
         ]
       ]

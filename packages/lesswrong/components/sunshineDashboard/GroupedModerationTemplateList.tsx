@@ -25,6 +25,7 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { isInTextInput } from './supermod/helpers';
 import { KEYSTROKE_GUTTER } from './supermod/constants';
 import type { TemplateType } from '@/lib/collections/moderationTemplates/constants';
+import { getHighlightRuleTemplateKey } from '@/lib/moderatorHighlights/highlightRuleTypes';
 
 const ModerationTemplatesListQuery = gql(`
   query multiModerationTemplateGroupedTemplateListQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -393,7 +394,7 @@ const DraggableTemplateItem = ({template, onTemplateClick, highlighted, selected
   );
 };
 
-const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateIds, insertedTemplateIds, selectedTemplateId}: {
+const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onTemplateClick, onRenameGroup, onHideTemplate, onAddTemplate, newTemplateForm, highlightedTemplateNames, insertedTemplateIds, selectedTemplateId}: {
   group: string,
   templatesInGroup: ModerationTemplateFragment[],
   expanded: boolean,
@@ -403,7 +404,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
   onHideTemplate: (template: ModerationTemplateFragment) => void,
   onAddTemplate: (group: string) => void,
   newTemplateForm: React.ReactNode,
-  highlightedTemplateIds?: Set<string>,
+  highlightedTemplateNames?: Set<string>,
   insertedTemplateIds?: Set<string>,
   selectedTemplateId: string | null,
 }) => {
@@ -468,7 +469,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
           key={template._id}
           template={template}
           onTemplateClick={onTemplateClick}
-          highlighted={!!highlightedTemplateIds?.has(template._id)}
+          highlighted={!!highlightedTemplateNames?.has(getHighlightRuleTemplateKey(template))}
           selected={template._id === selectedTemplateId}
           checked={insertedTemplateIds ? insertedTemplateIds.has(template._id) : undefined}
           onHideTemplate={onHideTemplate}
@@ -520,10 +521,10 @@ const HiddenTemplatesSection = ({hiddenTemplates, expanded, onToggleExpanded, on
  * presses ArrowDown on its last line; it opens and focuses the search with nothing
  * selected, so the next ArrowDown steps into the template list.
  */
-const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateIds, insertedTemplateIds, onlyHighlighted, onFocusComposer, focusSearchToken, active = true, onEscape }: {
+const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highlightedTemplateNames, insertedTemplateIds, onlyHighlighted, onFocusComposer, focusSearchToken, active = true, onEscape }: {
   collectionName: TemplateType,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
-  highlightedTemplateIds?: Set<string>,
+  highlightedTemplateNames?: Set<string>,
   // Templates whose text is currently in the composer above the list; when provided,
   // every row gets a checkbox reflecting membership
   insertedTemplateIds?: Set<string>,
@@ -652,7 +653,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   if (onlyHighlighted) {
     // Ordered by the same groups as the full list, so templates from one group stay adjacent.
     const highlightedTemplates = groupTemplatesByLabel(
-      templates.filter(template => highlightedTemplateIds?.has(template._id))
+      templates.filter(template => highlightedTemplateNames?.has(getHighlightRuleTemplateKey(template)))
     ).flatMap(([, templatesInGroup]) => templatesInGroup);
     if (highlightedTemplates.length === 0) return null;
     return <div className={classNames(classes.root, classes.onlyHighlightedList)}>
@@ -777,7 +778,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
               />
             </div>
           )}
-          highlightedTemplateIds={highlightedTemplateIds}
+          highlightedTemplateNames={highlightedTemplateNames}
           insertedTemplateIds={insertedTemplateIds}
           selectedTemplateId={searchOpen ? (selectedTemplate?._id ?? null) : null}
         />

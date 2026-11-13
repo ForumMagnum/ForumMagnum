@@ -339,11 +339,11 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
  * templates followed by a Reject button (Cmd+R) that stays disabled until the
  * draft has a reason.
  */
-const RejectContentPanel = ({ user, focusedContent, active, highlightedTemplateIds, showCollapsedActions, onRejectStart, onRejected, onRejectFailed, onEscape }: {
+const RejectContentPanel = ({ user, focusedContent, active, highlightedTemplateNames, showCollapsedActions, onRejectStart, onRejected, onRejectFailed, onEscape }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
   active: boolean,
-  highlightedTemplateIds: Set<string>,
+  highlightedTemplateNames: Set<string>,
   // False while another sidebar section is expanded: the collapsed view drops
   // its highlighted templates and Reject button, leaving just the header
   showCollapsedActions: boolean,
@@ -403,7 +403,7 @@ const RejectContentPanel = ({ user, focusedContent, active, highlightedTemplateI
       <GroupedModerationTemplateList
         collectionName="Rejections"
         onTemplateClick={(template) => toggleTemplateRef.current(template)}
-        highlightedTemplateIds={highlightedTemplateIds}
+        highlightedTemplateNames={highlightedTemplateNames}
         insertedTemplateIds={insertedTemplateIds}
         onlyHighlighted
         active={false}
@@ -431,7 +431,7 @@ const RejectContentPanel = ({ user, focusedContent, active, highlightedTemplateI
       <GroupedModerationTemplateList
         collectionName="Rejections"
         onTemplateClick={(template) => toggleTemplateRef.current(template)}
-        highlightedTemplateIds={highlightedTemplateIds}
+        highlightedTemplateNames={highlightedTemplateNames}
         insertedTemplateIds={insertedTemplateIds}
         focusSearchToken={templateSearchToken}
         active={active}

@@ -9652,7 +9652,6 @@ export type Query = {
   spotlights: Maybe<MultiSpotlightOutput>;
   subscription: Maybe<SingleSubscriptionOutput>;
   subscriptions: Maybe<MultiSubscriptionOutput>;
-  supermodHighlightRuleOverrides: Maybe<Scalars['JSON']['output']>;
   supermodQueueChanges: Array<SupermodQueueChange>;
   supermodQueueSnapshotTime: Scalars['Date']['output'];
   supermodQueueUsers: MultiUserOutput;
@@ -20259,11 +20258,6 @@ export type updateModeratorActionSupermodMutation = { __typename?: 'Mutation', u
       & ModeratorActionDisplay
     ) | null } | null };
 
-export type SupermodHighlightRuleOverridesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type SupermodHighlightRuleOverridesQuery = { __typename?: 'Query', supermodHighlightRuleOverrides: any | null };
-
 export type updateUserModerationKeyboardMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdateUserDataInput;
@@ -24130,7 +24124,6 @@ export const updateUserModeratorNotesDocument = _o1(_1,[_o11(_1015,_1016,_o3(_3,
 export const multiModerationTemplateRestrictAndNotifyModalQueryDocument = _o1(_1,[_o11(_1015,_1024,_o3(_3,"multiModerationTemplateRestrictAndNotifyModalQuery"),_1491,_1493),_235,_279,_489]) as unknown as DocumentNode<multiModerationTemplateRestrictAndNotifyModalQueryQuery, multiModerationTemplateRestrictAndNotifyModalQueryQueryVariables>;
 export const rejectContentAndRemoveFromQueueRestrictAndNotifyDocument = _o1(_1,[_o11(_1015,_1016,_o3(_3,"rejectContentAndRemoveFromQueueRestrictAndNotify"),[_1105,_1026,_1497,_1881,_o12(_1017,_1883,_1020)],_o5(_7,[_o10(_8,_1884,[_1147,_1122,_1121,_1885,_o8(_582,_1882,_1883)])]))]) as unknown as DocumentNode<rejectContentAndRemoveFromQueueRestrictAndNotifyMutation, rejectContentAndRemoveFromQueueRestrictAndNotifyMutationVariables>;
 export const updateModeratorActionSupermodDocument = _o1(_1,[_o11(_1015,_1016,_o3(_3,"updateModeratorActionSupermod"),_1839,_1841),_62,_393]) as unknown as DocumentNode<updateModeratorActionSupermodMutation, updateModeratorActionSupermodMutationVariables>;
-export const SupermodHighlightRuleOverridesDocument = _o1(_1,[_o17(_1015,_1024,_o3(_3,"SupermodHighlightRuleOverrides"),_o5(_7,[_o4(_8,_o3(_3,"supermodHighlightRuleOverrides"))]))]) as unknown as DocumentNode<SupermodHighlightRuleOverridesQuery, SupermodHighlightRuleOverridesQueryVariables>;
 export const updateUserModerationKeyboardDocument = _o1(_1,[_o11(_1015,_1016,_o3(_3,"updateUserModerationKeyboard"),_1224,_1827),_62,_393,_690,_709]) as unknown as DocumentNode<updateUserModerationKeyboardMutation, updateUserModerationKeyboardMutationVariables>;
 export const rejectContentAndRemoveFromQueueModerationKeyboardDocument = _o1(_1,[_o11(_1015,_1016,_o3(_3,"rejectContentAndRemoveFromQueueModerationKeyboard"),[_1105,_1026,_1497,_1881],_o5(_7,[_o10(_8,_1884,[_1147,_1122,_1121,_1885])]))]) as unknown as DocumentNode<rejectContentAndRemoveFromQueueModerationKeyboardMutation, rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables>;
 export const approveCurrentContentOnlyModerationKeyboardDocument = _o1(_1,[_o11(_1015,_1016,_o3(_3,"approveCurrentContentOnlyModerationKeyboard"),_1644,_o5(_7,[_o10(_8,_o3(_3,"approveUserCurrentContentOnly"),_1886)]))]) as unknown as DocumentNode<approveCurrentContentOnlyModerationKeyboardMutation, approveCurrentContentOnlyModerationKeyboardMutationVariables>;

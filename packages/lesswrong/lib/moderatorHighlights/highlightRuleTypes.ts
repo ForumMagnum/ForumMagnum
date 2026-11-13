@@ -1,7 +1,5 @@
 
 
-export const HIGHLIGHT_RULE_OVERRIDES_METADATA_NAME = 'supermodHighlightRuleOverrides';
-
 export const highlightRuleCategories = ['actions', 'messageTemplates', 'rejectionTemplates'] as const;
 
 export type HighlightRuleCategory = typeof highlightRuleCategories[number];
@@ -59,13 +57,8 @@ export interface HighlightRule {
   level2Groups?: HighlightCondition[][];
 }
 
+/** Template rules are keyed by trimmed template name, since template _ids differ between databases. */
 export type HighlightRuleOverrides = Record<HighlightRuleCategory, Record<string, HighlightRule>>;
-
-export interface HighlightRuleTemplateReference {
-  _id: string;
-  name: string;
-  collectionName: string;
-}
 
 export type ModeratorActionHighlightLevel = 1 | 2;
 
@@ -73,42 +66,8 @@ export function emptyHighlightRuleOverrides(): HighlightRuleOverrides {
   return { actions: {}, messageTemplates: {}, rejectionTemplates: {} };
 }
 
-function migrateLegacyTemplateRuleCategory(
-  rules: Record<string, HighlightRule>,
-  collectionName: string,
-  templates: HighlightRuleTemplateReference[],
-): Record<string, HighlightRule> {
-  const matchingTemplates = templates.filter(template => template.collectionName === collectionName);
-  const templateIds = new Set(matchingTemplates.map(template => template._id));
-  const templateIdsByLegacyName = new Map<string, string>();
-  for (const template of matchingTemplates) {
-    templateIdsByLegacyName.set(template.name, template._id);
-    templateIdsByLegacyName.set(template.name.trim(), template._id);
-  }
-
-  const migrated: Record<string, HighlightRule> = {};
-  for (const [key, rule] of Object.entries(rules)) {
-    if (!templateIds.has(key)) {
-      migrated[templateIdsByLegacyName.get(key) ?? key] = rule;
-    }
-  }
-
-  for (const [key, rule] of Object.entries(rules)) {
-    if (templateIds.has(key)) migrated[key] = rule;
-  }
-  return migrated;
-}
-
-/** Only rescues dev rows from the old name-keyed branch; safe to delete. */
-export function migrateLegacyTemplateRuleOverrideKeys(
-  overrides: HighlightRuleOverrides,
-  templates: HighlightRuleTemplateReference[],
-): HighlightRuleOverrides {
-  return {
-    actions: overrides.actions,
-    messageTemplates: migrateLegacyTemplateRuleCategory(overrides.messageTemplates, 'Messages', templates),
-    rejectionTemplates: migrateLegacyTemplateRuleCategory(overrides.rejectionTemplates, 'Rejections', templates),
-  };
+export function getHighlightRuleTemplateKey(template: { name: string }): string {
+  return template.name.trim();
 }
 
 export function isNumericHighlightOperator(operator: HighlightConditionOperator): operator is NumericHighlightOperator {

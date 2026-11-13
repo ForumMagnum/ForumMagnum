@@ -47,7 +47,7 @@ import { reviewWinnerGraphQLQueries, reviewWinnerGraphQLTypeDefs } from '@/serve
 import { importUrlAsDraftPostGqlMutation, importUrlAsDraftPostTypeDefs } from '@/server/resolvers/importUrlAsDraftPost';
 import { revisionResolversGraphQLQueries, revisionResolversGraphQLMutations, revisionResolversGraphQLTypeDefs } from '@/server/resolvers/revisionResolvers';
 import { moderationGqlMutations, moderationGqlQueries, moderationGqlTypeDefs } from '@/server/resolvers/moderationResolvers';
-import { supermodHighlightRuleGqlMutations, supermodHighlightRuleGqlQueries, supermodHighlightRuleGqlTypeDefs } from '@/server/resolvers/supermodHighlightRuleResolvers';
+import { supermodHighlightRuleGqlMutations, supermodHighlightRuleGqlTypeDefs } from '@/server/resolvers/supermodHighlightRuleResolvers';
 import { rejectionReviewTypeDefs, rejectionReviewQueries } from "@/server/resolvers/rejectionReviewResolvers";
 import { multiDocumentMutations, multiDocumentTypeDefs } from '@/server/resolvers/multiDocumentResolvers';
 import { spotlightGqlMutations, spotlightGqlQueries, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
@@ -492,7 +492,6 @@ const getResolvers = () => ({
     ...reviewWinnerGraphQLQueries,  
     ...revisionResolversGraphQLQueries,
     ...moderationGqlQueries,
-    ...supermodHighlightRuleGqlQueries,
     ...rejectionReviewQueries,
     ...tagResolversGraphQLQueries,
     ...cronGraphQLQueries,

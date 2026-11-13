@@ -3,7 +3,7 @@ import type { ContentItem } from "./helpers";
 import { highlightRuleMatches, resolveHighlightRules } from "./declarativeHighlightRules";
 import type { HighlightSignalContext } from "./highlightSignals";
 
-// Template rules live entirely in the database; there are no defaults in code.
+// Template rules live entirely in highlightRules.json, keyed by template name; there are no defaults in code.
 export interface TemplateHighlightContext {
   user: SunshineUsersList;
   moderatorActions: ModeratorActionDisplay[];
@@ -27,17 +27,17 @@ function addMatchingRules(
   rules: Record<string, HighlightRule>,
   signalContext: HighlightSignalContext,
 ) {
-  for (const [templateId, rule] of Object.entries(rules)) {
+  for (const [templateName, rule] of Object.entries(rules)) {
     try {
-      if (highlightRuleMatches(rule, signalContext)) highlighted.add(templateId);
+      if (highlightRuleMatches(rule, signalContext)) highlighted.add(templateName);
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error(`Error evaluating highlight rule for template ${templateId}:`, e);
+      console.error(`Error evaluating highlight rule for template "${templateName}":`, e);
     }
   }
 }
 
-export function getHighlightedRejectionTemplateIds(
+export function getHighlightedRejectionTemplateNames(
   focusedContent: ContentItem | null | undefined,
   ctx: TemplateHighlightContext,
 ): Set<string> {
@@ -48,7 +48,7 @@ export function getHighlightedRejectionTemplateIds(
   return highlighted;
 }
 
-export function getHighlightedTemplateIds(
+export function getHighlightedTemplateNames(
   ctx: Omit<TemplateHighlightContext, 'posts' | 'comments'>,
   posts: SunshinePostsList[],
   comments: SunshineCommentsList[]

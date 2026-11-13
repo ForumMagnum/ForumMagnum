@@ -8,7 +8,7 @@ import {
   stripHtml,
 } from '@/components/sunshineDashboard/supermod/contentTextHelpers';
 import { HIGHLIGHT_SIGNALS } from '@/components/sunshineDashboard/supermod/highlightSignals';
-import highlightRuleSeed from '@/server/moderatorHighlights/highlightRuleSeed.json';
+import highlightRulesJson from '@/lib/moderatorHighlights/highlightRules.json';
 import {
   isCaseSensitiveRegexHighlightOperator,
   isItemCountRegexHighlightOperator,
@@ -19,7 +19,7 @@ import {
   type HighlightRule,
 } from '@/lib/moderatorHighlights/highlightRuleTypes';
 
-const seed = parseHighlightRuleOverrides({ ...highlightRuleSeed, actions: {} });
+const seed = parseHighlightRuleOverrides({ ...highlightRulesJson, actions: {} });
 
 function allConditions(rules: Record<string, HighlightRule>): HighlightCondition[] {
   return Object.values(rules).flatMap(rule => [...rule.groups, ...(rule.level2Groups ?? [])].flat());

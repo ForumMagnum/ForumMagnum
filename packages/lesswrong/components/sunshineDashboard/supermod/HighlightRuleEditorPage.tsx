@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import classNames from 'classnames';
 import jsonStringifyDeterministic from 'json-stringify-deterministic';
@@ -12,15 +12,16 @@ import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import ErrorAccessDenied from '@/components/common/ErrorAccessDenied';
 import SingleColumnSection from '@/components/common/SingleColumnSection';
 import SectionTitle from '@/components/common/SectionTitle';
-import Loading from '@/components/vulcan-core/Loading';
 import { useSubscribedLocation } from '@/lib/routeUtil';
 import {
-  emptyHighlightRuleOverrides,
+  getHighlightRuleTemplateKey,
   parseHighlightRuleOverrides,
+  serializeHighlightRuleOverrides,
   type HighlightRule,
   type HighlightRuleCategory,
   type HighlightRuleOverrides,
 } from '@/lib/moderatorHighlights/highlightRuleTypes';
+import { HIGHLIGHT_RULES_FILE_PATH, highlightRuleOverrides } from '@/lib/moderatorHighlights/highlightRules';
 import {
   DEFAULT_ACTION_HIGHLIGHT_RULES,
   highlightableModeratorActions,
@@ -28,7 +29,6 @@ import {
   moderatorActionHighlightLabels,
 } from './actionHighlightRules';
 import HighlightRuleEditor, { type SignalScope } from './HighlightRuleEditor';
-import { SupermodHighlightRuleOverridesQuery } from './useHighlightRuleOverrides';
 
 const SetSupermodHighlightRuleOverridesMutation = gql(`
   mutation setSupermodHighlightRuleOverrides($overrides: JSON!) {
@@ -126,18 +126,18 @@ function getTemplateEntries(
   templates: HighlightRuleTemplate[],
   templatesLoaded: boolean,
 ): RuleSectionEntry[] {
-  const templatesById = new Map(templates.map(template => [template._id, template]));
-  const templateIds = [...new Set([
-    ...templates.map(template => template._id),
+  const templatesByKey = new Map(templates.map(template => [getHighlightRuleTemplateKey(template), template]));
+  const templateKeys = [...new Set([
+    ...templatesByKey.keys(),
     ...Object.keys(categoryRules),
   ])];
-  return templateIds.map(templateId => {
-    const template = templatesById.get(templateId);
+  return templateKeys.map(templateKey => {
+    const template = templatesByKey.get(templateKey);
     return {
-      key: templateId,
-      title: template?.name.trim() ?? `Unknown template (${templateId})`,
-      anchor: templateId,
-      warning: templatesLoaded && !template ? "No template with this ID" : undefined,
+      key: templateKey,
+      title: templateKey,
+      anchor: templateKey,
+      warning: templatesLoaded && !template ? "No template with this name" : undefined,
     };
   });
 }
@@ -171,15 +171,6 @@ function withRulesFirst(
   hasRule: (key: string) => boolean,
 ): RuleSectionEntry[] {
   return [...entries.filter(entry => hasRule(entry.key)), ...entries.filter(entry => !hasRule(entry.key))];
-}
-
-function parseOverridesOrEmpty(value: unknown): HighlightRuleOverrides {
-  if (!value) return emptyHighlightRuleOverrides();
-  try {
-    return parseHighlightRuleOverrides(value);
-  } catch {
-    return emptyHighlightRuleOverrides();
-  }
 }
 
 const RuleSection = ({category, defaults, entries, scope, supportsLevel2, collapsible, expandedAnchor, overrides, onChange}: {
@@ -220,7 +211,6 @@ const HighlightRuleEditorPage = () => {
   const canEdit = userIsAdminOrMod(currentUser);
   const { hash } = useSubscribedLocation();
 
-  const { data, loading, refetch } = useQuery(SupermodHighlightRuleOverridesQuery, { ssr: false, skip: !canEdit });
   const { data: messageTemplateData } = useQuery(ModerationTemplatesForHighlightRulesQuery, {
     variables: { selector: { moderationTemplatesList: { collectionName: 'Messages' } }, limit: 200 },
     ssr: false,
@@ -234,24 +224,31 @@ const HighlightRuleEditorPage = () => {
   const [saveOverrides, { loading: saving, error: saveError }] = useMutation(SetSupermodHighlightRuleOverridesMutation);
 
   const [draft, setDraft] = useState<HighlightRuleOverrides | null>(null);
-  const savedOverrides = useMemo(() => parseOverridesOrEmpty(data?.supermodHighlightRuleOverrides), [data]);
+  const [savedOverrides, setSavedOverrides] = useState<HighlightRuleOverrides>(highlightRuleOverrides);
+  const [copied, setCopied] = useState(false);
   const overrides = draft ?? savedOverrides;
   const isDirty = jsonStringifyDeterministic(overrides) !== jsonStringifyDeterministic(savedOverrides);
 
   const messageTemplates = messageTemplateData?.moderationTemplates?.results ?? [];
   const rejectionTemplates = rejectionTemplateData?.moderationTemplates?.results ?? [];
-  const targetTemplateId = hash.startsWith('#') ? hash.slice(1) : null;
+  const targetTemplateKey = hash.startsWith('#') ? decodeURIComponent(hash.slice(1)) : null;
 
   useEffect(() => {
-    if (!targetTemplateId) return;
-    document.getElementById(targetTemplateId)?.scrollIntoView({ block: 'center' });
-  }, [targetTemplateId, messageTemplateData, rejectionTemplateData]);
+    if (!targetTemplateKey) return;
+    document.getElementById(targetTemplateKey)?.scrollIntoView({ block: 'center' });
+  }, [targetTemplateKey, messageTemplateData, rejectionTemplateData]);
 
   const onSave = useCallback(async () => {
-    await saveOverrides({ variables: { overrides } });
-    await refetch();
+    const { data } = await saveOverrides({ variables: { overrides } });
+    if (!data) return;
+    setSavedOverrides(parseHighlightRuleOverrides(data.setSupermodHighlightRuleOverrides));
     setDraft(null);
-  }, [saveOverrides, overrides, refetch]);
+  }, [saveOverrides, overrides]);
+
+  const onCopyJson = useCallback(async () => {
+    await navigator.clipboard.writeText(JSON.stringify(serializeHighlightRuleOverrides(overrides), null, 2) + "\n");
+    setCopied(true);
+  }, [overrides]);
 
   if (!canEdit) {
     return <ErrorAccessDenied />;
@@ -264,23 +261,25 @@ const HighlightRuleEditorPage = () => {
       A rule highlights when every condition in a set holds; extra sets are alternatives (OR).
       A condition on a value the user doesn&apos;t have — an LLM score for content that was never scored,
       say — never passes. Text conditions use JavaScript regular expressions; the editor shows
-      whether matching ignores case and can require several distinct matches. Changes here apply
-      to the whole moderation team.
+      whether matching ignores case and can require several distinct matches. Rules are stored
+      in <code>{HIGHLIGHT_RULES_FILE_PATH}</code> and ship with the code: saving writes that file on a
+      local dev server; elsewhere, copy the JSON into it and commit.
     </div>
 
     <div className={classes.saveBar}>
       <button type="button" className={classes.saveButton} disabled={!isDirty || saving} onClick={onSave}>
-        {saving ? "Saving…" : "Save changes"}
+        {saving ? "Saving…" : "Save to file"}
       </button>
       <button type="button" className={classes.discardButton} disabled={!isDirty || saving} onClick={() => setDraft(null)}>
         Discard changes
+      </button>
+      <button type="button" className={classes.discardButton} onClick={onCopyJson}>
+        {copied ? "Copied" : "Copy JSON"}
       </button>
       <span className={classNames(classes.saveStatus, { [classes.errorStatus]: !!saveError })}>
         {saveError ? saveError.message : (isDirty ? "Unsaved changes" : "Up to date")}
       </span>
     </div>
-
-    {loading && <Loading />}
 
     <SectionTitle title="Moderator Actions" />
     <RuleSection
@@ -301,7 +300,7 @@ const HighlightRuleEditorPage = () => {
       entries={getTemplateEntries(overrides.messageTemplates, messageTemplates, !!messageTemplateData)}
       scope="user"
       collapsible
-      expandedAnchor={targetTemplateId}
+      expandedAnchor={targetTemplateKey}
       overrides={overrides}
       onChange={setDraft}
     />
@@ -313,7 +312,7 @@ const HighlightRuleEditorPage = () => {
       entries={getTemplateEntries(overrides.rejectionTemplates, rejectionTemplates, !!rejectionTemplateData)}
       scope="all"
       collapsible
-      expandedAnchor={targetTemplateId}
+      expandedAnchor={targetTemplateKey}
       overrides={overrides}
       onChange={setDraft}
     />

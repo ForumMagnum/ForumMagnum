@@ -1,11 +1,10 @@
 import { DEFAULT_ACTION_HIGHLIGHT_RULES } from '@/components/sunshineDashboard/supermod/actionHighlightRules';
 import { ALWAYS } from '@/components/sunshineDashboard/supermod/declarativeHighlightRules';
-import highlightRuleSeed from '@/server/moderatorHighlights/highlightRuleSeed.json';
+import highlightRulesJson from '@/lib/moderatorHighlights/highlightRules.json';
 import {
   isCaseSensitiveRegexHighlightOperator,
   isDistinctRegexHighlightOperator,
   isItemCountRegexHighlightOperator,
-  migrateLegacyTemplateRuleOverrideKeys,
   parseHighlightRuleOverrides,
   regexHighlightOperators,
   serializeHighlightRuleOverrides,
@@ -23,9 +22,9 @@ describe('highlight rule serialization format', () => {
     expect(() => parseHighlightRuleOverrides(serializeHighlightRuleOverrides(overrides))).not.toThrow();
   });
 
-  // The seed is only read by a migration, so nothing else would reject a bad rule.
-  it('accepts every rule in the database seed', () => {
-    expect(() => parseHighlightRuleOverrides({ ...highlightRuleSeed, actions: {} })).not.toThrow();
+  // The rules file is parsed at import time, so a bad rule would break the moderation inbox.
+  it('accepts every rule in the rules file', () => {
+    expect(() => parseHighlightRuleOverrides(highlightRulesJson)).not.toThrow();
   });
 
   // Both list fields explicitly, so a new one is dropped unless both change.
@@ -87,44 +86,5 @@ describe('regex operator classification', () => {
         itemCount: isItemCountRegexHighlightOperator(operator),
       }).toEqual(expected);
     }
-  });
-});
-
-describe('seeding the database from template names', () => {
-  const templates = [
-    { _id: 'templateIdA', name: 'Lotsa DMs', collectionName: 'Messages' },
-    { _id: 'templateIdB', name: 'No LLM', collectionName: 'Rejections' },
-  ];
-  const rule = { enabled: true, groups: [] };
-
-  // This is how the seed migration turns name-keyed rules into id-keyed ones.
-  it('re-keys a name-keyed rule onto the template id', () => {
-    const migrated = migrateLegacyTemplateRuleOverrideKeys({
-      actions: {},
-      messageTemplates: { 'Lotsa DMs': rule },
-      rejectionTemplates: {},
-    }, templates);
-    expect(Object.keys(migrated.messageTemplates)).toEqual(['templateIdA']);
-  });
-
-  // The migration must not overwrite a rule a moderator has already edited.
-  it('keeps an id-keyed rule when a name-keyed one maps to the same template', () => {
-    const idKeyed = { enabled: false, groups: [] };
-    const migrated = migrateLegacyTemplateRuleOverrideKeys({
-      actions: {},
-      messageTemplates: { 'Lotsa DMs': rule, templateIdA: idKeyed },
-      rejectionTemplates: {},
-    }, templates);
-    expect(migrated.messageTemplates.templateIdA).toEqual(idKeyed);
-  });
-
-  // A name that matches nothing stays put, and the migration drops it.
-  it('leaves an unmatched name alone', () => {
-    const migrated = migrateLegacyTemplateRuleOverrideKeys({
-      actions: {},
-      messageTemplates: { 'No Such Template': rule },
-      rejectionTemplates: {},
-    }, templates);
-    expect(Object.keys(migrated.messageTemplates)).toEqual(['No Such Template']);
   });
 });

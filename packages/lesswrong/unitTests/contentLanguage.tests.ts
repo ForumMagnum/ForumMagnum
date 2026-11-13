@@ -1,5 +1,5 @@
 import { getNonEnglishProseLetterCount, getNonEnglishProseRatio } from '@/components/sunshineDashboard/supermod/contentLanguage';
-import highlightRuleSeed from '@/server/moderatorHighlights/highlightRuleSeed.json';
+import highlightRulesJson from '@/lib/moderatorHighlights/highlightRules.json';
 
 const turkishComment = 'Aklıma birşey takıldı ciddi soruyorum ben bu siteyi yapay zeka sayesinde öğrendim buranın sorgulayıcı insanların tartışarak ufkunu genişleteceğimi düşündüm madem bu kadar konu merak ediyoruz tartışıyoruz insanlar dinlerini sorguluyor kendine doğru geliyor bu hintli içinde bir Hıristiyan içinde insanlar bu kadar doğruya iten ve tamam bu doğru diyer konuları araştırıyım diyorlar neden diyer dinleri okuyunca mantıklı gelmiyor senin hıristiyanlığa bağlayan şey ne?';
 const english = 'I think this is a very interesting question, but I would like to see more evidence before reaching a conclusion.';
@@ -27,7 +27,7 @@ describe('non-English rejection highlight', () => {
   });
 
   test('the shipped English rule uses language detection instead of alphabet detection', () => {
-    const rule = highlightRuleSeed.rejectionTemplates['We only accept English-language content'];
+    const rule = highlightRulesJson.rejectionTemplates['We only accept English-language content'];
     expect(rule).toEqual({
       enabled: true,
       groups: [
@@ -105,7 +105,7 @@ describe('non-English rejection highlight', () => {
   ])('counts substantial %s prose despite a longer English translation', (_language, text) => {
     const foreignSection = text.repeat(10);
     const translation = english.repeat(60);
-    const rule = highlightRuleSeed.rejectionTemplates['We only accept English-language content'];
+    const rule = highlightRulesJson.rejectionTemplates['We only accept English-language content'];
     for (const html of [
       `<p>${foreignSection}</p><p>${translation}</p>`,
       `<p>${translation}</p><p>${foreignSection}</p>`,

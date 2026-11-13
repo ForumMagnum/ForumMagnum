@@ -77,7 +77,6 @@ interface Query {
   supermodQueueSnapshotTime: Date;
   supermodQueueUsers: MultiUserOutput;
   moderationTemplateUsageCounts: Array<ModerationTemplateUsageCount>;
-  supermodHighlightRuleOverrides: any;
   rejectionReview: RejectionReview;
   currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;

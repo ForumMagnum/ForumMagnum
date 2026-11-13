@@ -10,6 +10,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import ContentStyles from '../common/ContentStyles';
 import ForumIcon from '../common/ForumIcon';
 import type { DragHandleProps } from '../form-components/sortableList';
+import { getHighlightRuleTemplateKey } from '@/lib/moderatorHighlights/highlightRuleTypes';
 
 /** Side length of the row's checkbox. Exported so lists that align these rows against
  * other controls can centre the checkbox within a wider gutter. */
@@ -254,7 +255,7 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
           <LWTooltip title="Edit autosuggest rules" placement="top">
             <Link
               className={classes.actionButton}
-              to={`/admin/supermodHighlights#${template._id}`}
+              to={`/admin/supermodHighlights#${encodeURIComponent(getHighlightRuleTemplateKey(template))}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}

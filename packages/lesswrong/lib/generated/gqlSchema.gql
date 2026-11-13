@@ -1325,10 +1325,6 @@ extend type Mutation {
   recordModerationTemplatesUsed(templateIds: [String!]!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
 }
 
-extend type Query {
-  supermodHighlightRuleOverrides: JSON
-}
-
 extend type Mutation {
   setSupermodHighlightRuleOverrides(overrides: JSON!): JSON!
 }
