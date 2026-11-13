@@ -12,7 +12,8 @@ import Loading from "../vulcan-core/Loading";
 import FeedItemWrapper from "../ultraFeed/FeedItemWrapper";
 import UltraFeedPostItem from "../ultraFeed/UltraFeedPostItem";
 import UltraFeedThreadItem from "../ultraFeed/UltraFeedThreadItem";
-import { useQuery } from "@/lib/crud/useQuery";
+import LoadMore from "../common/LoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const BookmarksFeedItemFragmentMultiQuery = gql(`
@@ -30,14 +31,14 @@ const BookmarksFeed = ({ hideTitle = false }: { hideTitle?: boolean }) => {
   const currentUser = useCurrentUser();
   const { settings } = useUltraFeedSettings();
 
-  const { data, error, loading } = useQuery(BookmarksFeedItemFragmentMultiQuery, {
+  const { data, error, loading, loadMoreProps } = useQueryWithLoadMore(BookmarksFeedItemFragmentMultiQuery, {
     variables: {
       selector: { myBookmarks: {} },
       limit: 20,
       enableTotal: false,
     },
     skip: !currentUser,
-    notifyOnNetworkStatusChange: true,
+    itemsPerPage: 20,
   });
 
   const bookmarks = data?.bookmarks?.results ?? [];
@@ -127,6 +128,7 @@ const BookmarksFeed = ({ hideTitle = false }: { hideTitle?: boolean }) => {
         {bookmarks.length === 0 && !loading && (
           <p>No bookmarks yet.</p>
         )}
+        <LoadMore {...loadMoreProps} />
       </SingleColumnSection>
       </OverflowNavObserverProvider>
       </UltraFeedObserverProvider>
