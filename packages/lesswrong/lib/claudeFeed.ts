@@ -2,9 +2,9 @@ import { z } from "zod";
 
 export const claudeFeedItemTypes = ["post", "comment", "wiki"] as const;
 export const claudeFeedModelIds = [
-  "anthropic/claude-haiku-4.5",
-  "anthropic/claude-sonnet-5",
-  "anthropic/claude-opus-5",
+  "anthropic/claude-haiku-5.5",
+  "anthropic/claude-sonnet-5.5",
+  "anthropic/claude-opus-5.5",
 ] as const;
 
 export type ClaudeFeedItemType = typeof claudeFeedItemTypes[number];
@@ -24,27 +24,27 @@ interface ClaudeFeedUsageInput {
 }
 
 export const claudeFeedModelConfigs: Record<ClaudeFeedModelId, ClaudeFeedModelConfig> = {
-  "anthropic/claude-haiku-4.5": {
-    label: "Claude Haiku 4.5 — fastest",
-    shortLabel: "Haiku 4.5",
-    inputUsdPerMillionTokens: 1,
-    outputUsdPerMillionTokens: 5,
+  "anthropic/claude-haiku-5.5": {
+    label: "Claude Haiku 5.5 — fastest",
+    shortLabel: "Haiku 5.5",
+    inputUsdPerMillionTokens: 0.1,
+    outputUsdPerMillionTokens: 0.5,
   },
-  "anthropic/claude-sonnet-5": {
-    label: "Claude Sonnet 5 — balanced",
-    shortLabel: "Sonnet 5",
+  "anthropic/claude-sonnet-5.5": {
+    label: "Claude Sonnet 5.5 — balanced",
+    shortLabel: "Sonnet 5.5",
     inputUsdPerMillionTokens: 2,
     outputUsdPerMillionTokens: 10,
   },
-  "anthropic/claude-opus-5": {
-    label: "Claude Opus 5 — strongest",
-    shortLabel: "Opus 5",
-    inputUsdPerMillionTokens: 5,
-    outputUsdPerMillionTokens: 25,
+  "anthropic/claude-opus-5.5": {
+    label: "Claude Opus 5.5 — strongest",
+    shortLabel: "Opus 5.5",
+    inputUsdPerMillionTokens: 4,
+    outputUsdPerMillionTokens: 20,
   },
 };
 
-export const defaultClaudeFeedModel: ClaudeFeedModelId = "anthropic/claude-sonnet-5";
+export const defaultClaudeFeedModel: ClaudeFeedModelId = "anthropic/claude-sonnet-5.5";
 
 export const claudeFeedRequestSchema = z.object({
   prompt: z.string().trim().min(3).max(1_000),

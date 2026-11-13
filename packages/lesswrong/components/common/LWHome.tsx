@@ -16,15 +16,39 @@ import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import SingleColumnSection from "./SingleColumnSection";
 import { DismissibleSpotlightItemSuspense } from "@/components/spotlights/DismissibleSpotlightItem";
+import QuickTakesSection from "../quickTakes/QuickTakesSection";
+import LWHomePosts from "./LWHomePosts";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import ErrorBoundary from './ErrorBoundary';
+import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
 import ClaudeFrontpageFeed from './ClaudeFrontpageFeed';
+import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
+import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, sidenotesHiddenBreakpoint } from '../posts/PostsPage/constants';
+
+import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
 import { INKHAVEN_RESIDENCY_3_END, INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID, INKHAVEN_RESIDENCY_3_START } from '../seasonal/Inkhaven2026Banner';
 import PetrovStoryMobileBanner from '../seasonal/petrovDay/petrov-day-story/PetrovStoryMobileBanner';
 import { useIsPetrovDayRitualActive } from '../seasonal/petrovDay/petrov-day-story/useIsPetrovDayRitualActive';
 
-const styles = defineStyles("LWHome", () => ({
+const styles = defineStyles("LWHome", (theme: ThemeType) => ({
+  feedSections: {
+    position: "relative",
+  },
+  sideItems: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: "100%",
+    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+    [sidenotesHiddenBreakpoint(theme)]: {
+      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+    },
+    [theme.breakpoints.down('xs')]: {
+      width: RIGHT_COLUMN_WIDTH_XS,
+    },
+  },
   desktopSpotlight: {
     ['@media(max-width: 1199.95px)']: {
       display: "none",
@@ -103,11 +127,28 @@ const LWHome = () => {
           />
         </SingleColumnSection>}
         {petrovDayRitualActive && <PetrovStoryMobileBanner />}
-        <AnalyticsInViewTracker eventProps={{inViewType: "postsFeed"}} observerProps={{threshold:[0, 0.5, 1]}}>
-          <SingleColumnSection>
-            <ClaudeFrontpageFeed/>
-          </SingleColumnSection>
-        </AnalyticsInViewTracker>
+        <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
+          <IsReturningVisitorContextProvider>
+            <LWHomePosts>
+              <SideItemsContainer>
+                <div className={classes.feedSections}>
+                  <div className={classes.sideItems}>
+                    <SideItemsSidebar />
+                  </div>
+                  <QuickTakesSection />
+
+                  <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
+                    <SuspenseWrapper name="ClaudeFrontpageFeed">
+                      <ErrorBoundary fallback={<UltraFeedErrorFallback />}>
+                        <ClaudeFrontpageFeed/>
+                      </ErrorBoundary>
+                    </SuspenseWrapper>
+                  </AnalyticsInViewTracker>
+                </div>
+              </SideItemsContainer>
+            </LWHomePosts>
+          </IsReturningVisitorContextProvider>
+        </SuspenseWrapper>
       </AnalyticsContext>
     </SuspenseWrapper>
   )
@@ -129,3 +170,4 @@ const UpdateLastVisitCookie = () => {
 export default registerComponent('LWHome', LWHome, {
   areEqual: "auto",
 });
+
