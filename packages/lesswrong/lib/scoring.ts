@@ -43,7 +43,18 @@ type TimeDecayExprProps = {
   overrideActivityFactor?: number
 }
 
-export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, visitorActivity: DbUserActivity|null) => {
+export interface TimeDecayParams {
+  ageOffsetHours: number
+  exponent: number
+  activityFactor: number|null
+}
+
+export interface ScoreTerm {
+  label: string
+  expr: AnyBecauseHard
+}
+
+export const getFrontpageTimeDecayParams = (props: TimeDecayExprProps, visitorActivity: DbUserActivity|null): TimeDecayParams => {
   const {
     startingAgeHours,
     decayFactorSlowest,
@@ -70,44 +81,32 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, visitorActivit
     decayFactorFastest
   );
 
-  const ageInHours = {
-    $divide: [
-      {
-        $subtract: [
-          new Date(),
-          "$postedAt", // Age in miliseconds
-        ],
-      },
-      60 * 60 * 1000,
-    ],
-  };
-
-  return { $pow: [{ $add: [ageInHours, startingAgeHours] }, timeDecayFactor] };
+  return { ageOffsetHours: startingAgeHours, exponent: timeDecayFactor, activityFactor };
 }
 
 // SCORE_BIAS is used in updateScores.ts which is used for all votable documents, this here is used for frontpage posts only. SCORE_BIAS is weirdly name. 
 // It is just adding to the age of the post to make the score decay faster, preventing low karma posts getting on the frontpage for very long.
 const getAgeOffset = (forumType: ForumTypeString) => forumType === 'LessWrong' ? 6 : SCORE_BIAS
 
-export const timeDecayExpr = (forumType: ForumTypeString) => {
-  return {$pow: [
-    {$add: [
-      {$divide: [
-        {$subtract: [
-          new Date(), '$postedAt' // Age in miliseconds
-        ]},
-        60 * 60 * 1000
-      ] }, // Age in hours
-      getAgeOffset(forumType)
-    ]},
-    TIME_DECAY_FACTOR
-  ]}
-}
+export const getStandardTimeDecayParams = (forumType: ForumTypeString): TimeDecayParams => ({
+  ageOffsetHours: getAgeOffset(forumType),
+  exponent: TIME_DECAY_FACTOR,
+  activityFactor: null,
+});
 
-export const postScoreModifiers = () => {
-  return [
-    {$cond: {if: "$frontpageDate", then: FRONTPAGE_BONUS, else: 0}},
-    {$cond: {if: "$curatedDate", then: CURATED_BONUS, else: 0}}
-  ];
-};
+export const postAgeInHoursExpr = () => ({
+  $divide: [
+    { $subtract: [new Date(), "$postedAt"] },
+    60 * 60 * 1000,
+  ],
+});
+
+export const timeDecayExpr = ({ ageOffsetHours, exponent }: TimeDecayParams) => ({
+  $pow: [{ $add: [postAgeInHoursExpr(), ageOffsetHours] }, exponent],
+});
+
+export const postScoreModifiers = (): ScoreTerm[] => [
+  { label: "Frontpage bonus", expr: {$cond: {if: "$frontpageDate", then: FRONTPAGE_BONUS, else: 0}} },
+  { label: "Curated bonus", expr: {$cond: {if: "$curatedDate", then: CURATED_BONUS, else: 0}} },
+];
 

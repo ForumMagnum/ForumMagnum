@@ -3,7 +3,7 @@ import { ConversationsViews } from '@/lib/collections/conversations/views';
 import { PostsViews } from '@/lib/collections/posts/views';
 import { SequencesViews } from '@/lib/collections/sequences/views';
 import { forumTypeSetting } from '@/lib/forumTypeUtils';
-import { SCORE_BIAS, timeDecayExpr } from '@/lib/scoring';
+import { SCORE_BIAS, getStandardTimeDecayParams } from '@/lib/scoring';
 import { getDefaultViewSelector, viewTermsToQuery } from '@/lib/utils/viewUtils';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 
@@ -73,7 +73,7 @@ describe('forum-specific views', () => {
       throw new Error('Scoring must use the supplied forum type');
     });
 
-    expect(timeDecayExpr('LessWrong')).toMatchObject({ $pow: [{ $add: [expect.anything(), 6] }, expect.any(Number)] });
-    expect(timeDecayExpr('AlignmentForum')).toMatchObject({ $pow: [{ $add: [expect.anything(), SCORE_BIAS] }, expect.any(Number)] });
+    expect(getStandardTimeDecayParams('LessWrong').ageOffsetHours).toBe(6);
+    expect(getStandardTimeDecayParams('AlignmentForum').ageOffsetHours).toBe(SCORE_BIAS);
   });
 });

@@ -2475,6 +2475,24 @@ type FrontpageClassification = {
   probability: Scalars['Float']['output'];
 };
 
+type FrontpagePostScoreBreakdown = {
+  __typename?: 'FrontpagePostScoreBreakdown';
+  activityFactor?: Maybe<Scalars['Float']['output']>;
+  additiveTerms: Array<FrontpageScoreTerm>;
+  ageHours: Scalars['Float']['output'];
+  ageOffsetHours: Scalars['Float']['output'];
+  decayDivisor: Scalars['Float']['output'];
+  decayExponent: Scalars['Float']['output'];
+  filteredScore: Scalars['Float']['output'];
+  multiplicativeTerms: Array<FrontpageScoreTerm>;
+};
+
+type FrontpageScoreTerm = {
+  __typename?: 'FrontpageScoreTerm';
+  label: Scalars['String']['output'];
+  value: Scalars['Float']['output'];
+};
+
 type GivingSeasonHeart = {
   __typename?: 'GivingSeasonHeart';
   displayName: Scalars['String']['output'];
@@ -6476,6 +6494,7 @@ type PostsLegacyIdPostInput = {
 type PostsMagicInput = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   after?: InputMaybe<Scalars['String']['input']>;
+  algoActivityFactor?: InputMaybe<Scalars['Float']['input']>;
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   curatedAfter?: InputMaybe<Scalars['String']['input']>;
@@ -7543,6 +7562,7 @@ type Query = {
   CurationCandidatePosts?: Maybe<CurationCandidatePostsResult>;
   ElicitBlockData?: Maybe<ElicitBlockData>;
   EmailPreview?: Maybe<Array<Maybe<EmailPreview>>>;
+  FrontpagePostScoreBreakdown?: Maybe<FrontpagePostScoreBreakdown>;
   GetAllReviewWinners: Array<Post>;
   GetRandomUser?: Maybe<User>;
   GetUserBySlug?: Maybe<User>;
@@ -7818,6 +7838,13 @@ type QueryElicitBlockDataArgs = {
 type QueryEmailPreviewArgs = {
   notificationIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   postId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type QueryFrontpagePostScoreBreakdownArgs = {
+  activityFactorOverride?: InputMaybe<Scalars['Float']['input']>;
+  filterSettings: Scalars['JSON']['input'];
+  postId: Scalars['String']['input'];
 };
 
 
@@ -18060,6 +18087,24 @@ type PostsItemWrapperQueryVariables = Exact<{
 
 
 type PostsItemWrapperQuery = PostsItemWrapperQuery_Query;
+
+type FrontpagePostScoreBreakdownQuery_FrontpagePostScoreBreakdown_FrontpagePostScoreBreakdown_additiveTerms_FrontpageScoreTerm = { __typename?: 'FrontpageScoreTerm', label: string, value: number };
+
+type FrontpagePostScoreBreakdownQuery_FrontpagePostScoreBreakdown_FrontpagePostScoreBreakdown_multiplicativeTerms_FrontpageScoreTerm = { __typename?: 'FrontpageScoreTerm', label: string, value: number };
+
+type FrontpagePostScoreBreakdownQuery_FrontpagePostScoreBreakdown_FrontpagePostScoreBreakdown = { __typename?: 'FrontpagePostScoreBreakdown', filteredScore: number, ageHours: number, ageOffsetHours: number, decayExponent: number, decayDivisor: number, activityFactor: number | null, additiveTerms: Array<FrontpagePostScoreBreakdownQuery_FrontpagePostScoreBreakdown_FrontpagePostScoreBreakdown_additiveTerms_FrontpageScoreTerm>, multiplicativeTerms: Array<FrontpagePostScoreBreakdownQuery_FrontpagePostScoreBreakdown_FrontpagePostScoreBreakdown_multiplicativeTerms_FrontpageScoreTerm> };
+
+type FrontpagePostScoreBreakdownQuery_Query = { __typename?: 'Query', FrontpagePostScoreBreakdown: FrontpagePostScoreBreakdownQuery_FrontpagePostScoreBreakdown_FrontpagePostScoreBreakdown | null };
+
+
+type FrontpagePostScoreBreakdownQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  filterSettings: Scalars['JSON']['input'];
+  activityFactorOverride: InputMaybe<Scalars['Float']['input']>;
+}>;
+
+
+type FrontpagePostScoreBreakdownQuery = FrontpagePostScoreBreakdownQuery_Query;
 
 type createPostPostsNewFormMutation_createPost_PostOutput_data_Post = (
   { __typename?: 'Post' }

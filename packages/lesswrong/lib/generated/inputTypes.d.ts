@@ -25,6 +25,7 @@ interface Query {
   Lightcone2024FundraiserStripeAmounts: Array<number> | null;
   Lightcone2025FundraiserAirtableAmounts: number;
   LlmModelOptions: Array<string>;
+  FrontpagePostScoreBreakdown: FrontpagePostScoreBreakdown | null;
   PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData | null;
   petrov2024checkIfNuked: boolean | null;
   PetrovDayCheckIfIncoming: PetrovDayCheckIfIncomingData | null;
@@ -867,6 +868,22 @@ interface NotificationCounts {
   unreadNotifications: number;
   unreadPrivateMessages: number;
   faviconBadgeNumber: number;
+}
+
+interface FrontpageScoreTerm {
+  label: string;
+  value: number;
+}
+
+interface FrontpagePostScoreBreakdown {
+  filteredScore: number;
+  additiveTerms: Array<FrontpageScoreTerm>;
+  multiplicativeTerms: Array<FrontpageScoreTerm>;
+  ageHours: number;
+  ageOffsetHours: number;
+  decayExponent: number;
+  decayDivisor: number;
+  activityFactor: number | null;
 }
 
 interface PetrovDay2024CheckNumberOfIncomingData {
@@ -4332,6 +4349,7 @@ interface PostsMagicInput {
   meta?: boolean | null;
   forum?: boolean | null;
   limit?: number | null;
+  algoActivityFactor?: number | null;
 }
 
 interface PostsTopInput {
@@ -9571,6 +9589,8 @@ interface GraphQLTypeMap {
   ElicitPrediction: ElicitPrediction;
   ElicitBlockData: ElicitBlockData;
   NotificationCounts: NotificationCounts;
+  FrontpageScoreTerm: FrontpageScoreTerm;
+  FrontpagePostScoreBreakdown: FrontpagePostScoreBreakdown;
   PetrovDay2024CheckNumberOfIncomingData: PetrovDay2024CheckNumberOfIncomingData;
   PetrovDayCheckIfIncomingData: PetrovDayCheckIfIncomingData;
   PetrovDayLaunchMissileData: PetrovDayLaunchMissileData;

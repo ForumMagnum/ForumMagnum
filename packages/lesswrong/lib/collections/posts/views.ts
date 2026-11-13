@@ -3,7 +3,7 @@ import { timeSeriesIndexExpr, TimeSeries } from './karmaInflation';
 import { getKarmaInflationSeries } from '@/server/karmaInflation/cache';
 import { classifyTagFilters, filterModeToAdditiveKarmaModifier, filterModeToMultiplicativeKarmaModifier, type FilterSettings } from '../../filterSettings';
 import { adminAccountSetting, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
-import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
+import { getFrontpageTimeDecayParams, getStandardTimeDecayParams, postScoreModifiers, timeDecayExpr, type ScoreTerm, type TimeDecayParams } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, reviewExcludedPostIds, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
@@ -115,6 +115,12 @@ async function getVisitorActivity(context: ResolverContext): Promise<DbUserActiv
   return null;
 }
 
+export async function getRequestVisitorActivity(context: ResolverContext): Promise<DbUserActivity|null> {
+  return await getWithCustomLoader(context, "visitorActivityLoader", "_",
+    async () => [await getVisitorActivity(context)]
+  );
+}
+
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  *
@@ -179,9 +185,7 @@ async function defaultView(terms: PostsViewTerms, _: ApolloClient | undefined, c
   const pendingKarmaInflationSeries = terms.sortedBy === 'topAdjusted' ? getKarmaInflationSeries() : null;
 
   if (terms.filterSettings) {
-    const visitorActivity = await getWithCustomLoader(context, "visitorActivityLoader", "_",
-      async () => [await getVisitorActivity(context)]
-    );
+    const visitorActivity = await getRequestVisitorActivity(context);
     const filterParams = filterSettingsToParams(terms.filterSettings, terms, visitorActivity, context);
     params = {
       selector: { ...params.selector, ...filterParams.selector },
@@ -253,7 +257,7 @@ async function defaultView(terms: PostsViewTerms, _: ApolloClient | undefined, c
   return params;
 }
 
-const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: Array<any>} => {
+const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softFilter: ScoreTerm[]} => {
   if (filterSettings.personalBlog === "Hidden") {
     return {
       filter: {frontpageDate: {$gt: new Date(0)}},
@@ -268,15 +272,16 @@ const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softF
     const personalBonus = filterModeToAdditiveKarmaModifier(filterSettings.personalBlog)
     return {
       filter: {},
-      softFilter: personalBonus ? [
-        {
+      softFilter: personalBonus ? [{
+        label: "Personal blog",
+        expr: {
           $cond: {
             if: "$frontpageDate",
             then: 0,
             else: personalBonus
           }
         },
-      ] : []
+      }] : []
     }
   }
 }
@@ -306,17 +311,67 @@ export function buildInflationAdjustedField(karmaInflationSeries: TimeSeries): a
   }
 }
 
+export interface FilteredScoreFormula {
+  additiveTerms: ScoreTerm[]
+  multiplicativeTerms: ScoreTerm[]
+  timeDecay: TimeDecayParams
+}
+
+export function getFilteredScoreFormula(filterSettings: FilterSettings, terms: PostsViewTerms, visitorActivity: DbUserActivity|null, context: ResolverContext): FilteredScoreFormula {
+  const { softFiltered: tagsSoftFiltered } = classifyTagFilters(filterSettings.tags ?? [], context.forumType);
+  const { softFilter: frontpageSoftFilter } = getFrontpageFilter(filterSettings);
+  const useSlowerFrontpage = visitorGetsDynamicFrontpage(context.currentUser, context.forumType);
+
+  return {
+    additiveTerms: [
+      { label: "Karma", expr: "$baseScore" },
+      ...tagsSoftFiltered.map(t => ({
+        label: `Tag: ${t.tagName}`,
+        expr: {$cond: {
+          if: {$gt: ["$tagRelevance."+t.tagId, 0]},
+          then: filterModeToAdditiveKarmaModifier(t.filterMode),
+          else: 0
+        }},
+      })),
+      ...postScoreModifiers(),
+      ...frontpageSoftFilter,
+    ],
+    multiplicativeTerms: tagsSoftFiltered.map(t => ({
+      label: `Tag: ${t.tagName}`,
+      expr: {$cond: {
+        if: {$gt: ["$tagRelevance."+t.tagId, 0]},
+        then: filterModeToMultiplicativeKarmaModifier(t.filterMode),
+        else: 1
+      }},
+    })),
+    timeDecay: useSlowerFrontpage ? getFrontpageTimeDecayParams({
+      startingAgeHours: terms.algoStartingAgeHours,
+      decayFactorSlowest: terms.algoDecayFactorSlowest,
+      decayFactorFastest: terms.algoDecayFactorFastest,
+      activityHalfLifeHours: terms.algoActivityHalfLifeHours,
+      activityWeight: terms.algoActivityWeight,
+      overrideActivityFactor: terms.algoActivityFactor,
+    }, visitorActivity) : getStandardTimeDecayParams(context.forumType),
+  };
+}
+
+export function filteredScoreExpr({ additiveTerms, multiplicativeTerms, timeDecay }: FilteredScoreFormula) {
+  return {$divide: [
+    {$multiply: [
+      {$add: additiveTerms.map(t => t.expr)},
+      ...multiplicativeTerms.map(t => t.expr),
+    ]},
+    timeDecayExpr(timeDecay),
+  ]};
+}
+
 function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, visitorActivity: DbUserActivity|null, context: ResolverContext): any {
   const {
     required: tagsRequired,
     hidden: tagsExcluded,
-    softFiltered: tagsSoftFiltered,
   } = classifyTagFilters(filterSettings.tags ?? [], context.forumType);
-  
-  const frontpageFiltering = getFrontpageFilter(filterSettings)
-  
-  const {filter: frontpageFilter, softFilter: frontpageSoftFilter} = frontpageFiltering
-  let tagsFilter = {};
+
+  const {filter: frontpageFilter} = getFrontpageFilter(filterSettings)
   const tagFilters: any[] = [];
   for (let tag of tagsRequired) {
     tagFilters.push({[`tagRelevance.${tag.tagId}`]: {$gte: 1}});
@@ -328,48 +383,14 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     ]});
   }
 
-  const useSlowerFrontpage = visitorGetsDynamicFrontpage(context.currentUser, context.forumType);
-
-  const syntheticFields = {
-    filteredScore: {$divide:[
-      {$multiply: [
-        {$add:[
-          "$baseScore",
-          ...tagsSoftFiltered.map(t => (
-            {$cond: {
-              if: {$gt: ["$tagRelevance."+t.tagId, 0]},
-              then: filterModeToAdditiveKarmaModifier(t.filterMode),
-              else: 0
-            }}
-          )),
-          ...postScoreModifiers(),
-          ...frontpageSoftFilter,
-        ]},
-        ...tagsSoftFiltered.map(t => (
-          {$cond: {
-            if: {$gt: ["$tagRelevance."+t.tagId, 0]},
-            then: filterModeToMultiplicativeKarmaModifier(t.filterMode),
-            else: 1
-          }}
-        )),
-      ]},
-      useSlowerFrontpage ? frontpageTimeDecayExpr({
-        startingAgeHours: terms.algoStartingAgeHours,
-        decayFactorSlowest: terms.algoDecayFactorSlowest,
-        decayFactorFastest: terms.algoDecayFactorFastest,
-        activityHalfLifeHours: terms.algoActivityHalfLifeHours,
-        activityWeight: terms.algoActivityWeight,
-        overrideActivityFactor: terms.algoActivityFactor,
-      }, visitorActivity) : timeDecayExpr(context.forumType)
-    ]}
-  }
-  
   return {
     selector: {
       ...frontpageFilter,
       ...(tagFilters.length ? {$and: tagFilters} : {}),
     },
-    syntheticFields,
+    syntheticFields: {
+      filteredScore: filteredScoreExpr(getFilteredScoreFormula(filterSettings, terms, visitorActivity, context)),
+    },
   };
 }
 
