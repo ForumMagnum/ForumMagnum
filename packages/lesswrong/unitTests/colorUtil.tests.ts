@@ -14,6 +14,12 @@ describe('colorUtil', () => {
     expect(colorToString(invertColorPreservingHue([0.2, 0.2, 0.2, 1]))).toBe('#cccccc');
   });
 
+  it('parses CSS named colors', () => {
+    expect(parseColor('orange')).toEqual([1, 165 / 255, 0, 1]);
+    expect(colorToString(invertColorPreservingHue(parseColor('green')!))).toBe('#7fff7f');
+    expect(parseColor('constructor')).toBeNull();
+  });
+
   it('preserves transparency when inverting content colors', () => {
     expect(colorToString(invertColorPreservingHue(parseColor('transparent')!))).toBe('rgba(255,255,255,0)');
     expect(colorToString(invertColorPreservingHue(parseColor('rgba(0, 0, 0, 0.5)')!))).toBe('rgba(255,255,255,0.5)');

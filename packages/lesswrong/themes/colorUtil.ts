@@ -1,4 +1,5 @@
 import mapValues from "lodash/mapValues";
+import { cssNamedColors } from "./cssNamedColors";
 
 type ColorTuple=[number,number,number,number]; //RGBA, all channels floating point zero to one
 
@@ -23,11 +24,13 @@ function toHex2(n: number): string {
 export function parseColor(color: string): ColorTuple|null
 {
   switch(color) {
-    case "white": return [1,1,1,1];
-    case "black": return [0,0,0,1];
     case "transparent": return [0,0,0,0];
     case "inherit": return null;
     default: break;
+  }
+  const namedColorHex = cssNamedColors.get(color);
+  if (namedColorHex) {
+    return parseColor(namedColorHex);
   }
   if (color.startsWith("#")) {
     // #rrggbb or #rgb format
