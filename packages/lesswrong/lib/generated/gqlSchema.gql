@@ -1922,6 +1922,7 @@ input BookmarksUserDocumentBookmarkInput {
 
 input BookmarkSelector {
   myBookmarkedPosts: EmptyViewInput
+  myBookmarkedComments: EmptyViewInput
   myBookmarks: EmptyViewInput
   userDocumentBookmark: BookmarksUserDocumentBookmarkInput
 }

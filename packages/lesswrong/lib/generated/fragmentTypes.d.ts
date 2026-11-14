@@ -19,6 +19,7 @@ interface FragmentTypes {
   BookPageFragment: BookPageFragment
   BookmarksFeedItemFragment: BookmarksFeedItemFragment
   BookmarksMinimumInfoFragment: BookmarksMinimumInfoFragment
+  BookmarksWithCommentFragment: BookmarksWithCommentFragment
   BookmarksWithDocumentFragment: BookmarksWithDocumentFragment
   ChapterPostSlim: ChapterPostSlim
   ChaptersEdit: ChaptersEdit
@@ -232,7 +233,7 @@ interface FragmentTypesByCollection {
   AiDigestIssues: "AiDigestIssuesContent"|"AiDigestIssuesList"
   ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
   AutomatedContentEvaluations: "AutomatedContentEvaluationsFragment"
-  Bookmarks: "BookmarksFeedItemFragment"|"BookmarksMinimumInfoFragment"|"BookmarksWithDocumentFragment"
+  Bookmarks: "BookmarksFeedItemFragment"|"BookmarksMinimumInfoFragment"|"BookmarksWithCommentFragment"|"BookmarksWithDocumentFragment"
   Books: "BookEdit"|"BookPageFragment"
   Chapters: "ChaptersEdit"|"ChaptersFragment"|"SlimChapter"
   CkEditorUserSessions: "CkEditorUserSessionInfo"
@@ -298,6 +299,7 @@ interface CollectionNamesByFragmentName {
   BookPageFragment: "Books"
   BookmarksFeedItemFragment: "Bookmarks"
   BookmarksMinimumInfoFragment: "Bookmarks"
+  BookmarksWithCommentFragment: "Bookmarks"
   BookmarksWithDocumentFragment: "Bookmarks"
   ChapterPostSlim: "Posts"
   ChaptersEdit: "Chapters"

@@ -27,6 +27,7 @@ export const graphqlBookmarkQueryTypeDefs = gql`
 
   input BookmarkSelector {
     myBookmarkedPosts: EmptyViewInput
+    myBookmarkedComments: EmptyViewInput
     myBookmarks: EmptyViewInput
     userDocumentBookmark: BookmarksUserDocumentBookmarkInput
   }
