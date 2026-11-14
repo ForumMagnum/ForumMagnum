@@ -1147,6 +1147,8 @@ const importGoogleDocSidebarMutation = gql(`
   }
 `);
 
+const REIMPORT_CONFIRMATION = "Re-importing replaces this post's entire contents with the current Google Doc. Anything added or changed here since the last import, including images, will be removed from the draft (it can be restored from Version history). Continue?";
+
 function GoogleDocImportSection({ postId }: { postId: string }) {
   const classes = useStyles(styles);
   const [googleDocUrl, setGoogleDocUrl] = useState("");
@@ -1212,6 +1214,10 @@ function GoogleDocImportSection({ postId }: { postId: string }) {
     event.preventDefault();
     event.stopPropagation();
 
+    if (previousDocId && !window.confirm(REIMPORT_CONFIRMATION)) {
+      return;
+    }
+
     void (async () => {
       // Clear any live/local Yjs state before the import replaces the server copy.
       await disconnectCollaborationForPost(postId);
@@ -1219,7 +1225,7 @@ function GoogleDocImportSection({ postId }: { postId: string }) {
         variables: { fileUrl: googleDocUrl, postId },
       });
   })();
-  }, [googleDocUrl, importGoogleDocMutation, postId]);
+  }, [googleDocUrl, importGoogleDocMutation, postId, previousDocId]);
 
   return (
     <AccordionSection title="Import Google Doc">
@@ -1245,7 +1251,7 @@ function GoogleDocImportSection({ postId }: { postId: string }) {
         </button>
       </form>
       <div className={classes.importFooter}>
-        This will overwrite any unsaved changes, but you can still restore saved versions from "Version history"
+        Importing replaces the whole post with the Google Doc, including anything added or changed here since the last import (such as images). You can still restore earlier versions from "Version history".
       </div>
     </AccordionSection>
   );
