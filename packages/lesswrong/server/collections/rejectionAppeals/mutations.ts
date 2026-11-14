@@ -35,11 +35,26 @@ async function getAppealedContentLinkHtml({ postId, commentId }: AppealTarget, c
   return "content";
 }
 
-function getAppealResolvedHtml(status: "approved" | "denied", contentType: "post" | "comment") {
+async function isAppealedContentDraft({ postId, commentId }: AppealTarget, context: ResolverContext) {
+  if (postId) {
+    const post = await context.loaders.Posts.load(postId);
+    return post.draft;
+  }
+  if (commentId) {
+    const comment = await context.loaders.Comments.load(commentId);
+    return comment.draft;
+  }
+  return false;
+}
+
+function getAppealResolvedHtml(status: "approved" | "denied", contentType: "post" | "comment", isDraft: boolean) {
   if (status === "approved") {
+    const publicationStatusHtml = isDraft
+      ? `<p>Your ${contentType} is still in your drafts, so you can publish it whenever you're ready.</p>`
+      : `<p>Your ${contentType} is now published.</p>`;
     return [
       `<p>Good news: we've reviewed the rejection of your ${contentType} and reversed it. Thanks for taking the time to explain.</p>`,
-      `<p>Your ${contentType} is now published.</p>`,
+      publicationStatusHtml,
     ].join("");
   }
   return [
@@ -133,7 +148,7 @@ export async function updateRejectionAppeal({ selector, data }: UpdateRejectionA
   await sendMessageAs({
     author: teamAccount,
     conversationId: appeal.conversationId,
-    html: getAppealResolvedHtml(status, appeal.postId ? "post" : "comment"),
+    html: getAppealResolvedHtml(status, appeal.postId ? "post" : "comment", await isAppealedContentDraft(appeal, context)),
     noEmail: false,
     context,
   });
