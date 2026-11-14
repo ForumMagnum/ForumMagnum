@@ -335,6 +335,12 @@ async function rejectContentForLLM(
   }
 }
 
+// Only moderators can clear `rejected`, so content that has a rejection thread but
+// isn't rejected had its rejection reversed by a moderator.
+export function rejectionWasReversedByModerator(document: DbPost | DbComment) {
+  return !!document.rejectionConversationId && !document.rejected;
+}
+
 interface CreateAutomatedContentEvaluationOptions {
   /** Whether to auto-reject content that fails the Pangram AI detection check. */
   autoreject?: boolean;
