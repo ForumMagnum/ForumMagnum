@@ -69,6 +69,10 @@ export async function createRejectionAppeal({ data }: CreateRejectionAppealInput
   const explanation = data.explanation.trim();
   if (!explanation) throw new Error("Please explain why you think the rejection was a mistake");
 
+  if (review.reasonIds.length > 0 && !data.acknowledgedMisunderstandings) {
+    throw new Error("Please read and acknowledge the review criteria before requesting a review");
+  }
+
   if (review.appeal) throw new Error("A review has already been requested for this content");
   const appeal = await insertAndReturnDocument({
     userId: currentUser._id,

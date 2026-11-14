@@ -400,10 +400,9 @@ const MisunderstandingsStep = ({ number, misunderstandings, acknowledged, onTogg
   onToggle: () => void,
 }) => {
   const classes = useStyles(styles);
-  return <Step number={number} title="Check the common misunderstandings">
+  return <Step number={number} title="Check the review criteria">
     <p className={classes.paragraph}>
-      The following are common misunderstandings that cause users to request reviews of valid rejections. Please
-      read these over carefully and confirm that these are <em>not</em> the basis of your request.
+      Please read the following criteria carefully. We can reconsider this rejection only if all three are true.
     </p>
     <div className={classes.misunderstandings}>
       {misunderstandings.map(misunderstanding => <div key={misunderstanding.summary} className={classes.misunderstanding}>
@@ -412,7 +411,7 @@ const MisunderstandingsStep = ({ number, misunderstandings, acknowledged, onTogg
     </div>
     <label className={classes.optionLabel}>
       <Checkbox className={classes.checkbox} checked={acknowledged} onChange={onToggle} disableRipple />
-      <span>I've read these, and they aren't the basis of my request.</span>
+      <span>I've read these criteria and confirm that all three are true for my content.</span>
     </label>
   </Step>;
 };
@@ -529,7 +528,8 @@ const RejectionAppealPage = () => {
   const reasons = APPEAL_REASONS.filter(reason => review?.reasonIds.includes(reason.id));
   const submittedAppeal = submission?.createRejectionAppeal?.data;
   const misunderstandings = uniqBy(reasons.flatMap(reason => reason.commonMisunderstandings), misunderstanding => misunderstanding.summary);
-  const canSubmit = !!explanation.trim() && !submitting;
+  const canSubmit = !!explanation.trim() && !submitting
+    && (misunderstandings.length === 0 || acknowledgedMisunderstandings);
 
   const submit = async () => {
     if (!item) return;
