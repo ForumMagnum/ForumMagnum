@@ -218,15 +218,19 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [userId, startDate ?? null, endDate ?? null]);
   }
 
-  removeAlignmentGroupAndKarma(userId: string, reduceAFKarma: number): Promise<null> {
+  applyAFKarmaChange(userId: string, afKarmaChange: number): Promise<null> {
     return this.none(`
-      -- UsersRepo.removeAlignmentGroupAndKarma
+      -- UsersRepo.applyAFKarmaChange
       UPDATE "Users"
       SET
-        "groups" = array_remove("groups", 'alignmentVoters'),
-        "afKarma" = "afKarma" - $2
+        "afKarma" = "afKarma" + $2,
+        "groups" = CASE
+          WHEN "afKarma" + $2 <= 0 THEN array_remove("groups", 'alignmentVoters')
+          WHEN 'alignmentVoters' = ANY(COALESCE("groups", '{}')) THEN "groups"
+          ELSE array_append(COALESCE("groups", '{}'), 'alignmentVoters')
+        END
       WHERE _id = $1
-    `, [userId, reduceAFKarma]);
+    `, [userId, afKarmaChange]);
   }
 
   private getSearchDocumentQuery(): string {
