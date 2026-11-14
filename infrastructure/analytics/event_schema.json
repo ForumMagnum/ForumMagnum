@@ -1,0 +1,1064 @@
+{
+  "version": 1,
+  "description": "Versioned, lossless-source, event-aware analytics extraction. No source mutation or inferred cross-event enrichment.",
+  "fields": [
+    {
+      "path": "userId",
+      "column": "user_id",
+      "kind": "string",
+      "reason": "Independent identity; never substitute another identity namespace.",
+      "ordinal": 1
+    },
+    {
+      "path": "clientId",
+      "column": "client_id",
+      "kind": "string",
+      "reason": "Independent identity; never substitute another identity namespace.",
+      "ordinal": 2
+    },
+    {
+      "path": "tabId",
+      "column": "tab_id",
+      "kind": "string",
+      "reason": "Independent identity; never substitute another identity namespace.",
+      "ordinal": 3
+    },
+    {
+      "path": "sessionId",
+      "column": "session_id",
+      "kind": "string",
+      "reason": "Independent identity; never substitute another identity namespace.",
+      "ordinal": 4
+    },
+    {
+      "path": "postId",
+      "column": "post_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 5
+    },
+    {
+      "path": "commentId",
+      "column": "comment_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 6
+    },
+    {
+      "path": "documentId",
+      "column": "document_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 7
+    },
+    {
+      "path": "documentType",
+      "column": "document_type",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 8
+    },
+    {
+      "path": "collectionName",
+      "column": "collection_name",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 9
+    },
+    {
+      "path": "tagId",
+      "column": "tag_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 10
+    },
+    {
+      "path": "sequenceId",
+      "column": "sequence_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 11
+    },
+    {
+      "path": "userIdDisplayed",
+      "column": "user_id_displayed",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 12
+    },
+    {
+      "path": "mountedPostId",
+      "column": "mounted_post_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 13
+    },
+    {
+      "path": "path",
+      "column": "path",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 14
+    },
+    {
+      "path": "url",
+      "column": "url",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 15
+    },
+    {
+      "path": "referrer",
+      "column": "referrer",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 16
+    },
+    {
+      "path": "href",
+      "column": "href",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 17
+    },
+    {
+      "path": "pageContext",
+      "column": "page_context",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 18
+    },
+    {
+      "path": "pageSectionContext",
+      "column": "page_section_context",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 19
+    },
+    {
+      "path": "pageSubSectionContext",
+      "column": "page_sub_section_context",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 20
+    },
+    {
+      "path": "pageElementContext",
+      "column": "page_element_context",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 21
+    },
+    {
+      "path": "pageParentElementContext",
+      "column": "page_parent_element_context",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 22
+    },
+    {
+      "path": "pageModalContext",
+      "column": "page_modal_context",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 23
+    },
+    {
+      "path": "utmSource",
+      "column": "utm_source",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 24
+    },
+    {
+      "path": "utmMedium",
+      "column": "utm_medium",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 25
+    },
+    {
+      "path": "utmCampaign",
+      "column": "utm_campaign",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 26
+    },
+    {
+      "path": "postIds",
+      "column": "post_ids",
+      "kind": "strings",
+      "reason": "Ordered list of displayed IDs. Preserve order, duplicates, empty vs absent, and invalid elements in raw JSON.",
+      "ordinal": 27
+    },
+    {
+      "path": "increment",
+      "column": "increment",
+      "kind": "integer",
+      "reason": "Timer seconds. Sum increment; seconds is cumulative and must not be summed.",
+      "events": [
+        "timerEvent"
+      ],
+      "ordinal": 28
+    },
+    {
+      "path": "seconds",
+      "column": "seconds",
+      "kind": "integer",
+      "reason": "Timer seconds. Sum increment; seconds is cumulative and must not be summed.",
+      "events": [
+        "timerEvent"
+      ],
+      "ordinal": 29
+    },
+    {
+      "path": "durationMs",
+      "column": "duration_ms",
+      "kind": "integer",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 30
+    },
+    {
+      "path": "hoverDuration",
+      "column": "hover_duration",
+      "kind": "integer",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 31
+    },
+    {
+      "path": "wordCount",
+      "column": "word_count",
+      "kind": "integer",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 32
+    },
+    {
+      "path": "feedCardIndex",
+      "column": "feed_card_index",
+      "kind": "integer",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 33
+    },
+    {
+      "path": "mountedPostBaseScore",
+      "column": "mounted_post_base_score",
+      "kind": "integer",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 34
+    },
+    {
+      "path": "isVisible",
+      "column": "is_visible",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 35
+    },
+    {
+      "path": "isIntersecting",
+      "column": "is_intersecting",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 36
+    },
+    {
+      "path": "cached",
+      "column": "cached",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 37
+    },
+    {
+      "path": "intersectionRatio",
+      "column": "intersection_ratio",
+      "kind": "number",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 38
+    },
+    {
+      "path": "mountedPostScore",
+      "column": "mounted_post_score",
+      "kind": "number",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 39
+    },
+    {
+      "path": "currentPlaybackPosition",
+      "column": "current_playback_position",
+      "kind": "number",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 40
+    },
+    {
+      "path": "playbackSpeed",
+      "column": "playback_speed",
+      "kind": "number",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 41
+    },
+    {
+      "path": "feedType",
+      "column": "feed_type",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 42
+    },
+    {
+      "path": "feedItemId",
+      "column": "feed_item_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 43
+    },
+    {
+      "path": "algorithm",
+      "column": "algorithm",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 44
+    },
+    {
+      "path": "resultId",
+      "column": "result_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 45
+    },
+    {
+      "path": "resultType",
+      "column": "result_type",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 46
+    },
+    {
+      "path": "episodeId",
+      "column": "episode_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 47
+    },
+    {
+      "path": "query",
+      "column": "query_text",
+      "kind": "string",
+      "reason": "Search text; q is a historical source alias. Do not conflate with a GraphQL query.",
+      "events": [
+        "search",
+        "searchResultSelected",
+        "searchQueryUpdated"
+      ],
+      "aliases": [
+        "q"
+      ],
+      "ordinal": 48
+    },
+    {
+      "path": "ultraFeedContext.feedSessionId",
+      "column": "ultra_feed_session_id",
+      "kind": "string",
+      "reason": "Feed session; deliberately separate from general sessionId and historical context.sessionId.",
+      "ordinal": 49
+    },
+    {
+      "path": "timings.totalTime",
+      "column": "timings_total_time",
+      "kind": "integer",
+      "reason": "Recorded SSR timings. Keep source units; no guessed conversion.",
+      "ordinal": 50
+    },
+    {
+      "path": "timings.renderTime",
+      "column": "timings_render_time",
+      "kind": "integer",
+      "reason": "Recorded SSR timings. Keep source units; no guessed conversion.",
+      "ordinal": 51
+    },
+    {
+      "path": "browserProps.mobile",
+      "column": "browser_mobile",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 52
+    },
+    {
+      "path": "browserProps.osname",
+      "column": "browser_os_name",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 53
+    },
+    {
+      "path": "userAgent",
+      "column": "user_agent",
+      "kind": "string",
+      "reason": "Prefer explicit userAgent; pageLoadFinished uses browserProps.userAgent. Conflicts are recorded.",
+      "aliases": [
+        "browserProps.userAgent"
+      ],
+      "ordinal": 54
+    },
+    {
+      "path": "to",
+      "column": "navigation_to",
+      "kind": "destination",
+      "reason": "String destination or object pathname + search + hash; preserve the original object in event_json.",
+      "events": [
+        "navigate",
+        "linkClicked",
+        "linkMounted"
+      ],
+      "ordinal": 55
+    },
+    {
+      "path": "from",
+      "column": "navigation_from",
+      "kind": "string",
+      "reason": "Navigation origin only. Other event types use from for unrelated meanings.",
+      "events": [
+        "navigate"
+      ],
+      "ordinal": 56
+    },
+    {
+      "path": "toPostId",
+      "column": "to_post_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "events": [
+        "navigate"
+      ],
+      "ordinal": 57
+    },
+    {
+      "path": "fromPostId",
+      "column": "from_post_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "events": [
+        "navigate"
+      ],
+      "ordinal": 58
+    },
+    {
+      "path": "prefersDarkMode",
+      "column": "prefers_dark_mode",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 59
+    },
+    {
+      "path": "browserProps.tablet",
+      "column": "browser_tablet",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 60
+    },
+    {
+      "path": "browserProps.chrome",
+      "column": "browser_chrome",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 61
+    },
+    {
+      "path": "browserProps.safari",
+      "column": "browser_safari",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 62
+    },
+    {
+      "path": "browserProps.firefox",
+      "column": "browser_firefox",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 63
+    },
+    {
+      "path": "browserProps.blocksGA",
+      "column": "browser_blocks_ga",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 64
+    },
+    {
+      "path": "browserProps.blocksGTM",
+      "column": "browser_blocks_gtm",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 65
+    },
+    {
+      "path": "utmContent",
+      "column": "utm_content",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 66
+    },
+    {
+      "path": "utmTerm",
+      "column": "utm_term",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 67
+    },
+    {
+      "path": "performance.timeOrigin",
+      "column": "browser_time_origin_ms",
+      "kind": "number",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 68
+    },
+    {
+      "path": "performance.memory",
+      "column": "browser_used_js_heap_bytes",
+      "kind": "integer",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 69
+    },
+    {
+      "path": "performance.timing.navigationStart",
+      "column": "browser_navigation_start",
+      "kind": "integer",
+      "reason": "Browser timing endpoint, not a duration. Derived duration requires nonzero ordered endpoints.",
+      "ordinal": 70
+    },
+    {
+      "path": "performance.timing.requestStart",
+      "column": "browser_request_start",
+      "kind": "integer",
+      "reason": "Browser timing endpoint, not a duration. Derived duration requires nonzero ordered endpoints.",
+      "ordinal": 71
+    },
+    {
+      "path": "performance.timing.responseStart",
+      "column": "browser_response_start",
+      "kind": "integer",
+      "reason": "Browser timing endpoint, not a duration. Derived duration requires nonzero ordered endpoints.",
+      "ordinal": 72
+    },
+    {
+      "path": "performance.timing.responseEnd",
+      "column": "browser_response_end",
+      "kind": "integer",
+      "reason": "Browser timing endpoint, not a duration. Derived duration requires nonzero ordered endpoints.",
+      "ordinal": 73
+    },
+    {
+      "path": "performance.timing.domInteractive",
+      "column": "browser_dom_interactive",
+      "kind": "integer",
+      "reason": "Browser timing endpoint, not a duration. Derived duration requires nonzero ordered endpoints.",
+      "ordinal": 74
+    },
+    {
+      "path": "performance.timing.domContentLoadedEventEnd",
+      "column": "browser_dom_content_loaded_event_end",
+      "kind": "integer",
+      "reason": "Browser timing endpoint, not a duration. Derived duration requires nonzero ordered endpoints.",
+      "ordinal": 75
+    },
+    {
+      "path": "performance.timing.loadEventEnd",
+      "column": "browser_load_event_end",
+      "kind": "integer",
+      "reason": "Browser timing endpoint, not a duration. Derived duration requires nonzero ordered endpoints.",
+      "ordinal": 76
+    },
+    {
+      "path": "abTestGroups",
+      "column": "ab_test_groups",
+      "kind": "string_map",
+      "reason": "Experiment-name to assignment map. Keep assigned and recorded-as-used separate; no inferred exposure.",
+      "ordinal": 77
+    },
+    {
+      "path": "abTestGroupsUsed",
+      "column": "ab_test_groups_used",
+      "kind": "string_map",
+      "reason": "Experiment-name to assignment map. Keep assigned and recorded-as-used separate; no inferred exposure.",
+      "ordinal": 78
+    },
+    {
+      "path": "previousSessionId",
+      "column": "previous_session_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 79
+    },
+    {
+      "path": "previousSessionLastActivity",
+      "column": "previous_session_last_activity",
+      "kind": "integer",
+      "reason": "Recorded previous-session activity timestamp; no fallback to current event time.",
+      "ordinal": 80
+    },
+    {
+      "path": "visibilityState",
+      "column": "visibility_state",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 81
+    },
+    {
+      "path": "state",
+      "column": "activity_state",
+      "kind": "string",
+      "reason": "Active/inactive activity state; unrelated state properties stay in event_json.",
+      "events": [
+        "idlenessDetection",
+        "activityDetection"
+      ],
+      "ordinal": 82
+    },
+    {
+      "path": "inViewType",
+      "column": "in_view_type",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 83
+    },
+    {
+      "path": "threshold",
+      "column": "threshold",
+      "kind": "numbers",
+      "reason": "Observer threshold array; legacy scalar threshold becomes one element, with provenance.",
+      "events": [
+        "inViewEvent",
+        "commentBoxInView",
+        "commentSectionInView"
+      ],
+      "ordinal": 84
+    },
+    {
+      "path": "time",
+      "column": "in_view_time_ms",
+      "kind": "number",
+      "reason": "Observer timing, not the authoritative event timestamp or elapsed engagement time.",
+      "events": [
+        "inViewEvent",
+        "commentBoxInView",
+        "commentSectionInView"
+      ],
+      "ordinal": 85
+    },
+    {
+      "path": "buttonPressed",
+      "column": "button_pressed",
+      "kind": "integer",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 86
+    },
+    {
+      "path": "onsite",
+      "column": "onsite",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 87
+    },
+    {
+      "path": "hoverPreviewType",
+      "column": "hover_preview_type",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 88
+    },
+    {
+      "path": "hoverEventType",
+      "column": "hover_event_type",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 89
+    },
+    {
+      "path": "timeToCapture",
+      "column": "hover_captured_at",
+      "kind": "datetime",
+      "reason": "ISO timestamp in current capture code. Numeric historical variants remain raw and flagged; never assume duration or epoch units.",
+      "events": [
+        "hoverEventTriggered"
+      ],
+      "ordinal": 90
+    },
+    {
+      "path": "viewType",
+      "column": "view_type",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 91
+    },
+    {
+      "path": "listContext",
+      "column": "list_context",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 92
+    },
+    {
+      "path": "sortedBy",
+      "column": "sorted_by",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 93
+    },
+    {
+      "path": "limit",
+      "column": "list_limit",
+      "kind": "integer",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 94
+    },
+    {
+      "path": "isSticky",
+      "column": "is_sticky",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 95
+    },
+    {
+      "path": "singleLineComment",
+      "column": "single_line_comment",
+      "kind": "boolean",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 96
+    },
+    {
+      "path": "postMountData",
+      "column": "post_mount_data",
+      "kind": "post_mounts",
+      "reason": "Array of postId/baseScore/score records. Do not explode events or silently drop invalid members.",
+      "ordinal": 97
+    },
+    {
+      "path": "postVisibility",
+      "column": "post_visibility",
+      "kind": "boolean_map",
+      "reason": "Dynamic post-ID keys; keep as a map, not a physical column per post.",
+      "ordinal": 98
+    },
+    {
+      "path": "postIdsWithScenario",
+      "column": "post_ids_with_scenario",
+      "kind": "post_scenarios",
+      "reason": "Ordered recommendation records; preserve generation timestamp as a string until timestamp semantics are established.",
+      "ordinal": 99
+    },
+    {
+      "path": "ultraFeedSources",
+      "column": "ultra_feed_sources",
+      "kind": "strings",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 100
+    },
+    {
+      "path": "ultraFeedElementType",
+      "column": "ultra_feed_element_type",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 101
+    },
+    {
+      "path": "feedCommentIndex",
+      "column": "feed_comment_index",
+      "kind": "integer",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 102
+    },
+    {
+      "path": "serverId",
+      "column": "server_id",
+      "kind": "string",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 103
+    },
+    {
+      "path": "timings.prerenderTime",
+      "column": "timings_prerender_time",
+      "kind": "integer",
+      "reason": "Preserve the recorded value for filtering and grouping; retain its source meaning.",
+      "ordinal": 104
+    },
+    {
+      "path": "performance.timing.domainLookupStart",
+      "column": "browser_domain_lookup_start",
+      "kind": "integer",
+      "reason": "Completes DNS, connection, TLS or DOM/load phase durations for pageLoadFinished.",
+      "ordinal": 105
+    },
+    {
+      "path": "performance.timing.domainLookupEnd",
+      "column": "browser_domain_lookup_end",
+      "kind": "integer",
+      "reason": "Completes DNS, connection, TLS or DOM/load phase durations for pageLoadFinished.",
+      "ordinal": 106
+    },
+    {
+      "path": "performance.timing.connectStart",
+      "column": "browser_connect_start",
+      "kind": "integer",
+      "reason": "Completes DNS, connection, TLS or DOM/load phase durations for pageLoadFinished.",
+      "ordinal": 107
+    },
+    {
+      "path": "performance.timing.connectEnd",
+      "column": "browser_connect_end",
+      "kind": "integer",
+      "reason": "Completes DNS, connection, TLS or DOM/load phase durations for pageLoadFinished.",
+      "ordinal": 108
+    },
+    {
+      "path": "performance.timing.secureConnectionStart",
+      "column": "browser_secure_connection_start",
+      "kind": "integer",
+      "reason": "Completes DNS, connection, TLS or DOM/load phase durations for pageLoadFinished.",
+      "ordinal": 109
+    },
+    {
+      "path": "performance.timing.domContentLoadedEventStart",
+      "column": "browser_dom_content_loaded_event_start",
+      "kind": "integer",
+      "reason": "Completes DNS, connection, TLS or DOM/load phase durations for pageLoadFinished.",
+      "ordinal": 110
+    },
+    {
+      "path": "performance.timing.loadEventStart",
+      "column": "browser_load_event_start",
+      "kind": "integer",
+      "reason": "Completes DNS, connection, TLS or DOM/load phase durations for pageLoadFinished.",
+      "ordinal": 111
+    },
+    {
+      "path": "ultraFeedCardId",
+      "column": "ultra_feed_card_id",
+      "kind": "string",
+      "reason": "Link feed exposures and feedback without confusing content IDs with occurrence IDs.",
+      "ordinal": 112
+    },
+    {
+      "path": "servedEventId",
+      "column": "served_event_id",
+      "kind": "string",
+      "reason": "Link feed exposures and feedback without confusing content IDs with occurrence IDs.",
+      "ordinal": 113
+    },
+    {
+      "path": "recentDiscussionContext.feedSessionId",
+      "column": "recent_discussion_feed_session_id",
+      "kind": "string",
+      "reason": "Recent-discussion session, separate from other session namespaces.",
+      "ordinal": 114
+    },
+    {
+      "path": "eventId",
+      "column": "feedback_event_id",
+      "kind": "string",
+      "reason": "Feedback reference; never overwrite canonical archive event_id.",
+      "events": [
+        "ultraFeedSeeLessFeedback",
+        "ultraFeedSeeLessUndone"
+      ],
+      "ordinal": 115
+    },
+    {
+      "path": "indexName",
+      "column": "index_name",
+      "kind": "string",
+      "reason": "Completes search context and result attribution.",
+      "ordinal": 116
+    },
+    {
+      "path": "contentType",
+      "column": "content_type",
+      "kind": "string",
+      "reason": "Completes search context and result attribution.",
+      "ordinal": 117
+    },
+    {
+      "path": "searchQuery",
+      "column": "search_query",
+      "kind": "string",
+      "reason": "Completes search context and result attribution.",
+      "ordinal": 118
+    },
+    {
+      "path": "position",
+      "column": "search_result_position",
+      "kind": "integer",
+      "reason": "Selected result position; no merging with unrelated position meanings.",
+      "events": [
+        "searchResultSelected"
+      ],
+      "ordinal": 119
+    },
+    {
+      "path": "bookmarked",
+      "column": "bookmarked",
+      "kind": "boolean",
+      "reason": "Explicit interaction outcome/state; absent does not mean false.",
+      "ordinal": 120
+    },
+    {
+      "path": "subscribed",
+      "column": "subscribed",
+      "kind": "boolean",
+      "reason": "Explicit interaction outcome/state; absent does not mean false.",
+      "ordinal": 121
+    },
+    {
+      "path": "expanded",
+      "column": "expanded",
+      "kind": "boolean",
+      "reason": "Explicit interaction outcome/state; absent does not mean false.",
+      "ordinal": 122
+    },
+    {
+      "path": "focus",
+      "column": "focus",
+      "kind": "boolean",
+      "reason": "Explicit interaction outcome/state; absent does not mean false.",
+      "ordinal": 123
+    },
+    {
+      "path": "draft",
+      "column": "draft",
+      "kind": "boolean",
+      "reason": "Explicit interaction outcome/state; absent does not mean false.",
+      "ordinal": 124
+    },
+    {
+      "path": "success",
+      "column": "success",
+      "kind": "boolean",
+      "reason": "Explicit interaction outcome/state; absent does not mean false.",
+      "ordinal": 125
+    },
+    {
+      "path": "dialogName",
+      "column": "dialog_name",
+      "kind": "string",
+      "reason": "Identify interaction funnels and diagnose recorded failures.",
+      "ordinal": 126
+    },
+    {
+      "path": "formType",
+      "column": "form_type",
+      "kind": "string",
+      "reason": "Identify interaction funnels and diagnose recorded failures.",
+      "ordinal": 127
+    },
+    {
+      "path": "errorMessage",
+      "column": "error_message",
+      "kind": "string",
+      "reason": "Identify interaction funnels and diagnose recorded failures.",
+      "ordinal": 128
+    },
+    {
+      "path": "open",
+      "column": "is_open",
+      "kind": "boolean",
+      "reason": "Explicit UI open/closed state; retain event type to identify the component.",
+      "ordinal": 129
+    },
+    {
+      "path": "expansionLevel",
+      "column": "expansion_level",
+      "kind": "integer",
+      "reason": "Analyze progressive feed expansion.",
+      "ordinal": 130
+    },
+    {
+      "path": "episodeType",
+      "column": "episode_type",
+      "kind": "string",
+      "reason": "Completes audio progress and chapter-navigation context.",
+      "ordinal": 131
+    },
+    {
+      "path": "chapterIndex",
+      "column": "chapter_index",
+      "kind": "integer",
+      "reason": "Completes audio progress and chapter-navigation context.",
+      "ordinal": 132
+    },
+    {
+      "path": "performance.timing.domComplete",
+      "column": "browser_dom_complete",
+      "kind": "integer",
+      "reason": "Completes the standard navigation timing record for redirect, fetch, DOM and unload analysis. Zero means unavailable, not a zero duration.",
+      "ordinal": 133
+    },
+    {
+      "path": "performance.timing.domLoading",
+      "column": "browser_dom_loading",
+      "kind": "integer",
+      "reason": "Completes the standard navigation timing record for redirect, fetch, DOM and unload analysis. Zero means unavailable, not a zero duration.",
+      "ordinal": 134
+    },
+    {
+      "path": "performance.timing.fetchStart",
+      "column": "browser_fetch_start",
+      "kind": "integer",
+      "reason": "Completes the standard navigation timing record for redirect, fetch, DOM and unload analysis. Zero means unavailable, not a zero duration.",
+      "ordinal": 135
+    },
+    {
+      "path": "performance.timing.redirectStart",
+      "column": "browser_redirect_start",
+      "kind": "integer",
+      "reason": "Completes the standard navigation timing record for redirect, fetch, DOM and unload analysis. Zero means unavailable, not a zero duration.",
+      "ordinal": 136
+    },
+    {
+      "path": "performance.timing.redirectEnd",
+      "column": "browser_redirect_end",
+      "kind": "integer",
+      "reason": "Completes the standard navigation timing record for redirect, fetch, DOM and unload analysis. Zero means unavailable, not a zero duration.",
+      "ordinal": 137
+    },
+    {
+      "path": "performance.timing.unloadEventStart",
+      "column": "browser_unload_event_start",
+      "kind": "integer",
+      "reason": "Completes the standard navigation timing record for redirect, fetch, DOM and unload analysis. Zero means unavailable, not a zero duration.",
+      "ordinal": 138
+    },
+    {
+      "path": "performance.timing.unloadEventEnd",
+      "column": "browser_unload_event_end",
+      "kind": "integer",
+      "reason": "Completes the standard navigation timing record for redirect, fetch, DOM and unload analysis. Zero means unavailable, not a zero duration.",
+      "ordinal": 139
+    },
+    {
+      "path": "timings.cpuTime",
+      "column": "timings_cpu_time",
+      "kind": "number",
+      "reason": "Separate CPU work from elapsed rendering time in historical server-render measurements; retain producer units.",
+      "events": [
+        "ssr"
+      ],
+      "ordinal": 140
+    },
+    {
+      "path": "timings.wallTime",
+      "column": "timings_wall_time",
+      "kind": "integer",
+      "reason": "Historical server-render wall time; preserve separately from totalTime because scopes may differ.",
+      "events": [
+        "ssr"
+      ],
+      "ordinal": 141
+    },
+    {
+      "path": "timings.sqlBytesDownloaded",
+      "column": "timings_sql_bytes_downloaded",
+      "kind": "integer",
+      "reason": "Diagnose database result volume in slow server renders, even though the historical sample is sparse.",
+      "events": [
+        "ssr"
+      ],
+      "ordinal": 142
+    }
+  ]
+}

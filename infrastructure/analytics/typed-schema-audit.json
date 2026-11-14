@@ -1,0 +1,2584 @@
+{
+  "description": "Schema-only sampled extraction counts. Historical rows overlap the pilot; counts must not be added as distinct events. Not an unbiased population sample.",
+  "extractor_fingerprint": "9a99f5a93fa0b32daa3c53fa673aad5016a0935da05e605fcc143754d59af467",
+  "properties": 142,
+  "samples": {
+    "pilot": {
+      "archive_rows": 1000000,
+      "layouts": {
+        "object": 1000000
+      },
+      "rows_with_invalid_properties": 0,
+      "field_counts": {
+        "user_id": {
+          "present": 414471,
+          "null": 181976,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 232495
+        },
+        "client_id": {
+          "present": 997411,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 997411
+        },
+        "tab_id": {
+          "present": 995735,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 995735
+        },
+        "session_id": {
+          "present": 499634,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 499634
+        },
+        "post_id": {
+          "present": 146388,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 146388
+        },
+        "comment_id": {
+          "present": 20425,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 20425
+        },
+        "document_id": {
+          "present": 10299,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 10299
+        },
+        "document_type": {
+          "present": 249,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 249
+        },
+        "collection_name": {
+          "present": 10932,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 10932
+        },
+        "tag_id": {
+          "present": 4476,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 4476
+        },
+        "sequence_id": {
+          "present": 2813,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 2813
+        },
+        "user_id_displayed": {
+          "present": 2452,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 2452
+        },
+        "mounted_post_id": {
+          "present": 15408,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 15408
+        },
+        "path": {
+          "present": 710158,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 710158
+        },
+        "url": {
+          "present": 237518,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 237518
+        },
+        "referrer": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "href": {
+          "present": 14273,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 14273
+        },
+        "page_context": {
+          "present": 235699,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 235699
+        },
+        "page_section_context": {
+          "present": 135198,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 135198
+        },
+        "page_sub_section_context": {
+          "present": 7933,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 7933
+        },
+        "page_element_context": {
+          "present": 71406,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 71406
+        },
+        "page_parent_element_context": {
+          "present": 389,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 389
+        },
+        "page_modal_context": {
+          "present": 0,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 0
+        },
+        "utm_source": {
+          "present": 33716,
+          "null": 33441,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 275
+        },
+        "utm_medium": {
+          "present": 33716,
+          "null": 33595,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 121
+        },
+        "utm_campaign": {
+          "present": 33716,
+          "null": 33649,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 67
+        },
+        "post_ids": {
+          "present": 19520,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 19520
+        },
+        "increment": {
+          "present": 198139,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 198139
+        },
+        "seconds": {
+          "present": 198139,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 198139
+        },
+        "duration_ms": {
+          "present": 10053,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 10053
+        },
+        "hover_duration": {
+          "present": 8374,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 8374
+        },
+        "word_count": {
+          "present": 141,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 141
+        },
+        "feed_card_index": {
+          "present": 10557,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 10557
+        },
+        "mounted_post_base_score": {
+          "present": 15408,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 15408
+        },
+        "is_visible": {
+          "present": 147382,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 147382
+        },
+        "is_intersecting": {
+          "present": 94598,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 94598
+        },
+        "cached": {
+          "present": 185741,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 185741
+        },
+        "intersection_ratio": {
+          "present": 94598,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 94598
+        },
+        "mounted_post_score": {
+          "present": 15408,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 15408
+        },
+        "current_playback_position": {
+          "present": 1514,
+          "null": 114,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1400
+        },
+        "playback_speed": {
+          "present": 1514,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1514
+        },
+        "feed_type": {
+          "present": 20351,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 20351
+        },
+        "feed_item_id": {
+          "present": 9876,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 9876
+        },
+        "algorithm": {
+          "present": 2414,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 2414
+        },
+        "result_id": {
+          "present": 218,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 218
+        },
+        "result_type": {
+          "present": 255,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 255
+        },
+        "episode_id": {
+          "present": 17823,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 17823
+        },
+        "query_text": {
+          "present": 1544,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1544
+        },
+        "ultra_feed_session_id": {
+          "present": 16250,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 16250
+        },
+        "timings_total_time": {
+          "present": 185741,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 185741
+        },
+        "timings_render_time": {
+          "present": 3765,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 3765
+        },
+        "browser_mobile": {
+          "present": 10142,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 10142
+        },
+        "browser_os_name": {
+          "present": 30137,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 30137
+        },
+        "user_agent": {
+          "present": 257179,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 257179
+        },
+        "navigation_to": {
+          "present": 27107,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 19,
+          "valid": 27107
+        },
+        "navigation_from": {
+          "present": 12685,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 12685
+        },
+        "to_post_id": {
+          "present": 0,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 0
+        },
+        "from_post_id": {
+          "present": 0,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 0
+        },
+        "prefers_dark_mode": {
+          "present": 34846,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 34846
+        },
+        "browser_tablet": {
+          "present": 133,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 133
+        },
+        "browser_chrome": {
+          "present": 25305,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 25305
+        },
+        "browser_safari": {
+          "present": 3869,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 3869
+        },
+        "browser_firefox": {
+          "present": 3686,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 3686
+        },
+        "browser_blocks_ga": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_blocks_gtm": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "utm_content": {
+          "present": 25354,
+          "null": 25327,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 27
+        },
+        "utm_term": {
+          "present": 25354,
+          "null": 25353,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1
+        },
+        "browser_time_origin_ms": {
+          "present": 33710,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33710
+        },
+        "browser_used_js_heap_bytes": {
+          "present": 25662,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 25662
+        },
+        "browser_navigation_start": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_request_start": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_response_start": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_response_end": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_dom_interactive": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_dom_content_loaded_event_end": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_load_event_end": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "ab_test_groups": {
+          "present": 223724,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 223724
+        },
+        "ab_test_groups_used": {
+          "present": 34,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 34
+        },
+        "previous_session_id": {
+          "present": 5881,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 5881
+        },
+        "previous_session_last_activity": {
+          "present": 5881,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 5881
+        },
+        "visibility_state": {
+          "present": 147382,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 147382
+        },
+        "activity_state": {
+          "present": 51213,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 20,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 51193
+        },
+        "in_view_type": {
+          "present": 94598,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 94598
+        },
+        "threshold": {
+          "present": 18961,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 18961
+        },
+        "in_view_time_ms": {
+          "present": 94598,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 94598
+        },
+        "button_pressed": {
+          "present": 16461,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 16461
+        },
+        "onsite": {
+          "present": 13907,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 13907
+        },
+        "hover_preview_type": {
+          "present": 14273,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 14273
+        },
+        "hover_event_type": {
+          "present": 8374,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 8374
+        },
+        "hover_captured_at": {
+          "present": 39334,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 39334,
+          "valid": 39334
+        },
+        "view_type": {
+          "present": 40855,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 40855
+        },
+        "list_context": {
+          "present": 39867,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 39867
+        },
+        "sorted_by": {
+          "present": 2843,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 2843
+        },
+        "list_limit": {
+          "present": 2843,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 2843
+        },
+        "is_sticky": {
+          "present": 27298,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 27298
+        },
+        "single_line_comment": {
+          "present": 9251,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 9251
+        },
+        "post_mount_data": {
+          "present": 11248,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 11248
+        },
+        "post_visibility": {
+          "present": 17128,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 17128
+        },
+        "post_ids_with_scenario": {
+          "present": 2392,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 2392
+        },
+        "ultra_feed_sources": {
+          "present": 399,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 399
+        },
+        "ultra_feed_element_type": {
+          "present": 411,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 411
+        },
+        "feed_comment_index": {
+          "present": 5163,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 5163
+        },
+        "server_id": {
+          "present": 189673,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 189673
+        },
+        "timings_prerender_time": {
+          "present": 3765,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 3765
+        },
+        "browser_domain_lookup_start": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_domain_lookup_end": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_connect_start": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_connect_end": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_secure_connection_start": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_dom_content_loaded_event_start": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_load_event_start": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "ultra_feed_card_id": {
+          "present": 389,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 389
+        },
+        "served_event_id": {
+          "present": 0,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 0
+        },
+        "recent_discussion_feed_session_id": {
+          "present": 0,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 0
+        },
+        "feedback_event_id": {
+          "present": 0,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 0
+        },
+        "index_name": {
+          "present": 255,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 255
+        },
+        "content_type": {
+          "present": 197,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 197
+        },
+        "search_query": {
+          "present": 228,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 228
+        },
+        "search_result_position": {
+          "present": 216,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 216
+        },
+        "bookmarked": {
+          "present": 26,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 26
+        },
+        "subscribed": {
+          "present": 6,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 6
+        },
+        "expanded": {
+          "present": 265,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 265
+        },
+        "focus": {
+          "present": 1267,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1267
+        },
+        "draft": {
+          "present": 2190,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 2190
+        },
+        "success": {
+          "present": 1,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1
+        },
+        "dialog_name": {
+          "present": 907,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 907
+        },
+        "form_type": {
+          "present": 1267,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1267
+        },
+        "error_message": {
+          "present": 133,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 133
+        },
+        "is_open": {
+          "present": 4610,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 4610
+        },
+        "expansion_level": {
+          "present": 52,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 52
+        },
+        "episode_type": {
+          "present": 17911,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 17911
+        },
+        "chapter_index": {
+          "present": 3,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 3
+        },
+        "browser_dom_complete": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_dom_loading": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_fetch_start": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_redirect_start": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_redirect_end": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_unload_event_start": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "browser_unload_event_end": {
+          "present": 33725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 33725
+        },
+        "timings_cpu_time": {
+          "present": 0,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 0
+        },
+        "timings_wall_time": {
+          "present": 0,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 0
+        },
+        "timings_sql_bytes_downloaded": {
+          "present": 0,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 0
+        }
+      }
+    },
+    "historical": {
+      "archive_rows": 75789,
+      "layouts": {
+        "object": 75613,
+        "legacy_event_props": 176
+      },
+      "rows_with_invalid_properties": 3237,
+      "field_counts": {
+        "user_id": {
+          "present": 37479,
+          "null": 262,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 37217
+        },
+        "client_id": {
+          "present": 70339,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 70339
+        },
+        "tab_id": {
+          "present": 72167,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 72167
+        },
+        "session_id": {
+          "present": 21589,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 21589
+        },
+        "post_id": {
+          "present": 20242,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 20242
+        },
+        "comment_id": {
+          "present": 7556,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 7556
+        },
+        "document_id": {
+          "present": 2272,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 2272
+        },
+        "document_type": {
+          "present": 1168,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1168
+        },
+        "collection_name": {
+          "present": 1964,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1964
+        },
+        "tag_id": {
+          "present": 4609,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 4609
+        },
+        "sequence_id": {
+          "present": 222,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 222
+        },
+        "user_id_displayed": {
+          "present": 424,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 424
+        },
+        "mounted_post_id": {
+          "present": 275,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 275
+        },
+        "path": {
+          "present": 61601,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 61601
+        },
+        "url": {
+          "present": 6011,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 6011
+        },
+        "referrer": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1152
+        },
+        "href": {
+          "present": 547,
+          "null": 24,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 523
+        },
+        "page_context": {
+          "present": 31939,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 31939
+        },
+        "page_section_context": {
+          "present": 34125,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 34125
+        },
+        "page_sub_section_context": {
+          "present": 1744,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1744
+        },
+        "page_element_context": {
+          "present": 9786,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 9786
+        },
+        "page_parent_element_context": {
+          "present": 1176,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1176
+        },
+        "page_modal_context": {
+          "present": 15,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 15
+        },
+        "utm_source": {
+          "present": 562,
+          "null": 558,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 4
+        },
+        "utm_medium": {
+          "present": 562,
+          "null": 559,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 3
+        },
+        "utm_campaign": {
+          "present": 562,
+          "null": 558,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 4
+        },
+        "post_ids": {
+          "present": 1038,
+          "null": 0,
+          "invalid": 10,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1028
+        },
+        "increment": {
+          "present": 1367,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 642,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 725
+        },
+        "seconds": {
+          "present": 1367,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 642,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 725
+        },
+        "duration_ms": {
+          "present": 639,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 639
+        },
+        "hover_duration": {
+          "present": 192,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 192
+        },
+        "word_count": {
+          "present": 545,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 545
+        },
+        "feed_card_index": {
+          "present": 1881,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1881
+        },
+        "mounted_post_base_score": {
+          "present": 275,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 275
+        },
+        "is_visible": {
+          "present": 1214,
+          "null": 0,
+          "invalid": 435,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 779
+        },
+        "is_intersecting": {
+          "present": 1429,
+          "null": 0,
+          "invalid": 461,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 968
+        },
+        "cached": {
+          "present": 275,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 275
+        },
+        "intersection_ratio": {
+          "present": 1429,
+          "null": 0,
+          "invalid": 595,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 834
+        },
+        "mounted_post_score": {
+          "present": 275,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 275
+        },
+        "current_playback_position": {
+          "present": 1778,
+          "null": 350,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1428
+        },
+        "playback_speed": {
+          "present": 1778,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1778
+        },
+        "feed_type": {
+          "present": 1178,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1178
+        },
+        "feed_item_id": {
+          "present": 300,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 300
+        },
+        "algorithm": {
+          "present": 190,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 190
+        },
+        "result_id": {
+          "present": 75,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 75
+        },
+        "result_type": {
+          "present": 75,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 75
+        },
+        "episode_id": {
+          "present": 2685,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 2685
+        },
+        "query_text": {
+          "present": 658,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 18,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 640
+        },
+        "ultra_feed_session_id": {
+          "present": 2643,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 2643
+        },
+        "timings_total_time": {
+          "present": 271,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 271
+        },
+        "timings_render_time": {
+          "present": 9,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 9
+        },
+        "browser_mobile": {
+          "present": 216,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 216
+        },
+        "browser_os_name": {
+          "present": 1051,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1051
+        },
+        "user_agent": {
+          "present": 1381,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1381
+        },
+        "navigation_to": {
+          "present": 2933,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 1410,
+          "conflicts": 0,
+          "normalized": 6,
+          "valid": 1523
+        },
+        "navigation_from": {
+          "present": 1414,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 689,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 725
+        },
+        "to_post_id": {
+          "present": 11,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 11
+        },
+        "from_post_id": {
+          "present": 10,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 10
+        },
+        "prefers_dark_mode": {
+          "present": 1171,
+          "null": 0,
+          "invalid": 250,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 921
+        },
+        "browser_tablet": {
+          "present": 4,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 4
+        },
+        "browser_chrome": {
+          "present": 861,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 530
+        },
+        "browser_safari": {
+          "present": 133,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 133
+        },
+        "browser_firefox": {
+          "present": 94,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 94
+        },
+        "browser_blocks_ga": {
+          "present": 977,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 646
+        },
+        "browser_blocks_gtm": {
+          "present": 977,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 977
+        },
+        "utm_content": {
+          "present": 487,
+          "null": 486,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1
+        },
+        "utm_term": {
+          "present": 487,
+          "null": 487,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 0
+        },
+        "browser_time_origin_ms": {
+          "present": 1096,
+          "null": 0,
+          "invalid": 427,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 669
+        },
+        "browser_used_js_heap_bytes": {
+          "present": 918,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 587
+        },
+        "browser_navigation_start": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 204,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 948
+        },
+        "browser_request_start": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_response_start": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_response_end": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 196,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 956
+        },
+        "browser_dom_interactive": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_dom_content_loaded_event_end": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_load_event_end": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "ab_test_groups": {
+          "present": 411,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 411
+        },
+        "ab_test_groups_used": {
+          "present": 4758,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 4758
+        },
+        "previous_session_id": {
+          "present": 48,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 48
+        },
+        "previous_session_last_activity": {
+          "present": 48,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 48
+        },
+        "visibility_state": {
+          "present": 1239,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1239
+        },
+        "activity_state": {
+          "present": 1793,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 1043,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 750
+        },
+        "in_view_type": {
+          "present": 1436,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1436
+        },
+        "threshold": {
+          "present": 365,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 209,
+          "conflicts": 0,
+          "normalized": 3,
+          "valid": 156
+        },
+        "in_view_time_ms": {
+          "present": 1429,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 717,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 712
+        },
+        "button_pressed": {
+          "present": 2803,
+          "null": 0,
+          "invalid": 788,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 2015
+        },
+        "onsite": {
+          "present": 433,
+          "null": 0,
+          "invalid": 33,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 400
+        },
+        "hover_preview_type": {
+          "present": 464,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 464
+        },
+        "hover_event_type": {
+          "present": 143,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 143
+        },
+        "hover_captured_at": {
+          "present": 1165,
+          "null": 0,
+          "invalid": 313,
+          "out_of_scope": 589,
+          "conflicts": 0,
+          "normalized": 263,
+          "valid": 263
+        },
+        "view_type": {
+          "present": 1594,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1594
+        },
+        "list_context": {
+          "present": 3578,
+          "null": 0,
+          "invalid": 31,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 3547
+        },
+        "sorted_by": {
+          "present": 1335,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1335
+        },
+        "list_limit": {
+          "present": 1335,
+          "null": 0,
+          "invalid": 145,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1190
+        },
+        "is_sticky": {
+          "present": 1242,
+          "null": 0,
+          "invalid": 110,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1132
+        },
+        "single_line_comment": {
+          "present": 2450,
+          "null": 0,
+          "invalid": 124,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 2326
+        },
+        "post_mount_data": {
+          "present": 429,
+          "null": 0,
+          "invalid": 191,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 238
+        },
+        "post_visibility": {
+          "present": 688,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 688
+        },
+        "post_ids_with_scenario": {
+          "present": 37,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 37
+        },
+        "ultra_feed_sources": {
+          "present": 917,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 917
+        },
+        "ultra_feed_element_type": {
+          "present": 999,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 999
+        },
+        "feed_comment_index": {
+          "present": 169,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 169
+        },
+        "server_id": {
+          "present": 3066,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 3066
+        },
+        "timings_prerender_time": {
+          "present": 9,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 9
+        },
+        "browser_domain_lookup_start": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_domain_lookup_end": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_connect_start": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_connect_end": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_secure_connection_start": {
+          "present": 1151,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 820
+        },
+        "browser_dom_content_loaded_event_start": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_load_event_start": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "ultra_feed_card_id": {
+          "present": 1223,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1223
+        },
+        "served_event_id": {
+          "present": 149,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 149
+        },
+        "recent_discussion_feed_session_id": {
+          "present": 324,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 324
+        },
+        "feedback_event_id": {
+          "present": 223,
+          "null": 3,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 220
+        },
+        "index_name": {
+          "present": 75,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 75
+        },
+        "content_type": {
+          "present": 42,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 42
+        },
+        "search_query": {
+          "present": 0,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 0
+        },
+        "search_result_position": {
+          "present": 67,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 67
+        },
+        "bookmarked": {
+          "present": 725,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 725
+        },
+        "subscribed": {
+          "present": 275,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 275
+        },
+        "expanded": {
+          "present": 830,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 830
+        },
+        "focus": {
+          "present": 175,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 175
+        },
+        "draft": {
+          "present": 190,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 190
+        },
+        "success": {
+          "present": 278,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 278
+        },
+        "dialog_name": {
+          "present": 900,
+          "null": 5,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 895
+        },
+        "form_type": {
+          "present": 175,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 175
+        },
+        "error_message": {
+          "present": 355,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 355
+        },
+        "is_open": {
+          "present": 7465,
+          "null": 0,
+          "invalid": 311,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 7154
+        },
+        "expansion_level": {
+          "present": 175,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 175
+        },
+        "episode_type": {
+          "present": 3299,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 3299
+        },
+        "chapter_index": {
+          "present": 298,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 298
+        },
+        "browser_dom_complete": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_dom_loading": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_fetch_start": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_redirect_start": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "browser_redirect_end": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 159,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 993
+        },
+        "browser_unload_event_start": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1152
+        },
+        "browser_unload_event_end": {
+          "present": 1152,
+          "null": 0,
+          "invalid": 331,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 821
+        },
+        "timings_cpu_time": {
+          "present": 4,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 4
+        },
+        "timings_wall_time": {
+          "present": 4,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 4
+        },
+        "timings_sql_bytes_downloaded": {
+          "present": 1,
+          "null": 0,
+          "invalid": 0,
+          "out_of_scope": 0,
+          "conflicts": 0,
+          "normalized": 0,
+          "valid": 1
+        }
+      }
+    }
+  },
+  "validation_note": "This extraction audit preceded a destination-only ZSTD(3) codec change on content_hash and properties_hash. The parser and field registry did not change. The final codec revision is measured separately in typed-schema-benchmark.json.",
+  "final_codec_revision_fingerprint": "ae85f429dbde53eaf6e6788bac4a454ad3f5177752c2ad0e961e7dc07bdc090e"
+}
