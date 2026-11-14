@@ -5,7 +5,7 @@ import { useForumType } from '@/components/hooks/useForumType';
 import type { ForumTypeString } from '@/lib/instanceSettings';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive, ultraFeedEnabledSetting } from '@/lib/instanceSettings';
+import { showReviewOnFrontPageIfActive } from '@/lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
@@ -18,22 +18,19 @@ import SingleColumnSection from "./SingleColumnSection";
 import { DismissibleSpotlightItemSuspense } from "@/components/spotlights/DismissibleSpotlightItem";
 import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
-import UltraFeed from "../ultraFeed/UltraFeed";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
-import DeferRender from './DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ErrorBoundary from './ErrorBoundary';
 import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
+import ClaudeFrontpageFeed from './ClaudeFrontpageFeed';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
 import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, sidenotesHiddenBreakpoint } from '../posts/PostsPage/constants';
 
-import dynamic from 'next/dynamic';
 import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
 import { INKHAVEN_RESIDENCY_3_END, INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID, INKHAVEN_RESIDENCY_3_START } from '../seasonal/Inkhaven2026Banner';
 import PetrovStoryMobileBanner from '../seasonal/petrovDay/petrov-day-story/PetrovStoryMobileBanner';
 import { useIsPetrovDayRitualActive } from '../seasonal/petrovDay/petrov-day-story/useIsPetrovDayRitualActive';
-const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const styles = defineStyles("LWHome", (theme: ThemeType) => ({
   feedSections: {
@@ -141,9 +138,9 @@ const LWHome = () => {
                   <QuickTakesSection />
 
                   <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
-                    <SuspenseWrapper name="UltraFeed">
+                    <SuspenseWrapper name="ClaudeFrontpageFeed">
                       <ErrorBoundary fallback={<UltraFeedErrorFallback />}>
-                        <UltraFeedOrRecentDiscussion/>
+                        <ClaudeFrontpageFeed/>
                       </ErrorBoundary>
                     </SuspenseWrapper>
                   </AnalyticsInViewTracker>
@@ -155,21 +152,6 @@ const LWHome = () => {
       </AnalyticsContext>
     </SuspenseWrapper>
   )
-}
-
-const UltraFeedOrRecentDiscussion = () => {
-  const { forumType } = useForumType();
-  const ultraFeedEnabled = ultraFeedEnabledSetting.get(forumType)
-  
-  return ultraFeedEnabled
-    ? <UltraFeed />
-    : <DeferRender ssr={false}>
-        <RecentDiscussionFeed
-          af={false}
-          commentsLimit={4}
-          maxAgeHours={18}
-        />
-      </DeferRender>
 }
 
 const UpdateLastVisitCookie = () => {
