@@ -1,6 +1,8 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useOnNavigate } from '../hooks/useOnNavigate';
+import { useMessages } from './withMessages';
+import ErrorBoundary from './ErrorBoundary';
 
 export type DialogContentsFn = (args: {onClose: () => void}) => React.ReactNode
 
@@ -23,6 +25,7 @@ export const DialogManager = ({children}: {
   const [dialogContents, setDialogContents] = useState<DialogContentsFn|null>(null);
   const [closeOnNavigate, setCloseOnNavigate] = useState<boolean>(false);
   const {captureEvent} = useTracking();
+  const {flash} = useMessages();
   
   const closeDialog = useCallback(() => {
     captureEvent("dialogBox", {open: false, dialogName})
@@ -45,12 +48,19 @@ export const DialogManager = ({children}: {
     if (closeOnNavigate) closeDialog()
   })
 
+  const onDialogError = useCallback(() => {
+    closeDialog();
+    flash("Something went wrong opening this dialog. Check your internet connection and try again.");
+  }, [closeDialog, flash]);
+
   return (
     <OpenDialogContext.Provider value={providedContext}>
       {children}
-      {dialogContents && <span>
-        {dialogContents({onClose: closeDialog})}
-      </span>}
+      {dialogContents && <ErrorBoundary hideMessage onError={onDialogError}>
+        <span>
+          {dialogContents({onClose: closeDialog})}
+        </span>
+      </ErrorBoundary>}
     </OpenDialogContext.Provider>
   );
 }

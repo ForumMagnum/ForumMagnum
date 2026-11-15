@@ -5,6 +5,7 @@ import ErrorMessage from "./ErrorMessage";
 interface ErrorBoundaryProps {
   fallback?: React.ReactNode
   hideMessage?: boolean
+  onError?: (error: Error) => void
   children: React.ReactNode,
 }
 
@@ -49,6 +50,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     });
 
     captureException(error);
+    this.props.onError?.(error);
   }
 
   render() {
