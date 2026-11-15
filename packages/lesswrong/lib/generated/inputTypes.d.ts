@@ -1700,6 +1700,7 @@ interface BookmarksUserDocumentBookmarkInput {
 
 interface BookmarkSelector {
   myBookmarkedPosts: EmptyViewInput | null;
+  myBookmarkedComments: EmptyViewInput | null;
   myBookmarks: EmptyViewInput | null;
   userDocumentBookmark: BookmarksUserDocumentBookmarkInput | null;
 }

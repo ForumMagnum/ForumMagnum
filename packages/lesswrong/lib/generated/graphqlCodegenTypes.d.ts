@@ -342,6 +342,7 @@ type Bookmark = {
 };
 
 type BookmarkSelector = {
+  myBookmarkedComments?: InputMaybe<EmptyViewInput>;
   myBookmarkedPosts?: InputMaybe<EmptyViewInput>;
   myBookmarks?: InputMaybe<EmptyViewInput>;
   userDocumentBookmark?: InputMaybe<BookmarksUserDocumentBookmarkInput>;
@@ -13902,6 +13903,25 @@ type PostsAnalyticsPageQueryVariables = Exact<{
 
 type PostsAnalyticsPageQuery = PostsAnalyticsPageQuery_Query;
 
+type multiBookmarkBookmarkedCommentsListQueryQuery_bookmarks_MultiBookmarkOutput_results_Bookmark = (
+  { __typename?: 'Bookmark' }
+  & BookmarksWithCommentFragment
+);
+
+type multiBookmarkBookmarkedCommentsListQueryQuery_bookmarks_MultiBookmarkOutput = { __typename?: 'MultiBookmarkOutput', totalCount: number | null, results: Array<multiBookmarkBookmarkedCommentsListQueryQuery_bookmarks_MultiBookmarkOutput_results_Bookmark> };
+
+type multiBookmarkBookmarkedCommentsListQueryQuery_Query = { __typename?: 'Query', bookmarks: multiBookmarkBookmarkedCommentsListQueryQuery_bookmarks_MultiBookmarkOutput | null };
+
+
+type multiBookmarkBookmarkedCommentsListQueryQueryVariables = Exact<{
+  selector: InputMaybe<BookmarkSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiBookmarkBookmarkedCommentsListQueryQuery = multiBookmarkBookmarkedCommentsListQueryQuery_Query;
+
 type multiBookmarkBookmarksFeedQueryQuery_bookmarks_MultiBookmarkOutput_results_Bookmark = (
   { __typename?: 'Bookmark' }
   & BookmarksFeedItemFragment
@@ -24783,6 +24803,16 @@ type BookmarksWithDocumentFragment_Bookmark_post_Post = (
 
 type BookmarksWithDocumentFragment = (
   { __typename?: 'Bookmark', post: BookmarksWithDocumentFragment_Bookmark_post_Post | null }
+  & BookmarksMinimumInfoFragment
+);
+
+type BookmarksWithCommentFragment_Bookmark_comment_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type BookmarksWithCommentFragment = (
+  { __typename?: 'Bookmark', comment: BookmarksWithCommentFragment_Bookmark_comment_Comment | null }
   & BookmarksMinimumInfoFragment
 );
 
