@@ -681,15 +681,14 @@ function drafts(terms: PostsViewTerms) {
     query.selector.hideAuthor = false
   }
   
+  // TODO: Posts.wordCount is marked deprecated (it exists for GreaterWrong); the word-count sorts use it because its sqlResolver is the latest revision's word count. Please review.
   switch (terms.sortDraftsBy) {
     case 'wordCountAscending': {
-      // FIXME: This should have "contents.wordCount": 1, but that crashes
-      query.options.sort = {modifiedAt: -1, createdAt: -1}
+      query.options.sort = {wordCount: 1, modifiedAt: -1, createdAt: -1}
       break
     }
     case 'wordCountDescending': {
-      // FIXME: This should have "contents.wordCount": -1, but that crashes
-      query.options.sort = {modifiedAt: -1, createdAt: -1}
+      query.options.sort = {wordCount: -1, modifiedAt: -1, createdAt: -1}
       break
     }
     case 'lastModified': {

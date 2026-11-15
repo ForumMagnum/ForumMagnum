@@ -1,6 +1,32 @@
 import SelectQuery from "./SelectQuery";
+import type ProjectionContext from "./ProjectionContext";
 import type { CodeResolverMap, PrefixGenerator } from "./ProjectionContext";
 import type { ParsedSqlFragment } from "./SqlFragment";
+import type Table from "./Table";
+
+/**
+ * Sort keys that are SQL-resolver fields sort by the resolver's expression,
+ * and add its joins even if the fragment doesn't select that field. This
+ * deliberately ignores `enableCustomSqlResolvers`, which only exists to keep
+ * expensive resolver expressions out of projections.
+ */
+function getSqlResolverSortExpressions<N extends CollectionNameString>(
+  projection: ProjectionContext<N>,
+  table: Table<ObjectsByCollectionName[N]>,
+  syntheticFieldNames: string[],
+  sort?: MongoSort<ObjectsByCollectionName[N]>,
+): Record<string, string> {
+  const resolverSortFields = Object.keys(sort ?? {}).filter(
+    (field) => !table.getField(field) && !syntheticFieldNames.includes(field),
+  );
+  const schema = projection.getSchema();
+  return Object.fromEntries(resolverSortFields.flatMap((field) => {
+    const sqlResolver = schema[field]?.graphql?.sqlResolver;
+    return sqlResolver
+      ? [[field, sqlResolver(projection.getSqlResolverArgs())]]
+      : [];
+  }));
+}
 
 /**
  * `SelectFragmentQuery` is the main external interface for running select
@@ -21,6 +47,7 @@ class SelectFragmentQuery<
 > extends SelectQuery<ObjectsByCollectionName[N]> {
   private projectionArgs: unknown[];
   private codeResolvers: CodeResolverMap = {};
+  private sqlResolverSortExpressions: Record<string, string>;
 
   constructor(
     /** The SQL fragment to use */
@@ -63,6 +90,13 @@ class SelectFragmentQuery<
       ? this.getSyntheticFields(addFields)
       : [];
 
+    this.sqlResolverSortExpressions = getSqlResolverSortExpressions(
+      projection,
+      table,
+      Object.keys(addFields ?? {}),
+      options?.sort,
+    );
+
     const {
       projection: projectionSql,
       table: tableSql,
@@ -81,6 +115,11 @@ class SelectFragmentQuery<
 
     this.initSelector(selector, options);
     this.codeResolvers = projection.getCodeResolvers();
+  }
+
+  protected resolveFieldName(field: string, typeHint?: any): string {
+    return this.sqlResolverSortExpressions[field]
+      ?? super.resolveFieldName(field, typeHint);
   }
 
   private getCommentLine() {

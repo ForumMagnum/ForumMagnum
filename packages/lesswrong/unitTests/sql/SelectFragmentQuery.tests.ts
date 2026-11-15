@@ -1,7 +1,7 @@
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import { createSqlFragmentFromAst } from "@/server/sql/SqlFragment";
 import { runTestCases } from "@/server/sql/tests/testHelpers";
-import { TestCollection4DefaultFragment, TestCollection4ArgFragment, TestCollection3DefaultFragment, TestCollection2DefaultFragment } from "@/server/sql/tests/testFragments";
+import { TestCollection4DefaultFragment, TestCollection4ArgFragment, TestCollection3DefaultFragment, TestCollection2DefaultFragment, TestCollection4IdFragment } from "@/server/sql/tests/testFragments";
 import { Kind, type DocumentNode, type FragmentDefinitionNode } from "graphql";
 import { enableCustomSqlResolvers } from "@/server/sql/ProjectionContext";
 
@@ -66,6 +66,35 @@ describe("SelectFragmentQuery", () => {
         WHERE "t"."_id" =  $3
       `,
       expectedArgs: ["test-user-id", "some-test-id", "test-document-id"],
+    },
+  ]);
+});
+
+const sortByResolverField = {sort: {testCollection3SchemaVersion: -1, _id: 1}};
+
+describe("SelectFragmentQuery sorting", () => {
+  runTestCases([
+    {
+      name: "can sort by a field with a SQL resolver that isn't in the fragment",
+      getQuery: () => new SelectFragmentQuery(
+        createSqlFragmentFromAst('TestCollection4IdFragment', getFragmentDefs(TestCollection4IdFragment)),
+        {_id: "test-user-id"} as DbUser,
+        null,
+        {},
+        undefined,
+        sortByResolverField,
+        () => "q",
+      ),
+      expectedSql: `
+        -- Fragment TestCollection4IdFragment
+        SELECT
+          "t".*
+        FROM "TestCollection4" "t"
+        LEFT JOIN "Users" "currentUser" ON "currentUser"."_id" = $1
+        LEFT JOIN "TestCollection3" "q" ON "q"."_id" = "t"."_id"
+        ORDER BY "q"."schemaVersion" DESC NULLS LAST, "t"."_id" ASC NULLS FIRST
+      `,
+      expectedArgs: ["test-user-id"],
     },
   ]);
 });
