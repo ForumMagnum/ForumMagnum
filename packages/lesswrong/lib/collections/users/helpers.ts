@@ -135,6 +135,9 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
   )
 }
 
+export const MODERATE_OWN_PERSONAL_KARMA_THRESHOLD = 50;
+export const TRUSTLEVEL1_KARMA_THRESHOLD = 2000;
+
 const postHasModerationGuidelines = (
   post: PostsBase | PostsModerationGuidelines | DbPost,
 ): boolean => {
@@ -203,6 +206,27 @@ export const userCanModerateComment = (user: UsersProfile|UsersCurrent|DbUser|nu
   } else {
     return false
   }
+}
+
+export const getPostAuthorCommentDeletionBlockedReason = (
+  user: UsersCurrent|DbUser|null,
+  post: PostsBase|DbPost,
+): string|null => {
+  if (!user || !userOwns(user, post) || userCanModeratePost(user, post)) {
+    return null;
+  }
+  const canModeratePersonalPosts = userCanDo(user, "posts.moderate.own.personal");
+  const canModerateAllOwnPosts = userCanDo(user, "posts.moderate.own");
+  if (!canModeratePersonalPosts && !canModerateAllOwnPosts) {
+    return `You need at least ${MODERATE_OWN_PERSONAL_KARMA_THRESHOLD} karma to delete comments on your posts.`;
+  }
+  if (post.frontpageDate && !canModerateAllOwnPosts) {
+    return `You need at least ${TRUSTLEVEL1_KARMA_THRESHOLD} karma to delete comments on your frontpage posts.`;
+  }
+  if (post.shortform) {
+    return "You can't delete comments on your quick takes page because it doesn't have moderation guidelines or a moderation style set.";
+  }
+  return "You can only delete comments on your posts if the post has moderation guidelines or a moderation style set. You can add these by editing the post.";
 }
 
 export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase | DbPost | (EditablePost & { userId: string | null}) | null): boolean => {

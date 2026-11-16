@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMessages } from '../../common/withMessages';
-import { userCanModerateComment } from '../../../lib/collections/users/helpers';
+import { getPostAuthorCommentDeletionBlockedReason, userCanModerateComment } from '../../../lib/collections/users/helpers';
 import { useDialog } from '../../common/withDialog'
 import { useModerateComment } from './withModerateComment';
 import { useCurrentUser } from '../../common/withUser';
@@ -45,12 +45,23 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
     }
   }
 
-  if (
-    !currentUser
-    || (!post && !tag)
-    || !userCanModerateComment(currentUser, post ?? null, tag ?? null, comment)
-  ) {
+  if (!currentUser || (!post && !tag)) {
     return null;
+  }
+  if (!userCanModerateComment(currentUser, post ?? null, tag ?? null, comment)) {
+    const deletionBlockedReason = post && !comment.deleted
+      ? getPostAuthorCommentDeletionBlockedReason(currentUser, post)
+      : null;
+    if (!deletionBlockedReason) {
+      return null;
+    }
+    return (
+      <DropdownItem
+        title="Delete"
+        disabled
+        tooltip={deletionBlockedReason}
+      />
+    );
   }
   if (!comment.deleted) {
     return (
