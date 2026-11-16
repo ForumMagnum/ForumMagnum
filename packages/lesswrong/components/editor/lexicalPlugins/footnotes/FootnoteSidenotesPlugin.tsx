@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { mergeRegister } from '@lexical/utils';
+import { $getNearestNodeFromDOMNode } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useStyles } from '@/components/hooks/useStyles';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
@@ -16,6 +17,7 @@ import {
   footnotePreviewStyles,
 } from '@/components/linkPreview/FootnotePreview';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
+import { $isLLMContentBlockNode } from '../llmContentOutput/LLMContentBlockNode';
 
 type LexicalFootnoteSidenote = {
   key: string,
@@ -55,7 +57,25 @@ function getFootnoteContentElement(rootElement: HTMLElement, footnoteId: string)
   return footnoteContentElement instanceof HTMLElement ? footnoteContentElement : null;
 }
 
-function collectSidenotes(rootElement: HTMLElement): LexicalFootnoteSidenote[] {
+function $getFootnoteSidenoteHTML(footnoteContentElement: HTMLElement): string {
+  const clone = footnoteContentElement.cloneNode(true);
+  if (!(clone instanceof HTMLElement)) {
+    throw new Error('Cloned footnote content is not an HTMLElement');
+  }
+  const liveLLMBlocks = Array.from(footnoteContentElement.querySelectorAll('.llm-content-block'));
+  const clonedLLMBlocks = Array.from(clone.querySelectorAll('.llm-content-block'));
+  clonedLLMBlocks.forEach((clonedBlock, i) => {
+    const node = $getNearestNodeFromDOMNode(liveLLMBlocks[i]);
+    if ($isLLMContentBlockNode(node)) {
+      clonedBlock.setAttribute('data-model-name', node.getModelName());
+    }
+    clonedBlock.querySelectorAll(':scope > .llm-content-block-header').forEach((header) => header.remove());
+  });
+  clone.querySelectorAll('[contenteditable]').forEach((element) => element.removeAttribute('contenteditable'));
+  return clone.outerHTML;
+}
+
+function $collectSidenotes(rootElement: HTMLElement): LexicalFootnoteSidenote[] {
   const references = Array.from(rootElement.querySelectorAll<HTMLElement>(
     `.${FOOTNOTE_CLASSES.footnoteReference}[${FOOTNOTE_ATTRIBUTES.footnoteId}]`
   ));
@@ -72,7 +92,7 @@ function collectSidenotes(rootElement: HTMLElement): LexicalFootnoteSidenote[] {
       key: `${footnoteId}:${index}`,
       anchorEl: referenceEl,
       footnoteHref: `#fn${footnoteId}`,
-      footnoteHTML: footnoteContentElement.outerHTML,
+      footnoteHTML: $getFootnoteSidenoteHTML(footnoteContentElement),
       footnoteIndex: referenceEl.getAttribute(FOOTNOTE_ATTRIBUTES.footnoteIndex),
     }];
   });
@@ -167,7 +187,7 @@ export const FootnoteSidenotesPlugin = ({
         setSidenotes((prev) => prev.length ? [] : prev);
         return;
       }
-      const nextSidenotes = collectSidenotes(rootElement);
+      const nextSidenotes = editor.getEditorState().read(() => $collectSidenotes(rootElement), { editor });
       setSidenotes((prev) => sidenotesAreEqual(prev, nextSidenotes) ? prev : nextSidenotes);
     };
 
