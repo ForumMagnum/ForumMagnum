@@ -8,6 +8,8 @@ import {
   getSearchOriginDate,
 } from "./ElasticQuery";
 import moment from "moment";
+import LRU from "lru-cache";
+import stringify from "json-stringify-deterministic";
 import type { SearchOptions, SearchQuery } from "@/lib/search/NativeSearchClient";
 import { searchPostTypes, SearchPostType } from "@/lib/search/searchFilters";
 
@@ -38,6 +40,18 @@ const extractNamedHighlight = (
     matchLevel: value ? "full" : "none",
   };
 }
+
+/**
+ * Opening the search modal runs an empty unified search, which has no text
+ * evidence and so scores every eligible document by popularity. Its results are
+ * the same for everyone and change slowly, so they're shared for an hour.
+ * Date filters are left out because their bounds move with the clock.
+ */
+const emptySearchCache = new LRU<string, Promise<HitsOnlySearchResponse>>({
+  maxAge: 1000 * 60 * 60,
+  updateAgeOnGet: false,
+  max: 100,
+});
 
 class ElasticService {
   constructor(
@@ -125,7 +139,7 @@ class ElasticService {
     options: SearchOptions,
   ): Promise<HitsOnlySearchResponse> {
     if (options.mode === "unified") {
-      return this.client.unifiedSearch({
+      const queryData = {
         indexes: Array.isArray(index) ? index : [index],
         filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters, params),
         preTag: params.highlightPreTag,
@@ -133,7 +147,17 @@ class ElasticService {
         search,
         offset,
         limit,
-      });
+      };
+      if (search !== "" || queryData.filters.some(({type}) => type === "numeric")) {
+        return this.client.unifiedSearch(queryData);
+      }
+      const key = stringify(queryData);
+      const cached = emptySearchCache.get(key);
+      if (cached) return cached;
+      const result = this.client.unifiedSearch(queryData);
+      emptySearchCache.set(key, result);
+      result.catch(() => emptySearchCache.del(key));
+      return result;
     }
     if (Array.isArray(index)) {
       return this.client.multiSearch({indexes: index, search, offset, limit});
