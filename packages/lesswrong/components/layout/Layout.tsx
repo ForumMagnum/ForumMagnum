@@ -48,6 +48,7 @@ import { PopperPortalProvider } from '../common/LWPopper';
 import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarContextProvider';
 import { getHomeDesignActiveSnapshot, subscribeToHomeDesignActive } from '../common/HomeDesignChatContext';
 import { usePathname } from 'next/navigation';
+import { globalFontFaces } from '@/themes/globalStyles/externalStyles';
 
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
 const SidebarLanguageModelChat = dynamic(() => import("../languageModels/SidebarLanguageModelChat"), { ssr: false });
@@ -88,17 +89,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
       willChange: 'auto !important',
       zIndex: theme.zIndexes.styledMapPopup
     },
-    // Font fallback to ensure that all greek letters just directly render as Arial
-    '@font-face': [{
-        fontFamily: "GreekFallback",
-        src: "local('Arial')",
-        unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
-      },
-      {
-        fontFamily: "ETBookRoman",
-        src: "url('https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1723063815/et-book-roman-line-figures_tvofzs.woff') format('woff')",  
-      },
-    ],
+    '@font-face': globalFontFaces,
     // Hide the CKEditor table alignment menu
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"

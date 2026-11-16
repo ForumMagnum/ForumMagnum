@@ -4,6 +4,16 @@ import React, { useState } from 'react';
 import type { ContentCardData } from '../lib/types';
 import UserHeader from './UserHeader';
 import HighlightedHtml from './HighlightedHtml';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { postPageTitleStyles } from '@/components/posts/PostsPage/PostsPageTitle';
+
+const styles = defineStyles('SimpleModContentCard', (theme: ThemeType) => ({
+  postTitle: {
+    ...postPageTitleStyles(theme),
+    marginTop: 4,
+    marginBottom: 20,
+  },
+}));
 
 export type CheckState = 'running' | 'failed' | null;
 
@@ -56,7 +66,7 @@ const ParentCommentContext = ({ author, html }: { author: string | null; html: s
         {expanded ? '▾' : '▸'} Replying to {author ?? 'unknown user'}
       </button>
       {expanded && (
-        <div className="content-html parent-comment-body" dangerouslySetInnerHTML={{ __html: html }} />
+        <HighlightedHtml className="parent-comment-body" html={html} windowScores={null} collectionName="Comments" />
       )}
     </div>
   );
@@ -67,6 +77,7 @@ const ContentCard = ({ card, checkState = null, onRetryCheck }: {
   checkState?: CheckState;
   onRetryCheck?: () => void;
 }) => {
+  const classes = useStyles(styles);
   const { user, item, remainingCount } = card;
   const positionLabel = remainingCount > 1 ? `${remainingCount} unreviewed from this user` : 'last unreviewed item';
   return (
@@ -86,7 +97,7 @@ const ContentCard = ({ card, checkState = null, onRetryCheck }: {
         <a className="external-link" href={item.itemUrl} target="_blank" rel="noreferrer">open on site ↗</a>
       </div>
       {item.collectionName === 'Posts' ? (
-        <h2 className="content-title">{item.title}</h2>
+        <h1 className={classes.postTitle}>{item.title}</h1>
       ) : (
         <>
           {item.postTitle && <div className="content-context">Comment on: {item.postTitle}</div>}
@@ -95,7 +106,12 @@ const ContentCard = ({ card, checkState = null, onRetryCheck }: {
           )}
         </>
       )}
-      <HighlightedHtml className="content-html content-html-reading" html={item.html} windowScores={item.pangramWindowScores} />
+      <HighlightedHtml
+        className="content-reading"
+        html={item.html}
+        windowScores={item.pangramWindowScores}
+        collectionName={item.collectionName}
+      />
     </div>
   );
 };
