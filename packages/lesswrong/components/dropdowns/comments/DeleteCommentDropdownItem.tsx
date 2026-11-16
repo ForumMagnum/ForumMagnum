@@ -1,10 +1,10 @@
 import React from 'react';
 import { useMessages } from '../../common/withMessages';
-import { getPostAuthorCommentDeletionBlockedReason, userCanModerateComment } from '../../../lib/collections/users/helpers';
+import { userCanModerateComment } from '../../../lib/collections/users/helpers';
 import { useDialog } from '../../common/withDialog'
 import { useModerateComment } from './withModerateComment';
 import { useCurrentUser } from '../../common/withUser';
-import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
+import { userIsAdminOrMod, userOwns } from '../../../lib/vulcan-users/permissions';
 import DeleteCommentDialog from "./DeleteCommentDialog";
 import DropdownItem from "../DropdownItem";
 
@@ -48,18 +48,16 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
   if (!currentUser || (!post && !tag)) {
     return null;
   }
-  if (!userCanModerateComment(currentUser, post ?? null, tag ?? null, comment)) {
-    const deletionBlockedReason = post && !comment.deleted
-      ? getPostAuthorCommentDeletionBlockedReason(currentUser, post)
-      : null;
-    if (!deletionBlockedReason) {
+  const moderationPermission = userCanModerateComment(currentUser, post ?? null, tag ?? null, comment);
+  if (!moderationPermission.canModerate) {
+    if (!post || comment.deleted || !userOwns(currentUser, post)) {
       return null;
     }
     return (
       <DropdownItem
         title="Delete"
         disabled
-        tooltip={deletionBlockedReason}
+        tooltip={moderationPermission.reason}
       />
     );
   }

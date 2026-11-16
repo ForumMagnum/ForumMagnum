@@ -187,46 +187,50 @@ export const userCanModeratePost = (
   )
 }
 
-export const userCanModerateComment = (user: UsersProfile|UsersCurrent|DbUser|null, post: PostsBase|DbPost|null , tag: TagBasicInfo|DbTag|null, comment: CommentsList|DbComment) => {
-  if (!user || !comment) {
-    return false;
+type CommentModerationPermission =
+  | { canModerate: true, reason: null }
+  | { canModerate: false, reason: string };
+
+export const userCanModerateComment = (
+  user: UsersProfile|UsersCurrent|DbUser|null,
+  post: PostsBase|DbPost|null,
+  tag: TagBasicInfo|DbTag|null,
+  comment: CommentsList|DbComment,
+): CommentModerationPermission => {
+  if (!user) {
+    return { canModerate: false, reason: "You must be logged in to delete comments." };
+  }
+  if (!post && !tag) {
+    return { canModerate: false, reason: "Comments that aren't on a post or tag can't be deleted." };
+  }
+  const canModerateParent = post
+    ? userCanModeratePost(user, post)
+    : userIsMemberOf(user, "sunshineRegiment");
+  const ownsComment = userOwns(user, comment);
+  if (canModerateParent || (ownsComment && !comment.directChildrenCount)) {
+    return { canModerate: true, reason: null };
+  }
+  if (post && userOwns(user, post)) {
+    const canModeratePersonalPosts = userCanDo(user, "posts.moderate.own.personal");
+    const canModerateAllOwnPosts = userCanDo(user, "posts.moderate.own");
+    if (!canModeratePersonalPosts && !canModerateAllOwnPosts) {
+      return { canModerate: false, reason: `You need at least ${MODERATE_OWN_PERSONAL_KARMA_THRESHOLD} karma to delete comments on your posts.` };
+    }
+    if (post.frontpageDate && !canModerateAllOwnPosts) {
+      return { canModerate: false, reason: `You need at least ${TRUSTLEVEL1_KARMA_THRESHOLD} karma to delete comments on your frontpage posts.` };
+    }
+    if (post.shortform) {
+      return { canModerate: false, reason: "You can't delete comments on your quick takes page because it doesn't have moderation guidelines or a moderation style set." };
+    }
+    return { canModerate: false, reason: "You can only delete comments on your posts if the post has moderation guidelines or a moderation style set. You can add these by editing the post." };
+  }
+  if (ownsComment) {
+    return { canModerate: false, reason: "You can't delete your comment because it has replies." };
   }
   if (post) {
-    if (userCanModeratePost(user, post)) return true 
-    if (userOwns(user, comment) && !comment.directChildrenCount) return true 
-    return false
-  } else if (tag) {
-    if (userIsMemberOf(user, "sunshineRegiment")) {
-      return true;
-    } else if (userOwns(user, comment) && !comment.directChildrenCount) {
-      return true 
-    } else {
-      return false
-    }
-  } else {
-    return false
+    return { canModerate: false, reason: "Only moderators and the post's author can delete this comment." };
   }
-}
-
-export const getPostAuthorCommentDeletionBlockedReason = (
-  user: UsersCurrent|DbUser|null,
-  post: PostsBase|DbPost,
-): string|null => {
-  if (!user || !userOwns(user, post) || userCanModeratePost(user, post)) {
-    return null;
-  }
-  const canModeratePersonalPosts = userCanDo(user, "posts.moderate.own.personal");
-  const canModerateAllOwnPosts = userCanDo(user, "posts.moderate.own");
-  if (!canModeratePersonalPosts && !canModerateAllOwnPosts) {
-    return `You need at least ${MODERATE_OWN_PERSONAL_KARMA_THRESHOLD} karma to delete comments on your posts.`;
-  }
-  if (post.frontpageDate && !canModerateAllOwnPosts) {
-    return `You need at least ${TRUSTLEVEL1_KARMA_THRESHOLD} karma to delete comments on your frontpage posts.`;
-  }
-  if (post.shortform) {
-    return "You can't delete comments on your quick takes page because it doesn't have moderation guidelines or a moderation style set.";
-  }
-  return "You can only delete comments on your posts if the post has moderation guidelines or a moderation style set. You can add these by editing the post.";
+  return { canModerate: false, reason: "Only moderators can delete this comment." };
 }
 
 export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase | DbPost | (EditablePost & { userId: string | null}) | null): boolean => {
