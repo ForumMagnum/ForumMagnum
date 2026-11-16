@@ -2,29 +2,28 @@ import SelectQuery from "./SelectQuery";
 import type ProjectionContext from "./ProjectionContext";
 import type { CodeResolverMap, PrefixGenerator } from "./ProjectionContext";
 import type { ParsedSqlFragment } from "./SqlFragment";
-import type Table from "./Table";
 
 /**
- * Sort keys that are SQL-resolver fields sort by the resolver's expression,
- * and add its joins even if the fragment doesn't select that field. This
- * deliberately ignores `enableCustomSqlResolvers`, which only exists to keep
- * expensive resolver expressions out of projections.
+ * Sort keys that name a schema field with a SQL resolver, rather than a column
+ * or a synthetic field, sort by the resolver's expression. Calling the resolver
+ * adds its joins to `projection`, whether or not the fragment selects the
+ * field. This deliberately ignores `enableCustomSqlResolvers`, which only
+ * exists to keep expensive resolver expressions out of projections.
  */
 function getSqlResolverSortExpressions<N extends CollectionNameString>(
   projection: ProjectionContext<N>,
-  table: Table<ObjectsByCollectionName[N]>,
   syntheticFieldNames: string[],
   sort?: MongoSort<ObjectsByCollectionName[N]>,
-): Record<string, string> {
-  const resolverSortFields = Object.keys(sort ?? {}).filter(
-    (field) => !table.getField(field) && !syntheticFieldNames.includes(field),
-  );
+): Map<string, string> {
+  const table = projection.getCollection().getTable();
   const schema = projection.getSchema();
-  return Object.fromEntries(resolverSortFields.flatMap((field) => {
-    const sqlResolver = schema[field]?.graphql?.sqlResolver;
-    return sqlResolver
-      ? [[field, sqlResolver(projection.getSqlResolverArgs())]]
-      : [];
+  const sqlResolverArgs = projection.getSqlResolverArgs();
+  const unresolvedSortKeys = Object.keys(sort ?? {}).filter(
+    (key) => !table.getField(key) && !syntheticFieldNames.includes(key),
+  );
+  return new Map(unresolvedSortKeys.flatMap((key): [string, string][] => {
+    const sqlResolver = schema[key]?.graphql?.sqlResolver;
+    return sqlResolver ? [[key, sqlResolver(sqlResolverArgs)]] : [];
   }));
 }
 
@@ -47,7 +46,6 @@ class SelectFragmentQuery<
 > extends SelectQuery<ObjectsByCollectionName[N]> {
   private projectionArgs: unknown[];
   private codeResolvers: CodeResolverMap = {};
-  private sqlResolverSortExpressions: Record<string, string>;
 
   constructor(
     /** The SQL fragment to use */
@@ -90,9 +88,8 @@ class SelectFragmentQuery<
       ? this.getSyntheticFields(addFields)
       : [];
 
-    this.sqlResolverSortExpressions = getSqlResolverSortExpressions(
+    const sortExpressions = getSqlResolverSortExpressions(
       projection,
-      table,
       Object.keys(addFields ?? {}),
       options?.sort,
     );
@@ -113,13 +110,8 @@ class SelectFragmentQuery<
     this.atoms.push(joins);
     this.projectionArgs = args;
 
-    this.initSelector(selector, options);
+    this.initSelector(selector, options, {sortExpressions});
     this.codeResolvers = projection.getCodeResolvers();
-  }
-
-  protected resolveFieldName(field: string, typeHint?: any): string {
-    return this.sqlResolverSortExpressions[field]
-      ?? super.resolveFieldName(field, typeHint);
   }
 
   private getCommentLine() {

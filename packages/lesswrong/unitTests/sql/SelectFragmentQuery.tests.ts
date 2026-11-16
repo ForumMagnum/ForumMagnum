@@ -71,6 +71,8 @@ describe("SelectFragmentQuery", () => {
 });
 
 const sortByResolverField = {sort: {testCollection3SchemaVersion: -1, _id: 1}};
+const schemaVersionCopy: Record<string, string> = {schemaVersionCopy: "$schemaVersion"};
+const sortByResolverAndSyntheticFields = {sort: {testCollection3SchemaVersion: -1, schemaVersionCopy: 1, _id: 1}};
 
 describe("SelectFragmentQuery sorting", () => {
   runTestCases([
@@ -93,6 +95,29 @@ describe("SelectFragmentQuery sorting", () => {
         LEFT JOIN "Users" "currentUser" ON "currentUser"."_id" = $1
         LEFT JOIN "TestCollection3" "q" ON "q"."_id" = "t"."_id"
         ORDER BY "q"."schemaVersion" DESC NULLS LAST, "t"."_id" ASC NULLS FIRST
+      `,
+      expectedArgs: ["test-user-id"],
+    },
+    {
+      name: "can sort by a field with a SQL resolver alongside a synthetic field",
+      getQuery: () => new SelectFragmentQuery(
+        createSqlFragmentFromAst('TestCollection4IdFragment', getFragmentDefs(TestCollection4IdFragment)),
+        {_id: "test-user-id"} as DbUser,
+        null,
+        {},
+        schemaVersionCopy,
+        sortByResolverAndSyntheticFields,
+        () => "q",
+      ),
+      expectedSql: `
+        -- Fragment TestCollection4IdFragment
+        SELECT
+          "t".* ,
+          "t"."schemaVersion" AS "schemaVersionCopy"
+        FROM "TestCollection4" "t"
+        LEFT JOIN "Users" "currentUser" ON "currentUser"."_id" = $1
+        LEFT JOIN "TestCollection3" "q" ON "q"."_id" = "t"."_id"
+        ORDER BY "q"."schemaVersion" DESC NULLS LAST, "schemaVersionCopy" ASC NULLS FIRST, "t"."_id" ASC NULLS FIRST
       `,
       expectedArgs: ["test-user-id"],
     },

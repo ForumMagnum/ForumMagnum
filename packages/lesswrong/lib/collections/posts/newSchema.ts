@@ -841,7 +841,8 @@ const schema = {
         }),
     },
   },
-  // DEPRECATED field for GreaterWrong backwards compatibility
+  // DEPRECATED as a GraphQL field, which only exists for GreaterWrong backwards
+  // compatibility. The drafts view also sorts by its sqlResolver.
   wordCount: {
     graphql: {
       outputType: "Int",
