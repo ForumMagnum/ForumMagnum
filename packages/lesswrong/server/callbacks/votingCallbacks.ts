@@ -1,4 +1,7 @@
 import moment from 'moment';
+import groupBy from 'lodash/groupBy';
+import mapValues from 'lodash/mapValues';
+import sumBy from 'lodash/sumBy';
 import Notifications from '../../server/collections/notifications/collection';
 import Users from '../../server/collections/users/collection';
 import { reviewMarketCreationMinimumKarmaSetting } from '../../lib/instanceSettings';
@@ -92,13 +95,64 @@ function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableTyp
   backgroundTask(updatePostDenormalizedTags(postId));
 }
 
-export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
+/**
+ * The users whose karma a vote counts towards: the authors of what it's on,
+ * unless it was cast by one of them, so that authors can't give themselves or
+ * each other karma. `authorIds` is as of when the vote was cast, so cancelling
+ * a vote takes karma from the same users who were given it.
+ */
+function getUsersGivenKarmaByVote(vote: DbVote): string[] {
+  const authorIds = vote.authorIds ?? [];
+  const affectsKarma = !authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName);
+  return affectsKarma ? authorIds : [];
+}
+
+export interface VoteChange {
+  newDocument: DbVoteableType
+  castVote?: DbVote
+  cancelledVotes: DbVote[]
+}
+
+/**
+ * Applies a change to the votes on a document to its authors' karma. Runs in
+ * the same transaction as the change, unlike `onCastVoteAsync` and
+ * `onVoteCancel`.
+ */
+export async function updateKarmaForVoteChange({ newDocument, castVote, cancelledVotes }: VoteChange) {
+  const votePowerChanges = [
+    ...(castVote ? [{ vote: castVote, power: castVote.power }] : []),
+    ...cancelledVotes.map((vote) => ({ vote, power: -vote.power })),
+  ];
+  const karmaChanges = votePowerChanges.flatMap(({ vote, power }) =>
+    getUsersGivenKarmaByVote(vote).map((userId) => ({ userId, power }))
+  );
+  const karmaChangeByUserId = mapValues(
+    groupBy(karmaChanges, ({ userId }) => userId),
+    (userKarmaChanges) => sumBy(userKarmaChanges, ({ power }) => power),
+  );
+
+  // One user at a time, in the same order every time. Two transactions that
+  // updated the same users in different orders could each be left waiting for
+  // a row that the other had locked.
+  for (const userId of Object.keys(karmaChangeByUserId).sort()) {
+    const karmaChange = karmaChangeByUserId[userId];
+    if (karmaChange !== 0) {
+      await Users.rawUpdateOne({_id: userId}, {$inc: {karma: karmaChange}});
+    }
+  }
+
+  for (const vote of cancelledVotes) {
+    await revokeUserAFKarmaForCancelledVote({newDocument, vote});
+  }
+  if (castVote) {
+    await grantUserAFKarmaForVote({newDocument, vote: castVote});
+  }
+}
+
+export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, context: ResolverContext): Promise<void> {
   voteUpdatePostDenormalizedTags({newDocument});
-  cancelVoteKarma({newDocument, vote}, collection, user);
   backgroundTask(cancelVoteCount({newDocument, vote}));
-  backgroundTask(revokeUserAFKarmaForCancelledVote({newDocument, vote}));
-  
-  
+
   if (vote.collectionName === "Revisions") {
     const rev = (newDocument as DbRevision);
     if (rev.collectionName === "Tags" || rev.collectionName === "MultiDocuments") {
@@ -108,7 +162,6 @@ export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, co
 }
 
 export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
-  backgroundTask(grantUserAFKarmaForVote(voteDocTuple));
   backgroundTask(updateTrustedStatus(voteDocTuple, context));
   backgroundTask(updateModerateOwnPersonal(voteDocTuple, context));
   backgroundTask(increaseMaxBaseScore(voteDocTuple, context));
@@ -122,7 +175,7 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
     }
   }
 
-  backgroundTask(updateKarma(voteDocTuple, collection, user, context));
+  backgroundTask(onAuthorKarmaGranted(voteDocTuple, context));
   backgroundTask(incVoteCount(voteDocTuple));
   backgroundTask(checkAutomod(voteDocTuple, collection, user, context));
   backgroundTask(maybeEvaluateTypoReacts(voteDocTuple, context));
@@ -137,28 +190,14 @@ function votesCanTriggerReview(content: DbPost | DbComment) {
   return moment(content.postedAt).isAfter(sixMonthsAgo);
 }
 
-/**
- * @summary Update the karma of the item's owner
- * @param {object} item - The item being operated on
- * @param {object} user - The user doing the operation
- * @param {object} collection - The collection the item belongs to
- * @param {string} operation - The operation being performed
- */
-async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
-  // Only update user karma if the operation isn't done by one of the item's current authors.
-  // We don't want to let any of the authors give themselves or another author karma for this item.
-  // We need to await it so that the subsequent check for whether any stricter rate limits apply can do a proper comparison between old and new karma
-  if (vote.authorIds && !vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
-  // if (!vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    const users = await Users.find({_id: {$in: vote.authorIds}}).fetch();
-    await Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
-    
-    if (newDocument.userId) {
-      for (let user of users) {
-        const oldKarma = user.karma;
-        const newKarma = oldKarma + vote.power;
-        backgroundTask(userKarmaChangedFrom(newDocument.userId, oldKarma, newKarma, context));
-      }
+async function onAuthorKarmaGranted({newDocument, vote}: VoteDocTuple, context: ResolverContext) {
+  const authorIds = getUsersGivenKarmaByVote(vote);
+  if (authorIds.length && newDocument.userId) {
+    const authors = await Users.find({_id: {$in: authorIds}}).fetch();
+    for (const author of authors) {
+      const newKarma = author.karma;
+      const oldKarma = newKarma - vote.power;
+      backgroundTask(userKarmaChangedFrom(newDocument.userId, oldKarma, newKarma, context));
     }
   }
 
@@ -182,15 +221,6 @@ async function userKarmaChangedFrom(userId: string, oldKarma: number, newKarma: 
     }
   }
 };
-
-function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser) {
-  // Only update user karma if the operation isn't done by one of the item's authors at the time of the original vote.
-  // We expect vote.authorIds here to be the same as the authorIds of the original vote.
-  if (vote.authorIds && !vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    backgroundTask(Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: -vote.power}}));
-  }
-}
-
 
 async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
   if (vote.voteType === "neutral") {

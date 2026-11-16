@@ -1,4 +1,5 @@
 import pgp, { IDatabase } from "pg-promise";
+import { AsyncLocalStorage } from "async_hooks";
 import Query from "@/server/sql/Query";
 import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
 import omit from "lodash/omit";
@@ -207,32 +208,66 @@ const logIfSlow = async <T>(
   return result;
 }
 
+interface TransactionScope {
+  /** Null once the transaction has been committed or rolled back. */
+  transaction: pgp.ITask<unknown> | null;
+}
+
+const transactionScopes = new AsyncLocalStorage<TransactionScope>();
+
+async function runInTransactionScope<T>(transaction: pgp.ITask<unknown>, fn: () => Promise<T>): Promise<T> {
+  const scope: TransactionScope = { transaction };
+  try {
+    return await transactionScopes.run(scope, fn);
+  } finally {
+    // A background task started inside `fn` keeps this scope after the
+    // transaction has ended, when its connection can't be queried any more.
+    scope.transaction = null;
+  }
+}
+
+/**
+ * Runs `fn` inside a database transaction, which is rolled back if `fn`
+ * throws. Queries that `fn` makes through collections, repos and
+ * `getSqlClient()` are part of the transaction, without being passed a client.
+ * A call made inside another one is a savepoint of the outer transaction.
+ *
+ * Start background tasks and call other services after this returns, rather
+ * than inside `fn`: they aren't undone by a rollback.
+ */
+export const runInTransaction = <T>(fn: () => Promise<T>): Promise<T> => {
+  const outerTransaction = transactionScopes.getStore()?.transaction;
+  return outerTransaction
+    ? outerTransaction.tx((savepoint) => runInTransactionScope(savepoint, fn))
+    : createSqlConnection().tx((transaction) => runInTransactionScope(transaction, fn));
+}
+
+type QueryMethod<T> = (query: string, values?: SqlQueryArgs) => Promise<T>;
+
 const wrapQueryMethod = <T>(
-  db: pgp.IDatabase<any>,
-  queryMethod: (query: string, values?: SqlQueryArgs) => Promise<T>,
-): ((
-  query: string,
-  values?: SqlQueryArgs,
-  describe?: SqlDescription,
-  quiet?: boolean,
-) => ReturnType<typeof queryMethod>) => {
+  db: pgp.IBaseProtocol<unknown>,
+  getQueryMethod: (target: pgp.IBaseProtocol<unknown>) => QueryMethod<T>,
+) => {
   return (
     query: string,
     values?: SqlQueryArgs,
     describe?: SqlDescription,
     quiet?: boolean,
-  ) => {
+  ): Promise<T> => {
     const description = describe
       ?? (logQueryArguments
         ? `${query}: ${JSON.stringify(values)}`
         : query
       )
     return logIfSlow(
-      () => queryMethod.bind(db)(query, values),
+      () => {
+        const target = transactionScopes.getStore()?.transaction ?? db;
+        return getQueryMethod(target).call(target, query, values);
+      },
       description,
       query,
       quiet,
-    ) as ReturnType<typeof queryMethod>;
+    );
   }
 }
 
@@ -250,13 +285,13 @@ function getWrappedClient(
 
   const client: SqlClient = {
     ...omit(db, queryMethods) as AnyBecauseHard,
-    none: wrapQueryMethod(db, db.none),
-    one: wrapQueryMethod(db, db.one),
-    oneOrNone: wrapQueryMethod(db, db.oneOrNone),
-    many: wrapQueryMethod(db, db.many),
-    manyOrNone: wrapQueryMethod(db, db.manyOrNone),
-    any: wrapQueryMethod(db, db.any),
-    multi: wrapQueryMethod(db, db.multi),
+    none: wrapQueryMethod(db, (target) => target.none),
+    one: wrapQueryMethod(db, (target) => target.one),
+    oneOrNone: wrapQueryMethod(db, (target) => target.oneOrNone),
+    many: wrapQueryMethod(db, (target) => target.many),
+    manyOrNone: wrapQueryMethod(db, (target) => target.manyOrNone),
+    any: wrapQueryMethod(db, (target) => target.any),
+    multi: wrapQueryMethod(db, (target) => target.multi),
     $pool: db.$pool, // $pool is accessed with magic and isn't copied by spreading
     concat,
     isTestingClient,

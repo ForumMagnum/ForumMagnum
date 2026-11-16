@@ -21,7 +21,8 @@ import maxBy from 'lodash/maxBy';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
 import VotesRepo from './repos/VotesRepo';
-import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
+import { onCastVoteAsync, onVoteCancel, updateKarmaForVoteChange, type VoteChange } from './callbacks/votingCallbacks';
+import { runInTransaction } from './sqlConnection';
 import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
 import { isElasticEnabled } from "../lib/instanceSettings";
 import { capitalize } from '@/lib/vulcan-lib/utils';
@@ -46,7 +47,45 @@ const getExistingVote = async ({ document, user }: {
   });
 }
 
-// Add a vote of a specific type on the server
+/**
+ * Runs a change to the votes on a document in a transaction, so that an error
+ * partway through leaves no part of it behind: not the vote, nor its effect on
+ * the document's scores or on its authors' karma.
+ *
+ * Changes to the votes on one document are made one at a time. Each of them
+ * recalculates the document's scores from all of its votes, and wouldn't see
+ * the votes of another change that hasn't committed yet.
+ */
+function runVoteTransaction<T extends VoteChange>(documentId: string, changeVotes: () => Promise<T>): Promise<T> {
+  return runInTransaction(async () => {
+    await new VotesRepo().lockVotesOnDocument(documentId);
+    const voteChange = await changeVotes();
+    await updateKarmaForVoteChange(voteChange);
+    return voteChange;
+  });
+}
+
+/**
+ * What follows from a change to the votes on a document, once the change has
+ * been committed. None of this is undone if voting fails, so none of it
+ * happens inside the transaction.
+ */
+async function afterVotesChanged({ newDocument, cancelledVotes, collection, context }: {
+  newDocument: DbVoteableType,
+  cancelledVotes: DbVote[],
+  collection: CollectionBase<VoteableCollectionName>,
+  context: ResolverContext,
+}): Promise<void> {
+  const { collectionName } = collection;
+  await invalidatePostPageCacheForVoteable(collectionName, newDocument);
+  if (isElasticEnabled() && collectionIsSearchIndexed(collectionName)) {
+    backgroundTask(elasticSyncDocument(collectionName, newDocument._id));
+  }
+  for (const cancelledVote of cancelledVotes) {
+    backgroundTask(onVoteCancel(newDocument, cancelledVote, context));
+  }
+}
+
 async function invalidatePostPageCacheForVoteable(
   collectionName: CollectionNameString,
   document: { _id: string, postId?: string | null, pingbacks?: DbPost['pingbacks'] },
@@ -59,7 +98,7 @@ async function invalidatePostPageCacheForVoteable(
   }
 }
 
-const addVoteServer = async ({ document, collection, voteType, extendedVote, user, voteId, context }: {
+interface AddVoteArgs {
   document: DbVoteableType,
   collection: CollectionBase<VoteableCollectionName>,
   voteType: DbVote['voteType'],
@@ -67,7 +106,10 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   user: DbUser,
   voteId: string,
   context: ResolverContext,
-}): Promise<VoteDocTuple> => {
+}
+
+// Add a vote of a specific type on the server. Call inside runVoteTransaction.
+const addVoteServer = async ({ document, collection, voteType, extendedVote, user, voteId, context }: AddVoteArgs): Promise<VoteDocTuple> => {
   const { Posts } = context
   // create vote and insert it
   const partialVote = createVote({ document, collectionName: collection.collectionName, voteType, extendedVote, user, voteId });
@@ -111,10 +153,6 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  await invalidatePostPageCacheForVoteable(collection.collectionName, newDocument);
-  if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
-    backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
-  }
   return {newDocument, vote};
 }
 
@@ -149,23 +187,26 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
   }
 };
 
-// Clear all votes for a given document and user (server)
-export const clearVotesServer = async ({ document, user, collection, excludeLatest, silenceNotification=false, context }: {
+interface ClearVotesArgs {
   document: DbVoteableType,
   user: DbUser,
   collection: CollectionBase<VoteableCollectionName>,
-  // If true, clears all votes except the latest (ie, only clears duplicate
-  // votes). If false, clears all votes (including the latest).
-  excludeLatest?: boolean,
   /**
    * If true, notifies the user of the karma changes from this vote. This will be true
    * except for votes being nullified by mods.
    */
   silenceNotification?: boolean,
   context: ResolverContext,
-}) => {
+}
+
+// Cancels a user's votes on a document. Call inside runVoteTransaction.
+const cancelVotes = async ({ document, user, collection, excludeLatest, silenceNotification=false, context }: ClearVotesArgs & {
+  // If true, clears all votes except the latest (ie, only clears duplicate
+  // votes). If false, clears all votes (including the latest).
+  excludeLatest?: boolean,
+}): Promise<VoteChange> => {
   let newDocument = {...document};
-  
+
   // Fetch existing, uncancelled votes
   const votes = await Votes.find({
     documentId: document._id,
@@ -173,7 +214,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     cancelled: false,
   }).fetch();
   if (!votes.length) {
-    return newDocument;
+    return { newDocument, cancelledVotes: [] };
   }
   
   const latestVoteId = maxBy(votes, v=>v.votedAt)?._id;
@@ -199,10 +240,9 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     }))
   );
   
-  for (let voteCancellation of voteCancellations) {
-    const vote = voteCancellation?.value;
-    if (!vote) continue;
-    
+  const cancelledVotes = filterNonnull(voteCancellations.map((voteCancellation) => voteCancellation.value));
+
+  for (const vote of cancelledVotes) {
     //eslint-disable-next-line no-unused-vars
     const {_id, ...otherVoteFields} = vote;
     // Create an un-vote for each of the existing votes
@@ -216,8 +256,6 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       silenceNotification,
     };
     await createVoteMutator({ data: unvote }, context);
-
-    await onVoteCancel(newDocument, vote, collection, user, context);
   }
   // TODO: it seems possible we could do an early return here if we have zero vote cancellations, but I want to test it more thoroughly before doing that
   const newScores = await recalculateDocumentScores(document, collection.collectionName, context);
@@ -232,9 +270,28 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
-  await invalidatePostPageCacheForVoteable(collection.collectionName, newDocument);
-  if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
-    backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
+  return { newDocument, cancelledVotes };
+}
+
+// Casts a vote in place of any that the user already has on the document.
+// Call inside runVoteTransaction.
+const replaceVote = async (args: AddVoteArgs) => {
+  const { user, collection, context } = args;
+  const { vote: castVote, newDocument: documentWithVote } = await addVoteServer(args);
+  const { newDocument, cancelledVotes } = await cancelVotes({
+    document: documentWithVote, user, collection,
+    excludeLatest: true,
+    context
+  });
+  return { newDocument, castVote, cancelledVotes };
+}
+
+// Clear all votes for a given document and user (server)
+export const clearVotesServer = async (args: ClearVotesArgs) => {
+  const { document, collection, context } = args;
+  const { newDocument, cancelledVotes } = await runVoteTransaction(document._id, () => cancelVotes(args));
+  if (cancelledVotes.length) {
+    await afterVotesChanged({ newDocument, cancelledVotes, collection, context });
   }
   return newDocument;
 }
@@ -252,11 +309,11 @@ const votingDisabledForUser = async (user: DbUser, context: ResolverContext): Pr
 };
 
 // Server-side database operation
-export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context, selfVote = false }: {
+export const performVoteServer = async ({ documentId, document, voteType, extendedVote: unvalidatedExtendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context, selfVote = false }: {
   documentId?: string,
   document?: DbVoteableType|null,
   voteType: DbVote['voteType'],
-  extendedVote?: any,
+  extendedVote?: unknown,
   collection: CollectionBase<VoteableCollectionName>,
   voteId?: string,
   user: DbUser,
@@ -289,6 +346,9 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
 
   if (!user) throw new Error("Error casting vote: Not logged in.");
+
+  const votingSystem = await getVotingSystemForDocument(document, collectionName, context);
+  const extendedVote = votingSystem.validateExtendedVote(unvalidatedExtendedVote);
   
   // Check whether the user is allowed to vote at all, in full generality
   const { fail: cannotVote, reason } = await votingDisabledForUser(user, context);
@@ -330,20 +390,15 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       showVotingPatternWarning,
     };
   } else {
+    let moderatorActionTypeToRecord: DbModeratorAction["type"] | null = null;
     if (!skipRateLimits) {
       const { moderatorActionType } = await checkVotingRateLimits({ document, collection, voteType, user, context });
       if (moderatorActionType && !(await wasVotingPatternWarningDeliveredRecently(user, moderatorActionType))) {
         if (moderatorActionType === RECEIVED_VOTING_PATTERN_WARNING) showVotingPatternWarning = true;
-        backgroundTask(createModeratorAction({
-          data: {
-            userId: user._id,
-            type: moderatorActionType,
-          }
-        }, context));
+        moderatorActionTypeToRecord = moderatorActionType;
       }
     }
-    
-    const votingSystem = await getVotingSystemForDocument(document, collectionName, context);
+
     if (extendedVote && votingSystem.isAllowedExtendedVote) {
       const oldExtendedScore = document.extendedScore;
       const extendedVoteCheckResult = votingSystem.isAllowedExtendedVote({user, document, oldExtendedScore, extendedVote, skipRateLimits})
@@ -352,21 +407,23 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       }
     }
 
-    let voteDocTuple: VoteDocTuple = await addVoteServer({document, user, collection, voteType, extendedVote, voteId, context});
+    const voteArgs: AddVoteArgs = {document, user, collection, voteType, extendedVote, voteId, context};
+    const { newDocument, castVote, cancelledVotes } = await runVoteTransaction(document._id, () => replaceVote(voteArgs));
+    document = newDocument;
 
-    document = voteDocTuple.newDocument;
-    document = await clearVotesServer({
-      document, user, collection,
-      excludeLatest: true,
-      context
-    })
-
-    voteDocTuple.newDocument = document
-    
-    backgroundTask(onCastVoteAsync(voteDocTuple, collection, user, context));
+    if (moderatorActionTypeToRecord) {
+      backgroundTask(createModeratorAction({
+        data: {
+          userId: user._id,
+          type: moderatorActionTypeToRecord,
+        }
+      }, context));
+    }
+    await afterVotesChanged({ newDocument, cancelledVotes, collection, context });
+    backgroundTask(onCastVoteAsync({ vote: castVote, newDocument }, collection, user, context));
 
     return {
-      vote: voteDocTuple.vote,
+      vote: castVote,
       modifiedDocument: {
         // JB: Add __typename to the returned document. Not sure why this is
         // necessary, but I believe it's something to do with graphql union types.

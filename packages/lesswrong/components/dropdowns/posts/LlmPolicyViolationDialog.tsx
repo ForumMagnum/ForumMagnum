@@ -11,6 +11,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import dynamic from 'next/dynamic';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
+import { escapeHtml } from '@/lib/utils/sanitize';
 
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
 
@@ -72,12 +73,12 @@ const styles = defineStyles("LlmPolicyViolationDialog", (theme: ThemeType) => ({
 
 function buildAuthorMention(authorDisplayName: string, authorSlug: string): string {
   const profileUrl = `/users/${authorSlug}?mention=user`;
-  return `<a href="${profileUrl}">@${authorDisplayName}</a>`;
+  return `<a href="${escapeHtml(profileUrl)}">@${escapeHtml(authorDisplayName)}</a>`;
 }
 
 function buildModComment(templateHtml: string, authorDisplayName: string, authorSlug: string): string {
   const authorMention = buildAuthorMention(authorDisplayName, authorSlug);
-  return templateHtml.replace(/\{\{authorMention\}\}/g, authorMention);
+  return templateHtml.replace(/\{\{authorMention\}\}/g, () => authorMention);
 }
 
 const LlmPolicyViolationDialog = ({post, onClose, onSubmit}: {
