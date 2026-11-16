@@ -34,9 +34,10 @@ const ContextHistoryItem = ({ item, isCurrent }: { item: UserContentItem; isCurr
       </button>
       {expanded && (
         <HighlightedHtml
-          className="content-html context-item-body"
+          className="context-item-body"
           html={item.html}
           windowScores={item.pangramWindowScores}
+          collectionName={item.collectionName}
         />
       )}
     </div>

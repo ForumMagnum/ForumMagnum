@@ -52,8 +52,17 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
-  font-size: 15px;
   line-height: 1.5;
+}
+
+html {
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-size: 15px;
 }
 
 button {
@@ -226,7 +235,6 @@ kbd {
 .context-item-body {
   padding: 10px 12px;
   border-top: 1px solid var(--border);
-  font-size: 13px;
   max-height: 340px;
   overflow-y: auto;
 }
@@ -480,12 +488,6 @@ kbd {
   font-size: 13px;
 }
 
-.content-title {
-  margin: 4px 0 10px;
-  font-size: 22px;
-  line-height: 1.3;
-}
-
 .content-context {
   margin-bottom: 10px;
   color: var(--text-muted);
@@ -498,9 +500,8 @@ kbd {
   overflow-wrap: break-word;
 }
 
-.content-html-reading {
-  max-width: 68ch;
-  font-size: 16px;
+.content-reading {
+  max-width: 682px;
 }
 
 .external-link {
@@ -540,8 +541,6 @@ kbd {
 }
 
 .parent-comment-body {
-  font-size: 13px;
-  color: var(--text-muted);
   max-height: 220px;
   overflow-y: auto;
   padding: 4px 0;
@@ -993,10 +992,6 @@ kbd {
 
   .card-body {
     padding: 16px 16px 20px;
-  }
-
-  .content-title {
-    font-size: 19px;
   }
 
   .swipe-stamp {

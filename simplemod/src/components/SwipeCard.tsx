@@ -10,7 +10,7 @@ const SWIPE_COMMIT_THRESHOLD = 140;
 // Regions where a pointer-drag means "select text / interact", not "swipe the
 // card". Drag still works from the header, edges, and blank space; keyboard is
 // the primary commit path.
-const NO_DRAG_SELECTOR = '.content-html, .mod-notes, .offboard-items, .context-item, .composer, button, input, textarea, select, a, kbd';
+const NO_DRAG_SELECTOR = '.content-html, .lw-content, .mod-notes, .offboard-items, .context-item, .composer, button, input, textarea, select, a, kbd';
 
 export const cardVariants: Variants = {
   enter: { scale: 0.96, y: 16, opacity: 0 },
