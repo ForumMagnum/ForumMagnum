@@ -293,7 +293,7 @@
     "@graphql-codegen/client-preset": "5.1.1",
     "@graphql-codegen/introspection": "5.0.0",
     "@next/bundle-analyzer": "^16.3.4",
-    "@next/env": "^16.4.2",
+    "@next/env": "^16.4.6",
     "@next/eslint-plugin-next": "^16.3.4",
     "@playwright/test": "^1.43.1",
     "@stylistic/eslint-plugin-ts": "^4.2.0",
