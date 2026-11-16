@@ -10,6 +10,12 @@ export interface RateLimitInfo {
   rateLimitMessage: string,
 }
 
+export interface ActiveRateLimitDescription {
+  description: string,
+  rateLimitMessage: string,
+  endsAt: Date | null,
+}
+
 export type UserKarmaInfo = Pick<DbUser, "karma"|"smallDownvoteReceivedCount"|"smallUpvoteReceivedCount"|"bigDownvoteReceivedCount"|"bigUpvoteReceivedCount"|"voteReceivedCount">
 
 /* 

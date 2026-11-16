@@ -6,8 +6,8 @@ import { EXEMPT_FROM_RATE_LIMITS, MODERATOR_ACTION_TYPES, PostAndCommentRateLimi
 import { forumSelect } from "../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../lib/vulcan-users/permissions"
 import { autoCommentRateLimits, autoPostRateLimits } from "../lib/rateLimits/constants"
-import type { AutoRateLimit, CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserKarmaInfoWindow } from "../lib/rateLimits/types"
-import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getActiveRateLimits, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours, getDownvoteRatio } from "../lib/rateLimits/utils"
+import type { ActiveRateLimitDescription, AutoRateLimit, CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserKarmaInfoWindow } from "../lib/rateLimits/types"
+import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getActiveRateLimits, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours, getDownvoteRatio, describeRateLimitFrequency } from "../lib/rateLimits/utils"
 import { appendToSunshineNotes } from "./users/sunshineNotes"
 import { isNonEmpty } from "@/lib/utils/typeGuardUtils"
 import type { NonEmptyArray } from "fp-ts/lib/NonEmptyArray"
@@ -29,14 +29,17 @@ function getModeratorRateLimit(userId: string, context: ResolverContext) {
   }) as Promise<DbModeratorAction & {type: PostAndCommentRateLimitTypes} | null>
 }
 
-async function userHasActiveModeratorActionOfType(userId: string, moderatorActionType: keyof typeof MODERATOR_ACTION_TYPES, context: ResolverContext): Promise<boolean> {
+function getActiveModeratorActionOfType(userId: string, moderatorActionType: keyof typeof MODERATOR_ACTION_TYPES, context: ResolverContext): Promise<DbModeratorAction | null> {
   const { ModeratorActions } = context;
-  const action = await ModeratorActions.findOne({
+  return ModeratorActions.findOne({
     userId: userId,
     type: moderatorActionType,
     $or: [{endedAt: null}, {endedAt: {$gt: new Date()}}]
   });
-  return !!action;
+}
+
+async function userHasActiveModeratorActionOfType(userId: string, moderatorActionType: keyof typeof MODERATOR_ACTION_TYPES, context: ResolverContext): Promise<boolean> {
+  return !!(await getActiveModeratorActionOfType(userId, moderatorActionType, context));
 }
 
 async function getModRateLimitHours(userId: string, context: ResolverContext): Promise<number> {
@@ -336,6 +339,86 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   });
 
   return getStrictestRateLimitInfo(rateLimitInfos)
+}
+
+const moderatorRateLimitMessage = "A moderator has rate limited you.";
+
+function describeRateLimitHours(itemsPerTimeframe: number, itemName: "comment"|"post", hours: number): string {
+  return hours % 24 === 0
+    ? describeRateLimitFrequency({ itemsPerTimeframe, itemName, timeframeLength: hours / 24, timeframeUnit: "days" })
+    : describeRateLimitFrequency({ itemsPerTimeframe, itemName, timeframeLength: hours, timeframeUnit: "hours" });
+}
+
+function describeAutoRateLimit(rateLimit: AutoRateLimit, itemName: "comment"|"post"): ActiveRateLimitDescription {
+  const { itemsPerTimeframe, timeframeLength, timeframeUnit, rateLimitMessage } = rateLimit;
+  return {
+    description: describeRateLimitFrequency({ itemsPerTimeframe, itemName, timeframeLength, timeframeUnit }),
+    rateLimitMessage,
+    endsAt: null,
+  };
+}
+
+function describeManualRateLimit(rateLimit: DbUserRateLimit, itemName: "comment"|"post"): ActiveRateLimitDescription {
+  const { actionsPerInterval, intervalLength, intervalUnit, endedAt } = rateLimit;
+  const description = actionsPerInterval === 0
+    ? `No ${itemName}s`
+    : describeRateLimitFrequency({ itemsPerTimeframe: actionsPerInterval, itemName, timeframeLength: intervalLength, timeframeUnit: intervalUnit });
+  return { description, rateLimitMessage: moderatorRateLimitMessage, endsAt: endedAt };
+}
+
+function describeModeratorActionRateLimit(moderatorAction: DbModeratorAction & {type: PostAndCommentRateLimitTypes}, itemName: "comment"|"post"): ActiveRateLimitDescription {
+  return {
+    description: describeRateLimitHours(1, itemName, getTimeframeForRateLimit(moderatorAction.type)),
+    rateLimitMessage: moderatorRateLimitMessage,
+    endsAt: moderatorAction.endedAt,
+  };
+}
+
+export async function getActiveCommentRateLimits(user: DbUser, postId: string|null, context: ResolverContext): Promise<ActiveRateLimitDescription[]> {
+  if (await shouldIgnoreCommentRateLimit(user, postId, context)) return [];
+
+  const [userIsAuthor, moderatorRateLimit, postSpecificModeratorAction, manualCommentRateLimits, recentKarmaInfo] = await Promise.all([
+    getUserIsAuthor(user._id, postId, context),
+    getModeratorRateLimit(user._id, context),
+    getActiveModeratorActionOfType(user._id, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, context),
+    getManualRateLimits(user._id, 'allComments', context),
+    getRecentKarmaInfo(user._id, context),
+  ]);
+
+  const autoRateLimits = forumSelect(autoCommentRateLimits, context) ?? [];
+  const applicableAutoRateLimits = autoRateLimits.filter(rateLimit => !userIsAuthor || rateLimit.appliesToOwnPosts);
+  const autoRateLimitDescriptions = getActiveRateLimits({ ...user, recentKarmaInfo }, applicableAutoRateLimits)
+    .map(rateLimit => describeAutoRateLimit(rateLimit, "comment"));
+
+  if (userIsAuthor) return autoRateLimitDescriptions;
+
+  const manualRateLimitDescriptions = manualCommentRateLimits.map(rateLimit => describeManualRateLimit(rateLimit, "comment"));
+  const moderatorRateLimitDescriptions = moderatorRateLimit ? [describeModeratorActionRateLimit(moderatorRateLimit, "comment")] : [];
+  const postSpecificDescriptions = postSpecificModeratorAction ? [{
+    description: `${describeRateLimitHours(3, "comment", getTimeframeForRateLimit(RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK))} on any single post`,
+    rateLimitMessage: moderatorRateLimitMessage,
+    endsAt: postSpecificModeratorAction.endedAt,
+  }] : [];
+
+  return [...moderatorRateLimitDescriptions, ...postSpecificDescriptions, ...manualRateLimitDescriptions, ...autoRateLimitDescriptions];
+}
+
+export async function getActivePostRateLimits(user: DbUser, context: ResolverContext): Promise<ActiveRateLimitDescription[]> {
+  if (await shouldIgnorePostRateLimit(user, context)) return [];
+
+  const [moderatorRateLimit, manualPostRateLimits, recentKarmaInfo] = await Promise.all([
+    getModeratorRateLimit(user._id, context),
+    getManualRateLimits(user._id, 'allPosts', context),
+    getRecentKarmaInfo(user._id, context),
+  ]);
+
+  const autoRateLimits = forumSelect(autoPostRateLimits, context) ?? [];
+  const autoRateLimitDescriptions = getActiveRateLimits({ ...user, recentKarmaInfo }, autoRateLimits)
+    .map(rateLimit => describeAutoRateLimit(rateLimit, "post"));
+  const manualRateLimitDescriptions = manualPostRateLimits.map(rateLimit => describeManualRateLimit(rateLimit, "post"));
+  const moderatorRateLimitDescriptions = moderatorRateLimit ? [describeModeratorActionRateLimit(moderatorRateLimit, "post")] : [];
+
+  return [...moderatorRateLimitDescriptions, ...manualRateLimitDescriptions, ...autoRateLimitDescriptions];
 }
 
 export async function getRecentKarmaInfo(userId: string, context: ResolverContext): Promise<RecentKarmaInfo> {

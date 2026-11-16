@@ -21,6 +21,7 @@ import NewUserGuidelinesDialog from "./NewUserGuidelinesDialog";
 import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelinesBox";
 import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerationWarning";
 import RateLimitWarning from "../editor/RateLimitWarning";
+import ActiveRateLimitsNotice from "../users/ActiveRateLimitsNotice";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useLocation } from '@/lib/routeUtil';
@@ -77,8 +78,7 @@ const styles = defineStyles('CommentsNewForm', (theme: ThemeType) => ({
     flexDirection: 'column',
   },
   rateLimitNote: {
-    paddingTop: '4px',
-    color: theme.palette.text.dim2,
+    paddingBottom: 8,
   },
   modNote: {
     paddingTop: '4px',
@@ -325,6 +325,10 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
           contentType="comment"
           lastRateLimitExpiry={lastRateLimitExpiry}
           rateLimitMessage={rateLimitMessage}
+        />}
+        {!formDisabledDueToRateLimit && <ActiveRateLimitsNotice
+          commentRateLimits={document?.activeCommentRateLimits}
+          className={classes.rateLimitNote}
         />}
         <div onFocus={(ev) => {
           afNonMemberDisplayInitialPopup(currentUser, openDialog, forumType)

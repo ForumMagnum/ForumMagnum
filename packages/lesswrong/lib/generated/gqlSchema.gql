@@ -178,6 +178,12 @@ input RecommendationSettingsInput {
   recommendationspage: RecommendationAlgorithmSettingsInput!
 }
 
+type ActiveRateLimit {
+  description: String!
+  rateLimitMessage: String!
+  endsAt: Date
+}
+
 type MailgunValidationResult {
   email: String
   status: String
@@ -8155,6 +8161,8 @@ type User {
   afSubmittedApplication: Boolean
   rateLimitNextAbleToComment(postId: String): JSON
   rateLimitNextAbleToPost(eventForm: Boolean): JSON
+  activeCommentRateLimits(postId: String): [ActiveRateLimit!]
+  activePostRateLimits: [ActiveRateLimit!]
   recentKarmaInfo: JSON
   mailgunValidation: MailgunValidationResult
   hideSunshineSidebar: Boolean

@@ -17,6 +17,13 @@ type Scalars = {
   JSON: { input: any; output: any; }
 };
 
+type ActiveRateLimit = {
+  __typename?: 'ActiveRateLimit';
+  description: Scalars['String']['output'];
+  endsAt?: Maybe<Scalars['Date']['output']>;
+  rateLimitMessage: Scalars['String']['output'];
+};
+
 type AdminEmailAudienceFilterInput = {
   excludeDeleted: Scalars['Boolean']['input'];
   excludeUnsubscribed: Scalars['Boolean']['input'];
@@ -12184,6 +12191,8 @@ type User = {
   abTestOverrides?: Maybe<Scalars['JSON']['output']>;
   acceptedTos?: Maybe<Scalars['Boolean']['output']>;
   acknowledgedNewUserGuidelines?: Maybe<Scalars['Boolean']['output']>;
+  activeCommentRateLimits?: Maybe<Array<ActiveRateLimit>>;
+  activePostRateLimits?: Maybe<Array<ActiveRateLimit>>;
   afApplicationText?: Maybe<Scalars['String']['output']>;
   afCommentCount: Scalars['Float']['output'];
   afKarma: Scalars['Float']['output'];
@@ -12456,6 +12465,11 @@ type User = {
   walledGardenPortalOnboarded?: Maybe<Scalars['Boolean']['output']>;
   website?: Maybe<Scalars['String']['output']>;
   whenConfirmationEmailSent?: Maybe<Scalars['Date']['output']>;
+};
+
+
+type UseractiveCommentRateLimitsArgs = {
+  postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -13431,6 +13445,30 @@ type ProfilePageWikiEditsQueryQueryVariables = Exact<{
 
 
 type ProfilePageWikiEditsQueryQuery = ProfilePageWikiEditsQueryQuery_Query;
+
+type ProfileActiveRateLimitsQueryQuery_user_SingleUserOutput_result_User_activeCommentRateLimits_ActiveRateLimit = (
+  { __typename?: 'ActiveRateLimit' }
+  & ActiveRateLimitInfo
+);
+
+type ProfileActiveRateLimitsQueryQuery_user_SingleUserOutput_result_User_activePostRateLimits_ActiveRateLimit = (
+  { __typename?: 'ActiveRateLimit' }
+  & ActiveRateLimitInfo
+);
+
+type ProfileActiveRateLimitsQueryQuery_user_SingleUserOutput_result_User = { __typename?: 'User', _id: string, activeCommentRateLimits: Array<ProfileActiveRateLimitsQueryQuery_user_SingleUserOutput_result_User_activeCommentRateLimits_ActiveRateLimit> | null, activePostRateLimits: Array<ProfileActiveRateLimitsQueryQuery_user_SingleUserOutput_result_User_activePostRateLimits_ActiveRateLimit> | null };
+
+type ProfileActiveRateLimitsQueryQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: ProfileActiveRateLimitsQueryQuery_user_SingleUserOutput_result_User | null };
+
+type ProfileActiveRateLimitsQueryQuery_Query = { __typename?: 'Query', user: ProfileActiveRateLimitsQueryQuery_user_SingleUserOutput | null };
+
+
+type ProfileActiveRateLimitsQueryQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ProfileActiveRateLimitsQueryQuery = ProfileActiveRateLimitsQueryQuery_Query;
 
 type ProfileTopPostsQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
@@ -26673,7 +26711,14 @@ type UsersCurrent = (
   & UsersMinimumInfo
 );
 
-type UsersCurrentCommentRateLimit = { __typename?: 'User', _id: string, rateLimitNextAbleToComment: any | null };
+type ActiveRateLimitInfo = { __typename?: 'ActiveRateLimit', description: string, rateLimitMessage: string, endsAt: string | null };
+
+type UsersCurrentCommentRateLimit_User_activeCommentRateLimits_ActiveRateLimit = (
+  { __typename?: 'ActiveRateLimit' }
+  & ActiveRateLimitInfo
+);
+
+type UsersCurrentCommentRateLimit = { __typename?: 'User', _id: string, rateLimitNextAbleToComment: any | null, activeCommentRateLimits: Array<UsersCurrentCommentRateLimit_User_activeCommentRateLimits_ActiveRateLimit> | null };
 
 type UsersCurrentPostRateLimit = { __typename?: 'User', _id: string, rateLimitNextAbleToPost: any | null };
 

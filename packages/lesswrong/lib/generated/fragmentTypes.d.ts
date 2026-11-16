@@ -8,6 +8,7 @@
 // server/codegen/generateFragmentTypes.ts.
 //
 interface FragmentTypes {
+  ActiveRateLimitInfo: ActiveRateLimitInfo
   AiDigestEmailComment: AiDigestEmailComment
   AiDigestEmailPost: AiDigestEmailPost
   AiDigestIssuesContent: AiDigestIssuesContent
@@ -230,6 +231,7 @@ interface FragmentTypes {
 }
 
 interface FragmentTypesByCollection {
+  ActiveRateLimits: "ActiveRateLimitInfo"
   AiDigestIssues: "AiDigestIssuesContent"|"AiDigestIssuesList"
   ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
   AutomatedContentEvaluations: "AutomatedContentEvaluationsFragment"
@@ -288,6 +290,7 @@ interface FragmentTypesByCollection {
 }
 
 interface CollectionNamesByFragmentName {
+  ActiveRateLimitInfo: never
   AiDigestEmailComment: "Comments"
   AiDigestEmailPost: "Posts"
   AiDigestIssuesContent: "AiDigestIssues"

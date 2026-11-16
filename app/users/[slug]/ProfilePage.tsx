@@ -20,6 +20,7 @@ import { StatusCodeSetter } from "@/components/next/StatusCodeSetter";
 import { UserProfileTopPostsSection } from "./UserProfileTopPostsSection";
 import { ProfilePageTabbedSection } from "./ProfilePageTabbedSection";
 import { ProfilePageMobileBio, ProfilePageSidebar } from "./ProfilePageSidebar";
+import { ProfileRateLimitsNotice } from "./ProfileRateLimitsNotice";
 
 const profilePageUnsharedStyles = defineStyles("ProfilePageUnshared", (theme: ThemeType) => ({
   page: {
@@ -184,6 +185,7 @@ function ProfilePageInner({user}: {
   const bioNoFollow = user.karma < nofollowKarmaThreshold.get(forumType);
 
   const currentUser = useCurrentUser();
+  const isOwnProfile = !!currentUser && currentUser._id === userId;
 
   return (
     <div className={classes.page}>
@@ -201,6 +203,7 @@ function ProfilePageInner({user}: {
               <ProfileHeaderActions user={user} />
             </Suspense>
           </div>
+          {isOwnProfile && <ProfileRateLimitsNotice userId={userId} />}
           {!user.hideProfileTopPosts && <UserProfileTopPostsSection user={user}/>}
 
           <Suspense>

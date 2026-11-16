@@ -9,3 +9,11 @@ export function rateLimitDateWhenUserNextAbleToPost() {
 export function getRecentKarmaInfo() {
   throw new Error('getRecentKarmaInfo called on the client!');
 }
+
+export function getActiveCommentRateLimits() {
+  throw new Error('getActiveCommentRateLimits called on the client!');
+}
+
+export function getActivePostRateLimits() {
+  throw new Error('getActivePostRateLimits called on the client!');
+}

@@ -262,3 +262,24 @@ export function getDownvoteRatio(user: UserKarmaInfo): number {
 
   return downvoteRatio
 }
+
+const singularTimeframeUnits: Record<TimeframeUnitType, string> = {
+  seconds: "second",
+  minutes: "minute",
+  hours: "hour",
+  days: "day",
+  weeks: "week",
+  months: "month",
+};
+
+export function describeRateLimitFrequency({ itemsPerTimeframe, itemName, timeframeLength, timeframeUnit }: {
+  itemsPerTimeframe: number,
+  itemName: "comment"|"post",
+  timeframeLength: number,
+  timeframeUnit: TimeframeUnitType,
+}): string {
+  const items = itemsPerTimeframe === 1 ? `1 ${itemName}` : `${itemsPerTimeframe} ${itemName}s`;
+  const unit = singularTimeframeUnits[timeframeUnit];
+  const timeframe = timeframeLength === 1 ? unit : `${timeframeLength} ${unit}s`;
+  return `${items} per ${timeframe}`;
+}

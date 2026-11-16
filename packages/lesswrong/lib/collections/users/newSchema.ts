@@ -30,7 +30,7 @@ import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils"
 import { sanitize } from "@/lib/utils/sanitize";
 import { AI_DIGEST_PERSONAL_INSTRUCTIONS_MAX_LENGTH } from "@/lib/aiDigest/constants";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
-import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from "@/server/rateLimitUtils";
+import { getActiveCommentRateLimits, getActivePostRateLimits, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from "@/server/rateLimitUtils";
 import { calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import GraphQLJSON from "@/lib/vendor/graphql-type-json";
@@ -4206,6 +4206,25 @@ const schema = {
         } else {
           return null;
         }
+      },
+    },
+  },
+  activeCommentRateLimits: {
+    graphql: {
+      outputType: "[ActiveRateLimit!]",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      arguments: "postId: String",
+      resolver: async (user, args, context) => {
+        return getActiveCommentRateLimits(user, args.postId ?? null, context);
+      },
+    },
+  },
+  activePostRateLimits: {
+    graphql: {
+      outputType: "[ActiveRateLimit!]",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return getActivePostRateLimits(user, context);
       },
     },
   },

@@ -240,6 +240,14 @@ export const UsersCurrent = gql(`
   }
 `)
 
+export const ActiveRateLimitInfo = gql(`
+  fragment ActiveRateLimitInfo on ActiveRateLimit {
+    description
+    rateLimitMessage
+    endsAt
+  }
+`)
+
 /**
  * Fragment containing rate-limit information (ie, whether the user is rate limited and when
  * they're next eligible to comment). Separated from `UsersCurrent` because figuring that out can
@@ -250,6 +258,9 @@ export const UsersCurrentCommentRateLimit = gql(`
   fragment UsersCurrentCommentRateLimit on User {
     _id
     rateLimitNextAbleToComment(postId: $postId)
+    activeCommentRateLimits(postId: $postId) {
+      ...ActiveRateLimitInfo
+    }
   }
 `)
 

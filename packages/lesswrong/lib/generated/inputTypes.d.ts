@@ -569,6 +569,12 @@ interface RecommendationSettingsInput {
   recommendationspage: RecommendationAlgorithmSettingsInput;
 }
 
+interface ActiveRateLimit {
+  description: string;
+  rateLimitMessage: string;
+  endsAt: Date | null;
+}
+
 interface MailgunValidationResult {
   email: string | null;
   status: string | null;
@@ -7537,6 +7543,8 @@ interface User {
   afSubmittedApplication: boolean | null;
   rateLimitNextAbleToComment: any;
   rateLimitNextAbleToPost: any;
+  activeCommentRateLimits: Array<ActiveRateLimit> | null;
+  activePostRateLimits: Array<ActiveRateLimit> | null;
   recentKarmaInfo: any;
   mailgunValidation: MailgunValidationResult | null;
   hideSunshineSidebar: boolean | null;
@@ -9550,6 +9558,7 @@ interface GraphQLTypeMap {
   PostMetadataOutput: PostMetadataOutput;
   RecommendationAlgorithmSettingsInput: RecommendationAlgorithmSettingsInput;
   RecommendationSettingsInput: RecommendationSettingsInput;
+  ActiveRateLimit: ActiveRateLimit;
   MailgunValidationResult: MailgunValidationResult;
   RecommendResumeSequence: RecommendResumeSequence;
   CommentCountTag: CommentCountTag;

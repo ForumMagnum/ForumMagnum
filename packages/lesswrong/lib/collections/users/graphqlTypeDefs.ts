@@ -68,6 +68,12 @@ export const graphqlTypeDefs = gql`
     recommendationspage: RecommendationAlgorithmSettingsInput!
   }
 
+  type ActiveRateLimit {
+    description: String!
+    rateLimitMessage: String!
+    endsAt: Date
+  }
+
   type MailgunValidationResult {
     email: String
     status: String
