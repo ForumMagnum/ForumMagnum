@@ -50,7 +50,8 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
   }
   const moderationPermission = userCanModerateComment(currentUser, post ?? null, tag ?? null, comment);
   if (!moderationPermission.canModerate) {
-    if (!post || comment.deleted || !userOwns(currentUser, post)) {
+    const ownsCommentOrPost = userOwns(currentUser, comment) || (!!post && userOwns(currentUser, post));
+    if (comment.deleted || !ownsCommentOrPost) {
       return null;
     }
     return (

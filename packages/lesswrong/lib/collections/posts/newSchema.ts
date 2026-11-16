@@ -2893,7 +2893,7 @@ const schema = {
       inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: [(user) => userCanModeratePost(user)],
+      canCreate: [(user) => userCanModeratePost(user).canModerate],
       validation: {
         optional: true,
       },

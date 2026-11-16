@@ -298,11 +298,9 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
   }), [formDisabledDueToRateLimit, isQuickTake, quickTakesSubmitButtonAtBottom, loading]);
   
   const permissionPost = post ?? prefilledProps;
-  if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, permissionPost, post?.user ?? null, !!parentComment)) {
-    if (post) {
-      return <CantCommentExplanation post={post} />
-    }
-    return <span>Sorry, you do not have permission to comment at this time.</span>
+  const commentingPermission = userIsAllowedToComment(currentUser, permissionPost, post?.user ?? null, !!parentComment);
+  if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !commentingPermission.canComment) {
+    return <CantCommentExplanation reason={commentingPermission.reason} />
   }
   return (
     <div className={classNames(

@@ -16,12 +16,21 @@ const BanUserFromAllPostsDropdownItem = ({comment, post}: {
 
   if (
     !post ||
-    !userCanModeratePost(currentUser, post) ||
     !post.frontpageDate ||
     !userOwns(currentUser, post) ||
     comment.draft
   ) {
     return null;
+  }
+  const moderationPermission = userCanModeratePost(currentUser, post);
+  if (!moderationPermission.canModerate) {
+    return (
+      <DropdownItem
+        title="Ban from all your posts"
+        disabled
+        tooltip={moderationPermission.reason}
+      />
+    );
   }
 
   const handleBanUserFromAllPosts = (event: React.MouseEvent) => {

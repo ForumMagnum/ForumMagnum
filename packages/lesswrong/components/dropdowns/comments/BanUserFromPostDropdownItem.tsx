@@ -1,6 +1,7 @@
 import React from 'react';
 import { useMessages } from '../../common/withMessages';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
+import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
@@ -24,8 +25,21 @@ const BanUserFromPostDropdownItem = ({comment, post}: {
   const {flash} = useMessages();
   const [updatePost] = useMutation(PostsPageUpdateMutation);
 
-  if (!post || !userCanModeratePost(currentUser, post) || comment.draft) {
+  if (!post || comment.draft) {
     return null;
+  }
+  const moderationPermission = userCanModeratePost(currentUser, post);
+  if (!moderationPermission.canModerate) {
+    if (!userOwns(currentUser, post)) {
+      return null;
+    }
+    return (
+      <DropdownItem
+        title="Ban user from this post"
+        disabled
+        tooltip={moderationPermission.reason}
+      />
+    );
   }
 
   const handleBanUserFromPost = (event: React.MouseEvent) => {
