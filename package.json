@@ -208,7 +208,7 @@
     "keycode": "^2.2.1",
     "lexical": "^0.44.0",
     "linkedom": "^0.16.11",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "lolex": "^3.0.0",
     "lru-cache": "^5.1.1",
     "mailgun.js": "^12.4.0",
