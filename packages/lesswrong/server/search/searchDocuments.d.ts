@@ -54,7 +54,6 @@ interface SearchUser extends SearchBase {
   _index: "users",
   username: string,
   displayName: string,
-  fullName?: string | null,
   createdAt: string,
   isAdmin: boolean,
   profileImageId?: string,

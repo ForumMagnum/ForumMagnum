@@ -25,7 +25,6 @@ export interface PersonCandidate {
   displayName: string;
   slug?: string;
   karma?: number;
-  fullName?: string | null;
   /** The account's original username, which often survives as a well-known handle. */
   username?: string;
   commentCount?: number;
@@ -157,7 +156,7 @@ function candidateSpans(tokens: string[], candidate: PersonCandidate): SpanMatch
 }
 
 function allCandidateSpans(tokens: string[], candidate: PersonCandidate): SpanMatch[] {
-  const names = [words(candidate.displayName), ...(candidate.fullName ? [words(candidate.fullName)] : [])];
+  const names = [words(candidate.displayName)];
   const handles = [...(candidate.slug ? [words(candidate.slug)] : []), ...(candidate.username ? [words(candidate.username)] : [])];
   const spans = [...names, ...handles].flatMap(name => exactSpans(tokens, name, "exact"));
   if (!isActive(candidate)) return spans;
@@ -193,7 +192,6 @@ function sameSpan(a: SpanMatch, b: SpanMatch): boolean {
 function nameFragmentClauses(token: string): QueryDslQueryContainer[] {
   return [
     {prefix: {"displayName.exact": {value: token}}},
-    {prefix: {"fullName.exact": {value: token}}},
     {prefix: {"slug.sort": {value: token, case_insensitive: true}}},
     {prefix: {"username.keyword": {value: token, case_insensitive: true}}},
     ...(token.length >= minInfixLength ? ["displayName.sort", "slug.sort"].map(field => ({
@@ -220,17 +218,15 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
   const exact: QueryDslQueryContainer[] = [...exactValues].flatMap(value => [
     {term: {"displayName.sort": {value, case_insensitive: true, boost: 100}}},
     {term: {"slug.sort": {value, case_insensitive: true, boost: 100}}},
-    {term: {"fullName.sort": {value, case_insensitive: true, boost: 100}}},
     {term: {"username.keyword": {value, case_insensitive: true, boost: 100}}},
   ]);
   const fragmentTokens = tokens.filter(token => !englishStopwords.has(token));
   const anchor = tokens.join("").slice(0, 4);
   const partial: QueryDslQueryContainer[] = [
-    ...(anchor.length === 4 ? ["displayName.sort", "slug.sort", "fullName.sort"].map(field => ({
+    ...(anchor.length === 4 ? ["displayName.sort", "slug.sort"].map(field => ({
       prefix: {[field]: {value: anchor, case_insensitive: true}},
     })) : []),
     {match: {"displayName.exact": {query: joined, operator: "or", fuzziness: 0, boost: 10}}},
-    {match: {"fullName.exact": {query: joined, operator: "or", fuzziness: 0, boost: 10}}},
     {prefix: {"displayName.sort": {value: joined, case_insensitive: true, boost: 5}}},
     ...tokens.filter(token => token.length >= 4).flatMap(token => [
       {prefix: {"slug.sort": {value: token, case_insensitive: true}}},
@@ -238,7 +234,6 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
     ]),
     {match: {"displayName.exact": {query: joined, operator: "or", fuzziness: "AUTO", prefix_length: 1}}},
     {match: {"slug.exact": {query: joined, operator: "or", fuzziness: "AUTO", prefix_length: 1}}},
-    {match: {"fullName.exact": {query: joined, operator: "or", fuzziness: "AUTO", prefix_length: 1}}},
     ...fragmentTokens.filter(token => token.length >= minPrefixLength && token.length < minActivePrefixLength).flatMap(nameFragmentClauses),
   ];
   const fragments = fragmentTokens.filter(token => token.length >= minActivePrefixLength).flatMap(nameFragmentClauses);
@@ -258,7 +253,7 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
       ]}}],
     }},
     sort: [{_score: {order: "desc"}}, {karma: "desc"}, {objectID: "asc"}],
-    _source: ["objectID", "displayName", "slug", "karma", "fullName", "username", "commentCount"],
+    _source: ["objectID", "displayName", "slug", "karma", "username", "commentCount"],
   };
 }
 

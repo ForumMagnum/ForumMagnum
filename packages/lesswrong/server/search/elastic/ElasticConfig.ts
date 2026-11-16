@@ -326,7 +326,6 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
     ],
     mappings: {
       displayName: nameTextMapping,
-      fullName: shingleTextMapping,
       bio: fullTextMapping,
       mapLocationAddress: fullTextMapping,
       jobTitle: fullTextMapping,
