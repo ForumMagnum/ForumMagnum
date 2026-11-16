@@ -17,6 +17,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   $getNodeByKey,
   $getSelection,
+  $onUpdate,
   $isRangeSelection,
   $setSelection,
   COMMAND_PRIORITY_LOW,
@@ -79,7 +80,7 @@ export default function YjsUndoCursorPlugin(): null {
      *
      * If the undo/redo turns out to be a no-op (nothing left in history), no
      * HISTORIC update runs to restore the cursor, so we put the cleared
-     * selection back on the next microtask to avoid the cursor vanishing.
+     * selection back after the command update commits to avoid the cursor vanishing.
      */
     const $clearSelectionForHistory = (action: 'undo' | 'redo') => {
       const current = $getSelection();
@@ -88,7 +89,9 @@ export default function YjsUndoCursorPlugin(): null {
       }
       const saved = current.clone();
       $setSelection(null);
-      queueMicrotask(() => {
+      // A microtask here runs before Lexical's pending update commits, so it
+      // can mistake a real undo for a no-op and restore the post-paste cursor.
+      $onUpdate(() => {
         // A HISTORIC undo/redo update consumes the action flag (see the update
         // listener). If it's still set, the operation was a no-op and the
         // cursor was never restored — so put the cleared selection back.
