@@ -1,9 +1,10 @@
-import { type Document, Server, type Extension } from '@hocuspocus/server';
+import { Server, type Extension } from '@hocuspocus/server';
 import { Logger } from '@hocuspocus/extension-logger';
 import { PostgresExtension } from './extensions/postgres';
 import { RevisionSyncExtension } from './extensions/revisionSync';
 import { verifyAuthToken } from './auth';
 import { documentNamePrefixForCollection } from './documentNames';
+import { replaceLexicalContents, RESTORE_TRANSACTION_ORIGIN } from './restoreDocument';
 import * as Y from 'yjs';
 import crypto from 'crypto';
 
@@ -47,30 +48,6 @@ function verifyAdminSecret(providedSecret: string): boolean {
     );
   } catch {
     return false;
-  }
-}
-
-/**
- * Force-close active sockets for a document without sending the protocol-level
- * CLOSE message (message type 7).
- *
- * Why: our app currently uses @hocuspocus/provider v2 on the client, which
- * throws on incoming CLOSE messages. The built-in `closeConnections()` API
- * sends that message, so for admin restore we do a transport-level WS close
- * instead.
- */
-function forceCloseDocumentConnections(existingDoc: Document): void {
-  const connectionEntries = Array.from(existingDoc.connections.values());
-  for (const { connection } of connectionEntries) {
-    if (existingDoc.hasConnection(connection)) {
-      existingDoc.removeConnection(connection);
-    }
-    const ws = connection.webSocket;
-    if (!ws) continue;
-    const openState = typeof ws.OPEN === 'number' ? ws.OPEN : 1;
-    if (ws.readyState === undefined || ws.readyState === openState) {
-      ws.close(4205, 'Reset Connection');
-    }
   }
 }
 
@@ -118,7 +95,10 @@ const server = new Server({
   },
   
   // Enforce read-only for non-editors.
-  async onChange({ context }) {
+  async onChange({ context, transactionOrigin }) {
+    if (transactionOrigin === RESTORE_TRANSACTION_ORIGIN) {
+      return;
+    }
     if (!context.user?.canEdit) {
       throw new Error('Read-only access');
     }
@@ -138,22 +118,10 @@ const server = new Server({
       throw null;
     }
 
-    // Admin endpoint: replace a document's Yjs state entirely.
-    // Called by ForumMagnum's revertPostToRevision mutation to restore
-    // a collaborative Lexical document to a previous revision.
-    //
-    // This does a destructive replacement, not a CRDT merge:
-    //   1. Writes the new Yjs state to the YjsDocuments table
-    //   2. Closes all WebSocket connections for the document
-    //   3. Unloads the in-memory Y.Doc (skipping onStoreDocument so
-    //      the old state doesn't overwrite the new state in the DB)
-    //   4. Clients auto-reconnect → Hocuspocus loads from DB → restored
-    //
-    // Writing to DB first ensures that even if a client reconnects
-    // before unload completes, it will load the restored state.
-    //
-    // The new Yjs state is sent as a base64-encoded binary in the
-    // request body. The document name is passed as a header.
+    // Admin endpoint: replace a document's content with the content of the
+    // Yjs state in the request body (base64-encoded; document name in a
+    // header). Called by ForumMagnum to restore a revision, and after
+    // converting or importing a post into Lexical.
     if (request.url === '/admin/reset-document' && request.method === 'POST') {
       try {
         const authHeader = request.headers.authorization;
@@ -179,52 +147,25 @@ const server = new Server({
         });
 
         const newState = new Uint8Array(Buffer.from(body, 'base64'));
+        const restoredDoc = new Y.Doc();
+        Y.applyUpdate(restoredDoc, newState);
 
-        // Step 1: Write the new state to the database FIRST, so that
-        // any client that reconnects after eviction loads the restored
-        // state (not the old state).
-        const tempDoc = new Y.Doc();
-        Y.applyUpdate(tempDoc, newState);
-        const newStateVector = Y.encodeStateVector(tempDoc);
-        tempDoc.destroy();
-
-        await postgresExtension.storeDocumentState(documentName, newState, newStateVector);
+        const connection = await server.hocuspocus.openDirectConnection(documentName);
+        const connectionCount = connection.document?.connections.size ?? 0;
+        try {
+          await connection.transact((document) => replaceLexicalContents(document, restoredDoc));
+        } finally {
+          await connection.disconnect();
+          restoredDoc.destroy();
+        }
 
         // eslint-disable-next-line no-console
-        console.log(`[Admin] Wrote restored state for ${documentName} (${newState.length} bytes)`);
-
-        // Step 2: Evict the in-memory document (if any). We tell the
-        // PostgresExtension to skip its onStoreDocument hook for this
-        // document so the unload doesn't overwrite the new state we
-        // just wrote with the old in-memory state.
-        const hocuspocus = server.hocuspocus;
-        const existingDoc = hocuspocus.documents.get(documentName);
-        const connectionCount = existingDoc?.getConnectionsCount() ?? 0;
-
-        if (existingDoc) {
-          // `closeConnections()` sends Hocuspocus CLOSE (type 7), which our
-          // current client provider version doesn't parse correctly. Close
-          // sockets directly instead.
-          forceCloseDocumentConnections(existingDoc);
-          postgresExtension.skipNextStoreForDocument(documentName);
-          try {
-            await hocuspocus.unloadDocument(existingDoc);
-          } finally {
-            postgresExtension.clearSkipStoreForDocument(documentName);
-          }
-
-          // eslint-disable-next-line no-console
-          console.log(`[Admin] Evicted document ${documentName} (had ${connectionCount} connections)`);
-        } else {
-          // eslint-disable-next-line no-console
-          console.log(`[Admin] No active session for ${documentName}`);
-        }
+        console.log(`[Admin] Replaced contents of ${documentName} (${newState.length} bytes, ${connectionCount} connections)`);
 
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify({
           status: 'ok',
           documentName,
-          hadActiveSession: !!existingDoc,
           connectionCount,
         }));
       } catch (err) {
