@@ -11,6 +11,7 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { useGlobalKeydown } from './withGlobalKeydown';
 import SearchModal from '../search/SearchModal';
+import { isSearchModalOpen, searchModalOpenParam } from '../search/searchPageUrl';
 
 const styles = defineStyles('SearchBar', (theme: ThemeType) => ({
   root: {display: 'flex', alignItems: 'center', minWidth: 48, flexShrink: 0, marginTop: 5},
@@ -30,18 +31,18 @@ const SearchBar = ({onSetIsActive}: {
   const classes = useStyles(styles);
   const navigate = useNavigate();
   const {location} = useSubscribedLocation();
-  const inputOpen = new URLSearchParams(location.search).get('searchOpen') === '1';
+  const inputOpen = isSearchModalOpen(location.search);
   const [mounted, setMounted] = useState(false);
   useEffect(() => {setMounted(true);}, []);
   useEffect(() => {onSetIsActive(inputOpen);}, [inputOpen, onSetIsActive]);
   const closeSearch = () => {
     const params = new URLSearchParams(location.search);
-    params.delete('searchOpen');
+    params.delete(searchModalOpenParam);
     navigate({...location, search: params.toString()}, {replace: true, skipRouter: true});
   };
   const handleSearchTap = () => {
     const params = new URLSearchParams(location.search);
-    params.set('searchOpen', '1');
+    params.set(searchModalOpenParam, '1');
     navigate({...location, search: params.toString()}, {replace: true, skipRouter: true});
   };
 
@@ -49,6 +50,10 @@ const SearchBar = ({onSetIsActive}: {
     if (event.defaultPrevented || !isSearchEnabled() || event.isComposing
       || !(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey
       || event.key.toLowerCase() !== 'k') {
+      return;
+    }
+    // Supermod binds Cmd-K to its command palette
+    if (location.pathname === '/admin/supermod') {
       return;
     }
     if (event.target instanceof HTMLElement && event.target.isContentEditable) {

@@ -29,6 +29,12 @@ export const defaultSearchPageState: SearchPageState = {
 const searchFilterPanels = new Set(["time", "authors", "tags", "events", "types"]);
 const searchParameterNames = ["query", "kinds", "contentType", "tags", "tagMatch", "events", "authors", "types", "past", "from", "to", "expanded", "mobileFilters"];
 
+export const searchModalOpenParam = "searchOpen";
+
+export function isSearchModalOpen(search: string): boolean {
+  return new URLSearchParams(search).get(searchModalOpenParam) === "1";
+}
+
 export function mergeSearchPageParams(search: string, state: SearchPageState, presentation: "page" | "modal" = "page"): string {
   const prefix = presentation === "modal" ? "search." : "";
   const params = new URLSearchParams(search);
