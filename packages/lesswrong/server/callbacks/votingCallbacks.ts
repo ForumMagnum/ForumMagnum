@@ -16,18 +16,16 @@ import { tagGetAbsoluteUrl } from '@/lib/collections/tags/helpers';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 import { userGetGroups } from '@/lib/vulcan-users/permissions';
+import { MODERATE_OWN_PERSONAL_KARMA_THRESHOLD, TRUSTLEVEL1_KARMA_THRESHOLD } from '@/lib/collections/users/helpers';
 import { backgroundTask } from '../utils/backgroundTask';
 import { maybeEvaluateTypoReacts } from './typoSuggestionCallbacks';
 import { maybeNotifyMessageReaction } from './messageReactionCallbacks';
-
-const MODERATE_OWN_PERSONAL_THRESHOLD = 50;
-const TRUSTLEVEL1_THRESHOLD = 2000;
 
 async function updateTrustedStatus({newDocument, vote}: VoteDocTuple, context: ResolverContext) {
   const { Users } = context;
 
   const user = await Users.findOne(newDocument.userId)
-  if (user && (user?.karma) >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
+  if (user && (user?.karma) >= TRUSTLEVEL1_KARMA_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
     await Users.rawUpdateOne(user._id, {$push: {groups: 'trustLevel1'}});
     const updatedUser = await Users.findOne(newDocument.userId)
     //eslint-disable-next-line no-console
@@ -40,7 +38,7 @@ async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple, cont
   
   const user = await Users.findOne(newDocument.userId)
   if (!user) throw Error("Couldn't find user")
-  if ((user.karma) >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
+  if ((user.karma) >= MODERATE_OWN_PERSONAL_KARMA_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
     await Users.rawUpdateOne(user._id, {$push: {groups: 'canModeratePersonal'}});
     const updatedUser = await Users.findOne(newDocument.userId)
     if (!updatedUser) throw Error("Couldn't find user to update")

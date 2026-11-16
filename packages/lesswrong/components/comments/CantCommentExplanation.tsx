@@ -1,10 +1,7 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
-import { useCurrentUser } from '../common/withUser';
-import { PermissionsPostMinimumInfo as PostPermissionsMinimumInfo, getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import { moderationEmail } from '@/lib/instanceSettings';
-import CalendarDate from "../common/CalendarDate";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 
@@ -21,42 +18,15 @@ const styles = defineStyles("CantCommentExplanation", (theme: ThemeType) => ({
   },
 }));
 
-const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostPermissionsMinimumInfo, postAuthor: PostsAuthors['user']|null): React.JSX.Element => {
-  if (!user) {
-    return <>Can't recognize user</>
-  }
-
-  const authorBanReason = getAuthorCommentBanReason(user, post, postAuthor);
-  if (authorBanReason) {
-    return <>{getAuthorCommentBanMessage(authorBanReason)}</>
-  }
-
-  if (post?.commentsLocked) {
-    return <>Comments on this post are disabled.</>
-  }
-
-  if (post?.commentsLockedToAccountsCreatedAfter) {
-    return <>Comments on this post are disabled to accounts created after <CalendarDate date={post.commentsLockedToAccountsCreatedAfter}/></>
-  }
-
-  if (post?.shortform && userIsNotShortformOwner(user, post)) {
-    return <>Only the owner of a Quick Take's container can leave top-level comments on it.</>
-  }
-
-  return <>You cannot comment at this time</>
-}
-
-const CantCommentExplanation = ({post}: {
-  post: PostPermissionsMinimumInfo,
+const CantCommentExplanation = ({reason}: {
+  reason: string,
 }) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
-  const author = post.user ?? null;
   const email = moderationEmail.get(forumType)
   return (
     <div className={classNames("i18n-message", "author_has_banned_you", classes.root)}>
-      { userBlockedCommentingReason(currentUser, post, author)}{" "}
+      {reason}{" "}
       { email && <span>
         (Questions? Send an email to <a className={classes.emailLink} href={`mailto:${email}`}>{email}</a>)
       </span> }
