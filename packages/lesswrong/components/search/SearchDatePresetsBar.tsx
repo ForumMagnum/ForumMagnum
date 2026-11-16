@@ -1,27 +1,18 @@
 import React from 'react';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
-import { SearchDateRange } from '@/lib/search/searchFilters';
-import { useCurrentTime } from '@/lib/utils/TimeProvider';
+import { SearchDatePeriod, SearchDateRange, hasSearchDateRange } from '@/lib/search/searchFilters';
 import SearchChip from './SearchChip';
 
-const dayMs = 24 * 60 * 60 * 1000;
-
-const searchDatePresets = [
-  {label: "Past day", days: 1},
-  {label: "Past week", days: 7},
-  {label: "Past month", days: 30},
-  {label: "Past year", days: 365},
+const searchDatePresets: {label: string, period: SearchDatePeriod}[] = [
+  {label: "Past day", period: "day"},
+  {label: "Past week", period: "week"},
+  {label: "Past month", period: "month"},
+  {label: "Past year", period: "year"},
 ];
 
-function searchDatePresetRange(days: number, nowMs: number): SearchDateRange {
-  const start = nowMs - (days * dayMs);
-  return {start: start - (start % dayMs)};
-}
-
-export function matchSearchDatePreset(range: SearchDateRange, nowMs: number): string | undefined {
-  if (range.end !== undefined) return undefined;
-  return searchDatePresets.find(({days}) => searchDatePresetRange(days, nowMs).start === range.start)?.label;
+export function matchSearchDatePreset(range: SearchDateRange): string | undefined {
+  return searchDatePresets.find(({period}) => range.past === period)?.label;
 }
 
 const styles = defineStyles("SearchDatePresetsBar", () => ({
@@ -33,12 +24,10 @@ const SearchDatePresetsBar = ({value, onChange}: {
   onChange: (value: SearchDateRange) => void,
 }) => {
   const classes = useStyles(styles);
-  const nowMs = useCurrentTime().getTime();
-  const allTime = value.start === undefined && value.end === undefined;
-  const preset = matchSearchDatePreset(value, nowMs);
+  const allTime = !hasSearchDateRange(value);
   return <div className={classes.root} role="group" aria-label="Timeframe">
     <SearchChip selected={allTime} onToggle={() => onChange({})}>All time</SearchChip>
-    {searchDatePresets.map(({label, days}) => <SearchChip key={label} selected={preset === label} onToggle={() => onChange(searchDatePresetRange(days, nowMs))}>
+    {searchDatePresets.map(({label, period}) => <SearchChip key={label} selected={value.past === period} onToggle={() => onChange({past: period})}>
       {label}
     </SearchChip>)}
   </div>;

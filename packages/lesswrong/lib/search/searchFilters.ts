@@ -15,9 +15,23 @@ export type SearchTagMatch = "any" | "all";
 
 export const defaultSearchPostTypes: SearchPostType[] = Array.from(searchPostTypes).filter(type => type !== "event");
 
+export const searchDatePeriods = new TupleSet(["day", "week", "month", "year"] as const);
+export type SearchDatePeriod = UnionOf<typeof searchDatePeriods>;
+
+const searchDatePeriodDays: Record<SearchDatePeriod, number> = {day: 1, week: 7, month: 30, year: 365};
+
+/**
+ * Either a relative period (the presets), resolved against the clock when the
+ * search is sent, or an absolute range in epoch milliseconds.
+ */
 export interface SearchDateRange {
+  past?: SearchDatePeriod;
   start?: number;
   end?: number;
+}
+
+export function hasSearchDateRange(range: SearchDateRange): boolean {
+  return range.past !== undefined || range.start !== undefined || range.end !== undefined;
 }
 
 export interface SearchFilterState {
@@ -45,6 +59,8 @@ export interface SearchFilterParams {
   tagMatch?: SearchTagMatch;
   authorIds?: string[];
   postTypes?: SearchPostType[];
+  /** Only match documents published in this many milliseconds before the request */
+  withinMs?: number;
 }
 
 export function isDefaultSearchPostTypes(types: SearchPostType[]): boolean {
@@ -65,5 +81,6 @@ export function searchFiltersToParams(filters: SearchFilterState): SearchFilterP
   if (dateRange.start !== undefined) numericFilters.push(`publicDateMs>=${dateRange.start}`);
   if (dateRange.end !== undefined) numericFilters.push(`publicDateMs<=${dateRange.end}`);
   if (numericFilters.length) params.numericFilters = numericFilters;
+  if (dateRange.past !== undefined) params.withinMs = searchDatePeriodDays[dateRange.past] * 24 * 60 * 60 * 1000;
   return params;
 }

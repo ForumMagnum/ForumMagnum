@@ -2,6 +2,7 @@ import { SearchIndexCollectionName, collectionIsSearchIndexed } from "@/lib/sear
 import {
   SearchDateRange,
   SearchFilterState,
+  searchDatePeriods,
   SearchPostType,
   defaultSearchPostTypes,
   emptySearchFilters,
@@ -26,7 +27,7 @@ export const defaultSearchPageState: SearchPageState = {
 };
 
 const searchFilterPanels = new Set(["time", "authors", "tags", "events", "types"]);
-const searchParameterNames = ["query", "kinds", "contentType", "tags", "tagMatch", "events", "authors", "types", "from", "to", "expanded", "mobileFilters"];
+const searchParameterNames = ["query", "kinds", "contentType", "tags", "tagMatch", "events", "authors", "types", "past", "from", "to", "expanded", "mobileFilters"];
 
 export function mergeSearchPageParams(search: string, state: SearchPageState, presentation: "page" | "modal" = "page"): string {
   const prefix = presentation === "modal" ? "search." : "";
@@ -83,7 +84,8 @@ function formatDateBound(ms: number, end: boolean): string {
   return iso.endsWith(end ? "T23:59:59.999Z" : "T00:00:00.000Z") ? iso.slice(0, 10) : iso;
 }
 
-function parseDateRange(from: string | undefined, to: string | undefined): SearchDateRange {
+function parseDateRange(past: string | undefined, from: string | undefined, to: string | undefined): SearchDateRange {
+  if (past !== undefined && searchDatePeriods.has(past)) return {past};
   const start = parseDateBound(from, false);
   const end = parseDateBound(to, true);
   if (start !== undefined && end !== undefined && start > end) return {};
@@ -106,7 +108,7 @@ function searchPageStateFromQuery(query: Record<string, string | undefined>): Se
         : postTypes.includes("event") ? postTypes.length === 1 ? "only" : "include" : "exclude",
       authorIds: readList(query, "authors"),
       postTypes: postTypes.some(type => type !== "event") ? postTypes.filter(type => type !== "event") : defaultSearchPostTypes,
-      dateRange: parseDateRange(query.from, query.to),
+      dateRange: parseDateRange(query.past, query.from, query.to),
     },
   };
 }
@@ -123,6 +125,7 @@ export function searchPageStateToQuery(state: SearchPageState): Record<string, s
     ["events", filters.events === "exclude" ? undefined : filters.events],
     ["authors", filters.authorIds.length ? filters.authorIds.join(",") : undefined],
     ["types", isDefaultSearchPostTypes(filters.postTypes) ? undefined : filters.postTypes.join(",")],
+    ["past", filters.dateRange.past],
     ["from", filters.dateRange.start !== undefined ? formatDateBound(filters.dateRange.start, false) : undefined],
     ["to", filters.dateRange.end !== undefined ? formatDateBound(filters.dateRange.end, true) : undefined],
   ];
