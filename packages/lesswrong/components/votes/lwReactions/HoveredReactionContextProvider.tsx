@@ -21,7 +21,7 @@ export const SetHoveredReactionContext = React.createContext<((change: HoveredRe
 
 export const InlineReactVoteContext = React.createContext<VotingProps<VoteableTypeClient>|null>(null);
 
-type HoveredReactionChange = {
+export type HoveredReactionChange = {
   reactionName: string,
   quote: QuoteLocator | null,
   isHovered: boolean,

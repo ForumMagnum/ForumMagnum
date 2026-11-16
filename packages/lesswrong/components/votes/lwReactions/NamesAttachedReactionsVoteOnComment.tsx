@@ -1,4 +1,4 @@
-import React, { useState, useRef, RefObject, useContext } from 'react';
+import React, { useState, useRef, RefObject, useContext, useEffect } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { NamesAttachedReactionsCommentBottomProps, CommentVotingComponentProps } from '@/lib/voting/votingSystemTypes';
 import type { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
@@ -420,6 +420,10 @@ export const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteP
     setHoveredReaction?.({reactionName: react, isHovered: false, quote: null});
     onMouseLeave(ev);
   }
+
+  useEffect(() => {
+    return () => setHoveredReaction?.({reactionName: react, isHovered: false, quote: null});
+  }, [react, setHoveredReaction]);
 
   const showDefaultBackground = currentUserReactionVote==="created"||currentUserReactionVote==="seconded"
   const showInvertedBackground = invertColors && (currentUserReactionVote==="created"||currentUserReactionVote==="seconded")

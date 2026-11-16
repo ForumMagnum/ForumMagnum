@@ -1,8 +1,8 @@
-import React, { useContext, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { QuoteLocator, NamesAttachedReactionsList } from '@/lib/voting/namesAttachedReactions';
 import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import classNames from 'classnames';
-import { HoveredReactionListContext, InlineReactVoteContext, SetHoveredReactionContext } from './HoveredReactionContextProvider';
+import { HoveredReactionListContext, InlineReactVoteContext, SetHoveredReactionContext, type HoveredReactionChange } from './HoveredReactionContextProvider';
 import sumBy from 'lodash/sumBy';
 import { useHover } from '@/components/common/withHover';
 import { defaultInlineReactsMode, type InlineReactsMode, SideItemVisibilityContext } from '@/components/dropdowns/posts/SetSideItemVisibility';
@@ -59,26 +59,19 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
     );
 
   const setHoveredReaction = useContext(SetHoveredReactionContext);
+  const hoveredReactionNamesRef = useRef<string[]>([]);
 
-  function updateHoveredReactions(isHovered: boolean) {
-    for (const [reactionName, documentReactionInfo] of Object.entries(reactions)) {
-      if (documentReactionInfo) {
-        for (const { quotes } of documentReactionInfo) {
-          const [reactQuote] = quotes ?? [];
-          if (quote === reactQuote) {
-            setHoveredReaction?.({ isHovered, quote: reactQuote, reactionName });
-          }
-        }
-      }
-    }
-  }
-
-  const hoverEnterLeaveEventHandlers = {
-    onEnter: () => updateHoveredReactions(true),
-    onLeave: () => updateHoveredReactions(false)
-  };
-  const { eventHandlers: sideItemLineEventHandlers, hover: sideItemLineHover } = useHover(hoverEnterLeaveEventHandlers);
-  const { eventHandlers: iconsEventHandlers } = useHover(hoverEnterLeaveEventHandlers);
+  const onEnter = () => markReactionsHovered(setHoveredReaction, quote, reactions, hoveredReactionNamesRef);
+  const onLeave = useCallback(
+    () => clearHoveredReactions(setHoveredReaction, quote, hoveredReactionNamesRef),
+    [setHoveredReaction, quote]
+  );
+  const {
+    eventHandlers: sideItemLineEventHandlers,
+    hover: sideItemLineHover,
+    forceUnHover: unhoverSideItemLine,
+  } = useHover({ onEnter, onLeave });
+  const { eventHandlers: iconsEventHandlers, forceUnHover: unhoverIcons } = useHover({ onEnter, onLeave });
   
   const visibilityMode = useContext(SideItemVisibilityContext)?.inlineReactsMode ?? defaultInlineReactsMode;
   let sideItemIsVisible = getSideItemVisibility(visibilityMode, reactions);
@@ -87,19 +80,30 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
   const { pathname } = useLocation();
   const isInbox = pathname.startsWith("/inbox");
 
+  const normalizedReactions = voteProps ? getNormalizedReactionsListFromVoteProps(voteProps)?.reacts : undefined;
+  // In netPositive mode, hide the icons of reactions on this span that have
+  // been anti-reacted down to zero or below, even if other reactions on the
+  // same span are positive. (They're still listed in the hover info.)
+  const reactionsUsed = Object.keys(normalizedReactions ?? {}).filter(react =>
+    normalizedReactions?.[react]?.some(r=>r.quotes?.includes(quote))
+    && (visibilityMode !== "netPositive" || quoteReactHasPositiveScore(reactions, react))
+  );
+
+  // Anti-reacting from the hover popup can remove the hovered icon (or the
+  // whole side item) from under the mouse without a mouseleave event, which
+  // used to leave the quoted text highlighted indefinitely.
+  const visibleIconsKey = sideItemIsVisible ? reactionsUsed.join(",") : "";
+  useEffect(() => {
+    return () => {
+      unhoverSideItemLine();
+      unhoverIcons();
+    };
+  }, [visibleIconsKey, unhoverSideItemLine, unhoverIcons]);
+
   if (!voteProps) {
     return <>{children}</>
   }
 
-  const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts ?? {};
-  // In netPositive mode, hide the icons of reactions on this span that have
-  // been anti-reacted down to zero or below, even if other reactions on the
-  // same span are positive. (They're still listed in the hover info.)
-  const reactionsUsed = Object.keys(normalizedReactions).filter(react =>
-    normalizedReactions[react]?.some(r=>r.quotes?.includes(quote))
-    && (visibilityMode !== "netPositive" || quoteReactHasPositiveScore(reactions, react))
-  );
-  
   return <>
     <span ref={quotedTextAnchorRef} className={classNames({
       [classes.reactionTypeHovered]: isHovered && !invertColors,
@@ -148,6 +152,38 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
       />
     </LWPopper>}
   </>;
+}
+
+function getReactionNamesOnQuote(reactions: NamesAttachedReactionsList, quote: QuoteLocator): string[] {
+  return Object.entries(reactions)
+    .filter(([_reactionName, documentReactionInfo]) =>
+      documentReactionInfo?.some(({ quotes }) => quotes?.[0] === quote)
+    )
+    .map(([reactionName]) => reactionName);
+}
+
+function markReactionsHovered(
+  setHoveredReaction: ((change: HoveredReactionChange) => void)|null,
+  quote: QuoteLocator,
+  reactions: NamesAttachedReactionsList,
+  hoveredReactionNamesRef: React.MutableRefObject<string[]>,
+) {
+  const reactionNames = getReactionNamesOnQuote(reactions, quote);
+  for (const reactionName of reactionNames) {
+    setHoveredReaction?.({ isHovered: true, quote, reactionName });
+  }
+  hoveredReactionNamesRef.current = reactionNames;
+}
+
+function clearHoveredReactions(
+  setHoveredReaction: ((change: HoveredReactionChange) => void)|null,
+  quote: QuoteLocator,
+  hoveredReactionNamesRef: React.MutableRefObject<string[]>,
+) {
+  for (const reactionName of hoveredReactionNamesRef.current) {
+    setHoveredReaction?.({ isHovered: false, quote, reactionName });
+  }
+  hoveredReactionNamesRef.current = [];
 }
 
 function getSideItemVisibility(visibilityMode: InlineReactsMode, reactions: NamesAttachedReactionsList) {
