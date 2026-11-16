@@ -503,14 +503,14 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<SearchPost[]> {
+  getSearchDocuments(limit: number, afterId: string): Promise<SearchPost[]> {
     return this.getRawDb().any(`
       -- PostsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
-      ORDER BY p."createdAt" DESC
+      WHERE p."_id" > $2
+      ORDER BY p."_id"
       LIMIT $1
-      OFFSET $2
-    `, [limit, offset]);
+    `, [limit, afterId]);
   }
 
   async countSearchDocuments(): Promise<number> {

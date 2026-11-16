@@ -264,14 +264,14 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<SearchComment[]> {
+  getSearchDocuments(limit: number, afterId: string): Promise<SearchComment[]> {
     return this.getRawDb().any(`
       -- CommentsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
-      ORDER BY c."createdAt" DESC
+      WHERE c."_id" > $2
+      ORDER BY c."_id"
       LIMIT $1
-      OFFSET $2
-    `, [limit, offset]);
+    `, [limit, afterId]);
   }
 
   async countSearchDocuments(): Promise<number> {

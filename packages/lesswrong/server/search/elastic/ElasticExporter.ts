@@ -195,6 +195,9 @@ export class ElasticExporter {
    * export are copied across. A document written during the export and again in
    * the seconds before that copy reaches it ends up with the older version until
    * its next write.
+   *
+   * The alias stays on the old index if the new one holds fewer documents than
+   * Postgres had when the export started.
    */
   async recreateIndex(collectionName: SearchIndexCollectionName) {
     const collection = getCollection(collectionName) as SearchIndexedCollection;
@@ -212,8 +215,16 @@ export class ElasticExporter {
     await this.createIndex(newIndexName, collectionName, await this.getExistingSynonyms());
 
     const exportStartedAt = new Date(Date.now() - exportClockSkewMarginMs);
+    const expectedCount = await this.getRepoByCollectionName(collectionName).countSearchDocuments();
     console.log(`Loading data into index: ${collectionName}`);
     await this.exportCollection(collectionName, newIndexName);
+
+    const client = this.client.getClient();
+    await client.indices.refresh({index: newIndexName});
+    const {count} = await client.count({index: newIndexName});
+    if (count < expectedCount) {
+      throw new Error(`${newIndexName} has ${count} documents but Postgres had ${expectedCount} when the export started, so the alias stays on ${oldIndexName}`);
+    }
 
     console.log(`Switching alias`);
     await this.switchAlias(aliasName, oldIndexName, newIndexName);
@@ -485,14 +496,17 @@ export class ElasticExporter {
     const batchSize = 1000;
     const totalBatches = Math.ceil(total / batchSize);
     const totalErrors: OnDropDocument<SearchDocument>[] = [];
+    // Paging by _id rather than by offset, so rows created during the export
+    // can't shift later pages and skip documents.
+    let afterId = "";
     for (let i = 0; ; i++) {
-      const offset = batchSize * i;
       // eslint-disable-next-line no-console
       console.log(`...starting ${collectionName} batch ${i} of ${totalBatches}`);
-      const documents = await repo.getSearchDocuments(batchSize, offset);
+      const documents = await repo.getSearchDocuments(batchSize, afterId);
       if (documents.length < 1) {
         break;
       }
+      afterId = documents[documents.length - 1]._id;
       const erroredDocuments = await this.createDocuments(collection, documents, alias);
       totalErrors.push.apply(totalErrors, erroredDocuments);
     }

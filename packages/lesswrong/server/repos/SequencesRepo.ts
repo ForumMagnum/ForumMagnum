@@ -68,14 +68,14 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<SearchSequence[]> {
+  getSearchDocuments(limit: number, afterId: string): Promise<SearchSequence[]> {
     return this.getRawDb().any(`
       -- SequencesRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
-      ORDER BY s."createdAt" DESC
+      WHERE s."_id" > $2
+      ORDER BY s."_id"
       LIMIT $1
-      OFFSET $2
-    `, [limit, offset]);
+    `, [limit, afterId]);
   }
 
   async countSearchDocuments(): Promise<number> {
