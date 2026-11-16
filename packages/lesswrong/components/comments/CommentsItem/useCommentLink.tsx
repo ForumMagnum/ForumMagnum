@@ -5,7 +5,7 @@ import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/help
 import qs from "qs";
 import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { Link } from "../../../lib/reactRouterWrapper";
-import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
+import { useLocation, useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
 import { isSpecialClick } from "@/lib/utils/eventUtils";
 
 export type UseCommentLinkProps = {
@@ -27,7 +27,8 @@ export const CommentLinkWrapper = ({
   children
 }: UseCommentLinkProps & { children: React.ReactNode }) => {
   const navigate = useNavigate();
-  const {location, query} = useSubscribedLocation();
+  // Only read on click, so this doesn't rerender every comment date on URL changes
+  const currentLocation = useLocation();
   const {captureEvent} = useTracking();
 
   const url = commentGetPageUrlFromIds({
@@ -49,6 +50,7 @@ export const CommentLinkWrapper = ({
     if (isSpecialClick(event)) {
       return;
     }
+    const {location, query} = currentLocation;
 
     // If the current location is not the same as the link's location (e.g. if a
     // comment on a post is showing on the frontpage), fall back to just following
@@ -91,10 +93,10 @@ export const CommentLinkWrapper = ({
  */
 export const useCommentLinkState = () => {
   const { forumType } = useForumType();
-  const { query, hash } = useSubscribedLocation();
-
-  const queryId = query.commentId
-  const hashId = hash.slice(1);
+  const { queryId, hashId } = useSubscribedLocation(({ query, hash }) => ({
+    queryId: query.commentId,
+    hashId: hash.slice(1),
+  }));
 
   // Hash is only available on the client, not the server; useSyncExternalStore suppresses
   // the SSR mismatch

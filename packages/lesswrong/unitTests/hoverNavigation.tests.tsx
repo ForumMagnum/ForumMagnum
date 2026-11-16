@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 import React, { Activity, StrictMode, useState } from 'react';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { SubscribeLocationContext } from '../lib/locationContexts';
+import { LocationStoreProvider, SubscribeLocationContext } from '../lib/locationContexts';
 import { useHover } from '../components/common/withHover';
 import { useOnNavigateOrHide } from '../components/hooks/useOnNavigateOrHide';
 import LWTooltip from '../components/common/LWTooltip';
@@ -12,7 +12,7 @@ jest.mock('../lib/analyticsEvents', () => ({
   useTracking: () => ({ captureEvent }),
 }));
 jest.mock('../lib/routeUtil', () => ({
-  useSubscribedLocation: () => React.useContext(SubscribeLocationContext),
+  useLocationStore: () => React.useContext(SubscribeLocationContext),
 }));
 jest.mock('../lib/utils/isMobile', () => ({ isMobile: () => false }));
 jest.mock('../components/hooks/useStyles', () => ({
@@ -35,7 +35,7 @@ function Page({ url = '/', visible = true, children }: {
 }) {
   const parsed = new URL(url, 'https://www.lesswrong.com');
   return <StrictMode>
-    <SubscribeLocationContext.Provider value={{
+    <LocationStoreProvider location={{
       url,
       pathname: parsed.pathname,
       hash: parsed.hash,
@@ -44,7 +44,7 @@ function Page({ url = '/', visible = true, children }: {
       location: { pathname: parsed.pathname, search: parsed.search, hash: parsed.hash },
     }}>
       <Activity mode={visible ? 'visible' : 'hidden'}>{children}</Activity>
-    </SubscribeLocationContext.Provider>
+    </LocationStoreProvider>
   </StrictMode>;
 }
 

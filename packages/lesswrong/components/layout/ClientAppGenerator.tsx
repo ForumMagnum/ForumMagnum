@@ -7,7 +7,7 @@ import React, { Suspense, useEffect, useRef, useState } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
-import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/locationContexts';
+import { LocationContext, LocationStoreProvider, NavigationContext } from '@/lib/locationContexts';
 import { parsePath } from '@/lib/routeChecks/parseRoute';
 import { MessageContextProvider } from '@/components/layout/FlashMessages';
 import { UserContextProvider } from '../common/withUser';
@@ -93,9 +93,8 @@ const LocationContextProvider = ({ children }: { children: React.ReactNode }) =>
     navigationContext.current.history = history;
   }
 
-  // subscribeLocationContext changes (by shallow comparison) whenever the
-  // URL changes.
-  // FIXME: Also needs to include changes to hash and to query params
+  // subscribeLocationContext is a new object whenever the URL changes, so
+  // useSubscribedLocation can tell a change from a rerender.
   if (!subscribeLocationContext.current ||
     subscribeLocationContext.current.pathname !== location.pathname ||
     JSON.stringify(subscribeLocationContext.current.query) !== JSON.stringify(location.query) ||
@@ -108,9 +107,9 @@ const LocationContextProvider = ({ children }: { children: React.ReactNode }) =>
   
   return <LocationContext.Provider value={locationContext.current}>
     <NavigationContext.Provider value={navigationContext.current}>
-      <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
+      <LocationStoreProvider location={subscribeLocationContext.current}>
         {children}
-      </SubscribeLocationContext.Provider>
+      </LocationStoreProvider>
     </NavigationContext.Provider>
   </LocationContext.Provider>
 }

@@ -1,6 +1,6 @@
 import { getUrlClass } from "@/server/utils/getUrlClass";
 import qs from 'qs';
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useRef, useSyncExternalStore } from 'react';
 import type { RouterLocation, SegmentedUrl } from './routeChecks/parseRoute';
 import { createPath, type LocationDescriptor, parsePath } from 'history';
 import { parseQuery } from './routeChecks/parseRoute';
@@ -57,8 +57,41 @@ export const useLocation = (): RouterLocation => {
 }
 
 // React Hook which returns the page location, formatted as in useLocation, and
-// triggers a rerender whenever navigation occurs.
-export const useSubscribedLocation = (): RouterLocation => {
+// triggers a rerender whenever the URL changes. Given a selector, it returns
+// what the selector picks and rerenders only when that changes (compared
+// shallowly), eg `useSubscribedLocation(({query}) => query.commentId)`. Prefer
+// a selector in anything rendered many times per page: the URL can change on
+// every keystroke (the search modal keeps its query there).
+export function useSubscribedLocation(): RouterLocation;
+export function useSubscribedLocation<T>(select: (location: RouterLocation) => T): T;
+export function useSubscribedLocation<T>(select?: (location: RouterLocation) => T): RouterLocation|T {
+  const store = useLocationStore();
+  const selected = useRef<{ value: T }|null>(null);
+  const getSnapshot = () => {
+    const location = store.get();
+    if (!select) {
+      return location;
+    }
+    const value = select(location);
+    if (selected.current && selectionsEqual(selected.current.value, value)) {
+      return selected.current.value;
+    }
+    selected.current = { value };
+    return value;
+  };
+  return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
+}
+
+function selectionsEqual(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || !a || !b) return false;
+  const aRecord = a as Record<string, unknown>, bRecord = b as Record<string, unknown>;
+  const aKeys = Object.keys(aRecord);
+  return aKeys.length === Object.keys(bRecord).length
+    && aKeys.every(key => key in bRecord && Object.is(aRecord[key], bRecord[key]));
+}
+
+export const useLocationStore = () => {
   return useContext(SubscribeLocationContext)!;
 }
 

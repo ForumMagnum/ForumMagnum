@@ -540,8 +540,7 @@ const UltraFeedPostDialog = ({
   const { forumType } = useForumType();
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
-  const location = useSubscribedLocation();
-  const { query } = location;
+  const answersSorting = useSubscribedLocation(({ query }) => query.answersSorting);
   
   const scrollableContentRef = useRef<HTMLDivElement>(null);
   const dialogInnerRef = useRef<HTMLDivElement>(null);
@@ -597,7 +596,7 @@ const UltraFeedPostDialog = ({
   const loadingMoreComments = networkStatus === NetworkStatus.fetchMore;
   
   // Answers query for questions
-  const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
+  const sortBy: CommentSortingMode = (answersSorting as CommentSortingMode) || "top";
   const { data: dataAnswers, loading: isAnswersLoading, refetch: refetchAnswers } = useQuery(COMMENTS_LIST_MULTI_QUERY, {
     variables: {
       selector: { answersAndReplies: { postId: displayPost._id, sortBy } },

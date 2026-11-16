@@ -16,8 +16,7 @@ const HomeDesignChatProvider = ({
   const [useDefaultDesign, setUseDefaultDesign] = useState(false);
   const [publicId, setPublicId] = useState<string | null>(null);
 
-  const { query } = useSubscribedLocation();
-  const openCustomizeParam = typeof query.openCustomize === 'string' ? query.openCustomize : undefined;
+  const openCustomizeParam = useSubscribedLocation(({ query }) => typeof query.openCustomize === 'string' ? query.openCustomize : undefined);
   const currentUrlIsOpenCustomize = Boolean(openCustomizeParam);
   useEffect(() => {
     if (currentUrlIsOpenCustomize !== isOpen) {

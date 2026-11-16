@@ -449,7 +449,7 @@ const CKPostEditor = ({
   const { setGetLlmFeedbackCommand, setCancelLlmFeedbackCommand, llmFeedbackCommandLoadingSourceId, setLlmFeedbackCommandLoadingSourceId } = useEditorCommands();
 
   // Get the linkSharingKey, if it exists
-  const { query : { key } } = useSubscribedLocation();
+  const key = useSubscribedLocation(({ query }) => query.key);
   
     // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
