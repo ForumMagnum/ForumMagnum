@@ -2154,15 +2154,9 @@ const schema = {
     database: {
       type: "VARCHAR(27)[]",
     },
-    // FIXME: client-side mutations of this are rewriting the whole thing,
-    // when they should be doing add or delete. The current set up can cause
-    // overwriting of other people's changes in a race.
     graphql: {
       outputType: "[String!]",
-      inputType: "[String!]",
       canRead: ["members"],
-      canUpdate: ["sunshineRegiment", "admins", "canSuggestCuration"],
-      canCreate: ["sunshineRegiment", "admins", "canSuggestCuration"],
       validation: {
         optional: true,
       },
@@ -4196,10 +4190,7 @@ const schema = {
     },
     graphql: {
       outputType: "[String!]!",
-      inputType: "[String!]",
       canRead: ["guests"],
-      canUpdate: ["members", "alignmentForum", "alignmentForumAdmins"],
-      canCreate: ["members", "sunshineRegiment", "admins"],
       onCreate: arrayOfForeignKeysOnCreate,
       validation: {
         optional: true,

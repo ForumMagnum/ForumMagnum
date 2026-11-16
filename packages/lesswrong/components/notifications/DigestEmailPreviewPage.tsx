@@ -16,7 +16,9 @@ import SingleColumnSection from "@/components/common/SingleColumnSection";
 import { useCurrentUser } from "@/components/common/withUser";
 import UsersSearchAutoComplete from "@/components/search/UsersSearchAutoComplete";
 import Loading from "@/components/vulcan-core/Loading";
-import EmailPreview, {
+import {
+  EmailPreviewBody,
+  EmailPreviewHeaders,
   MOBILE_EMAIL_PREVIEW_WIDTH,
   type EmailPreviewViewport,
 } from "./EmailPreview";
@@ -896,12 +898,16 @@ export default function DigestEmailPreviewPage() {
                   </div>
                 )}
                 {!selectedSampleLoading && selectedSample && samplePreviewView !== "metadata" && (
-                  <EmailPreview
-                    email={selectedSample}
-                    bodyView={samplePreviewView}
-                    viewport={previewViewport}
-                    fullHeight
-                  />
+                  <>
+                    <EmailPreviewHeaders email={selectedSample} />
+                    <EmailPreviewBody
+                      email={selectedSample}
+                      bodyView={samplePreviewView}
+                      colorMode="light"
+                      viewport={previewViewport}
+                      fullHeight
+                    />
+                  </>
                 )}
                 {selectedSampleSummary && selectedSample && samplePreviewView === "metadata" && (
                   <dl className={classes.metadataGrid}>

@@ -68,5 +68,16 @@ describe("Pipeline", () => {
       expectedSql: '-- TestCollection.someView SELECT * FROM ( SELECT "TestCollection".* FROM "TestCollection" WHERE "a" = $1 LIMIT $2 ) A WHERE "b" = $3',
       expectedArgs: [3, 10, "test"],
     },
+    {
+      name: "rejects a projected field name that isn't an identifier",
+      getQuery: () => new Pipeline(testTable, [
+        {
+          $project: {
+            'b" 2': 1,
+          },
+        },
+      ]).toQuery(),
+      expectedError: "Invalid SQL identifier",
+    },
   ]);
 });

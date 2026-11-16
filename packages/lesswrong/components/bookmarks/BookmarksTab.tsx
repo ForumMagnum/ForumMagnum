@@ -3,6 +3,7 @@ import { useContinueReading } from '../recommendations/withContinueReading';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import SectionTitle from "../common/SectionTitle";
 import BookmarksList from "./BookmarksList";
+import BookmarkedCommentsList from "./BookmarkedCommentsList";
 import ContinueReadingList from "../recommendations/ContinueReadingList";
 import BookmarksFeed from "./BookmarksFeed";
 
@@ -18,6 +19,7 @@ export const BookmarksTab = () => {
 
     <SectionTitle title="Bookmarked Posts"/>
     <BookmarksList showMessageIfEmpty={true} />
+    <BookmarkedCommentsList />
     <BookmarksFeed />
 
   </AnalyticsContext>

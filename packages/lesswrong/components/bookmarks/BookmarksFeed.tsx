@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { FeedPostMetaInfo, FeedCommentMetaInfo, DisplayFeedCommentThread, FeedItemDisplayStatus } from '../ultraFeed/ultraFeedTypes';
@@ -12,7 +12,7 @@ import Loading from "../vulcan-core/Loading";
 import FeedItemWrapper from "../ultraFeed/FeedItemWrapper";
 import UltraFeedPostItem from "../ultraFeed/UltraFeedPostItem";
 import UltraFeedThreadItem from "../ultraFeed/UltraFeedThreadItem";
-import { useQuery } from "@/lib/crud/useQuery";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const BookmarksFeedItemFragmentMultiQuery = gql(`
@@ -26,21 +26,41 @@ const BookmarksFeedItemFragmentMultiQuery = gql(`
   }
 `);
 
+const loadMoreDistance = 1000;
+
 const BookmarksFeed = ({ hideTitle = false }: { hideTitle?: boolean }) => {
   const currentUser = useCurrentUser();
   const { settings } = useUltraFeedSettings();
 
-  const { data, error, loading } = useQuery(BookmarksFeedItemFragmentMultiQuery, {
+  const { data, error, loadMoreProps } = useQueryWithLoadMore(BookmarksFeedItemFragmentMultiQuery, {
     variables: {
       selector: { myBookmarks: {} },
       limit: 20,
       enableTotal: false,
     },
     skip: !currentUser,
-    notifyOnNetworkStatusChange: true,
+    itemsPerPage: 20,
   });
 
   const bookmarks = data?.bookmarks?.results ?? [];
+  const { loadMore, loading, hidden: reachedEnd, count } = loadMoreProps;
+  const bottomRef = useRef<HTMLDivElement|null>(null);
+
+  useEffect(() => {
+    const bottom = bottomRef.current;
+    if (!bottom || loading || reachedEnd || error) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          void loadMore();
+        }
+      },
+      { rootMargin: `0px 0px ${loadMoreDistance}px 0px` },
+    );
+    observer.observe(bottom);
+    return () => observer.disconnect();
+  }, [loadMore, loading, reachedEnd, error, count]);
   
   if (!currentUser || (loading && !bookmarks.length)) {
     return <SingleColumnSection>
@@ -127,6 +147,9 @@ const BookmarksFeed = ({ hideTitle = false }: { hideTitle?: boolean }) => {
         {bookmarks.length === 0 && !loading && (
           <p>No bookmarks yet.</p>
         )}
+        {((!reachedEnd && !error) || loading) && <div ref={bottomRef}>
+          <Loading />
+        </div>}
       </SingleColumnSection>
       </OverflowNavObserverProvider>
       </UltraFeedObserverProvider>

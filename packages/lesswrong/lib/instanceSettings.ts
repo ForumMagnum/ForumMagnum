@@ -420,7 +420,7 @@ export const curatedScoreBonus: number = 10;
 // EA Frontpage time decay algorithm settings
 export const defaultStartingAgeHours: number = 6;
 export const defaultDecayFactorSlowest: number = 0.5;
-export const defaultDecayFactorFastest: number = 1.08;
+export const defaultDecayFactorFastest: number = 1.2;
 export const defaultActivityWeight: number = 1.4;
 export const defaultActivityHalfLife: number = 60;
 export const frontpageDaysAgoCutoffSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.daysAgoCutoff', 90, "optional");

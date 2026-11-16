@@ -391,11 +391,13 @@ export function updateUserMayTriggerReview({newDocument, data, context, oldDocum
   }
 }
 
-export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
-  if (newDocument.nullifyVotes && !oldDocument.nullifyVotes) {
+// Runs whenever an update sets these flags, not only when they change, so that
+// re-purging a user also removes votes and content from after the first purge.
+export async function userEditDeleteContentCallbacksAsync({ data, newDocument, currentUser, context }: UpdateCallbackProperties<"Users">) {
+  if (data.nullifyVotes) {
     await nullifyVotesForUser(newDocument, context.forumType);
   }
-  if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
+  if (data.deleteContent && currentUser) {
     backgroundTask(userDeleteContent(newDocument, currentUser, context));
   }
 }

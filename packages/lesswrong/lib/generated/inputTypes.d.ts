@@ -25,6 +25,7 @@ interface Query {
   Lightcone2024FundraiserStripeAmounts: Array<number> | null;
   Lightcone2025FundraiserAirtableAmounts: number;
   LlmModelOptions: Array<string>;
+  FrontpagePostScoreBreakdown: FrontpagePostScoreBreakdown | null;
   PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData | null;
   petrov2024checkIfNuked: boolean | null;
   PetrovDayCheckIfIncoming: PetrovDayCheckIfIncomingData | null;
@@ -254,8 +255,13 @@ interface Mutation {
   AddGivingSeasonHeart: Array<GivingSeasonHeart>;
   RemoveGivingSeasonHeart: Array<GivingSeasonHeart>;
   ImportGoogleDoc: Post | null;
+  setPostSuggestedForCuration: Post | null;
   alignmentComment: Comment | null;
   alignmentPost: Post | null;
+  setPostSuggestedForAlignment: Post | null;
+  setCommentSuggestedForAlignment: Comment | null;
+  reviewPostForAlignment: Post | null;
+  reviewCommentForAlignment: Comment | null;
   markConversationRead: boolean;
   sendEventTriggeredDM: boolean;
   initiateConversation: Conversation | null;
@@ -416,7 +422,7 @@ interface EmptyViewInput {
 
 interface EmailPreview {
   to: string | null;
-  subject: string | null;
+  subject: string;
   html: string | null;
   text: string | null;
 }
@@ -862,6 +868,22 @@ interface NotificationCounts {
   unreadNotifications: number;
   unreadPrivateMessages: number;
   faviconBadgeNumber: number;
+}
+
+interface FrontpageScoreTerm {
+  label: string;
+  value: number;
+}
+
+interface FrontpagePostScoreBreakdown {
+  filteredScore: number;
+  additiveTerms: Array<FrontpageScoreTerm>;
+  multiplicativeTerms: Array<FrontpageScoreTerm>;
+  ageHours: number;
+  ageOffsetHours: number;
+  decayExponent: number;
+  decayDivisor: number;
+  activityFactor: number | null;
 }
 
 interface PetrovDay2024CheckNumberOfIncomingData {
@@ -1678,6 +1700,7 @@ interface BookmarksUserDocumentBookmarkInput {
 
 interface BookmarkSelector {
   myBookmarkedPosts: EmptyViewInput | null;
+  myBookmarkedComments: EmptyViewInput | null;
   myBookmarks: EmptyViewInput | null;
   userDocumentBookmark: BookmarksUserDocumentBookmarkInput | null;
 }
@@ -4327,6 +4350,7 @@ interface PostsMagicInput {
   meta?: boolean | null;
   forum?: boolean | null;
   limit?: number | null;
+  algoActivityFactor?: number | null;
 }
 
 interface PostsTopInput {
@@ -8331,7 +8355,6 @@ interface CreatePostDataInput {
   feedLink?: string | null;
   curatedDate?: Date | null;
   metaDate?: Date | null;
-  suggestForCuratedUserIds?: Array<string> | null;
   frontpageDate?: Date | null;
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
@@ -8396,7 +8419,6 @@ interface CreatePostDataInput {
   af?: boolean | null;
   afDate?: Date | null;
   afSticky?: boolean | null;
-  suggestForAlignmentUserIds?: Array<string> | null;
   reviewForAlignmentUserId?: string | null;
   agentFoundationsId?: string | null;
   swrCachingEnabled?: boolean | null;
@@ -8447,7 +8469,6 @@ interface UpdatePostDataInput {
   feedLink?: string | null;
   curatedDate?: Date | null;
   metaDate?: Date | null;
-  suggestForCuratedUserIds?: Array<string> | null;
   frontpageDate?: Date | null;
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
@@ -8513,7 +8534,6 @@ interface UpdatePostDataInput {
   af?: boolean | null;
   afDate?: Date | null;
   afSticky?: boolean | null;
-  suggestForAlignmentUserIds?: Array<string> | null;
   reviewForAlignmentUserId?: string | null;
   agentFoundationsId?: string | null;
   swrCachingEnabled?: boolean | null;
@@ -9570,6 +9590,8 @@ interface GraphQLTypeMap {
   ElicitPrediction: ElicitPrediction;
   ElicitBlockData: ElicitBlockData;
   NotificationCounts: NotificationCounts;
+  FrontpageScoreTerm: FrontpageScoreTerm;
+  FrontpagePostScoreBreakdown: FrontpagePostScoreBreakdown;
   PetrovDay2024CheckNumberOfIncomingData: PetrovDay2024CheckNumberOfIncomingData;
   PetrovDayCheckIfIncomingData: PetrovDayCheckIfIncomingData;
   PetrovDayLaunchMissileData: PetrovDayLaunchMissileData;

@@ -7,7 +7,7 @@ import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } f
 // caches, one entry per post, through a loopback to the regular /posts route.
 // Reached via the rewrite in middleware.ts.
 
-const CDN_MAX_AGE_SECONDS = 2 * 60 * 60;
+const CDN_MAX_AGE_SECONDS = 24 * 60 * 60;
 const CDN_STALE_WHILE_REVALIDATE_SECONDS = 2 * 60 * 60;
 // The status marker is rendered as soon as the post query resolves, well
 // before the comments.
