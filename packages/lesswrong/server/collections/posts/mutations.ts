@@ -79,13 +79,15 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
     return false;
   }
 
-  // For rejected posts owned by the user, allow redrafting.
+  // For rejected posts owned by the user, allow redrafting, and archiving or
+  // unarchiving the draft.
   // Technically this lets someone edit the contents if they do it in the same operation,
   // but that's more annoying to prevent and I don't expect too many cases of that.
   // (Also it only matters when doing moderation.)
   if (userOwns(user, document) && document.rejected) {
     const isRedrafting = !document.draft && previewDocument.draft;
-    if (!isRedrafting) {
+    const isTogglingArchived = previewDocument.draft && previewDocument.deletedDraft !== document.deletedDraft;
+    if (!isRedrafting && !isTogglingArchived) {
       return false;
     }
   }
