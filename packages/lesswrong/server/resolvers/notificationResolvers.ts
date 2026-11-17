@@ -8,6 +8,7 @@ import { handleDialogueHtml } from '../editor/conversionUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import gql from "graphql-tag"
 import { defaultNotificationsView } from '@/lib/collections/notifications/views';
+import { sanitize } from '@/lib/utils/sanitize';
 
 export const notificationResolversGqlTypeDefs = gql`
   type NotificationCounts {
@@ -139,7 +140,7 @@ const extractLatestDialogueMessageByUser = async (dialogueHtml: string, userId: 
     if (messageUserId === userId) {
       latestMessage = {
         dialogueMessageId: $(message).attr('message-id') ?? "",
-        dialogueMessageContents: $(message).html() ?? "",
+        dialogueMessageContents: sanitize($(message).html() ?? ""),
       };
     }
   });

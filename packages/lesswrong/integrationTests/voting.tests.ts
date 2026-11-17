@@ -6,6 +6,7 @@ import { createDummyUser, createDummyPost, createDummyComment, createManyDummyVo
 import { Users } from '../server/collections/users/collection'
 import { Posts } from '../server/collections/posts/collection'
 import { Comments } from '../server/collections/comments/collection'
+import { Votes } from '../server/collections/votes/collection'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
 import { sleep } from "../lib/utils/asyncUtils";
 import omitBy from "lodash/omitBy";
@@ -87,6 +88,77 @@ describe('Voting', function() {
     });
   });
   describe('performVoteServer', () => {
+    it('does not record a vote whose extended vote is invalid', async () => {
+      const author = await createDummyUser();
+      const voter = await createDummyUser();
+      const post = await createDummyPost(author, {votingSystem: "namesAttachedReactions"});
+
+      await expect(performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }),
+        documentId: post._id,
+        voteType: 'smallDownvote',
+        extendedVote: {agreement: "bogus"},
+        collection: Posts,
+        user: voter,
+        skipRateLimits: false,
+      })).rejects.toThrow();
+
+      const votes = await Votes.find({documentId: post._id, userId: voter._id}).fetch();
+      expect(votes).toHaveLength(0);
+    });
+    describe('when voting fails partway through', () => {
+      // A vote saved before extended votes were validated, which the post's
+      // scores can't be calculated from.
+      const makeScoreCalculationFail = async (post: DbPost) => {
+        const earlierVoter = await createDummyUser();
+        await createManyDummyVotes(1, earlierVoter, {documentId: post._id, extendedVoteType: {agreement: "bogus"}});
+      };
+      const castUpvote = (post: DbPost, voter: DbUser) => performVoteServer({
+        context: createAnonymousContext({ forumType: "LessWrong" }),
+        documentId: post._id,
+        voteType: 'smallUpvote',
+        collection: Posts,
+        user: voter,
+        skipRateLimits: false,
+      });
+
+      it('leaves no trace of a new vote', async () => {
+        const author = await createDummyUser();
+        const voter = await createDummyUser();
+        const post = await createDummyPost(author, {votingSystem: "namesAttachedReactions"});
+        await waitForBackgroundTasks();
+        await makeScoreCalculationFail(post);
+        const postBeforeVote = await Posts.findOne({_id: post._id});
+
+        await expect(castUpvote(post, voter)).rejects.toThrow('Invalid vote type');
+        await waitForBackgroundTasks();
+
+        expect(await Votes.find({documentId: post._id, userId: voter._id}).fetch()).toHaveLength(0);
+        const postAfterVote = await Posts.findOne({_id: post._id});
+        expect(postAfterVote?.baseScore).toBe(postBeforeVote?.baseScore);
+        expect(postAfterVote?.voteCount).toBe(postBeforeVote?.voteCount);
+        expect((await Users.findOne({_id: author._id}))?.karma).toBe(0);
+      });
+      it('leaves a vote in place that it was cancelling', async () => {
+        const author = await createDummyUser();
+        const voter = await createDummyUser();
+        const post = await createDummyPost(author, {votingSystem: "namesAttachedReactions"});
+        await castUpvote(post, voter);
+        await waitForBackgroundTasks();
+        await makeScoreCalculationFail(post);
+        const postBeforeCancelling = await Posts.findOne({_id: post._id});
+
+        // Casting the same vote again cancels it
+        await expect(castUpvote(post, voter)).rejects.toThrow('Invalid vote type');
+        await waitForBackgroundTasks();
+
+        const votes = await Votes.find({documentId: post._id, userId: voter._id}).fetch();
+        expect(votes.map(vote => vote.cancelled)).toEqual([false]);
+        const postAfterCancelling = await Posts.findOne({_id: post._id});
+        expect(postAfterCancelling?.baseScore).toBe(postBeforeCancelling?.baseScore);
+        expect((await Users.findOne({_id: author._id}))?.karma).toBe(1);
+      });
+    });
     it('sets post to active after voting', async () => {
       const user = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)

@@ -1,4 +1,4 @@
-import { calculateVotePower, getVoteAxisStrength } from './voteTypes';
+import { calculateVotePower, getVoteAxisStrength, parseExtendedVote, voteTypeSchema } from './voteTypes';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
 import sumBy from 'lodash/sumBy'
@@ -8,6 +8,7 @@ import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { defineVotingSystem } from './defineVotingSystem';
 import { reactBallotAxes, reactBallotStandaloneReactions } from './constants';
+import { z } from 'zod';
 
 export const defaultVotingSystem = defineVotingSystem({
   name: "default",
@@ -21,9 +22,14 @@ export const defaultVotingSystem = defineVotingSystem({
   computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
     return null;
   },
+  validateExtendedVote: () => null,
   isNonblankExtendedVote: (vote: DbVote) => {
     return false;
   },
+});
+
+const twoAxisVoteSchema = z.object({
+  agreement: voteTypeSchema.optional(),
 });
 
 export const twoAxisVotingSystem = defineVotingSystem({
@@ -66,6 +72,7 @@ export const twoAxisVotingSystem = defineVotingSystem({
     };
     return result;
   },
+  validateExtendedVote: (extendedVote: unknown) => parseExtendedVote(twoAxisVoteSchema, extendedVote),
   isNonblankExtendedVote: (vote: DbVote) => {
     return vote?.extendedVoteType?.agreement && vote.extendedVoteType.agreement !== "neutral";
   },
@@ -73,6 +80,11 @@ export const twoAxisVotingSystem = defineVotingSystem({
 
 const reactBallotAxisNames = reactBallotAxes.map(axis=>axis.name);
 const reactBallotStandaloneReactionNames = reactBallotStandaloneReactions.map(reaction => reaction.name);
+
+const reactsBallotVoteSchema = z.object({
+  ...fromPairs(reactBallotAxisNames.map(axis => [axis, voteTypeSchema.optional()])),
+  ...fromPairs(reactBallotStandaloneReactionNames.map(reaction => [reaction, z.boolean().optional()])),
+});
 
 export const reactsBallotVotingSystem = defineVotingSystem({
   name: "reactsBallot",
@@ -116,6 +128,7 @@ export const reactsBallotVotingSystem = defineVotingSystem({
     
     return filterZeroes({ ...axisScores, ...standaloneReactCounts });
   },
+  validateExtendedVote: (extendedVote: unknown) => parseExtendedVote(reactsBallotVoteSchema, extendedVote),
   isNonblankExtendedVote: (vote: DbVote) => {
     if (!vote.extendedVoteType) return false;
     for (let key of Object.keys(vote.extendedVoteType)) {
