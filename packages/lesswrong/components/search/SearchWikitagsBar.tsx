@@ -2,7 +2,7 @@ import React from 'react';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { SearchTagMatch } from '@/lib/search/searchFilters';
-import SearchChip from './SearchChip';
+import SearchSegmentedControl, { SearchSegment } from './SearchSegmentedControl';
 import TagMultiselect from '../form-components/TagMultiselect';
 
 const styles = defineStyles("SearchWikitagsBar", (theme: ThemeType) => ({
@@ -37,8 +37,12 @@ const styles = defineStyles("SearchWikitagsBar", (theme: ThemeType) => ({
       background: 'transparent',
     },
   },
-  match: {display: 'flex', gap: 2},
 }));
+
+const tagMatchSegments: SearchSegment<SearchTagMatch>[] = [
+  {value: "any", label: "Any", ariaLabel: "Match any wikitag"},
+  {value: "all", label: "All", ariaLabel: "Match all wikitags"},
+];
 
 const SearchWikitagsBar = ({tagIds, onChange, match, onMatchChange}: {
   tagIds: string[],
@@ -57,10 +61,7 @@ const SearchWikitagsBar = ({tagIds, onChange, match, onMatchChange}: {
         updateCurrentValues={onChange}
       />
     </div>
-    <div className={classes.match} role="group" aria-label="Match wikitags">
-      <SearchChip selected={match === "any"} onToggle={() => onMatchChange("any")}>Any</SearchChip>
-      <SearchChip selected={match === "all"} onToggle={() => onMatchChange("all")}>All</SearchChip>
-    </div>
+    <SearchSegmentedControl label="Match wikitags" segments={tagMatchSegments} value={match} onChange={onMatchChange} />
   </div>;
 };
 

@@ -1,36 +1,38 @@
 import React from 'react';
-import { defineStyles } from '@/components/hooks/defineStyles';
-import { useStyles } from '@/components/hooks/useStyles';
 import { SearchDatePeriod, SearchDateRange, hasSearchDateRange } from '@/lib/search/searchFilters';
-import SearchChip from './SearchChip';
+import SearchSegmentedControl, { SearchSegment } from './SearchSegmentedControl';
 
-const searchDatePresets: {label: string, period: SearchDatePeriod}[] = [
-  {label: "Past day", period: "day"},
-  {label: "Past week", period: "week"},
-  {label: "Past month", period: "month"},
-  {label: "Past year", period: "year"},
+const searchDatePresets: {label: string, shortLabel: string, period: SearchDatePeriod}[] = [
+  {label: "Past day", shortLabel: "Day", period: "day"},
+  {label: "Past week", shortLabel: "Week", period: "week"},
+  {label: "Past month", shortLabel: "Month", period: "month"},
+  {label: "Past year", shortLabel: "Year", period: "year"},
 ];
 
 export function matchSearchDatePreset(range: SearchDateRange): string | undefined {
   return searchDatePresets.find(({period}) => range.past === period)?.label;
 }
 
-const styles = defineStyles("SearchDatePresetsBar", () => ({
-  root: {display: "flex", gap: 4, flexWrap: "wrap"},
-}));
+type SearchDateChoice = SearchDatePeriod | "all";
+
+const dateSegments: SearchSegment<SearchDateChoice>[] = [
+  {value: "all", label: "All time"},
+  ...searchDatePresets.map(({label, shortLabel, period}) => ({value: period, label: shortLabel, ariaLabel: label})),
+];
 
 const SearchDatePresetsBar = ({value, onChange}: {
   value: SearchDateRange,
   onChange: (value: SearchDateRange) => void,
 }) => {
-  const classes = useStyles(styles);
-  const allTime = !hasSearchDateRange(value);
-  return <div className={classes.root} role="group" aria-label="Timeframe">
-    <SearchChip selected={allTime} onToggle={() => onChange({})}>All time</SearchChip>
-    {searchDatePresets.map(({label, period}) => <SearchChip key={label} selected={value.past === period} onToggle={() => onChange({past: period})}>
-      {label}
-    </SearchChip>)}
-  </div>;
+  // An explicit from/to range matches no segment, so none is checked.
+  const choice: SearchDateChoice | undefined = !hasSearchDateRange(value) ? "all" : value.past;
+  return <SearchSegmentedControl
+    label="Timeframe"
+    segments={dateSegments}
+    value={choice}
+    onChange={(next) => onChange(next === "all" ? {} : {past: next})}
+    fullWidth
+  />;
 };
 
 export default SearchDatePresetsBar;

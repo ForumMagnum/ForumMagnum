@@ -65,7 +65,7 @@ const styles = defineStyles('SearchModal', (theme: ThemeType) => ({
   },
 }));
 
-const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]';
+const focusableSelector = 'a[href], button:not([disabled]):not([tabindex="-1"]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]';
 
 function isSearchControlVisible(element: HTMLElement): boolean {
   for (let ancestor: HTMLElement | null = element; ancestor; ancestor = ancestor.parentElement) {
