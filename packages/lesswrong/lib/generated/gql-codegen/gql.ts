@@ -267,6 +267,10 @@ type Documents = {
     "\n  mutation updateModerationTemplateModerationTemplateForm($selector: SelectorInput!, $data: UpdateModerationTemplateDataInput!) {\n    updateModerationTemplate(selector: $selector, data: $data) {\n      data {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": typeof types.updateModerationTemplateModerationTemplateFormDocument,
     "\n  mutation createModerationTemplateModerationTemplateForm($data: CreateModerationTemplateDataInput!) {\n    createModerationTemplate(data: $data) {\n      data {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": typeof types.createModerationTemplateModerationTemplateFormDocument,
     "\n  query multiModerationTemplateModerationTemplatesPageQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {\n    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ModerationTemplateFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiModerationTemplateModerationTemplatesPageQueryDocument,
+    "\n  query NarrationOptionsQuery {\n    narrationOptions {\n      voices {\n        voiceId\n        name\n        category\n        previewUrl\n      }\n      models {\n        modelId\n        name\n      }\n    }\n  }\n": typeof types.NarrationOptionsQueryDocument,
+    "\n  mutation PrepareNarrationMutation($postId: String!) {\n    prepareNarration(postId: $postId) {\n      ...NarrationScriptFragment\n    }\n  }\n": typeof types.PrepareNarrationMutationDocument,
+    "\n  mutation GenerateNarrationSegmentAudioMutation($narrationSegmentId: String!, $settings: NarrationVoiceSettingsInput!) {\n    generateNarrationSegmentAudio(narrationSegmentId: $narrationSegmentId, settings: $settings) {\n      ...NarrationSegmentAudioFragment\n    }\n  }\n": typeof types.GenerateNarrationSegmentAudioMutationDocument,
+    "\n  query NarrationSegmentAudiosQuery($narrationScriptId: String!, $settings: NarrationVoiceSettingsInput!) {\n    narrationSegmentAudios(narrationScriptId: $narrationScriptId, settings: $settings) {\n      ...NarrationSegmentAudioFragment\n    }\n  }\n": typeof types.NarrationSegmentAudiosQueryDocument,
     "\n  query CommentOnYourDraftNotificationHover($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsMinimumInfo\n      }\n    }\n  }\n": typeof types.CommentOnYourDraftNotificationHoverDocument,
     "\n  mutation GenerateAiDigestEmailSamplesMutation(\n    $userSlug: String!\n    $count: Int\n    $countsTowardHistory: Boolean\n  ) {\n    GenerateAiDigestIssues(\n      userSlug: $userSlug\n      count: $count\n      countsTowardHistory: $countsTowardHistory\n    )\n  }\n": typeof types.GenerateAiDigestEmailSamplesMutationDocument,
     "\n  query DigestPreviewReaderQuery($userSlug: String!) {\n    users(selector: { usersProfile: { slug: $userSlug } }, limit: 1, enableTotal: false) {\n      results {\n        _id\n      }\n    }\n  }\n": typeof types.DigestPreviewReaderQueryDocument,
@@ -777,6 +781,8 @@ type Documents = {
     "\n  fragment MultiDocumentRevision on MultiDocument {\n    ...MultiDocumentMinimumInfo\n    contents(version: $version) {\n      ...RevisionEdit\n    }\n    tableOfContents(version: $version)\n  }\n": typeof types.MultiDocumentRevisionDoc,
     "\n  fragment MultiDocumentWithContributorsRevision on MultiDocument {\n    ...MultiDocumentRevision\n    contributors(version: $version) {\n      totalCount\n      contributors {\n        user {\n          ...UsersMinimumInfo\n        }\n        currentAttributionCharCount\n        contributionScore\n      }\n    }\n    arbitalLinkedPages {\n      ...ArbitalLinkedPagesFragment\n    }\n    textLastUpdatedAt\n  }\n": typeof types.MultiDocumentWithContributorsRevisionDoc,
     "\n  fragment WithVoteMultiDocument on MultiDocument {\n    ...MultiDocumentMinimumInfo\n  }\n": typeof types.WithVoteMultiDocumentDoc,
+    "\n  fragment NarrationScriptFragment on NarrationScript {\n    _id\n    scriptUrl\n    segments {\n      _id\n      segmentIndex\n      startBlockIndex\n      endBlockIndex\n      characterCount\n    }\n  }\n": typeof types.NarrationScriptFragmentDoc,
+    "\n  fragment NarrationSegmentAudioFragment on NarrationSegmentAudio {\n    _id\n    narrationSegmentId\n    audioUrl\n    timingsUrl\n    durationMs\n  }\n": typeof types.NarrationSegmentAudioFragmentDoc,
     "\n  fragment NotificationsList on Notification {\n    _id\n    documentId\n    documentType\n    deleted\n    userId\n    createdAt\n    link\n    message\n    type\n    viewed\n    extraData\n  }\n": typeof types.NotificationsListDoc,
     "\n  fragment PetrovDayActionInfo on PetrovDayAction {\n    _id\n    createdAt\n    userId\n    actionType\n    data\n  }\n": typeof types.PetrovDayActionInfoDoc,
     "\n  fragment PodcastEpisodeCreateFragment on PodcastEpisode {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n    podcastId\n    title\n    episodeLink\n    externalEpisodeId\n  }\n": typeof types.PodcastEpisodeCreateFragmentDoc,
@@ -1208,6 +1214,10 @@ const documents: Documents = {
     "\n  mutation updateModerationTemplateModerationTemplateForm($selector: SelectorInput!, $data: UpdateModerationTemplateDataInput!) {\n    updateModerationTemplate(selector: $selector, data: $data) {\n      data {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": types.updateModerationTemplateModerationTemplateFormDocument,
     "\n  mutation createModerationTemplateModerationTemplateForm($data: CreateModerationTemplateDataInput!) {\n    createModerationTemplate(data: $data) {\n      data {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": types.createModerationTemplateModerationTemplateFormDocument,
     "\n  query multiModerationTemplateModerationTemplatesPageQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {\n    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ModerationTemplateFragment\n      }\n      totalCount\n    }\n  }\n": types.multiModerationTemplateModerationTemplatesPageQueryDocument,
+    "\n  query NarrationOptionsQuery {\n    narrationOptions {\n      voices {\n        voiceId\n        name\n        category\n        previewUrl\n      }\n      models {\n        modelId\n        name\n      }\n    }\n  }\n": types.NarrationOptionsQueryDocument,
+    "\n  mutation PrepareNarrationMutation($postId: String!) {\n    prepareNarration(postId: $postId) {\n      ...NarrationScriptFragment\n    }\n  }\n": types.PrepareNarrationMutationDocument,
+    "\n  mutation GenerateNarrationSegmentAudioMutation($narrationSegmentId: String!, $settings: NarrationVoiceSettingsInput!) {\n    generateNarrationSegmentAudio(narrationSegmentId: $narrationSegmentId, settings: $settings) {\n      ...NarrationSegmentAudioFragment\n    }\n  }\n": types.GenerateNarrationSegmentAudioMutationDocument,
+    "\n  query NarrationSegmentAudiosQuery($narrationScriptId: String!, $settings: NarrationVoiceSettingsInput!) {\n    narrationSegmentAudios(narrationScriptId: $narrationScriptId, settings: $settings) {\n      ...NarrationSegmentAudioFragment\n    }\n  }\n": types.NarrationSegmentAudiosQueryDocument,
     "\n  query CommentOnYourDraftNotificationHover($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsMinimumInfo\n      }\n    }\n  }\n": types.CommentOnYourDraftNotificationHoverDocument,
     "\n  mutation GenerateAiDigestEmailSamplesMutation(\n    $userSlug: String!\n    $count: Int\n    $countsTowardHistory: Boolean\n  ) {\n    GenerateAiDigestIssues(\n      userSlug: $userSlug\n      count: $count\n      countsTowardHistory: $countsTowardHistory\n    )\n  }\n": types.GenerateAiDigestEmailSamplesMutationDocument,
     "\n  query DigestPreviewReaderQuery($userSlug: String!) {\n    users(selector: { usersProfile: { slug: $userSlug } }, limit: 1, enableTotal: false) {\n      results {\n        _id\n      }\n    }\n  }\n": types.DigestPreviewReaderQueryDocument,
@@ -1718,6 +1728,8 @@ const documents: Documents = {
     "\n  fragment MultiDocumentRevision on MultiDocument {\n    ...MultiDocumentMinimumInfo\n    contents(version: $version) {\n      ...RevisionEdit\n    }\n    tableOfContents(version: $version)\n  }\n": types.MultiDocumentRevisionDoc,
     "\n  fragment MultiDocumentWithContributorsRevision on MultiDocument {\n    ...MultiDocumentRevision\n    contributors(version: $version) {\n      totalCount\n      contributors {\n        user {\n          ...UsersMinimumInfo\n        }\n        currentAttributionCharCount\n        contributionScore\n      }\n    }\n    arbitalLinkedPages {\n      ...ArbitalLinkedPagesFragment\n    }\n    textLastUpdatedAt\n  }\n": types.MultiDocumentWithContributorsRevisionDoc,
     "\n  fragment WithVoteMultiDocument on MultiDocument {\n    ...MultiDocumentMinimumInfo\n  }\n": types.WithVoteMultiDocumentDoc,
+    "\n  fragment NarrationScriptFragment on NarrationScript {\n    _id\n    scriptUrl\n    segments {\n      _id\n      segmentIndex\n      startBlockIndex\n      endBlockIndex\n      characterCount\n    }\n  }\n": types.NarrationScriptFragmentDoc,
+    "\n  fragment NarrationSegmentAudioFragment on NarrationSegmentAudio {\n    _id\n    narrationSegmentId\n    audioUrl\n    timingsUrl\n    durationMs\n  }\n": types.NarrationSegmentAudioFragmentDoc,
     "\n  fragment NotificationsList on Notification {\n    _id\n    documentId\n    documentType\n    deleted\n    userId\n    createdAt\n    link\n    message\n    type\n    viewed\n    extraData\n  }\n": types.NotificationsListDoc,
     "\n  fragment PetrovDayActionInfo on PetrovDayAction {\n    _id\n    createdAt\n    userId\n    actionType\n    data\n  }\n": types.PetrovDayActionInfoDoc,
     "\n  fragment PodcastEpisodeCreateFragment on PodcastEpisode {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n    podcastId\n    title\n    episodeLink\n    externalEpisodeId\n  }\n": types.PodcastEpisodeCreateFragmentDoc,
@@ -2922,6 +2934,22 @@ export function gql(source: "\n  mutation createModerationTemplateModerationTemp
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiModerationTemplateModerationTemplatesPageQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {\n    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ModerationTemplateFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiModerationTemplateModerationTemplatesPageQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {\n    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ModerationTemplateFragment\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query NarrationOptionsQuery {\n    narrationOptions {\n      voices {\n        voiceId\n        name\n        category\n        previewUrl\n      }\n      models {\n        modelId\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query NarrationOptionsQuery {\n    narrationOptions {\n      voices {\n        voiceId\n        name\n        category\n        previewUrl\n      }\n      models {\n        modelId\n        name\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation PrepareNarrationMutation($postId: String!) {\n    prepareNarration(postId: $postId) {\n      ...NarrationScriptFragment\n    }\n  }\n"): (typeof documents)["\n  mutation PrepareNarrationMutation($postId: String!) {\n    prepareNarration(postId: $postId) {\n      ...NarrationScriptFragment\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation GenerateNarrationSegmentAudioMutation($narrationSegmentId: String!, $settings: NarrationVoiceSettingsInput!) {\n    generateNarrationSegmentAudio(narrationSegmentId: $narrationSegmentId, settings: $settings) {\n      ...NarrationSegmentAudioFragment\n    }\n  }\n"): (typeof documents)["\n  mutation GenerateNarrationSegmentAudioMutation($narrationSegmentId: String!, $settings: NarrationVoiceSettingsInput!) {\n    generateNarrationSegmentAudio(narrationSegmentId: $narrationSegmentId, settings: $settings) {\n      ...NarrationSegmentAudioFragment\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query NarrationSegmentAudiosQuery($narrationScriptId: String!, $settings: NarrationVoiceSettingsInput!) {\n    narrationSegmentAudios(narrationScriptId: $narrationScriptId, settings: $settings) {\n      ...NarrationSegmentAudioFragment\n    }\n  }\n"): (typeof documents)["\n  query NarrationSegmentAudiosQuery($narrationScriptId: String!, $settings: NarrationVoiceSettingsInput!) {\n    narrationSegmentAudios(narrationScriptId: $narrationScriptId, settings: $settings) {\n      ...NarrationSegmentAudioFragment\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -4962,6 +4990,14 @@ export function gql(source: "\n  fragment MultiDocumentWithContributorsRevision 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  fragment WithVoteMultiDocument on MultiDocument {\n    ...MultiDocumentMinimumInfo\n  }\n"): (typeof documents)["\n  fragment WithVoteMultiDocument on MultiDocument {\n    ...MultiDocumentMinimumInfo\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment NarrationScriptFragment on NarrationScript {\n    _id\n    scriptUrl\n    segments {\n      _id\n      segmentIndex\n      startBlockIndex\n      endBlockIndex\n      characterCount\n    }\n  }\n"): (typeof documents)["\n  fragment NarrationScriptFragment on NarrationScript {\n    _id\n    scriptUrl\n    segments {\n      _id\n      segmentIndex\n      startBlockIndex\n      endBlockIndex\n      characterCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment NarrationSegmentAudioFragment on NarrationSegmentAudio {\n    _id\n    narrationSegmentId\n    audioUrl\n    timingsUrl\n    durationMs\n  }\n"): (typeof documents)["\n  fragment NarrationSegmentAudioFragment on NarrationSegmentAudio {\n    _id\n    narrationSegmentId\n    audioUrl\n    timingsUrl\n    durationMs\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

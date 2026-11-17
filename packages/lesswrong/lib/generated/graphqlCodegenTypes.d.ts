@@ -4149,6 +4149,7 @@ type Mutation = {
   fireResearchConversation?: Maybe<ResearchConversationOutput>;
   flipSplashArtImage?: Maybe<Scalars['Boolean']['output']>;
   generateCoverImagesForPost?: Maybe<Array<Maybe<ReviewWinnerArt>>>;
+  generateNarrationSegmentAudio: NarrationSegmentAudio;
   getClaudeAccessLink?: Maybe<Scalars['String']['output']>;
   getNewJargonTerms?: Maybe<Array<Maybe<JargonTerm>>>;
   importUrlAsDraftPost: ExternalPostImportData;
@@ -4174,6 +4175,7 @@ type Mutation = {
   performVoteRevision?: Maybe<VoteResultRevision>;
   performVoteTag?: Maybe<VoteResultTag>;
   performVoteTagRel?: Maybe<VoteResultTagRel>;
+  prepareNarration: NarrationScript;
   promoteLensToMain?: Maybe<Scalars['Boolean']['output']>;
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
   publishHomePageDesign?: Maybe<HomePageDesignMutationOutput>;
@@ -4653,6 +4655,12 @@ type MutationgenerateCoverImagesForPostArgs = {
 };
 
 
+type MutationgenerateNarrationSegmentAudioArgs = {
+  narrationSegmentId: Scalars['String']['input'];
+  settings: NarrationVoiceSettingsInput;
+};
+
+
 type MutationgetNewJargonTermsArgs = {
   exampleAltTerm?: InputMaybe<Scalars['String']['input']>;
   exampleDefinition?: InputMaybe<Scalars['String']['input']>;
@@ -4799,6 +4807,11 @@ type MutationperformVoteTagRelArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationprepareNarrationArgs = {
+  postId: Scalars['String']['input'];
 };
 
 
@@ -5282,6 +5295,77 @@ type MutationuseEmailTokenArgs = {
 type MyDialoguesResult = {
   __typename?: 'MyDialoguesResult';
   results: Array<Post>;
+};
+
+type NarrationModel = {
+  __typename?: 'NarrationModel';
+  description?: Maybe<Scalars['String']['output']>;
+  modelId: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+};
+
+type NarrationOptions = {
+  __typename?: 'NarrationOptions';
+  models: Array<NarrationModel>;
+  voices: Array<NarrationVoice>;
+};
+
+type NarrationScript = {
+  __typename?: 'NarrationScript';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+  preprocessorVersion: Scalars['Int']['output'];
+  revisionId: Scalars['String']['output'];
+  scriptUrl: Scalars['String']['output'];
+  segments: Array<NarrationSegment>;
+};
+
+type NarrationSegment = {
+  __typename?: 'NarrationSegment';
+  _id: Scalars['String']['output'];
+  characterCount: Scalars['Int']['output'];
+  createdAt: Scalars['Date']['output'];
+  endBlockIndex: Scalars['Int']['output'];
+  narrationScriptId: Scalars['String']['output'];
+  segmentIndex: Scalars['Int']['output'];
+  startBlockIndex: Scalars['Int']['output'];
+};
+
+type NarrationSegmentAudio = {
+  __typename?: 'NarrationSegmentAudio';
+  _id: Scalars['String']['output'];
+  audioUrl: Scalars['String']['output'];
+  billedCharacters?: Maybe<Scalars['Int']['output']>;
+  createdAt: Scalars['Date']['output'];
+  durationMs: Scalars['Int']['output'];
+  elevenLabsRequestId?: Maybe<Scalars['String']['output']>;
+  modelId: Scalars['String']['output'];
+  narrationSegmentId: Scalars['String']['output'];
+  similarityBoost: Scalars['Float']['output'];
+  speed: Scalars['Float']['output'];
+  stability: Scalars['Float']['output'];
+  style: Scalars['Float']['output'];
+  timingsUrl: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
+  voiceId: Scalars['String']['output'];
+};
+
+type NarrationVoice = {
+  __typename?: 'NarrationVoice';
+  category?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  previewUrl?: Maybe<Scalars['String']['output']>;
+  voiceId: Scalars['String']['output'];
+};
+
+type NarrationVoiceSettingsInput = {
+  modelId: Scalars['String']['input'];
+  similarityBoost: Scalars['Float']['input'];
+  speed: Scalars['Float']['input'];
+  stability: Scalars['Float']['input'];
+  style: Scalars['Float']['input'];
+  voiceId: Scalars['String']['input'];
 };
 
 type NetKarmaChangesForAuthorsOverPeriod = {
@@ -7697,6 +7781,8 @@ type Query = {
   multiDocuments?: Maybe<MultiMultiDocumentOutput>;
   myHomePageDesignSummaries: Array<HomePageDesignSummary>;
   myHomePageDesigns: Array<HomePageDesign>;
+  narrationOptions: NarrationOptions;
+  narrationSegmentAudios: Array<NarrationSegmentAudio>;
   notification?: Maybe<SingleNotificationOutput>;
   notifications?: Maybe<MultiNotificationOutput>;
   petrov2024checkIfNuked?: Maybe<Scalars['Boolean']['output']>;
@@ -8605,6 +8691,12 @@ type QuerymultiDocumentsArgs = {
 
 type QuerymyHomePageDesignsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+type QuerynarrationSegmentAudiosArgs = {
+  narrationScriptId: Scalars['String']['input'];
+  settings: NarrationVoiceSettingsInput;
 };
 
 
@@ -17292,6 +17384,67 @@ type multiModerationTemplateModerationTemplatesPageQueryQueryVariables = Exact<{
 
 type multiModerationTemplateModerationTemplatesPageQueryQuery = multiModerationTemplateModerationTemplatesPageQueryQuery_Query;
 
+type NarrationOptionsQueryQuery_narrationOptions_NarrationOptions_voices_NarrationVoice = { __typename?: 'NarrationVoice', voiceId: string, name: string, category: string | null, previewUrl: string | null };
+
+type NarrationOptionsQueryQuery_narrationOptions_NarrationOptions_models_NarrationModel = { __typename?: 'NarrationModel', modelId: string, name: string };
+
+type NarrationOptionsQueryQuery_narrationOptions_NarrationOptions = { __typename?: 'NarrationOptions', voices: Array<NarrationOptionsQueryQuery_narrationOptions_NarrationOptions_voices_NarrationVoice>, models: Array<NarrationOptionsQueryQuery_narrationOptions_NarrationOptions_models_NarrationModel> };
+
+type NarrationOptionsQueryQuery_Query = { __typename?: 'Query', narrationOptions: NarrationOptionsQueryQuery_narrationOptions_NarrationOptions };
+
+
+type NarrationOptionsQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type NarrationOptionsQueryQuery = NarrationOptionsQueryQuery_Query;
+
+type PrepareNarrationMutationMutation_prepareNarration_NarrationScript = (
+  { __typename?: 'NarrationScript' }
+  & NarrationScriptFragment
+);
+
+type PrepareNarrationMutationMutation_Mutation = { __typename?: 'Mutation', prepareNarration: PrepareNarrationMutationMutation_prepareNarration_NarrationScript };
+
+
+type PrepareNarrationMutationMutationVariables = Exact<{
+  postId: Scalars['String']['input'];
+}>;
+
+
+type PrepareNarrationMutationMutation = PrepareNarrationMutationMutation_Mutation;
+
+type GenerateNarrationSegmentAudioMutationMutation_generateNarrationSegmentAudio_NarrationSegmentAudio = (
+  { __typename?: 'NarrationSegmentAudio' }
+  & NarrationSegmentAudioFragment
+);
+
+type GenerateNarrationSegmentAudioMutationMutation_Mutation = { __typename?: 'Mutation', generateNarrationSegmentAudio: GenerateNarrationSegmentAudioMutationMutation_generateNarrationSegmentAudio_NarrationSegmentAudio };
+
+
+type GenerateNarrationSegmentAudioMutationMutationVariables = Exact<{
+  narrationSegmentId: Scalars['String']['input'];
+  settings: NarrationVoiceSettingsInput;
+}>;
+
+
+type GenerateNarrationSegmentAudioMutationMutation = GenerateNarrationSegmentAudioMutationMutation_Mutation;
+
+type NarrationSegmentAudiosQueryQuery_narrationSegmentAudios_NarrationSegmentAudio = (
+  { __typename?: 'NarrationSegmentAudio' }
+  & NarrationSegmentAudioFragment
+);
+
+type NarrationSegmentAudiosQueryQuery_Query = { __typename?: 'Query', narrationSegmentAudios: Array<NarrationSegmentAudiosQueryQuery_narrationSegmentAudios_NarrationSegmentAudio> };
+
+
+type NarrationSegmentAudiosQueryQueryVariables = Exact<{
+  narrationScriptId: Scalars['String']['input'];
+  settings: NarrationVoiceSettingsInput;
+}>;
+
+
+type NarrationSegmentAudiosQueryQuery = NarrationSegmentAudiosQueryQuery_Query;
+
 type CommentOnYourDraftNotificationHoverQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsMinimumInfo
@@ -25438,6 +25591,12 @@ type WithVoteMultiDocument = (
   { __typename?: 'MultiDocument' }
   & MultiDocumentMinimumInfo
 );
+
+type NarrationScriptFragment_NarrationScript_segments_NarrationSegment = { __typename?: 'NarrationSegment', _id: string, segmentIndex: number, startBlockIndex: number, endBlockIndex: number, characterCount: number };
+
+type NarrationScriptFragment = { __typename?: 'NarrationScript', _id: string, scriptUrl: string, segments: Array<NarrationScriptFragment_NarrationScript_segments_NarrationSegment> };
+
+type NarrationSegmentAudioFragment = { __typename?: 'NarrationSegmentAudio', _id: string, narrationSegmentId: string, audioUrl: string, timingsUrl: string, durationMs: number };
 
 type NotificationsList = { __typename?: 'Notification', _id: string, documentId: string | null, documentType: string | null, deleted: boolean | null, userId: string | null, createdAt: string | null, link: string | null, message: string | null, type: string | null, viewed: boolean | null, extraData: any | null };
 

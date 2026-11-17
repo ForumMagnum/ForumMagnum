@@ -1,0 +1,31 @@
+/* eslint-disable no-console */
+import { writeFile } from "fs/promises";
+import Posts from "@/server/collections/posts/collection";
+import Revisions from "@/server/collections/revisions/collection";
+import { buildNarrationScript, getNarrationSegmentText } from "@/server/narration/narrationScript";
+
+/**
+ * Writes out the text that would be sent to the speech model for a post,
+ * segment by segment, without generating any audio or storing anything. For
+ * checking changes to narration preprocessing.
+ *
+ * npm run repl -- dev lw packages/lesswrong/scripts/previewNarrationScript.ts 'previewNarrationScript("<postId>", "/tmp/narration.txt")'
+ */
+export async function previewNarrationScript(postId: string, outputPath: string) {
+  const post = await Posts.findOne({ _id: postId });
+  if (!post?.contents_latest) {
+    throw new Error(`Post ${postId} not found, or it has no contents`);
+  }
+  const revision = await Revisions.findOne({ _id: post.contents_latest });
+  if (!revision?.html) {
+    throw new Error(`Revision ${post.contents_latest} has no html`);
+  }
+
+  const { script, segments } = await buildNarrationScript(revision.html, { title: post.title, authorNames: [post.author ?? "the author"] });
+  const segmentTexts = segments.map((segment, segmentIndex) => {
+    const text = getNarrationSegmentText(script.blocks.slice(segment.startBlockIndex, segment.endBlockIndex));
+    return `===== Segment ${segmentIndex} (${segment.characterCount} characters) =====\n${text}`;
+  });
+  await writeFile(outputPath, segmentTexts.join("\n\n"));
+  console.log(`${script.blocks.length} blocks in ${segments.length} segments; written to ${outputPath}`);
+}

@@ -805,6 +805,48 @@ interface DbMultiDocument extends DbObject {
   voteCount: number
 }
 
+type NarrationScriptsCollection = PgCollection<"NarrationScripts">;
+
+interface DbNarrationScript extends DbObject {
+  __collectionName?: "NarrationScripts"
+  createdAt: Date
+  preprocessorVersion: number
+  revisionId: string
+  scriptUrl: string
+}
+
+type NarrationSegmentAudiosCollection = PgCollection<"NarrationSegmentAudios">;
+
+interface DbNarrationSegmentAudio extends DbObject {
+  __collectionName?: "NarrationSegmentAudios"
+  audioUrl: string
+  billedCharacters: number | null
+  createdAt: Date
+  durationMs: number
+  elevenLabsRequestId: string | null
+  modelId: string
+  narrationSegmentId: string
+  similarityBoost: number
+  speed: number
+  stability: number
+  style: number
+  timingsUrl: string
+  userId: string
+  voiceId: string
+}
+
+type NarrationSegmentsCollection = PgCollection<"NarrationSegments">;
+
+interface DbNarrationSegment extends DbObject {
+  __collectionName?: "NarrationSegments"
+  characterCount: number
+  createdAt: Date
+  endBlockIndex: number
+  narrationScriptId: string
+  segmentIndex: number
+  startBlockIndex: number
+}
+
 type NotificationsCollection = PgCollection<"Notifications">;
 
 interface DbNotification extends DbObject {
@@ -2482,6 +2524,9 @@ interface CollectionsByName {
   ModerationTemplates: ModerationTemplatesCollection
   ModeratorActions: ModeratorActionsCollection
   MultiDocuments: MultiDocumentsCollection
+  NarrationScripts: NarrationScriptsCollection
+  NarrationSegmentAudios: NarrationSegmentAudiosCollection
+  NarrationSegments: NarrationSegmentsCollection
   Notifications: NotificationsCollection
   OAuthAccessTokens: OAuthAccessTokensCollection
   OAuthAuthorizationCodes: OAuthAuthorizationCodesCollection
@@ -2586,6 +2631,9 @@ interface ObjectsByCollectionName {
   ModerationTemplates: DbModerationTemplate
   ModeratorActions: DbModeratorAction
   MultiDocuments: DbMultiDocument
+  NarrationScripts: DbNarrationScript
+  NarrationSegmentAudios: DbNarrationSegmentAudio
+  NarrationSegments: DbNarrationSegment
   Notifications: DbNotification
   OAuthAccessTokens: DbOAuthAccessToken
   OAuthAuthorizationCodes: DbOAuthAuthorizationCode
@@ -2690,6 +2738,9 @@ interface ObjectsByTypeName {
   ModerationTemplate: DbModerationTemplate
   ModeratorAction: DbModeratorAction
   MultiDocument: DbMultiDocument
+  NarrationScript: DbNarrationScript
+  NarrationSegmentAudio: DbNarrationSegmentAudio
+  NarrationSegment: DbNarrationSegment
   Notification: DbNotification
   OAuthAccessToken: DbOAuthAccessToken
   OAuthAuthorizationCode: DbOAuthAuthorizationCode

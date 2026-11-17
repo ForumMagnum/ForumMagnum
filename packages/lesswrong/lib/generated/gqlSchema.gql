@@ -607,6 +607,44 @@ extend type Query {
   LlmModelOptions: [String!]!
 }
 
+type NarrationVoice {
+  voiceId: String!
+  name: String!
+  category: String
+  description: String
+  previewUrl: String
+}
+
+type NarrationModel {
+  modelId: String!
+  name: String!
+  description: String
+}
+
+type NarrationOptions {
+  voices: [NarrationVoice!]!
+  models: [NarrationModel!]!
+}
+
+input NarrationVoiceSettingsInput {
+  voiceId: String!
+  modelId: String!
+  stability: Float!
+  similarityBoost: Float!
+  style: Float!
+  speed: Float!
+}
+
+extend type Query {
+  narrationOptions: NarrationOptions!
+  narrationSegmentAudios(narrationScriptId: String!, settings: NarrationVoiceSettingsInput!): [NarrationSegmentAudio!]!
+}
+
+extend type Mutation {
+  prepareNarration(postId: String!): NarrationScript!
+  generateNarrationSegmentAudio(narrationSegmentId: String!, settings: NarrationVoiceSettingsInput!): NarrationSegmentAudio!
+}
+
 type FrontpageScoreTerm {
   label: String!
   value: Float!
@@ -3387,6 +3425,43 @@ type LlmRunTranscriptEntry {
   url: String
   title: String
   extra: JSON
+}
+
+type NarrationScript {
+  _id: String!
+  createdAt: Date!
+  revisionId: String!
+  preprocessorVersion: Int!
+  scriptUrl: String!
+  segments: [NarrationSegment!]!
+}
+
+type NarrationSegmentAudio {
+  _id: String!
+  createdAt: Date!
+  narrationSegmentId: String!
+  userId: String!
+  voiceId: String!
+  modelId: String!
+  stability: Float!
+  similarityBoost: Float!
+  style: Float!
+  speed: Float!
+  audioUrl: String!
+  timingsUrl: String!
+  durationMs: Int!
+  billedCharacters: Int
+  elevenLabsRequestId: String
+}
+
+type NarrationSegment {
+  _id: String!
+  createdAt: Date!
+  narrationScriptId: String!
+  segmentIndex: Int!
+  startBlockIndex: Int!
+  endBlockIndex: Int!
+  characterCount: Int!
 }
 
 type RejectionAppeal {

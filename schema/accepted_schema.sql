@@ -1277,6 +1277,62 @@ CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_slug" ON "MultiDocuments" USING b
 -- Index "idx_MultiDocuments_oldSlugs"
 CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_oldSlugs" ON "MultiDocuments" USING gin ("oldSlugs");
 
+-- Table "NarrationScripts"
+CREATE TABLE "NarrationScripts" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "preprocessorVersion" INTEGER NOT NULL,
+  "scriptUrl" TEXT NOT NULL
+);
+
+-- Index "idx_NarrationScripts_revisionId_preprocessorVersion"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_NarrationScripts_revisionId_preprocessorVersion" ON "NarrationScripts" USING btree ("revisionId", "preprocessorVersion");
+
+-- Table "NarrationSegmentAudios"
+CREATE TABLE "NarrationSegmentAudios" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "narrationSegmentId" VARCHAR(27) NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "voiceId" TEXT NOT NULL,
+  "modelId" TEXT NOT NULL,
+  "stability" DOUBLE PRECISION NOT NULL,
+  "similarityBoost" DOUBLE PRECISION NOT NULL,
+  "style" DOUBLE PRECISION NOT NULL,
+  "speed" DOUBLE PRECISION NOT NULL,
+  "audioUrl" TEXT NOT NULL,
+  "timingsUrl" TEXT NOT NULL,
+  "durationMs" INTEGER NOT NULL,
+  "billedCharacters" INTEGER,
+  "elevenLabsRequestId" TEXT
+);
+
+-- Index "idx_NarrationSegmentAudios_segment_settings"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_NarrationSegmentAudios_segment_settings" ON "NarrationSegmentAudios" USING btree (
+  "narrationSegmentId",
+  "voiceId",
+  "modelId",
+  "stability",
+  "similarityBoost",
+  "style",
+  "speed"
+);
+
+-- Table "NarrationSegments"
+CREATE TABLE "NarrationSegments" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "narrationScriptId" VARCHAR(27) NOT NULL,
+  "segmentIndex" INTEGER NOT NULL,
+  "startBlockIndex" INTEGER NOT NULL,
+  "endBlockIndex" INTEGER NOT NULL,
+  "characterCount" INTEGER NOT NULL
+);
+
+-- Index "idx_NarrationSegments_narrationScriptId_segmentIndex"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_NarrationSegments_narrationScriptId_segmentIndex" ON "NarrationSegments" USING btree ("narrationScriptId", "segmentIndex");
+
 -- Table "Notifications"
 CREATE TABLE "Notifications" (
   _id VARCHAR(27) PRIMARY KEY,
