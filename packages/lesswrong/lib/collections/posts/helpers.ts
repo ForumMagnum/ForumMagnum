@@ -165,8 +165,8 @@ ${postGetAbsoluteLink(post, forumType)}
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
-const getSocialImagePreviewPrefix = (forumType: ForumTypeString) =>
-  `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,ar_1.91,g_auto/`;
+const getSocialImagePreviewPrefix = () =>
+  `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,ar_1.91,g_auto,w_1200,q_auto,f_jpg/`;
 
 // Select the social preview image for the post.
 // For events, we use their event image if that is set.
@@ -178,7 +178,7 @@ export const getSocialPreviewImage = (post: DbPost, forumType: ForumTypeString):
   // edit this to support the old field "socialPreviewImageId", which still has the old data
   const manualId = (post.isEvent && post.eventImageId) ? post.eventImageId : post.socialPreview?.imageId
   if (manualId) {
-    return getSocialImagePreviewPrefix(forumType) + manualId;
+    return getSocialImagePreviewPrefix() + manualId;
   }
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''
