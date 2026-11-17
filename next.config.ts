@@ -3,6 +3,9 @@ import fs from 'fs';
 import { redirects } from "./packages/lesswrong/lib/routeChecks/redirects";
 import type { NextConfig } from 'next';
 import type { WebpackConfigContext } from 'next/dist/server/config-shared';
+import escapeRegExp from 'lodash/escapeRegExp';
+import { HTML_LIMITED_BOT_UA_RE } from 'next/dist/shared/lib/router/utils/html-bots';
+import { CACHED_POST_RENDERER_USER_AGENT } from './packages/lesswrong/lib/postPageCache/config';
 
 const serverExternalPackages = [
   'superagent-proxy', 'gpt-3-encoder', 'mathjax-full', 'turndown', 'cloudinary',
@@ -65,6 +68,9 @@ const nextConfig: NextConfig = {
       ...(process.env.HOCUSPOCUS_URL ? { 'process.env.NEXT_PUBLIC_HOCUSPOCUS_URL': process.env.HOCUSPOCUS_URL } : {}),
     },
   },
+  // The post page cache renders once for every logged-out visitor, crawlers
+  // included, so it needs the blocking render that puts metadata in <head>.
+  htmlLimitedBots: new RegExp(`${HTML_LIMITED_BOT_UA_RE.source}|${escapeRegExp(CACHED_POST_RENDERER_USER_AGENT)}`, 'i'),
   productionBrowserSourceMaps: true,
   typedRoutes: true,
   outputFileTracingIncludes: {

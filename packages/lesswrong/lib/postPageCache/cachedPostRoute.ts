@@ -3,6 +3,7 @@ import type { ParamMap } from '../../../../.next/types/routes';
 import { matchPath } from '../vendor/react-router/matchPath';
 import { routePatternToReactRouterPath } from '../routeChecks/routePatternFormat';
 import { STATUS_CODE_LOOPBACK_HEADER } from '../routeChecks/statusCodeLoopback';
+import { isSlackLinkExpander } from '../utils/linkPreviewUserAgents';
 
 // Imported by middleware.ts; keep free of heavy or node-only dependencies.
 
@@ -51,7 +52,8 @@ function matchPostPagePath(pathname: string): ParsedPostPagePath | null {
 
 // The post page path of a request that the cached post route handler can
 // serve: a logged-out, cookieless GET of /posts/:id[/:slug] with no query
-// string. Anything else changes the render and is served by the regular route.
+// string, not from Slack's link expander (which gets a larger preview card).
+// Anything else changes the render and is served by the regular route.
 export function getCacheablePostPagePath(request: NextRequest): ParsedPostPagePath | null {
   if (request.method !== 'GET' && request.method !== 'HEAD') return null;
   const parsedPath = matchPostPagePath(request.nextUrl.pathname);
@@ -62,6 +64,7 @@ export function getCacheablePostPagePath(request: NextRequest): ParsedPostPagePa
   // running the middleware.)
   if (request.nextUrl.search) return null;
   if (request.headers.get(STATUS_CODE_LOOPBACK_HEADER)) return null;
+  if (isSlackLinkExpander(request.headers.get('user-agent'))) return null;
   if (request.cookies.getAll().some((cookie) => !HTML_CACHE_ALLOWED_COOKIES.has(cookie.name))) return null;
   return parsedPath;
 }
