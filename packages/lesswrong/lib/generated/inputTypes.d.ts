@@ -4355,7 +4355,6 @@ interface PostsMagicInput {
   meta?: boolean | null;
   forum?: boolean | null;
   limit?: number | null;
-  algoActivityFactor?: number | null;
 }
 
 interface PostsTopInput {

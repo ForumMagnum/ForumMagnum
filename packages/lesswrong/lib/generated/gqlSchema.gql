@@ -624,7 +624,7 @@ type FrontpagePostScoreBreakdown {
 }
 
 extend type Query {
-  FrontpagePostScoreBreakdown(postId: String!, filterSettings: JSON!, activityFactorOverride: Float): FrontpagePostScoreBreakdown
+  FrontpagePostScoreBreakdown(postId: String!, filterSettings: JSON!, scoringOverrides: JSON): FrontpagePostScoreBreakdown
 }
 
 type PetrovDay2024CheckNumberOfIncomingData {
@@ -4838,7 +4838,6 @@ input PostsMagicInput {
   meta: Boolean
   forum: Boolean
   limit: Int
-  algoActivityFactor: Float
 }
 
 input PostsTopInput {

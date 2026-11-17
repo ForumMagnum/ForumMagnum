@@ -45,7 +45,8 @@ import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
 import ForumIcon from './ForumIcon';
 import LWTooltip from './LWTooltip';
 import PostsListDebugSettings from '../posts/PostsListDebugSettings';
-import { PostsListDebugContext, getVisitorScenarioActivityFactor, type VisitorScenario } from '../posts/postsListDebugContext';
+import { PostsListDebugContext, getDebugScoringOverrides, type VisitorScenario } from '../posts/postsListDebugContext';
+import type { FrontpageScoringParams } from '@/lib/scoring';
 
 
 
@@ -503,15 +504,19 @@ const LWHomePosts = ({ children, }: {
 
   const [postsListDebugVisible, setPostsListDebugVisible] = useState(false);
   const [visitorScenario, setVisitorScenario] = useState<VisitorScenario>("actual");
+  const [scoringParamOverrides, setScoringParamOverrides] = useState<Partial<FrontpageScoringParams>>({});
   const showPostsListDebugButton = (userIsAdmin(currentUser) || query.postsListDebug === '1')
     && postsListDebugTabs.includes(selectedTab);
   const postsListDebugActive = showPostsListDebugButton && postsListDebugVisible;
-  const algoActivityFactor = postsListDebugActive ? getVisitorScenarioActivityFactor(visitorScenario) : undefined;
+  const scoringOverrides = useMemo(
+    () => postsListDebugActive ? getDebugScoringOverrides(visitorScenario, scoringParamOverrides) : undefined,
+    [postsListDebugActive, visitorScenario, scoringParamOverrides],
+  );
   const postsListDebugSettings = useMemo(
     () => postsListDebugActive
-      ? { filterSettings, scenario: visitorScenario, activityFactorOverride: algoActivityFactor }
+      ? { filterSettings, scenario: visitorScenario, scoringOverrides }
       : null,
-    [postsListDebugActive, filterSettings, visitorScenario, algoActivityFactor],
+    [postsListDebugActive, filterSettings, visitorScenario, scoringOverrides],
   );
 
   const changeShowTagFilterSettingsDesktop = () => {
@@ -622,7 +627,12 @@ const LWHomePosts = ({ children, }: {
   );
 
   const postsListDebugSettingsElement = postsListDebugActive && settingsPotentiallyVisible && <div className={settingsVisibleClassName}>
-    <PostsListDebugSettings scenario={visitorScenario} onScenarioChange={setVisitorScenario} />
+    <PostsListDebugSettings
+      scenario={visitorScenario}
+      onScenarioChange={setVisitorScenario}
+      paramOverrides={scoringParamOverrides}
+      onParamOverridesChange={setScoringParamOverrides}
+    />
   </div>;
 
   let settings = null;
@@ -682,7 +692,7 @@ const LWHomePosts = ({ children, }: {
               {/* LATEST POSTS (Hacker News Algorithm) */}
               {/* Frustratingly, the AnalyticsContext update doesn't update upon switching tab so it's necessary to have a wrapper around each section individually, could be investigated further */}
               {(selectedTab === 'forum-classic') && <AnalyticsContext feedType={selectedTab}>
-                <HomePostsList algorithm={'forum-classic'} settings={{ filterSettings, algoActivityFactor }}>
+                <HomePostsList algorithm={'forum-classic'} settings={{ filterSettings, scoringOverrides }}>
                   <Link to={"/allPosts"}>{advancedSortingText}</Link>
                 </HomePostsList>
               </AnalyticsContext>}
@@ -697,7 +707,7 @@ const LWHomePosts = ({ children, }: {
                       fixed: 'forum-classic', 
                       configurable: 'recombee-lesswrong-custom'
                     },
-                    algoActivityFactor,
+                    scoringOverrides,
                   }} 
                 />
               </AnalyticsContext>}

@@ -50,9 +50,7 @@ describe('forum-specific views', () => {
     const terms: PostsViewTerms = {
       view: 'magic',
       filterSettings: { personalBlog: 'Default', tags: [] },
-      algoStartingAgeHours: 42,
-      algoDecayFactorSlowest: 1,
-      algoDecayFactorFastest: 1,
+      scoringOverrides: { startingAgeHours: 42, decayFactorSlowest: 1, decayFactorFastest: 1 },
     };
     const getForumType = jest.spyOn(forumTypeSetting, 'get').mockReturnValue('AlignmentForum');
 

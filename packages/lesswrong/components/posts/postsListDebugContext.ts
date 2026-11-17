@@ -1,6 +1,7 @@
 import { createContext } from 'react';
+import isEmpty from 'lodash/isEmpty';
 import type { FilterSettings } from '@/lib/filterSettings';
-import { defaultActivityHalfLife } from '@/lib/instanceSettings';
+import { frontpageScoringParamSpecs, type FrontpageScoringOverrides, type FrontpageScoringParams } from '@/lib/scoring';
 import { ACTIVITY_WINDOW_HOURS, calculateActivityFactor } from '@/lib/collections/useractivities/utils';
 
 interface SimulatedVisitorScenario {
@@ -29,18 +30,27 @@ function getSimulatedActivityArray(visitIntervalHours: number|null): number[] {
   );
 }
 
-export function getVisitorScenarioActivityFactor(scenario: VisitorScenario): number|undefined {
+function getVisitorScenarioActivityFactor(scenario: VisitorScenario, activityHalfLifeHours: number): number|undefined {
   if (scenario === "actual") {
     return undefined;
   }
   const { visitIntervalHours } = simulatedVisitorScenarios[scenario];
-  return calculateActivityFactor(getSimulatedActivityArray(visitIntervalHours), defaultActivityHalfLife);
+  return calculateActivityFactor(getSimulatedActivityArray(visitIntervalHours), activityHalfLifeHours);
+}
+
+// Having nothing to override gives undefined rather than an empty object, so
+// that turning on the debug view doesn't change the list's query by itself.
+export function getDebugScoringOverrides(scenario: VisitorScenario, paramOverrides: Partial<FrontpageScoringParams>): FrontpageScoringOverrides|undefined {
+  const activityHalfLifeHours = paramOverrides.activityHalfLifeHours ?? frontpageScoringParamSpecs.activityHalfLifeHours.defaultValue;
+  const activityFactor = getVisitorScenarioActivityFactor(scenario, activityHalfLifeHours);
+  const overrides = { ...paramOverrides, ...(activityFactor === undefined ? {} : { activityFactor }) };
+  return isEmpty(overrides) ? undefined : overrides;
 }
 
 export interface PostsListDebugSettings {
   filterSettings: FilterSettings
   scenario: VisitorScenario
-  activityFactorOverride: number|undefined
+  scoringOverrides: FrontpageScoringOverrides|undefined
 }
 
 export const PostsListDebugContext = createContext<PostsListDebugSettings|null>(null);

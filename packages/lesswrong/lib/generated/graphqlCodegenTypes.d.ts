@@ -6500,7 +6500,6 @@ type PostsLegacyIdPostInput = {
 type PostsMagicInput = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   after?: InputMaybe<Scalars['String']['input']>;
-  algoActivityFactor?: InputMaybe<Scalars['Float']['input']>;
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   curatedAfter?: InputMaybe<Scalars['String']['input']>;
@@ -7855,9 +7854,9 @@ type QueryEmailPreviewArgs = {
 
 
 type QueryFrontpagePostScoreBreakdownArgs = {
-  activityFactorOverride?: InputMaybe<Scalars['Float']['input']>;
   filterSettings: Scalars['JSON']['input'];
   postId: Scalars['String']['input'];
+  scoringOverrides?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 
@@ -18158,7 +18157,7 @@ type FrontpagePostScoreBreakdownQuery_Query = { __typename?: 'Query', FrontpageP
 type FrontpagePostScoreBreakdownQueryVariables = Exact<{
   postId: Scalars['String']['input'];
   filterSettings: Scalars['JSON']['input'];
-  activityFactorOverride: InputMaybe<Scalars['Float']['input']>;
+  scoringOverrides: InputMaybe<Scalars['JSON']['input']>;
 }>;
 
 

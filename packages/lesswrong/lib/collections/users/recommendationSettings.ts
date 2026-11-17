@@ -1,6 +1,7 @@
 import { ReviewYear } from '../../reviewUtils';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { FilterSettings } from '@/lib/filterSettings';
+import type { FrontpageScoringOverrides } from '@/lib/scoring';
 
 export const recommendationStrategyNames = new TupleSet([
   "moreFromAuthor",
@@ -131,7 +132,7 @@ export interface RecombeeConfiguration {
   },
   excludedPostIds?: string[],
   filterSettings?: FilterSettings,
-  algoActivityFactor?: number,
+  scoringOverrides?: FrontpageScoringOverrides,
 }
 
 export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
@@ -156,7 +157,7 @@ export interface HybridRecombeeConfiguration {
   },
   excludedPostIds?: string[],
   filterSettings?: FilterSettings,
-  algoActivityFactor?: number,
+  scoringOverrides?: FrontpageScoringOverrides,
 }
 
 
