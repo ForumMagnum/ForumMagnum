@@ -64,6 +64,10 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from "@/lib/utils/dateUtils";
 import type { TagBySlugQueryOptions } from "./useTag";
 import { StatusCodeSetter } from "../next/StatusCodeSetter";
+import { MixedTypeFeed } from "../common/MixedTypeFeed";
+import { TagContentFeedQuery } from "../common/feeds/feedQueries";
+import RecentDiscussionThread from "../recentDiscussion/RecentDiscussionThread";
+import CommentsNode from "../comments/CommentsNode";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagLWTagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -350,6 +354,49 @@ const PostsListHeading: FC<{
       <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
       <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
     </div>
+  );
+}
+
+const tagContentFeedSortOptions = ["magic", "new", "top"] as const;
+type TagContentFeedSortBy = typeof tagContentFeedSortOptions[number];
+
+function isTagContentFeedSortBy(value: string | undefined): value is TagContentFeedSortBy {
+  return tagContentFeedSortOptions.some(option => option === value);
+}
+
+const TagContentFeedSection = ({tag, query}: {
+  tag: TagPageFragment|TagPageWithRevisionFragment,
+  query: Record<string, string>,
+}) => {
+  const classes = useStyles(styles);
+  const sortBy = isTagContentFeedSortBy(query.feedSortedBy) ? query.feedSortedBy : "magic";
+  return (
+    <AnalyticsContext pageSectionContext="tagContentFeed">
+      <div className={classes.tagHeader}>
+        <div className={classes.postsTaggedTitle}>Posts, quick takes and comments on <em>{tag.name}</em></div>
+        <PostsListSortDropdown value={sortBy} options={[...tagContentFeedSortOptions]} sortingParam="feedSortedBy"/>
+      </div>
+      <MixedTypeFeed
+        query={TagContentFeedQuery}
+        variables={{tagId: tag._id, sortBy}}
+        renderers={{
+          tagPost: {
+            render: (post) => <RecentDiscussionThread post={post} cardStyle refetch={() => {}} expandAllThreads={false}/>,
+          },
+          tagComment: {
+            render: (comment) => <CommentsNode
+              comment={comment}
+              treeOptions={{
+                post: comment.post ?? undefined,
+                showPostTitle: true,
+                forceNotSingleLine: true,
+              }}
+              startThreadTruncated
+            />,
+          },
+        }}
+      />
+    </AnalyticsContext>
   );
 }
 
@@ -852,6 +899,7 @@ const LWTagPage = ({slug}: {slug: string}) => {
             <AddPostsToTag tag={tag} />
           </PostsList2>}
         </AnalyticsContext>
+        <TagContentFeedSection tag={tag} query={query} />
       </>}
     </div>
   );

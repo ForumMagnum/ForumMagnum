@@ -1,5 +1,6 @@
 import partition from 'lodash/partition';
 import sortBy from 'lodash/sortBy';
+import orderBy from 'lodash/orderBy';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
@@ -151,11 +152,9 @@ export async function mergeFeedQueries<SortKeyType extends number | Date>({limit
     orderedResults,
   ] = partition(unsortedResults, ({isNumericallyPositioned}) => !!isNumericallyPositioned);
   
-  // Sort by shared sort key
-  const sortedResults = sortBy(orderedResults, r=>r.sortKey);
-  if (sortDirection === "desc") {
-    sortedResults.reverse();
-  }
+  // Break ties by _id, matching the per-subquery sort in queryWithCutoff, so
+  // that the merged order is stable as the subquery limits grow
+  const sortedResults = orderBy(orderedResults, [r => r.sortKey, r => r[r.type]._id], [sortDirection, "asc"]);
   
   // Apply cutoff
   const withCutoffApplied = cutoff

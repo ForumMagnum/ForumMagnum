@@ -982,6 +982,33 @@ extend type Query {
   UserContentFeed(userId: String!, limit: Int, cutoff: Date, offset: Int, sortBy: String, filter: String): UserContentFeedQueryResults!
 }
 
+type TagContentFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [TagContentFeedEntry!]
+}
+
+enum TagContentFeedEntryType {
+  tagPost
+  tagComment
+}
+
+enum TagContentFeedSortBy {
+  magic
+  new
+  top
+}
+
+type TagContentFeedEntry {
+  type: TagContentFeedEntryType!
+  tagPost: Post
+  tagComment: Comment
+}
+
+extend type Query {
+  TagContentFeed(tagId: String!, sortBy: TagContentFeedSortBy!, limit: Int, cutoff: Date, offset: Int): TagContentFeedQueryResults!
+}
+
 extend type Mutation {
   markConversationRead(conversationId: String!): Boolean!
   sendEventTriggeredDM(eventType: String!): Boolean!

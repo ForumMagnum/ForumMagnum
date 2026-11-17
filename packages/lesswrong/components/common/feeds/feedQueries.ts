@@ -169,13 +169,36 @@ export const UserContentFeedQuery = gql(`
   }
 `);
 
+export const TagContentFeedQuery = gql(`
+  query TagContentFeed($tagId: String!, $sortBy: TagContentFeedSortBy!, $limit: Int, $cutoff: Date, $offset: Int) {
+    TagContentFeed(tagId: $tagId, sortBy: $sortBy, limit: $limit, cutoff: $cutoff, offset: $offset) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        tagPost {
+          ...PostsListWithVotes
+        }
+        tagComment {
+          ...CommentsList
+          post {
+            ...PostsListWithVotes
+          }
+        }
+      }
+    }
+  }
+`);
+
 export type FeedQuery =
   | typeof AllTagsActivityFeedQuery
   | typeof TagHistoryFeedQuery
   | typeof RecentDiscussionFeedQuery
   | typeof UltraFeedQuery
   | typeof UltraFeedSubscriptionsQuery
-  | typeof UserContentFeedQuery;
+  | typeof UserContentFeedQuery
+  | typeof TagContentFeedQuery;
 
 export interface FeedPaginationResultVariables {
   cutoff?: number | null,

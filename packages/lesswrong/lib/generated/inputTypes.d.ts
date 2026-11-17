@@ -54,6 +54,7 @@ interface Query {
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
   TagHistoryFeed: TagHistoryFeedQueryResults;
   UserContentFeed: UserContentFeedQueryResults;
+  TagContentFeed: TagContentFeedQueryResults;
   researchConversationTranscript: Array<ResearchConversationEvent>;
   researchConversationSidebarStatuses: Array<ResearchConversationSidebarStatus>;
   researchSandboxDirectory: ResearchSandboxDirListing;
@@ -1098,6 +1099,18 @@ interface UserContentFeedEntry {
   shortformComment: Comment | null;
   userPost: Post | null;
   wikiEdit: Revision | null;
+}
+
+interface TagContentFeedQueryResults {
+  cutoff: Date | null;
+  endOffset: number;
+  results: Array<TagContentFeedEntry> | null;
+}
+
+interface TagContentFeedEntry {
+  type: TagContentFeedEntryType;
+  tagPost: Post | null;
+  tagComment: Comment | null;
 }
 
 interface FireResearchConversationInput {
@@ -9636,6 +9649,8 @@ interface GraphQLTypeMap {
   TagHistoryFeedEntry: TagHistoryFeedEntry;
   UserContentFeedQueryResults: UserContentFeedQueryResults;
   UserContentFeedEntry: UserContentFeedEntry;
+  TagContentFeedQueryResults: TagContentFeedQueryResults;
+  TagContentFeedEntry: TagContentFeedEntry;
   FireResearchConversationInput: FireResearchConversationInput;
   ResearchConversationOutput: ResearchConversationOutput;
   DevPreviewUrlOutput: DevPreviewUrlOutput;
