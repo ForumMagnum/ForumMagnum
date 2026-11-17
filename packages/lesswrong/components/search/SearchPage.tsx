@@ -11,22 +11,24 @@ import {
   getSearchIndexName,
   isSearchEnabled,
 } from '@/lib/search/searchUtil';
-import { searchFiltersToParams, SearchFilterState } from '@/lib/search/searchFilters';
+import { defaultSearchFilters, searchFiltersToParams, SearchFilterState } from '@/lib/search/searchFilters';
 import { useSearchPageState } from './useSearchPageState';
 import { searchPageStyles } from './searchPageStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
-import { useDebouncedCallback } from '@/components/hooks/useDebouncedCallback';
 import SearchPageResults from './SearchPageResults';
 import SearchQueryInput from './SearchQueryInput';
 import ForumIcon from '../common/ForumIcon';
 import { useSearchAnalytics, useCaptureSearchResultSelected } from './useSearchAnalytics';
 import { useSearchPageNavigation } from './useSearchPageNavigation';
 import { SearchBarHit, useSearchResults } from './useSearchResults';
-import { defaultSearchPageState, searchPageStateToQuery } from './searchPageUrl';
+import { searchPageStateToQuery } from './searchPageUrl';
 import SearchKindBar, { searchKinds, toggleSearchKind } from './SearchKindBar';
-import SearchPageFilters, { summarizeSearchFilters } from './SearchPageFilters';
+import SearchPageFilters, { SearchFilterPanel, searchFilterPanels, summarizeSearchFilters } from './SearchPageFilters';
 import SingleUsersItem from '../form-components/SingleUsersItem';
+
+/** How long typing has to pause before the query is searched */
+const queryDebounceMs = 150;
 
 function indexNameForKinds(kinds: SearchIndexCollectionName[]): string {
   return searchKinds
@@ -56,25 +58,21 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const {state, setState} = useSearchPageState(presentation);
-  const filtersOpen = state.mobileFiltersOpen;
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [expandedFilters, setExpandedFilters] = useState<SearchFilterPanel[]>([...searchFilterPanels]);
   const [debouncedQuery, setDebouncedQuery] = useState(state.query);
-  const updateDebouncedQuery = useDebouncedCallback(setDebouncedQuery, {
-    rateLimitMs: 100,
-    callOnLeadingEdge: false,
-    onUnmount: "cancelPending",
-    allowExplicitCallAfterUnmount: false,
-  });
 
   useEffect(() => {
-    updateDebouncedQuery(state.query);
-  }, [state.query, updateDebouncedQuery]);
+    const timer = setTimeout(() => setDebouncedQuery(state.query), queryDebounceMs);
+    return () => clearTimeout(timer);
+  }, [state.query]);
 
   const request = {
     indexName: indexNameForKinds(state.kinds),
     query: debouncedQuery,
     filters: searchFiltersToParams(state.filters),
   };
-  const {hits, loading, error, hasMore, total, loadMore} = useSearchResults(request, true);
+  const {hits, loading, error, hasMore, total, loadMore} = useSearchResults(request);
   const searchKey = JSON.stringify(request);
   const analyticsContext = presentation === 'modal' ? "searchBar" : "searchPage";
   const handleResultKeyDown = useSearchPageNavigation({
@@ -84,9 +82,11 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
   useEffect(() => {
     const target = sentinel.current;
     if (!target || loading || error || !hasMore) return;
+    const modalScroller = isDesktop ? layoutRef.current : scrollRef.current;
+    const root = presentation === 'modal' ? modalScroller : null;
     const observer = new IntersectionObserver(entries => {
       if (entries.some(entry => entry.isIntersecting)) void loadMore();
-    }, {root: presentation === 'modal' ? (isDesktop ? layoutRef.current : scrollRef.current) : null, rootMargin: "0px 0px 400px 0px"});
+    }, {root, rootMargin: "0px 0px 400px 0px"});
     observer.observe(target);
     return () => observer.disconnect();
   }, [loading, error, hasMore, loadMore, presentation, isDesktop]);
@@ -124,22 +124,19 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
     </div>;
   }
 
-  const toggleFilter = (key: string) => setState(previous => ({
-    ...previous,
-    expandedFilters: previous.expandedFilters.includes(key)
-      ? previous.expandedFilters.filter(item => item !== key)
-      : [...previous.expandedFilters, key],
-  }));
-  const clearFilters = () => setState(previous => ({...previous, kinds: [], filters: {...defaultSearchPageState.filters}}));
+  const toggleFilter = (key: SearchFilterPanel) => setExpandedFilters(previous => previous.includes(key)
+    ? previous.filter(item => item !== key)
+    : [...previous, key]);
+  const toggleFiltersOpen = () => {
+    if (!filtersOpen) setExpandedFilters([...searchFilterPanels]);
+    setFiltersOpen(!filtersOpen);
+  };
+  const clearFilters = () => setState(previous => ({...previous, kinds: [], filters: defaultSearchFilters}));
   const {hasDateFilter, hasFilters} = summarizeSearchFilters(state);
   const filterTab = (
     <button type="button" className={classNames(classes.filterTab, {[classes.filterTabModal]: !!filterTabSlot})} aria-label="Filter results"
       aria-expanded={filtersOpen} aria-controls={filtersId}
-      onClick={() => setState(previous => ({
-        ...previous,
-        mobileFiltersOpen: !previous.mobileFiltersOpen,
-        expandedFilters: previous.mobileFiltersOpen ? previous.expandedFilters : [...defaultSearchPageState.expandedFilters],
-      }))}>
+      onClick={toggleFiltersOpen}>
       <ChevronDoubleRightIcon aria-hidden="true" className={classNames(classes.filterTabIcon, {[classes.filterTabIconOpen]: filtersOpen})} />
       <span className={classes.filterTabLabel}>filter results</span>
     </button>
@@ -149,7 +146,7 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
     <InstantSearch indexName={getSearchIndexName("Posts")} searchClient={getSearchClient({emptyStringSearchResults: "empty", mode: "unified"})}>
       {filterTabSlot && createPortal(filterTab, filterTabSlot)}
       <div ref={layoutRef} className={classes.layout}>
-        <SearchPageFilters state={state} setFilters={setFilters} toggleFilter={toggleFilter} clearFilters={clearFilters}
+        <SearchPageFilters state={state} expandedFilters={expandedFilters} filtersOpen={filtersOpen} setFilters={setFilters} toggleFilter={toggleFilter} clearFilters={clearFilters}
           filtersId={filtersId} />
         <div className={classes.results} onKeyDown={handleResultKeyDown}>
           <div className={classes.topBar}>

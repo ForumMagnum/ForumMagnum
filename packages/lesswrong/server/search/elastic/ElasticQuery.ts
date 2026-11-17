@@ -26,6 +26,14 @@ import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
  */
 export const getSearchOriginDate = () => new Date(searchOriginDate);
 
+/** The field holding a document's wikitag ids, for the indexes that have one */
+const tagFilterFields: Partial<Record<SearchIndexCollectionName, string>> = {
+  Posts: "tags._id",
+  Users: "tags._id",
+  Comments: "tags",
+  Tags: "objectID",
+};
+
 export type QueryFilterOperator = "gt" | "gte" | "lt" | "lte" | "eq";
 
 export type QueryFilter = {
@@ -204,9 +212,8 @@ class ElasticQuery {
   }
 
   private compileTagFilter(ids: string[], match: "any" | "all" = "any"): QueryDslQueryContainer {
-    if (!["Posts", "Users", "Comments", "Tags"].includes(this.collectionName)) return {match_none: {}};
-    const field = this.collectionName === "Tags" ? "objectID"
-      : this.collectionName === "Comments" ? "tags" : "tags._id";
+    const field = tagFilterFields[this.collectionName];
+    if (!field) return {match_none: {}};
     return match === "all"
       ? {bool: {should: [], filter: ids.map(id => ({term: {[field]: id}}))}}
       : {terms: {[field]: ids}};
@@ -217,11 +224,14 @@ class ElasticQuery {
     return compileAuthorshipQuery(this.collectionName, ids) ?? {match_none: {}};
   }
 
+  /**
+   * Post types partition non-event posts; every event passes, so that events
+   * are selected by the event filter alone (see `searchPostTypes`).
+   */
   private compilePostTypeFilter(types: SearchPostType[]): QueryDslQueryContainer {
     if (this.collectionName !== "Posts") return {match_all: {}};
     const typed: Record<Exclude<SearchPostType, "article">, QueryDslQueryContainer> = {
       question: {term: {question: true}},
-      event: {term: {isEvent: true}},
       linkpost: {bool: {should: [], filter: [{exists: {field: "url"}}], must_not: [{term: {url: ""}}]}},
     };
     const should = types.map((type) => type === "article"

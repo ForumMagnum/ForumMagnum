@@ -1,19 +1,28 @@
 import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
 
-export const searchPostTypes = new TupleSet(["article", "question", "linkpost", "event"] as const);
+/**
+ * Kinds of non-event posts. Events are selected by the event filter alone: the
+ * post-type filter lets every event through, so "Questions" with events
+ * included means questions plus all events.
+ */
+export const searchPostTypeValues = ["article", "question", "linkpost"] as const;
+export const searchPostTypes = new TupleSet(searchPostTypeValues);
 export type SearchPostType = UnionOf<typeof searchPostTypes>;
 
 export const searchPostTypeLabels: Record<SearchPostType, string> = {
   article: "Articles",
   question: "Questions",
   linkpost: "Link posts",
-  event: "Events",
 };
 
-export type SearchEventFilter = "include" | "exclude" | "only";
+export const searchEventFilters = new TupleSet(["include", "exclude", "only"] as const);
+export type SearchEventFilter = UnionOf<typeof searchEventFilters>;
 export type SearchTagMatch = "any" | "all";
 
-export const defaultSearchPostTypes: SearchPostType[] = Array.from(searchPostTypes).filter(type => type !== "event");
+export const defaultSearchPostTypes: SearchPostType[] = [...searchPostTypeValues];
+
+/** The most IDs of one kind (authors, wikitags) a search can filter by */
+export const maxSearchFilterIds = 50;
 
 export const searchDatePeriods = new TupleSet(["day", "week", "month", "year"] as const);
 export type SearchDatePeriod = UnionOf<typeof searchDatePeriods>;
@@ -43,15 +52,19 @@ export interface SearchFilterState {
   dateRange: SearchDateRange;
 }
 
-export const emptySearchFilters: SearchFilterState = {
+export const defaultSearchFilters: SearchFilterState = {
   tagIds: [],
   tagMatch: "any",
-  events: "include",
+  events: "exclude",
   authorIds: [],
-  postTypes: [],
+  postTypes: defaultSearchPostTypes,
   dateRange: {},
 };
 
+/**
+ * The filters of a search request as the client builds them; useSearchResults
+ * resolves `withinMs` and the AF facet before sending them as query params.
+ */
 export interface SearchFilterParams {
   facetFilters?: string[][];
   numericFilters?: string[];

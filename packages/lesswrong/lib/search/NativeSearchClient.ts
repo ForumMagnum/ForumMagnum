@@ -3,6 +3,7 @@ import type { MultiResponse, SearchForFacetValues } from "algoliasearch";
 import stringify from "json-stringify-deterministic";
 import LRU from "lru-cache";
 import { z } from "zod";
+import { maxSearchFilterIds, searchPostTypeValues } from "./searchFilters";
 
 /**
  * The is the schema of the request sent from the InstantSearch frontend to
@@ -21,9 +22,9 @@ export const querySchema = z.object({
     existsFilters: z.optional(z.array(z.string())),
     aroundLatLng: z.optional(z.string()),
     tagMatch: z.optional(z.enum(["any", "all"])),
-    tagIds: z.optional(z.array(z.string())),
-    authorIds: z.optional(z.array(z.string())),
-    postTypes: z.optional(z.array(z.string())),
+    tagIds: z.optional(z.array(z.string()).max(maxSearchFilterIds)),
+    authorIds: z.optional(z.array(z.string()).max(maxSearchFilterIds)),
+    postTypes: z.optional(z.array(z.enum(searchPostTypeValues)).max(searchPostTypeValues.length)),
   }),
 });
 
