@@ -2,7 +2,7 @@ import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { randomId } from './packages/lesswrong/lib/random';
 import { getMarkdownPathname } from './packages/lesswrong/lib/routeChecks/markdownVersionRoutes';
 import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } from './packages/lesswrong/lib/routeChecks/statusCodeLoopback';
-import { buildCachedPostPath, getCacheablePostPagePath, normalizeAcceptEncoding } from './packages/lesswrong/lib/postPageCache/cachedPostRoute';
+import { buildCachedPostPath, getCacheablePostPagePath } from './packages/lesswrong/lib/postPageCache/cachedPostRoute';
 import { postPageCacheConfig } from './packages/lesswrong/lib/postPageCache/config';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
@@ -282,11 +282,7 @@ function getCachedPostRewriteResponse(request: NextRequest, addedClientId: strin
     return null;
   }
   const targetUrl = new URL(buildCachedPostPath(parsedPath.postId, parsedPath.slug), request.url);
-  // The handler's responses are CDN-cached per post, so the request must not
-  // carry anything that would vary them beyond the normalized encoding.
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('accept-encoding', normalizeAcceptEncoding(request.headers.get('accept-encoding')));
-  const response = NextResponse.rewrite(targetUrl, { request: { headers: requestHeaders } });
+  const response = NextResponse.rewrite(targetUrl);
   response.headers.set('x-lw-post-cache-routing', 'cached');
   if (addedClientId) {
     addClientIdToResponseHeaders(response, addedClientId);
