@@ -1,6 +1,6 @@
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import { userMentionQuery, userMentionQueryString, userMentionValue } from "@/lib/pingback";
-import { classifyHost } from "@/lib/routeUtil";
+import { classifyHost } from "@/lib/classifyLink";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { getLlmFamilyBySlug, type LlmFamilyVersion } from "@/lib/languageModels/llmRegistry";
 import { getMentionedLlmVersion, LLM_MENTION_VERSION_QUERY } from "@/lib/llmReplies/llmMentions";
