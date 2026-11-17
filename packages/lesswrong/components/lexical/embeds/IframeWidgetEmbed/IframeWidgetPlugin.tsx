@@ -72,10 +72,8 @@ const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
   previewOverlay: {
     position: 'absolute',
     zIndex: 1,
-    border: theme.palette.greyBorder('1px', 0.2),
     borderRadius: 4,
     overflow: 'hidden',
-    background: theme.palette.background.default,
   },
   iframe: {
     display: 'block',
