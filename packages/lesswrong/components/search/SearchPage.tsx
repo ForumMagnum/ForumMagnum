@@ -155,7 +155,8 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
           <div className={classes.topBar}>
             <form className={classes.searchBoxRow} role="search" onSubmit={(event) => {
               event.preventDefault();
-              inputRef.current?.blur();
+              // Dismiss the on-screen keyboard; with a real keyboard, blurring would strand focus outside the input
+              if (window.matchMedia('(pointer: coarse)').matches) inputRef.current?.blur();
             }}>
               {isDesktop && !filterTabSlot && filterTab}
               <div className={classes.searchInputArea}>

@@ -27,7 +27,7 @@ export const defaultSearchPageState: SearchPageState = {
 };
 
 const searchFilterPanels = new Set(["time", "authors", "tags", "events", "types"]);
-const searchParameterNames = ["query", "kinds", "contentType", "tags", "tagMatch", "events", "authors", "types", "past", "from", "to", "expanded", "mobileFilters"];
+const searchParameterNames = ["query", "search", "kinds", "contentType", "tags", "tagMatch", "events", "authors", "types", "past", "from", "to", "expanded", "mobileFilters"];
 
 export const searchModalOpenParam = "searchOpen";
 
@@ -102,7 +102,7 @@ function searchPageStateFromQuery(query: Record<string, string | undefined>): Se
   const kinds = splitList(query.kinds ?? query.contentType).filter(collectionIsSearchIndexed);
   const postTypes = splitList(query.types).filter((type): type is SearchPostType => searchPostTypes.has(type));
   return {
-    query: query.query ?? "",
+    query: query.query ?? query.search ?? "",
     expandedFilters: query.expanded === undefined ? [...defaultSearchPageState.expandedFilters] : [...new Set(splitList(query.expanded).filter(key => searchFilterPanels.has(key)))],
     mobileFiltersOpen: query.mobileFilters === "1",
     kinds,

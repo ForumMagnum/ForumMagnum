@@ -3,7 +3,7 @@ import Sequences from "../../server/collections/sequences/collection";
 import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { READ_WORDS_PER_MINUTE, postStatuses } from "@/lib/collections/posts/constants";
+import { READ_WORDS_PER_MINUTE } from "@/lib/collections/posts/constants";
 
 class SequencesRepo extends AbstractRepo<"Sequences"> {
   constructor() {
@@ -51,10 +51,8 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
           FROM "Chapters" c
           JOIN "Posts" p ON p."_id" = ANY(c."postIds")
           WHERE c."sequenceId" = s."_id"
-            AND p."draft" IS NOT TRUE AND p."unlisted" IS NOT TRUE
-            AND p."isFuture" IS NOT TRUE AND p."rejected" IS NOT TRUE
-            AND p."authorIsUnreviewed" IS NOT TRUE AND p."status" = ${postStatuses.STATUS_APPROVED}
-            AND p."baseScore" >= 0
+            AND ${getViewablePostsSelector("p")}
+            AND p."rejected" IS NOT TRUE AND p."baseScore" >= 0
         ) public_posts
       ) collected ON TRUE
     `;
