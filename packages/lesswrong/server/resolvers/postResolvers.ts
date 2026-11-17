@@ -7,6 +7,7 @@ import { twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { recombeeApi, recombeeRequestHelpers } from '../recombee/client';
+import { getClassicFrontpagePosts, type ClassicFrontpagePostsSettings } from '../posts/frontpagePosts';
 import { RecommendedPost } from '@/lib/recombee/types';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
@@ -195,6 +196,17 @@ const {Query: RecombeeHybridPostsQuery, typeDefs: RecombeeHybridPostsTypeDefs } 
 
     return await recombeeApi.getHybridRecommendationsForUser(recombeeUser, limit, args.settings, context);
   }
+});
+
+const {Query: ClassicFrontpagePostsQuery, typeDefs: ClassicFrontpagePostsTypeDefs } = createPaginatedResolver({
+  name: "ClassicFrontpagePosts",
+  graphQLType: "RecombeeRecommendedPost",
+  args: { settings: "JSON" },
+  callback: (
+    context: ResolverContext,
+    limit: number,
+    args: { settings: ClassicFrontpagePostsSettings }
+  ): Promise<RecommendedPost[]> => getClassicFrontpagePosts(limit, args.settings, context),
 });
 
 const {Query: PostsWithActiveDiscussionQuery, typeDefs: PostsWithActiveDiscussionTypeDefs } = createPaginatedResolver({
@@ -475,6 +487,7 @@ export const postGqlQueries = {
   ...CrossedKarmaThresholdQuery,
   ...RecombeeLatestPostsQuery,
   ...RecombeeHybridPostsQuery,
+  ...ClassicFrontpagePostsQuery,
   ...PostsWithActiveDiscussionQuery,
   ...PostsBySubscribedAuthorsQuery,
   ...PostsWithApprovedJargonQuery,
@@ -757,6 +770,7 @@ export const postGqlTypeDefs = gql`
   ${CrossedKarmaThresholdTypeDefs}
   ${RecombeeLatestPostsTypeDefs}
   ${RecombeeHybridPostsTypeDefs}
+  ${ClassicFrontpagePostsTypeDefs}
   ${PostsWithActiveDiscussionTypeDefs}
   ${PostsBySubscribedAuthorsTypeDefs}
   ${PostsWithApprovedJargonTypeDefs}
