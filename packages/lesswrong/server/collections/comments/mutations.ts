@@ -78,7 +78,7 @@ async function newCheck(user: DbUser | null, document: CreateCommentDataInput | 
       return true;
     }
     throw new GraphQLError(commentingPermission.reason, {
-      extensions: { noSentryCapture: true },
+      extensions: { code: "FORBIDDEN", noSentryCapture: true },
     });
   }
 
