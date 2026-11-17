@@ -39,23 +39,38 @@ const styles = defineStyles("PrevNextNavigation", (theme: ThemeType) => ({
       opacity: 1,
     },
   },
+  pageNumber: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600],
+    minWidth: "2ch",
+    textAlign: "center",
+    fontVariantNumeric: "tabular-nums",
+  },
+  hidden: {
+    visibility: "hidden",
+  },
 }));
 
 export interface PrevNextNavigationProps {
   onPrevious?: () => void,
   onNext?: () => void,
   onNextHoverChange?: (hovered: boolean) => void,
-  canGoPrevious?: boolean,
+  pageIndex?: number,
   canGoNext?: boolean,
   className?: string,
 }
 
-const PrevNextNavigation = ({ onPrevious, onNext, onNextHoverChange, canGoPrevious = false, canGoNext = true, className }: PrevNextNavigationProps) => {
+const PrevNextNavigation = ({ onPrevious, onNext, onNextHoverChange, pageIndex = 0, canGoNext = true, className }: PrevNextNavigationProps) => {
   const classes = useStyles(styles);
+  const onFirstPage = pageIndex === 0;
   return <div className={classNames(classes.root, className)}>
-    <button type="button" className={classes.button} onClick={onPrevious} disabled={!canGoPrevious}>
+    <button type="button" className={classes.button} onClick={onPrevious} disabled={onFirstPage}>
       Prev
     </button>
+    <span className={classNames(classes.pageNumber, onFirstPage && classes.hidden)}>
+      {pageIndex + 1}
+    </span>
     <button
       type="button"
       className={classes.button}

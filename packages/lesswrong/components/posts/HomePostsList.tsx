@@ -290,7 +290,7 @@ const HomePostsPages = ({ results, pageSize, loadMore, loadingMore, emphasizeIfN
             goToNextPage();
           }}
           onNextHoverChange={setNextPageWanted}
-          canGoPrevious={pageIndex > 0}
+          pageIndex={pageIndex}
           canGoNext={canGoToNextPage}
         />
         : <LoadMore
