@@ -10,31 +10,34 @@ import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.
  * keystroke), so subscribers select the part they read and rerender only when
  * that part changes.
  */
-export class LocationStore {
-  private location: RouterLocation|null = null;
-  private listeners = new Set<() => void>();
-
-  get = (): RouterLocation => this.location!;
-
-  subscribe = (listener: () => void) => {
-    this.listeners.add(listener);
-    return () => { this.listeners.delete(listener); };
-  };
-
+export interface LocationStore {
+  get: () => RouterLocation,
+  subscribe: (listener: () => void) => () => void,
   /**
    * Set during the provider's render, like the in-place updates of
    * LocationContext, so that components rendering below it in the same pass
    * (including ones mounting for a new route) read the new location.
    */
-  set(location: RouterLocation) {
-    this.location = location;
-  }
+  set: (location: RouterLocation) => void,
+  notify: () => void,
+}
 
-  notify() {
-    for (const listener of [...this.listeners]) {
-      listener();
-    }
-  }
+function createLocationStore(): LocationStore {
+  let currentLocation: RouterLocation|null = null;
+  const listeners = new Set<() => void>();
+  return {
+    get: () => currentLocation!,
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => { listeners.delete(listener); };
+    },
+    set: (location) => { currentLocation = location; },
+    notify: () => {
+      for (const listener of [...listeners]) {
+        listener();
+      }
+    },
+  };
 }
 
 /** Pass a new `location` object when the URL changes, and the same one otherwise. */
@@ -42,7 +45,7 @@ export const LocationStoreProvider = ({ location, children }: {
   location: RouterLocation,
   children: React.ReactNode,
 }) => {
-  const [store] = useState(() => new LocationStore());
+  const [store] = useState(createLocationStore);
   store.set(location);
   useLayoutEffect(() => store.notify(), [store, location]);
   return <SubscribeLocationContext.Provider value={store}>

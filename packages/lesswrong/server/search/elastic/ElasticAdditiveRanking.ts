@@ -58,8 +58,7 @@ const rankingWeights = {
     pivots: {posts: 15, comments: 4, tags: 5, sequences: 15, users: 3000} satisfies RankingPivots,
   },
   context: {
-    comment: 0.0,
-    unresolvedUser: -0.5,
+    typeOffsets: {comments: 0.0, users: -0.5} satisfies RankingPivots,
     curated: 0.5,
     event: 1.0,
     // Elasticsearch rejects negative function scores. Every document receives this
@@ -394,7 +393,8 @@ function compileInterpretation(input: BranchInput, relationships: RelationshipBr
     score_mode: "max", boost_mode: "replace",
   }} : undefined;
   if (index === "posts" || index === "sequences") outerFunctions.push({weight: context.curated, filter: {term: {curated: true}}});
-  const typeOffset = index === "comments" ? context.comment : index === "users" ? context.unresolvedUser : 0;
+  const typeOffsets: RankingPivots = context.typeOffsets;
+  const typeOffset = typeOffsets[index] ?? 0;
   const params = {
     karmaField: karmaField(index), pivot: pivots[index], cap: index === "users" ? popularity.userCap : popularity.cap, slope: index === "users" ? popularity.userSlope : popularity.slope,
     gateFloor: popularity.gateFloor, matchMax: rankingWeights.match.topicalMax,
@@ -452,7 +452,15 @@ function compileIndexBranch(input: BranchInput): QueryDslQueryContainer {
   return {bool: {should: [], filter: [{term: {_index: index}}, ...eligibility], must: [{dis_max: {queries: interpretations, tie_breaker: 0}}]}};
 }
 
-export function compileSearchQuery({indexes, search: rawSearch, offset = 0, limit = 10, filters = [], preTag, postTag, person}: SearchQueryData): SearchRequest {
+export function personSearchApplies({indexes, search: rawSearch}: SearchQueryData): boolean {
+  const search = rawSearch.trim();
+  if (!search || parseQuery(search).isAdvanced || parseDocumentUrl(search)) return false;
+  return indexes.some(index => index === "users" || !!compileAuthorshipQuery(indexToCollectionName(index), []));
+}
+
+export function compileSearchQuery(queryData: SearchQueryData): SearchRequest {
+  const {indexes, search: rawSearch, offset = 0, limit = 10, filters = [], preTag, postTag} = queryData;
+  const person = personSearchApplies(queryData) ? queryData.person : undefined;
   const highlightFields: Record<string, SearchHighlightField> = {};
   const excludes = new Set<string>();
   const queries: QueryDslQueryContainer[] = [];
@@ -460,7 +468,6 @@ export function compileSearchQuery({indexes, search: rawSearch, offset = 0, limi
   const identifier = parseDocumentUrl(search);
   const pastedId = documentIdPattern.test(search) ? search : undefined;
   const isAdvanced = !!search && parseQuery(search).isAdvanced;
-  if (isAdvanced || identifier) person = undefined;
   const matchSearch = isAdvanced
     ? parseQuery(search).tokens.filter(token => token.type === "must" || token.type === "should").map(token => token.token).join(" ")
     : search;

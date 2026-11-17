@@ -4,6 +4,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 import UsersSearchAutoComplete from './UsersSearchAutoComplete';
 import SingleUsersItem from '../form-components/SingleUsersItem';
 import ErrorBoundary from '../common/ErrorBoundary';
+import { maxSearchFilterIds } from '@/lib/search/searchFilters';
 
 const styles = defineStyles("SearchAuthorsBar", (theme: ThemeType) => ({
   root: {
@@ -89,11 +90,11 @@ const SearchAuthorsBar = ({authorIds, onChange}: {
     {!!authorIds.length && <div className={classes.selectedAuthors}>
       {authorIds.map(userId => <SingleUsersItem variant="search" key={userId} userId={userId} removeItem={remove} />)}
     </div>}
-    <ErrorBoundary>
+    {authorIds.length < maxSearchFilterIds && <ErrorBoundary>
       <div className={classes.input}>
         <UsersSearchAutoComplete clickAction={add} label="Filter by author" disableUnderline />
       </div>
-    </ErrorBoundary>
+    </ErrorBoundary>}
   </div>;
 };
 

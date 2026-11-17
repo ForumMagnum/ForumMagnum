@@ -5,14 +5,15 @@ import type {
   SearchResponse,
   SearchTotalHits,
 } from "@elastic/elasticsearch/lib/api/types";
-import { compilePersonLookup, PersonCandidate, resolvePersonSearch } from "./ElasticPersonSearch";
+import { compilePersonLookup, PersonCandidate, PersonSearch, resolvePersonSearch } from "./ElasticPersonSearch";
 import ElasticQuery, { QueryData } from "./ElasticQuery";
 import type { MultiQueryData } from "./ElasticMultiQuery";
-import { compileSearchQuery } from "./ElasticAdditiveRanking";
+import { compileSearchQuery, personSearchApplies } from "./ElasticAdditiveRanking";
 import type { SearchQueryData } from "./searchQueryTypes";
 import sortBy from "lodash/sortBy";
 import { isElasticEnabled } from "../../../lib/instanceSettings";
 import take from "lodash/take";
+import LRU from "lru-cache";
 
 export type ElasticDocument = Exclude<SearchDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
@@ -33,11 +34,31 @@ interface SearchExecutor {
   search<TDocument>(request: SearchRequest): Promise<SearchResponse<TDocument>>;
 }
 
+const personLookupCache = new LRU<string, Promise<PersonSearch | undefined>>({
+  maxAge: 1000 * 60,
+  updateAgeOnGet: false,
+  max: 1000,
+});
+
 async function executeSearch(client: SearchExecutor, queryData: SearchQueryData): Promise<HitsOnlySearchResponse> {
-  const lookup = compilePersonLookup(queryData.search);
-  const candidates = lookup ? await completeSearch<PersonCandidate>(client, lookup) : undefined;
-  const person = resolvePersonSearch(queryData.search, candidates?.hits.hits.flatMap(hit => hit._source ? [hit._source] : []) ?? []);
+  const person = personSearchApplies(queryData) ? await lookupPerson(client, queryData.search.trim()) : undefined;
   return completeSearch<ElasticDocument>(client, compileSearchQuery({...queryData, person}));
+}
+
+function lookupPerson(client: SearchExecutor, search: string): Promise<PersonSearch | undefined> {
+  const cached = personLookupCache.get(search);
+  if (cached) return cached;
+  const result = resolvePersonLookup(client, search);
+  personLookupCache.set(search, result);
+  result.catch(() => personLookupCache.del(search));
+  return result;
+}
+
+async function resolvePersonLookup(client: SearchExecutor, search: string): Promise<PersonSearch | undefined> {
+  const lookup = compilePersonLookup(search);
+  if (!lookup) return undefined;
+  const candidates = await completeSearch<PersonCandidate>(client, lookup);
+  return resolvePersonSearch(search, candidates.hits.hits.flatMap(hit => hit._source ? [hit._source] : []));
 }
 
 async function completeSearch<TDocument>(client: SearchExecutor, request: SearchRequest): Promise<SearchResponse<TDocument>> {

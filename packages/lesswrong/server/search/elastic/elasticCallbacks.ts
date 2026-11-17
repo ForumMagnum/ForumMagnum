@@ -9,7 +9,9 @@ interface ElasticSyncOptions {
   /**
    * Also re-export the sequences containing this post. A sequence's document is
    * built from its posts' visibility, authors and baseScore, so pass this when
-   * one of those may have changed (post edits and votes, not tags or counts).
+   * one of those may have changed. Votes don't pass it, so a sequence picks up
+   * baseScore changes (its average, and posts crossing zero) only on the next
+   * edit to its posts or chapters.
    */
   includeSequences?: boolean,
 }

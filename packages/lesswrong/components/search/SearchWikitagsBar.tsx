@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
-import { SearchTagMatch } from '@/lib/search/searchFilters';
+import { maxSearchFilterIds, SearchTagMatch } from '@/lib/search/searchFilters';
 import SearchSegmentedControl, { SearchSegment } from './SearchSegmentedControl';
 import TagMultiselect from '../form-components/TagMultiselect';
 
@@ -59,6 +59,7 @@ const SearchWikitagsBar = ({tagIds, onChange, match, onMatchChange}: {
         hidePostCount
         startWithBorder
         updateCurrentValues={onChange}
+        maxCount={maxSearchFilterIds}
       />
     </div>
     <SearchSegmentedControl label="Match wikitags" segments={tagMatchSegments} value={match} onChange={onMatchChange} />

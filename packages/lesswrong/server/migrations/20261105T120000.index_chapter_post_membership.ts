@@ -1,5 +1,8 @@
-export const up = async ({db}: MigrationContext) => {
-  await db.none(`CREATE INDEX IF NOT EXISTS idx_chapters_post_ids ON "Chapters" USING gin("postIds")`);
+import { queueMigrationTask } from "./meta/migrationTaskQueue";
+import { updateCustomIndexes } from "./meta/utils";
+
+export const up = async ({dbOutsideTransaction}: MigrationContext) => {
+  queueMigrationTask(() => updateCustomIndexes(dbOutsideTransaction));
 };
 
 export const down = async ({db}: MigrationContext) => {

@@ -79,7 +79,7 @@ async function afterVotesChanged({ newDocument, cancelledVotes, collection, cont
   const { collectionName } = collection;
   await invalidatePostPageCacheForVoteable(collectionName, newDocument);
   if (isElasticEnabled() && collectionIsSearchIndexed(collectionName)) {
-    backgroundTask(elasticSyncDocument(collectionName, newDocument._id, {includeSequences: true}));
+    backgroundTask(elasticSyncDocument(collectionName, newDocument._id));
   }
   for (const cancelledVote of cancelledVotes) {
     backgroundTask(onVoteCancel(newDocument, cancelledVote, context));

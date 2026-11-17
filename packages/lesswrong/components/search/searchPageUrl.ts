@@ -8,6 +8,7 @@ import {
   defaultSearchFilters,
   defaultSearchPostTypes,
   isDefaultSearchPostTypes,
+  maxSearchFilterIds,
   searchEventFilters,
   searchPostTypes,
 } from "@/lib/search/searchFilters";
@@ -65,6 +66,10 @@ function readList(query: Record<string, string | undefined>, key: string): strin
     .flatMap(([, value]) => splitList(value));
 }
 
+function readIdList(query: Record<string, string | undefined>, key: string): string[] {
+  return [...new Set(readList(query, key))].slice(0, maxSearchFilterIds);
+}
+
 function splitList(value: string | undefined): string[] {
   return value ? value.split(",").filter(item => item.length > 0) : [];
 }
@@ -107,10 +112,10 @@ function searchPageStateFromQuery(query: Record<string, string | undefined>): Se
     query: query.query ?? query.search ?? "",
     kinds,
     filters: {
-      tagIds: readList(query, "tags"),
+      tagIds: readIdList(query, "tags"),
       tagMatch: query.tagMatch === "all" ? "all" : "any",
       events: parseEventFilter(query.events),
-      authorIds: readList(query, "authors"),
+      authorIds: readIdList(query, "authors"),
       postTypes: postTypes.length ? postTypes : defaultSearchPostTypes,
       dateRange: parseDateRange(query.past, query.from, query.to),
     },

@@ -85,10 +85,9 @@ export function useSubscribedLocation<T>(select?: (location: RouterLocation) => 
 function selectionsEqual(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) return true;
   if (typeof a !== 'object' || typeof b !== 'object' || !a || !b) return false;
-  const aRecord = a as Record<string, unknown>, bRecord = b as Record<string, unknown>;
-  const aKeys = Object.keys(aRecord);
-  return aKeys.length === Object.keys(bRecord).length
-    && aKeys.every(key => key in bRecord && Object.is(aRecord[key], bRecord[key]));
+  const aEntries = Object.entries(a);
+  return aEntries.length === Object.keys(b).length
+    && aEntries.every(([key, value]) => key in b && Object.is(value, Reflect.get(b, key)));
 }
 
 export const useLocationStore = () => {

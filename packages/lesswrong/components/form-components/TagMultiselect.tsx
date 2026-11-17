@@ -70,7 +70,7 @@ const styles = defineStyles('TagMultiselect', (theme: ThemeType) => ({
   },
 }));
 
-const TagMultiselect = ({value, label, placeholder, hidePostCount=false, startWithBorder=false, isVotingContext, updateCurrentValues, variant}: {
+const TagMultiselect = ({value, label, placeholder, hidePostCount=false, startWithBorder=false, isVotingContext, updateCurrentValues, variant, maxCount}: {
   value: Array<string>,
   label?: React.ReactNode,
   placeholder?: string,
@@ -79,6 +79,7 @@ const TagMultiselect = ({value, label, placeholder, hidePostCount=false, startWi
   isVotingContext?: boolean,
   updateCurrentValues(values: Array<string>): void,
   variant?: "default" | "grey",
+  maxCount?: number,
 }) => {
   const classes = useStyles(styles);
   const [focused, setFocused] = useState(startWithBorder)
@@ -86,12 +87,15 @@ const TagMultiselect = ({value, label, placeholder, hidePostCount=false, startWi
   const onFocus = useCallback(() => setFocused(true), []);
 
   const addTag = useCallback((id: string, tag: SearchTag | null) => {
-    const ids = [...(tag?.parentTagId ? [tag.parentTagId] : []), id].filter(id => !value.includes(id))
+    const newIds = [...(tag?.parentTagId ? [tag.parentTagId] : []), id].filter(id => !value.includes(id))
+    const room = maxCount === undefined ? newIds.length : maxCount - value.length
+    const ids = newIds.slice(Math.max(0, newIds.length - room))
     if (ids.length) {
       const newValue = value.concat(ids)
       updateCurrentValues(newValue)
     }
-  }, [value, updateCurrentValues]);
+  }, [value, updateCurrentValues, maxCount]);
+  const isFull = maxCount !== undefined && value.length >= maxCount;
 
   const removeTag = useCallback((id: string) => {
     if (value.includes(id)) {
@@ -119,7 +123,7 @@ const TagMultiselect = ({value, label, placeholder, hidePostCount=false, startWi
             })}
           </div>
         </div>
-        <ErrorBoundary>
+        {!isFull && <ErrorBoundary>
           <div onClick={onFocus} className={classNames(classes.inputContainer, {
             [classes.inputGrey]: isGrey,
             [classes.focused]: focused && !isGrey,
@@ -132,7 +136,7 @@ const TagMultiselect = ({value, label, placeholder, hidePostCount=false, startWi
               isVotingContext={isVotingContext}
             />
           </div>
-        </ErrorBoundary>
+        </ErrorBoundary>}
       </div>
     </div>
   )

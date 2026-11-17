@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useNavigate, useSubscribedLocation } from '@/lib/routeUtil';
+import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import withErrorBoundary from './withErrorBoundary';
 import { isSearchEnabled } from '../../lib/search/searchUtil';
@@ -25,6 +26,18 @@ const styles = defineStyles('SearchBar', (theme: ThemeType) => ({
   },
 }));
 
+function withSearchModalOpen(open: boolean) {
+  return ({location}: RouterLocation) => {
+    const params = new URLSearchParams(location.search);
+    if (open) {
+      params.set(searchModalOpenParam, '1');
+    } else {
+      params.delete(searchModalOpenParam);
+    }
+    return {...location, search: params.toString()};
+  };
+}
+
 const SearchBar = ({onSetIsActive}: {
   onSetIsActive: (active: boolean) => void,
 }) => {
@@ -35,16 +48,8 @@ const SearchBar = ({onSetIsActive}: {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {setMounted(true);}, []);
   useEffect(() => {onSetIsActive(inputOpen);}, [inputOpen, onSetIsActive]);
-  const closeSearch = () => {
-    const params = new URLSearchParams(location.search);
-    params.delete(searchModalOpenParam);
-    navigate({...location, search: params.toString()}, {replace: true, skipRouter: true});
-  };
-  const handleSearchTap = () => {
-    const params = new URLSearchParams(location.search);
-    params.set(searchModalOpenParam, '1');
-    navigate({...location, search: params.toString()}, {replace: true, skipRouter: true});
-  };
+  const closeSearch = () => navigate(withSearchModalOpen(false), {replace: true, skipRouter: true});
+  const handleSearchTap = () => navigate(withSearchModalOpen(true), {replace: true, skipRouter: true});
 
   useGlobalKeydown((event) => {
     if (event.defaultPrevented || !isSearchEnabled() || event.isComposing
