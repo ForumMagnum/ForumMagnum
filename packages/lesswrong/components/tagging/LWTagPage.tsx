@@ -357,8 +357,7 @@ const PostsListHeading: FC<{
   );
 }
 
-const tagContentFeedSortOptions = ["magic", "new", "top"] as const;
-type TagContentFeedSortBy = typeof tagContentFeedSortOptions[number];
+const tagContentFeedSortOptions: TagContentFeedSortBy[] = ["magic", "new", "top"];
 
 function isTagContentFeedSortBy(value: string | undefined): value is TagContentFeedSortBy {
   return tagContentFeedSortOptions.some(option => option === value);
@@ -374,7 +373,7 @@ const TagContentFeedSection = ({tag, query}: {
     <AnalyticsContext pageSectionContext="tagContentFeed">
       <div className={classes.tagHeader}>
         <div className={classes.postsTaggedTitle}>Posts, quick takes and comments on <em>{tag.name}</em></div>
-        <PostsListSortDropdown value={sortBy} options={[...tagContentFeedSortOptions]} sortingParam="feedSortedBy"/>
+        <PostsListSortDropdown value={sortBy} options={tagContentFeedSortOptions} sortingParam="feedSortedBy"/>
       </div>
       <MixedTypeFeed
         query={TagContentFeedQuery}
@@ -899,7 +898,9 @@ const LWTagPage = ({slug}: {slug: string}) => {
             <AddPostsToTag tag={tag} />
           </PostsList2>}
         </AnalyticsContext>
-        <TagContentFeedSection tag={tag} query={query} />
+        <DeferRender ssr={false}>
+          <TagContentFeedSection tag={tag} query={query} />
+        </DeferRender>
       </>}
     </div>
   );

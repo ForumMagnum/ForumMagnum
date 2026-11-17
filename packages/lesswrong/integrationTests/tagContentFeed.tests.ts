@@ -52,8 +52,6 @@ describe("TagContentFeed", () => {
     await waitForBackgroundTasks();
     await waitUntilPgQueriesFinished();
 
-    // Applied after creation callbacks have settled, since they recompute these fields.
-    // The comments all share a baseScore, so "top" has to page through ties.
     await Posts.rawUpdateOne({ _id: taggedPost._id }, { $set: { tagRelevance: { [tag._id]: 1 }, baseScore: 50 } });
     await Comments.rawUpdateMany({ _id: { $in: commentsOnTaggedPost.map(c => c._id) } }, { $set: { baseScore: 3 } });
     await Comments.rawUpdateOne({ _id: taggedQuickTake._id }, { $set: { relevantTagIds: [tag._id], baseScore: 3 } });
