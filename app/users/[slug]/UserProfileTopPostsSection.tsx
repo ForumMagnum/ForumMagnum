@@ -8,6 +8,8 @@ import classNames from "classnames";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import LWTooltip from "@/components/common/LWTooltip";
 import { ExpandedDate } from "@/components/common/FormatDate";
+import { useTimezone } from "@/components/common/withTimezone";
+import { useCurrentTime } from "@/lib/utils/TimeProvider";
 import { Link } from "@/lib/reactRouterWrapper";
 import { profileStyles } from "./profileStyles";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
@@ -459,6 +461,8 @@ function TopPostBigArticle({post, topPostDefaultImages}: {
   topPostDefaultImages: string[]
 }) {
   const classes = useStyles(userProfileTopPostsSectionUnsharedStyles);
+  const { timezone } = useTimezone();
+  const now = useCurrentTime();
   if (post) {
     return <Link
       to={postGetPageUrl(post)}
@@ -476,7 +480,7 @@ function TopPostBigArticle({post, topPostDefaultImages}: {
             <span className={classes.karmaScore}>{post.baseScore ?? 0}</span>
           </LWTooltip>
           <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
-            <span className={classes.postDate}>{formatReadableDate(post.postedAt!)}</span>
+            <span className={classes.postDate}>{formatReadableDate(post.postedAt!, timezone, now)}</span>
           </LWTooltip>
         </div>
       </div>
@@ -506,6 +510,8 @@ function TopPostSmallArticle({post, topPostDefaultImages, idx}: {
 }) {
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(userProfileTopPostsSectionUnsharedStyles);
+  const { timezone } = useTimezone();
+  const now = useCurrentTime();
 
   if (post) {
     const imageBackground = getPostBackgroundImage(post, topPostDefaultImages, idx + 1);
@@ -527,7 +533,7 @@ function TopPostSmallArticle({post, topPostDefaultImages, idx}: {
               <span className={classes.smallKarma}>{post.baseScore ?? 0}</span>
             </LWTooltip>
             <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
-              <span className={classes.smallDate}>{formatReadableDate(post.postedAt!)}</span>
+              <span className={classes.smallDate}>{formatReadableDate(post.postedAt!, timezone, now)}</span>
             </LWTooltip>
           </div>
         </div>
