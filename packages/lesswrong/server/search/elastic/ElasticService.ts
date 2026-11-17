@@ -11,14 +11,6 @@ import moment from "moment";
 import LRU from "lru-cache";
 import stringify from "json-stringify-deterministic";
 import type { SearchOptions, SearchQuery } from "@/lib/search/NativeSearchClient";
-import { searchPostTypes, SearchPostType } from "@/lib/search/searchFilters";
-
-export interface SearchFilterParams {
-  tagIds?: string[],
-  tagMatch?: "any" | "all",
-  authorIds?: string[],
-  postTypes?: string[],
-}
 
 type SanitizedIndexName = {
   index: string | string[],
@@ -179,7 +171,7 @@ class ElasticService {
     facetFilters?: string[][],
     numericFilters?: string[],
     existsFilters?: string[],
-    search?: SearchFilterParams,
+    search?: SearchQuery["params"],
   ): QueryFilter[] {
     const result: QueryFilter[] = [];
 
@@ -249,14 +241,7 @@ class ElasticService {
       result.push({type: "author", field: "author", value: search.authorIds});
     }
     if (search?.postTypes?.length) {
-      const postTypes: SearchPostType[] = [];
-      for (const postType of search.postTypes) {
-        if (!searchPostTypes.has(postType)) {
-          throw new Error("Invalid post type: " + postType);
-        }
-        postTypes.push(postType);
-      }
-      result.push({type: "postType", field: "postType", value: postTypes});
+      result.push({type: "postType", field: "postType", value: search.postTypes});
     }
 
     return result;

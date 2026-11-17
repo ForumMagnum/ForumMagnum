@@ -70,6 +70,14 @@ const styles = defineStyles('SearchResultLink', (theme: ThemeType) => ({
   },
 }));
 
+type CopyStatus = 'idle' | 'copied' | 'error';
+
+const copyStatusMessages: Record<CopyStatus, string> = {
+  idle: '',
+  copied: 'Link copied',
+  error: 'Could not copy link. Try again or right-click the result to copy its link.',
+};
+
 interface SearchResultLinkProps {
   href: string,
   label: string,
@@ -77,7 +85,7 @@ interface SearchResultLinkProps {
 
 export default function SearchResultLink({href, label}: SearchResultLinkProps) {
   const classes = useStyles(styles);
-  const [status, setStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+  const [status, setStatus] = useState<CopyStatus>('idle');
   useEffect(() => {
     if (status !== 'copied') return;
     const timeout = setTimeout(() => setStatus('idle'), 2000);
@@ -102,7 +110,7 @@ export default function SearchResultLink({href, label}: SearchResultLinkProps) {
       <CheckIcon className={classNames(classes.icon, {[classes.visible]: status === 'copied'})} />
     </button>
     <span role="status" className={status === 'error' ? classes.error : classes.status}>
-      {status === 'copied' ? 'Link copied' : status === 'error' ? 'Could not copy link. Try again or right-click the result to copy its link.' : ''}
+      {copyStatusMessages[status]}
     </span>
   </>;
 }

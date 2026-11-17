@@ -3,31 +3,29 @@ import {
   SearchDateRange,
   SearchFilterState,
   searchDatePeriods,
+  SearchEventFilter,
   SearchPostType,
+  defaultSearchFilters,
   defaultSearchPostTypes,
-  emptySearchFilters,
   isDefaultSearchPostTypes,
+  searchEventFilters,
   searchPostTypes,
 } from "@/lib/search/searchFilters";
 
+/** What a search URL holds: the search itself, not how its page is laid out */
 export interface SearchPageState {
   query: string;
   kinds: SearchIndexCollectionName[];
   filters: SearchFilterState;
-  expandedFilters: string[];
-  mobileFiltersOpen: boolean;
 }
 
 export const defaultSearchPageState: SearchPageState = {
   query: "",
-  expandedFilters: ["time", "authors", "tags", "events", "types"],
-  mobileFiltersOpen: false,
   kinds: [],
-  filters: {...emptySearchFilters, postTypes: defaultSearchPostTypes, events: "exclude"},
+  filters: defaultSearchFilters,
 };
 
-const searchFilterPanels = new Set(["time", "authors", "tags", "events", "types"]);
-const searchParameterNames = ["query", "search", "kinds", "contentType", "tags", "tagMatch", "events", "authors", "types", "past", "from", "to", "expanded", "mobileFilters"];
+const searchParameterNames = ["query", "search", "kinds", "contentType", "tags", "tagMatch", "events", "authors", "types", "past", "from", "to"];
 
 export const searchModalOpenParam = "searchOpen";
 
@@ -98,22 +96,22 @@ function parseDateRange(past: string | undefined, from: string | undefined, to: 
   return {...(start !== undefined ? {start} : {}), ...(end !== undefined ? {end} : {})};
 }
 
+function parseEventFilter(value: string | undefined): SearchEventFilter {
+  return value !== undefined && searchEventFilters.has(value) ? value : defaultSearchFilters.events;
+}
+
 function searchPageStateFromQuery(query: Record<string, string | undefined>): SearchPageState {
   const kinds = splitList(query.kinds ?? query.contentType).filter(collectionIsSearchIndexed);
   const postTypes = splitList(query.types).filter((type): type is SearchPostType => searchPostTypes.has(type));
   return {
     query: query.query ?? query.search ?? "",
-    expandedFilters: query.expanded === undefined ? [...defaultSearchPageState.expandedFilters] : [...new Set(splitList(query.expanded).filter(key => searchFilterPanels.has(key)))],
-    mobileFiltersOpen: query.mobileFilters === "1",
     kinds,
     filters: {
       tagIds: readList(query, "tags"),
       tagMatch: query.tagMatch === "all" ? "all" : "any",
-      events: query.events === "include" || query.events === "only" || query.events === "exclude"
-        ? query.events
-        : postTypes.includes("event") ? postTypes.length === 1 ? "only" : "include" : "exclude",
+      events: parseEventFilter(query.events),
       authorIds: readList(query, "authors"),
-      postTypes: postTypes.some(type => type !== "event") ? postTypes.filter(type => type !== "event") : defaultSearchPostTypes,
+      postTypes: postTypes.length ? postTypes : defaultSearchPostTypes,
       dateRange: parseDateRange(query.past, query.from, query.to),
     },
   };
@@ -123,12 +121,10 @@ export function searchPageStateToQuery(state: SearchPageState): Record<string, s
   const {filters} = state;
   const entries: [string, string | undefined][] = [
     ["query", state.query || undefined],
-    ["expanded", state.expandedFilters.length === searchFilterPanels.size && state.expandedFilters.every(key => searchFilterPanels.has(key)) ? undefined : state.expandedFilters.join(",")],
-    ["mobileFilters", state.mobileFiltersOpen ? "1" : undefined],
     ["kinds", state.kinds.length ? state.kinds.join(",") : undefined],
     ["tags", filters.tagIds.length ? filters.tagIds.join(",") : undefined],
     ["tagMatch", filters.tagMatch === "all" ? "all" : undefined],
-    ["events", filters.events === "exclude" ? undefined : filters.events],
+    ["events", filters.events === defaultSearchFilters.events ? undefined : filters.events],
     ["authors", filters.authorIds.length ? filters.authorIds.join(",") : undefined],
     ["types", isDefaultSearchPostTypes(filters.postTypes) ? undefined : filters.postTypes.join(",")],
     ["past", filters.dateRange.past],

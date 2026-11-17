@@ -31,7 +31,7 @@ function mergeFacetFilters(filters: SearchFilterParams | undefined): string[][] 
   return groups.length ? groups : undefined;
 }
 
-export function useSearchResults(request: SearchResultsRequest, open: boolean) {
+export function useSearchResults(request: SearchResultsRequest) {
   const [hits, setHits] = useState<SearchBarHit[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -44,7 +44,7 @@ export function useSearchResults(request: SearchResultsRequest, open: boolean) {
   const loadMore = useCallback(async () => {
     const current = pager.current;
     const {indexName, query, filters} = latestRequest.current;
-    if (!open || !indexName || current.loading || !current.hasMore) return;
+    if (!indexName || current.loading || !current.hasMore) return;
     current.loading = true;
     setLoading(true);
     setError(false);
@@ -88,7 +88,7 @@ export function useSearchResults(request: SearchResultsRequest, open: boolean) {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [requestKey, open]);
+  }, [requestKey]);
 
   useEffect(() => {
     latestRequest.current = request;

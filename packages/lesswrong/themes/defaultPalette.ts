@@ -434,7 +434,6 @@ export const defaultComponentPalette = (dark: boolean, isAF: boolean) => ({
     sunshineSendMessage: `0 0 10px ${boxShadowColor(.5)}`,
     lwCard: `0 0 10px ${boxShadowColor(.2)}`,
     eaCard: `0 4px 8px ${boxShadowColor(0.12)}`,
-    searchResults: `0 0 20px ${boxShadowColor(.2)}`,
     recentDiscussionMeetupsPoke: `5px 5px 5px ${boxShadowColor(.2)}`,
     graphTooltip: dark ? "none" : `0 4px 8px ${boxShadowColor(0.12)}`,
     lwTagHoverOver: `0 1px 3px 0 ${boxShadowColor(0.2)},0 1px 1px 0 ${boxShadowColor(0.14)},0 2px 1px -1px ${boxShadowColor(0.12)}`,

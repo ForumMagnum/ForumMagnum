@@ -23,7 +23,6 @@ const rankingWeights = {
     allTerms: 1.0,
     titleAll: 1.0,
     phrase: 1.0,
-    max: 6.0,
     topicalMax: 5.0,
     pivots: {posts: 8.1, comments: 7.6, users: 12.9, tags: 5.9, sequences: 3.8} satisfies RankingPivots,
   },
@@ -332,7 +331,6 @@ function matchFunctions(index: string, search: string, tokenCount: number, score
 function wantsUpcomingEvents(search: string, filters: QueryFilter[]): boolean {
   if (/\b(?:19|20)\d{2}\b/.test(search) || filters.some(filter => /date|time/i.test(filter.field))) return false;
   return /\b(?:meetups?|meetings?|events?|upcoming)\b/i.test(search)
-    || filters.some(filter => filter.type === "postType" && filter.value.includes("event"))
     || filters.some(filter => filter.type === "facet" && filter.field === "isEvent" && filter.value === true && !filter.negated);
 }
 

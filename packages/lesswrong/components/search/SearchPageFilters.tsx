@@ -1,8 +1,8 @@
 import React from 'react';
 import classNames from 'classnames';
 import { useStyles } from '@/components/hooks/useStyles';
-import { SearchFilterState, defaultSearchPostTypes, hasSearchDateRange, isDefaultSearchPostTypes, searchPostTypeLabels } from '@/lib/search/searchFilters';
-import { SearchPageState, defaultSearchPageState } from './searchPageUrl';
+import { SearchDateRange, SearchEventFilter, SearchFilterState, defaultSearchFilters, defaultSearchPostTypes, hasSearchDateRange, isDefaultSearchPostTypes, searchPostTypeLabels } from '@/lib/search/searchFilters';
+import { SearchPageState } from './searchPageUrl';
 import { searchPageStyles } from './searchPageStyles';
 import SearchFilterRow from './SearchFilterRow';
 import SearchAuthorsBar from './SearchAuthorsBar';
@@ -11,26 +11,46 @@ import SearchEventsBar from './SearchEventsBar';
 import SearchPostTypeBar from './SearchPostTypeBar';
 import SearchDatePresetsBar, { matchSearchDatePreset } from './SearchDatePresetsBar';
 
+export const searchFilterPanels = ["time", "authors", "tags", "events", "types"] as const;
+export type SearchFilterPanel = typeof searchFilterPanels[number];
+
 interface SearchPageFiltersProps {
   state: SearchPageState;
+  expandedFilters: SearchFilterPanel[];
+  filtersOpen: boolean;
   setFilters: (patch: Partial<SearchFilterState>) => void;
-  toggleFilter: (key: string) => void;
+  toggleFilter: (key: SearchFilterPanel) => void;
   clearFilters: () => void;
   filtersId: string;
+}
+
+const eventFilterSummaries: Record<SearchEventFilter, string> = {
+  include: "Included",
+  exclude: "Excluded (default)",
+  only: "Only events",
+};
+
+function formatDateBound(ms: number | undefined, fallback: string): string {
+  return ms === undefined ? fallback : new Date(ms).toISOString().slice(0, 10);
+}
+
+function summarizeDateRange(dateRange: SearchDateRange): string {
+  const preset = matchSearchDatePreset(dateRange);
+  if (preset) return preset;
+  if (!hasSearchDateRange(dateRange)) return "All time";
+  return `${formatDateBound(dateRange.start, "Beginning")} – ${formatDateBound(dateRange.end, "Today")}`;
 }
 
 export function summarizeSearchFilters(state: SearchPageState) {
   const {dateRange} = state.filters;
   const hasDateFilter = hasSearchDateRange(dateRange);
   const hasPostFilter = state.filters.postTypes.length > 0 && !isDefaultSearchPostTypes(state.filters.postTypes);
-  const hasFilters = hasDateFilter || hasPostFilter || state.filters.events !== defaultSearchPageState.filters.events || !!state.filters.tagIds.length || !!state.filters.authorIds.length || !!state.kinds.length;
-  const dateSummary = matchSearchDatePreset(dateRange) ?? (hasDateFilter ? `${dateRange.start === undefined ? "Beginning" : new Date(dateRange.start).toISOString().slice(0, 10)} – ${dateRange.end === undefined ? "Today" : new Date(dateRange.end).toISOString().slice(0, 10)}` : "All time");
-  return {hasDateFilter, hasPostFilter, hasFilters, dateSummary};
+  const hasFilters = hasDateFilter || hasPostFilter || state.filters.events !== defaultSearchFilters.events || !!state.filters.tagIds.length || !!state.filters.authorIds.length || !!state.kinds.length;
+  return {hasDateFilter, hasPostFilter, hasFilters, dateSummary: summarizeDateRange(dateRange)};
 }
 
-export default function SearchPageFilters({state, setFilters, toggleFilter, clearFilters, filtersId}: SearchPageFiltersProps) {
+export default function SearchPageFilters({state, expandedFilters, filtersOpen, setFilters, toggleFilter, clearFilters, filtersId}: SearchPageFiltersProps) {
   const classes = useStyles(searchPageStyles);
-  const {expandedFilters, mobileFiltersOpen: filtersOpen} = state;
   const {hasDateFilter, hasPostFilter, hasFilters, dateSummary} = summarizeSearchFilters(state);
   return (
     <aside id={filtersId} className={classes.sidebar} hidden={!filtersOpen} aria-label="Search options">
@@ -45,7 +65,7 @@ export default function SearchPageFilters({state, setFilters, toggleFilter, clea
         <SearchFilterRow label="Wikitags" summary={state.filters.tagIds.length ? `${state.filters.tagIds.length} selected · match ${state.filters.tagMatch}` : "Any wikitag"} active={!!state.filters.tagIds.length} expanded={expandedFilters.includes("tags")} onToggle={() => toggleFilter("tags")} onReset={() => setFilters({tagIds: [], tagMatch: "any"})}>
           <SearchWikitagsBar match={state.filters.tagMatch} onMatchChange={(tagMatch) => setFilters({tagMatch})} tagIds={state.filters.tagIds} onChange={(tagIds) => setFilters({tagIds})} />
         </SearchFilterRow>
-        <SearchFilterRow label="Events" summary={state.filters.events === "include" ? "Included" : state.filters.events === "exclude" ? "Excluded (default)" : "Only events"} active={state.filters.events !== defaultSearchPageState.filters.events} expanded={expandedFilters.includes("events")} onToggle={() => toggleFilter("events")} onReset={() => setFilters({events: defaultSearchPageState.filters.events})}>
+        <SearchFilterRow label="Events" summary={eventFilterSummaries[state.filters.events]} active={state.filters.events !== defaultSearchFilters.events} expanded={expandedFilters.includes("events")} onToggle={() => toggleFilter("events")} onReset={() => setFilters({events: defaultSearchFilters.events})}>
           <SearchEventsBar value={state.filters.events} onChange={(events) => setFilters({events})} />
         </SearchFilterRow>
         <SearchFilterRow label="Post types" summary={hasPostFilter ? state.filters.postTypes.map(type => searchPostTypeLabels[type]).join(", ") : "All post types"} active={hasPostFilter} expanded={expandedFilters.includes("types")} onToggle={() => toggleFilter("types")} onReset={() => setFilters({postTypes: defaultSearchPostTypes})}>

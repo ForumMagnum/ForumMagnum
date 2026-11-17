@@ -33,7 +33,6 @@ export const defaultZIndexes = {
   sunshineSidebar: 1000,
   reactionsFooter: 1001,
   intercomButton: 1030,
-  searchResults: 1100, // higher than intercom
   drawer: 1400,
   modal: 1450,
   ultrafeedModal: 1350, // Below drawer (1400) to allow navigation drawers to appear over this modal
