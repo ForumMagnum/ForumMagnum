@@ -42,9 +42,11 @@ pull_envvars () {
   # The 2>&1 here merges stdout and stderr. Unfortunately "vercel env pull"
   # outputs everything (including non-error spammy status information) to
   # stderr, so the customary "redirect stdout but show stderr" doesn't work.
-  if [[ "$SKIP_VERCEL_CODE_PULL" != true ]]; then
-    VERCEL_PULL_OUTPUT=$(vercel env pull .env.local --environment="$VERCEL_ENV_NAME" 2>&1)
+  if [[ "$SKIP_VERCEL_CODE_PULL" == true ]]; then
+    return 0
   fi
+
+  VERCEL_PULL_OUTPUT=$(vercel env pull .env --environment="$VERCEL_ENV_NAME" 2>&1)
   VERCEL_PULL_EXIT_STATUS="$?"
   
   if [[ "$VERCEL_PULL_EXIT_STATUS" != 0 ]]; then
@@ -52,8 +54,8 @@ pull_envvars () {
     echo "$VERCEL_PULL_OUTPUT"
     exit 1
   fi
-  
-  return "$VERCEL_PULL_EXIT_STATUS"
+
+  scripts/resetMisplacedEnvLocal.sh
 }
 
 run_dev_server () {

@@ -53,6 +53,10 @@ export const INSERT_DISPLAY_MATH_COMMAND: LexicalCommand<{ equation?: string }> 
   'INSERT_DISPLAY_MATH_COMMAND'
 );
 
+// Equation edits from the floating panel are history-merged, which
+// OnChangePlugin ignores by default; this tag marks them as content changes.
+export const MATH_EQUATION_EDIT_TAG = 'math-equation-edit';
+
 /**
  * Extract equation and determine if it's display mode
  */
@@ -234,7 +238,7 @@ export function MathPlugin(): React.ReactElement {
     editor.update(() => {
       const node = $getNodeByKey(editorState.editingNodeKey ?? '');
       if ($isMathNode(node)) node.setEquation(equation);
-    }, { tag: [SKIP_DOM_SELECTION_TAG, hasPreviewChanges.current ? HISTORY_MERGE_TAG : HISTORY_PUSH_TAG] });
+    }, { tag: [SKIP_DOM_SELECTION_TAG, MATH_EQUATION_EDIT_TAG, hasPreviewChanges.current ? HISTORY_MERGE_TAG : HISTORY_PUSH_TAG] });
     hasPreviewChanges.current = true;
   }, [editor, editorState.editingNodeKey]);
 
@@ -269,7 +273,7 @@ export function MathPlugin(): React.ReactElement {
       } else {
         node.setEquation(editorState.initialEquation);
       }
-    }, { tag: HISTORY_MERGE_TAG });
+    }, { tag: [HISTORY_MERGE_TAG, MATH_EQUATION_EDIT_TAG] });
     closeEditor();
   }, [editor, editorState, closeEditor]);
 

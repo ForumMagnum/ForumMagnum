@@ -1,5 +1,6 @@
 import React from 'react';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
+import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import EditCommentDropdownItem from "./EditCommentDropdownItem";
@@ -71,7 +72,7 @@ const CommentActions = ({comment, post, tag, showEdit}: {
       <SuggestAlignmentCommentDropdownItem comment={comment} post={postDetails} />
 
       {postDetails &&
-        userCanModeratePost(currentUser, postDetails) &&
+        (userOwns(currentUser, postDetails) || userCanModeratePost(currentUser, postDetails).canModerate) &&
         postDetails.user &&
           <DropdownDivider />
       }

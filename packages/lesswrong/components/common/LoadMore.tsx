@@ -120,11 +120,12 @@ const LoadMore = ({
   )
 }
 
-export const LoadMorePlaceholder = ({sectionFooterStyles}: {
+export const LoadMorePlaceholder = ({sectionFooterStyles, className}: {
   sectionFooterStyles?: boolean,
+  className?: string,
 }) => {
   const classes = useStyles(styles);
-  return <a className={classNames(classes.root, sectionFooterStyles && classes.sectionFooterStyles)} href="#">
+  return <a className={classNames(classes.root, className, sectionFooterStyles && classes.sectionFooterStyles)} href="#">
     Load More
   </a>
 }

@@ -434,7 +434,6 @@ class ElasticQuery {
 
     const must: QueryDslQueryContainer[] = [];
     const must_not: QueryDslQueryContainer[] = [];
-    const should: QueryDslQueryContainer[] = [];
 
     for (const {type, token} of tokens) {
       switch (type) {
@@ -456,7 +455,6 @@ class ElasticQuery {
         });
         break;
       case "should":
-        should.push(this.getDefaultQuery(token, textFields));
         break;
       case "user":
       case "tag":
@@ -465,11 +463,17 @@ class ElasticQuery {
       }
     }
 
+    const keywords = tokens
+      .filter(({type, token}) => type === "should" && token.trim())
+      .map(({token}) => token)
+      .join(" ");
+    const keywordQueries = keywords ? [this.getDefaultQuery(keywords, textFields)] : [];
+
     const searchQuery: QueryDslQueryContainer = {
       bool: {
-        must,
+        must: [...must, ...keywordQueries],
         must_not,
-        should,
+        should: [],
       },
     };
 

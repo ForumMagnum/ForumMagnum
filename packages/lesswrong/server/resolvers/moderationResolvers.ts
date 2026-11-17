@@ -24,6 +24,7 @@ import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schema
 import { approveUnreviewedSubmissions } from '../callbacks/userCallbackFunctions';
 import { createAutomatedContentEvaluation, getPangramEvaluationForText, rerunLlmCheck } from '../collections/automatedContentEvaluations/helpers';
 import type { PangramModel } from '../../lib/collections/automatedContentEvaluations/constants';
+import { sanitize } from '@/lib/utils/sanitize';
 
 const MODERATION_TEMPLATE_USAGE_WINDOW_DAYS = 90;
 
@@ -348,7 +349,10 @@ export const moderationGqlMutations = {
         contents: {
           originalContents: {
             type: "html",
-            data: modCommentHtml,
+            // An admin's html isn't sanitized when saved, but this is a
+            // template filled in with the post author's name, not html the
+            // admin wrote.
+            data: sanitize(modCommentHtml),
           }
         },
         moderatorHat: true,

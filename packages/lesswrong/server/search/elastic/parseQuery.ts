@@ -12,8 +12,12 @@ export type QueryParserResult = {
 
 const pattern = /(\w+:|-)?("[^"]*"|'[^']*'|[^\s]+)/g;
 
-const normalizeQuery = (query: string): string =>
-  query.trim().replace(/[\u201c\u201d\u201e]/g, '"').replace(/[\u2010\u2011\u2012\u2013\u2014]/g, "-");
+const userPrefixes = new Set(["user:", "from:", "author:"]);
+
+const normalizeQuery = (query: string): string => query.trim()
+  .replace(/[\u201c\u201d\u201e]/g, '"')
+  .replace(/[\u2018\u2019]/g, "'")
+  .replace(/[\u2010\u2011\u2012\u2013\u2014]/g, "-");
 
 export const parseQuery = (query: string): QueryParserResult => {
   query = normalizeQuery(query);
@@ -39,7 +43,7 @@ export const parseQuery = (query: string): QueryParserResult => {
     if (prefix === '-') {
       type = "not";
       isAdvanced = true;
-    } else if (prefix === "user:") {
+    } else if (prefix && userPrefixes.has(prefix)) {
       type = "user";
       isAdvanced = true;
     } else if (prefix === "wikitag:" || prefix === "tag:") {

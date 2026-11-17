@@ -123,7 +123,7 @@ async function ensureNodeInstalled(sandbox: Sandbox): Promise<boolean> {
  * launch path reconciles their install to the pin — but fresh provisions
  * shouldn't pay that upgrade cost, so keep the baselines current.)
  *
- * Requires Vercel auth in env (via `npm run repl` / `.env.local`: `VERCEL_OIDC_TOKEN`
+ * Requires Vercel auth in env (via `npm run repl` / `.env`: `VERCEL_OIDC_TOKEN`
  * from `vercel env pull`, or `VERCEL_TOKEN` + `VERCEL_TEAM_ID` + `VERCEL_PROJECT_ID`).
  */
 export async function buildResearchSandboxSnapshot(args: BuildResearchSandboxSnapshotArgs = {}): Promise<void> {

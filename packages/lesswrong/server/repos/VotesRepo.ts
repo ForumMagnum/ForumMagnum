@@ -571,6 +571,17 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     `, [userId, postId, excludedDocumentId]);
   }
 
+  /**
+   * Makes the current transaction wait until no other transaction is changing
+   * the votes on this document, and makes later ones wait for it in turn.
+   */
+  async lockVotesOnDocument(documentId: string): Promise<void> {
+    await this.getRawDb().one(`
+      -- VotesRepo.lockVotesOnDocument
+      SELECT pg_advisory_xact_lock(hashtextextended($1, 0))
+    `, [documentId]);
+  }
+
   async getNetKarmaChangesForAuthorsOverPeriod(days: number, limit: number): Promise<Array<{ userId: string; netKarma: number }>> {
     return this.getRawDb().any(`
       -- VotesRepo.getNetKarmaChangesForAuthorsOverPeriod

@@ -1,4 +1,4 @@
-import { calculateVotePower, getVoteAxisStrength } from './voteTypes';
+import { calculateVotePower, getVoteAxisStrength, parseExtendedVote, voteTypeSchema } from './voteTypes';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
 import { defineVotingSystem } from './defineVotingSystem';
@@ -10,6 +10,18 @@ import some from 'lodash/some';
 import sumBy from 'lodash/sumBy'
 import type { VotingProps } from '../../components/votes/votingProps';
 import { addReactsVote, getDocumentHighlights, removeReactsVote } from './reactionDisplayHelpers';
+import { z } from 'zod';
+
+export const reactsVoteSchema = z.array(z.object({
+  react: z.string().refine(reactName => Object.hasOwn(namesAttachedReactionsByName, reactName), "Unrecognized reaction"),
+  vote: z.enum(["created", "seconded", "disagreed"]),
+  quotes: z.array(z.string()).optional(),
+}));
+
+const namesAttachedReactionsVoteSchema = z.object({
+  agreement: voteTypeSchema.optional(),
+  reacts: reactsVoteSchema.optional(),
+});
 
 export const namesAttachedReactionsVotingSystem = defineVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   name: "namesAttachedReactions",
@@ -82,6 +94,8 @@ export const namesAttachedReactionsVotingSystem = defineVotingSystem<NamesAttach
       reacts: mergedReacts,
     };
   },
+
+  validateExtendedVote: (extendedVote: unknown) => parseExtendedVote(namesAttachedReactionsVoteSchema, extendedVote),
 
   isAllowedExtendedVote: ({ user, document, oldExtendedScore, extendedVote, skipRateLimits }: {
     user: UsersCurrent|DbUser,
@@ -177,13 +191,6 @@ export function isVoteWithReactsAllowed({user, document, oldExtendedScore, exten
     return {allowed: false, reason: "Duplicate reaction detected"};
   }*/
 
-  // All reactions used should be reactions that exist
-  for (let reaction of extendedVote.reacts) {
-    if (!(reaction.react in namesAttachedReactionsByName)) {
-      return {allowed: false, reason: `Unrecognized reaction: ${reaction.react}`};
-    }
-  }
-  
   return {allowed: true};
 }
 

@@ -16,6 +16,7 @@ import { createLWEvent } from '../collections/lwevents/mutations';
 import { appendToSunshineNotes } from '../users/sunshineNotes';
 import { checkIfNewMessageIsEmpty } from '../callbacks/messageCallbacks';
 import { getAdminTeamAccountId } from '../utils/adminTeamAccount';
+import { sanitize } from '@/lib/utils/sanitize';
 
 const REJECTED_ALONGSIDE_REASON = '<p>This content was rejected alongside another submission. Please see the rejection message for that submission for the explanation.</p>';
 const SEE_MODERATOR_MESSAGE_REASON = '<p>Look for a separate message from a moderator explaining why your content was rejected.</p>';
@@ -42,6 +43,19 @@ export interface UserModerationOptions {
   rateLimits: CreateUserRateLimitDataInput[];
   rejectAll: boolean;
   removeFromQueue: boolean;
+}
+
+/**
+ * A moderator who is an admin has their html saved unsanitized, but a moderator
+ * message is usually a template filled in with the recipient's name rather
+ * than html the moderator wrote.
+ */
+function sanitizeMessageContents(contents: CreateRevisionDataInput): CreateRevisionDataInput {
+  const { originalContents } = contents;
+  if (originalContents.type !== 'html') {
+    return contents;
+  }
+  return { ...contents, originalContents: { ...originalContents, data: sanitize(originalContents.data) } };
 }
 
 /** Stable IDs make retries of a partially completed operation reuse its creations. */
@@ -126,7 +140,13 @@ export async function completeUserModeration(options: UserModerationOptions, con
       const data = { _id: conversationId, participantIds: [user._id, teamAccountId], title: 'Content rejected and permissions restricted', moderator: true };
       await createConversation({ data }, context);
     }
-    const messageData = { ...options.message, conversationId, userId: currentUser._id, _id: moderationDocumentId(options, currentUser._id, 'message') };
+    const messageData = {
+      ...options.message,
+      contents: sanitizeMessageContents(options.message.contents),
+      conversationId,
+      userId: currentUser._id,
+      _id: moderationDocumentId(options, currentUser._id, 'message'),
+    };
     message = await Messages.findOne(messageData._id) ?? await createMessage({ data: messageData }, context);
   }
 
