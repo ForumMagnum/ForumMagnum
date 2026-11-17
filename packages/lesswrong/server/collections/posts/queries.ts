@@ -105,7 +105,6 @@ export const graphqlPostQueryTypeDefs = gql`
     meta: Boolean
     forum: Boolean
     limit: Int
-    algoActivityFactor: Float
   }
   
   input PostsTopInput {

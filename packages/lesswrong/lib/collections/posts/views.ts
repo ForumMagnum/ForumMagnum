@@ -3,7 +3,7 @@ import { timeSeriesIndexExpr, TimeSeries } from './karmaInflation';
 import { getKarmaInflationSeries } from '@/server/karmaInflation/cache';
 import { classifyTagFilters, filterModeToAdditiveKarmaModifier, filterModeToMultiplicativeKarmaModifier, type FilterSettings } from '../../filterSettings';
 import { adminAccountSetting, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
-import { getFrontpageTimeDecayParams, getStandardTimeDecayParams, postScoreModifiers, timeDecayExpr, type ScoreTerm, type TimeDecayParams } from '../../scoring';
+import { getFrontpageTimeDecayParams, getStandardTimeDecayParams, postKarmaTerms, postScoreModifiers, resolveFrontpageScoring, timeDecayExpr, type FrontpageScoringOverrides, type ScoreTerm, type TimeDecayParams } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, reviewExcludedPostIds, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
@@ -71,17 +71,10 @@ declare global {
     includeShared?: boolean,
     distance?: number,
     audioOnly?: boolean,
-    // BEGIN overrides for parameters in the frontpageTimeDecayExpr
-    algoStartingAgeHours?: number
-    algoDecayFactorSlowest?: number
-    algoDecayFactorFastest?: number
-    /** Will be used in favour of activityHalfLifeHours and activityWeight if provided */
-    algoActivityFactor?: number
-    algoActivityHalfLifeHours?: number
-    algoActivityWeight?: number
+    /** Overrides for the parameters of the filteredScore that the "magic" sorting uses */
+    scoringOverrides?: FrontpageScoringOverrides,
     requiredUnnominated?: boolean,
     requiredFrontpage?: boolean,
-    // END
   }
   type PostSortingMode = UnionOf<typeof POST_SORTING_MODES>;
   type PostSortingModeWithRelevanceOption = PostSortingMode|"relevance"
@@ -321,10 +314,11 @@ export function getFilteredScoreFormula(filterSettings: FilterSettings, terms: P
   const { softFiltered: tagsSoftFiltered } = classifyTagFilters(filterSettings.tags ?? [], context.forumType);
   const { softFilter: frontpageSoftFilter } = getFrontpageFilter(filterSettings);
   const useSlowerFrontpage = visitorGetsDynamicFrontpage(context.currentUser, context.forumType);
+  const scoring = resolveFrontpageScoring(terms.scoringOverrides ?? {});
 
   return {
     additiveTerms: [
-      { label: "Karma", expr: "$baseScore" },
+      ...postKarmaTerms(scoring),
       ...tagsSoftFiltered.map(t => ({
         label: `Tag: ${t.tagName}`,
         expr: {$cond: {
@@ -333,7 +327,7 @@ export function getFilteredScoreFormula(filterSettings: FilterSettings, terms: P
           else: 0
         }},
       })),
-      ...postScoreModifiers(),
+      ...postScoreModifiers(scoring),
       ...frontpageSoftFilter,
     ],
     multiplicativeTerms: tagsSoftFiltered.map(t => ({
@@ -344,14 +338,9 @@ export function getFilteredScoreFormula(filterSettings: FilterSettings, terms: P
         else: 1
       }},
     })),
-    timeDecay: useSlowerFrontpage ? getFrontpageTimeDecayParams({
-      startingAgeHours: terms.algoStartingAgeHours,
-      decayFactorSlowest: terms.algoDecayFactorSlowest,
-      decayFactorFastest: terms.algoDecayFactorFastest,
-      activityHalfLifeHours: terms.algoActivityHalfLifeHours,
-      activityWeight: terms.algoActivityWeight,
-      overrideActivityFactor: terms.algoActivityFactor,
-    }, visitorActivity) : getStandardTimeDecayParams(context.forumType),
+    timeDecay: useSlowerFrontpage
+      ? getFrontpageTimeDecayParams(scoring, visitorActivity)
+      : getStandardTimeDecayParams(context.forumType),
   };
 }
 

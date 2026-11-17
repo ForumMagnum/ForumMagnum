@@ -1682,7 +1682,7 @@ const _1662=_o3(_3,"dialogueId")
 const _1663=_o4(_603,_1662)
 const _1664=_o4(_603,_o3(_3,"unreadCount"))
 const _1665=_o3(_3,"FrontpagePostScoreBreakdown")
-const _1666=_o3(_3,"activityFactorOverride")
+const _1666=_o3(_3,"scoringOverrides")
 const _1667=_o4(_603,_1666)
 const _1668=_o5(_7,[_386,_o4(_8,_o3(_3,"value"))])
 const _1669=[_1144,_1325]
@@ -8574,7 +8574,6 @@ export type PostsLegacyIdPostInput = {
 export type PostsMagicInput = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   after?: InputMaybe<Scalars['String']['input']>;
-  algoActivityFactor?: InputMaybe<Scalars['Float']['input']>;
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   curatedAfter?: InputMaybe<Scalars['String']['input']>;
@@ -9929,9 +9928,9 @@ export type QueryEmailPreviewArgs = {
 
 
 export type QueryFrontpagePostScoreBreakdownArgs = {
-  activityFactorOverride?: InputMaybe<Scalars['Float']['input']>;
   filterSettings: Scalars['JSON']['input'];
   postId: Scalars['String']['input'];
+  scoringOverrides?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 
@@ -18080,7 +18079,7 @@ export type PostsItemWrapperQuery = { __typename?: 'Query', post: { __typename?:
 export type FrontpagePostScoreBreakdownQueryVariables = Exact<{
   postId: Scalars['String']['input'];
   filterSettings: Scalars['JSON']['input'];
-  activityFactorOverride?: InputMaybe<Scalars['Float']['input']>;
+  scoringOverrides?: InputMaybe<Scalars['JSON']['input']>;
 }>;
 
 
@@ -24302,7 +24301,7 @@ export const PostsHighlightDocument = _o1(_1,[_o11(_1039,_473,_o3(_3,"PostsHighl
 export const multiCommentPostsItemNewCommentsListQueryDocument = _o1(_1,[_o11(_1039,_473,_o3(_3,"multiCommentPostsItemNewCommentsListQuery"),_1185,_1337),_155,_62,_181]) as unknown as DocumentNode<multiCommentPostsItemNewCommentsListQueryQuery, multiCommentPostsItemNewCommentsListQueryQueryVariables>;
 export const LatestDialogueMessagesDocument = _o1(_1,[_o11(_1039,_473,_o3(_3,"LatestDialogueMessages"),[_o12(_1041,_1663,_1045),_o12(_1041,_1664,_1170)],_o5(_7,[_o10(_8,_o3(_3,"latestDialogueMessages"),[_o8(_602,_1662,_1663),_o8(_602,_o3(_3,"numMessages"),_1664)])]))]) as unknown as DocumentNode<LatestDialogueMessagesQuery, LatestDialogueMessagesQueryVariables>;
 export const PostsItemWrapperDocument = _o1(_1,[_o11(_1039,_473,_o3(_3,"PostsItemWrapper"),_1279,_1524),_23,_136,_62,_145,_155,_181,_189,_195]) as unknown as DocumentNode<PostsItemWrapperQuery, PostsItemWrapperQueryVariables>;
-export const FrontpagePostScoreBreakdownDocument = _o1(_1,[_o11(_1039,_473,_1665,[_1266,_o12(_1041,_1394,_1644),_o12(_1041,_1667,_1067)],_o5(_7,[_o7(_8,_1665,[_904,_1396,_o8(_602,_1666,_1667)],_o5(_7,[_o4(_8,_o3(_3,"filteredScore")),_o6(_8,_o3(_3,"additiveTerms"),_1668),_o6(_8,_o3(_3,"multiplicativeTerms"),_1668),_o4(_8,_o3(_3,"ageHours")),_o4(_8,_o3(_3,"ageOffsetHours")),_o4(_8,_o3(_3,"decayExponent")),_o4(_8,_o3(_3,"decayDivisor")),_o4(_8,_o3(_3,"activityFactor"))]))]))]) as unknown as DocumentNode<FrontpagePostScoreBreakdownQuery, FrontpagePostScoreBreakdownQueryVariables>;
+export const FrontpagePostScoreBreakdownDocument = _o1(_1,[_o11(_1039,_473,_1665,[_1266,_o12(_1041,_1394,_1644),_o12(_1041,_1667,_1381)],_o5(_7,[_o7(_8,_1665,[_904,_1396,_o8(_602,_1666,_1667)],_o5(_7,[_o4(_8,_o3(_3,"filteredScore")),_o6(_8,_o3(_3,"additiveTerms"),_1668),_o6(_8,_o3(_3,"multiplicativeTerms"),_1668),_o4(_8,_o3(_3,"ageHours")),_o4(_8,_o3(_3,"ageOffsetHours")),_o4(_8,_o3(_3,"decayExponent")),_o4(_8,_o3(_3,"decayDivisor")),_o4(_8,_o3(_3,"activityFactor"))]))]))]) as unknown as DocumentNode<FrontpagePostScoreBreakdownQuery, FrontpagePostScoreBreakdownQueryVariables>;
 export const createPostPostsNewFormDocument = _o1(_1,[_o11(_1039,_1040,_o3(_3,"createPostPostsNewForm"),_1651,_1653),_23,_136,_62,_145,_155,_181,_189,_402,_570,_195,_200,_204,_577,_231,_276,_661]) as unknown as DocumentNode<createPostPostsNewFormMutation, createPostPostsNewFormMutationVariables>;
 export const PostsNewForm4Document = _o1(_1,[_o11(_1039,_473,_o3(_3,"PostsNewForm4"),_1279,_1595),_62,_231,_958,_988,_276,_997]) as unknown as DocumentNode<PostsNewForm4Query, PostsNewForm4QueryVariables>;
 export const PostsNewForm3Document = _o1(_1,[_o11(_1039,_473,_o3(_3,"PostsNewForm3"),_1279,_o5(_7,[_o7(_8,_207,_1059,_o5(_7,[_o6(_8,_1060,_1654)]))])),_23,_136,_62,_145,_155,_181,_189,_402,_570,_195,_200,_204,_577,_231,_276,_661,_667]) as unknown as DocumentNode<PostsNewForm3Query, PostsNewForm3QueryVariables>;

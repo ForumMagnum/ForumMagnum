@@ -9,8 +9,8 @@ import { visitorScenarioOptions, type PostsListDebugSettings } from './postsList
 import type { PostsItemConfig } from './usePostsItem';
 
 const FrontpagePostScoreBreakdownQuery = gql(`
-  query FrontpagePostScoreBreakdown($postId: String!, $filterSettings: JSON!, $activityFactorOverride: Float) {
-    FrontpagePostScoreBreakdown(postId: $postId, filterSettings: $filterSettings, activityFactorOverride: $activityFactorOverride) {
+  query FrontpagePostScoreBreakdown($postId: String!, $filterSettings: JSON!, $scoringOverrides: JSON) {
+    FrontpagePostScoreBreakdown(postId: $postId, filterSettings: $filterSettings, scoringOverrides: $scoringOverrides) {
       filteredScore
       additiveTerms {
         label
@@ -164,7 +164,7 @@ const PostsListDebugScore = ({ item, settings }: {
     variables: {
       postId: item.post._id,
       filterSettings: settings.filterSettings,
-      activityFactorOverride: settings.activityFactorOverride,
+      scoringOverrides: settings.scoringOverrides,
     },
   });
   const breakdown = data?.FrontpagePostScoreBreakdown;

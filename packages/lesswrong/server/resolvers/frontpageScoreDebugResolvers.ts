@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 import keyBy from "lodash/keyBy";
 import type { FilterSettings } from "@/lib/filterSettings";
 import { filteredScoreExpr, getFilteredScoreFormula, getRequestVisitorActivity, type FilteredScoreFormula } from "@/lib/collections/posts/views";
-import { postAgeInHoursExpr, timeDecayExpr } from "@/lib/scoring";
+import { postAgeInHoursExpr, timeDecayExpr, type FrontpageScoringOverrides } from "@/lib/scoring";
 import { getWithCustomLoader } from "@/lib/loaders";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
@@ -22,7 +22,7 @@ export const frontpageScoreDebugGraphQLTypeDefs = gql`
     activityFactor: Float
   }
   extend type Query {
-    FrontpagePostScoreBreakdown(postId: String!, filterSettings: JSON!, activityFactorOverride: Float): FrontpagePostScoreBreakdown
+    FrontpagePostScoreBreakdown(postId: String!, filterSettings: JSON!, scoringOverrides: JSON): FrontpagePostScoreBreakdown
   }
 `;
 
@@ -83,13 +83,13 @@ function rowToScoreBreakdown(row: ScoreBreakdownRow, formula: FilteredScoreFormu
 async function getScoreBreakdowns(
   postIds: readonly string[],
   filterSettings: FilterSettings,
-  activityFactorOverride: number|null,
+  scoringOverrides: FrontpageScoringOverrides|null,
   context: ResolverContext,
 ): Promise<(FrontpagePostScoreBreakdown|null)[]> {
   const visitorActivity = await getRequestVisitorActivity(context);
   const formula = getFilteredScoreFormula(
     filterSettings,
-    { view: "magic", algoActivityFactor: activityFactorOverride ?? undefined },
+    { view: "magic", scoringOverrides: scoringOverrides ?? undefined },
     visitorActivity,
     context,
   );
@@ -111,12 +111,12 @@ async function getScoreBreakdowns(
 export const frontpageScoreDebugGraphQLQueries = {
   async FrontpagePostScoreBreakdown(
     _root: void,
-    { postId, filterSettings, activityFactorOverride }: { postId: string, filterSettings: FilterSettings, activityFactorOverride: number|null },
+    { postId, filterSettings, scoringOverrides }: { postId: string, filterSettings: FilterSettings, scoringOverrides: FrontpageScoringOverrides|null },
     context: ResolverContext,
   ): Promise<FrontpagePostScoreBreakdown|null> {
-    const loaderName = `FrontpagePostScoreBreakdown:${JSON.stringify([filterSettings, activityFactorOverride])}`;
+    const loaderName = `FrontpagePostScoreBreakdown:${JSON.stringify([filterSettings, scoringOverrides])}`;
     return await getWithCustomLoader(context, loaderName, postId,
-      (postIds: readonly string[]) => getScoreBreakdowns(postIds, filterSettings, activityFactorOverride, context)
+      (postIds: readonly string[]) => getScoreBreakdowns(postIds, filterSettings, scoringOverrides, context)
     );
   },
 };
