@@ -5,8 +5,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "start:local": "tsc && DATABASE_URL=${DATABASE_URL:-postgres://robert@localhost:5432/lesswrong} node --env-file=../../.env.local dist/index.js",
-    "start:dev": "tsc && DATABASE_URL=$(grep -E '^PG_URL=' ../../.env.local | sed -E 's/^PG_URL=//; s/^\"//; s/\"$//') node --env-file=../../.env.local dist/index.js",
+    "start:local": "tsc && DATABASE_URL=${DATABASE_URL:-postgres://robert@localhost:5432/lesswrong} node --env-file=../../.env --env-file-if-exists=../../.env.local dist/index.js",
+    "start:dev": "tsc && DATABASE_URL=$(cat ../../.env ../../.env.local 2>/dev/null | grep -E '^PG_URL=' | tail -n 1 | sed -E 's/^PG_URL=//; s/^\"//; s/\"$//') node --env-file=../../.env --env-file-if-exists=../../.env.local dist/index.js",
     "deploy": "fly deploy --config fly.toml",
     "deploy:dev": "fly deploy --config fly.dev.toml"
   },
