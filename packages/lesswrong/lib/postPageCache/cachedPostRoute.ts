@@ -3,7 +3,6 @@ import type { ParamMap } from '../../../../.next/types/routes';
 import { matchPath } from '../vendor/react-router/matchPath';
 import { routePatternToReactRouterPath } from '../routeChecks/routePatternFormat';
 import { STATUS_CODE_LOOPBACK_HEADER } from '../routeChecks/statusCodeLoopback';
-import { isSlackLinkExpander } from '../utils/linkPreviewUserAgents';
 
 // Imported by middleware.ts; keep free of heavy or node-only dependencies.
 
@@ -21,6 +20,10 @@ const HTML_CACHE_ALLOWED_COOKIES: ReadonlySet<string> = new Set([
   '_vercel_jwt',
   '_vercel_sso_nonce',
 ]);
+
+export function isSlackLinkExpander(userAgent: string | null): boolean {
+  return !!userAgent?.startsWith("Slackbot-LinkExpanding");
+}
 
 interface ParsedPostPagePath {
   postId: string

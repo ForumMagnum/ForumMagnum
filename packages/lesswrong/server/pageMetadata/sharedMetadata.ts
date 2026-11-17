@@ -2,7 +2,7 @@ import { getForumTypeForPage } from '@/server/utils/pageUtil';
 import { gql } from '@/lib/generated/gql-codegen';
 import { noIndexSetting, tabLongTitleSetting, tabTitleSetting, taglineSetting, siteImageSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
-import { isSlackLinkExpander } from '@/lib/utils/linkPreviewUserAgents';
+import { isSlackLinkExpander } from '@/lib/postPageCache/cachedPostRoute';
 import { getPageTitleString } from '@/lib/pageTitle';
 import { CombinedGraphQLErrors } from '@apollo/client';
 import { captureException } from '@/lib/sentryWrapper';
