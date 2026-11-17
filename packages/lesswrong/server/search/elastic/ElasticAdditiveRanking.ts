@@ -11,6 +11,7 @@ import { searchSort } from "./ElasticSearchSort";
 import { parseQuery } from "./parseQuery";
 import type { SearchQueryData } from "./searchQueryTypes";
 import type { PersonConfidence, PersonSearch } from "./ElasticPersonSearch";
+import groupBy from "lodash/groupBy";
 
 interface RankingPivots {
   [index: string]: number;
@@ -213,9 +214,12 @@ interface RelationshipBranch {
 }
 
 function relationshipBranches(index: string, person: PersonSearch): RelationshipBranch[] {
-  if (person.candidates) return person.candidates.flatMap(candidate => relationshipBranches(index, {
-    userIds: [candidate.userId], topic: person.topic, confidence: candidate.confidence,
-  }));
+  if (person.candidates) {
+    const candidatesByConfidence = groupBy(person.candidates, candidate => candidate.confidence);
+    return Object.values(candidatesByConfidence).flatMap(candidates => relationshipBranches(index, {
+      userIds: candidates.map(candidate => candidate.userId), topic: person.topic, confidence: candidates[0].confidence,
+    }));
+  }
   const {profile, authored, authoredComment, minorShare, minorProfileKarma} = rankingWeights.relationship;
   const branches: RelationshipBranch[] = [];
   if (index === "users" && !person.topic) {
