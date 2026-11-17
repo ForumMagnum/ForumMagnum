@@ -65,30 +65,3 @@ export function getCacheablePostPagePath(request: NextRequest): ParsedPostPagePa
   if (request.cookies.getAll().some((cookie) => !HTML_CACHE_ALLOWED_COOKIES.has(cookie.name))) return null;
   return parsedPath;
 }
-
-type NormalizedAcceptEncoding = 'gzip' | 'identity';
-
-// The CDN varies on Accept-Encoding; collapsing it to the two encodings the
-// cached post route handler emits keeps it to two entries per page.
-export function normalizeAcceptEncoding(header: string | null): NormalizedAcceptEncoding {
-  if (!header) return 'identity';
-  let gzipQ: number | null = null;
-  let wildcardQ: number | null = null;
-  for (const rawPart of header.split(',')) {
-    const [codingPart, ...params] = rawPart.trim().split(';');
-    const coding = codingPart.trim().toLowerCase();
-    if (!coding) continue;
-    let q = 1;
-    for (const param of params) {
-      const [name, value] = param.trim().split('=');
-      if (name?.trim().toLowerCase() === 'q') {
-        const parsed = Number.parseFloat(value ?? '');
-        q = Number.isFinite(parsed) ? parsed : 0;
-      }
-    }
-    if (coding === 'gzip' || coding === 'x-gzip') gzipQ = q;
-    else if (coding === '*') wildcardQ = q;
-  }
-  const effectiveQ = gzipQ ?? wildcardQ ?? 0;
-  return effectiveQ > 0 ? 'gzip' : 'identity';
-}
