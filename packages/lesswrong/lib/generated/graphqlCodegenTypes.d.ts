@@ -342,6 +342,7 @@ type Bookmark = {
 };
 
 type BookmarkSelector = {
+  myBookmarkedComments?: InputMaybe<EmptyViewInput>;
   myBookmarkedPosts?: InputMaybe<EmptyViewInput>;
   myBookmarks?: InputMaybe<EmptyViewInput>;
   userDocumentBookmark?: InputMaybe<BookmarksUserDocumentBookmarkInput>;
@@ -2478,6 +2479,24 @@ type FrontpageClassification = {
   __typename?: 'FrontpageClassification';
   isFrontpage: Scalars['Boolean']['output'];
   probability: Scalars['Float']['output'];
+};
+
+type FrontpagePostScoreBreakdown = {
+  __typename?: 'FrontpagePostScoreBreakdown';
+  activityFactor?: Maybe<Scalars['Float']['output']>;
+  additiveTerms: Array<FrontpageScoreTerm>;
+  ageHours: Scalars['Float']['output'];
+  ageOffsetHours: Scalars['Float']['output'];
+  decayDivisor: Scalars['Float']['output'];
+  decayExponent: Scalars['Float']['output'];
+  filteredScore: Scalars['Float']['output'];
+  multiplicativeTerms: Array<FrontpageScoreTerm>;
+};
+
+type FrontpageScoreTerm = {
+  __typename?: 'FrontpageScoreTerm';
+  label: Scalars['String']['output'];
+  value: Scalars['Float']['output'];
 };
 
 type GivingSeasonHeart = {
@@ -6481,6 +6500,7 @@ type PostsLegacyIdPostInput = {
 type PostsMagicInput = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   after?: InputMaybe<Scalars['String']['input']>;
+  algoActivityFactor?: InputMaybe<Scalars['Float']['input']>;
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   curatedAfter?: InputMaybe<Scalars['String']['input']>;
@@ -7549,6 +7569,7 @@ type Query = {
   CurationCandidatePosts?: Maybe<CurationCandidatePostsResult>;
   ElicitBlockData?: Maybe<ElicitBlockData>;
   EmailPreview?: Maybe<Array<Maybe<EmailPreview>>>;
+  FrontpagePostScoreBreakdown?: Maybe<FrontpagePostScoreBreakdown>;
   GetAllReviewWinners: Array<Post>;
   GetRandomUser?: Maybe<User>;
   GetUserBySlug?: Maybe<User>;
@@ -7830,6 +7851,13 @@ type QueryElicitBlockDataArgs = {
 type QueryEmailPreviewArgs = {
   notificationIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   postId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type QueryFrontpagePostScoreBreakdownArgs = {
+  activityFactorOverride?: InputMaybe<Scalars['Float']['input']>;
+  filterSettings: Scalars['JSON']['input'];
+  postId: Scalars['String']['input'];
 };
 
 
@@ -13887,6 +13915,25 @@ type PostsAnalyticsPageQueryVariables = Exact<{
 
 type PostsAnalyticsPageQuery = PostsAnalyticsPageQuery_Query;
 
+type multiBookmarkBookmarkedCommentsListQueryQuery_bookmarks_MultiBookmarkOutput_results_Bookmark = (
+  { __typename?: 'Bookmark' }
+  & BookmarksWithCommentFragment
+);
+
+type multiBookmarkBookmarkedCommentsListQueryQuery_bookmarks_MultiBookmarkOutput = { __typename?: 'MultiBookmarkOutput', totalCount: number | null, results: Array<multiBookmarkBookmarkedCommentsListQueryQuery_bookmarks_MultiBookmarkOutput_results_Bookmark> };
+
+type multiBookmarkBookmarkedCommentsListQueryQuery_Query = { __typename?: 'Query', bookmarks: multiBookmarkBookmarkedCommentsListQueryQuery_bookmarks_MultiBookmarkOutput | null };
+
+
+type multiBookmarkBookmarkedCommentsListQueryQueryVariables = Exact<{
+  selector: InputMaybe<BookmarkSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiBookmarkBookmarkedCommentsListQueryQuery = multiBookmarkBookmarkedCommentsListQueryQuery_Query;
+
 type multiBookmarkBookmarksFeedQueryQuery_bookmarks_MultiBookmarkOutput_results_Bookmark = (
   { __typename?: 'Bookmark' }
   & BookmarksFeedItemFragment
@@ -18098,6 +18145,24 @@ type PostsItemWrapperQueryVariables = Exact<{
 
 
 type PostsItemWrapperQuery = PostsItemWrapperQuery_Query;
+
+type FrontpagePostScoreBreakdownQuery_FrontpagePostScoreBreakdown_FrontpagePostScoreBreakdown_additiveTerms_FrontpageScoreTerm = { __typename?: 'FrontpageScoreTerm', label: string, value: number };
+
+type FrontpagePostScoreBreakdownQuery_FrontpagePostScoreBreakdown_FrontpagePostScoreBreakdown_multiplicativeTerms_FrontpageScoreTerm = { __typename?: 'FrontpageScoreTerm', label: string, value: number };
+
+type FrontpagePostScoreBreakdownQuery_FrontpagePostScoreBreakdown_FrontpagePostScoreBreakdown = { __typename?: 'FrontpagePostScoreBreakdown', filteredScore: number, ageHours: number, ageOffsetHours: number, decayExponent: number, decayDivisor: number, activityFactor: number | null, additiveTerms: Array<FrontpagePostScoreBreakdownQuery_FrontpagePostScoreBreakdown_FrontpagePostScoreBreakdown_additiveTerms_FrontpageScoreTerm>, multiplicativeTerms: Array<FrontpagePostScoreBreakdownQuery_FrontpagePostScoreBreakdown_FrontpagePostScoreBreakdown_multiplicativeTerms_FrontpageScoreTerm> };
+
+type FrontpagePostScoreBreakdownQuery_Query = { __typename?: 'Query', FrontpagePostScoreBreakdown: FrontpagePostScoreBreakdownQuery_FrontpagePostScoreBreakdown_FrontpagePostScoreBreakdown | null };
+
+
+type FrontpagePostScoreBreakdownQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  filterSettings: Scalars['JSON']['input'];
+  activityFactorOverride: InputMaybe<Scalars['Float']['input']>;
+}>;
+
+
+type FrontpagePostScoreBreakdownQuery = FrontpagePostScoreBreakdownQuery_Query;
 
 type createPostPostsNewFormMutation_createPost_PostOutput_data_Post = (
   { __typename?: 'Post' }
@@ -24753,6 +24818,16 @@ type BookmarksWithDocumentFragment_Bookmark_post_Post = (
 
 type BookmarksWithDocumentFragment = (
   { __typename?: 'Bookmark', post: BookmarksWithDocumentFragment_Bookmark_post_Post | null }
+  & BookmarksMinimumInfoFragment
+);
+
+type BookmarksWithCommentFragment_Bookmark_comment_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type BookmarksWithCommentFragment = (
+  { __typename?: 'Bookmark', comment: BookmarksWithCommentFragment_Bookmark_comment_Comment | null }
   & BookmarksMinimumInfoFragment
 );
 

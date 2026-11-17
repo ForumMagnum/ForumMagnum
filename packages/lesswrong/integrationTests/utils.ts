@@ -125,6 +125,10 @@ const isPermissionsFlavoredError = (error: any): boolean => {
     return true;
   }
 
+  if (error.extensions?.code === "FORBIDDEN") {
+    return true;
+  }
+
   if (!error.message)
     return false;
   if (isPermissionsFlavoredErrorString(error.message))
@@ -145,9 +149,6 @@ const isPermissionsFlavoredError = (error: any): boolean => {
 };
 
 const isPermissionsFlavoredErrorString = (str: any): boolean => {
-  if (typeof str === 'string' && str.toLowerCase().includes("blocked")) {
-    return true;
-  }
   switch (str)
   {
   case 'errors.disallowed_property_detected':

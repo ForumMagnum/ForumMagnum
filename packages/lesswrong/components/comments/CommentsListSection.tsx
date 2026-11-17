@@ -139,6 +139,7 @@ const CommentsListSection = ({
   // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
   const postAuthor = post?.user || null;
+  const commentingPermission = userIsAllowedToComment(currentUser, post ?? null, postAuthor, false);
 
   const userIsDebateParticipant =
     currentUser
@@ -161,7 +162,7 @@ const CommentsListSection = ({
       <div id="comments"/>
 
       {newForm
-        && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor, false))
+        && (!currentUser || !post || commentingPermission.canComment)
         && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
         && <div
           id="posts-thread-new-comment"
@@ -185,8 +186,8 @@ const CommentsListSection = ({
                 {...(userIsDebateParticipant ? { formProps: { post } } : {})}
               />
         </div>}
-      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor, false) &&
-        <CantCommentExplanation post={post}/>
+      {currentUser && post && !commentingPermission.canComment &&
+        <CantCommentExplanation reason={commentingPermission.reason}/>
       }
       {currentUser && post && <CommentsDraftList userId={currentUser._id} postId={post._id} initialLimit={1} showTotal silentIfEmpty />}
       {totalComments ? <CommentsListSectionTitle

@@ -166,7 +166,7 @@ const ALL_RECOMBEE_POST_FIELDS = [
 
 const helpers = {
   createRecommendationsForUserRequest(recombeeUser: RecombeeUser, count: number, lwAlgoSettings: RecombeeRecommendationArgs) {
-    const { userId: overrideUserId, rotationTime, lwRationalityOnly, onlyUnread, loadMore, ...settings } = lwAlgoSettings;
+    const { userId: overrideUserId, rotationTime, lwRationalityOnly, onlyUnread, loadMore, algoActivityFactor, ...settings } = lwAlgoSettings;
 
     if (loadMore?.prevRecommId) {
       return new requests.RecommendNextItems(loadMore.prevRecommId, count);
@@ -404,6 +404,7 @@ const helpers = {
       limit,
       offset: loadMoreCount ? loadMoreCount * fixedArmCount : undefined,
       excludedPostIds,
+      algoActivityFactor: hybridArgs.algoActivityFactor,
       filterSettings: context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings(context.forumType),
     }, context);
   },

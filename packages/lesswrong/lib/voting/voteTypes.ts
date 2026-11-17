@@ -1,3 +1,4 @@
+import { z } from "zod";
 
 export const calculateVotePower = (karma: number, voteType: string): number => {
   if (voteType === "smallUpvote") { return userSmallVotePower(karma, 1)}
@@ -34,6 +35,18 @@ export const userBigVotePower = (karma: number, multiplier: number) => {
 
 export const voteTypes: string[] = ["smallUpvote", "smallDownvote", "bigUpvote", "bigDownvote", "neutral"];
 export const isValidVoteType = (voteType: string) => voteTypes.includes(voteType);
+export const voteTypeSchema = z.string().refine(isValidVoteType, "Invalid vote type");
+
+export function parseExtendedVote<T>(schema: z.ZodType<T>, extendedVote: unknown): T | null {
+  if (extendedVote === null || extendedVote === undefined) {
+    return null;
+  }
+  const result = schema.safeParse(extendedVote);
+  if (!result.success) {
+    throw new Error(`Invalid vote: ${z.prettifyError(result.error)}`);
+  }
+  return result.data;
+}
 
 export function getVoteAxisStrength(vote: DbVote, usersById: Record<string, DbUser>, axis: string) {
   const voteType: string | undefined = vote.extendedVoteType?.[axis];

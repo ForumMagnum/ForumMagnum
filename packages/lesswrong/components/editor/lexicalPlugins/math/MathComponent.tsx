@@ -8,7 +8,7 @@ import { renderEquation } from "./loadMathJax";
 const styles = defineStyles('MathComponent', (theme: ThemeType) => ({
   preview: {
     userSelect: 'none',
-    minWidth: '1em',
+    minWidth: 8,
     minHeight: '1em',
     '& mjx-merror': {
       color: theme.palette.error.light,

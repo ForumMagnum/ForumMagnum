@@ -20,6 +20,8 @@ import { sleep } from "@/lib/utils/asyncUtils";
 import { getLatestRev } from "@/server/editor/utils";
 import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
+import Revisions from "@/server/collections/revisions/collection";
+import { isEmptyEditorMarkup } from "@/lib/editor/utils";
 import { getHocuspocusTokenForCollection } from "./getHocuspocusToken";
 import { captureAgentApiEvent } from "./captureAgentAnalytics";
 import { sanitize } from "@/lib/utils/sanitize";
@@ -381,6 +383,21 @@ export function createHeadlessEditor(errorLabel: string): LexicalEditor {
   });
 }
 
+async function isPostWithEmptySavedContents(collectionName: string, documentId: string): Promise<boolean> {
+  if (collectionName !== 'Posts') {
+    return false;
+  }
+  const latestRevision = await Revisions.findOne(
+    { documentId, fieldName: "contents" },
+    { sort: { editedAt: -1 } },
+    { html: 1 },
+  );
+  if (!latestRevision) {
+    return true;
+  }
+  return latestRevision.html !== null && isEmptyEditorMarkup(latestRevision.html);
+}
+
 export async function withMainDocEditorSession<T>({
   collectionName,
   documentId,
@@ -487,16 +504,16 @@ export async function withMainDocEditorSession<T>({
     await waitForProviderSync(provider);
     await sleep(INITIAL_SYNC_SETTLE_MS);
 
-    // After sync, verify that the Lexical editor actually has content.
-    // A Lexical post should always have a non-empty Yjs document in
-    // Hocuspocus. If the root is empty after sync, something critical
-    // has gone wrong (e.g. missing YjsDocuments row, Hocuspocus data
-    // loss, or a race condition in the sync protocol).
+    // An empty root after sync means something critical has gone wrong (e.g.
+    // missing YjsDocuments row, Hocuspocus data loss, or a race condition in
+    // the sync protocol), unless the saved contents are empty too. Nothing
+    // adds a root node to a brand-new post draft until someone types in it,
+    // because the client's collab bootstrap skips empty initial HTML.
     let rootChildCount = 0;
     editor.getEditorState().read(() => {
       rootChildCount = $getRoot().getChildrenSize();
     });
-    if (rootChildCount === 0) {
+    if (rootChildCount === 0 && !await isPostWithEmptySavedContents(effectiveCollectionName, effectiveDocumentId)) {
       const err = new Error(
         `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for ${effectiveCollectionName} ${effectiveDocumentId}. ` +
         `This likely means the Yjs document state is missing or corrupt.`

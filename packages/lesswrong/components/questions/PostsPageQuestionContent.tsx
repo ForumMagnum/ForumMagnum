@@ -21,12 +21,12 @@ const PostsPageQuestionContent = ({post, answersTree, refetch}: {
   refetch: () => void,
 }) => {
   const currentUser = useCurrentUser();
-  const author = post.user;
+  const commentingPermission = userIsAllowedToComment(currentUser, post, post.user, false);
   return (
     <div>
-      {(!currentUser || userIsAllowedToComment(currentUser, post, author, false)) && !post.draft && <NewAnswerCommentQuestionForm post={post} />}
-      {currentUser && !userIsAllowedToComment(currentUser, post, author, false) &&
-        <CantCommentExplanation post={post}/>
+      {(!currentUser || commentingPermission.canComment) && !post.draft && <NewAnswerCommentQuestionForm post={post} />}
+      {currentUser && !commentingPermission.canComment &&
+        <CantCommentExplanation reason={commentingPermission.reason}/>
       }
       <AnswersList post={post} answersTree={answersTree} />
       {hasRelatedQuestionsFields(post) && <RelatedQuestionsList post={post} />}

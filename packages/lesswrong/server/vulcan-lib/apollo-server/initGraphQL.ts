@@ -23,6 +23,7 @@ import { elicitPredictionsGraphQLTypeDefs, elicitPredictionsGraphQLQueries, elic
 import { notificationResolversGqlTypeDefs, notificationResolversGqlQueries, notificationResolversGqlMutations } from '@/server/resolvers/notificationResolvers'
 import { lightcone2024FundraiserGraphQLTypeDefs, lightcone2024FundraiserGraphQLQueries } from '@/server/resolvers/lightcone2024FundraiserResolvers';
 import { llmModelGraphQLTypeDefs, llmModelGraphQLQueries } from '@/server/resolvers/llmModelResolvers';
+import { frontpageScoreDebugGraphQLTypeDefs, frontpageScoreDebugGraphQLQueries } from '@/server/resolvers/frontpageScoreDebugResolvers';
 import { petrovDay2024GraphQLQueries, petrovDay2024GraphQLTypeDefs } from '@/server/resolvers/petrovDay2024Resolvers';
 import { petrovDayLaunchGraphQLMutations, petrovDayLaunchGraphQLQueries, petrovDayLaunchGraphQLTypeDefs } from '@/server/resolvers/petrovDayResolvers';
 import { reviewVoteGraphQLMutations, reviewVoteGraphQLTypeDefs, reviewVoteGraphQLQueries } from '@/server/resolvers/reviewVoteResolvers';
@@ -274,6 +275,7 @@ export const getTypeDefs = () => gql`
   ${notificationResolversGqlTypeDefs}
   ${lightcone2024FundraiserGraphQLTypeDefs}
   ${llmModelGraphQLTypeDefs}
+  ${frontpageScoreDebugGraphQLTypeDefs}
   ${petrovDay2024GraphQLTypeDefs}
   ${petrovDayLaunchGraphQLTypeDefs}
   ${reviewVoteGraphQLTypeDefs}
@@ -479,6 +481,7 @@ const getResolvers = () => ({
     ...elicitPredictionsGraphQLQueries,
     ...lightcone2024FundraiserGraphQLQueries,
     ...llmModelGraphQLQueries,
+    ...frontpageScoreDebugGraphQLQueries,
     ...petrovDay2024GraphQLQueries,
     ...petrovDayLaunchGraphQLQueries,
     ...reviewVoteGraphQLQueries,

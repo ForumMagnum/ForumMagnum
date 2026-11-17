@@ -13,6 +13,7 @@ import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
 export interface ClassicFrontpagePostsSettings {
   filterSettings?: FilterSettings,
   excludedPostIds?: string[],
+  algoActivityFactor?: number,
 }
 
 interface LatestFrontpagePostsArgs {
@@ -20,6 +21,7 @@ interface LatestFrontpagePostsArgs {
   offset?: number,
   excludedPostIds: string[],
   filterSettings: FilterSettings,
+  algoActivityFactor?: number,
 }
 
 interface ClassicTopOfList {
@@ -36,7 +38,7 @@ const NO_TOP_OF_LIST: ClassicTopOfList = { postIds: [], curatedPostIds: [] };
 const getUserHiddenPostIds = (context: ResolverContext): string[] =>
   context.currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
 
-export async function getLatestFrontpagePosts({ limit, offset, excludedPostIds, filterSettings }: LatestFrontpagePostsArgs, context: ResolverContext): Promise<DbPost[]> {
+export async function getLatestFrontpagePosts({ limit, offset, excludedPostIds, filterSettings, algoActivityFactor }: LatestFrontpagePostsArgs, context: ResolverContext): Promise<DbPost[]> {
   const notPostIds = [...excludedPostIds, ...getUserHiddenPostIds(context)];
   const cutoffDate = new Date(Date.now() - (frontpageDaysAgoCutoffSetting.get(context) * DAY_IN_MS));
 
@@ -46,6 +48,7 @@ export async function getLatestFrontpagePosts({ limit, offset, excludedPostIds, 
     limit,
     filterSettings,
     after: cutoffDate.toISOString(),
+    algoActivityFactor,
     // Unfortunately, passing in an empty array translates to something like `NOT (_id IN (SELECT NULL::VARCHAR(27)))`, which filters out everything
     ...(notPostIds.length ? { notPostIds } : {}),
     ...(offset ? { offset } : {}),
@@ -108,6 +111,7 @@ export async function getClassicFrontpagePosts(limit: number, settings: ClassicF
       limit: continuesExistingList ? limit : limit + MAX_TOP_OF_LIST_POSTS,
       excludedPostIds,
       filterSettings,
+      algoActivityFactor: settings.algoActivityFactor,
     }, context),
   ]);
 

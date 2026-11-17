@@ -2,6 +2,7 @@ import Users from '../../server/collections/users/collection';
 import { Votes } from '../../server/collections/votes/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import { getCollection } from "../collections/allCollections";
+import { voteIsByAuthor } from '../callbacks/alignment-forum/callbacks';
 
 export const rerunAFVotes = async () => {
   await Users.rawUpdateMany({}, {$set:{afKarma:0}}, {multi:true})
@@ -18,7 +19,7 @@ export const rerunAFVotes = async () => {
     }
     const collection = getCollection(vote.collectionName as VoteableCollectionName);
     const document = await collection.findOne({_id: vote.documentId}) as DbVoteableType;
-    if (document.af) {
+    if (document.af && !voteIsByAuthor(vote, document)) {
       await Users.rawUpdateOne({_id:document.userId}, {$inc: {afKarma: vote.afPower}})
     }
   })
