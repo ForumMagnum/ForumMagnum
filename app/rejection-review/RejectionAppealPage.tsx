@@ -447,9 +447,8 @@ const SubmittedState = ({ item, reasons, explanation, conversationId }: {
   return <div className={classes.endState}>
     <h2 className={classes.endStateHeading}>Your review request has been submitted</h2>
     <p className={classes.endStateMessage}>
-      Thanks for taking the time to explain. A moderator will read your request, usually within 72 hours. We've
-      added a summary of it to your conversation with us, and you can add anything else there in the meantime. If we
-      reconsider the rejection, we will notify you.
+      Your request has been filed. Moderators make a best effort attempt to review messages quickly. If the decision
+      is reconsidered, we will notify you.
     </p>
     {conversationId && <ViewConversationButton conversationId={conversationId} />}
     <div className={classes.submittedSummary}>
