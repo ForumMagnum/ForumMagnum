@@ -138,6 +138,21 @@ export const testSchema4: SchemaType<CollectionNameString> = {
       }),
     },
   },
+  testCollection3SchemaVersion: {
+    graphql: {
+      outputType: "Float",
+      canRead: ["guests"],
+      resolver: async () => null,
+      sqlResolver: ({ field, join }) => join({
+        table: "TestCollection3" as CollectionNameString,
+        type: "left",
+        on: {
+          _id: field("_id"),
+        },
+        resolver: (testCollection3Field) => testCollection3Field("schemaVersion"),
+      }),
+    },
+  },
   schemaVersion: {
     database: {
       type: "DOUBLE PRECISION",

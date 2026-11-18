@@ -1,6 +1,31 @@
 import SelectQuery from "./SelectQuery";
+import type ProjectionContext from "./ProjectionContext";
 import type { CodeResolverMap, PrefixGenerator } from "./ProjectionContext";
 import type { ParsedSqlFragment } from "./SqlFragment";
+
+/**
+ * Sort keys that name a schema field with a SQL resolver, rather than a column
+ * or a synthetic field, sort by the resolver's expression. Calling the resolver
+ * adds its joins to `projection`, whether or not the fragment selects the
+ * field. This deliberately ignores `enableCustomSqlResolvers`, which only
+ * exists to keep expensive resolver expressions out of projections.
+ */
+function getSqlResolverSortExpressions<N extends CollectionNameString>(
+  projection: ProjectionContext<N>,
+  syntheticFieldNames: string[],
+  sort?: MongoSort<ObjectsByCollectionName[N]>,
+): Map<string, string> {
+  const table = projection.getCollection().getTable();
+  const schema = projection.getSchema();
+  const sqlResolverArgs = projection.getSqlResolverArgs();
+  const unresolvedSortKeys = Object.keys(sort ?? {}).filter(
+    (key) => !table.getField(key) && !syntheticFieldNames.includes(key),
+  );
+  return new Map(unresolvedSortKeys.flatMap((key): [string, string][] => {
+    const sqlResolver = schema[key]?.graphql?.sqlResolver;
+    return sqlResolver ? [[key, sqlResolver(sqlResolverArgs)]] : [];
+  }));
+}
 
 /**
  * `SelectFragmentQuery` is the main external interface for running select
@@ -63,6 +88,12 @@ class SelectFragmentQuery<
       ? this.getSyntheticFields(addFields)
       : [];
 
+    const sortExpressions = getSqlResolverSortExpressions(
+      projection,
+      Object.keys(addFields ?? {}),
+      options?.sort,
+    );
+
     const {
       projection: projectionSql,
       table: tableSql,
@@ -79,7 +110,7 @@ class SelectFragmentQuery<
     this.atoms.push(joins);
     this.projectionArgs = args;
 
-    this.initSelector(selector, options);
+    this.initSelector(selector, options, {sortExpressions});
     this.codeResolvers = projection.getCodeResolvers();
   }
 
