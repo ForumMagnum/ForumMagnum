@@ -43,9 +43,51 @@ jobs:
       uses: ./.github/actions/uploadLWCkEditorBundle
       with:
         mode: prod
-  deploy: 
+  deploy-hocuspocus:
     runs-on: ubuntu-latest
-    needs: [migrate, upload-ckeditor-bundle]
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      FLY_APP: hocuspocusserver
+    defaults:
+      run:
+        working-directory: fly/hocuspocusServer
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: superfly/flyctl-actions/setup-flyctl@master
+    # Images we deploy are labeled git-<sha>, so we can diff against whatever
+    # is currently running rather than against the previous push (which misses
+    # changes from runs that were superseded in the concurrency group).
+    - name: Check whether hocuspocus changed since the deployed version
+      id: check
+      run: |
+        set -euo pipefail
+        deployed_tags=$(flyctl image show --app "$FLY_APP" --json | jq -r '[(. // [])[].Tag] | unique | .[]')
+        echo "Deployed image tags: $deployed_tags"
+        deployed_sha=""
+        if [[ "$deployed_tags" =~ ^git-([0-9a-f]{40})$ ]]; then
+          deployed_sha="${BASH_REMATCH[1]}"
+        fi
+        if [[ -z "$deployed_sha" ]]; then
+          echo "Deployed version is not a single git-labeled image; deploying."
+          echo "needs_deploy=true" >> "$GITHUB_OUTPUT"
+        elif ! git cat-file -e "${deployed_sha}^{commit}"; then
+          echo "Deployed commit $deployed_sha is not in this repository's history; deploying."
+          echo "needs_deploy=true" >> "$GITHUB_OUTPUT"
+        elif git diff --quiet "$deployed_sha" "$GITHUB_SHA" -- .; then
+          echo "No changes to fly/hocuspocusServer since $deployed_sha; skipping deploy."
+          echo "needs_deploy=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "fly/hocuspocusServer changed since $deployed_sha; deploying."
+          echo "needs_deploy=true" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Deploy hocuspocus to fly.io
+      if: steps.check.outputs.needs_deploy == 'true'
+      run: flyctl deploy --config fly.toml --app "$FLY_APP" --remote-only --image-label "git-${GITHUB_SHA}"
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [migrate, upload-ckeditor-bundle, deploy-hocuspocus]
     steps:
     - name: Deploy to LW Prod
       run: |
