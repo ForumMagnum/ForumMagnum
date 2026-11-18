@@ -195,7 +195,7 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
 
   const isOpen = isTeamInboxThreadOpen(thread);
 
-  const resolveAppeal = async (status: 'approved' | 'denied') => {
+  const resolveAppeal = async (status: 'approved' | 'dismissed') => {
     if (!appeal) return;
     setError(null);
     try {
@@ -265,11 +265,11 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
               <Button
                 className={classes.button}
                 disabled={pending}
-                onClick={() => void resolveAppeal('denied')}
+                onClick={() => void resolveAppeal('dismissed')}
               >
-                Deny
+                Dismiss
               </Button>
-              <span className={classes.resolveNote}>The user gets an automated message with the outcome.</span>
+              <span className={classes.resolveNote}>Approving sends the user an automated message. Dismissing sends nothing.</span>
             </>
             : isOpen
               ? <Button className={classes.button} disabled={pending} onClick={() => void setAwaitingModeratorReply(false, true)}>Mark done</Button>

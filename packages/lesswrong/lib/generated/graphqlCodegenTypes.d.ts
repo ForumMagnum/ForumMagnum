@@ -9325,7 +9325,7 @@ type RejectionAppealSelector = {
 
 type RejectionAppealStatus =
   | 'approved'
-  | 'denied'
+  | 'dismissed'
   | 'open';
 
 type RejectionReview = {

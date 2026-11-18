@@ -11,7 +11,7 @@ export const graphqlRejectionAppealQueryTypeDefs = gql`
   enum RejectionAppealStatus {
     open
     approved
-    denied
+    dismissed
   }
 
   type SingleRejectionAppealOutput {

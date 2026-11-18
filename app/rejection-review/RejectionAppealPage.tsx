@@ -295,12 +295,12 @@ const styles = defineStyles("RejectionAppealPage", (theme: ThemeType) => ({
 }));
 
 type ContentType = "post" | "comment";
-type AppealStatus = "open" | "approved" | "denied";
+type AppealStatus = "open" | "approved" | "dismissed";
 
 const APPEAL_STATUS_LABELS: Record<AppealStatus, string> = {
   open: "Under review",
   approved: "Content approved",
-  denied: "Rejection upheld",
+  dismissed: "Rejection upheld",
 };
 
 interface AppealedItem {
@@ -447,9 +447,9 @@ const SubmittedState = ({ item, reasons, explanation, conversationId }: {
   return <div className={classes.endState}>
     <h2 className={classes.endStateHeading}>Your review request has been submitted</h2>
     <p className={classes.endStateMessage}>
-      Thanks for taking the time to explain. A moderator will look at your request, usually within 72 hours. We've
-      added a summary of it to your conversation with us, and we'll message you there once we've made a decision.
-      You can add anything else there in the meantime.
+      Thanks for taking the time to explain. A moderator will read your request, usually within 72 hours. We've
+      added a summary of it to your conversation with us. If we reconsider the rejection, we'll message you there;
+      otherwise, you won't hear back from us. You can add anything else there in the meantime.
     </p>
     {conversationId && <ViewConversationButton conversationId={conversationId} />}
     <div className={classes.submittedSummary}>
@@ -473,8 +473,8 @@ const AlreadyAppealedState = ({ appeal }: { appeal: RejectionAppealsUserInfo }) 
       {appeal.status && <>Status: {APPEAL_STATUS_LABELS[appeal.status]}</>}
       {appeal.status === "open" && <>
         <br />
-        We aim to complete reviews within 72 hours. We'll message you in your conversation with us once we've made
-        a decision.
+        A moderator will read your request, usually within 72 hours. If we reconsider the rejection, we'll message
+        you in your conversation with us; otherwise, you won't hear back from us.
       </>}
     </p>
     {appeal.conversationId && <ViewConversationButton conversationId={appeal.conversationId} />}
@@ -589,8 +589,8 @@ const RejectionAppealPage = () => {
         {error && <div className={classes.error}>{error}</div>}
         <div className={classes.submitRow}>
           <span className={classes.submitNote}>
-            If you do request a review, a moderator will look at it, usually within 72 hours, and reply in your
-            conversation with us.
+            If you do request a review, a moderator will read it, usually within 72 hours. You'll only hear back if we
+            reconsider the rejection.
           </span>
           <button
             className={classNames(classes.button, classes.primaryButton)}

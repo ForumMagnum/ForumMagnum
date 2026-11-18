@@ -11399,7 +11399,7 @@ export type RejectionAppealSelector = {
 
 export type RejectionAppealStatus =
   | 'approved'
-  | 'denied'
+  | 'dismissed'
   | 'open';
 
 export type RejectionReview = {

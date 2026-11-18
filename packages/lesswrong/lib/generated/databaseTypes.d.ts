@@ -1246,7 +1246,7 @@ interface DbRejectionAppeal extends DbObject {
   reasonIds: Array<string>
   resolvedAt: Date | null
   resolvedByUserId: string | null
-  status: 'open' | 'approved' | 'denied'
+  status: 'open' | 'approved' | 'dismissed'
   userId: string
 }
 
