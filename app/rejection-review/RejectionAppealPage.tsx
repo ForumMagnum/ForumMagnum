@@ -295,12 +295,12 @@ const styles = defineStyles("RejectionAppealPage", (theme: ThemeType) => ({
 }));
 
 type ContentType = "post" | "comment";
-type AppealStatus = "open" | "approved" | "dismissed";
+type AppealStatus = "open" | "approved" | "denied";
 
 const APPEAL_STATUS_LABELS: Record<AppealStatus, string> = {
   open: "Under review",
   approved: "Content approved",
-  dismissed: "Rejection upheld",
+  denied: "Rejection upheld",
 };
 
 interface AppealedItem {

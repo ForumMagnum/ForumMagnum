@@ -109,7 +109,7 @@ export async function updateRejectionAppeal({ selector, data }: UpdateRejectionA
   const { currentUser, RejectionAppeals } = context;
   if (!currentUser || !userIsAdminOrMod(currentUser)) throw new Error("Only moderators can resolve a review");
   const { status } = data;
-  if (status !== "approved" && status !== "dismissed") throw new Error("Choose whether to approve or dismiss the review");
+  if (status !== "approved" && status !== "denied") throw new Error("Choose whether to approve or dismiss the review");
   const _id = getDocumentId(selector);
   const appeal = await RejectionAppeals.findOne(_id);
   if (!appeal) throw new Error("Review not found");

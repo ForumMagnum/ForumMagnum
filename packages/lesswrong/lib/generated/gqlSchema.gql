@@ -3411,7 +3411,7 @@ type RejectionAppeal {
 enum RejectionAppealStatus {
   open
   approved
-  dismissed
+  denied
 }
 
 type SingleRejectionAppealOutput {

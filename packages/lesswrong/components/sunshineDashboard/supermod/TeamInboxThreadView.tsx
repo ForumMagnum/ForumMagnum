@@ -195,7 +195,7 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
 
   const isOpen = isTeamInboxThreadOpen(thread);
 
-  const resolveAppeal = async (status: 'approved' | 'dismissed') => {
+  const resolveAppeal = async (status: 'approved' | 'denied') => {
     if (!appeal) return;
     setError(null);
     try {
@@ -265,7 +265,7 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
               <Button
                 className={classes.button}
                 disabled={pending}
-                onClick={() => void resolveAppeal('dismissed')}
+                onClick={() => void resolveAppeal('denied')}
               >
                 Dismiss
               </Button>

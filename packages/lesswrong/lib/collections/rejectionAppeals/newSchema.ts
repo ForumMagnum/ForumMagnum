@@ -130,14 +130,14 @@ const schema = {
       defaultValue: "open",
       canAutofillDefault: true,
       nullable: false,
-      typescriptType: "'open' | 'approved' | 'dismissed'",
+      typescriptType: "'open' | 'approved' | 'denied'",
     },
     graphql: {
       outputType: "RejectionAppealStatus",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
       validation: {
-        allowedValues: ["approved", "dismissed"],
+        allowedValues: ["approved", "denied"],
         optional: true,
       },
     },
