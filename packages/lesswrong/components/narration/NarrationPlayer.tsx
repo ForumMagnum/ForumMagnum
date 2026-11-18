@@ -1,10 +1,13 @@
 "use client";
 import React, { useMemo, useState } from "react";
 import classNames from "classnames";
+import moment from "moment";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useLocalStorageState } from "@/components/hooks/useLocalStorageState";
+import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
+import { NARRATION_PLAYBACK_RATE_COOKIE } from "@/lib/cookies/cookies";
 import ForumIcon from "@/components/common/ForumIcon";
 import {
   DEFAULT_NARRATION_MODEL_ID,
@@ -194,7 +197,17 @@ const NarrationPlayer = ({ postId, onClose }: {
   const [autoScroll, setAutoScroll] = useState(true);
   const [scrubPositionMs, setScrubPositionMs] = useState<number|null>(null);
 
-  const playback = useNarrationPlayback({ postId, settings, autoScroll });
+  const [cookies, setCookie] = useCookiesWithConsent([NARRATION_PLAYBACK_RATE_COOKIE]);
+  const storedPlaybackRate = Number(cookies[NARRATION_PLAYBACK_RATE_COOKIE]);
+  const playbackRate = playbackRates.includes(storedPlaybackRate) ? storedPlaybackRate : 1;
+  const setPlaybackRate = (newPlaybackRate: number) => {
+    setCookie(NARRATION_PLAYBACK_RATE_COOKIE, String(newPlaybackRate), {
+      path: "/",
+      expires: moment().add(2, "years").toDate(),
+    });
+  };
+
+  const playback = useNarrationPlayback({ postId, settings, autoScroll, playbackRate });
   const { phase, positionMs, durationMs } = playback;
   const isPlayingOrLoading = phase === "playing" || phase === "loading";
 
@@ -275,8 +288,8 @@ const NarrationPlayer = ({ postId, onClose }: {
 
       <select
         className={classes.rateSelect}
-        value={playback.playbackRate}
-        onChange={event => playback.setPlaybackRate(Number(event.target.value))}
+        value={playbackRate}
+        onChange={event => setPlaybackRate(Number(event.target.value))}
         aria-label="Playback speed"
       >
         {playbackRates.map(rate => <option key={rate} value={rate}>{rate}×</option>)}

@@ -13,8 +13,8 @@ import {
   type NarrationTextPiece,
 } from "@/lib/narration/narrationBlocks";
 import type { NarrationBlockTiming, NarrationScript, NarrationSegmentTimings } from "@/lib/narration/narrationTypes";
+import { setNarrationPositionRange } from "./narrationPosition";
 
-const BLOCK_HIGHLIGHT_NAME = "narration-block";
 const WORD_HIGHLIGHT_NAME = "narration-word";
 /**
  * Rendered equations draw their glyphs with CSS generated content, which
@@ -23,16 +23,13 @@ const WORD_HIGHLIGHT_NAME = "narration-word";
  */
 const CURRENT_ELEMENT_ATTRIBUTE = "data-narration-current";
 
-/** How far from the top of the viewport the block being read is scrolled to */
+/** How far from the top of the viewport the text being read is scrolled to */
 const SCROLL_TARGET_VIEWPORT_FRACTION = 0.25;
 const SCROLL_MARGIN_TOP = 100;
 const SCROLL_MARGIN_BOTTOM = 220;
 
 export const narrationHighlightStyles = defineStyles("NarrationHighlightCSS", (theme: ThemeType) => ({
   "@global": {
-    [`::highlight(${BLOCK_HIGHLIGHT_NAME})`]: {
-      backgroundColor: theme.palette.greyAlpha(0.07),
-    },
     [`::highlight(${WORD_HIGHLIGHT_NAME})`]: {
       backgroundColor: theme.palette.blockquoteHighlight.commentHovered,
     },
@@ -96,7 +93,7 @@ function mapScriptBlocksToPage(script: NarrationScript, root: Element): Array<Na
 }
 
 function isPageBlockConnected(pageBlock: NarrationDomBlock): boolean {
-  if (pageBlock.type === "omitted") {
+  if (pageBlock.type !== "text") {
     return pageBlock.element.isConnected;
   }
   return pageBlock.container.isConnected && pageBlock.pieces.filter(isRenderedPiece).every(piece => getPieceNode(piece).isConnected);
@@ -143,21 +140,22 @@ function getSourceRangeTargets(pageBlock: NarrationTextBlock, sourceStart: numbe
   };
 }
 
-function getBlockRange(pageBlock: NarrationDomBlock): Range|null {
-  if (pageBlock.type === "omitted") {
-    const range = document.createRange();
-    range.selectNodeContents(pageBlock.element);
-    return range;
-  }
-  return getSourceRangeTargets(pageBlock, 0, pageBlock.sourceText.length).ranges.at(0) ?? null;
-}
-
+/**
+ * What to highlight for the word being read. In a block that isn't read word
+ * for word (a table row, or something announced as omitted), that's the whole
+ * block.
+ */
 function getWordTargets(pageBlock: NarrationDomBlock|null, blockTiming: NarrationBlockTiming, wordIndex: number): HighlightTargets {
   const word = blockTiming.words.at(wordIndex);
-  if (!pageBlock || pageBlock.type !== "text" || wordIndex < 0 || !word) {
+  if (!pageBlock || wordIndex < 0 || !word) {
     return { ranges: [], mathElements: [] };
   }
-  return getSourceRangeTargets(pageBlock, word[2], word[3]);
+  if (pageBlock.type === "text") {
+    return getSourceRangeTargets(pageBlock, word[2], word[3]);
+  }
+  const range = document.createRange();
+  range.selectNode(pageBlock.element);
+  return { ranges: [range], mathElements: [] };
 }
 
 function isFootnoteBlock(pageBlock: NarrationDomBlock): boolean {
@@ -192,10 +190,10 @@ export function findBlockTimingAt(timings: NarrationSegmentTimings, timeMs: numb
 
 /**
  * Highlights what's being read at `timeMs` into a segment with the given
- * timings. If that's a different block than was highlighted before, returns
- * that block's position in the viewport, for scrolling to.
+ * timings. If that has changed, and it's somewhere the page should follow,
+ * returns its position in the viewport.
  *
- * Footnotes are the exception: they're read right after the paragraph that
+ * Footnotes aren't followed: they're read right after the paragraph that
  * cites them, but they're at the end of the post, so following them would
  * take the reader away from their place and then back again.
  */
@@ -205,44 +203,43 @@ export function updateNarrationHighlight(highlighter: NarrationHighlighter, timi
     return null;
   }
   const wordIndex = blockTiming.words.findLastIndex(word => word[0] <= timeMs);
-  const blockChanged = blockTiming.blockIndex !== highlighter.currentBlockIndex;
-  if (!blockChanged && wordIndex === highlighter.currentWordIndex) {
+  if (blockTiming.blockIndex === highlighter.currentBlockIndex && wordIndex === highlighter.currentWordIndex) {
     return null;
   }
   highlighter.currentBlockIndex = blockTiming.blockIndex;
   highlighter.currentWordIndex = wordIndex;
 
   const pageBlock = getPageBlock(highlighter, blockTiming.blockIndex);
-  const blockRange = pageBlock ? getBlockRange(pageBlock) : null;
   const wordTargets = getWordTargets(pageBlock, blockTiming, wordIndex);
-
-  // When highlights overlap, the one registered last is painted on top, so
-  // the word highlight is always re-registered after the block highlight.
-  setHighlightRanges(WORD_HIGHLIGHT_NAME, []);
-  setHighlightRanges(BLOCK_HIGHLIGHT_NAME, blockRange ? [blockRange] : []);
   setHighlightRanges(WORD_HIGHLIGHT_NAME, wordTargets.ranges);
   setMarkedElements(highlighter, wordTargets.mathElements);
 
-  const shouldFollow = blockChanged && !!pageBlock && !isFootnoteBlock(pageBlock);
-  return (shouldFollow && blockRange) ? blockRange.getBoundingClientRect() : null;
+  const wordRange = wordTargets.ranges.at(0);
+  if (!wordRange || !pageBlock || isFootnoteBlock(pageBlock)) {
+    return null;
+  }
+  setNarrationPositionRange(wordRange);
+  const wordRect = wordRange.getBoundingClientRect();
+  const isLaidOut = wordRect.width > 0 || wordRect.height > 0;
+  return isLaidOut ? wordRect : null;
 }
 
 export function clearNarrationHighlight(highlighter: NarrationHighlighter) {
-  setHighlightRanges(BLOCK_HIGHLIGHT_NAME, []);
   setHighlightRanges(WORD_HIGHLIGHT_NAME, []);
   setMarkedElements(highlighter, []);
+  setNarrationPositionRange(null);
   highlighter.currentBlockIndex = null;
   highlighter.currentWordIndex = null;
 }
 
-/** Scrolls so that a block which is out of view (or about to be) is near the top of the viewport */
-export function scrollToNarrationBlock(blockRect: DOMRect) {
-  const isInView = blockRect.top >= SCROLL_MARGIN_TOP && blockRect.bottom <= window.innerHeight - SCROLL_MARGIN_BOTTOM;
+/** Scrolls so that text which is out of view (or about to be) is near the top of the viewport */
+export function scrollToNarrationPosition(positionRect: DOMRect) {
+  const isInView = positionRect.top >= SCROLL_MARGIN_TOP && positionRect.bottom <= window.innerHeight - SCROLL_MARGIN_BOTTOM;
   if (isInView) {
     return;
   }
   window.scrollTo({
-    top: window.scrollY + blockRect.top - (window.innerHeight * SCROLL_TARGET_VIEWPORT_FRACTION),
+    top: window.scrollY + positionRect.top - (window.innerHeight * SCROLL_TARGET_VIEWPORT_FRACTION),
     behavior: "smooth",
   });
 }
@@ -258,7 +255,7 @@ export function findScriptBlockIndexForNode(highlighter: NarrationHighlighter, n
     if (!pageBlock) {
       return false;
     }
-    if (pageBlock.type === "omitted") {
+    if (pageBlock.type !== "text") {
       return pageBlock.element.contains(node);
     }
     return pageBlock.pieces.filter(isRenderedPiece).some(piece => {

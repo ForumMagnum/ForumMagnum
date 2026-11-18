@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { getNarrationPositionRange, subscribeToNarrationPosition } from "@/components/narration/narrationPosition";
 
 /**
  * Data attribute which FixedPositionToC places on each ToC row's dot, holding
@@ -144,6 +145,15 @@ function updateProgressLine(progressBar: HTMLElement, rows: HTMLElement, scrollC
 
   progressBar.style.setProperty("--windowTop", `${clampedLineTop}px`);
   progressBar.style.setProperty("--windowHeight", `${lineHeight}px`);
+
+  const narrationRect = getNarrationPositionRange()?.getBoundingClientRect();
+  if (narrationRect && !isHiddenRect(narrationRect)) {
+    progressBar.style.setProperty("--narrationMarkTop", `${interpolateTocY(keypoints, narrationRect.top)}px`);
+    progressBar.style.setProperty("--narrationMarkDisplay", "block");
+  } else {
+    progressBar.style.removeProperty("--narrationMarkTop");
+    progressBar.style.removeProperty("--narrationMarkDisplay");
+  }
 }
 
 /**
@@ -155,6 +165,9 @@ function updateProgressLine(progressBar: HTMLElement, rows: HTMLElement, scrollC
  * their rows in the ToC. Because ToC rows have a minimum height and don't
  * scale exactly with the sections they represent, this mapping (and hence the
  * position and length of the line) is nonlinear in scroll position.
+ *
+ * If the post is being narrated, also positions a mark at the place being
+ * read, using the same mapping.
  */
 export function useTocProgressLine({progressBarRef, rowsRef, scrollContainerRef, disabled = false}: UseTocProgressLineProps) {
   useEffect(() => {
@@ -188,8 +201,10 @@ export function useTocProgressLine({progressBarRef, rowsRef, scrollContainerRef,
       resizeObserver.observe(contentElement);
     }
     resizeObserver.observe(rows);
+    const unsubscribeFromNarrationPosition = subscribeToNarrationPosition(scheduleUpdate);
 
     return () => {
+      unsubscribeFromNarrationPosition();
       scrollTarget.removeEventListener('scroll', scheduleUpdate);
       window.removeEventListener('resize', scheduleUpdate);
       resizeObserver.disconnect();

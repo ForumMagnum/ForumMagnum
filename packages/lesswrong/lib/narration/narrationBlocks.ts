@@ -15,9 +15,14 @@ import { cyrb53 } from "@/lib/utils/cyrb53";
  * element, so every text node belongs to exactly one block. Its `sourceText`
  * is that content with whitespace collapsed; offsets into `sourceText` are how
  * narration timings refer to positions within the block.
+ *
+ * Tables are handled in one of two ways. A table with a single column is
+ * being used for layout (typically to put a background colour behind some
+ * paragraphs), so its contents are treated as if the table weren't there. Any
+ * other table produces one block per row.
  */
 
-export type NarrationOmittedKind = "code" | "table" | "spoiler" | "embed";
+export type NarrationOmittedKind = "code" | "spoiler" | "embed";
 
 export interface NarrationTextPiece {
   type: "text"
@@ -61,10 +66,23 @@ export interface NarrationOmittedBlock {
   fingerprint: string
 }
 
-export type NarrationDomBlock = NarrationTextBlock | NarrationOmittedBlock;
+export interface NarrationTableRowBlock {
+  type: "tableRow"
+  /** The <tr> */
+  element: Element
+  table: Element
+  /** The text of each cell, in the same form as a text block's sourceText */
+  cells: string[]
+  isHeader: boolean
+  fingerprint: string
+}
+
+export type NarrationDomBlock = NarrationTextBlock | NarrationOmittedBlock | NarrationTableRowBlock;
 
 /** Matches the list item that holds a footnote's content, in the footnotes section at the end of a post */
 export const footnoteItemSelector = "[data-footnote-item], .footnote-item";
+/** Matches the marker in the text that refers to a footnote */
+export const footnoteReferenceSelector = "[data-footnote-reference], .footnote-reference";
 
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
@@ -77,9 +95,13 @@ const blockLevelTags = new Set([
 
 const skippedTags = new Set(["style", "script", "noscript", "template", "svg", "button", "select", "input", "textarea"]);
 
+const tableSectionTags = new Set(["thead", "tbody", "tfoot"]);
+const tableRowTags = new Set(["tr"]);
+const tableCellTags = new Set(["td", "th"]);
+const tableCaptionTags = new Set(["caption"]);
+
 const omittedKindByTag = new Map<string, NarrationOmittedKind>([
   ["pre", "code"],
-  ["table", "table"],
   ["iframe", "embed"],
   ["video", "embed"],
   ["audio", "embed"],
@@ -274,6 +296,66 @@ function closeRun(state: WalkState) {
   });
 }
 
+function getChildrenWithTag(parent: Element, tagNames: Set<string>): Element[] {
+  return Array.from(parent.children).filter(child => tagNames.has(child.tagName.toLowerCase()));
+}
+
+function getTableRows(table: Element): Element[] {
+  return Array.from(table.children).flatMap(child => {
+    const tagName = child.tagName.toLowerCase();
+    if (tagName === "tr") {
+      return [child];
+    }
+    return tableSectionTags.has(tagName) ? getChildrenWithTag(child, tableRowTags) : [];
+  });
+}
+
+function getBlockText(block: NarrationDomBlock): string {
+  switch (block.type) {
+    case "text": return block.sourceText;
+    case "tableRow": return block.cells.join(" | ");
+    case "omitted": return "";
+  }
+}
+
+function getTableCellText(cell: Element): string {
+  return extractNarrationBlocks(cell).map(getBlockText).filter(text => text.length > 0).join(" ");
+}
+
+function getTableRowBlock(row: Element, table: Element): NarrationTableRowBlock {
+  const cellElements = getChildrenWithTag(row, tableCellTags);
+  const cells = cellElements.map(getTableCellText);
+  return {
+    type: "tableRow",
+    element: row,
+    table,
+    cells,
+    isHeader: cellElements.length > 0 && cellElements.every(cell => cell.tagName.toLowerCase() === "th"),
+    fingerprint: fingerprintText(`row:${cells.join(" | ")}`),
+  };
+}
+
+function walkTable(state: WalkState, table: Element, linkHref: string|null) {
+  closeRun(state);
+  for (const caption of getChildrenWithTag(table, tableCaptionTags)) {
+    walkChildren(state, caption, caption, linkHref);
+    closeRun(state);
+  }
+
+  const rows = getTableRows(table);
+  const isLayoutTable = rows.every(row => getChildrenWithTag(row, tableCellTags).length <= 1);
+  for (const row of rows) {
+    if (!isLayoutTable) {
+      state.blocks.push(getTableRowBlock(row, table));
+      continue;
+    }
+    for (const cell of getChildrenWithTag(row, tableCellTags)) {
+      walkChildren(state, cell, cell, linkHref);
+      closeRun(state);
+    }
+  }
+}
+
 function walkChildren(state: WalkState, parent: Element, container: Element, linkHref: string|null) {
   for (const child of Array.from(parent.childNodes)) {
     if (isTextNode(child)) {
@@ -300,6 +382,10 @@ function walkChildren(state: WalkState, parent: Element, container: Element, lin
     const math = getMathSource(child, tagName, classNames);
     if (math) {
       appendMath(state, child, container, math);
+      continue;
+    }
+    if (tagName === "table") {
+      walkTable(state, child, linkHref);
       continue;
     }
     const omittedKind = getOmittedKind(tagName, classNames);

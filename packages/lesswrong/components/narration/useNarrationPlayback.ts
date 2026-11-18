@@ -8,7 +8,7 @@ import {
   createNarrationHighlighter,
   findBlockTimingAt,
   findScriptBlockIndexForNode,
-  scrollToNarrationBlock,
+  scrollToNarrationPosition,
   updateNarrationHighlight,
   type NarrationHighlighter,
 } from "./narrationHighlighting";
@@ -96,12 +96,10 @@ export interface NarrationPlayback {
   /** Null until the narration's script has been loaded */
   durationMs: number|null
   durationIsEstimated: boolean
-  playbackRate: number
   play: () => void
   pause: () => void
   seekTo: (timelineMs: number) => void
   skip: (deltaMs: number) => void
-  setPlaybackRate: (playbackRate: number) => void
 }
 
 function getSettingsKey(settings: NarrationVoiceSettings): string {
@@ -152,11 +150,12 @@ function isPlaybackBlockedError(error: unknown): boolean {
  * listened to it with these settings before) when playback reaches it, and
  * the segment after the one being played is requested ahead of time.
  */
-export function useNarrationPlayback({ postId, settings, autoScroll }: {
+export function useNarrationPlayback({ postId, settings, autoScroll, playbackRate }: {
   postId: string
   /** Null until the settings to use are known; playback can't start before then */
   settings: NarrationVoiceSettings|null
   autoScroll: boolean
+  playbackRate: number
 }): NarrationPlayback {
   const apolloClient = useApolloClient();
   const [prepareNarration] = useMutation(PrepareNarrationMutation);
@@ -181,7 +180,6 @@ export function useNarrationPlayback({ postId, settings, autoScroll }: {
   const [knownDurations, setKnownDurations] = useState<Record<string, number>>({});
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
   const [segmentTimeMs, setSegmentTimeMs] = useState(0);
-  const [playbackRate, setPlaybackRateState] = useState(1);
 
   const settingsKey = settings ? getSettingsKey(settings) : null;
 
@@ -326,14 +324,14 @@ export function useNarrationPlayback({ postId, settings, autoScroll }: {
     if (!engine.highlighter || !engine.loadedSegment || !audioElement) {
       return;
     }
-    const changedBlockRect = updateNarrationHighlight(
+    const newPositionRect = updateNarrationHighlight(
       engine.highlighter,
       engine.loadedSegment.audio.timings,
       audioElement.currentTime * 1000,
     );
     const readerScrolledRecently = Date.now() - engine.lastUserScrollAt < USER_SCROLL_GRACE_MS;
-    if (changedBlockRect && latestRef.current.autoScroll && !readerScrolledRecently) {
-      scrollToNarrationBlock(changedBlockRect);
+    if (newPositionRect && latestRef.current.autoScroll && !readerScrolledRecently) {
+      scrollToNarrationPosition(newPositionRect);
     }
   }, []);
 
@@ -380,15 +378,6 @@ export function useNarrationPlayback({ postId, settings, autoScroll }: {
     seekTo(Math.max(0, latestRef.current.positionMs + deltaMs));
   }, [seekTo]);
 
-  const setPlaybackRate = useCallback((newPlaybackRate: number) => {
-    setPlaybackRateState(newPlaybackRate);
-    const audioElement = audioRef.current;
-    if (audioElement) {
-      audioElement.defaultPlaybackRate = newPlaybackRate;
-      audioElement.playbackRate = newPlaybackRate;
-    }
-  }, []);
-
   const audioEventHandlers = useMemo(() => ({
     onPlaying: () => setPhase("playing"),
     onPause: () => {
@@ -419,6 +408,25 @@ export function useNarrationPlayback({ postId, settings, autoScroll }: {
       setErrorMessage("The audio couldn't be loaded");
     },
   }), [playFrom, updateHighlight]);
+
+  // The script is loaded as soon as the player opens, rather than when play
+  // is first pressed, so that the timeline shows the narration's length and
+  // double-clicking a paragraph works straight away.
+  useEffect(() => {
+    ensurePrepared().catch((error: unknown) => {
+      setPhase(currentPhase => currentPhase === "idle" ? "error" : currentPhase);
+      setErrorMessage(error instanceof Error ? error.message : String(error));
+    });
+  }, [ensurePrepared]);
+
+  useEffect(() => {
+    const audioElement = audioRef.current;
+    if (audioElement) {
+      // Loading a new source resets playbackRate to defaultPlaybackRate
+      audioElement.defaultPlaybackRate = playbackRate;
+      audioElement.playbackRate = playbackRate;
+    }
+  }, [playbackRate]);
 
   // Find out which segments already have audio with these settings, so that
   // the timeline can use their real lengths.
@@ -543,11 +551,9 @@ export function useNarrationPlayback({ postId, settings, autoScroll }: {
     positionMs,
     durationMs,
     durationIsEstimated,
-    playbackRate,
     play,
     pause,
     seekTo,
     skip,
-    setPlaybackRate,
   };
 }

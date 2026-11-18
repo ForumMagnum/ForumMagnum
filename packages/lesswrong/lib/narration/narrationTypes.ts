@@ -43,6 +43,10 @@ export const DEFAULT_NARRATION_MODEL_ID = "eleven_multilingual_v2";
  * that it was made from. If `atomic`, the speech isn't a character-for-character
  * copy of the source (it's an equation read aloud, for example), so any part
  * of the speech range corresponds to the whole source range.
+ *
+ * Blocks other than text blocks (table rows, and things that are announced
+ * rather than read) have no source text. Their speech is covered by a single
+ * atomic span, which stands for the whole block.
  */
 export interface NarrationSpan {
   speechStart: number

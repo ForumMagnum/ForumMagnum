@@ -1,13 +1,16 @@
 import groupBy from "lodash/groupBy";
 import sortBy from "lodash/sortBy";
+import uniq from "lodash/uniq";
 import { getLinkedom } from "@/server/utils/wrapLinkedom";
 import {
   extractNarrationBlocks,
   footnoteItemSelector,
+  footnoteReferenceSelector,
   type NarrationDomBlock,
   type NarrationMathPiece,
   type NarrationOmittedKind,
   type NarrationPiece,
+  type NarrationTableRowBlock,
   type NarrationTextBlock,
 } from "@/lib/narration/narrationBlocks";
 import {
@@ -17,13 +20,14 @@ import {
   type NarrationSpan,
 } from "@/lib/narration/narrationTypes";
 import { verbalizeEquations } from "./mathVerbalization";
+import { verbalizeTables } from "./tableVerbalization";
 
 /**
  * Scripts are stored and reused, so this must be increased whenever a change
- * here (or to extractNarrationBlocks, or to the math verbalization prompt)
- * would change the script made for a given post.
+ * here (or to extractNarrationBlocks, or to the prompts for reading equations
+ * and tables) would change the script made for a given post.
  */
-export const NARRATION_PREPROCESSOR_VERSION = 1;
+export const NARRATION_PREPROCESSOR_VERSION = 2;
 
 /** The first segment is short, so that playback can start soon after it's requested */
 const FIRST_SEGMENT_TARGET_CHARACTERS = 600;
@@ -31,10 +35,10 @@ const SEGMENT_TARGET_CHARACTERS = 2400;
 /** Under the smallest per-request limit among ElevenLabs' models (5,000 characters, for eleven_v3) */
 const BLOCK_MAX_CHARACTERS = 4500;
 const MATH_CONTEXT_CHARACTERS = 300;
+const TABLE_CONTEXT_CHARACTERS = 500;
 
 const omittedBlockAnnouncements: Record<NarrationOmittedKind, string> = {
   code: "Code block omitted.",
-  table: "Table omitted.",
   spoiler: "Spoiler omitted.",
   embed: "Embedded content omitted.",
 };
@@ -46,7 +50,7 @@ const pronunciationAliases: Array<{ pattern: RegExp, speech: string }> = [
 ];
 
 const urlPattern = /\bhttps?:\/\/\S+/g;
-const endsWithStopPattern = /[.!?:;]["'”’)\]]*$/;
+const endsWithPunctuationPattern = /[.!?:;,…—]["'”’)\]]*$/;
 const sentenceBreakPattern = /[.!?]["'”’)\]]*\s+/g;
 const wordBreakPattern = /\s+/g;
 
@@ -107,6 +111,10 @@ const emptySpeechText: SpeechText = { speech: "", spans: [] };
 
 function isMathPiece(piece: NarrationPiece): piece is NarrationMathPiece {
   return piece.type === "math";
+}
+
+function isTableRowBlock(block: NarrationDomBlock): block is NarrationTableRowBlock {
+  return block.type === "tableRow";
 }
 
 function getBlockElement(block: NarrationDomBlock): Element {
@@ -194,6 +202,23 @@ function findPatternReplacements(sourceText: string): SourceReplacement[] {
   return [...aliasReplacements, ...urlReplacements];
 }
 
+/**
+ * A footnote marker is sometimes all that separates two sentences. With the
+ * marker left out they would run together ("...for a long time.But for..."),
+ * so a space is spoken where it was.
+ */
+function findFootnoteMarkerGaps(block: NarrationTextBlock): SourceReplacement[] {
+  const { sourceText } = block;
+  const markerPositions = block.pieces.flatMap(piece => piece.type === "footnoteRef" ? [piece.sourceStart] : []);
+  const gapPositions = markerPositions.filter(position =>
+    position > 0
+    && position < sourceText.length
+    && sourceText[position - 1] !== " "
+    && /[\p{L}\p{N}]/u.test(sourceText[position])
+  );
+  return uniq(gapPositions).map(position => ({ sourceStart: position, sourceEnd: position, speech: " " }));
+}
+
 function replacementsOverlap(a: SourceReplacement, b: SourceReplacement): boolean {
   return a.sourceStart < b.sourceEnd && b.sourceStart < a.sourceEnd;
 }
@@ -263,7 +288,8 @@ function verbalizeTextBlock(block: NarrationTextBlock, context: BlockContext, ma
     sourceEnd: piece.sourceEnd,
     speech: getMathReading(piece, mathReadings),
   }));
-  const replacements = resolveReplacements(mathReplacements, findPatternReplacements(block.sourceText));
+  const textReplacements = [...findPatternReplacements(block.sourceText), ...findFootnoteMarkerGaps(block)];
+  const replacements = resolveReplacements(mathReplacements, textReplacements);
   const body = buildSpeechFromSource(block.sourceText, replacements);
   if (body.speech.trim().length === 0) {
     return emptySpeechText;
@@ -271,10 +297,10 @@ function verbalizeTextBlock(block: NarrationTextBlock, context: BlockContext, ma
 
   const quotePrefix = context.startsQuote ? "Quote: " : "";
   const listPrefix = context.listNumber !== null ? `${context.listNumber}. ` : "";
-  // The speech model only pauses between blocks when the first one ends a
-  // sentence. Without a full stop, consecutive headings or list items are read
-  // as one run-on sentence.
-  const needsStop = !endsWithStopPattern.test(body.speech);
+  // The speech model only pauses between blocks when the first one ends with
+  // punctuation. Without a full stop, consecutive headings or list items are
+  // read as one run-on sentence.
+  const needsStop = !endsWithPunctuationPattern.test(body.speech);
   const quoteSuffix = context.endsQuote ? " End quote." : "";
   return decorateSpeech(body, `${quotePrefix}${listPrefix}`, `${needsStop ? "." : ""}${quoteSuffix}`);
 }
@@ -299,11 +325,71 @@ async function getMathReadings(domBlocks: NarrationDomBlock[]): Promise<Map<Narr
   return new Map(equations.map(({ piece }, i) => [piece, readings[i]]));
 }
 
-function getReferencedFootnoteIds(block: NarrationDomBlock): string[] {
-  if (block.type !== "text") {
-    return [];
+function getPrecedingText(domBlocks: NarrationDomBlock[], block: NarrationDomBlock): string {
+  const precedingBlock = domBlocks.slice(0, domBlocks.indexOf(block)).findLast(candidate => candidate.type === "text");
+  return precedingBlock?.type === "text" ? precedingBlock.sourceText.slice(-TABLE_CONTEXT_CHARACTERS) : "";
+}
+
+async function getTableRowReadings(domBlocks: NarrationDomBlock[]): Promise<Map<NarrationTableRowBlock, string>> {
+  const rowBlocks = domBlocks.filter(isTableRowBlock);
+  const rowsByTable = uniq(rowBlocks.map(row => row.table)).map(table => rowBlocks.filter(row => row.table === table));
+  const readingsByTable = await verbalizeTables(rowsByTable.map(rows => ({
+    precedingText: getPrecedingText(domBlocks, rows[0]),
+    rows: rows.map(({ isHeader, cells }) => ({ isHeader, cells })),
+  })));
+  return new Map(rowsByTable.flatMap(
+    (rows, tableIndex) => rows.map((row, rowIndex): [NarrationTableRowBlock, string] => [row, readingsByTable[tableIndex][rowIndex]])
+  ));
+}
+
+/**
+ * Speech for a block that isn't read word for word: a table row, or an
+ * announcement that something was left out.
+ */
+function getWholeBlockSpeech(speech: string): SpeechText {
+  if (speech.trim().length === 0) {
+    return emptySpeechText;
   }
-  return block.pieces.flatMap(piece => piece.type === "footnoteRef" ? [piece.footnoteId] : []);
+  const spokenText = endsWithPunctuationPattern.test(speech) ? speech : `${speech}.`;
+  return {
+    speech: spokenText,
+    spans: [{ speechStart: 0, speechEnd: spokenText.length, sourceStart: 0, sourceEnd: 1, atomic: true }],
+  };
+}
+
+function getTableRowReading(block: NarrationTableRowBlock, tableRowReadings: Map<NarrationTableRowBlock, string>): string {
+  const reading = tableRowReadings.get(block);
+  if (reading === undefined) {
+    throw new Error(`No reading was generated for table row: ${block.cells.join(" | ")}`);
+  }
+  return reading;
+}
+
+function getBlockSpeech(
+  block: NarrationDomBlock,
+  context: BlockContext,
+  mathReadings: Map<NarrationMathPiece, string>,
+  tableRowReadings: Map<NarrationTableRowBlock, string>,
+): SpeechText {
+  switch (block.type) {
+    case "text": return verbalizeTextBlock(block, context, mathReadings);
+    case "tableRow": return getWholeBlockSpeech(getTableRowReading(block, tableRowReadings));
+    case "omitted": return getWholeBlockSpeech(omittedBlockAnnouncements[block.omittedKind]);
+  }
+}
+
+function getReferencedFootnoteIds(block: NarrationDomBlock): string[] {
+  switch (block.type) {
+    case "text":
+      return block.pieces.flatMap(piece => piece.type === "footnoteRef" ? [piece.footnoteId] : []);
+    case "tableRow":
+      return Array.from(block.element.querySelectorAll(footnoteReferenceSelector)).flatMap(reference => {
+        const footnoteId = reference.getAttribute("data-footnote-id");
+        return footnoteId ? [footnoteId] : [];
+      });
+    case "omitted":
+      return [];
+  }
 }
 
 function toPlaybackBlock(draft: DocumentBlockDraft, prefix: string, suffix: string): PlaybackBlock {
@@ -357,7 +443,7 @@ function orderBlocksForPlayback(drafts: DocumentBlockDraft[]): PlaybackBlock[] {
 }
 
 function getIntroBlock({ title, authorNames }: NarrationPostInfo): PlaybackBlock {
-  const titleSentence = endsWithStopPattern.test(title) ? title : `${title}.`;
+  const titleSentence = endsWithPunctuationPattern.test(title) ? title : `${title}.`;
   const authors = new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(authorNames);
   return {
     block: { documentIndex: null, fingerprint: null, speech: `${titleSentence} By ${authors}.`, spans: [] },
@@ -460,14 +546,12 @@ export async function buildNarrationScript(html: string, postInfo: NarrationPost
   const root = document.body;
   const domBlocks = extractNarrationBlocks(root);
   const contexts = getBlockContexts(domBlocks, root);
-  const mathReadings = await getMathReadings(domBlocks);
+  const [mathReadings, tableRowReadings] = await Promise.all([getMathReadings(domBlocks), getTableRowReadings(domBlocks)]);
 
   const drafts = domBlocks.map((block, documentIndex): DocumentBlockDraft => ({
     documentIndex,
     fingerprint: block.fingerprint,
-    speechText: block.type === "text"
-      ? verbalizeTextBlock(block, contexts[documentIndex], mathReadings)
-      : { speech: omittedBlockAnnouncements[block.omittedKind], spans: [] },
+    speechText: getBlockSpeech(block, contexts[documentIndex], mathReadings, tableRowReadings),
     context: contexts[documentIndex],
     referencedFootnoteIds: getReferencedFootnoteIds(block),
   }));

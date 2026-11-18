@@ -1,8 +1,6 @@
-import { generateText, Output } from "ai";
-import { z } from "zod";
 import chunk from "lodash/chunk";
+import { generateReadings } from "./llmReadings";
 
-const MATH_VERBALIZATION_MODEL = "anthropic/claude-sonnet-5.5";
 const EQUATIONS_PER_REQUEST = 25;
 
 const MATH_VERBALIZATION_SYSTEM_PROMPT = `You prepare LaTeX math for a text-to-speech narrator who is reading a blog post aloud.
@@ -23,34 +21,17 @@ Write plain words only: no LaTeX, no math symbols, no markdown, and no quotation
 
 Give exactly one reading for each equation, labelled with that equation's id.`;
 
-const mathVerbalizationSchema = z.object({
-  readings: z.array(z.object({
-    id: z.number(),
-    reading: z.string(),
-  })),
-});
-
 export interface EquationToVerbalize {
   latex: string
   display: boolean
   context: string
 }
 
-async function verbalizeEquationBatch(equations: EquationToVerbalize[]): Promise<string[]> {
-  const result = await generateText({
-    model: MATH_VERBALIZATION_MODEL,
+function verbalizeEquationBatch(equations: EquationToVerbalize[]): Promise<string[]> {
+  return generateReadings({
     system: MATH_VERBALIZATION_SYSTEM_PROMPT,
     prompt: JSON.stringify(equations.map((equation, id) => ({ id, ...equation }))),
-    output: Output.object({ schema: mathVerbalizationSchema }),
-    maxOutputTokens: 16000,
-  });
-  const readingsById = new Map(result.output.readings.map(({ id, reading }) => [id, reading]));
-  return equations.map((equation, id) => {
-    const reading = readingsById.get(id);
-    if (reading === undefined) {
-      throw new Error(`Math verbalization returned no reading for equation: ${equation.latex}`);
-    }
-    return reading;
+    itemCount: equations.length,
   });
 }
 
