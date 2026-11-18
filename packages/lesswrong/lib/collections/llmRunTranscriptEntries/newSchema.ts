@@ -44,7 +44,7 @@ const schema = {
       outputType: "String!",
       canRead: ["guests"],
       validation: {
-        allowedValues: ["reasoning", "text", "toolCall", "toolResult", "toolError", "source", "resultLink"],
+        allowedValues: ["image", "reasoning", "text", "toolCall", "toolResult", "toolError", "source", "resultLink"],
       },
     },
   },
