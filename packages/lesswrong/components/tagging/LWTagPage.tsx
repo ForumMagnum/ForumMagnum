@@ -68,6 +68,7 @@ import { MixedTypeFeed } from "../common/MixedTypeFeed";
 import { TagContentFeedQuery } from "../common/feeds/feedQueries";
 import RecentDiscussionThread from "../recentDiscussion/RecentDiscussionThread";
 import CommentsNode from "../comments/CommentsNode";
+import { TupleSet } from "@/lib/utils/typeGuardUtils";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagLWTagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -357,23 +358,19 @@ const PostsListHeading: FC<{
   );
 }
 
-const tagContentFeedSortOptions: TagContentFeedSortBy[] = ["magic", "new", "top"];
-
-function isTagContentFeedSortBy(value: string | undefined): value is TagContentFeedSortBy {
-  return tagContentFeedSortOptions.some(option => option === value);
-}
+const tagContentFeedSortOptions = new TupleSet(["magic", "new", "top"] as const);
 
 const TagContentFeedSection = ({tag, query}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,
   query: Record<string, string>,
 }) => {
   const classes = useStyles(styles);
-  const sortBy = isTagContentFeedSortBy(query.feedSortedBy) ? query.feedSortedBy : "magic";
+  const sortBy = tagContentFeedSortOptions.has(query.feedSortedBy) ? query.feedSortedBy : "magic";
   return (
     <AnalyticsContext pageSectionContext="tagContentFeed">
       <div className={classes.tagHeader}>
         <div className={classes.postsTaggedTitle}>Posts, quick takes and comments on <em>{tag.name}</em></div>
-        <PostsListSortDropdown value={sortBy} options={tagContentFeedSortOptions} sortingParam="feedSortedBy"/>
+        <PostsListSortDropdown value={sortBy} options={[...tagContentFeedSortOptions]} sortingParam="feedSortedBy"/>
       </div>
       <MixedTypeFeed
         query={TagContentFeedQuery}
