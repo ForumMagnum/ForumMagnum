@@ -637,12 +637,14 @@ input NarrationVoiceSettingsInput {
 
 extend type Query {
   narrationOptions: NarrationOptions!
+  narrationSelectableVoices: [NarrationVoice!]!
   narrationSegmentAudios(narrationScriptId: String!, settings: NarrationVoiceSettingsInput!): [NarrationSegmentAudio!]!
 }
 
 extend type Mutation {
   prepareNarration(postId: String!): NarrationScript!
-  generateNarrationSegmentAudio(narrationSegmentId: String!, settings: NarrationVoiceSettingsInput!): NarrationSegmentAudio!
+  prepareCommentNarration(commentId: String!): NarrationScript!
+  generateNarrationSegmentAudio(narrationSegmentId: String!, settings: NarrationVoiceSettingsInput): NarrationSegmentAudio!
 }
 
 type FrontpageScoreTerm {
@@ -8021,6 +8023,7 @@ type User {
   noKibitz: Boolean
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
+  narrationVoiceId: String
   hideIntercom: Boolean!
   hailboxOptIn: Boolean
   markDownPostEditor: Boolean!
@@ -10336,6 +10339,7 @@ input UpdateUserDataInput {
   noKibitz: Boolean
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
+  narrationVoiceId: String
   hideIntercom: Boolean
   hailboxOptIn: Boolean
   markDownPostEditor: Boolean

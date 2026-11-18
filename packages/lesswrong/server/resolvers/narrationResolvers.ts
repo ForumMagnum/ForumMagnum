@@ -4,7 +4,13 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { accessFilterMultiple, accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { narrationTuningRanges, type NarrationVoiceSettings } from "@/lib/narration/narrationTypes";
 import { listElevenLabsSpeechModels, listElevenLabsVoices } from "@/server/narration/elevenLabs";
-import { getOrCreateNarrationScript, getOrCreateNarrationSegmentAudio } from "@/server/narration/narrationGeneration";
+import {
+  getCommentAuthorVoiceSettings,
+  getOrCreateCommentNarrationScript,
+  getOrCreateNarrationSegmentAudio,
+  getOrCreatePostNarrationScript,
+} from "@/server/narration/narrationGeneration";
+import { listUserSelectableVoices } from "@/server/narration/narrationVoices";
 
 function roundToHundredths(value: number): number {
   return Math.round(value * 100) / 100;
@@ -41,6 +47,11 @@ async function narrationOptionsResolver(_root: void, _args: {}, context: Resolve
   return { voices, models };
 }
 
+function narrationSelectableVoicesResolver(_root: void, _args: {}, context: ResolverContext) {
+  requireNarrationAccess(context);
+  return listUserSelectableVoices();
+}
+
 async function narrationSegmentAudiosResolver(
   _root: void,
   { narrationScriptId, settings }: { narrationScriptId: string, settings: NarrationVoiceSettings },
@@ -62,21 +73,53 @@ async function prepareNarrationResolver(_root: void, { postId }: { postId: strin
   if (!post || !canReadPost) {
     throw new Error(`Post ${postId} not found`);
   }
-  const narrationScript = await getOrCreateNarrationScript(post, context);
+  const narrationScript = await getOrCreatePostNarrationScript(post, context);
   return await accessFilterSingle(currentUser, "NarrationScripts", narrationScript, context);
+}
+
+async function prepareCommentNarrationResolver(_root: void, { commentId }: { commentId: string }, context: ResolverContext) {
+  const currentUser = requireNarrationAccess(context);
+  const comment = await context.loaders.Comments.load(commentId);
+  const canReadComment = !!(await accessFilterSingle(currentUser, "Comments", comment, context));
+  if (!comment || !canReadComment) {
+    throw new Error(`Comment ${commentId} not found`);
+  }
+  const narrationScript = await getOrCreateCommentNarrationScript(comment, context);
+  return await accessFilterSingle(currentUser, "NarrationScripts", narrationScript, context);
+}
+
+/**
+ * A comment's narration is in its author's voice, so the listener's settings
+ * only apply to (and are required for) a post's.
+ */
+async function getSegmentVoiceSettings(
+  narrationScript: DbNarrationScript,
+  requestedSettings: NarrationVoiceSettings|null,
+  context: ResolverContext,
+): Promise<NarrationVoiceSettings> {
+  const commentAuthorSettings = await getCommentAuthorVoiceSettings(narrationScript, context);
+  if (commentAuthorSettings && requestedSettings) {
+    throw new Error("A comment is narrated in its author's voice, so voice settings can't be given for it");
+  }
+  if (!commentAuthorSettings && !requestedSettings) {
+    throw new Error("Voice settings are required to narrate a post");
+  }
+  return commentAuthorSettings ?? voiceSettingsSchema.parse(requestedSettings);
 }
 
 async function generateNarrationSegmentAudioResolver(
   _root: void,
-  { narrationSegmentId, settings }: { narrationSegmentId: string, settings: NarrationVoiceSettings },
+  { narrationSegmentId, settings }: { narrationSegmentId: string, settings: NarrationVoiceSettings|null },
   context: ResolverContext,
 ) {
   const currentUser = requireNarrationAccess(context);
   const segment = await context.NarrationSegments.findOne({ _id: narrationSegmentId });
-  if (!segment) {
+  const narrationScript = segment ? await context.NarrationScripts.findOne({ _id: segment.narrationScriptId }) : null;
+  if (!segment || !narrationScript) {
     throw new Error(`Narration segment ${narrationSegmentId} not found`);
   }
-  const audio = await getOrCreateNarrationSegmentAudio(segment, voiceSettingsSchema.parse(settings), currentUser);
+  const voiceSettings = await getSegmentVoiceSettings(narrationScript, settings ?? null, context);
+  const audio = await getOrCreateNarrationSegmentAudio(segment, narrationScript, voiceSettings, currentUser);
   return await accessFilterSingle(currentUser, "NarrationSegmentAudios", audio, context);
 }
 
@@ -111,21 +154,25 @@ export const narrationGraphQLTypeDefs = gql`
 
   extend type Query {
     narrationOptions: NarrationOptions!
+    narrationSelectableVoices: [NarrationVoice!]!
     narrationSegmentAudios(narrationScriptId: String!, settings: NarrationVoiceSettingsInput!): [NarrationSegmentAudio!]!
   }
 
   extend type Mutation {
     prepareNarration(postId: String!): NarrationScript!
-    generateNarrationSegmentAudio(narrationSegmentId: String!, settings: NarrationVoiceSettingsInput!): NarrationSegmentAudio!
+    prepareCommentNarration(commentId: String!): NarrationScript!
+    generateNarrationSegmentAudio(narrationSegmentId: String!, settings: NarrationVoiceSettingsInput): NarrationSegmentAudio!
   }
 `;
 
 export const narrationGraphQLQueries = {
   narrationOptions: narrationOptionsResolver,
+  narrationSelectableVoices: narrationSelectableVoicesResolver,
   narrationSegmentAudios: narrationSegmentAudiosResolver,
 };
 
 export const narrationGraphQLMutations = {
   prepareNarration: prepareNarrationResolver,
+  prepareCommentNarration: prepareCommentNarrationResolver,
   generateNarrationSegmentAudio: generateNarrationSegmentAudioResolver,
 };

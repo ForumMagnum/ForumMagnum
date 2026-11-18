@@ -54,6 +54,7 @@ import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
 import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
 import AFUnreviewedCommentCount from "../../alignment-forum/AFUnreviewedCommentCount";
 import CommentsListSection from "../../comments/CommentsListSection";
+import { usePublishedNarrationComments } from "../../narration/narrationComments";
 import CommentsTableOfContents from "../../comments/CommentsTableOfContents";
 import AttributionInViewTracker from "../../common/AttributionInViewTracker";
 import NotifyMeButton from "../../notifications/NotifyMeButton";
@@ -506,6 +507,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const displayedPublicCommentCount = comments?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
   const { commentCount: totalComments } = getResponseCounts({ post, answers, forumType })
   const commentTree = useMemo(() => unflattenComments(comments ?? []), [comments]);
+  usePublishedNarrationComments(commentTree);
   const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
   const answerCount = post.question ? answersTree.length : undefined;
 

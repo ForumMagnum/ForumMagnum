@@ -46,14 +46,19 @@ export const narrationHighlightStyles = defineStyles("NarrationHighlightCSS", (t
 }));
 
 /**
- * Tracks which part of the page is highlighted as being read. The page is
- * re-scanned (see `mapScriptBlocksToPage`) whenever the block to highlight
- * turns out to have been detached, which happens when the post body
- * re-renders.
+ * Tracks which part of the page is highlighted as being read. The element
+ * that holds what's being narrated is looked up again each time it's needed,
+ * and re-scanned (see `mapScriptBlocksToPage`) if it has been replaced or its
+ * contents have changed: a post's body can re-render, and a comment's is
+ * replaced when the comment is expanded.
  */
 export interface NarrationHighlighter {
   script: NarrationScript
-  root: Element
+  getRoot: () => Element|null
+  /** The element that pageBlocks was made from */
+  scannedRoot: Element|null
+  scannedRootObserver: MutationObserver
+  scannedRootHasChanged: boolean
   /** For each block of the script, the block of the page it was made from, if the page has it */
   pageBlocks: Array<NarrationDomBlock|null>
   currentBlockIndex: number|null
@@ -98,20 +103,22 @@ function mapScriptBlocksToPage(script: NarrationScript, root: Element): Array<Na
   return script.blocks.map(block => pageBlockByDocumentIndex.get(block.documentIndex) ?? null);
 }
 
-function isPageBlockConnected(pageBlock: NarrationDomBlock): boolean {
-  if (pageBlock.type !== "text") {
-    return pageBlock.element.isConnected;
+function scanPage(highlighter: NarrationHighlighter) {
+  const root = highlighter.getRoot();
+  highlighter.scannedRootObserver.disconnect();
+  if (root) {
+    highlighter.scannedRootObserver.observe(root, { childList: true, subtree: true, characterData: true });
   }
-  return pageBlock.container.isConnected && pageBlock.pieces.filter(isRenderedPiece).every(piece => getPieceNode(piece).isConnected);
+  highlighter.scannedRoot = root;
+  highlighter.scannedRootHasChanged = false;
+  highlighter.pageBlocks = root ? mapScriptBlocksToPage(highlighter.script, root) : highlighter.script.blocks.map(() => null);
 }
 
-function getPageBlock(highlighter: NarrationHighlighter, blockIndex: number): NarrationDomBlock|null {
-  const pageBlock = highlighter.pageBlocks[blockIndex];
-  if (!pageBlock || isPageBlockConnected(pageBlock)) {
-    return pageBlock;
+function getPageBlocks(highlighter: NarrationHighlighter): Array<NarrationDomBlock|null> {
+  if (highlighter.scannedRootHasChanged || highlighter.getRoot() !== highlighter.scannedRoot) {
+    scanPage(highlighter);
   }
-  highlighter.pageBlocks = mapScriptBlocksToPage(highlighter.script, highlighter.root);
-  return highlighter.pageBlocks[blockIndex];
+  return highlighter.pageBlocks;
 }
 
 /**
@@ -179,15 +186,23 @@ function setMarkedElements(highlighter: NarrationHighlighter, elements: Element[
   highlighter.markedElements = elements;
 }
 
-export function createNarrationHighlighter(script: NarrationScript, root: Element): NarrationHighlighter {
-  return {
+/** `getRoot` finds the element that holds what the script narrates; it may not exist yet */
+export function createNarrationHighlighter(script: NarrationScript, getRoot: () => Element|null): NarrationHighlighter {
+  const highlighter: NarrationHighlighter = {
     script,
-    root,
-    pageBlocks: mapScriptBlocksToPage(script, root),
+    getRoot,
+    scannedRoot: null,
+    scannedRootObserver: new MutationObserver(() => {
+      highlighter.scannedRootHasChanged = true;
+    }),
+    scannedRootHasChanged: false,
+    pageBlocks: [],
     currentBlockIndex: null,
     currentWordIndex: null,
     markedElements: [],
   };
+  scanPage(highlighter);
+  return highlighter;
 }
 
 export function findBlockTimingAt(timings: NarrationSegmentTimings, timeMs: number): NarrationBlockTiming|null {
@@ -215,7 +230,7 @@ export function updateNarrationHighlight(highlighter: NarrationHighlighter, timi
   highlighter.currentBlockIndex = blockTiming.blockIndex;
   highlighter.currentWordIndex = wordIndex;
 
-  const pageBlock = getPageBlock(highlighter, blockTiming.blockIndex);
+  const pageBlock = getPageBlocks(highlighter)[blockTiming.blockIndex];
   const wordTargets = getWordTargets(pageBlock, blockTiming, wordIndex);
   setHighlightRanges(WORD_HIGHLIGHT_NAME, wordTargets.ranges);
   setMarkedElements(highlighter, wordTargets.elements);
@@ -230,10 +245,12 @@ export function updateNarrationHighlight(highlighter: NarrationHighlighter, timi
   return isLaidOut ? wordRect : null;
 }
 
-export function clearNarrationHighlight(highlighter: NarrationHighlighter) {
+/** Removes the highlighter's highlights from the page, and stops it watching the page */
+export function disposeNarrationHighlighter(highlighter: NarrationHighlighter) {
   setHighlightRanges(WORD_HIGHLIGHT_NAME, []);
   setMarkedElements(highlighter, []);
   setNarrationPositionRange(null);
+  highlighter.scannedRootObserver.disconnect();
   highlighter.currentBlockIndex = null;
   highlighter.currentWordIndex = null;
 }
@@ -255,9 +272,8 @@ export function scrollToNarrationPosition(positionRect: DOMRect) {
  * that `node` is in.
  */
 export function findScriptBlockIndexForNode(highlighter: NarrationHighlighter, node: Node): number|null {
-  const pageBlocks = mapScriptBlocksToPage(highlighter.script, highlighter.root);
-  highlighter.pageBlocks = pageBlocks;
-  const blockIndex = pageBlocks.findIndex(pageBlock => {
+  scanPage(highlighter);
+  const blockIndex = highlighter.pageBlocks.findIndex(pageBlock => {
     if (!pageBlock) {
       return false;
     }

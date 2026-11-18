@@ -26,6 +26,7 @@ interface Query {
   Lightcone2025FundraiserAirtableAmounts: number;
   LlmModelOptions: Array<string>;
   narrationOptions: NarrationOptions;
+  narrationSelectableVoices: Array<NarrationVoice>;
   narrationSegmentAudios: Array<NarrationSegmentAudio>;
   FrontpagePostScoreBreakdown: FrontpagePostScoreBreakdown | null;
   PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData | null;
@@ -254,6 +255,7 @@ interface Mutation {
   MarkAllNotificationsAsRead: boolean | null;
   sendNewDialogueMessageNotification: boolean;
   prepareNarration: NarrationScript;
+  prepareCommentNarration: NarrationScript;
   generateNarrationSegmentAudio: NarrationSegmentAudio;
   PetrovDayLaunchMissile: PetrovDayLaunchMissileData | null;
   submitReviewVote: Post | null;
@@ -7394,6 +7396,7 @@ interface User {
   noKibitz: boolean | null;
   showHideKarmaOption: boolean | null;
   showPostAuthorCard: boolean | null;
+  narrationVoiceId: string | null;
   hideIntercom: boolean;
   hailboxOptIn: boolean | null;
   markDownPostEditor: boolean;
@@ -9423,6 +9426,7 @@ interface UpdateUserDataInput {
   noKibitz?: boolean | null;
   showHideKarmaOption?: boolean | null;
   showPostAuthorCard?: boolean | null;
+  narrationVoiceId?: string | null;
   hideIntercom?: boolean | null;
   hailboxOptIn?: boolean | null;
   markDownPostEditor?: boolean | null;

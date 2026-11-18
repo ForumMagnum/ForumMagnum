@@ -2,10 +2,18 @@ import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } fro
 import { useApolloClient, useMutation } from "@apollo/client/react";
 import sum from "lodash/sum";
 import { gql } from "@/lib/generated/gql-codegen";
+import { isCommentNarratable } from "@/lib/narration/narratableComments";
 import type { NarrationScript, NarrationSegmentTimings, NarrationVoiceSettings } from "@/lib/narration/narrationTypes";
 import {
-  clearNarrationHighlight,
+  findCommentBodyElement,
+  findNarrationComment,
+  findNarrationCommentForElement,
+  getNextNarrationComment,
+  setNarrationFocusedComment,
+} from "./narrationComments";
+import {
   createNarrationHighlighter,
+  disposeNarrationHighlighter,
   findBlockTimingAt,
   findScriptBlockIndexForNode,
   scrollToNarrationPosition,
@@ -21,8 +29,16 @@ const PrepareNarrationMutation = gql(`
   }
 `);
 
+const PrepareCommentNarrationMutation = gql(`
+  mutation PrepareCommentNarrationMutation($commentId: String!) {
+    prepareCommentNarration(commentId: $commentId) {
+      ...NarrationScriptFragment
+    }
+  }
+`);
+
 const GenerateNarrationSegmentAudioMutation = gql(`
-  mutation GenerateNarrationSegmentAudioMutation($narrationSegmentId: String!, $settings: NarrationVoiceSettingsInput!) {
+  mutation GenerateNarrationSegmentAudioMutation($narrationSegmentId: String!, $settings: NarrationVoiceSettingsInput) {
     generateNarrationSegmentAudio(narrationSegmentId: $narrationSegmentId, settings: $settings) {
       ...NarrationSegmentAudioFragment
     }
@@ -42,6 +58,8 @@ const DEFAULT_MS_PER_CHARACTER = 65;
 /** After the reader scrolls, how long before the page is scrolled to follow the narration again */
 const USER_SCROLL_GRACE_MS = 5000;
 const POST_CONTENT_ELEMENT_ID = "postContent";
+/** Comments are read in their authors' voices, which the server looks up, so their audio isn't kept by voice settings */
+const AUTHOR_VOICE_KEY = "author";
 const scrollKeys = new Set(["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "]);
 
 export type NarrationPhase = "idle" | "loading" | "playing" | "paused" | "ended" | "error";
@@ -60,23 +78,57 @@ interface LoadedSegmentAudio {
   timings: NarrationSegmentTimings
 }
 
-/** Where to start playing from: partway through a segment, or at the start of a block of the script */
-type PlaybackTarget =
+/**
+ * Something that's narrated as a unit, with a script and a timeline of its
+ * own: the post, or one of its comments. Playback goes from the post into the
+ * comments, and then from each comment to the next.
+ */
+export type NarrationItem =
+  | { type: "post", postId: string }
+  | { type: "comment", commentId: string };
+
+/**
+ * Where in an item to start playing from: partway through a segment, at the
+ * start of a block of the script, or at the block that a node of the page is
+ * in (the start of the item, if it isn't in one).
+ */
+type PlaybackPosition =
   | { type: "fraction", segmentIndex: number, fraction: number }
-  | { type: "block", blockIndex: number };
+  | { type: "block", blockIndex: number }
+  | { type: "node", node: Node };
+
+interface PlaybackTarget {
+  item: NarrationItem
+  position: PlaybackPosition
+}
 
 interface EngineState {
-  prepared: Promise<PreparedNarration>|null
-  /** Keyed by settings and segment; see getSegmentAudioKey */
+  /** Keyed by item; see getItemKey */
+  prepared: Map<string, Promise<PreparedNarration>>
+  /** Keyed by voice and segment; see getSegmentAudioKey */
   segmentAudios: Map<string, Promise<LoadedSegmentAudio>>
   /** What the audio element currently holds */
-  loadedSegment: { segmentIndex: number, settingsKey: string, audio: LoadedSegmentAudio }|null
+  loadedSegment: {
+    item: NarrationItem
+    segmentIndex: number
+    /** How many segments the item has */
+    segmentCount: number
+    voiceKey: string
+    audio: LoadedSegmentAudio
+  }|null
   /** Incremented whenever playback is redirected, so that work started for an earlier request can tell it's been superseded */
   commandToken: number
   /** Where playback was last asked to start from, until the audio for it has been loaded */
   pendingTarget: PlaybackTarget|null
+  /** Highlights what's being read in the item that the player is showing */
   highlighter: NarrationHighlighter|null
+  highlighterItemKey: string|null
   lastUserScrollAt: number
+  /**
+   * Comments that would be skipped for having no karma, but that the listener
+   * asked for by starting playback in one of them, or in a reply under them
+   */
+  unlockedCommentIds: Set<string>
 }
 
 export interface NarrationPlayback {
@@ -92,8 +144,10 @@ export interface NarrationPlayback {
   phase: NarrationPhase
   statusMessage: string|null
   errorMessage: string|null
+  /** What's being narrated. The position and duration are within this. */
+  currentItem: NarrationItem
   positionMs: number
-  /** Null until the narration's script has been loaded */
+  /** Null until the item's script has been loaded */
   durationMs: number|null
   durationIsEstimated: boolean
   play: () => void
@@ -106,8 +160,48 @@ function getSettingsKey(settings: NarrationVoiceSettings): string {
   return JSON.stringify([settings.voiceId, settings.modelId, settings.stability, settings.similarityBoost, settings.style, settings.speed]);
 }
 
-function getSegmentAudioKey(settingsKey: string, segmentId: string): string {
-  return `${settingsKey}:${segmentId}`;
+function getItemKey(item: NarrationItem): string {
+  return item.type === "post" ? `post:${item.postId}` : `comment:${item.commentId}`;
+}
+
+/** Identifies the voice that an item is read in. Null for a post, if the settings to read it with aren't known yet. */
+function getVoiceKey(item: NarrationItem, settings: NarrationVoiceSettings|null): string|null {
+  if (item.type === "comment") {
+    return AUTHOR_VOICE_KEY;
+  }
+  return settings ? getSettingsKey(settings) : null;
+}
+
+function getSegmentAudioKey(voiceKey: string, segmentId: string): string {
+  return `${voiceKey}:${segmentId}`;
+}
+
+function getItemRoot(item: NarrationItem): Element|null {
+  return item.type === "post" ? document.getElementById(POST_CONTENT_ELEMENT_ID) : findCommentBodyElement(item.commentId);
+}
+
+const startOfItem: PlaybackPosition = { type: "fraction", segmentIndex: 0, fraction: 0 };
+
+/** The segment that a position is in, and the block to start at, if it's a particular block */
+function locateInScript(prepared: PreparedNarration, { item, position }: PlaybackTarget): { segmentIndex: number, blockIndex: number|null, fraction: number } {
+  if (position.type === "fraction") {
+    return { segmentIndex: position.segmentIndex, blockIndex: null, fraction: position.fraction };
+  }
+  const blockIndex = position.type === "block"
+    ? position.blockIndex
+    : findBlockIndexForNode(prepared.script, item, position.node);
+  if (blockIndex === null) {
+    return { segmentIndex: 0, blockIndex: null, fraction: 0 };
+  }
+  const segmentIndex = prepared.segments.findIndex(segment => segment.startBlockIndex <= blockIndex && blockIndex < segment.endBlockIndex);
+  return { segmentIndex, blockIndex, fraction: 0 };
+}
+
+function findBlockIndexForNode(script: NarrationScript, item: NarrationItem, node: Node): number|null {
+  const highlighter = createNarrationHighlighter(script, () => getItemRoot(item));
+  const blockIndex = findScriptBlockIndexForNode(highlighter, node);
+  disposeNarrationHighlighter(highlighter);
+  return blockIndex;
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -123,13 +217,13 @@ async function fetchJson<T>(url: string): Promise<T> {
  * How long each segment is. Segments whose audio hasn't been generated are
  * estimated from their length, at the speaking rate of the ones that have.
  */
-function getSegmentDurations(segments: NarrationSegmentInfo[], settingsKey: string, knownDurations: Record<string, number>): number[] {
-  const measuredSegments = segments.filter(segment => getSegmentAudioKey(settingsKey, segment._id) in knownDurations);
-  const measuredMs = sum(measuredSegments.map(segment => knownDurations[getSegmentAudioKey(settingsKey, segment._id)]));
+function getSegmentDurations(segments: NarrationSegmentInfo[], voiceKey: string, knownDurations: Record<string, number>): number[] {
+  const measuredSegments = segments.filter(segment => getSegmentAudioKey(voiceKey, segment._id) in knownDurations);
+  const measuredMs = sum(measuredSegments.map(segment => knownDurations[getSegmentAudioKey(voiceKey, segment._id)]));
   const measuredCharacters = sum(measuredSegments.map(segment => segment.characterCount));
   const msPerCharacter = measuredCharacters > 0 ? measuredMs / measuredCharacters : DEFAULT_MS_PER_CHARACTER;
   return segments.map(segment =>
-    knownDurations[getSegmentAudioKey(settingsKey, segment._id)] ?? (segment.characterCount * msPerCharacter)
+    knownDurations[getSegmentAudioKey(voiceKey, segment._id)] ?? (segment.characterCount * msPerCharacter)
   );
 }
 
@@ -144,93 +238,153 @@ function isPlaybackBlockedError(error: unknown): boolean {
   return error instanceof DOMException && error.name === "NotAllowedError";
 }
 
+
+function getNextItem(item: NarrationItem, unlockedCommentIds: ReadonlySet<string>): NarrationItem|null {
+  const nextComment = getNextNarrationComment(item.type === "comment" ? item.commentId : null, unlockedCommentIds);
+  return nextComment ? { type: "comment", commentId: nextComment.comment._id } : null;
+}
+
 /**
- * Plays a post's narration, segment by segment, through a single audio
- * element. Audio for a segment is requested (and generated, if nobody has
- * listened to it with these settings before) when playback reaches it, and
- * the segment after the one being played is requested ahead of time.
+ * What a double-click on an element asks to hear: the post, if it's in the
+ * post's body, or the comment whose text it's part of. Choosing a comment
+ * also unlocks it and the comments it's nested under, so that it's read even
+ * if it would have been skipped for having no karma.
+ */
+function findItemForElement(element: Element, postItem: NarrationItem): { item: NarrationItem, unlockedCommentIds: Set<string> }|null {
+  if (element.closest(`#${POST_CONTENT_ELEMENT_ID}`)) {
+    return { item: postItem, unlockedCommentIds: new Set() };
+  }
+  const commentEntry = findNarrationCommentForElement(element);
+  if (!commentEntry || !isCommentNarratable(commentEntry.comment)) {
+    return null;
+  }
+  return {
+    item: { type: "comment", commentId: commentEntry.comment._id },
+    unlockedCommentIds: new Set([...commentEntry.ancestors, commentEntry.comment].map(comment => comment._id)),
+  };
+}
+
+/**
+ * Plays the narration of a post and then of its comments, through a single
+ * audio element. Each of those (an "item") has a script of its own, divided
+ * into segments. Audio for a segment is requested (and generated, if nobody
+ * has listened to it in that voice before) when playback reaches it, and what
+ * comes after the segment being played is requested ahead of time: the item's
+ * next segment, or the first segment of the next item.
  */
 export function useNarrationPlayback({ postId, settings, autoScroll, playbackRate }: {
   postId: string
-  /** Null until the settings to use are known; playback can't start before then */
+  /** The voice to read the post in. Null until the settings to use are known; the post can't be played before then. */
   settings: NarrationVoiceSettings|null
   autoScroll: boolean
   playbackRate: number
 }): NarrationPlayback {
   const apolloClient = useApolloClient();
-  const [prepareNarration] = useMutation(PrepareNarrationMutation);
+  const [preparePostNarration] = useMutation(PrepareNarrationMutation);
+  const [prepareCommentNarration] = useMutation(PrepareCommentNarrationMutation);
   const [generateSegmentAudio] = useMutation(GenerateNarrationSegmentAudioMutation);
 
   const audioRef = useRef<HTMLAudioElement|null>(null);
   const engineRef = useRef<EngineState>({
-    prepared: null,
+    prepared: new Map(),
     segmentAudios: new Map(),
     loadedSegment: null,
     commandToken: 0,
     pendingTarget: null,
     highlighter: null,
+    highlighterItemKey: null,
     lastUserScrollAt: 0,
+    unlockedCommentIds: new Set(),
   });
+
+  const postItem = useMemo((): NarrationItem => ({ type: "post", postId }), [postId]);
 
   const [phase, setPhase] = useState<NarrationPhase>("idle");
   const [statusMessage, setStatusMessage] = useState<string|null>(null);
   const [errorMessage, setErrorMessage] = useState<string|null>(null);
-  const [prepared, setPrepared] = useState<PreparedNarration|null>(null);
+  const [currentItem, setCurrentItem] = useState<NarrationItem>(postItem);
+  /** The scripts that have been loaded. Keyed like EngineState.prepared. */
+  const [preparedByItemKey, setPreparedByItemKey] = useState<Partial<Record<string, PreparedNarration>>>({});
   /** How long each segment's audio is, for those that have been generated. Keyed like EngineState.segmentAudios. */
   const [knownDurations, setKnownDurations] = useState<Record<string, number>>({});
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
   const [segmentTimeMs, setSegmentTimeMs] = useState(0);
 
   const settingsKey = settings ? getSettingsKey(settings) : null;
+  const currentItemKey = getItemKey(currentItem);
+  const prepared = preparedByItemKey[currentItemKey] ?? null;
+  const postPrepared = preparedByItemKey[getItemKey(postItem)] ?? null;
+  const voiceKey = getVoiceKey(currentItem, settings);
 
   const segmentDurations = useMemo(
-    () => (prepared && settingsKey) ? getSegmentDurations(prepared.segments, settingsKey, knownDurations) : null,
-    [prepared, settingsKey, knownDurations],
+    () => (prepared && voiceKey) ? getSegmentDurations(prepared.segments, voiceKey, knownDurations) : null,
+    [prepared, voiceKey, knownDurations],
   );
-  const durationIsEstimated = !!prepared && !!settingsKey && prepared.segments.some(
-    segment => !(getSegmentAudioKey(settingsKey, segment._id) in knownDurations)
+  const durationIsEstimated = !!prepared && !!voiceKey && prepared.segments.some(
+    segment => !(getSegmentAudioKey(voiceKey, segment._id) in knownDurations)
   );
 
   const positionMs = segmentDurations ? sum(segmentDurations.slice(0, currentSegmentIndex)) + segmentTimeMs : 0;
   const durationMs = segmentDurations ? sum(segmentDurations) : null;
 
-  const latestRef = useRef({ settings, settingsKey, segmentDurations, positionMs, playbackRate, autoScroll, phase });
-  latestRef.current = { settings, settingsKey, segmentDurations, positionMs, playbackRate, autoScroll, phase };
+  const latestRef = useRef({ settings, settingsKey, currentItem, segmentDurations, positionMs, playbackRate, autoScroll, phase });
+  latestRef.current = { settings, settingsKey, currentItem, segmentDurations, positionMs, playbackRate, autoScroll, phase };
 
-  const ensurePrepared = useCallback((): Promise<PreparedNarration> => {
+  const requestNarrationScript = useCallback(async (item: NarrationItem): Promise<NarrationScriptFragment|null|undefined> => {
+    if (item.type === "post") {
+      const { data } = await preparePostNarration({ variables: { postId: item.postId } });
+      return data?.prepareNarration;
+    }
+    const { data } = await prepareCommentNarration({ variables: { commentId: item.commentId } });
+    return data?.prepareCommentNarration;
+  }, [preparePostNarration, prepareCommentNarration]);
+
+  const ensurePrepared = useCallback((item: NarrationItem): Promise<PreparedNarration> => {
     const engine = engineRef.current;
-    if (engine.prepared) {
-      return engine.prepared;
+    const itemKey = getItemKey(item);
+    const alreadyPreparing = engine.prepared.get(itemKey);
+    if (alreadyPreparing) {
+      return alreadyPreparing;
     }
     const preparing = (async () => {
-      const { data } = await prepareNarration({ variables: { postId } });
-      const narrationScript = data?.prepareNarration;
+      const narrationScript = await requestNarrationScript(item);
       if (!narrationScript) {
         throw new Error("Preparing the narration returned nothing");
       }
       const script = await fetchJson<NarrationScript>(narrationScript.scriptUrl);
       const result = { narrationScriptId: narrationScript._id, segments: narrationScript.segments, script };
-      setPrepared(result);
+      setPreparedByItemKey(preparedItems => ({ ...preparedItems, [itemKey]: result }));
       return result;
     })();
-    engine.prepared = preparing;
+    engine.prepared.set(itemKey, preparing);
     preparing.catch(() => {
-      if (engine.prepared === preparing) {
-        engine.prepared = null;
+      if (engine.prepared.get(itemKey) === preparing) {
+        engine.prepared.delete(itemKey);
       }
     });
     return preparing;
-  }, [prepareNarration, postId]);
+  }, [requestNarrationScript]);
 
-  const loadSegmentAudio = useCallback((segment: NarrationSegmentInfo, voiceSettings: NarrationVoiceSettings): Promise<LoadedSegmentAudio> => {
+  const loadSegmentAudio = useCallback((
+    segment: NarrationSegmentInfo,
+    item: NarrationItem,
+    voiceSettings: NarrationVoiceSettings|null,
+  ): Promise<LoadedSegmentAudio> => {
     const engine = engineRef.current;
-    const audioKey = getSegmentAudioKey(getSettingsKey(voiceSettings), segment._id);
+    const itemVoiceKey = getVoiceKey(item, voiceSettings);
+    if (!itemVoiceKey) {
+      return Promise.reject(new Error("No voice has been chosen to read the post in"));
+    }
+    const audioKey = getSegmentAudioKey(itemVoiceKey, segment._id);
     const alreadyLoading = engine.segmentAudios.get(audioKey);
     if (alreadyLoading) {
       return alreadyLoading;
     }
     const loading = (async () => {
-      const { data } = await generateSegmentAudio({ variables: { narrationSegmentId: segment._id, settings: voiceSettings } });
+      const { data } = await generateSegmentAudio({ variables: {
+        narrationSegmentId: segment._id,
+        settings: item.type === "post" ? voiceSettings : null,
+      } });
       const audio = data?.generateNarrationSegmentAudio;
       if (!audio) {
         throw new Error("Generating audio returned nothing");
@@ -248,11 +402,41 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     return loading;
   }, [generateSegmentAudio]);
 
+  /** Requests what will be played after a segment, so that it's ready by then */
+  const loadWhatFollows = useCallback(async (
+    item: NarrationItem,
+    preparedNarration: PreparedNarration,
+    segmentIndex: number,
+    voiceSettings: NarrationVoiceSettings|null,
+  ) => {
+    const nextSegment = preparedNarration.segments.at(segmentIndex + 1);
+    if (nextSegment) {
+      await loadSegmentAudio(nextSegment, item, voiceSettings);
+      return;
+    }
+    const nextItem = getNextItem(item, engineRef.current.unlockedCommentIds);
+    const nextItemFirstSegment = nextItem ? (await ensurePrepared(nextItem)).segments.at(0) : null;
+    if (nextItem && nextItemFirstSegment) {
+      await loadSegmentAudio(nextItemFirstSegment, nextItem, voiceSettings);
+    }
+  }, [ensurePrepared, loadSegmentAudio]);
+
+  /** Makes an item the one that the player shows the timeline of. A comment is also expanded, if it wasn't. */
+  const showItem = useCallback((item: NarrationItem) => {
+    if (getItemKey(item) !== getItemKey(latestRef.current.currentItem)) {
+      setCurrentItem(item);
+      setCurrentSegmentIndex(0);
+      setSegmentTimeMs(0);
+    }
+    setNarrationFocusedComment(item.type === "comment" ? findNarrationComment(item.commentId) : null);
+  }, []);
+
   const playFrom = useCallback(async (target: PlaybackTarget) => {
     const engine = engineRef.current;
     const audioElement = audioRef.current;
     const voiceSettings = latestRef.current.settings;
-    if (!audioElement || !voiceSettings) {
+    const targetVoiceKey = getVoiceKey(target.item, voiceSettings);
+    if (!audioElement || !targetVoiceKey) {
       return;
     }
     const commandToken = ++engine.commandToken;
@@ -260,34 +444,39 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     audioElement.pause();
     setPhase("loading");
     setErrorMessage(null);
+    showItem(target.item);
 
     try {
       setStatusMessage("Preparing narration…");
-      const preparedNarration = await ensurePrepared();
+      const preparedNarration = await ensurePrepared(target.item);
       if (commandToken !== engine.commandToken) {
         return;
       }
-      const segmentIndex = target.type === "block"
-        ? preparedNarration.segments.findIndex(segment => segment.startBlockIndex <= target.blockIndex && target.blockIndex < segment.endBlockIndex)
-        : target.segmentIndex;
+      const { segmentIndex, blockIndex, fraction } = locateInScript(preparedNarration, target);
       const segment = preparedNarration.segments.at(segmentIndex);
       if (segmentIndex < 0 || !segment) {
-        throw new Error("That part of the post isn't in the narration");
+        throw new Error("That part of the page isn't in the narration");
       }
 
       setStatusMessage("Generating audio…");
-      const segmentAudio = await loadSegmentAudio(segment, voiceSettings);
+      const segmentAudio = await loadSegmentAudio(segment, target.item, voiceSettings);
       if (commandToken !== engine.commandToken) {
         return;
       }
-      const offsetMs = target.type === "block"
-        ? segmentAudio.timings.blocks.find(block => block.blockIndex === target.blockIndex)?.startMs ?? 0
-        : target.fraction * segmentAudio.durationMs;
+      const offsetMs = blockIndex !== null
+        ? segmentAudio.timings.blocks.find(block => block.blockIndex === blockIndex)?.startMs ?? 0
+        : fraction * segmentAudio.durationMs;
 
       if (engine.loadedSegment?.audio.audioUrl !== segmentAudio.audioUrl) {
         audioElement.src = segmentAudio.audioUrl;
       }
-      engine.loadedSegment = { segmentIndex, settingsKey: getSettingsKey(voiceSettings), audio: segmentAudio };
+      engine.loadedSegment = {
+        item: target.item,
+        segmentIndex,
+        segmentCount: preparedNarration.segments.length,
+        voiceKey: targetVoiceKey,
+        audio: segmentAudio,
+      };
       engine.pendingTarget = null;
       audioElement.currentTime = offsetMs / 1000;
       audioElement.defaultPlaybackRate = latestRef.current.playbackRate;
@@ -296,11 +485,8 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
       setSegmentTimeMs(offsetMs);
       setStatusMessage(null);
 
-      const nextSegment = preparedNarration.segments.at(segmentIndex + 1);
-      if (nextSegment) {
-        // A failure here will come up again, and be reported, when playback reaches that segment
-        void loadSegmentAudio(nextSegment, voiceSettings).catch(() => {});
-      }
+      // A failure here will come up again, and be reported, when playback gets there
+      void loadWhatFollows(target.item, preparedNarration, segmentIndex, voiceSettings).catch(() => {});
       await audioElement.play();
     } catch (error) {
       if (commandToken !== engine.commandToken) {
@@ -316,17 +502,18 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
       setPhase("error");
       setErrorMessage(error instanceof Error ? error.message : String(error));
     }
-  }, [ensurePrepared, loadSegmentAudio]);
+  }, [ensurePrepared, loadSegmentAudio, loadWhatFollows, showItem]);
 
   const updateHighlight = useCallback(() => {
     const engine = engineRef.current;
     const audioElement = audioRef.current;
-    if (!engine.highlighter || !engine.loadedSegment || !audioElement) {
+    const loadedSegment = engine.loadedSegment;
+    if (!engine.highlighter || !loadedSegment || !audioElement || getItemKey(loadedSegment.item) !== engine.highlighterItemKey) {
       return;
     }
     const newPositionRect = updateNarrationHighlight(
       engine.highlighter,
-      engine.loadedSegment.audio.timings,
+      loadedSegment.audio.timings,
       audioElement.currentTime * 1000,
     );
     const readerScrolledRecently = Date.now() - engine.lastUserScrollAt < USER_SCROLL_GRACE_MS;
@@ -341,15 +528,17 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     if (!audioElement) {
       return;
     }
-    const loadedAudioIsCurrent = !!engine.loadedSegment && engine.loadedSegment.settingsKey === latestRef.current.settingsKey;
+    const loadedSegment = engine.loadedSegment;
+    const loadedAudioIsCurrent = !!loadedSegment && loadedSegment.voiceKey === getVoiceKey(loadedSegment.item, latestRef.current.settings);
     if (engine.pendingTarget) {
       void playFrom(engine.pendingTarget);
     } else if (loadedAudioIsCurrent && latestRef.current.phase !== "ended") {
       void audioElement.play();
     } else {
-      void playFrom({ type: "fraction", segmentIndex: 0, fraction: 0 });
+      engine.unlockedCommentIds = new Set();
+      void playFrom({ item: postItem, position: startOfItem });
     }
-  }, [playFrom]);
+  }, [playFrom, postItem]);
 
   const pause = useCallback(() => {
     engineRef.current.commandToken++;
@@ -359,18 +548,21 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
   }, []);
 
   const seekTo = useCallback((timelineMs: number) => {
-    const engine = engineRef.current;
     const audioElement = audioRef.current;
-    const durations = latestRef.current.segmentDurations;
+    const { currentItem: shownItem, segmentDurations: durations, settings: voiceSettings } = latestRef.current;
     if (!audioElement || !durations) {
       return;
     }
     const { segmentIndex, fraction } = locateOnTimeline(durations, timelineMs);
-    const loadedSegment = engine.loadedSegment;
-    if (loadedSegment && loadedSegment.segmentIndex === segmentIndex && loadedSegment.settingsKey === latestRef.current.settingsKey) {
+    const loadedSegment = engineRef.current.loadedSegment;
+    const soughtSegmentIsLoaded = !!loadedSegment
+      && getItemKey(loadedSegment.item) === getItemKey(shownItem)
+      && loadedSegment.segmentIndex === segmentIndex
+      && loadedSegment.voiceKey === getVoiceKey(shownItem, voiceSettings);
+    if (loadedSegment && soughtSegmentIsLoaded) {
       audioElement.currentTime = fraction * loadedSegment.audio.durationMs / 1000;
     } else {
-      void playFrom({ type: "fraction", segmentIndex, fraction });
+      void playFrom({ item: shownItem, position: { type: "fraction", segmentIndex, fraction } });
     }
   }, [playFrom]);
 
@@ -386,9 +578,16 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
       }
     },
     onEnded: () => {
-      const nextSegmentIndex = (engineRef.current.loadedSegment?.segmentIndex ?? 0) + 1;
-      if (nextSegmentIndex < (latestRef.current.segmentDurations?.length ?? 0)) {
-        void playFrom({ type: "fraction", segmentIndex: nextSegmentIndex, fraction: 0 });
+      const { loadedSegment, unlockedCommentIds } = engineRef.current;
+      if (!loadedSegment) {
+        return;
+      }
+      const nextSegmentIndex = loadedSegment.segmentIndex + 1;
+      const nextItem = getNextItem(loadedSegment.item, unlockedCommentIds);
+      if (nextSegmentIndex < loadedSegment.segmentCount) {
+        void playFrom({ item: loadedSegment.item, position: { type: "fraction", segmentIndex: nextSegmentIndex, fraction: 0 } });
+      } else if (nextItem) {
+        void playFrom({ item: nextItem, position: startOfItem });
       } else {
         setPhase("ended");
       }
@@ -409,15 +608,15 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     },
   }), [playFrom, updateHighlight]);
 
-  // The script is loaded as soon as the player opens, rather than when play
-  // is first pressed, so that the timeline shows the narration's length and
-  // double-clicking a paragraph works straight away.
+  // The post's script is loaded as soon as the player opens, rather than when
+  // play is first pressed, so that the timeline shows the narration's length
+  // and double-clicking a paragraph works straight away.
   useEffect(() => {
-    ensurePrepared().catch((error: unknown) => {
+    ensurePrepared(postItem).catch((error: unknown) => {
       setPhase(currentPhase => currentPhase === "idle" ? "error" : currentPhase);
       setErrorMessage(error instanceof Error ? error.message : String(error));
     });
-  }, [ensurePrepared]);
+  }, [ensurePrepared, postItem]);
 
   useEffect(() => {
     const audioElement = audioRef.current;
@@ -428,17 +627,17 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     }
   }, [playbackRate]);
 
-  // Find out which segments already have audio with these settings, so that
-  // the timeline can use their real lengths.
+  // Find out which of the post's segments already have audio with these
+  // settings, so that the timeline can use their real lengths.
   useEffect(() => {
     const voiceSettings = latestRef.current.settings;
-    if (!prepared || !voiceSettings || !settingsKey) {
+    if (!postPrepared || !voiceSettings || !settingsKey) {
       return;
     }
     let isCurrent = true;
     void apolloClient.query({
       query: NarrationSegmentAudiosQuery,
-      variables: { narrationScriptId: prepared.narrationScriptId, settings: voiceSettings },
+      variables: { narrationScriptId: postPrepared.narrationScriptId, settings: voiceSettings },
       fetchPolicy: "network-only",
     }).then(({ data }) => {
       if (!isCurrent) {
@@ -452,10 +651,10 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     return () => {
       isCurrent = false;
     };
-  }, [apolloClient, prepared, settingsKey]);
+  }, [apolloClient, postPrepared, settingsKey]);
 
-  // When the voice settings change partway through, continue from the block
-  // being read, in the new voice.
+  // When the voice settings change partway through the post, continue from
+  // the block being read, in the new voice. (They don't apply to comments.)
   useEffect(() => {
     const { loadedSegment, pendingTarget } = engineRef.current;
     const audioElement = audioRef.current;
@@ -468,43 +667,60 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
       }
       return;
     }
-    if (!loadedSegment || loadedSegment.settingsKey === settingsKey) {
+    if (!loadedSegment || loadedSegment.item.type !== "post" || loadedSegment.voiceKey === settingsKey) {
       return;
     }
     const currentBlock = findBlockTimingAt(loadedSegment.audio.timings, audioElement.currentTime * 1000);
     if (currentBlock) {
-      void playFrom({ type: "block", blockIndex: currentBlock.blockIndex });
+      void playFrom({ item: loadedSegment.item, position: { type: "block", blockIndex: currentBlock.blockIndex } });
     }
   }, [settingsKey, playFrom]);
 
   useEffect(() => {
-    const root = document.getElementById(POST_CONTENT_ELEMENT_ID);
-    if (!prepared || !root) {
+    if (!prepared) {
       return;
     }
     const engine = engineRef.current;
-    const highlighter = createNarrationHighlighter(prepared.script, root);
+    const highlighter = createNarrationHighlighter(prepared.script, () => getItemRoot(currentItem));
     engine.highlighter = highlighter;
+    engine.highlighterItemKey = getItemKey(currentItem);
+    return () => {
+      disposeNarrationHighlighter(highlighter);
+      engine.highlighter = null;
+      engine.highlighterItemKey = null;
+    };
+  }, [prepared, currentItem]);
 
-    const jumpToDoubleClickedBlock = (event: MouseEvent) => {
-      const target = event.target instanceof Node ? event.target : null;
+  useEffect(() => {
+    const engine = engineRef.current;
+    const jumpToDoubleClickedPlace = (event: MouseEvent) => {
+      const target = event.target instanceof Element ? event.target : null;
+      const clickedItem = target ? findItemForElement(target, postItem) : null;
+      if (!target || !clickedItem) {
+        return;
+      }
       // Double-clicking text selects a word, which says where the click was
       // more precisely than the element it landed on does. Double-clicking an
       // image selects nothing, and leaves any earlier selection in place.
       const clickedNode = target instanceof HTMLImageElement ? target : (window.getSelection()?.anchorNode ?? target);
-      const blockIndex = clickedNode ? findScriptBlockIndexForNode(highlighter, clickedNode) : null;
-      if (blockIndex !== null) {
-        void playFrom({ type: "block", blockIndex });
-      }
-    };
-    root.addEventListener("dblclick", jumpToDoubleClickedBlock);
 
-    return () => {
-      root.removeEventListener("dblclick", jumpToDoubleClickedBlock);
-      clearNarrationHighlight(highlighter);
-      engine.highlighter = null;
+      // In what's already showing, a double-click that isn't on anything
+      // that's narrated (in the space between paragraphs, say) does nothing.
+      // In a comment that playback hasn't been to, it starts the comment.
+      const shownItemHighlighter = getItemKey(clickedItem.item) === engine.highlighterItemKey ? engine.highlighter : null;
+      const blockIndex = shownItemHighlighter ? findScriptBlockIndexForNode(shownItemHighlighter, clickedNode) : null;
+      if (shownItemHighlighter && blockIndex === null) {
+        return;
+      }
+      engine.unlockedCommentIds = clickedItem.unlockedCommentIds;
+      void playFrom({
+        item: clickedItem.item,
+        position: blockIndex !== null ? { type: "block", blockIndex } : { type: "node", node: clickedNode },
+      });
     };
-  }, [prepared, playFrom]);
+    document.addEventListener("dblclick", jumpToDoubleClickedPlace);
+    return () => document.removeEventListener("dblclick", jumpToDoubleClickedPlace);
+  }, [playFrom, postItem]);
 
   useEffect(() => {
     if (phase !== "playing") {
@@ -543,6 +759,7 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     return () => {
       engine.commandToken++;
       audioElement?.pause();
+      setNarrationFocusedComment(null);
     };
   }, []);
 
@@ -552,6 +769,7 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     phase,
     statusMessage,
     errorMessage,
+    currentItem,
     positionMs,
     durationMs,
     durationIsEstimated,

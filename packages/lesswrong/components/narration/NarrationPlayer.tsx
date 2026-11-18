@@ -14,8 +14,9 @@ import {
   defaultNarrationVoiceTuning,
   type NarrationVoiceSettings,
 } from "@/lib/narration/narrationTypes";
+import { findNarrationComment } from "./narrationComments";
 import { narrationHighlightStyles } from "./narrationHighlighting";
-import { useNarrationPlayback } from "./useNarrationPlayback";
+import { useNarrationPlayback, type NarrationItem } from "./useNarrationPlayback";
 import NarrationSettingsPanel, { type NarrationModelOption, type NarrationVoiceOption } from "./NarrationSettingsPanel";
 
 const NarrationOptionsQuery = gql(`
@@ -115,6 +116,13 @@ const styles = defineStyles("NarrationPlayer", (theme: ThemeType) => ({
     border: "none",
     cursor: "pointer",
   },
+  nowReading: {
+    padding: "8px 16px 0",
+    color: theme.palette.text.dim,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
   status: {
     padding: "0 16px 8px",
     color: theme.palette.text.dim,
@@ -150,6 +158,15 @@ function parseStoredSettings(storedSettings: string|undefined): NarrationVoiceSe
   } catch {
     return null;
   }
+}
+
+/** Says which comment is being read. Nothing is shown for the post, since that's what the player was opened for. */
+function getNowReadingLabel(item: NarrationItem): string|null {
+  if (item.type === "post") {
+    return null;
+  }
+  const authorName = findNarrationComment(item.commentId)?.comment.user?.displayName;
+  return authorName ? `Comment by ${authorName}` : "Comment";
 }
 
 /**
@@ -209,6 +226,7 @@ const NarrationPlayer = ({ postId, onClose }: {
 
   const playback = useNarrationPlayback({ postId, settings, autoScroll, playbackRate });
   const { phase, positionMs, durationMs } = playback;
+  const nowReadingLabel = getNowReadingLabel(playback.currentItem);
   const isPlayingOrLoading = phase === "playing" || phase === "loading";
 
   const commitScrub = () => {
@@ -237,6 +255,7 @@ const NarrationPlayer = ({ postId, onClose }: {
       setAutoScroll={setAutoScroll}
     />}
 
+    {nowReadingLabel && <div className={classes.nowReading}>{nowReadingLabel}</div>}
     <div className={classes.controls}>
       <button
         type="button"

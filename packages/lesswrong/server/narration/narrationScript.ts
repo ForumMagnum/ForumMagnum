@@ -57,9 +57,11 @@ const endsWithPunctuationPattern = /[.!?:;,…—]["'”’)\]]*$/;
 const sentenceBreakPattern = /[.!?]["'”’)\]]*\s+/g;
 const wordBreakPattern = /\s+/g;
 
-export interface NarrationPostInfo {
-  title: string
-  authorNames: string[]
+export interface NarrationDocumentInfo {
+  /** What's said before the document itself, to tell listeners what they're about to hear */
+  introduction: string
+  /** The title of the post that the document is, or is a comment on. Empty for a comment that isn't on a post. */
+  postTitle: string
 }
 
 export interface NarrationSegmentPlan {
@@ -477,11 +479,28 @@ function orderBlocksForPlayback(drafts: DocumentBlockDraft[]): PlaybackBlock[] {
   return [...playbackBlocks, ...unreferencedFootnoteBlocks];
 }
 
-function getIntroBlock({ title, authorNames }: NarrationPostInfo): PlaybackBlock {
+export function getPostIntroduction(title: string, authorNames: string[]): string {
   const titleSentence = endsWithPunctuationPattern.test(title) ? title : `${title}.`;
   const authors = new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(authorNames);
+  return `${titleSentence} By ${authors}.`;
+}
+
+/**
+ * Comments are heard one after another, in the order they're shown, so a
+ * reply says whose comment it's replying to. `parentAuthorName` is null for a
+ * comment that isn't a reply, and for a reply to a comment whose author isn't
+ * shown.
+ */
+export function getCommentIntroduction(authorName: string, isReply: boolean, parentAuthorName: string|null): string {
+  if (!isReply) {
+    return `Comment by ${authorName}.`;
+  }
+  return parentAuthorName ? `${authorName} replies to ${parentAuthorName}.` : `Reply by ${authorName}.`;
+}
+
+function getIntroBlock(introduction: string): PlaybackBlock {
   return {
-    block: { documentIndex: null, fingerprint: null, speech: `${titleSentence} By ${authors}.`, spans: [] },
+    block: { documentIndex: null, fingerprint: null, speech: introduction, spans: [] },
     startsSection: true,
   };
 }
@@ -572,11 +591,11 @@ export function getNarrationSegmentText(blocks: NarrationScriptBlock[]): string 
 }
 
 /**
- * Converts a post's HTML into the script that its narration is generated
- * from: what to say for each block of the post, in what order, and how that
- * divides into segments.
+ * Converts the HTML of a post or comment into the script that its narration
+ * is generated from: what to say for each of its blocks, in what order, and
+ * how that divides into segments.
  */
-export async function buildNarrationScript(html: string, postInfo: NarrationPostInfo): Promise<BuiltNarrationScript> {
+export async function buildNarrationScript(html: string, documentInfo: NarrationDocumentInfo): Promise<BuiltNarrationScript> {
   const { document } = getLinkedom()(`<!DOCTYPE html><html><body>${html}</body></html>`);
   const root = document.body;
   const domBlocks = extractNarrationBlocks(root);
@@ -584,7 +603,7 @@ export async function buildNarrationScript(html: string, postInfo: NarrationPost
   const [equations, tableRows, images] = await Promise.all([
     getMathReadings(domBlocks),
     getTableRowReadings(domBlocks),
-    getImageReadings(domBlocks, postInfo.title),
+    getImageReadings(domBlocks, documentInfo.postTitle),
   ]);
   const readings: GeneratedReadings = { equations, tableRows, images };
 
@@ -596,7 +615,7 @@ export async function buildNarrationScript(html: string, postInfo: NarrationPost
     referencedFootnoteIds: getReferencedFootnoteIds(block),
   })));
 
-  const playbackBlocks = [getIntroBlock(postInfo), ...orderBlocksForPlayback(drafts)].flatMap(splitOversizeBlock);
+  const playbackBlocks = [getIntroBlock(documentInfo.introduction), ...orderBlocksForPlayback(drafts)].flatMap(splitOversizeBlock);
   return {
     script: { blocks: playbackBlocks.map(({ block }) => block) },
     segments: planSegments(playbackBlocks),

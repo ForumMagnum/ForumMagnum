@@ -3,13 +3,14 @@ import React, { useRef } from 'react';
 import { hasEventsSetting, isEAForum } from '@/lib/instanceSettings';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
-import { userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { HighlightableField } from './HighlightableField';
 import SettingsSection from './SettingsSection';
 import SettingsToggleRow from './SettingsToggleRow';
 import SettingsSelectRow from './SettingsSelectRow';
 import type { SettingsTabProps } from './settingsTabTypes';
 import { userCanUseHailbox, userCanViewJargonTerms } from '@/lib/betas';
+import NarrationVoiceSetting from '@/components/narration/NarrationVoiceSetting';
 
 const SORT_DRAFTS_BY_OPTIONS = [
   { value: "wordCount", label: "Wordcount" },
@@ -84,6 +85,13 @@ const PreferencesSettingsTab = ({
           description="Author names are hidden until you hover over them. Reduces bias when reading. Does not work well on mobile."
         />
       </SettingsSection>
+
+      {userIsAdmin(currentUser) && <SettingsSection title="Narration">
+        <NarrationVoiceSetting
+          value={settings.narrationVoiceId}
+          onChange={(value) => void updateSettings({ narrationVoiceId: value })}
+        />
+      </SettingsSection>}
 
       <SettingsSection title="Content">
         <SettingsSelectRow

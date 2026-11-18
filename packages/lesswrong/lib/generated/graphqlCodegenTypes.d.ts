@@ -4175,6 +4175,7 @@ type Mutation = {
   performVoteRevision?: Maybe<VoteResultRevision>;
   performVoteTag?: Maybe<VoteResultTag>;
   performVoteTagRel?: Maybe<VoteResultTagRel>;
+  prepareCommentNarration: NarrationScript;
   prepareNarration: NarrationScript;
   promoteLensToMain?: Maybe<Scalars['Boolean']['output']>;
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
@@ -4657,7 +4658,7 @@ type MutationgenerateCoverImagesForPostArgs = {
 
 type MutationgenerateNarrationSegmentAudioArgs = {
   narrationSegmentId: Scalars['String']['input'];
-  settings: NarrationVoiceSettingsInput;
+  settings?: InputMaybe<NarrationVoiceSettingsInput>;
 };
 
 
@@ -4807,6 +4808,11 @@ type MutationperformVoteTagRelArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationprepareCommentNarrationArgs = {
+  commentId: Scalars['String']['input'];
 };
 
 
@@ -7789,6 +7795,7 @@ type Query = {
   myHomePageDesigns: Array<HomePageDesign>;
   narrationOptions: NarrationOptions;
   narrationSegmentAudios: Array<NarrationSegmentAudio>;
+  narrationSelectableVoices: Array<NarrationVoice>;
   notification?: Maybe<SingleNotificationOutput>;
   notifications?: Maybe<MultiNotificationOutput>;
   petrov2024checkIfNuked?: Maybe<Scalars['Boolean']['output']>;
@@ -12127,6 +12134,7 @@ type UpdateUserDataInput = {
   moderationGuidelines?: InputMaybe<CreateRevisionDataInput>;
   moderationStyle?: InputMaybe<Scalars['String']['input']>;
   moderatorAssistance?: InputMaybe<Scalars['Boolean']['input']>;
+  narrationVoiceId?: InputMaybe<Scalars['String']['input']>;
   nearbyEventsNotifications?: InputMaybe<Scalars['Boolean']['input']>;
   nearbyEventsNotificationsLocation?: InputMaybe<Scalars['JSON']['input']>;
   nearbyEventsNotificationsRadius?: InputMaybe<Scalars['Float']['input']>;
@@ -12434,6 +12442,7 @@ type User = {
   moderatorActions?: Maybe<Array<ModeratorAction>>;
   moderatorAssistance?: Maybe<Scalars['Boolean']['output']>;
   mongoLocation?: Maybe<Scalars['JSON']['output']>;
+  narrationVoiceId?: Maybe<Scalars['String']['output']>;
   nearbyEventsNotifications: Scalars['Boolean']['output'];
   nearbyEventsNotificationsLocation?: Maybe<Scalars['JSON']['output']>;
   nearbyEventsNotificationsMongoLocation?: Maybe<Scalars['JSON']['output']>;
@@ -17404,6 +17413,16 @@ type NarrationOptionsQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 type NarrationOptionsQueryQuery = NarrationOptionsQueryQuery_Query;
 
+type NarrationSelectableVoicesQueryQuery_narrationSelectableVoices_NarrationVoice = { __typename?: 'NarrationVoice', voiceId: string, name: string, previewUrl: string | null };
+
+type NarrationSelectableVoicesQueryQuery_Query = { __typename?: 'Query', narrationSelectableVoices: Array<NarrationSelectableVoicesQueryQuery_narrationSelectableVoices_NarrationVoice> };
+
+
+type NarrationSelectableVoicesQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type NarrationSelectableVoicesQueryQuery = NarrationSelectableVoicesQueryQuery_Query;
+
 type PrepareNarrationMutationMutation_prepareNarration_NarrationScript = (
   { __typename?: 'NarrationScript' }
   & NarrationScriptFragment
@@ -17419,6 +17438,21 @@ type PrepareNarrationMutationMutationVariables = Exact<{
 
 type PrepareNarrationMutationMutation = PrepareNarrationMutationMutation_Mutation;
 
+type PrepareCommentNarrationMutationMutation_prepareCommentNarration_NarrationScript = (
+  { __typename?: 'NarrationScript' }
+  & NarrationScriptFragment
+);
+
+type PrepareCommentNarrationMutationMutation_Mutation = { __typename?: 'Mutation', prepareCommentNarration: PrepareCommentNarrationMutationMutation_prepareCommentNarration_NarrationScript };
+
+
+type PrepareCommentNarrationMutationMutationVariables = Exact<{
+  commentId: Scalars['String']['input'];
+}>;
+
+
+type PrepareCommentNarrationMutationMutation = PrepareCommentNarrationMutationMutation_Mutation;
+
 type GenerateNarrationSegmentAudioMutationMutation_generateNarrationSegmentAudio_NarrationSegmentAudio = (
   { __typename?: 'NarrationSegmentAudio' }
   & NarrationSegmentAudioFragment
@@ -17429,7 +17463,7 @@ type GenerateNarrationSegmentAudioMutationMutation_Mutation = { __typename?: 'Mu
 
 type GenerateNarrationSegmentAudioMutationMutationVariables = Exact<{
   narrationSegmentId: Scalars['String']['input'];
-  settings: NarrationVoiceSettingsInput;
+  settings: InputMaybe<NarrationVoiceSettingsInput>;
 }>;
 
 
@@ -26916,7 +26950,7 @@ type UsersEdit_User_moderationGuidelines_Revision = (
 );
 
 type UsersEdit = (
-  { __typename?: 'User', markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, hideIntercom: boolean, hailboxOptIn: boolean | null, commentSorting: string | null, currentFrontpageFilter: string | null, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, noSingleLineComments: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, beta: boolean | null, theme: any | null, email: string | null, whenConfirmationEmailSent: string | null, emailSubscribedToCurated: boolean | null, emailSubscribedToAiDigest: boolean | null, unsubscribeFromAll: boolean | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, associatedOAuthServices: Array<string> | null, username: string | null, displayName: string, fullName: string | null, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, hideFromPeopleDirectory: boolean, reviewedByUserId: string | null, reviewForAlignmentForumUserId: string | null, groups: Array<string> | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, karmaChangeLastOpened: string | null, karmaChangeNotifierSettings: any | null, notificationShortformContent: any | null, notificationCommentsOnSubscribedPost: any | null, notificationRepliesToMyComments: any | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPostsInGroups: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationRSVPs: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationGroupAdministration: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationTypoSuggestions: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2020Ad: boolean | null, deleted: boolean, permanentDeletionRequestedAt: string | null, twitterProfileURLAdmin: string | null, biography: UsersEdit_User_biography_Revision | null, moderationGuidelines: UsersEdit_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, hideIntercom: boolean, hailboxOptIn: boolean | null, commentSorting: string | null, currentFrontpageFilter: string | null, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, noSingleLineComments: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, beta: boolean | null, theme: any | null, narrationVoiceId: string | null, email: string | null, whenConfirmationEmailSent: string | null, emailSubscribedToCurated: boolean | null, emailSubscribedToAiDigest: boolean | null, unsubscribeFromAll: boolean | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, associatedOAuthServices: Array<string> | null, username: string | null, displayName: string, fullName: string | null, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, hideFromPeopleDirectory: boolean, reviewedByUserId: string | null, reviewForAlignmentForumUserId: string | null, groups: Array<string> | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, karmaChangeLastOpened: string | null, karmaChangeNotifierSettings: any | null, notificationShortformContent: any | null, notificationCommentsOnSubscribedPost: any | null, notificationRepliesToMyComments: any | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPostsInGroups: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationRSVPs: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationGroupAdministration: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationTypoSuggestions: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2020Ad: boolean | null, deleted: boolean, permanentDeletionRequestedAt: string | null, twitterProfileURLAdmin: string | null, biography: UsersEdit_User_biography_Revision | null, moderationGuidelines: UsersEdit_User_moderationGuidelines_Revision | null }
   & UsersProfile
   & UsersCurrent
 );

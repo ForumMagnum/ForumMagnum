@@ -11,6 +11,7 @@ const voicesResponseSchema = z.object({
     category: z.string().nullish(),
     description: z.string().nullish(),
     preview_url: z.string().nullish(),
+    labels: z.object({ gender: z.string().nullish() }).nullish(),
   })),
 });
 
@@ -40,6 +41,8 @@ export interface ElevenLabsVoice {
   category: string|null
   description: string|null
   previewUrl: string|null
+  /** How ElevenLabs labels the voice: "male", "female" or "neutral" */
+  gender: string|null
 }
 
 export interface ElevenLabsModel {
@@ -87,6 +90,7 @@ export async function listElevenLabsVoices(): Promise<ElevenLabsVoice[]> {
     category: voice.category ?? null,
     description: voice.description ?? null,
     previewUrl: voice.preview_url ?? null,
+    gender: voice.labels?.gender ?? null,
   }));
 }
 

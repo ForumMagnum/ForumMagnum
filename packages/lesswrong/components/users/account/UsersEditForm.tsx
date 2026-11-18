@@ -49,6 +49,7 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   noSingleLineComments: 'preferences',
   noCollapseCommentsPosts: 'preferences',
   noCollapseCommentsFrontpage: 'preferences',
+  narrationVoiceId: 'preferences',
   hideCommunitySection: 'preferences',
   showCommunityInRecentDiscussion: 'preferences',
   postGlossariesPinned: 'preferences',

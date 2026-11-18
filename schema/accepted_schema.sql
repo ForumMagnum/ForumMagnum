@@ -3345,6 +3345,7 @@ CREATE TABLE "Users" (
   "noKibitz" BOOL,
   "showHideKarmaOption" BOOL,
   "showPostAuthorCard" BOOL,
+  "narrationVoiceId" TEXT,
   "hideIntercom" BOOL NOT NULL DEFAULT FALSE,
   "hailboxOptIn" BOOL NOT NULL DEFAULT FALSE,
   "markDownPostEditor" BOOL NOT NULL DEFAULT FALSE,

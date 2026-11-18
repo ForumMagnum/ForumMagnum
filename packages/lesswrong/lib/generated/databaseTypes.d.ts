@@ -1957,6 +1957,7 @@ interface DbUser extends DbObject {
   moderationStyle: string | null
   moderatorAssistance: boolean | null
   mongoLocation: any | null
+  narrationVoiceId: string | null
   nearbyEventsNotifications: boolean
   nearbyEventsNotificationsLocation: any | null
   nearbyEventsNotificationsMongoLocation: any | null

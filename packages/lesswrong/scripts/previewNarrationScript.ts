@@ -2,7 +2,7 @@
 import { writeFile } from "fs/promises";
 import Posts from "@/server/collections/posts/collection";
 import Revisions from "@/server/collections/revisions/collection";
-import { buildNarrationScript, getNarrationSegmentText } from "@/server/narration/narrationScript";
+import { buildNarrationScript, getNarrationSegmentText, getPostIntroduction } from "@/server/narration/narrationScript";
 
 /**
  * Writes out the text that would be sent to the speech model for a post,
@@ -23,7 +23,10 @@ export async function previewNarrationScript(postId: string, outputPath: string)
     throw new Error(`Revision ${post.contents_latest} has no html`);
   }
 
-  const { script, segments } = await buildNarrationScript(revision.html, { title: post.title, authorNames: [post.author ?? "the author"] });
+  const { script, segments } = await buildNarrationScript(revision.html, {
+    introduction: getPostIntroduction(post.title, [post.author ?? "the author"]),
+    postTitle: post.title,
+  });
   const segmentTexts = segments.map((segment, segmentIndex) => {
     const text = getNarrationSegmentText(script.blocks.slice(segment.startBlockIndex, segment.endBlockIndex));
     return `===== Segment ${segmentIndex} (${segment.characterCount} characters) =====\n${text}`;
