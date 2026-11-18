@@ -589,7 +589,7 @@ const RejectionAppealPage = () => {
         {error && <div className={classes.error}>{error}</div>}
         <div className={classes.submitRow}>
           <span className={classes.submitNote}>
-            If you do request a review, a moderator will read it, usually within 72 hours. You'll only hear back if we
+            If you do request a review, a moderator will read it, usually within 72 hours. You'll hear back if we
             reconsider the rejection.
           </span>
           <button
