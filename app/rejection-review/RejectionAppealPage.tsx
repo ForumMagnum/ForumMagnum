@@ -472,8 +472,8 @@ const AlreadyAppealedState = ({ appeal }: { appeal: RejectionAppealsUserInfo }) 
       {appeal.status && <>Status: {APPEAL_STATUS_LABELS[appeal.status]}</>}
       {appeal.status === "open" && <>
         <br />
-        A moderator will read your request, usually within 72 hours. If we reconsider the rejection, we will notify
-        you.
+        Moderators make a best effort attempt to review messages quickly. If the decision is reconsidered, we will
+        notify you.
       </>}
     </p>
     {appeal.conversationId && <ViewConversationButton conversationId={appeal.conversationId} />}
