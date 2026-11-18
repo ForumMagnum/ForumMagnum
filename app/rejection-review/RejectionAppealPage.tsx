@@ -448,8 +448,8 @@ const SubmittedState = ({ item, reasons, explanation, conversationId }: {
     <h2 className={classes.endStateHeading}>Your review request has been submitted</h2>
     <p className={classes.endStateMessage}>
       Thanks for taking the time to explain. A moderator will read your request, usually within 72 hours. We've
-      added a summary of it to your conversation with us. If we reconsider the rejection, we'll message you there;
-      otherwise, you won't hear back from us. You can add anything else there in the meantime.
+      added a summary of it to your conversation with us, and you can add anything else there in the meantime. If we
+      reconsider the rejection, we will notify you.
     </p>
     {conversationId && <ViewConversationButton conversationId={conversationId} />}
     <div className={classes.submittedSummary}>
@@ -473,8 +473,8 @@ const AlreadyAppealedState = ({ appeal }: { appeal: RejectionAppealsUserInfo }) 
       {appeal.status && <>Status: {APPEAL_STATUS_LABELS[appeal.status]}</>}
       {appeal.status === "open" && <>
         <br />
-        A moderator will read your request, usually within 72 hours. If we reconsider the rejection, we'll message
-        you in your conversation with us; otherwise, you won't hear back from us.
+        A moderator will read your request, usually within 72 hours. If we reconsider the rejection, we will notify
+        you.
       </>}
     </p>
     {appeal.conversationId && <ViewConversationButton conversationId={appeal.conversationId} />}
