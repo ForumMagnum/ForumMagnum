@@ -1277,6 +1277,19 @@ CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_slug" ON "MultiDocuments" USING b
 -- Index "idx_MultiDocuments_oldSlugs"
 CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_oldSlugs" ON "MultiDocuments" USING gin ("oldSlugs");
 
+-- Table "NarrationImageDescriptions"
+CREATE TABLE "NarrationImageDescriptions" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "imageUrl" TEXT NOT NULL,
+  "promptVersion" INTEGER NOT NULL,
+  "kind" TEXT NOT NULL,
+  "reading" TEXT NOT NULL
+);
+
+-- Index "idx_NarrationImageDescriptions_imageUrl_promptVersion"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_NarrationImageDescriptions_imageUrl_promptVersion" ON "NarrationImageDescriptions" USING btree ("imageUrl", "promptVersion");
+
 -- Table "NarrationScripts"
 CREATE TABLE "NarrationScripts" (
   _id VARCHAR(27) PRIMARY KEY,

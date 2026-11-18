@@ -122,6 +122,7 @@ import { graphqlMigrationQueryTypeDefs, migrationGqlFieldResolvers } from "@/ser
 import { graphqlModerationTemplateQueryTypeDefs, moderationTemplateGqlQueryHandlers, moderationTemplateGqlFieldResolvers } from "@/server/collections/moderationTemplates/queries";
 import { graphqlModeratorActionQueryTypeDefs, moderatorActionGqlQueryHandlers, moderatorActionGqlFieldResolvers } from "@/server/collections/moderatorActions/queries";
 import { graphqlMultiDocumentQueryTypeDefs, multiDocumentGqlQueryHandlers, multiDocumentGqlFieldResolvers } from "@/server/collections/multiDocuments/queries";
+import { graphqlNarrationImageDescriptionQueryTypeDefs, narrationImageDescriptionGqlFieldResolvers } from "@/server/collections/narrationImageDescriptions/queries";
 import { graphqlNarrationScriptQueryTypeDefs, narrationScriptGqlFieldResolvers } from "@/server/collections/narrationScripts/queries";
 import { graphqlNarrationSegmentAudioQueryTypeDefs, narrationSegmentAudioGqlFieldResolvers } from "@/server/collections/narrationSegmentAudios/queries";
 import { graphqlNarrationSegmentQueryTypeDefs, narrationSegmentGqlFieldResolvers } from "@/server/collections/narrationSegments/queries";
@@ -365,6 +366,7 @@ export const getTypeDefs = () => gql`
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
   ${graphqlHomePageDesignQueryTypeDefs}
   ${graphqlLlmRunTranscriptEntryQueryTypeDefs}
+  ${graphqlNarrationImageDescriptionQueryTypeDefs}
   ${graphqlNarrationScriptQueryTypeDefs}
   ${graphqlNarrationSegmentAudioQueryTypeDefs}
   ${graphqlNarrationSegmentQueryTypeDefs}
@@ -742,6 +744,7 @@ const getResolvers = () => ({
   ...googleServiceAccountSessionGqlFieldResolvers,
   ...homePageDesignGqlFieldResolvers,
   ...llmRunTranscriptEntryGqlFieldResolvers,
+  ...narrationImageDescriptionGqlFieldResolvers,
   ...narrationScriptGqlFieldResolvers,
   ...narrationSegmentAudioGqlFieldResolvers,
   ...narrationSegmentGqlFieldResolvers,

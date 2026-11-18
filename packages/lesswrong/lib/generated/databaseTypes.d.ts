@@ -805,6 +805,17 @@ interface DbMultiDocument extends DbObject {
   voteCount: number
 }
 
+type NarrationImageDescriptionsCollection = PgCollection<"NarrationImageDescriptions">;
+
+interface DbNarrationImageDescription extends DbObject {
+  __collectionName?: "NarrationImageDescriptions"
+  createdAt: Date
+  imageUrl: string
+  kind: string
+  promptVersion: number
+  reading: string
+}
+
 type NarrationScriptsCollection = PgCollection<"NarrationScripts">;
 
 interface DbNarrationScript extends DbObject {
@@ -2524,6 +2535,7 @@ interface CollectionsByName {
   ModerationTemplates: ModerationTemplatesCollection
   ModeratorActions: ModeratorActionsCollection
   MultiDocuments: MultiDocumentsCollection
+  NarrationImageDescriptions: NarrationImageDescriptionsCollection
   NarrationScripts: NarrationScriptsCollection
   NarrationSegmentAudios: NarrationSegmentAudiosCollection
   NarrationSegments: NarrationSegmentsCollection
@@ -2631,6 +2643,7 @@ interface ObjectsByCollectionName {
   ModerationTemplates: DbModerationTemplate
   ModeratorActions: DbModeratorAction
   MultiDocuments: DbMultiDocument
+  NarrationImageDescriptions: DbNarrationImageDescription
   NarrationScripts: DbNarrationScript
   NarrationSegmentAudios: DbNarrationSegmentAudio
   NarrationSegments: DbNarrationSegment
@@ -2738,6 +2751,7 @@ interface ObjectsByTypeName {
   ModerationTemplate: DbModerationTemplate
   ModeratorAction: DbModeratorAction
   MultiDocument: DbMultiDocument
+  NarrationImageDescription: DbNarrationImageDescription
   NarrationScript: DbNarrationScript
   NarrationSegmentAudio: DbNarrationSegmentAudio
   NarrationSegment: DbNarrationSegment

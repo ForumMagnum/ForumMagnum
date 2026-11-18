@@ -8,8 +8,8 @@ import { cyrb53 } from "@/lib/utils/cyrb53";
  * narration script identifies blocks by fingerprint, and the player finds them
  * in the page by fingerprint. So this only uses the parts of the DOM API that
  * both implementations share, and only depends on things that survive
- * rendering (text content, equations' TeX source), not on ids or attributes
- * that rendering adds.
+ * rendering (text content, equations' TeX source, images' `src`), not on ids
+ * or attributes that rendering adds.
  *
  * A text block is a maximal run of inline content inside one block-level
  * element, so every text node belongs to exactly one block. Its `sourceText`
@@ -20,6 +20,9 @@ import { cyrb53 } from "@/lib/utils/cyrb53";
  * being used for layout (typically to put a background colour behind some
  * paragraphs), so its contents are treated as if the table weren't there. Any
  * other table produces one block per row.
+ *
+ * An image is a block of its own, wherever it is: text on either side of it
+ * within the same paragraph becomes separate blocks.
  */
 
 export type NarrationOmittedKind = "code" | "spoiler" | "embed";
@@ -77,7 +80,17 @@ export interface NarrationTableRowBlock {
   fingerprint: string
 }
 
-export type NarrationDomBlock = NarrationTextBlock | NarrationOmittedBlock | NarrationTableRowBlock;
+export interface NarrationImageBlock {
+  type: "image"
+  /** The <img> */
+  element: Element
+  /** The `src` attribute as written, which for a relative URL isn't the address the image loads from */
+  src: string
+  alt: string
+  fingerprint: string
+}
+
+export type NarrationDomBlock = NarrationTextBlock | NarrationOmittedBlock | NarrationTableRowBlock | NarrationImageBlock;
 
 /** Matches the list item that holds a footnote's content, in the footnotes section at the end of a post */
 export const footnoteItemSelector = "[data-footnote-item], .footnote-item";
@@ -296,6 +309,24 @@ function closeRun(state: WalkState) {
   });
 }
 
+/**
+ * Alt text that's a symbol, with no letters or digits in it, means the image
+ * is an emoji that was pasted in as a picture. Those aren't narrated.
+ */
+function isEmojiAltText(alt: string): boolean {
+  return alt.length > 0 && !/[\p{L}\p{N}]/u.test(alt);
+}
+
+function appendImage(state: WalkState, element: Element) {
+  const src = element.getAttribute("src");
+  const alt = normalizeWhitespace(element.getAttribute("alt") ?? "");
+  if (!src || isEmojiAltText(alt)) {
+    return;
+  }
+  closeRun(state);
+  state.blocks.push({ type: "image", element, src, alt, fingerprint: fingerprintText(`image:${src}`) });
+}
+
 function getChildrenWithTag(parent: Element, tagNames: Set<string>): Element[] {
   return Array.from(parent.children).filter(child => tagNames.has(child.tagName.toLowerCase()));
 }
@@ -315,6 +346,7 @@ function getBlockText(block: NarrationDomBlock): string {
     case "text": return block.sourceText;
     case "tableRow": return block.cells.join(" | ");
     case "omitted": return "";
+    case "image": return "";
   }
 }
 
@@ -386,6 +418,10 @@ function walkChildren(state: WalkState, parent: Element, container: Element, lin
     }
     if (tagName === "table") {
       walkTable(state, child, linkHref);
+      continue;
+    }
+    if (tagName === "img") {
+      appendImage(state, child);
       continue;
     }
     const omittedKind = getOmittedKind(tagName, classNames);

@@ -116,6 +116,7 @@ export const allViews = {
   ModerationTemplates: ModerationTemplatesViews,
   ModeratorActions: ModeratorActionsViews,
   MultiDocuments: MultiDocumentsViews,
+  NarrationImageDescriptions: new CollectionViewSet('NarrationImageDescriptions', {}),
   NarrationScripts: new CollectionViewSet('NarrationScripts', {}),
   NarrationSegmentAudios: new CollectionViewSet('NarrationSegmentAudios', {}),
   NarrationSegments: new CollectionViewSet('NarrationSegments', {}),

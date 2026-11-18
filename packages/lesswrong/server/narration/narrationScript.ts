@@ -7,6 +7,7 @@ import {
   footnoteItemSelector,
   footnoteReferenceSelector,
   type NarrationDomBlock,
+  type NarrationImageBlock,
   type NarrationMathPiece,
   type NarrationOmittedKind,
   type NarrationPiece,
@@ -19,15 +20,16 @@ import {
   type NarrationScriptBlock,
   type NarrationSpan,
 } from "@/lib/narration/narrationTypes";
+import { describeImages } from "./imageDescriptions";
 import { verbalizeEquations } from "./mathVerbalization";
 import { verbalizeTables } from "./tableVerbalization";
 
 /**
  * Scripts are stored and reused, so this must be increased whenever a change
- * here (or to extractNarrationBlocks, or to the prompts for reading equations
- * and tables) would change the script made for a given post.
+ * here (or to extractNarrationBlocks, or to the prompts for reading equations,
+ * tables and images) would change the script made for a given post.
  */
-export const NARRATION_PREPROCESSOR_VERSION = 2;
+export const NARRATION_PREPROCESSOR_VERSION = 3;
 
 /** The first segment is short, so that playback can start soon after it's requested */
 const FIRST_SEGMENT_TARGET_CHARACTERS = 600;
@@ -35,7 +37,8 @@ const SEGMENT_TARGET_CHARACTERS = 2400;
 /** Under the smallest per-request limit among ElevenLabs' models (5,000 characters, for eleven_v3) */
 const BLOCK_MAX_CHARACTERS = 4500;
 const MATH_CONTEXT_CHARACTERS = 300;
-const TABLE_CONTEXT_CHARACTERS = 500;
+/** How much of the text next to a table or an image is given to the model that writes its reading */
+const SURROUNDING_TEXT_CHARACTERS = 500;
 
 const omittedBlockAnnouncements: Record<NarrationOmittedKind, string> = {
   code: "Code block omitted.",
@@ -90,8 +93,14 @@ interface BlockContext {
   isHeading: boolean
   footnote: FootnoteInfo|null
   listNumber: number|null
-  startsQuote: boolean
-  endsQuote: boolean
+  /** The outermost blockquote that the block is in */
+  quote: Element|null
+}
+
+interface GeneratedReadings {
+  equations: Map<NarrationMathPiece, string>
+  tableRows: Map<NarrationTableRowBlock, string>
+  images: Map<NarrationImageBlock, string>
 }
 
 interface DocumentBlockDraft {
@@ -115,6 +124,10 @@ function isMathPiece(piece: NarrationPiece): piece is NarrationMathPiece {
 
 function isTableRowBlock(block: NarrationDomBlock): block is NarrationTableRowBlock {
   return block.type === "tableRow";
+}
+
+function isImageBlock(block: NarrationDomBlock): block is NarrationImageBlock {
+  return block.type === "image";
 }
 
 function getBlockElement(block: NarrationDomBlock): Element {
@@ -155,20 +168,17 @@ function getBlockContexts(domBlocks: NarrationDomBlock[], root: Element): BlockC
   const footnoteItems = Array.from(root.querySelectorAll(footnoteItemSelector));
   const elements = domBlocks.map(getBlockElement);
   const listItems = elements.map(element => element.closest("li"));
-  const quotes = elements.map(getOutermostBlockquote);
 
   return elements.map((element, i) => {
     const footnoteItem = element.closest(footnoteItemSelector);
     const footnote = footnoteItem ? getFootnoteInfo(footnoteItem, footnoteItems) : null;
     const listItem = listItems[i];
     const isFirstBlockOfListItem = !!listItem && listItems.indexOf(listItem) === i;
-    const quote = quotes[i];
     return {
       isHeading: !!element.closest("h1, h2, h3, h4, h5, h6"),
       footnote,
       listNumber: (listItem && isFirstBlockOfListItem && !footnoteItem) ? getOrderedListNumber(listItem) : null,
-      startsQuote: !!quote && quotes.indexOf(quote) === i,
-      endsQuote: !!quote && quotes.lastIndexOf(quote) === i,
+      quote: getOutermostBlockquote(element),
     };
   });
 }
@@ -274,19 +284,19 @@ function decorateSpeech({ speech, spans }: SpeechText, prefix: string, suffix: s
   };
 }
 
-function getMathReading(piece: NarrationMathPiece, mathReadings: Map<NarrationMathPiece, string>): string {
-  const reading = mathReadings.get(piece);
+function getGeneratedReading<T>(readings: Map<T, string>, item: T, itemDescription: string): string {
+  const reading = readings.get(item);
   if (reading === undefined) {
-    throw new Error(`No reading was generated for equation: ${piece.tex}`);
+    throw new Error(`No reading was generated for ${itemDescription}`);
   }
   return reading;
 }
 
-function verbalizeTextBlock(block: NarrationTextBlock, context: BlockContext, mathReadings: Map<NarrationMathPiece, string>): SpeechText {
+function verbalizeTextBlock(block: NarrationTextBlock, context: BlockContext, equationReadings: Map<NarrationMathPiece, string>): SpeechText {
   const mathReplacements = block.pieces.filter(isMathPiece).map(piece => ({
     sourceStart: piece.sourceStart,
     sourceEnd: piece.sourceEnd,
-    speech: getMathReading(piece, mathReadings),
+    speech: getGeneratedReading(equationReadings, piece, `equation: ${piece.tex}`),
   }));
   const textReplacements = [...findPatternReplacements(block.sourceText), ...findFootnoteMarkerGaps(block)];
   const replacements = resolveReplacements(mathReplacements, textReplacements);
@@ -295,14 +305,12 @@ function verbalizeTextBlock(block: NarrationTextBlock, context: BlockContext, ma
     return emptySpeechText;
   }
 
-  const quotePrefix = context.startsQuote ? "Quote: " : "";
   const listPrefix = context.listNumber !== null ? `${context.listNumber}. ` : "";
   // The speech model only pauses between blocks when the first one ends with
   // punctuation. Without a full stop, consecutive headings or list items are
   // read as one run-on sentence.
   const needsStop = !endsWithPunctuationPattern.test(body.speech);
-  const quoteSuffix = context.endsQuote ? " End quote." : "";
-  return decorateSpeech(body, `${quotePrefix}${listPrefix}`, `${needsStop ? "." : ""}${quoteSuffix}`);
+  return decorateSpeech(body, listPrefix, needsStop ? "." : "");
 }
 
 function getEquationContext(block: NarrationTextBlock, piece: NarrationMathPiece): string {
@@ -327,7 +335,12 @@ async function getMathReadings(domBlocks: NarrationDomBlock[]): Promise<Map<Narr
 
 function getPrecedingText(domBlocks: NarrationDomBlock[], block: NarrationDomBlock): string {
   const precedingBlock = domBlocks.slice(0, domBlocks.indexOf(block)).findLast(candidate => candidate.type === "text");
-  return precedingBlock?.type === "text" ? precedingBlock.sourceText.slice(-TABLE_CONTEXT_CHARACTERS) : "";
+  return precedingBlock?.type === "text" ? precedingBlock.sourceText.slice(-SURROUNDING_TEXT_CHARACTERS) : "";
+}
+
+function getFollowingText(domBlocks: NarrationDomBlock[], block: NarrationDomBlock): string {
+  const followingBlock = domBlocks.slice(domBlocks.indexOf(block) + 1).find(candidate => candidate.type === "text");
+  return followingBlock?.type === "text" ? followingBlock.sourceText.slice(0, SURROUNDING_TEXT_CHARACTERS) : "";
 }
 
 async function getTableRowReadings(domBlocks: NarrationDomBlock[]): Promise<Map<NarrationTableRowBlock, string>> {
@@ -342,9 +355,20 @@ async function getTableRowReadings(domBlocks: NarrationDomBlock[]): Promise<Map<
   ));
 }
 
+async function getImageReadings(domBlocks: NarrationDomBlock[], postTitle: string): Promise<Map<NarrationImageBlock, string>> {
+  const imageBlocks = domBlocks.filter(isImageBlock);
+  const readings = await describeImages(imageBlocks.map(block => ({
+    imageUrl: block.src,
+    altText: block.alt,
+    precedingText: getPrecedingText(domBlocks, block),
+    followingText: getFollowingText(domBlocks, block),
+  })), postTitle);
+  return new Map(imageBlocks.map((block, i) => [block, readings[i]]));
+}
+
 /**
- * Speech for a block that isn't read word for word: a table row, or an
- * announcement that something was left out.
+ * Speech for a block that isn't read word for word: a table row, the
+ * description of an image, or an announcement that something was left out.
  */
 function getWholeBlockSpeech(speech: string): SpeechText {
   if (speech.trim().length === 0) {
@@ -357,24 +381,16 @@ function getWholeBlockSpeech(speech: string): SpeechText {
   };
 }
 
-function getTableRowReading(block: NarrationTableRowBlock, tableRowReadings: Map<NarrationTableRowBlock, string>): string {
-  const reading = tableRowReadings.get(block);
-  if (reading === undefined) {
-    throw new Error(`No reading was generated for table row: ${block.cells.join(" | ")}`);
-  }
-  return reading;
-}
-
-function getBlockSpeech(
-  block: NarrationDomBlock,
-  context: BlockContext,
-  mathReadings: Map<NarrationMathPiece, string>,
-  tableRowReadings: Map<NarrationTableRowBlock, string>,
-): SpeechText {
+function getBlockSpeech(block: NarrationDomBlock, context: BlockContext, readings: GeneratedReadings): SpeechText {
   switch (block.type) {
-    case "text": return verbalizeTextBlock(block, context, mathReadings);
-    case "tableRow": return getWholeBlockSpeech(getTableRowReading(block, tableRowReadings));
-    case "omitted": return getWholeBlockSpeech(omittedBlockAnnouncements[block.omittedKind]);
+    case "text":
+      return verbalizeTextBlock(block, context, readings.equations);
+    case "tableRow":
+      return getWholeBlockSpeech(getGeneratedReading(readings.tableRows, block, `table row: ${block.cells.join(" | ")}`));
+    case "image":
+      return getWholeBlockSpeech(getGeneratedReading(readings.images, block, `image: ${block.src}`));
+    case "omitted":
+      return getWholeBlockSpeech(omittedBlockAnnouncements[block.omittedKind]);
   }
 }
 
@@ -387,9 +403,28 @@ function getReferencedFootnoteIds(block: NarrationDomBlock): string[] {
         const footnoteId = reference.getAttribute("data-footnote-id");
         return footnoteId ? [footnoteId] : [];
       });
+    case "image":
     case "omitted":
       return [];
   }
+}
+
+/**
+ * Announces where each quotation starts and ends. The blocks that say so are
+ * the first and last ones in the quotation that have anything to say, which
+ * needn't be text: quotations often end with an image.
+ */
+function addQuoteMarkers(drafts: DocumentBlockDraft[]): DocumentBlockDraft[] {
+  const spokenQuotes = drafts.map(draft => draft.speechText.speech.length > 0 ? draft.context.quote : null);
+  return drafts.map((draft, i) => {
+    const quote = spokenQuotes[i];
+    if (!quote) {
+      return draft;
+    }
+    const prefix = spokenQuotes.indexOf(quote) === i ? "Quote: " : "";
+    const suffix = spokenQuotes.lastIndexOf(quote) === i ? " End quote." : "";
+    return { ...draft, speechText: decorateSpeech(draft.speechText, prefix, suffix) };
+  });
 }
 
 function toPlaybackBlock(draft: DocumentBlockDraft, prefix: string, suffix: string): PlaybackBlock {
@@ -546,15 +581,20 @@ export async function buildNarrationScript(html: string, postInfo: NarrationPost
   const root = document.body;
   const domBlocks = extractNarrationBlocks(root);
   const contexts = getBlockContexts(domBlocks, root);
-  const [mathReadings, tableRowReadings] = await Promise.all([getMathReadings(domBlocks), getTableRowReadings(domBlocks)]);
+  const [equations, tableRows, images] = await Promise.all([
+    getMathReadings(domBlocks),
+    getTableRowReadings(domBlocks),
+    getImageReadings(domBlocks, postInfo.title),
+  ]);
+  const readings: GeneratedReadings = { equations, tableRows, images };
 
-  const drafts = domBlocks.map((block, documentIndex): DocumentBlockDraft => ({
+  const drafts = addQuoteMarkers(domBlocks.map((block, documentIndex): DocumentBlockDraft => ({
     documentIndex,
     fingerprint: block.fingerprint,
-    speechText: getBlockSpeech(block, contexts[documentIndex], mathReadings, tableRowReadings),
+    speechText: getBlockSpeech(block, contexts[documentIndex], readings),
     context: contexts[documentIndex],
     referencedFootnoteIds: getReferencedFootnoteIds(block),
-  }));
+  })));
 
   const playbackBlocks = [getIntroBlock(postInfo), ...orderBlocksForPlayback(drafts)].flatMap(splitOversizeBlock);
   return {

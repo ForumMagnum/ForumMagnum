@@ -54,6 +54,7 @@ import { default as Migrations } from '../collections/migrations/newSchema';
 import { default as ModerationTemplates } from '../collections/moderationTemplates/newSchema';
 import { default as ModeratorActions } from '../collections/moderatorActions/newSchema';
 import { default as MultiDocuments } from '../collections/multiDocuments/newSchema';
+import { default as NarrationImageDescriptions } from '../collections/narrationImageDescriptions/newSchema';
 import { default as NarrationScripts } from '../collections/narrationScripts/newSchema';
 import { default as NarrationSegmentAudios } from '../collections/narrationSegmentAudios/newSchema';
 import { default as NarrationSegments } from '../collections/narrationSegments/newSchema';
@@ -124,7 +125,7 @@ export const allSchemas = {
   CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks,
   DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, LlmRuns, LlmRunTranscriptEntries, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
-  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, NarrationScripts, NarrationSegmentAudios, NarrationSegments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
+  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, NarrationImageDescriptions, NarrationScripts, NarrationSegmentAudios, NarrationSegments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
   PodcastEpisodes, Podcasts, PostEmbeddings, PostPreviews, PostRecommendations, PostRelations, PostSummaries, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
   RecommendationsCaches, RejectionAppeals, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,

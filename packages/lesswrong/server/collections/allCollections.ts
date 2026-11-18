@@ -56,6 +56,7 @@ import { Migrations } from './migrations/collection';
 import { ModerationTemplates } from './moderationTemplates/collection';
 import { ModeratorActions } from './moderatorActions/collection';
 import { MultiDocuments } from './multiDocuments/collection';
+import { NarrationImageDescriptions } from './narrationImageDescriptions/collection';
 import { NarrationScripts } from './narrationScripts/collection';
 import { NarrationSegmentAudios } from './narrationSegmentAudios/collection';
 import { NarrationSegments } from './narrationSegments/collection';
@@ -133,7 +134,7 @@ const allCollections = {
   CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks,
   DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, LlmRuns, LlmRunTranscriptEntries, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
-  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, NarrationScripts, NarrationSegmentAudios, NarrationSegments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
+  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, NarrationImageDescriptions, NarrationScripts, NarrationSegmentAudios, NarrationSegments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
   PodcastEpisodes, Podcasts, PostEmbeddings, PostPreviews, PostRecommendations, PostRelations, PostSummaries, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
   RecommendationsCaches, RejectionAppeals, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,

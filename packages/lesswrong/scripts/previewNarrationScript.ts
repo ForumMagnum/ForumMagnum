@@ -6,8 +6,10 @@ import { buildNarrationScript, getNarrationSegmentText } from "@/server/narratio
 
 /**
  * Writes out the text that would be sent to the speech model for a post,
- * segment by segment, without generating any audio or storing anything. For
- * checking changes to narration preprocessing.
+ * segment by segment, without generating any audio or storing the script. For
+ * checking changes to narration preprocessing. Descriptions of the post's
+ * images are stored if they hadn't been described before, as they are when a
+ * script is built for real.
  *
  * npm run repl -- dev lw packages/lesswrong/scripts/previewNarrationScript.ts 'previewNarrationScript("<postId>", "/tmp/narration.txt")'
  */

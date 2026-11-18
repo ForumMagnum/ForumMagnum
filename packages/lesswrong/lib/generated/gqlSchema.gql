@@ -3427,6 +3427,11 @@ type LlmRunTranscriptEntry {
   extra: JSON
 }
 
+type NarrationImageDescription {
+  _id: String!
+  createdAt: Date!
+}
+
 type NarrationScript {
   _id: String!
   createdAt: Date!

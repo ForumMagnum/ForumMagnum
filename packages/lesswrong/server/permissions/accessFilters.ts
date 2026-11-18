@@ -523,6 +523,7 @@ const accessFilters = {
   ModerationTemplates: allowAccess,
   ModeratorActions: allowAccess,
   MultiDocuments: multiDocumentCheckAccess,
+  NarrationImageDescriptions: denyAll,
   NarrationScripts: adminOnly,
   NarrationSegmentAudios: adminOnly,
   NarrationSegments: adminOnly,

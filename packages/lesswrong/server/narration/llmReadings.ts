@@ -1,7 +1,7 @@
 import { generateText, Output } from "ai";
 import { z } from "zod";
 
-const NARRATION_READING_MODEL = "anthropic/claude-sonnet-5.5";
+export const NARRATION_READING_MODEL = "anthropic/claude-sonnet-5.5";
 
 const readingsSchema = z.object({
   readings: z.array(z.object({

@@ -487,7 +487,11 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     engine.highlighter = highlighter;
 
     const jumpToDoubleClickedBlock = (event: MouseEvent) => {
-      const clickedNode = window.getSelection()?.anchorNode ?? (event.target instanceof Node ? event.target : null);
+      const target = event.target instanceof Node ? event.target : null;
+      // Double-clicking text selects a word, which says where the click was
+      // more precisely than the element it landed on does. Double-clicking an
+      // image selects nothing, and leaves any earlier selection in place.
+      const clickedNode = target instanceof HTMLImageElement ? target : (window.getSelection()?.anchorNode ?? target);
       const blockIndex = clickedNode ? findScriptBlockIndexForNode(highlighter, clickedNode) : null;
       if (blockIndex !== null) {
         void playFrom({ type: "block", blockIndex });

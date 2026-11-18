@@ -3091,6 +3091,11 @@ interface LlmRunTranscriptEntry {
   extra: any;
 }
 
+interface NarrationImageDescription {
+  _id: string;
+  createdAt: Date;
+}
+
 interface NarrationScript {
   _id: string;
   createdAt: Date;
@@ -9963,6 +9968,7 @@ interface GraphQLTypeMap {
   MarketplaceHomePageDesign: MarketplaceHomePageDesign;
   AdminHomePageDesign: AdminHomePageDesign;
   LlmRunTranscriptEntry: LlmRunTranscriptEntry;
+  NarrationImageDescription: NarrationImageDescription;
   NarrationScript: NarrationScript;
   NarrationSegmentAudio: NarrationSegmentAudio;
   NarrationSegment: NarrationSegment;
@@ -10641,6 +10647,7 @@ interface CreateInputsByCollectionName {
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
+  NarrationImageDescriptions: never;
   NarrationScripts: never;
   NarrationSegmentAudios: never;
   NarrationSegments: never;
@@ -10747,6 +10754,7 @@ interface UpdateInputsByCollectionName {
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
+  NarrationImageDescriptions: never;
   NarrationScripts: never;
   NarrationSegmentAudios: never;
   NarrationSegments: never;

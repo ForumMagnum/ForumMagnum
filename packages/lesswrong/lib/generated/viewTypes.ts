@@ -47,6 +47,7 @@ type MigrationsViewName = never
 type ModerationTemplatesViewName = "moderationTemplatesList"|"moderationTemplatesPage";
 type ModeratorActionsViewName = "restrictionModerationActions"|"userModeratorActions";
 type MultiDocumentsViewName = "lensBySlug"|"pingbackLensPages"|"summariesByParentId";
+type NarrationImageDescriptionsViewName = never
 type NarrationScriptsViewName = never
 type NarrationSegmentAudiosViewName = never
 type NarrationSegmentsViewName = never
@@ -153,6 +154,7 @@ interface ViewTermsByCollectionName {
   ModerationTemplates: ModerationTemplatesViewTerms
   ModeratorActions: ModeratorActionsViewTerms
   MultiDocuments: MultiDocumentsViewTerms
+  NarrationImageDescriptions: ViewTermsBase
   NarrationScripts: ViewTermsBase
   NarrationSegmentAudios: ViewTermsBase
   NarrationSegments: ViewTermsBase

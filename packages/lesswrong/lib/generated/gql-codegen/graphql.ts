@@ -7383,6 +7383,12 @@ export type MyDialoguesResult = {
   results: Array<Post>;
 };
 
+export type NarrationImageDescription = {
+  __typename?: 'NarrationImageDescription';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+};
+
 export type NarrationModel = {
   __typename?: 'NarrationModel';
   description: Maybe<Scalars['String']['output']>;

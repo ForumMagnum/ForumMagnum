@@ -17,9 +17,10 @@ import { setNarrationPositionRange } from "./narrationPosition";
 
 const WORD_HIGHLIGHT_NAME = "narration-word";
 /**
- * Rendered equations draw their glyphs with CSS generated content, which
- * ::highlight() doesn't paint behind, so the equation being read is marked
- * with an attribute instead.
+ * ::highlight() only paints behind text. Rendered equations draw their glyphs
+ * with CSS generated content, and images have no text at all, so an equation
+ * that's being read or an image that's being described is marked with an
+ * attribute instead.
  */
 const CURRENT_ELEMENT_ATTRIBUTE = "data-narration-current";
 
@@ -36,6 +37,10 @@ export const narrationHighlightStyles = defineStyles("NarrationHighlightCSS", (t
     [`[${CURRENT_ELEMENT_ATTRIBUTE}]`]: {
       backgroundColor: theme.palette.blockquoteHighlight.commentHovered,
       borderRadius: 2,
+    },
+    [`img[${CURRENT_ELEMENT_ATTRIBUTE}]`]: {
+      outline: `4px solid ${theme.palette.blockquoteHighlight.commentHovered}`,
+      outlineOffset: 2,
     },
   },
 }));
@@ -58,7 +63,8 @@ export interface NarrationHighlighter {
 
 interface HighlightTargets {
   ranges: Range[]
-  mathElements: Element[]
+  /** Equations and images, which are marked with CURRENT_ELEMENT_ATTRIBUTE */
+  elements: Element[]
 }
 
 type RenderedPiece = NarrationTextPiece | NarrationMathPiece;
@@ -119,7 +125,7 @@ function getSourceRangeTargets(pageBlock: NarrationTextBlock, sourceStart: numbe
   const firstPiece = pieces.at(0);
   const lastPiece = pieces.at(-1);
   if (!firstPiece || !lastPiece) {
-    return { ranges: [], mathElements: [] };
+    return { ranges: [], elements: [] };
   }
 
   const range = document.createRange();
@@ -136,26 +142,26 @@ function getSourceRangeTargets(pageBlock: NarrationTextBlock, sourceStart: numbe
   }
   return {
     ranges: [range],
-    mathElements: pieces.flatMap(piece => piece.type === "math" ? [piece.element] : []),
+    elements: pieces.flatMap(piece => piece.type === "math" ? [piece.element] : []),
   };
 }
 
 /**
  * What to highlight for the word being read. In a block that isn't read word
- * for word (a table row, or something announced as omitted), that's the whole
- * block.
+ * for word (a table row, an image, or something announced as omitted), that's
+ * the whole block.
  */
 function getWordTargets(pageBlock: NarrationDomBlock|null, blockTiming: NarrationBlockTiming, wordIndex: number): HighlightTargets {
   const word = blockTiming.words.at(wordIndex);
   if (!pageBlock || wordIndex < 0 || !word) {
-    return { ranges: [], mathElements: [] };
+    return { ranges: [], elements: [] };
   }
   if (pageBlock.type === "text") {
     return getSourceRangeTargets(pageBlock, word[2], word[3]);
   }
   const range = document.createRange();
   range.selectNode(pageBlock.element);
-  return { ranges: [range], mathElements: [] };
+  return { ranges: [range], elements: pageBlock.type === "image" ? [pageBlock.element] : [] };
 }
 
 function isFootnoteBlock(pageBlock: NarrationDomBlock): boolean {
@@ -212,7 +218,7 @@ export function updateNarrationHighlight(highlighter: NarrationHighlighter, timi
   const pageBlock = getPageBlock(highlighter, blockTiming.blockIndex);
   const wordTargets = getWordTargets(pageBlock, blockTiming, wordIndex);
   setHighlightRanges(WORD_HIGHLIGHT_NAME, wordTargets.ranges);
-  setMarkedElements(highlighter, wordTargets.mathElements);
+  setMarkedElements(highlighter, wordTargets.elements);
 
   const wordRange = wordTargets.ranges.at(0);
   if (!wordRange || !pageBlock || isFootnoteBlock(pageBlock)) {

@@ -5297,6 +5297,12 @@ type MyDialoguesResult = {
   results: Array<Post>;
 };
 
+type NarrationImageDescription = {
+  __typename?: 'NarrationImageDescription';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+};
+
 type NarrationModel = {
   __typename?: 'NarrationModel';
   description?: Maybe<Scalars['String']['output']>;
