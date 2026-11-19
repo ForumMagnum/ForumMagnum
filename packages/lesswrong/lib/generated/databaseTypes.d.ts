@@ -618,7 +618,7 @@ interface DbLlmRunTranscriptEntry extends DbObject {
   title: string | null
   toolCallId: string | null
   toolName: string | null
-  type: "reasoning" | "text" | "toolCall" | "toolResult" | "toolError" | "source" | "resultLink"
+  type: "image" | "reasoning" | "text" | "toolCall" | "toolResult" | "toolError" | "source" | "resultLink"
   url: string | null
 }
 

@@ -20,24 +20,6 @@ import ContentStyles from "../../common/ContentStyles";
 import EventTime from "../../localGroups/EventTime";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
-import LLMScoreBadge from '@/components/sunshineDashboard/supermod/LLMScoreBadge';
-
-const PostLlmScoreQuery = gql(`
-  query PostLlmScorePreview($documentId: String) {
-    post(selector: { documentId: $documentId }) {
-      result {
-        _id
-        automatedContentEvaluations {
-          ...AutomatedContentEvaluationsFragment
-        }
-        contents {
-          _id
-          html
-        }
-      }
-    }
-  }
-`);
 
 const PostWithDialogueMessageQuery = gql(`
   query LWPostsPreviewTooltip1($documentId: String, $dialogueMessageId: String) {
@@ -170,14 +152,6 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
     marginTop: -4,
     paddingRight: 4
   },
-  headerActions: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    gap: 8,
-    marginLeft: 8,
-    flexShrink: 0,
-  },
   continue: {
     color: theme.palette.grey[500],
     fontSize: "1rem",
@@ -201,18 +175,10 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
   },
 }))
 
-const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageInfo, showLlmScore = false}: PostsPreviewTooltipProps) => {
+const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageInfo}: PostsPreviewTooltipProps) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false)
-
-  const suppliedLlmScorePost = post && 'automatedContentEvaluations' in post ? post : undefined;
-  const { data: llmScoreData } = useQuery(PostLlmScoreQuery, {
-    variables: { documentId: post?._id },
-    skip: !showLlmScore || !post || !!suppliedLlmScorePost,
-    fetchPolicy: "cache-first",
-  });
-  const llmScorePost = suppliedLlmScorePost ?? llmScoreData?.post?.result;
 
   const { loading, data: dataHighlight } = useQuery(HighlightWithHashQuery, {
     variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, hash },
@@ -289,18 +255,9 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
               {eventInfo}
             </ContentStyles>}
           </div>
-          <div className={showLlmScore ? classes.headerActions : undefined}>
-            {showLlmScore && llmScorePost && <LLMScoreBadge
-              documentId={post._id}
-              automatedContentEvaluations={llmScorePost.automatedContentEvaluations}
-              contentHtml={llmScorePost.contents?.html ?? ''}
-              contentType="Post"
-              showWhenEmpty
-            />}
-            {!postsList && <div className={classes.bookmark}>
-              <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked}/>
-            </div>}
-          </div>
+          { !postsList && <div className={classes.bookmark}>
+            <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked}/>
+          </div>}
         </div>
         {renderedComment
           ? <div className={classes.comment}>
@@ -337,3 +294,5 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
 }
 
 export default LWPostsPreviewTooltip
+
+
