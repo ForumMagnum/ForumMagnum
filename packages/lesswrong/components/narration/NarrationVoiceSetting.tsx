@@ -10,6 +10,7 @@ const NarrationSelectableVoicesQuery = gql(`
     narrationSelectableVoices {
       voiceId
       name
+      description
       previewUrl
     }
   }
@@ -28,8 +29,9 @@ const styles = defineStyles("NarrationVoiceSetting", () => ({
 }));
 
 /**
- * Lets a user choose the voice that their comments are narrated in, and hear
- * a sample of the one that's chosen.
+ * Lets a user choose the voice that their posts and comments are narrated in
+ * (for listeners who ask to hear authors' voices), and hear a sample of the
+ * one that's chosen.
  */
 const NarrationVoiceSetting = ({ value, onChange }: {
   value: string|null|undefined
@@ -41,7 +43,7 @@ const NarrationVoiceSetting = ({ value, onChange }: {
   const selectedVoice = voices?.find(voice => voice.voiceId === value);
 
   const options = voices
-    ? [{ value: AUTO_VOICE_VALUE, label: "Auto" }, ...voices.map(voice => ({ value: voice.voiceId, label: voice.name }))]
+    ? [{ value: AUTO_VOICE_VALUE, label: "Auto" }, ...voices.map(voice => ({ value: voice.voiceId, label: `${voice.name} - ${voice.description}` }))]
     : [{ value: value ?? AUTO_VOICE_VALUE, label: "Loading voices…" }];
 
   return <>
@@ -49,10 +51,10 @@ const NarrationVoiceSetting = ({ value, onChange }: {
       value={value ?? AUTO_VOICE_VALUE}
       onChange={newValue => onChange(newValue === AUTO_VOICE_VALUE ? null : newValue)}
       options={options}
-      label="Voice for your comments"
-      description="The voice your comments are read aloud in. With Auto, one is picked the first time someone listens to a comment of yours."
+      label="Your voice"
+      description="The voice that your posts and comments are read aloud in, for listeners who choose to hear authors' voices. With Auto, one is picked the first time it's needed."
     />
-    {selectedVoice?.previewUrl && <audio
+    {selectedVoice && <audio
       key={selectedVoice.voiceId}
       className={classes.preview}
       src={selectedVoice.previewUrl}

@@ -15,9 +15,9 @@ import { NARRATION_PLAYBACK_RATE_COOKIE } from "@/lib/cookies/cookies";
 import ForumIcon from "@/components/common/ForumIcon";
 import Loading from "@/components/vulcan-core/Loading";
 import {
+  AUTHOR_NARRATION_VOICE,
   DEFAULT_NARRATION_MODEL_ID,
-  defaultNarrationVoiceTuning,
-  type NarrationVoiceSettings,
+  type NarrationListenerSettings,
 } from "@/lib/narration/narrationTypes";
 import { findNarrationComment } from "./narrationComments";
 import { narrationHighlightStyles } from "./narrationHighlighting";
@@ -30,7 +30,7 @@ import {
   publishNarrationPlayerFootprint,
 } from "./narrationPlayerLayout";
 import { useNarrationPlayback, type NarrationItem } from "./useNarrationPlayback";
-import NarrationSettingsPanel, { type NarrationModelOption, type NarrationVoiceOption } from "./NarrationSettingsPanel";
+import NarrationSettingsPanel, { type NarrationOptions } from "./NarrationSettingsPanel";
 
 const NarrationOptionsQuery = gql(`
   query NarrationOptionsQuery {
@@ -38,12 +38,20 @@ const NarrationOptionsQuery = gql(`
       voices {
         voiceId
         name
-        category
+        description
         previewUrl
       }
-      models {
-        modelId
-        name
+      adminOptions {
+        voices {
+          voiceId
+          name
+          description
+          previewUrl
+        }
+        models {
+          modelId
+          name
+        }
       }
     }
   }
@@ -51,7 +59,7 @@ const NarrationOptionsQuery = gql(`
 
 const SKIP_BACK_MS = 15_000;
 const SKIP_FORWARD_MS = 30_000;
-const playbackRates = [0.75, 1, 1.25, 1.5, 1.75, 2];
+const playbackRates = [0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3];
 
 const FLOATING_MARGIN = 12;
 /** Post pages have a right-hand margin at least this wide at the widths where the player floats, which it fits inside */
@@ -217,19 +225,14 @@ function formatTime(timeMs: number): string {
   return hours > 0 ? `${hours}:${String(minutes).padStart(2, "0")}:${seconds}` : `${minutes}:${seconds}`;
 }
 
-function parseStoredSettings(storedSettings: string|undefined): NarrationVoiceSettings|null {
+function parseStoredSettings(storedSettings: string|undefined): NarrationListenerSettings|null {
   if (!storedSettings) {
     return null;
   }
   try {
-    const { voiceId, modelId, stability, similarityBoost, style, speed }: Partial<NarrationVoiceSettings> = JSON.parse(storedSettings);
-    const isComplete = typeof voiceId === "string"
-      && typeof modelId === "string"
-      && typeof stability === "number"
-      && typeof similarityBoost === "number"
-      && typeof style === "number"
-      && typeof speed === "number";
-    return isComplete ? { voiceId, modelId, stability, similarityBoost, style, speed } : null;
+    const { postVoiceId, commentVoiceId, modelId }: Partial<NarrationListenerSettings> = JSON.parse(storedSettings);
+    const isComplete = typeof postVoiceId === "string" && typeof commentVoiceId === "string" && typeof modelId === "string";
+    return isComplete ? { postVoiceId, commentVoiceId, modelId } : null;
   } catch {
     return null;
   }
@@ -246,28 +249,29 @@ function getNowReadingLabel(item: NarrationItem): string|null {
   return authorName ? `${kindOfComment} by ${authorName}` : kindOfComment;
 }
 
+function keepIfOffered(storedValue: string|undefined, choices: ReadonlySet<string>, defaultValue: string): string {
+  return storedValue !== undefined && choices.has(storedValue) ? storedValue : defaultValue;
+}
+
 /**
- * The settings to generate audio with: the ones this browser last used if
- * they're still available, and otherwise defaults. Null until the available
- * voices and models are known.
+ * What to read things in: for each setting, what this browser last used if
+ * that's still one of the choices, and otherwise the default. Posts are read
+ * in the first of the voices unless another is chosen, and comments in their
+ * authors' voices. Null until the choices are known.
  */
-function resolveSettings(
-  storedSettings: NarrationVoiceSettings|null,
-  voices: NarrationVoiceOption[]|undefined,
-  models: NarrationModelOption[]|undefined,
-): NarrationVoiceSettings|null {
-  const defaultVoice = voices?.at(0);
-  const defaultModel = models?.find(model => model.modelId === DEFAULT_NARRATION_MODEL_ID) ?? models?.at(0);
-  if (!voices || !models || !defaultVoice || !defaultModel) {
+function resolveSettings(storedSettings: NarrationListenerSettings|null, options: NarrationOptions|undefined): NarrationListenerSettings|null {
+  const defaultPostVoice = options?.voices.at(0);
+  if (!options || !defaultPostVoice) {
     return null;
   }
-  const storedSettingsAreAvailable = !!storedSettings
-    && voices.some(voice => voice.voiceId === storedSettings.voiceId)
-    && models.some(model => model.modelId === storedSettings.modelId);
-  if (storedSettings && storedSettingsAreAvailable) {
-    return storedSettings;
-  }
-  return { voiceId: defaultVoice.voiceId, modelId: defaultModel.modelId, ...defaultNarrationVoiceTuning };
+  const voiceIds = [...options.voices, ...(options.adminOptions?.voices ?? [])].map(voice => voice.voiceId);
+  const voiceChoices = new Set([...voiceIds, AUTHOR_NARRATION_VOICE]);
+  const modelIds = new Set(options.adminOptions?.models.map(model => model.modelId));
+  return {
+    postVoiceId: keepIfOffered(storedSettings?.postVoiceId, voiceChoices, defaultPostVoice.voiceId),
+    commentVoiceId: keepIfOffered(storedSettings?.commentVoiceId, voiceChoices, AUTHOR_NARRATION_VOICE),
+    modelId: keepIfOffered(storedSettings?.modelId, modelIds, DEFAULT_NARRATION_MODEL_ID),
+  };
 }
 
 const NarrationPlayer = ({ postId, onClose }: {
@@ -278,13 +282,12 @@ const NarrationPlayer = ({ postId, onClose }: {
   useStyles(narrationHighlightStyles);
 
   const { data: optionsData, error: optionsError } = useQuery(NarrationOptionsQuery, { ssr: false });
-  const voices = optionsData?.narrationOptions.voices;
-  const models = optionsData?.narrationOptions.models;
+  const options = optionsData?.narrationOptions;
 
   const { narrationVoiceSettings, setNarrationVoiceSettings } = useLocalStorageState("narrationVoiceSettings", key => key, "");
   const settings = useMemo(
-    () => resolveSettings(parseStoredSettings(narrationVoiceSettings), voices, models),
-    [narrationVoiceSettings, voices, models],
+    () => resolveSettings(parseStoredSettings(narrationVoiceSettings), options),
+    [narrationVoiceSettings, options],
   );
 
   const rootRef = useRef<HTMLDivElement|null>(null);
@@ -345,11 +348,11 @@ const NarrationPlayer = ({ postId, onClose }: {
   return <div ref={rootRef} className={classes.root} role="region" aria-label="Post narration">
     <audio ref={playback.audioRef} preload="auto" {...playback.audioEventHandlers} />
 
-    {showSettings && settings && voices && models && <NarrationSettingsPanel
-      voices={voices}
-      models={models}
+    {showSettings && settings && options && <NarrationSettingsPanel
+      options={options}
       settings={settings}
       onApply={newSettings => setNarrationVoiceSettings(JSON.stringify(newSettings))}
+      onClose={() => setShowSettings(false)}
       autoScroll={autoScroll}
       setAutoScroll={setAutoScroll}
     />}

@@ -18,7 +18,7 @@ import {
   type NarrationDocumentInfo,
 } from "./narrationScript";
 import { buildSegmentTimings } from "./narrationTimings";
-import { getUserNarrationVoiceSettings } from "./narrationVoices";
+import { getDefaultListenerVoiceId, getUserNarrationVoiceId } from "./narrationVoices";
 
 /** How much of the text before and after a segment the speech model is given as context */
 const CONTEXT_CHARACTERS = 1000;
@@ -66,29 +66,41 @@ async function fetchNarrationScript(scriptUrl: string): Promise<NarrationScript>
 }
 
 /**
- * A user's name, if anyone may see whose account it is. (A deleted account's
- * name is hidden from most.) Scripts are shared by everyone who listens, so
- * they only name people that every listener could see named on the page.
+ * A user, if anyone may see whose account it is. (A deleted account is hidden
+ * from most.) Narration is shared by everyone who listens, so it only gives
+ * away who someone is, by their name or by their voice, if every listener
+ * could see that on the page.
  */
-async function getPublicUserName(user: DbUser|null, context: ResolverContext): Promise<string|null> {
+async function getPubliclyVisibleUser(user: DbUser|null, context: ResolverContext): Promise<DbUser|null> {
   const userAsSeenByAnyone = await accessFilterSingle(null, "Users", user, context);
-  return (user && userAsSeenByAnyone) ? userGetDisplayName(user, context.forumType) : null;
-}
-
-async function getSpokenAuthorName(author: DbUser|null, context: ResolverContext): Promise<string> {
-  return await getPublicUserName(author, context) ?? ANONYMOUS_AUTHOR_NAME;
+  return userAsSeenByAnyone ? user : null;
 }
 
 /**
- * The names in a post's byline, as its page shows it to anyone (see
- * PostsAuthors): the author, unless the post hides its author or the author's
- * account isn't visible, and then the coauthors whose accounts are visible.
+ * The author that a post's page says it's by (see PostsAuthors). Null if the
+ * post hides its author, or the author's account isn't visible.
+ */
+async function getShownPostAuthor(post: DbPost, context: ResolverContext): Promise<DbUser|null> {
+  const author = post.hideAuthor ? null : await context.loaders.Users.load(post.userId);
+  return await getPubliclyVisibleUser(author, context);
+}
+
+/** What a script calls an author: their name, or if the page doesn't show who they are (`shownAuthor` is null), nobody in particular */
+function getSpokenAuthorName(shownAuthor: DbUser|null, context: ResolverContext): string {
+  return shownAuthor ? userGetDisplayName(shownAuthor, context.forumType) : ANONYMOUS_AUTHOR_NAME;
+}
+
+/**
+ * The names in a post's byline, as its page shows it to anyone: the author,
+ * and then the coauthors whose accounts are visible.
  */
 async function getPublicBylineNames(post: DbPost, context: ResolverContext): Promise<string[]> {
-  const [author, ...coauthors] = await loadByIds(context, "Users", [post.userId, ...post.coauthorUserIds]);
-  const authorName = post.hideAuthor ? ANONYMOUS_AUTHOR_NAME : await getSpokenAuthorName(author, context);
-  const coauthorNames = await Promise.all(coauthors.map(coauthor => getPublicUserName(coauthor, context)));
-  return [authorName, ...coauthorNames.flatMap(name => name ? [name] : [])];
+  const coauthors = await loadByIds(context, "Users", post.coauthorUserIds);
+  const shownCoauthors = await Promise.all(coauthors.map(coauthor => getPubliclyVisibleUser(coauthor, context)));
+  return [
+    getSpokenAuthorName(await getShownPostAuthor(post, context), context),
+    ...shownCoauthors.flatMap(coauthor => coauthor ? [userGetDisplayName(coauthor, context.forumType)] : []),
+  ];
 }
 
 async function getPostDocumentInfo(post: DbPost, context: ResolverContext): Promise<NarrationDocumentInfo> {
@@ -113,8 +125,8 @@ async function getCommentDocumentInfo(comment: DbComment, context: ResolverConte
   return {
     introduction: getCommentIntroduction(
       comment,
-      await getSpokenAuthorName(author, context),
-      parentAuthor ? await getSpokenAuthorName(parentAuthor, context) : null,
+      getSpokenAuthorName(await getPubliclyVisibleUser(author, context), context),
+      parentAuthor ? getSpokenAuthorName(await getPubliclyVisibleUser(parentAuthor, context), context) : null,
     ),
     postTitle: post?.title ?? "",
   };
@@ -211,22 +223,35 @@ export async function getOrCreateCommentNarrationScript(comment: DbComment, cont
   return await getOrGenerate(scriptGeneration, { revisionId, documentInfo: await getCommentDocumentInfo(comment, context), context });
 }
 
-/**
- * A comment is always read in its author's voice. Returns that voice if the
- * script is a comment's, and null if it's a post's, which is read in whatever
- * voice the listener chooses.
- */
-export async function getCommentAuthorVoiceSettings(narrationScript: DbNarrationScript, context: ResolverContext): Promise<NarrationVoiceSettings|null> {
+/** The author of the post or comment that a script is of, if its page shows who that is */
+async function getShownAuthor(narrationScript: DbNarrationScript, context: ResolverContext): Promise<DbUser|null> {
   const revision = await context.loaders.Revisions.load(narrationScript.revisionId);
-  if (revision?.collectionName !== "Comments" || !revision.documentId) {
-    return null;
+  if (revision?.documentId && revision.collectionName === "Posts") {
+    const post = await context.loaders.Posts.load(revision.documentId);
+    if (!post) {
+      throw new Error(`Post ${revision.documentId} not found`);
+    }
+    return await getShownPostAuthor(post, context);
   }
-  const comment = await context.loaders.Comments.load(revision.documentId);
-  const author = comment ? await context.loaders.Users.load(comment.userId) : null;
-  if (!comment || !author || !isCommentNarratable(comment)) {
-    throw new Error(`Comment ${revision.documentId} can't be narrated`);
+  if (revision?.documentId && revision.collectionName === "Comments") {
+    const comment = await context.loaders.Comments.load(revision.documentId);
+    if (!comment || !isCommentNarratable(comment)) {
+      throw new Error(`Comment ${revision.documentId} can't be narrated`);
+    }
+    return await getPubliclyVisibleUser(await context.loaders.Users.load(comment.userId), context);
   }
-  return await getUserNarrationVoiceSettings(author);
+  throw new Error(`Narration script ${narrationScript._id} isn't of a post or a comment`);
+}
+
+/**
+ * The voice to read a script in, for a listener who asked to hear things in
+ * their authors' voices. A user's voice says who they are as surely as their
+ * name does, so if the page doesn't show who the author is, this is the
+ * default voice instead.
+ */
+export async function getAuthorVoiceId(narrationScript: DbNarrationScript, context: ResolverContext): Promise<string> {
+  const shownAuthor = await getShownAuthor(narrationScript, context);
+  return shownAuthor ? await getUserNarrationVoiceId(shownAuthor) : getDefaultListenerVoiceId();
 }
 
 function getSegmentAudioSelector({ segment, settings }: SegmentAudioKey) {

@@ -87,10 +87,12 @@ const PreferencesSettingsTab = ({
       </SettingsSection>
 
       {userIsAdmin(currentUser) && <SettingsSection title="Narration">
-        <NarrationVoiceSetting
-          value={settings.narrationVoiceId}
-          onChange={(value) => void updateSettings({ narrationVoiceId: value })}
-        />
+        <HighlightableField name="narrationVoiceId">
+          <NarrationVoiceSetting
+            value={settings.narrationVoiceId}
+            onChange={(value) => void updateSettings({ narrationVoiceId: value })}
+          />
+        </HighlightableField>
       </SettingsSection>}
 
       <SettingsSection title="Content">

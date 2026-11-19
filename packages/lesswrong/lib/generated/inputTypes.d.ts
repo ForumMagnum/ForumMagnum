@@ -880,9 +880,8 @@ interface NotificationCounts {
 interface NarrationVoice {
   voiceId: string;
   name: string;
-  category: string | null;
-  description: string | null;
-  previewUrl: string | null;
+  description: string;
+  previewUrl: string;
 }
 
 interface NarrationModel {
@@ -891,18 +890,19 @@ interface NarrationModel {
   description: string | null;
 }
 
-interface NarrationOptions {
+interface NarrationAdminOptions {
   voices: Array<NarrationVoice>;
   models: Array<NarrationModel>;
 }
 
-interface NarrationVoiceSettingsInput {
+interface NarrationOptions {
+  voices: Array<NarrationVoice>;
+  adminOptions: NarrationAdminOptions | null;
+}
+
+interface NarrationVoiceChoiceInput {
   voiceId: string;
   modelId: string;
-  stability: number;
-  similarityBoost: number;
-  style: number;
-  speed: number;
 }
 
 interface FrontpageScoreTerm {
@@ -9675,8 +9675,9 @@ interface GraphQLTypeMap {
   NotificationCounts: NotificationCounts;
   NarrationVoice: NarrationVoice;
   NarrationModel: NarrationModel;
+  NarrationAdminOptions: NarrationAdminOptions;
   NarrationOptions: NarrationOptions;
-  NarrationVoiceSettingsInput: NarrationVoiceSettingsInput;
+  NarrationVoiceChoiceInput: NarrationVoiceChoiceInput;
   FrontpageScoreTerm: FrontpageScoreTerm;
   FrontpagePostScoreBreakdown: FrontpagePostScoreBreakdown;
   PetrovDay2024CheckNumberOfIncomingData: PetrovDay2024CheckNumberOfIncomingData;

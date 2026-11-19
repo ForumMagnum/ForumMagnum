@@ -3,7 +3,12 @@ import { useApolloClient, useMutation } from "@apollo/client/react";
 import sum from "lodash/sum";
 import { gql } from "@/lib/generated/gql-codegen";
 import { isCommentNarratable } from "@/lib/narration/narratableComments";
-import type { NarrationScript, NarrationSegmentTimings, NarrationVoiceSettings } from "@/lib/narration/narrationTypes";
+import type {
+  NarrationListenerSettings,
+  NarrationScript,
+  NarrationSegmentTimings,
+  NarrationVoiceChoice,
+} from "@/lib/narration/narrationTypes";
 import {
   findCommentBodyElement,
   findNarrationComment,
@@ -38,16 +43,16 @@ const PrepareCommentNarrationMutation = gql(`
 `);
 
 const GenerateNarrationSegmentAudioMutation = gql(`
-  mutation GenerateNarrationSegmentAudioMutation($narrationSegmentId: String!, $settings: NarrationVoiceSettingsInput) {
-    generateNarrationSegmentAudio(narrationSegmentId: $narrationSegmentId, settings: $settings) {
+  mutation GenerateNarrationSegmentAudioMutation($narrationSegmentId: String!, $voice: NarrationVoiceChoiceInput!) {
+    generateNarrationSegmentAudio(narrationSegmentId: $narrationSegmentId, voice: $voice) {
       ...NarrationSegmentAudioFragment
     }
   }
 `);
 
 const NarrationSegmentAudiosQuery = gql(`
-  query NarrationSegmentAudiosQuery($narrationScriptId: String!, $settings: NarrationVoiceSettingsInput!) {
-    narrationSegmentAudios(narrationScriptId: $narrationScriptId, settings: $settings) {
+  query NarrationSegmentAudiosQuery($narrationScriptId: String!, $voice: NarrationVoiceChoiceInput!) {
+    narrationSegmentAudios(narrationScriptId: $narrationScriptId, voice: $voice) {
       ...NarrationSegmentAudioFragment
     }
   }
@@ -58,8 +63,6 @@ const DEFAULT_MS_PER_CHARACTER = 65;
 /** After the reader scrolls, how long before the page is scrolled to follow the narration again */
 const USER_SCROLL_GRACE_MS = 5000;
 const POST_CONTENT_ELEMENT_ID = "postContent";
-/** Comments are read in their authors' voices, which the server looks up, so their audio isn't kept by voice settings */
-const AUTHOR_VOICE_KEY = "author";
 const scrollKeys = new Set(["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "]);
 
 export type NarrationPhase = "idle" | "loading" | "playing" | "paused" | "ended" | "error";
@@ -162,20 +165,29 @@ export interface NarrationPlayback {
   skip: (deltaMs: number) => void
 }
 
-function getSettingsKey(settings: NarrationVoiceSettings): string {
-  return JSON.stringify([settings.voiceId, settings.modelId, settings.stability, settings.similarityBoost, settings.style, settings.speed]);
+function getSettingsKey(settings: NarrationListenerSettings): string {
+  return JSON.stringify([settings.postVoiceId, settings.commentVoiceId, settings.modelId]);
 }
 
 function getItemKey(item: NarrationItem): string {
   return item.type === "post" ? `post:${item.postId}` : `comment:${item.commentId}`;
 }
 
-/** Identifies the voice that an item is read in. Null for a post, if the settings to read it with aren't known yet. */
-function getVoiceKey(item: NarrationItem, settings: NarrationVoiceSettings|null): string|null {
-  if (item.type === "comment") {
-    return AUTHOR_VOICE_KEY;
+/** What the listener's settings say to read an item in */
+function getVoiceChoice(item: NarrationItem, settings: NarrationListenerSettings): NarrationVoiceChoice {
+  return {
+    voiceId: item.type === "post" ? settings.postVoiceId : settings.commentVoiceId,
+    modelId: settings.modelId,
+  };
+}
+
+/** Identifies what an item is read in, among what the listener can choose. Null if the settings aren't known yet. */
+function getVoiceKey(item: NarrationItem, settings: NarrationListenerSettings|null): string|null {
+  if (!settings) {
+    return null;
   }
-  return settings ? getSettingsKey(settings) : null;
+  const { voiceId, modelId } = getVoiceChoice(item, settings);
+  return JSON.stringify([voiceId, modelId]);
 }
 
 function getSegmentAudioKey(voiceKey: string, segmentId: string): string {
@@ -293,8 +305,8 @@ function findItemForElement(element: Element, postItem: NarrationItem): { item: 
  */
 export function useNarrationPlayback({ postId, settings, autoScroll, playbackRate }: {
   postId: string
-  /** The voice to read the post in. Null until the settings to use are known; the post can't be played before then. */
-  settings: NarrationVoiceSettings|null
+  /** What to read things in. Null until the settings to use are known; nothing can be played before then. */
+  settings: NarrationListenerSettings|null
   autoScroll: boolean
   playbackRate: number
 }): NarrationPlayback {
@@ -334,6 +346,7 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
   const prepared = preparedByItemKey[currentItemKey] ?? null;
   const postPrepared = preparedByItemKey[getItemKey(postItem)] ?? null;
   const voiceKey = getVoiceKey(currentItem, settings);
+  const postVoiceKey = getVoiceKey(postItem, settings);
 
   const segmentDurations = useMemo(
     () => (prepared && voiceKey) ? getSegmentDurations(prepared.segments, voiceKey, knownDurations) : null,
@@ -387,12 +400,12 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
   const loadSegmentAudio = useCallback((
     segment: NarrationSegmentInfo,
     item: NarrationItem,
-    voiceSettings: NarrationVoiceSettings|null,
+    voiceSettings: NarrationListenerSettings|null,
   ): Promise<LoadedSegmentAudio> => {
     const engine = engineRef.current;
     const itemVoiceKey = getVoiceKey(item, voiceSettings);
-    if (!itemVoiceKey) {
-      return Promise.reject(new Error("No voice has been chosen to read the post in"));
+    if (!voiceSettings || !itemVoiceKey) {
+      return Promise.reject(new Error("The voices to read things in aren't known yet"));
     }
     const audioKey = getSegmentAudioKey(itemVoiceKey, segment._id);
     const alreadyLoading = engine.segmentAudios.get(audioKey);
@@ -402,7 +415,7 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     const loading = (async () => {
       const { data } = await generateSegmentAudio({ variables: {
         narrationSegmentId: segment._id,
-        settings: item.type === "post" ? voiceSettings : null,
+        voice: getVoiceChoice(item, voiceSettings),
       } });
       const audio = data?.generateNarrationSegmentAudio;
       if (!audio) {
@@ -427,7 +440,7 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     item: NarrationItem,
     preparedNarration: PreparedNarration,
     segmentIndex: number,
-    voiceSettings: NarrationVoiceSettings|null,
+    voiceSettings: NarrationListenerSettings|null,
   ) => {
     const nextSegment = preparedNarration.segments.at(segmentIndex + 1);
     if (nextSegment) {
@@ -647,34 +660,34 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     }
   }, [playbackRate]);
 
-  // Find out which of the post's segments already have audio with these
-  // settings, so that the timeline can use their real lengths.
+  // Find out which of the post's segments already have audio in the voice
+  // that it's to be read in, so that the timeline can use their real lengths.
   useEffect(() => {
     const voiceSettings = latestRef.current.settings;
-    if (!postPrepared || !voiceSettings || !settingsKey) {
+    if (!postPrepared || !voiceSettings || !postVoiceKey) {
       return;
     }
     let isCurrent = true;
     void apolloClient.query({
       query: NarrationSegmentAudiosQuery,
-      variables: { narrationScriptId: postPrepared.narrationScriptId, settings: voiceSettings },
+      variables: { narrationScriptId: postPrepared.narrationScriptId, voice: getVoiceChoice(postItem, voiceSettings) },
       fetchPolicy: "network-only",
     }).then(({ data }) => {
       if (!isCurrent) {
         return;
       }
       const existingDurations = Object.fromEntries((data?.narrationSegmentAudios ?? []).map(
-        audio => [getSegmentAudioKey(settingsKey, audio.narrationSegmentId), getFinishedSegmentAudio(audio).durationMs]
+        audio => [getSegmentAudioKey(postVoiceKey, audio.narrationSegmentId), getFinishedSegmentAudio(audio).durationMs]
       ));
       setKnownDurations(durations => ({ ...existingDurations, ...durations }));
     });
     return () => {
       isCurrent = false;
     };
-  }, [apolloClient, postPrepared, settingsKey]);
+  }, [apolloClient, postPrepared, postItem, postVoiceKey]);
 
-  // When the voice settings change partway through the post, continue from
-  // the block being read, in the new voice. (They don't apply to comments.)
+  // When a change of settings changes the voice of what's being read,
+  // continue from the block being read, in the new voice.
   useEffect(() => {
     const { loadedSegment, pendingTarget } = engineRef.current;
     const audioElement = audioRef.current;
@@ -687,7 +700,7 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
       }
       return;
     }
-    if (!loadedSegment || loadedSegment.item.type !== "post" || loadedSegment.voiceKey === settingsKey) {
+    if (!loadedSegment || loadedSegment.voiceKey === getVoiceKey(loadedSegment.item, latestRef.current.settings)) {
       return;
     }
     const currentBlock = findBlockTimingAt(loadedSegment.audio.timings, audioElement.currentTime * 1000);

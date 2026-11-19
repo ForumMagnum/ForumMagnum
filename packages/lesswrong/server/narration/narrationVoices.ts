@@ -2,19 +2,11 @@ import { generateText } from "ai";
 import sample from "lodash/sample";
 import { z } from "zod";
 import { htmlToTextDefault } from "@/lib/htmlToText";
-import uniqBy from "lodash/uniqBy";
-import {
-  DEFAULT_NARRATION_MODEL_ID,
-  defaultNarrationVoiceTuning,
-  type NarrationVoiceSettings,
-} from "@/lib/narration/narrationTypes";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import Users from "@/server/collections/users/collection";
-import { listElevenLabsAccountVoices, type ElevenLabsVoice } from "./elevenLabs";
 import { NARRATION_READING_MODEL } from "./llmReadings";
 
 const BIO_MAX_CHARACTERS = 2000;
-/** What ElevenLabs' API calls the default voices that it's retiring at the end of 2026 */
-const RETIRED_DEFAULT_VOICE_CATEGORY = "premade";
 
 const VOICE_GENDER_SYSTEM_PROMPT = `A forum is choosing a text-to-speech voice to read one of its users' comments aloud, and wants to know whether a male or a female voice would suit that user.
 
@@ -39,11 +31,17 @@ const voiceGenderByGoogleGender: Partial<Record<string, VoiceGender>> = {
   other: "neutral",
 };
 
-interface DefaultVoice {
+export interface NarrationVoice {
   voiceId: string
   name: string
-  gender: VoiceGender
+  /** A few words on how the voice sounds */
+  description: string
+  /** A recording of the voice */
   previewUrl: string
+}
+
+interface DefaultVoice extends NarrationVoice {
+  gender: VoiceGender
 }
 
 /**
@@ -53,143 +51,194 @@ interface DefaultVoice {
  * they're in our account, which happens the first time speech is generated
  * with each. So this is the list of replacements, as of 2026-11-18, from
  * https://elevenlabs.io/docs/help-center/product/voices/my-voices/what-are-default-voices
- * in that page's order, with what the voice library says about each. It
- * leaves out the one voice on that page that the API says doesn't exist (the
+ * in that page's order, with what the voice library says about each (it calls
+ * the first one "Darian - Warm Grounded Storyteller", and so on). It leaves
+ * out the one voice on that page that the API says doesn't exist (the
  * replacement for Callum, fs2OqxduwXgp9foh2xjK). Alicia has no gender in the
  * library; hers is from the library's description of the voice.
  */
 const defaultVoices: DefaultVoice[] = [
   {
     voiceId: "gOupLcAkjEnguROwi4oS",
-    name: "Darian - Warm Grounded Storyteller",
+    name: "Darian",
+    description: "Warm Grounded Storyteller",
     gender: "male",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/gOupLcAkjEnguROwi4oS/AyYfK0CnNPq37Rzj9jA3.mp3",
   },
   {
     voiceId: "OZ0L6eISlOejga3XjDFt",
-    name: "Talia - Warm Soft Guide",
+    name: "Talia",
+    description: "Warm Soft Guide",
     gender: "female",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/OZ0L6eISlOejga3XjDFt/feNpPK3UmI71iHFkml8g.mp3",
   },
   {
     voiceId: "WQP7cQUF5aAS6Axh5yaa",
-    name: "Elara - Crisp Pro Narrator",
+    name: "Elara",
+    description: "Crisp Pro Narrator",
     gender: "female",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/WQP7cQUF5aAS6Axh5yaa/bG5JpSVsfxR6bgeyRnzk.mp3",
   },
   {
     voiceId: "jSuBIjxMKhqIfb0wCK1F",
-    name: "Baxter - Dry Calm Aussie",
+    name: "Baxter",
+    description: "Dry Calm Aussie",
     gender: "male",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/jSuBIjxMKhqIfb0wCK1F/b303c261-17fd-43e3-bd67-96365b33c6fb.mp3",
   },
   {
     voiceId: "6WwXjDDEMyNmFG95zycZ",
-    name: "Eldrin - Crisp British Baritone",
+    name: "Eldrin",
+    description: "Crisp British Baritone",
     gender: "male",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/6WwXjDDEMyNmFG95zycZ/RT3f2jFU3dCgQQwtz3dC.mp3",
   },
   {
     voiceId: "dvbL7qkNGZY1IqPGZAjM",
-    name: "Elowen - Upbeat Modern Narrator",
+    name: "Elowen",
+    description: "Upbeat Modern Narrator",
     gender: "female",
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/dvbL7qkNGZY1IqPGZAjM/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiIxZGEwNmVhNjc5YTU0OTc1YWQ5NmEyMjIxZmU2NTMwZCIsImZpbGVuYW1lIjoibHdiVTFRZ0x1R1U3NWhvRG5WZFkubXAzIiwidGltZXN0YW1wIjoxNzk1MDQ2NDAwMDAwMDAwfQ%3D%3D",
   },
   {
     voiceId: "10NkTYmU7tSz3Kkl3Lex",
-    name: "Kaelen - Amateur Warrior",
+    name: "Kaelen",
+    description: "Amateur Warrior",
     gender: "male",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/10NkTYmU7tSz3Kkl3Lex/Izw3uUEUt4DKcvYtVF5B.mp3",
   },
   {
     voiceId: "ktkP7Nsj67dw2zcplQYt",
-    name: "Lawrence - Bright and Informative",
+    name: "Lawrence",
+    description: "Bright and Informative",
     gender: "male",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/ktkP7Nsj67dw2zcplQYt/HLqkY4HmHjsgYkZUS8Fj.mp3",
   },
   {
     voiceId: "BFd5oBc2DDna33pSi4Gf",
-    name: "Alicia - Polished Global Anchor",
+    name: "Alicia",
+    description: "Polished Global Anchor",
     gender: "female",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/DNYvvkdiu5NYK2rSLwDL/58662aa8-3484-459c-9e79-31fe579b2045.mp3",
   },
   {
     voiceId: "QtY3JBOUKEB5xzrRfOKc",
-    name: "Maisie - Friendly Casual Neighbor",
+    name: "Maisie",
+    description: "Friendly Casual Neighbor",
     gender: "female",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/QtY3JBOUKEB5xzrRfOKc/sxNrxFKYQqJM2twaupIl.mp3",
   },
   {
     voiceId: "7QN34D2r3hCNwbOYIeK0",
-    name: "Warren - Effortless and Cool",
+    name: "Warren",
+    description: "Effortless and Cool",
     gender: "male",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/7QN34D2r3hCNwbOYIeK0/63ac2ee7-8046-4b2f-bb6f-7c65437b7d9d.mp3",
   },
   {
     voiceId: "g7LVvkPWALzPxOQbF6OE",
-    name: "Jade - Upbeat and Natural",
+    name: "Jade",
+    description: "Upbeat and Natural",
     gender: "female",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/g7LVvkPWALzPxOQbF6OE/ZglHE6CY6Su9USd2h7sU.mp3",
   },
   {
     voiceId: "l7kNoIfnJKPg7779LI2t",
-    name: "Eddie - Natural and Helpful",
+    name: "Eddie",
+    description: "Natural and Helpful",
     gender: "male",
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/l7kNoIfnJKPg7779LI2t/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiIxZGEwNmVhNjc5YTU0OTc1YWQ5NmEyMjIxZmU2NTMwZCIsImZpbGVuYW1lIjoiWmZseHllQVJEOGlMOEhuTXdQN3QubXAzIiwidGltZXN0YW1wIjoxNzk1MDQ2NDAwMDAwMDAwfQ%3D%3D",
   },
   {
     voiceId: "AaOhDHYJ1XLZk74lXhdE",
-    name: "Caleb - Trusted Guide",
+    name: "Caleb",
+    description: "Trusted Guide",
     gender: "male",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/AaOhDHYJ1XLZk74lXhdE/09516965-289e-4f78-9e36-569a22477d09.mp3",
   },
   {
     voiceId: "8dEUmyPMdDdK91vboYih",
-    name: "Sawyer - Midnight Storyteller",
+    name: "Sawyer",
+    description: "Midnight Storyteller",
     gender: "male",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/8dEUmyPMdDdK91vboYih/YYGMnAuSXy7aGwkcMzM0.mp3",
   },
   {
     voiceId: "fnYMz3F5gMEDGMWcH1ex",
-    name: "Finley - Articulate Anchor",
+    name: "Finley",
+    description: "Articulate Anchor",
     gender: "male",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/uxut3IsZzAX3ycGl84pJ/58652fb7-82bb-4523-8620-5f7325b27d01.mp3",
   },
   {
     voiceId: "22N9cF8z0o7y23njdyaY",
-    name: "Florence - Atmospheric Storyteller",
+    name: "Florence",
+    description: "Atmospheric Storyteller",
     gender: "female",
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/22N9cF8z0o7y23njdyaY/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiIxZGEwNmVhNjc5YTU0OTc1YWQ5NmEyMjIxZmU2NTMwZCIsImZpbGVuYW1lIjoiRjNzaE92TnhxaWRCOHBrZUdUWUsubXAzIiwidGltZXN0YW1wIjoxNzk1MDQ2NDAwMDAwMDAwfQ%3D%3D",
   },
   {
     voiceId: "FrS6cKLB1wg4WYgPa9GW",
-    name: "Wyatt - Seasoned Mentor",
+    name: "Wyatt",
+    description: "Seasoned Mentor",
     gender: "male",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/FrS6cKLB1wg4WYgPa9GW/401782f2-fb6e-46fb-b69b-e9c9530608ab.mp3",
   },
 ];
 
-/** Whether a voice is one that a user can have: ElevenLabs' default voices, as opposed to any that are in our account */
+/**
+ * The names of the voices that anyone can choose to listen in. Every voice
+ * that something gets listened to in is another copy of its audio to generate
+ * and pay for, so listeners are kept to these (and to the voices of the
+ * people who wrote what they're listening to). The first is what posts are
+ * read in unless the listener chooses otherwise.
+ */
+const LISTENER_VOICE_NAMES = ["Eddie", "Maisie"];
+
+function getDefaultVoiceByName(name: string): DefaultVoice {
+  const voice = defaultVoices.find(defaultVoice => defaultVoice.name === name);
+  if (!voice) {
+    throw new Error(`There's no default voice called ${name}`);
+  }
+  return voice;
+}
+
+function toNarrationVoice({ voiceId, name, description, previewUrl }: DefaultVoice): NarrationVoice {
+  return { voiceId, name, description, previewUrl };
+}
+
+/** Whether a voice is one that a user can have as their own: any of ElevenLabs' default voices */
 export function isUserSelectableVoice(voiceId: string): boolean {
   return defaultVoices.some(voice => voice.voiceId === voiceId);
 }
 
-/** The voices that a user can have */
-export function listUserSelectableVoices(): ElevenLabsVoice[] {
-  return defaultVoices.map(({ voiceId, name, previewUrl }) => ({ voiceId, name, previewUrl, category: null, description: null }));
+/** The voices that a user can have as their own */
+export function listUserSelectableVoices(): NarrationVoice[] {
+  return defaultVoices.map(toNarrationVoice);
+}
+
+/** The voices that anyone can choose to listen in */
+export function listListenerVoices(): NarrationVoice[] {
+  return LISTENER_VOICE_NAMES.map(getDefaultVoiceByName).map(toNarrationVoice);
 }
 
 /**
- * The voices that the player offers for reading a post: the default voices
- * (the first of which is what the player starts out with), and then any
- * others that are in our account. The account also has the previous set of
- * default voices until they're retired, which are left out; and it has each
- * current default voice that has been used, which is only listed once.
+ * The rest of the default voices. Admins can listen in these as well, so that
+ * they can compare them with the ones that everyone gets.
  */
-export async function listPlayerVoices(): Promise<ElevenLabsVoice[]> {
-  const accountVoices = await listElevenLabsAccountVoices();
-  const currentAccountVoices = accountVoices.filter(voice => voice.category !== RETIRED_DEFAULT_VOICE_CATEGORY);
-  return uniqBy([...listUserSelectableVoices(), ...currentAccountVoices], voice => voice.voiceId);
+export function listAdminListenerVoices(): NarrationVoice[] {
+  return defaultVoices.filter(voice => !LISTENER_VOICE_NAMES.includes(voice.name)).map(toNarrationVoice);
+}
+
+/** Whether a user may ask to hear things read in a particular voice */
+export function userCanListenInVoice(user: DbUser, voiceId: string): boolean {
+  const allowedVoices = userIsAdmin(user) ? listUserSelectableVoices() : listListenerVoices();
+  return allowedVoices.some(voice => voice.voiceId === voiceId);
+}
+
+/** The voice that posts are read in unless the listener chooses otherwise */
+export function getDefaultListenerVoiceId(): string {
+  return getDefaultVoiceByName(LISTENER_VOICE_NAMES[0]).voiceId;
 }
 
 /**
@@ -244,12 +293,11 @@ async function assignNarrationVoice(user: DbUser): Promise<string> {
 }
 
 /**
- * The settings that a user's writing is read aloud with: the voice they've
- * chosen, with default tuning. A user who hasn't chosen is assigned a voice
- * the first time this is called for them, and keeps it until they choose
- * another.
+ * The voice that a user's writing is read aloud in, for listeners who ask to
+ * hear authors' voices: the one they've chosen. A user who hasn't chosen is
+ * assigned a voice the first time this is called for them, and keeps it until
+ * they choose another.
  */
-export async function getUserNarrationVoiceSettings(user: DbUser): Promise<NarrationVoiceSettings> {
-  const voiceId = user.narrationVoiceId ?? await assignNarrationVoice(user);
-  return { voiceId, modelId: DEFAULT_NARRATION_MODEL_ID, ...defaultNarrationVoiceTuning };
+export async function getUserNarrationVoiceId(user: DbUser): Promise<string> {
+  return user.narrationVoiceId ?? await assignNarrationVoice(user);
 }

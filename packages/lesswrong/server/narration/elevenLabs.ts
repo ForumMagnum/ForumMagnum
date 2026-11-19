@@ -4,16 +4,6 @@ import type { NarrationVoiceSettings } from "@/lib/narration/narrationTypes";
 const ELEVENLABS_API_ORIGIN = "https://api.elevenlabs.io";
 const NARRATION_OUTPUT_FORMAT = "mp3_44100_128";
 
-const voicesResponseSchema = z.object({
-  voices: z.array(z.object({
-    voice_id: z.string(),
-    name: z.string(),
-    category: z.string().nullish(),
-    description: z.string().nullish(),
-    preview_url: z.string().nullish(),
-  })),
-});
-
 const modelsResponseSchema = z.array(z.object({
   model_id: z.string(),
   name: z.string(),
@@ -33,14 +23,6 @@ const speechWithTimestampsResponseSchema = z.object({
 });
 
 export type ElevenLabsAlignment = z.infer<typeof alignmentSchema>;
-
-export interface ElevenLabsVoice {
-  voiceId: string
-  name: string
-  category: string|null
-  description: string|null
-  previewUrl: string|null
-}
 
 export interface ElevenLabsModel {
   modelId: string
@@ -76,23 +58,6 @@ async function elevenLabsRequest(path: string, body?: Record<string, unknown>): 
     throw new Error(`ElevenLabs request to ${path} failed with status ${response.status}: ${await response.text()}`);
   }
   return response;
-}
-
-/**
- * The voices in our ElevenLabs account: ones made in it, ones from
- * ElevenLabs' public voice library that have been added to it (which
- * generating speech with one does), and the default voices it was given.
- */
-export async function listElevenLabsAccountVoices(): Promise<ElevenLabsVoice[]> {
-  const response = await elevenLabsRequest("/v1/voices");
-  const { voices } = voicesResponseSchema.parse(await response.json());
-  return voices.map(voice => ({
-    voiceId: voice.voice_id,
-    name: voice.name,
-    category: voice.category ?? null,
-    description: voice.description ?? null,
-    previewUrl: voice.preview_url ?? null,
-  }));
 }
 
 export async function listElevenLabsSpeechModels(): Promise<ElevenLabsModel[]> {

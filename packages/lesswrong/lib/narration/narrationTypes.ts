@@ -11,36 +11,38 @@ export interface NarrationVoiceSettings {
   speed: number
 }
 
-export type NarrationVoiceTuning = Omit<NarrationVoiceSettings, "voiceId"|"modelId">;
-
-interface NarrationTuningRange {
-  min: number
-  max: number
-  label: string
-}
-
-/** The ranges that the ElevenLabs API accepts */
-export const narrationTuningRanges: Record<keyof NarrationVoiceTuning, NarrationTuningRange> = {
-  stability: { min: 0, max: 1, label: "Stability" },
-  similarityBoost: { min: 0, max: 1, label: "Similarity" },
-  style: { min: 0, max: 1, label: "Style exaggeration" },
-  speed: { min: 0.7, max: 1.2, label: "Generation speed" },
-};
-
-export const narrationTuningKeys: Array<keyof NarrationVoiceTuning> = ["stability", "similarityBoost", "style", "speed"];
-
-export const defaultNarrationVoiceTuning: NarrationVoiceTuning = {
+/** How a voice is made to sound. Listeners don't choose this: all audio is generated with the same tuning. */
+export const narrationVoiceTuning: Omit<NarrationVoiceSettings, "voiceId"|"modelId"> = {
   stability: 0.5,
   similarityBoost: 0.75,
   style: 0,
   speed: 1,
 };
 
+/** The speech model that everything is read with, unless an admin chooses another (Eleven v4 Turbo) */
+export const DEFAULT_NARRATION_MODEL_ID = "eleven_v4_turbo";
+
 /**
- * The speech model that comments are read with, and that the player starts
- * out with for posts
+ * Takes the place of a voice's ID, to mean the voice of whoever wrote what's
+ * being read. Every user has a voice of their own.
  */
-export const DEFAULT_NARRATION_MODEL_ID = "eleven_v4";
+export const AUTHOR_NARRATION_VOICE = "author";
+
+/** What a listener asks to hear something read in */
+export interface NarrationVoiceChoice {
+  /** A voice's ID, or AUTHOR_NARRATION_VOICE */
+  voiceId: string
+  modelId: string
+}
+
+/** A listener's settings: what to hear posts read in, and what to hear comments read in */
+export interface NarrationListenerSettings {
+  /** A voice's ID, or AUTHOR_NARRATION_VOICE */
+  postVoiceId: string
+  /** The same, for comments */
+  commentVoiceId: string
+  modelId: string
+}
 
 /**
  * A range of a block's speech text, and the range of the block's source text

@@ -610,9 +610,8 @@ extend type Query {
 type NarrationVoice {
   voiceId: String!
   name: String!
-  category: String
-  description: String
-  previewUrl: String
+  description: String!
+  previewUrl: String!
 }
 
 type NarrationModel {
@@ -621,30 +620,31 @@ type NarrationModel {
   description: String
 }
 
-type NarrationOptions {
+type NarrationAdminOptions {
   voices: [NarrationVoice!]!
   models: [NarrationModel!]!
 }
 
-input NarrationVoiceSettingsInput {
+type NarrationOptions {
+  voices: [NarrationVoice!]!
+  adminOptions: NarrationAdminOptions
+}
+
+input NarrationVoiceChoiceInput {
   voiceId: String!
   modelId: String!
-  stability: Float!
-  similarityBoost: Float!
-  style: Float!
-  speed: Float!
 }
 
 extend type Query {
   narrationOptions: NarrationOptions!
   narrationSelectableVoices: [NarrationVoice!]!
-  narrationSegmentAudios(narrationScriptId: String!, settings: NarrationVoiceSettingsInput!): [NarrationSegmentAudio!]!
+  narrationSegmentAudios(narrationScriptId: String!, voice: NarrationVoiceChoiceInput!): [NarrationSegmentAudio!]!
 }
 
 extend type Mutation {
   prepareNarration(postId: String!): NarrationScript!
   prepareCommentNarration(commentId: String!): NarrationScript!
-  generateNarrationSegmentAudio(narrationSegmentId: String!, settings: NarrationVoiceSettingsInput): NarrationSegmentAudio!
+  generateNarrationSegmentAudio(narrationSegmentId: String!, voice: NarrationVoiceChoiceInput!): NarrationSegmentAudio!
 }
 
 type FrontpageScoreTerm {

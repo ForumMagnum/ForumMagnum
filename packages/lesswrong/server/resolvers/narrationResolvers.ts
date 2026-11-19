@@ -2,37 +2,32 @@ import gql from "graphql-tag";
 import { z } from "zod";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { accessFilterMultiple, accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { narrationTuningRanges, type NarrationVoiceSettings } from "@/lib/narration/narrationTypes";
+import {
+  AUTHOR_NARRATION_VOICE,
+  DEFAULT_NARRATION_MODEL_ID,
+  narrationVoiceTuning,
+  type NarrationVoiceChoice,
+  type NarrationVoiceSettings,
+} from "@/lib/narration/narrationTypes";
 import { listElevenLabsSpeechModels } from "@/server/narration/elevenLabs";
 import {
-  getCommentAuthorVoiceSettings,
+  getAuthorVoiceId,
   getOrCreateCommentNarrationScript,
   getOrCreateNarrationSegmentAudio,
   getOrCreatePostNarrationScript,
   isFinishedNarrationScript,
   isFinishedNarrationSegmentAudio,
 } from "@/server/narration/narrationGeneration";
-import { listPlayerVoices, listUserSelectableVoices } from "@/server/narration/narrationVoices";
+import {
+  listAdminListenerVoices,
+  listListenerVoices,
+  listUserSelectableVoices,
+  userCanListenInVoice,
+} from "@/server/narration/narrationVoices";
 
-function roundToHundredths(value: number): number {
-  return Math.round(value * 100) / 100;
-}
-
-function tuningValueSchema({ min, max }: { min: number, max: number }) {
-  return z.number().min(min).max(max).transform(roundToHundredths);
-}
-
-/**
- * Generated audio is looked up by exact match on its settings, so the numeric
- * ones are rounded here, before they're used for either lookup or storage.
- */
-const voiceSettingsSchema = z.object({
+const voiceChoiceSchema = z.object({
   voiceId: z.string().min(1),
   modelId: z.string().min(1),
-  stability: tuningValueSchema(narrationTuningRanges.stability),
-  similarityBoost: tuningValueSchema(narrationTuningRanges.similarityBoost),
-  style: tuningValueSchema(narrationTuningRanges.style),
-  speed: tuningValueSchema(narrationTuningRanges.speed),
 });
 
 function requireNarrationAccess(context: ResolverContext): DbUser {
@@ -43,10 +38,17 @@ function requireNarrationAccess(context: ResolverContext): DbUser {
   return currentUser;
 }
 
+/** The choices that only admins are offered: the rest of the voices, and the speech model */
+async function getAdminNarrationOptions(currentUser: DbUser) {
+  if (!userIsAdmin(currentUser)) {
+    return null;
+  }
+  return { voices: listAdminListenerVoices(), models: await listElevenLabsSpeechModels() };
+}
+
 async function narrationOptionsResolver(_root: void, _args: {}, context: ResolverContext) {
-  requireNarrationAccess(context);
-  const [voices, models] = await Promise.all([listPlayerVoices(), listElevenLabsSpeechModels()]);
-  return { voices, models };
+  const currentUser = requireNarrationAccess(context);
+  return { voices: listListenerVoices(), adminOptions: await getAdminNarrationOptions(currentUser) };
 }
 
 function narrationSelectableVoicesResolver(_root: void, _args: {}, context: ResolverContext) {
@@ -54,16 +56,44 @@ function narrationSelectableVoicesResolver(_root: void, _args: {}, context: Reso
   return listUserSelectableVoices();
 }
 
+/**
+ * The settings to generate audio with, given what the listener asked to hear
+ * a script read in. Throws if they asked for something that they aren't
+ * allowed: only admins can listen in any voice, or choose the model.
+ */
+async function getVoiceSettings(
+  narrationScript: DbNarrationScript,
+  requestedVoice: NarrationVoiceChoice,
+  currentUser: DbUser,
+  context: ResolverContext,
+): Promise<NarrationVoiceSettings> {
+  const { voiceId: requestedVoiceId, modelId } = voiceChoiceSchema.parse(requestedVoice);
+  if (modelId !== DEFAULT_NARRATION_MODEL_ID && !userIsAdmin(currentUser)) {
+    throw new Error("Only admins can choose the speech model");
+  }
+  if (requestedVoiceId === AUTHOR_NARRATION_VOICE) {
+    return { voiceId: await getAuthorVoiceId(narrationScript, context), modelId, ...narrationVoiceTuning };
+  }
+  if (!userCanListenInVoice(currentUser, requestedVoiceId)) {
+    throw new Error(`Voice ${requestedVoiceId} isn't one that you can listen in`);
+  }
+  return { voiceId: requestedVoiceId, modelId, ...narrationVoiceTuning };
+}
+
 async function narrationSegmentAudiosResolver(
   _root: void,
-  { narrationScriptId, settings }: { narrationScriptId: string, settings: NarrationVoiceSettings },
+  { narrationScriptId, voice }: { narrationScriptId: string, voice: NarrationVoiceChoice },
   context: ResolverContext,
 ) {
   const currentUser = requireNarrationAccess(context);
+  const narrationScript = await context.NarrationScripts.findOne({ _id: narrationScriptId });
+  if (!narrationScript) {
+    throw new Error(`Narration script ${narrationScriptId} not found`);
+  }
   const segments = await context.NarrationSegments.find({ narrationScriptId }, {}, { _id: 1 }).fetch();
   const audios = await context.NarrationSegmentAudios.find({
     narrationSegmentId: { $in: segments.map(segment => segment._id) },
-    ...voiceSettingsSchema.parse(settings),
+    ...await getVoiceSettings(narrationScript, voice, currentUser, context),
   }).fetch();
   return await accessFilterMultiple(currentUser, "NarrationSegmentAudios", audios.filter(isFinishedNarrationSegmentAudio), context);
 }
@@ -90,28 +120,9 @@ async function prepareCommentNarrationResolver(_root: void, { commentId }: { com
   return await accessFilterSingle(currentUser, "NarrationScripts", narrationScript, context);
 }
 
-/**
- * A comment's narration is in its author's voice, so the listener's settings
- * only apply to (and are required for) a post's.
- */
-async function getSegmentVoiceSettings(
-  narrationScript: DbNarrationScript,
-  requestedSettings: NarrationVoiceSettings|null,
-  context: ResolverContext,
-): Promise<NarrationVoiceSettings> {
-  const commentAuthorSettings = await getCommentAuthorVoiceSettings(narrationScript, context);
-  if (commentAuthorSettings && requestedSettings) {
-    throw new Error("A comment is narrated in its author's voice, so voice settings can't be given for it");
-  }
-  if (!commentAuthorSettings && !requestedSettings) {
-    throw new Error("Voice settings are required to narrate a post");
-  }
-  return commentAuthorSettings ?? voiceSettingsSchema.parse(requestedSettings);
-}
-
 async function generateNarrationSegmentAudioResolver(
   _root: void,
-  { narrationSegmentId, settings }: { narrationSegmentId: string, settings: NarrationVoiceSettings|null },
+  { narrationSegmentId, voice }: { narrationSegmentId: string, voice: NarrationVoiceChoice },
   context: ResolverContext,
 ) {
   const currentUser = requireNarrationAccess(context);
@@ -120,7 +131,7 @@ async function generateNarrationSegmentAudioResolver(
   if (!segment || !narrationScript || !isFinishedNarrationScript(narrationScript)) {
     throw new Error(`Narration segment ${narrationSegmentId} not found`);
   }
-  const voiceSettings = await getSegmentVoiceSettings(narrationScript, settings ?? null, context);
+  const voiceSettings = await getVoiceSettings(narrationScript, voice, currentUser, context);
   const audio = await getOrCreateNarrationSegmentAudio(segment, narrationScript, voiceSettings, currentUser);
   return await accessFilterSingle(currentUser, "NarrationSegmentAudios", audio, context);
 }
@@ -129,9 +140,8 @@ export const narrationGraphQLTypeDefs = gql`
   type NarrationVoice {
     voiceId: String!
     name: String!
-    category: String
-    description: String
-    previewUrl: String
+    description: String!
+    previewUrl: String!
   }
 
   type NarrationModel {
@@ -140,30 +150,31 @@ export const narrationGraphQLTypeDefs = gql`
     description: String
   }
 
-  type NarrationOptions {
+  type NarrationAdminOptions {
     voices: [NarrationVoice!]!
     models: [NarrationModel!]!
   }
 
-  input NarrationVoiceSettingsInput {
+  type NarrationOptions {
+    voices: [NarrationVoice!]!
+    adminOptions: NarrationAdminOptions
+  }
+
+  input NarrationVoiceChoiceInput {
     voiceId: String!
     modelId: String!
-    stability: Float!
-    similarityBoost: Float!
-    style: Float!
-    speed: Float!
   }
 
   extend type Query {
     narrationOptions: NarrationOptions!
     narrationSelectableVoices: [NarrationVoice!]!
-    narrationSegmentAudios(narrationScriptId: String!, settings: NarrationVoiceSettingsInput!): [NarrationSegmentAudio!]!
+    narrationSegmentAudios(narrationScriptId: String!, voice: NarrationVoiceChoiceInput!): [NarrationSegmentAudio!]!
   }
 
   extend type Mutation {
     prepareNarration(postId: String!): NarrationScript!
     prepareCommentNarration(commentId: String!): NarrationScript!
-    generateNarrationSegmentAudio(narrationSegmentId: String!, settings: NarrationVoiceSettingsInput): NarrationSegmentAudio!
+    generateNarrationSegmentAudio(narrationSegmentId: String!, voice: NarrationVoiceChoiceInput!): NarrationSegmentAudio!
   }
 `;
 
