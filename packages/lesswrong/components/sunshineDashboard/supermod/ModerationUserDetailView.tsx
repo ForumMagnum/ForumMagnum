@@ -9,6 +9,7 @@ import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { hideScrollBars, prettyScrollbars } from '@/themes/styleUtils';
 import type { SelectedSidebarTab } from './sidebarTabs';
 import { getModerationContentItems, isMapPin } from './helpers';
+import ConcurrentModeratorChangeIndicator from './ConcurrentModeratorChangeIndicator';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   root: {
@@ -119,6 +120,7 @@ const ModerationUserDetailView = ({
           <ModerationContentDetail item={focusedItem} />
         </div>
         <div className={classes.sidebarColumn}>
+          <ConcurrentModeratorChangeIndicator documentId={user._id} variant="banner" />
           <ModerationSidebar
             user={user}
             currentUser={currentUser}
