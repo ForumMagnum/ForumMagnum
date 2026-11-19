@@ -21,6 +21,10 @@ const HTML_CACHE_ALLOWED_COOKIES: ReadonlySet<string> = new Set([
   '_vercel_sso_nonce',
 ]);
 
+export function isSlackLinkExpander(userAgent: string | null): boolean {
+  return !!userAgent?.startsWith("Slackbot-LinkExpanding");
+}
+
 interface ParsedPostPagePath {
   postId: string
   slug: string | null
@@ -51,7 +55,8 @@ function matchPostPagePath(pathname: string): ParsedPostPagePath | null {
 
 // The post page path of a request that the cached post route handler can
 // serve: a logged-out, cookieless GET of /posts/:id[/:slug] with no query
-// string. Anything else changes the render and is served by the regular route.
+// string, not from Slack's link expander (which gets a larger preview card).
+// Anything else changes the render and is served by the regular route.
 export function getCacheablePostPagePath(request: NextRequest): ParsedPostPagePath | null {
   if (request.method !== 'GET' && request.method !== 'HEAD') return null;
   const parsedPath = matchPostPagePath(request.nextUrl.pathname);
@@ -62,6 +67,7 @@ export function getCacheablePostPagePath(request: NextRequest): ParsedPostPagePa
   // running the middleware.)
   if (request.nextUrl.search) return null;
   if (request.headers.get(STATUS_CODE_LOOPBACK_HEADER)) return null;
+  if (isSlackLinkExpander(request.headers.get('user-agent'))) return null;
   if (request.cookies.getAll().some((cookie) => !HTML_CACHE_ALLOWED_COOKIES.has(cookie.name))) return null;
   return parsedPath;
 }
