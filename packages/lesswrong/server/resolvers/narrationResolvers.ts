@@ -3,14 +3,14 @@ import { z } from "zod";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { accessFilterMultiple, accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { narrationTuningRanges, type NarrationVoiceSettings } from "@/lib/narration/narrationTypes";
-import { listElevenLabsSpeechModels, listElevenLabsVoices } from "@/server/narration/elevenLabs";
+import { listElevenLabsSpeechModels } from "@/server/narration/elevenLabs";
 import {
   getCommentAuthorVoiceSettings,
   getOrCreateCommentNarrationScript,
   getOrCreateNarrationSegmentAudio,
   getOrCreatePostNarrationScript,
 } from "@/server/narration/narrationGeneration";
-import { listUserSelectableVoices } from "@/server/narration/narrationVoices";
+import { listPlayerVoices, listUserSelectableVoices } from "@/server/narration/narrationVoices";
 
 function roundToHundredths(value: number): number {
   return Math.round(value * 100) / 100;
@@ -43,7 +43,7 @@ function requireNarrationAccess(context: ResolverContext): DbUser {
 
 async function narrationOptionsResolver(_root: void, _args: {}, context: ResolverContext) {
   requireNarrationAccess(context);
-  const [voices, models] = await Promise.all([listElevenLabsVoices(), listElevenLabsSpeechModels()]);
+  const [voices, models] = await Promise.all([listPlayerVoices(), listElevenLabsSpeechModels()]);
   return { voices, models };
 }
 

@@ -37,7 +37,7 @@ import { backgroundTask } from "../utils/backgroundTask";
 import { persistentDisplayedModeratorActions, reviewTriggerModeratorActions } from "@/lib/collections/moderatorActions/constants";
 import { updateModeratorAction } from "../collections/moderatorActions/mutations";
 import { invalidateLoginTokensFor } from "../vulcan-lib/apollo-server/authentication";
-import { listUserSelectableVoices } from "../narration/narrationVoices";
+import { isUserSelectableVoice } from "../narration/narrationVoices";
 
 async function sendWelcomeMessageTo(userId: string, forumType: ForumTypeString) {
   const context = createAnonymousContext({ forumType });
@@ -266,13 +266,9 @@ export async function changeDisplayNameRateLimit({ oldDocument, newDocument, cur
   }
 }
 
-export async function validateNarrationVoice({ oldDocument, newDocument }: UpdateCallbackProperties<"Users">) {
+export function validateNarrationVoice({ oldDocument, newDocument }: UpdateCallbackProperties<"Users">) {
   const { narrationVoiceId } = newDocument;
-  if (!narrationVoiceId || narrationVoiceId === oldDocument.narrationVoiceId) {
-    return;
-  }
-  const selectableVoices = await listUserSelectableVoices();
-  if (!selectableVoices.some(voice => voice.voiceId === narrationVoiceId)) {
+  if (narrationVoiceId && narrationVoiceId !== oldDocument.narrationVoiceId && !isUserSelectableVoice(narrationVoiceId)) {
     throw new Error("That narration voice isn't available");
   }
 }

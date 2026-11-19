@@ -36,7 +36,11 @@ export const defaultNarrationVoiceTuning: NarrationVoiceTuning = {
   speed: 1,
 };
 
-export const DEFAULT_NARRATION_MODEL_ID = "eleven_multilingual_v2";
+/**
+ * The speech model that comments are read with, and that the player starts
+ * out with for posts
+ */
+export const DEFAULT_NARRATION_MODEL_ID = "eleven_v4";
 
 /**
  * A range of a block's speech text, and the range of the block's source text

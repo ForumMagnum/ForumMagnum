@@ -113,7 +113,7 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
   const { oldDocument } = updateCallbackProperties;
 
   await changeDisplayNameRateLimit(updateCallbackProperties);
-  await validateNarrationVoice(updateCallbackProperties);
+  validateNarrationVoice(updateCallbackProperties);
 
   data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 

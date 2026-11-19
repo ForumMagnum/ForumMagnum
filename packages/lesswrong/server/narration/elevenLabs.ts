@@ -11,7 +11,6 @@ const voicesResponseSchema = z.object({
     category: z.string().nullish(),
     description: z.string().nullish(),
     preview_url: z.string().nullish(),
-    labels: z.object({ gender: z.string().nullish() }).nullish(),
   })),
 });
 
@@ -41,8 +40,6 @@ export interface ElevenLabsVoice {
   category: string|null
   description: string|null
   previewUrl: string|null
-  /** How ElevenLabs labels the voice: "male", "female" or "neutral" */
-  gender: string|null
 }
 
 export interface ElevenLabsModel {
@@ -81,7 +78,12 @@ async function elevenLabsRequest(path: string, body?: Record<string, unknown>): 
   return response;
 }
 
-export async function listElevenLabsVoices(): Promise<ElevenLabsVoice[]> {
+/**
+ * The voices in our ElevenLabs account: ones made in it, ones from
+ * ElevenLabs' public voice library that have been added to it (which
+ * generating speech with one does), and the default voices it was given.
+ */
+export async function listElevenLabsAccountVoices(): Promise<ElevenLabsVoice[]> {
   const response = await elevenLabsRequest("/v1/voices");
   const { voices } = voicesResponseSchema.parse(await response.json());
   return voices.map(voice => ({
@@ -90,7 +92,6 @@ export async function listElevenLabsVoices(): Promise<ElevenLabsVoice[]> {
     category: voice.category ?? null,
     description: voice.description ?? null,
     previewUrl: voice.preview_url ?? null,
-    gender: voice.labels?.gender ?? null,
   }));
 }
 
