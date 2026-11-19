@@ -31,16 +31,22 @@ const voiceGenderByGoogleGender: Partial<Record<string, VoiceGender>> = {
   other: "neutral",
 };
 
+/** Where the recordings of the voices are served from. They're files in /public. */
+const VOICE_SAMPLE_DIRECTORY = "/narration-voice-samples";
+
 export interface NarrationVoice {
   voiceId: string
   name: string
   /** A few words on how the voice sounds */
   description: string
-  /** A recording of the voice */
+  /** A recording of the voice; see getVoiceSamplePath */
   previewUrl: string
 }
 
-interface DefaultVoice extends NarrationVoice {
+interface DefaultVoice {
+  voiceId: string
+  name: string
+  description: string
   gender: VoiceGender
 }
 
@@ -63,126 +69,108 @@ const defaultVoices: DefaultVoice[] = [
     name: "Darian",
     description: "Warm Grounded Storyteller",
     gender: "male",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/gOupLcAkjEnguROwi4oS/AyYfK0CnNPq37Rzj9jA3.mp3",
   },
   {
     voiceId: "OZ0L6eISlOejga3XjDFt",
     name: "Talia",
     description: "Warm Soft Guide",
     gender: "female",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/OZ0L6eISlOejga3XjDFt/feNpPK3UmI71iHFkml8g.mp3",
   },
   {
     voiceId: "WQP7cQUF5aAS6Axh5yaa",
     name: "Elara",
     description: "Crisp Pro Narrator",
     gender: "female",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/WQP7cQUF5aAS6Axh5yaa/bG5JpSVsfxR6bgeyRnzk.mp3",
   },
   {
     voiceId: "jSuBIjxMKhqIfb0wCK1F",
     name: "Baxter",
     description: "Dry Calm Aussie",
     gender: "male",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/jSuBIjxMKhqIfb0wCK1F/b303c261-17fd-43e3-bd67-96365b33c6fb.mp3",
   },
   {
     voiceId: "6WwXjDDEMyNmFG95zycZ",
     name: "Eldrin",
     description: "Crisp British Baritone",
     gender: "male",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/6WwXjDDEMyNmFG95zycZ/RT3f2jFU3dCgQQwtz3dC.mp3",
   },
   {
     voiceId: "dvbL7qkNGZY1IqPGZAjM",
     name: "Elowen",
     description: "Upbeat Modern Narrator",
     gender: "female",
-    previewUrl: "https://api.us.elevenlabs.io/v1/voices/dvbL7qkNGZY1IqPGZAjM/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiIxZGEwNmVhNjc5YTU0OTc1YWQ5NmEyMjIxZmU2NTMwZCIsImZpbGVuYW1lIjoibHdiVTFRZ0x1R1U3NWhvRG5WZFkubXAzIiwidGltZXN0YW1wIjoxNzk1MDQ2NDAwMDAwMDAwfQ%3D%3D",
   },
   {
     voiceId: "10NkTYmU7tSz3Kkl3Lex",
     name: "Kaelen",
     description: "Amateur Warrior",
     gender: "male",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/10NkTYmU7tSz3Kkl3Lex/Izw3uUEUt4DKcvYtVF5B.mp3",
   },
   {
     voiceId: "ktkP7Nsj67dw2zcplQYt",
     name: "Lawrence",
     description: "Bright and Informative",
     gender: "male",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/ktkP7Nsj67dw2zcplQYt/HLqkY4HmHjsgYkZUS8Fj.mp3",
   },
   {
     voiceId: "BFd5oBc2DDna33pSi4Gf",
     name: "Alicia",
     description: "Polished Global Anchor",
     gender: "female",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/DNYvvkdiu5NYK2rSLwDL/58662aa8-3484-459c-9e79-31fe579b2045.mp3",
   },
   {
     voiceId: "QtY3JBOUKEB5xzrRfOKc",
     name: "Maisie",
     description: "Friendly Casual Neighbor",
     gender: "female",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/QtY3JBOUKEB5xzrRfOKc/sxNrxFKYQqJM2twaupIl.mp3",
   },
   {
     voiceId: "7QN34D2r3hCNwbOYIeK0",
     name: "Warren",
     description: "Effortless and Cool",
     gender: "male",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/7QN34D2r3hCNwbOYIeK0/63ac2ee7-8046-4b2f-bb6f-7c65437b7d9d.mp3",
   },
   {
     voiceId: "g7LVvkPWALzPxOQbF6OE",
     name: "Jade",
     description: "Upbeat and Natural",
     gender: "female",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/g7LVvkPWALzPxOQbF6OE/ZglHE6CY6Su9USd2h7sU.mp3",
   },
   {
     voiceId: "l7kNoIfnJKPg7779LI2t",
     name: "Eddie",
     description: "Natural and Helpful",
     gender: "male",
-    previewUrl: "https://api.us.elevenlabs.io/v1/voices/l7kNoIfnJKPg7779LI2t/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiIxZGEwNmVhNjc5YTU0OTc1YWQ5NmEyMjIxZmU2NTMwZCIsImZpbGVuYW1lIjoiWmZseHllQVJEOGlMOEhuTXdQN3QubXAzIiwidGltZXN0YW1wIjoxNzk1MDQ2NDAwMDAwMDAwfQ%3D%3D",
   },
   {
     voiceId: "AaOhDHYJ1XLZk74lXhdE",
     name: "Caleb",
     description: "Trusted Guide",
     gender: "male",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/AaOhDHYJ1XLZk74lXhdE/09516965-289e-4f78-9e36-569a22477d09.mp3",
   },
   {
     voiceId: "8dEUmyPMdDdK91vboYih",
     name: "Sawyer",
     description: "Midnight Storyteller",
     gender: "male",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/8dEUmyPMdDdK91vboYih/YYGMnAuSXy7aGwkcMzM0.mp3",
   },
   {
     voiceId: "fnYMz3F5gMEDGMWcH1ex",
     name: "Finley",
     description: "Articulate Anchor",
     gender: "male",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/uxut3IsZzAX3ycGl84pJ/58652fb7-82bb-4523-8620-5f7325b27d01.mp3",
   },
   {
     voiceId: "22N9cF8z0o7y23njdyaY",
     name: "Florence",
     description: "Atmospheric Storyteller",
     gender: "female",
-    previewUrl: "https://api.us.elevenlabs.io/v1/voices/22N9cF8z0o7y23njdyaY/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiIxZGEwNmVhNjc5YTU0OTc1YWQ5NmEyMjIxZmU2NTMwZCIsImZpbGVuYW1lIjoiRjNzaE92TnhxaWRCOHBrZUdUWUsubXAzIiwidGltZXN0YW1wIjoxNzk1MDQ2NDAwMDAwMDAwfQ%3D%3D",
   },
   {
     voiceId: "FrS6cKLB1wg4WYgPa9GW",
     name: "Wyatt",
     description: "Seasoned Mentor",
     gender: "male",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/FrS6cKLB1wg4WYgPa9GW/401782f2-fb6e-46fb-b69b-e9c9530608ab.mp3",
   },
 ];
 
@@ -203,8 +191,19 @@ function getDefaultVoiceByName(name: string): DefaultVoice {
   return voice;
 }
 
-function toNarrationVoice({ voiceId, name, description, previewUrl }: DefaultVoice): NarrationVoice {
-  return { voiceId, name, description, previewUrl };
+/**
+ * The recording of a voice that's played to someone who's choosing between
+ * voices, as a path on this site. In each one the voice says the same
+ * sentence, generated the way that narration is. The recordings are checked
+ * in, and scripts/generateNarrationVoiceSamples.ts makes them: it has to be
+ * run again when a voice is added.
+ */
+export function getVoiceSamplePath(voiceId: string): string {
+  return `${VOICE_SAMPLE_DIRECTORY}/${voiceId}.mp3`;
+}
+
+function toNarrationVoice({ voiceId, name, description }: DefaultVoice): NarrationVoice {
+  return { voiceId, name, description, previewUrl: getVoiceSamplePath(voiceId) };
 }
 
 /** Whether a voice is one that a user can have as their own: any of ElevenLabs' default voices */
