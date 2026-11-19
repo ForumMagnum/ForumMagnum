@@ -255,10 +255,6 @@ const NarrationSettingsPanel = ({ options, settings, onApply, onClose, autoScrol
         Apply
       </button>
     </div>
-    <div className={classes.hint}>
-      Applying new settings continues from the paragraph being read. Audio is generated once per voice and kept, so
-      switching back is instant. Double-click a paragraph to jump to it.
-    </div>
   </div>;
 };
 
