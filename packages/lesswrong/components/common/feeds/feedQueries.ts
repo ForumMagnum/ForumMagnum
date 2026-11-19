@@ -181,10 +181,7 @@ export const TagContentFeedQuery = gql(`
           ...PostsListWithVotes
         }
         tagComment {
-          ...CommentsList
-          post {
-            ...PostsListWithVotes
-          }
+          ...UltraFeedComment
         }
       }
     }

@@ -15007,14 +15007,9 @@ type TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagCo
   & PostsListWithVotes
 );
 
-type TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagContentFeedEntry_tagComment_Comment_post_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
 type TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagContentFeedEntry_tagComment_Comment = (
-  { __typename?: 'Comment', post: TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagContentFeedEntry_tagComment_Comment_post_Post | null }
-  & CommentsList
+  { __typename?: 'Comment' }
+  & UltraFeedComment
 );
 
 type TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagContentFeedEntry = { __typename?: 'TagContentFeedEntry', type: TagContentFeedEntryType, tagPost: TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagContentFeedEntry_tagPost_Post | null, tagComment: TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagContentFeedEntry_tagComment_Comment | null };

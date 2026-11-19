@@ -152,7 +152,7 @@ export const userContentFeedStyles = defineStyles("UserContentFeed", (theme: The
 
 // Renders a comment in the feed by fetching its full thread context and displaying
 // the ancestry chain with the focused comment expanded.
-function PrefetchedThreadItem({ comment, index, feedSettings }: {
+export function PrefetchedThreadItem({ comment, index, feedSettings }: {
   comment: UltraFeedComment;
   index: number;
   feedSettings: UltraFeedSettingsType;

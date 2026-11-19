@@ -16162,11 +16162,8 @@ export type TagContentFeedQuery = { __typename?: 'Query', TagContentFeed: { __ty
         { __typename?: 'Post' }
         & PostsListWithVotes
       ) | null, tagComment: (
-        { __typename?: 'Comment', post: (
-          { __typename?: 'Post' }
-          & PostsListWithVotes
-        ) | null }
-        & CommentsList
+        { __typename?: 'Comment' }
+        & UltraFeedComment
       ) | null }> | null } };
 
 export type ElicitBlockDataQueryVariables = Exact<{
@@ -24073,7 +24070,7 @@ export const RecentDiscussionFeedDocument = _o1(_1,[_o11(_1039,_473,_1384,[_1105
 export const UltraFeedDocument = _o1(_1,[_o11(_1039,_473,_1387,[_1105,_1367,_1370,_o12(_1041,_1389,_1044),_1392,_o12(_1041,_1394,_1381)],_o5(_7,[_o7(_8,_1387,[_1108,_1371,_1372,_o8(_602,_1388,_1389),_1395,_1396],_o5(_7,[_327,_1373,_1374,_o6(_8,_1077,_o5(_7,[_270,_1397,_1398,_o6(_8,_o3(_3,"feedSpotlight"),_o5(_7,[_o4(_25,_1030)])),_1399,_1400]))]))])),_23,_136,_62,_145,_155,_181,_189,_195,_200,_204,_223,_806,_1029,_1027,_1025,_1034,_1036,_1038]) as unknown as DocumentNode<UltraFeedQuery, UltraFeedQueryVariables>;
 export const UltraFeedSubscriptionsDocument = _o1(_1,[_o11(_1039,_473,_1401,[_1105,_1367,_1370,_1392],_o5(_7,[_o7(_8,_1401,[_1108,_1371,_1372,_1395],_o5(_7,[_327,_1373,_1374,_o6(_8,_1077,_o5(_7,[_270,_1397,_1398,_1399,_1400]))]))])),_23,_136,_62,_145,_155,_181,_189,_195,_200,_204,_223,_1027,_1025,_1036,_1038]) as unknown as DocumentNode<UltraFeedSubscriptionsQuery, UltraFeedSubscriptionsQueryVariables>;
 export const UserContentFeedDocument = _o1(_1,[_o11(_1039,_473,_1402,[_1131,_1105,_1367,_1370,_1404,_o12(_1041,_1286,_1044)],_o5(_7,[_o7(_8,_1402,[_1173,_1108,_1371,_1372,_1405,_1290],_o5(_7,[_327,_1373,_1374,_o6(_8,_1077,_o5(_7,[_270,_o6(_8,_o3(_3,"userPost"),_209),_o6(_8,_o3(_3,"profileComment"),_222),_o6(_8,_o3(_3,"shortformComment"),_222),_o6(_8,_o3(_3,"wikiEdit"),_1192)]))]))])),_23,_136,_62,_145,_155,_181,_189,_195,_200,_616,_754,_235,_231,_244,_759,_762,_517,_276,_765,_770,_773,_777,_781,_204,_786]) as unknown as DocumentNode<UserContentFeedQuery, UserContentFeedQueryVariables>;
-export const TagContentFeedDocument = _o1(_1,[_o11(_1039,_473,_1406,[_1127,_o12(_1041,_1403,_o13(_1043,_o4(_5,_o3(_3,"TagContentFeedSortBy")))),_1105,_1367,_1370],_o5(_7,[_o7(_8,_1406,[_605,_1405,_1108,_1371,_1372],_o5(_7,[_327,_1373,_1374,_o6(_8,_1077,_o5(_7,[_270,_o6(_8,_o3(_3,"tagPost"),_209),_o6(_8,_o3(_3,"tagComment"),_222)]))]))])),_23,_136,_62,_145,_155,_181,_189,_195,_200,_204]) as unknown as DocumentNode<TagContentFeedQuery, TagContentFeedQueryVariables>;
+export const TagContentFeedDocument = _o1(_1,[_o11(_1039,_473,_1406,[_1127,_o12(_1041,_1403,_o13(_1043,_o4(_5,_o3(_3,"TagContentFeedSortBy")))),_1105,_1367,_1370],_o5(_7,[_o7(_8,_1406,[_605,_1405,_1108,_1371,_1372],_o5(_7,[_327,_1373,_1374,_o6(_8,_1077,_o5(_7,[_270,_o6(_8,_o3(_3,"tagPost"),_209),_o6(_8,_o3(_3,"tagComment"),_227)]))]))])),_23,_136,_62,_145,_155,_181,_189,_195,_200,_204,_223]) as unknown as DocumentNode<TagContentFeedQuery, TagContentFeedQueryVariables>;
 export const ElicitBlockDataDocument = _o1(_1,[_o11(_1039,_473,_1407,[_1410],_o5(_7,[_o7(_8,_1407,[_1411],_1413)])),_62]) as unknown as DocumentNode<ElicitBlockDataQuery, ElicitBlockDataQueryVariables>;
 export const ElicitPredictionDocument = _o1(_1,[_o11(_1039,_1040,_o3(_3,"ElicitPrediction"),[_1410,_o12(_1041,_1414,_1064)],_o5(_7,[_o7(_8,_o3(_3,"MakeElicitPrediction"),[_1411,_o8(_602,_1412,_1414)],_1413)])),_62]) as unknown as DocumentNode<ElicitPredictionMutation, ElicitPredictionMutationVariables>;
 export const IframeWidgetSrcdocQueryDocument = _o1(_1,[_o11(_1039,_473,_o3(_3,"IframeWidgetSrcdocQuery"),[_o12(_1041,_1415,_1045)],_o5(_7,[_o7(_8,_o3(_3,"iframeWidgetSrcdoc"),[_o8(_602,_1055,_o14(_1053,[_o8(_1054,_9,_1415)]))],_o5(_7,[_o6(_8,_1060,_414)]))]))]) as unknown as DocumentNode<IframeWidgetSrcdocQueryQuery, IframeWidgetSrcdocQueryQueryVariables>;

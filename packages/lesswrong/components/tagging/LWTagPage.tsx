@@ -66,8 +66,11 @@ import type { TagBySlugQueryOptions } from "./useTag";
 import { StatusCodeSetter } from "../next/StatusCodeSetter";
 import { MixedTypeFeed } from "../common/MixedTypeFeed";
 import { TagContentFeedQuery } from "../common/feeds/feedQueries";
-import RecentDiscussionThread from "../recentDiscussion/RecentDiscussionThread";
-import CommentsNode from "../comments/CommentsNode";
+import UltraFeedWrappers from "../ultraFeed/UltraFeedWrappers";
+import UltraFeedPostItem from "../ultraFeed/UltraFeedPostItem";
+import FeedItemWrapper from "../ultraFeed/FeedItemWrapper";
+import { PrefetchedThreadItem } from "../users/UserContentFeed";
+import { useUltraFeedSettings } from "../hooks/useUltraFeedSettings";
 import { TupleSet } from "@/lib/utils/typeGuardUtils";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
@@ -366,32 +369,36 @@ const TagContentFeedSection = ({tag, query}: {
 }) => {
   const classes = useStyles(styles);
   const sortBy = tagContentFeedSortOptions.has(query.feedSortedBy) ? query.feedSortedBy : "magic";
+  const { settings } = useUltraFeedSettings();
   return (
     <AnalyticsContext pageSectionContext="tagContentFeed">
       <div className={classes.tagHeader}>
         <div className={classes.postsTaggedTitle}>Posts, quick takes and comments on <em>{tag.name}</em></div>
         <PostsListSortDropdown value={sortBy} options={[...tagContentFeedSortOptions]} sortingParam="feedSortedBy"/>
       </div>
-      <MixedTypeFeed
-        query={TagContentFeedQuery}
-        variables={{tagId: tag._id, sortBy}}
-        renderers={{
-          tagPost: {
-            render: (post) => <RecentDiscussionThread post={post} cardStyle refetch={() => {}} expandAllThreads={false}/>,
-          },
-          tagComment: {
-            render: (comment) => <CommentsNode
-              comment={comment}
-              treeOptions={{
-                post: comment.post ?? undefined,
-                showPostTitle: true,
-                forceNotSingleLine: true,
-              }}
-              startThreadTruncated
-            />,
-          },
-        }}
-      />
+      <UltraFeedWrappers feedType="tagContent" incognitoMode={settings.resolverSettings.incognitoMode}>
+        <MixedTypeFeed
+          query={TagContentFeedQuery}
+          variables={{tagId: tag._id, sortBy}}
+          renderers={{
+            tagPost: {
+              render: (post, index) => <FeedItemWrapper>
+                <UltraFeedPostItem
+                  post={post}
+                  postMetaInfo={{sources: [], displayStatus: "expanded", highlight: false}}
+                  index={index ?? 0}
+                  settings={settings}
+                />
+              </FeedItemWrapper>,
+            },
+            tagComment: {
+              render: (comment, index) => <FeedItemWrapper>
+                <PrefetchedThreadItem comment={comment} index={index ?? 0} feedSettings={settings}/>
+              </FeedItemWrapper>,
+            },
+          }}
+        />
+      </UltraFeedWrappers>
     </AnalyticsContext>
   );
 }
