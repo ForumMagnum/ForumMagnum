@@ -98,7 +98,7 @@ const TeamInboxContentPane = ({ thread }: { thread: TeamInboxThread | null }) =>
       <Button onClick={() => { void refetch().catch(() => {}); }}>Retry</Button>
     </div>}
     {selectedItem
-      ? <ModerationContentDetail key={selectedItem._id} item={selectedItem} />
+      ? <ModerationContentDetail key={selectedItem._id} item={selectedItem} inboxPane />
       : loading ? <Loading />
         : !error && <div className={classes.notice}>
           {thread ? 'No rejected content is linked to this conversation.' : 'Select a conversation to view its rejected content.'}

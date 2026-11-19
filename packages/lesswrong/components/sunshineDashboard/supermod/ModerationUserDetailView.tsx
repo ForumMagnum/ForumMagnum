@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import ModerationUserFeed from './ModerationUserFeed';
+import ModerationContentList from './ModerationContentList';
+import ModerationContentDetail from './ModerationContentDetail';
 import type { InboxAction, InboxState } from './inboxReducer';
 import ModerationSidebar from './ModerationSidebar';
 import ModerationUndoHistory from './ModerationUndoHistory';
@@ -20,7 +21,7 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   },
   contentSection: {
     display: 'grid',
-    gridTemplateColumns: '470px 1fr 440px',
+    gridTemplateColumns: '300px 1fr 1fr 400px',
   },
   userColumn: {
     borderRight: theme.palette.border.normal,
@@ -72,17 +73,21 @@ const ModerationUserDetailView = ({
 }) => {
   const classes = useStyles(styles);
 
-  const allContent = useMemo(
-    () => getModerationContentItems(user, posts, comments),
-    [user, posts, comments],
-  );
-  const focusedItem = allContent[focusedContentIndex];
-  const focusedContent = focusedItem && !isMapPin(focusedItem) ? focusedItem : null;
-
   const setSidebarTab = useCallback(
     (tab: SelectedSidebarTab) => dispatch({ type: 'SET_SIDEBAR_TAB', tab }),
     [dispatch]
   );
+
+  const allContent = useMemo(
+    () => getModerationContentItems(user, posts, comments),
+    [user, posts, comments],
+  );
+
+  const focusedItem = useMemo(() =>
+    allContent[focusedContentIndex] || null,
+    [allContent, focusedContentIndex]
+  );
+  const focusedContent = focusedItem && !isMapPin(focusedItem) ? focusedItem : null;
 
   return (
     <div className={classes.root}>
@@ -90,7 +95,8 @@ const ModerationUserDetailView = ({
         <div className={classes.userColumn}>
           <ModerationUserInfoColumn
             user={user}
-            items={allContent}
+            posts={posts}
+            comments={comments}
             currentUser={currentUser}
             dispatch={dispatch}
           />
@@ -102,14 +108,16 @@ const ModerationUserDetailView = ({
           </div>
         </div>
         <div className={classes.contentListColumn}>
-          <ModerationUserFeed
-            key={user._id}
-            user={user}
+          <ModerationContentList
             items={allContent}
-            focusedItemId={focusedItem?._id ?? null}
+            title="Content"
+            focusedItemId={allContent[focusedContentIndex]?._id ?? null}
             runningLlmCheckId={runningLlmCheckId}
             dispatch={dispatch}
           />
+        </div>
+        <div className={classes.contentListColumn}>
+          <ModerationContentDetail item={focusedItem} />
         </div>
         <div className={classes.sidebarColumn}>
           <ConcurrentModeratorChangeIndicator documentId={user._id} variant="banner" />
@@ -120,7 +128,6 @@ const ModerationUserDetailView = ({
             comments={comments}
             focusedContent={focusedContent}
             sidebarTab={sidebarTab}
-            rejectComposerFocusToken={state.rejectComposerFocusToken ?? 0}
             setSidebarTab={setSidebarTab}
             addToUndoQueue={addToUndoQueue}
             dispatch={dispatch}
