@@ -87,6 +87,11 @@ describe("UpdateQuery", () => {
       expectedError: 'Unsetting a field past the first level of a JSON blob is not yet supported',
     },
     {
+      name: "throws an error when trying to set a value inside an array column",
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {"d.0": "hello world"}}),
+      expectedError: 'nested updates inside array columns are not supported',
+    },
+    {
       name: "can add a value to a set (native arrays)",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$addToSet: {b: "hello world"}}),
       expectedSql: `UPDATE "TestCollection" SET "b" = fm_add_to_set( "b" , $1::TEXT ) WHERE "a" = $2 RETURNING "_id"`,
