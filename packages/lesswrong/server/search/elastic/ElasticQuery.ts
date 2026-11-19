@@ -75,13 +75,6 @@ export type QueryData = {
 
 export type Fuzziness = "AUTO" | number;
 
-export interface AdditiveRecall {
-  query: QueryDslQueryContainer,
-  filters?: QueryDslQueryContainer[],
-  tokens: QueryToken[],
-  isAdvanced: boolean,
-}
-
 type CompiledQuery = {
   tokens: QueryToken[],
   searchQuery: QueryDslQueryContainer,
@@ -505,12 +498,12 @@ class ElasticQuery {
     };
   }
 
-  compileAdditiveRecall(): AdditiveRecall {
+  compileAdditiveRecall(): {query: QueryDslQueryContainer, filters?: QueryDslQueryContainer[]} {
     const {search} = this.queryData;
-    const {tokens, isAdvanced} = search ? parseQuery(search) : {tokens: [], isAdvanced: false};
+    const {tokens, isAdvanced} = parseQuery(search);
     const filters = this.compileFilters(tokens);
-    if (!search) return {query: {match_all: {}}, filters, tokens, isAdvanced};
-    if (isAdvanced) return {query: this.compileAdvancedQuery(tokens, true).searchQuery, filters, tokens, isAdvanced};
+    if (!search) return {query: {match_all: {}}, filters};
+    if (isAdvanced) return {query: this.compileAdvancedQuery(tokens, true).searchQuery, filters};
     const names = this.config.fields.map((field) => field.split("^")[0]);
     const main = names[0];
     const titleField = this.collectionName !== "Comments" && isFullTextField(this.collectionName, main) ? main : undefined;
@@ -538,7 +531,7 @@ class ElasticQuery {
       query: search, fields: [`${titleField}^2`], fuzziness: "AUTO", prefix_length: 1,
       max_expansions: 10, minimum_should_match: minimumShouldMatch,
     }});
-    return {query: {bool: {should, minimum_should_match: 1}}, filters, tokens, isAdvanced};
+    return {query: {bool: {should, minimum_should_match: 1}}, filters};
   }
 
   compileAdditiveHighlights(recallQuery: QueryDslQueryContainer): Record<string, SearchHighlightField> {

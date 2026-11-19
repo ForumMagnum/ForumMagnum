@@ -52,6 +52,7 @@ export const parseQuery = (query: string): QueryParserResult => {
     }
 
     // Replace dashes and underscores with spaces, and remove anything else that
+    // isn't whitespace, a letter or a digit
     if (type !== "user" && type !== "tag") {
       token = token.replace(/[-_]/g, " ").replace(/[^\p{L}\p{N}\s]/gu, "");
     }

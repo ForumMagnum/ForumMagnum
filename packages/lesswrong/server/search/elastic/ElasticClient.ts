@@ -30,38 +30,31 @@ const DEBUG_LOG_ELASTIC_QUERIES = false;
 
 let globalClient: Client | null = null;
 
-interface SearchExecutor {
-  search<TDocument>(request: SearchRequest): Promise<SearchResponse<TDocument>>;
-}
-
 const personLookupCache = new LRU<string, Promise<PersonSearch | undefined>>({
   maxAge: 1000 * 60,
   updateAgeOnGet: false,
   max: 1000,
 });
 
-async function executeSearch(client: SearchExecutor, queryData: SearchQueryData): Promise<HitsOnlySearchResponse> {
-  const person = personSearchApplies(queryData) ? await lookupPerson(client, queryData.search.trim()) : undefined;
-  return completeSearch<ElasticDocument>(client, compileSearchQuery({...queryData, person}));
-}
-
-function lookupPerson(client: SearchExecutor, search: string): Promise<PersonSearch | undefined> {
-  const cached = personLookupCache.get(search);
-  if (cached) return cached;
-  const result = resolvePersonLookup(client, search);
-  personLookupCache.set(search, result);
-  result.catch(() => personLookupCache.del(search));
+/** Shares one promise per key between callers, and forgets it if it rejects */
+export function cachedPromise<T>(cache: LRU<string, Promise<T>>, key: string, compute: () => Promise<T>): Promise<T> {
+  let result = cache.get(key);
+  if (!result) {
+    result = compute();
+    cache.set(key, result);
+    result.catch(() => cache.del(key));
+  }
   return result;
 }
 
-async function resolvePersonLookup(client: SearchExecutor, search: string): Promise<PersonSearch | undefined> {
+async function lookupPerson(client: Client, search: string): Promise<PersonSearch | undefined> {
   const lookup = compilePersonLookup(search);
   if (!lookup) return undefined;
   const candidates = await completeSearch<PersonCandidate>(client, lookup);
   return resolvePersonSearch(search, candidates.hits.hits.flatMap(hit => hit._source ? [hit._source] : []));
 }
 
-async function completeSearch<TDocument>(client: SearchExecutor, request: SearchRequest): Promise<SearchResponse<TDocument>> {
+async function completeSearch<TDocument>(client: Client, request: SearchRequest): Promise<SearchResponse<TDocument>> {
   const response = await client.search<TDocument>({...request, allow_partial_search_results: false});
   if (response.timed_out) throw new Error("Search timed out before producing complete results");
   const failed = response._shards?.failed ?? 0;
@@ -155,8 +148,12 @@ class ElasticClient {
     };
   }
 
-  unifiedSearch(queryData: SearchQueryData): Promise<HitsOnlySearchResponse> {
-    return executeSearch(this.client, queryData);
+  async unifiedSearch(queryData: SearchQueryData): Promise<HitsOnlySearchResponse> {
+    const search = queryData.search.trim();
+    const person = personSearchApplies(queryData)
+      ? await cachedPromise(personLookupCache, search, () => lookupPerson(this.client, search))
+      : undefined;
+    return completeSearch<ElasticDocument>(this.client, compileSearchQuery({...queryData, person}));
   }
 }
 

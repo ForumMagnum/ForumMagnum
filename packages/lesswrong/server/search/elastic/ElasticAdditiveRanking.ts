@@ -114,17 +114,16 @@ function parseDocumentUrl(search: string): SearchIdentifier | undefined {
 
 const matchScript = "params.bm25 * _score * _score / (_score * _score + params.k * params.k)";
 
-const popularityScript = `
+/** Popularity grows with the log of karma, and the gate opens it with the square of the text match */
+const popularityGate = `
   double karma = doc.containsKey(params.karmaField) && doc[params.karmaField].size() > 0
     ? Math.max(0, doc[params.karmaField].value) : 0;
-  double cap = (double) params.cap;
-  double slope = (double) params.slope;
-  double pivot = (double) params.pivot;
-  double gateFloor = (double) params.gateFloor;
-  double matchMax = (double) params.matchMax;
-  double popularity = Math.min(cap, slope * Math.log(1 + karma / pivot) / Math.log(2));
-  double normalizedMatch = Math.min(_score, matchMax) / matchMax;
-  double gate = gateFloor + (1 - gateFloor) * normalizedMatch * normalizedMatch;
+  double popularity = Math.min((double) params.cap, (double) params.slope * Math.log(1 + karma / (double) params.pivot) / Math.log(2));
+  double normalizedMatch = Math.min(_score, (double) params.matchMax) / (double) params.matchMax;
+  double gate = (double) params.gateFloor + (1 - (double) params.gateFloor) * normalizedMatch * normalizedMatch;
+`;
+
+const popularityScript = `${popularityGate}
   double context = (double) params.baseline + (double) params.typeOffset;
   double eventWeight = (double) params.eventWeight;
   if (eventWeight > 0 && doc.containsKey('startTime') && doc['startTime'].size() > 0
@@ -138,12 +137,7 @@ const popularityScript = `
   return popularity * gate + context;
 `;
 
-const titleGateScript = `
-  double karma = doc.containsKey(params.karmaField) && doc[params.karmaField].size() > 0
-    ? Math.max(0, doc[params.karmaField].value) : 0;
-  double popularity = Math.min((double) params.cap, (double) params.slope * Math.log(1 + karma / (double) params.pivot) / Math.log(2));
-  double normalizedMatch = Math.min(_score, (double) params.matchMax) / (double) params.matchMax;
-  double gate = (double) params.gateFloor + (1 - (double) params.gateFloor) * normalizedMatch * normalizedMatch;
+const titleGateScript = `${popularityGate}
   return popularity * Math.max(0, (double) params.titleGate - gate);
 `;
 
@@ -211,29 +205,27 @@ interface RelationshipBranch {
   weight: number;
 }
 
-function relationshipBranches(index: string, person: PersonSearch): RelationshipBranch[] {
-  if (person.candidates) {
-    const candidatesByConfidence = groupBy(person.candidates, candidate => candidate.confidence);
-    return Object.values(candidatesByConfidence).flatMap(candidates => relationshipBranches(index, {
-      userIds: candidates.map(candidate => candidate.userId), topic: person.topic, confidence: candidates[0].confidence,
-    }));
-  }
+/** One set of branches per confidence, so the query's size doesn't grow with the number of candidates */
+function relationshipBranches(index: string, {topic, candidates}: PersonSearch): RelationshipBranch[] {
   const {profile, authored, authoredComment, minorShare, minorProfileKarma} = rankingWeights.relationship;
-  const branches: RelationshipBranch[] = [];
-  if (index === "users" && !person.topic) {
-    const profileIds: QueryDslQueryContainer = {terms: {objectID: person.userIds}};
-    branches.push({query: {bool: {should: [], filter: [profileIds, {range: {karma: {gte: minorProfileKarma}}}]}}, weight: profile[person.confidence]});
-    branches.push({query: {bool: {should: [], filter: [profileIds, {range: {karma: {lt: minorProfileKarma}}}]}}, weight: profile[person.confidence] * minorShare});
-  }
-  const author = compileAuthorshipQuery(indexToCollectionName(index), person.userIds);
-  if (author) {
-    const query: QueryDslQueryContainer = person.topic
-      ? {bool: {should: [], filter: [author], must: [residualTopicQuery(index, person.topic)]}}
-      : author;
-    const weights = index === "comments" ? authoredComment : authored;
-    branches.push({query, weight: weights[person.confidence]});
-  }
-  return branches;
+  return Object.values(groupBy(candidates, candidate => candidate.confidence)).flatMap(group => {
+    const userIds = group.map(candidate => candidate.userId);
+    const {confidence} = group[0];
+    const branches: RelationshipBranch[] = [];
+    if (index === "users" && !topic) {
+      const profileIds: QueryDslQueryContainer = {terms: {objectID: userIds}};
+      branches.push({query: {bool: {should: [], filter: [profileIds, {range: {karma: {gte: minorProfileKarma}}}]}}, weight: profile[confidence]});
+      branches.push({query: {bool: {should: [], filter: [profileIds, {range: {karma: {lt: minorProfileKarma}}}]}}, weight: profile[confidence] * minorShare});
+    }
+    const author = compileAuthorshipQuery(indexToCollectionName(index), userIds);
+    if (author) {
+      const query: QueryDslQueryContainer = topic
+        ? {bool: {should: [], filter: [author], must: [residualTopicQuery(index, topic)]}}
+        : author;
+      branches.push({query, weight: (index === "comments" ? authoredComment : authored)[confidence]});
+    }
+    return branches;
+  });
 }
 
 function identifierQuery(index: string, identifier: SearchIdentifier): QueryDslQueryContainer | undefined {
@@ -361,9 +353,8 @@ function compileInterpretation(input: BranchInput, relationships: RelationshipBr
   const {navigation, context, popularity} = rankingWeights;
   const pivots: RankingPivots = popularity.pivots;
   const identity = identifier && identifierQuery(index, identifier);
-  const profileIds = person?.candidates?.map(candidate => candidate.userId) ?? person?.userIds ?? [];
   const resolvedProfile: QueryDslQueryContainer | undefined = index === "users" && person && !person.topic
-    ? {terms: {objectID: profileIds}} : undefined;
+    ? {terms: {objectID: person.candidates.map(candidate => candidate.userId)}} : undefined;
 
   const outerFunctions: QueryDslFunctionScoreContainer[] = [];
   if (identity) outerFunctions.push({weight: navigation.identifier, filter: identity});
@@ -467,9 +458,9 @@ export function compileSearchQuery(queryData: SearchQueryData): SearchRequest {
   const search = rawSearch.trim();
   const identifier = parseDocumentUrl(search);
   const pastedId = documentIdPattern.test(search) ? search : undefined;
-  const isAdvanced = !!search && parseQuery(search).isAdvanced;
+  const {isAdvanced, tokens} = parseQuery(search);
   const matchSearch = isAdvanced
-    ? parseQuery(search).tokens.filter(token => token.type === "must" || token.type === "should").map(token => token.token).join(" ")
+    ? tokens.filter(token => token.type === "must" || token.type === "should").map(token => token.token).join(" ")
     : search;
   const tokenCount = identifier ? 0 : contentTokens(matchSearch).length;
   for (const index of indexes) {

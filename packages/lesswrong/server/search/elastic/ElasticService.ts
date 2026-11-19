@@ -1,4 +1,4 @@
-import ElasticClient, { ElasticSearchHit, HitsOnlySearchResponse } from "./ElasticClient";
+import ElasticClient, { ElasticSearchHit, HitsOnlySearchResponse, cachedPromise } from "./ElasticClient";
 import type { SearchResult } from "./SearchResult";
 import { algoliaIndexPrefix } from '@/lib/instanceSettings';
 import { indexNameToConfig } from "./ElasticConfig";
@@ -143,13 +143,7 @@ class ElasticService {
       if (search !== "" || queryData.filters.some(({type}) => type === "numeric")) {
         return this.client.unifiedSearch(queryData);
       }
-      const key = stringify(queryData);
-      const cached = emptySearchCache.get(key);
-      if (cached) return cached;
-      const result = this.client.unifiedSearch(queryData);
-      emptySearchCache.set(key, result);
-      result.catch(() => emptySearchCache.del(key));
-      return result;
+      return cachedPromise(emptySearchCache, stringify(queryData), () => this.client.unifiedSearch(queryData));
     }
     if (Array.isArray(index)) {
       return this.client.multiSearch({indexes: index, search, offset, limit});

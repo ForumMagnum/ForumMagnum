@@ -1,6 +1,7 @@
 import type { SearchRequest, QueryDslQueryContainer } from "@elastic/elasticsearch/lib/api/types";
 import { parseQuery } from "./parseQuery";
 import { englishStopwords } from "./searchTokens";
+import maxBy from "lodash/maxBy";
 
 /**
  * `prefix` covers a query word that only starts a name word or sits inside a
@@ -9,10 +10,9 @@ import { englishStopwords } from "./searchTokens";
 export type PersonConfidence = "exact" | "strong" | "weak" | "prefix";
 
 export interface PersonSearch {
-  userIds: string[];
+  /** The query words left over once the name is taken out */
   topic: string;
-  confidence: PersonConfidence;
-  candidates?: ResolvedPersonCandidate[];
+  candidates: ResolvedPersonCandidate[];
 }
 
 export interface ResolvedPersonCandidate {
@@ -185,10 +185,6 @@ function betterSpan(candidate: SpanMatch, best: SpanMatch | undefined): boolean 
   return confidenceRank[candidate.confidence] > confidenceRank[best.confidence];
 }
 
-function sameSpan(a: SpanMatch, b: SpanMatch): boolean {
-  return a.start === b.start && a.length === b.length && a.confidence === b.confidence;
-}
-
 function nameFragmentClauses(token: string): QueryDslQueryContainer[] {
   return [
     {prefix: {"displayName.exact": {value: token}}},
@@ -260,31 +256,19 @@ export function compilePersonLookup(search: string): SearchRequest | undefined {
 export function resolvePersonSearch(search: string, candidates: PersonCandidate[]): PersonSearch | undefined {
   if (parseQuery(search).isAdvanced) return undefined;
   const tokens = words(search);
+  const spansByCandidate = candidates.map(candidate => ({userId: candidate.objectID, spans: candidateSpans(tokens, candidate)}));
   let best: SpanMatch | undefined;
-  const userIds: string[] = [];
-  for (const candidate of candidates) {
-    for (const span of candidateSpans(tokens, candidate)) {
-      if (betterSpan(span, best)) {
-        best = span;
-        userIds.length = 0;
-      }
-      if (best && sameSpan(span, best) && !userIds.includes(candidate.objectID)) userIds.push(candidate.objectID);
-    }
+  for (const span of spansByCandidate.flatMap(({spans}) => spans)) {
+    if (betterSpan(span, best)) best = span;
   }
-  if (!best || !userIds.length) return undefined;
-  const resolvedCandidates: ResolvedPersonCandidate[] = [];
-  for (const candidate of candidates) {
-    const spans = candidateSpans(tokens, candidate).filter(span => span.start === best.start && span.length === best.length);
-    let confidence: PersonConfidence | undefined;
-    for (const span of spans) {
-      if (!confidence || confidenceRank[span.confidence] > confidenceRank[confidence]) confidence = span.confidence;
-    }
-    if (confidence) resolvedCandidates.push({userId: candidate.objectID, confidence});
-  }
+  if (!best) return undefined;
+  const {start, length} = best;
   return {
-    userIds,
-    candidates: resolvedCandidates,
-    topic: [...tokens.slice(0, best.start), ...tokens.slice(best.start + best.length)].join(" "),
-    confidence: best.confidence,
+    candidates: spansByCandidate.flatMap(({userId, spans}) => {
+      const confidences = spans.filter(span => span.start === start && span.length === length).map(span => span.confidence);
+      const confidence = maxBy(confidences, value => confidenceRank[value]);
+      return confidence ? [{userId, confidence}] : [];
+    }),
+    topic: [...tokens.slice(0, start), ...tokens.slice(start + length)].join(" "),
   };
 }
