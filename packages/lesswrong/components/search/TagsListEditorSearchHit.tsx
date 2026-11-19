@@ -1,4 +1,3 @@
-import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import MetaInfo from "../common/MetaInfo";
@@ -20,7 +19,7 @@ const TagsListEditorSearchHit = ({hit}: {
   return (
     <div className={classes.root}>
       <MetaInfo>
-        <SearchHighlight hit={hit} attribute="name">{tag.name}</SearchHighlight>
+        {tag.name}
       </MetaInfo>
       <MetaInfo>
         {tag.postCount ?? 0} posts

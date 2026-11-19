@@ -20,12 +20,6 @@ export interface SearchPageState {
   filters: SearchFilterState;
 }
 
-export const defaultSearchPageState: SearchPageState = {
-  query: "",
-  kinds: [],
-  filters: defaultSearchFilters,
-};
-
 const searchParameterNames = ["query", "search", "kinds", "contentType", "tags", "tagMatch", "events", "authors", "types", "past", "from", "to"];
 
 export const searchModalOpenParam = "searchOpen";
