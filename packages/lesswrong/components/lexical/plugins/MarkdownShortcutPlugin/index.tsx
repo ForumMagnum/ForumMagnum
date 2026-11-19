@@ -6,13 +6,17 @@
  *
  */
 
-import React, { type JSX } from 'react';
+import React, { useEffect, type JSX } from 'react';
 
 import {MarkdownShortcutPlugin} from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 
 
 import {PLAYGROUND_TRANSFORMERS} from '../MarkdownTransformers';
+import { registerLineBreakElementShortcuts } from './lineBreakElementShortcuts';
 
 export default function MarkdownPlugin(): JSX.Element {
+  const [editor] = useLexicalComposerContext();
+  useEffect(() => registerLineBreakElementShortcuts(editor, PLAYGROUND_TRANSFORMERS), [editor]);
   return <MarkdownShortcutPlugin transformers={PLAYGROUND_TRANSFORMERS} />;
 }
