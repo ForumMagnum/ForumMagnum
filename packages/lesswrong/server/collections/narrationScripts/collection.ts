@@ -9,7 +9,7 @@ export const NarrationScripts: NarrationScriptsCollection = createCollection({
 
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
-    indexSet.addIndex('NarrationScripts', { revisionId: 1, preprocessorVersion: 1 }, { unique: true });
+    indexSet.addIndex('NarrationScripts', { revisionId: 1, preprocessorVersion: 1, introduction: 1 }, { unique: true });
     return indexSet;
   },
 });

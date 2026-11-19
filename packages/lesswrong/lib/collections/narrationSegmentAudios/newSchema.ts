@@ -86,33 +86,39 @@ const schema = {
       canRead: ["guests"],
     },
   },
+  /**
+   * This and the other results are null while the audio is being generated.
+   * The row is created before the generating starts, to claim it; see
+   * server/narration/generationClaims.ts. The API only sends audio that's
+   * finished.
+   */
   audioUrl: {
     database: {
       type: "TEXT",
-      nullable: false,
+      nullable: true,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
     },
   },
   timingsUrl: {
     database: {
       type: "TEXT",
-      nullable: false,
+      nullable: true,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
     },
   },
   durationMs: {
     database: {
       type: "INTEGER",
-      nullable: false,
+      nullable: true,
     },
     graphql: {
-      outputType: "Int!",
+      outputType: "Int",
       canRead: ["guests"],
     },
   },

@@ -8,6 +8,8 @@ import type { CommentTreeNode } from "@/lib/utils/unflatten";
  * tree, so this is shared through module-level values rather than context:
  * the post page publishes its comments here for the player to traverse, and
  * the player says which comment it's reading, for that comment to expand.
+ *
+ * "Comments" here includes a question's answers, and the replies to them.
  */
 
 export interface NarrationCommentEntry {
@@ -19,7 +21,8 @@ export interface NarrationCommentEntry {
 /** A comment, or a reply under it, is where narration has got to */
 export type NarrationCommentFocus = "self"|"descendant";
 
-const COMMENT_NODE_SELECTOR = ".comments-node";
+/** The element that has a comment's ID: a CommentsNode, or the top part of an Answer */
+const COMMENT_ELEMENT_SELECTOR = ".comments-node, .Answer-answer";
 const COMMENT_BODY_SELECTOR = ".CommentBody-root";
 
 let displayedCommentTree: Array<CommentTreeNode<CommentsList>> = [];
@@ -49,7 +52,11 @@ function isSkippedForLowKarma({ comment, ancestors }: NarrationCommentEntry, unl
   );
 }
 
-/** Makes a post page's comment tree (as displayed, so in display order) the one that narration continues into */
+/**
+ * Makes a post page's comments the ones that narration continues into. The
+ * tree has to be everything that the page displays, in the order that it's
+ * displayed: on a question, the answers and then the comments.
+ */
 export function usePublishedNarrationComments(commentTree: Array<CommentTreeNode<CommentsList>>) {
   useEffect(() => {
     displayedCommentTree = commentTree;
@@ -88,12 +95,12 @@ export function getNextNarrationComment(afterCommentId: string|null, unlockedCom
 export function findCommentBodyElement(commentId: string): Element|null {
   const commentElement = document.getElementById(commentId);
   const bodyElements = Array.from(commentElement?.querySelectorAll(COMMENT_BODY_SELECTOR) ?? []);
-  return bodyElements.find(bodyElement => bodyElement.closest(COMMENT_NODE_SELECTOR) === commentElement) ?? null;
+  return bodyElements.find(bodyElement => bodyElement.closest(COMMENT_ELEMENT_SELECTOR) === commentElement) ?? null;
 }
 
 /** The displayed comment whose text the element is part of, if any */
 export function findNarrationCommentForElement(element: Element): NarrationCommentEntry|null {
-  const commentElement = element.closest(COMMENT_BODY_SELECTOR)?.closest(COMMENT_NODE_SELECTOR);
+  const commentElement = element.closest(COMMENT_BODY_SELECTOR)?.closest(COMMENT_ELEMENT_SELECTOR);
   return commentElement?.id ? findNarrationComment(commentElement.id) : null;
 }
 

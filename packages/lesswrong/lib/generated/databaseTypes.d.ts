@@ -821,19 +821,20 @@ type NarrationScriptsCollection = PgCollection<"NarrationScripts">;
 interface DbNarrationScript extends DbObject {
   __collectionName?: "NarrationScripts"
   createdAt: Date
+  introduction: string
   preprocessorVersion: number
   revisionId: string
-  scriptUrl: string
+  scriptUrl: string | null
 }
 
 type NarrationSegmentAudiosCollection = PgCollection<"NarrationSegmentAudios">;
 
 interface DbNarrationSegmentAudio extends DbObject {
   __collectionName?: "NarrationSegmentAudios"
-  audioUrl: string
+  audioUrl: string | null
   billedCharacters: number | null
   createdAt: Date
-  durationMs: number
+  durationMs: number | null
   elevenLabsRequestId: string | null
   modelId: string
   narrationSegmentId: string
@@ -841,7 +842,7 @@ interface DbNarrationSegmentAudio extends DbObject {
   speed: number
   stability: number
   style: number
-  timingsUrl: string
+  timingsUrl: string | null
   userId: string
   voiceId: string
 }

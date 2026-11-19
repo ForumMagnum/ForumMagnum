@@ -3439,7 +3439,7 @@ type NarrationScript {
   createdAt: Date!
   revisionId: String!
   preprocessorVersion: Int!
-  scriptUrl: String!
+  scriptUrl: String
   segments: [NarrationSegment!]!
 }
 
@@ -3454,9 +3454,9 @@ type NarrationSegmentAudio {
   similarityBoost: Float!
   style: Float!
   speed: Float!
-  audioUrl: String!
-  timingsUrl: String!
-  durationMs: Int!
+  audioUrl: String
+  timingsUrl: String
+  durationMs: Int
   billedCharacters: Int
   elevenLabsRequestId: String
 }

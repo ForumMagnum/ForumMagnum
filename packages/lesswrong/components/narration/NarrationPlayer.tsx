@@ -240,8 +240,10 @@ function getNowReadingLabel(item: NarrationItem): string|null {
   if (item.type === "post") {
     return null;
   }
-  const authorName = findNarrationComment(item.commentId)?.comment.user?.displayName;
-  return authorName ? `Comment by ${authorName}` : "Comment";
+  const comment = findNarrationComment(item.commentId)?.comment;
+  const kindOfComment = comment?.answer ? "Answer" : "Comment";
+  const authorName = comment?.user?.displayName;
+  return authorName ? `${kindOfComment} by ${authorName}` : kindOfComment;
 }
 
 /**

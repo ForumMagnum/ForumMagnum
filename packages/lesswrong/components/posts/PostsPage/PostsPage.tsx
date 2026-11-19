@@ -507,8 +507,9 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const displayedPublicCommentCount = comments?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
   const { commentCount: totalComments } = getResponseCounts({ post, answers, forumType })
   const commentTree = useMemo(() => unflattenComments(comments ?? []), [comments]);
-  usePublishedNarrationComments(commentTree);
   const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
+  const answersThenComments = useMemo(() => [...answersTree, ...commentTree], [answersTree, commentTree]);
+  usePublishedNarrationComments(answersThenComments);
   const answerCount = post.question ? answersTree.length : undefined;
 
   // Hide the table of contents on questions that are foreign crossposts

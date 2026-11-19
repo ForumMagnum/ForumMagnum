@@ -1296,11 +1296,16 @@ CREATE TABLE "NarrationScripts" (
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "revisionId" VARCHAR(27) NOT NULL,
   "preprocessorVersion" INTEGER NOT NULL,
-  "scriptUrl" TEXT NOT NULL
+  "introduction" TEXT NOT NULL,
+  "scriptUrl" TEXT
 );
 
--- Index "idx_NarrationScripts_revisionId_preprocessorVersion"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_NarrationScripts_revisionId_preprocessorVersion" ON "NarrationScripts" USING btree ("revisionId", "preprocessorVersion");
+-- Index "idx_NarrationScripts_revisionId_preprocessorVersion_introduction"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_NarrationScripts_revisionId_preprocessorVersion_introduction" ON "NarrationScripts" USING btree (
+  "revisionId",
+  "preprocessorVersion",
+  "introduction"
+);
 
 -- Table "NarrationSegmentAudios"
 CREATE TABLE "NarrationSegmentAudios" (
@@ -1314,9 +1319,9 @@ CREATE TABLE "NarrationSegmentAudios" (
   "similarityBoost" DOUBLE PRECISION NOT NULL,
   "style" DOUBLE PRECISION NOT NULL,
   "speed" DOUBLE PRECISION NOT NULL,
-  "audioUrl" TEXT NOT NULL,
-  "timingsUrl" TEXT NOT NULL,
-  "durationMs" INTEGER NOT NULL,
+  "audioUrl" TEXT,
+  "timingsUrl" TEXT,
+  "durationMs" INTEGER,
   "billedCharacters" INTEGER,
   "elevenLabsRequestId" TEXT
 );

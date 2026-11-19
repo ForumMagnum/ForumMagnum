@@ -26,13 +26,30 @@ const schema = {
       canRead: ["guests"],
     },
   },
-  scriptUrl: {
+  /**
+   * What the script says before the document itself: its title, and who it's
+   * by. This is part of what identifies a script, because it can change
+   * without the revision changing: when a post is renamed, or an author's
+   * name changes or is hidden.
+   */
+  introduction: {
     database: {
       type: "TEXT",
       nullable: false,
     },
+  },
+  /**
+   * Null while the script is being built. The row is created before the
+   * building starts, to claim it; see server/narration/generationClaims.ts.
+   * The API only sends scripts that are finished.
+   */
+  scriptUrl: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
     },
   },

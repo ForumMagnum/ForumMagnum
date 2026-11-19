@@ -3103,7 +3103,7 @@ interface NarrationScript {
   createdAt: Date;
   revisionId: string;
   preprocessorVersion: number;
-  scriptUrl: string;
+  scriptUrl: string | null;
   segments: Array<NarrationSegment>;
 }
 
@@ -3118,9 +3118,9 @@ interface NarrationSegmentAudio {
   similarityBoost: number;
   style: number;
   speed: number;
-  audioUrl: string;
-  timingsUrl: string;
-  durationMs: number;
+  audioUrl: string | null;
+  timingsUrl: string | null;
+  durationMs: number | null;
   billedCharacters: number | null;
   elevenLabsRequestId: string | null;
 }

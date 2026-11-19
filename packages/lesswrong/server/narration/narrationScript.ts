@@ -491,11 +491,15 @@ export function getPostIntroduction(title: string, authorNames: string[]): strin
  * comment that isn't a reply, and for a reply to a comment whose author isn't
  * shown.
  */
-export function getCommentIntroduction(authorName: string, isReply: boolean, parentAuthorName: string|null): string {
-  if (!isReply) {
-    return `Comment by ${authorName}.`;
+export function getCommentIntroduction(
+  comment: Pick<DbComment, "answer"|"parentCommentId">,
+  authorName: string,
+  parentAuthorName: string|null,
+): string {
+  if (comment.parentCommentId) {
+    return parentAuthorName ? `${authorName} replies to ${parentAuthorName}.` : `Reply by ${authorName}.`;
   }
-  return parentAuthorName ? `${authorName} replies to ${parentAuthorName}.` : `Reply by ${authorName}.`;
+  return comment.answer ? `Answer by ${authorName}.` : `Comment by ${authorName}.`;
 }
 
 function getIntroBlock(introduction: string): PlaybackBlock {

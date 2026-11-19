@@ -78,6 +78,12 @@ interface LoadedSegmentAudio {
   timings: NarrationSegmentTimings
 }
 
+interface FinishedSegmentAudio {
+  audioUrl: string
+  timingsUrl: string
+  durationMs: number
+}
+
 /**
  * Something that's narrated as a unit, with a script and a timeline of its
  * own: the post, or one of its comments. Playback goes from the post into the
@@ -174,6 +180,19 @@ function getVoiceKey(item: NarrationItem, settings: NarrationVoiceSettings|null)
 
 function getSegmentAudioKey(voiceKey: string, segmentId: string): string {
   return `${voiceKey}:${segmentId}`;
+}
+
+/**
+ * A segment's audio has no file, timings or duration while it's being
+ * generated. The server only sends audio that's finished (it waits for audio
+ * that's on its way), so this is for the sake of the types.
+ */
+function getFinishedSegmentAudio(audio: NarrationSegmentAudioFragment): FinishedSegmentAudio {
+  const { audioUrl, timingsUrl, durationMs } = audio;
+  if (audioUrl === null || timingsUrl === null || durationMs === null) {
+    throw new Error(`Narration audio ${audio._id} was sent before it was finished`);
+  }
+  return { audioUrl, timingsUrl, durationMs };
 }
 
 function getItemRoot(item: NarrationItem): Element|null {
@@ -348,8 +367,8 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     }
     const preparing = (async () => {
       const narrationScript = await requestNarrationScript(item);
-      if (!narrationScript) {
-        throw new Error("Preparing the narration returned nothing");
+      if (!narrationScript?.scriptUrl) {
+        throw new Error("Preparing the narration didn't return a finished script");
       }
       const script = await fetchJson<NarrationScript>(narrationScript.scriptUrl);
       const result = { narrationScriptId: narrationScript._id, segments: narrationScript.segments, script };
@@ -389,9 +408,10 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
       if (!audio) {
         throw new Error("Generating audio returned nothing");
       }
-      const timings = await fetchJson<NarrationSegmentTimings>(audio.timingsUrl);
-      setKnownDurations(durations => ({ ...durations, [audioKey]: audio.durationMs }));
-      return { audioUrl: audio.audioUrl, durationMs: audio.durationMs, timings };
+      const { audioUrl, timingsUrl, durationMs } = getFinishedSegmentAudio(audio);
+      const timings = await fetchJson<NarrationSegmentTimings>(timingsUrl);
+      setKnownDurations(durations => ({ ...durations, [audioKey]: durationMs }));
+      return { audioUrl, durationMs, timings };
     })();
     engine.segmentAudios.set(audioKey, loading);
     loading.catch(() => {
@@ -644,7 +664,7 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
         return;
       }
       const existingDurations = Object.fromEntries((data?.narrationSegmentAudios ?? []).map(
-        audio => [getSegmentAudioKey(settingsKey, audio.narrationSegmentId), audio.durationMs]
+        audio => [getSegmentAudioKey(settingsKey, audio.narrationSegmentId), getFinishedSegmentAudio(audio).durationMs]
       ));
       setKnownDurations(durations => ({ ...existingDurations, ...durations }));
     });

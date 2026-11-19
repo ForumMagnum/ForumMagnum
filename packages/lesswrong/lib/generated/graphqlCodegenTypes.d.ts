@@ -5328,7 +5328,7 @@ type NarrationScript = {
   createdAt: Scalars['Date']['output'];
   preprocessorVersion: Scalars['Int']['output'];
   revisionId: Scalars['String']['output'];
-  scriptUrl: Scalars['String']['output'];
+  scriptUrl?: Maybe<Scalars['String']['output']>;
   segments: Array<NarrationSegment>;
 };
 
@@ -5346,10 +5346,10 @@ type NarrationSegment = {
 type NarrationSegmentAudio = {
   __typename?: 'NarrationSegmentAudio';
   _id: Scalars['String']['output'];
-  audioUrl: Scalars['String']['output'];
+  audioUrl?: Maybe<Scalars['String']['output']>;
   billedCharacters?: Maybe<Scalars['Int']['output']>;
   createdAt: Scalars['Date']['output'];
-  durationMs: Scalars['Int']['output'];
+  durationMs?: Maybe<Scalars['Int']['output']>;
   elevenLabsRequestId?: Maybe<Scalars['String']['output']>;
   modelId: Scalars['String']['output'];
   narrationSegmentId: Scalars['String']['output'];
@@ -5357,7 +5357,7 @@ type NarrationSegmentAudio = {
   speed: Scalars['Float']['output'];
   stability: Scalars['Float']['output'];
   style: Scalars['Float']['output'];
-  timingsUrl: Scalars['String']['output'];
+  timingsUrl?: Maybe<Scalars['String']['output']>;
   userId: Scalars['String']['output'];
   voiceId: Scalars['String']['output'];
 };
@@ -25634,9 +25634,9 @@ type WithVoteMultiDocument = (
 
 type NarrationScriptFragment_NarrationScript_segments_NarrationSegment = { __typename?: 'NarrationSegment', _id: string, segmentIndex: number, startBlockIndex: number, endBlockIndex: number, characterCount: number };
 
-type NarrationScriptFragment = { __typename?: 'NarrationScript', _id: string, scriptUrl: string, segments: Array<NarrationScriptFragment_NarrationScript_segments_NarrationSegment> };
+type NarrationScriptFragment = { __typename?: 'NarrationScript', _id: string, scriptUrl: string | null, segments: Array<NarrationScriptFragment_NarrationScript_segments_NarrationSegment> };
 
-type NarrationSegmentAudioFragment = { __typename?: 'NarrationSegmentAudio', _id: string, narrationSegmentId: string, audioUrl: string, timingsUrl: string, durationMs: number };
+type NarrationSegmentAudioFragment = { __typename?: 'NarrationSegmentAudio', _id: string, narrationSegmentId: string, audioUrl: string | null, timingsUrl: string | null, durationMs: number | null };
 
 type NotificationsList = { __typename?: 'Notification', _id: string, documentId: string | null, documentType: string | null, deleted: boolean | null, userId: string | null, createdAt: string | null, link: string | null, message: string | null, type: string | null, viewed: boolean | null, extraData: any | null };
 

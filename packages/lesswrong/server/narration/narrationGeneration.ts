@@ -1,7 +1,6 @@
 import { put } from "@vercel/blob";
-import { randomId } from "@/lib/random";
-import { postGetAuthorName } from "@/lib/collections/posts/helpers";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import { loadByIds } from "@/lib/loaders";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { isCommentNarratable } from "@/lib/narration/narratableComments";
 import type { NarrationScript, NarrationVoiceSettings } from "@/lib/narration/narrationTypes";
@@ -9,6 +8,7 @@ import NarrationScripts from "@/server/collections/narrationScripts/collection";
 import NarrationSegments from "@/server/collections/narrationSegments/collection";
 import NarrationSegmentAudios from "@/server/collections/narrationSegmentAudios/collection";
 import { synthesizeSpeechWithTimestamps } from "./elevenLabs";
+import { getOrGenerate, type ClaimedGeneration } from "./generationClaims";
 import {
   buildNarrationScript,
   getCommentIntroduction,
@@ -22,6 +22,34 @@ import { getUserNarrationVoiceSettings } from "./narrationVoices";
 
 /** How much of the text before and after a segment the speech model is given as context */
 const CONTEXT_CHARACTERS = 1000;
+/** What's said in place of the name of an author who isn't shown */
+const ANONYMOUS_AUTHOR_NAME = "an anonymous user";
+/** Building a script can mean describing dozens of images and reading out hundreds of equations */
+const SCRIPT_ABANDONED_AFTER_MS = 5 * 60 * 1000;
+const SEGMENT_AUDIO_ABANDONED_AFTER_MS = 2 * 60 * 1000;
+
+export interface FinishedNarrationScript extends DbNarrationScript {
+  scriptUrl: string
+}
+
+export interface FinishedNarrationSegmentAudio extends DbNarrationSegmentAudio {
+  audioUrl: string
+  timingsUrl: string
+  durationMs: number
+}
+
+interface NarrationScriptKey {
+  revisionId: string
+  documentInfo: NarrationDocumentInfo
+  context: ResolverContext
+}
+
+interface SegmentAudioKey {
+  segment: DbNarrationSegment
+  narrationScript: FinishedNarrationScript
+  settings: NarrationVoiceSettings
+  currentUser: DbUser
+}
 
 async function storeNarrationFile(pathname: string, body: string|Buffer, contentType: string): Promise<string> {
   const { url } = await put(pathname, body, { access: "public", contentType, addRandomSuffix: true });
@@ -37,61 +65,86 @@ async function fetchNarrationScript(scriptUrl: string): Promise<NarrationScript>
   return script;
 }
 
-async function getPostAuthorNames(post: DbPost, context: ResolverContext): Promise<string[]> {
-  const coauthorUserIds = post.coauthorUserIds ?? [];
-  const coauthors = await context.Users.find({ _id: { $in: coauthorUserIds } }).fetch();
-  const coauthorNames = coauthorUserIds.flatMap(userId => {
-    const coauthor = coauthors.find(user => user._id === userId);
-    return coauthor ? [userGetDisplayName(coauthor, context.forumType)] : [];
-  });
-  return [await postGetAuthorName(post, context), ...coauthorNames];
+/**
+ * A user's name, if anyone may see whose account it is. (A deleted account's
+ * name is hidden from most.) Scripts are shared by everyone who listens, so
+ * they only name people that every listener could see named on the page.
+ */
+async function getPublicUserName(user: DbUser|null, context: ResolverContext): Promise<string|null> {
+  const userAsSeenByAnyone = await accessFilterSingle(null, "Users", user, context);
+  return (user && userAsSeenByAnyone) ? userGetDisplayName(user, context.forumType) : null;
+}
+
+async function getSpokenAuthorName(author: DbUser|null, context: ResolverContext): Promise<string> {
+  return await getPublicUserName(author, context) ?? ANONYMOUS_AUTHOR_NAME;
 }
 
 /**
- * A script is shared by everyone who listens, so it only names a user whose
- * account anyone can see. (A deleted account's name is hidden from most.)
+ * The names in a post's byline, as its page shows it to anyone (see
+ * PostsAuthors): the author, unless the post hides its author or the author's
+ * account isn't visible, and then the coauthors whose accounts are visible.
  */
-async function getSpokenUserName(user: DbUser, context: ResolverContext): Promise<string> {
-  const userAsSeenByAnyone = await accessFilterSingle(null, "Users", user, context);
-  return userAsSeenByAnyone ? userGetDisplayName(user, context.forumType) : "an anonymous user";
-}
-
-async function getCommentIntroductionFor(comment: DbComment, context: ResolverContext): Promise<string> {
-  const author = await context.loaders.Users.load(comment.userId);
-  if (!author) {
-    throw new Error(`Comment ${comment._id} has no author`);
-  }
-  const parentComment = comment.parentCommentId ? await context.loaders.Comments.load(comment.parentCommentId) : null;
-  const parentAuthor = (parentComment && isCommentNarratable(parentComment))
-    ? await context.loaders.Users.load(parentComment.userId)
-    : null;
-  return getCommentIntroduction(
-    await getSpokenUserName(author, context),
-    !!comment.parentCommentId,
-    parentAuthor ? await getSpokenUserName(parentAuthor, context) : null,
-  );
-}
-
-async function getCommentDocumentInfo(comment: DbComment, context: ResolverContext): Promise<NarrationDocumentInfo> {
-  const post = comment.postId ? await context.loaders.Posts.load(comment.postId) : null;
-  return {
-    introduction: await getCommentIntroductionFor(comment, context),
-    postTitle: post?.title ?? "",
-  };
+async function getPublicBylineNames(post: DbPost, context: ResolverContext): Promise<string[]> {
+  const [author, ...coauthors] = await loadByIds(context, "Users", [post.userId, ...post.coauthorUserIds]);
+  const authorName = post.hideAuthor ? ANONYMOUS_AUTHOR_NAME : await getSpokenAuthorName(author, context);
+  const coauthorNames = await Promise.all(coauthors.map(coauthor => getPublicUserName(coauthor, context)));
+  return [authorName, ...coauthorNames.flatMap(name => name ? [name] : [])];
 }
 
 async function getPostDocumentInfo(post: DbPost, context: ResolverContext): Promise<NarrationDocumentInfo> {
   return {
-    introduction: getPostIntroduction(post.title, await getPostAuthorNames(post, context)),
+    introduction: getPostIntroduction(post.title, await getPublicBylineNames(post, context)),
     postTitle: post.title,
   };
 }
 
-function findNarrationScript(revisionId: string): Promise<DbNarrationScript|null> {
-  return NarrationScripts.findOne({ revisionId, preprocessorVersion: NARRATION_PREPROCESSOR_VERSION });
+async function getCommentDocumentInfo(comment: DbComment, context: ResolverContext): Promise<NarrationDocumentInfo> {
+  const [author, parentComment, post] = await Promise.all([
+    context.loaders.Users.load(comment.userId),
+    comment.parentCommentId ? context.loaders.Comments.load(comment.parentCommentId) : null,
+    comment.postId ? context.loaders.Posts.load(comment.postId) : null,
+  ]);
+  if (!author) {
+    throw new Error(`Comment ${comment._id} has no author`);
+  }
+  const parentAuthor = (parentComment && isCommentNarratable(parentComment))
+    ? await context.loaders.Users.load(parentComment.userId)
+    : null;
+  return {
+    introduction: getCommentIntroduction(
+      comment,
+      await getSpokenAuthorName(author, context),
+      parentAuthor ? await getSpokenAuthorName(parentAuthor, context) : null,
+    ),
+    postTitle: post?.title ?? "",
+  };
 }
 
-async function createNarrationScript(revisionId: string, documentInfo: NarrationDocumentInfo, context: ResolverContext): Promise<DbNarrationScript> {
+function getScriptSelector({ revisionId, documentInfo }: NarrationScriptKey) {
+  return {
+    revisionId,
+    preprocessorVersion: NARRATION_PREPROCESSOR_VERSION,
+    introduction: documentInfo.introduction,
+  };
+}
+
+export function isFinishedNarrationScript(narrationScript: DbNarrationScript): narrationScript is FinishedNarrationScript {
+  return narrationScript.scriptUrl !== null;
+}
+
+async function claimScript(key: NarrationScriptKey): Promise<DbNarrationScript> {
+  const narrationScriptId = await NarrationScripts.rawInsert({ ...getScriptSelector(key), scriptUrl: null }, { quiet: true });
+  const claimedScript = await NarrationScripts.findOne({ _id: narrationScriptId });
+  if (!claimedScript) {
+    throw new Error(`Narration script ${narrationScriptId} is missing after being created`);
+  }
+  return claimedScript;
+}
+
+async function buildAndStoreScript(
+  claimedScript: DbNarrationScript,
+  { revisionId, documentInfo, context }: NarrationScriptKey,
+): Promise<FinishedNarrationScript|null> {
   const revision = await context.Revisions.findOne({ _id: revisionId });
   if (!revision?.html) {
     throw new Error(`Revision ${revisionId} has no html`);
@@ -102,46 +155,60 @@ async function createNarrationScript(revisionId: string, documentInfo: Narration
     JSON.stringify(script),
     "application/json",
   );
-
-  // The script's own record is written last, so that a script that can be
-  // found always has all of its segments.
-  const narrationScriptId = randomId();
   await NarrationSegments.rawInsertMany(segments.map((segment, segmentIndex) => ({
-    narrationScriptId,
+    narrationScriptId: claimedScript._id,
     segmentIndex,
     ...segment,
   })));
-  await NarrationScripts.rawInsert({ _id: narrationScriptId, revisionId, preprocessorVersion: NARRATION_PREPROCESSOR_VERSION, scriptUrl });
 
-  const narrationScript = await NarrationScripts.findOne({ _id: narrationScriptId });
-  if (!narrationScript) {
-    throw new Error(`Narration script ${narrationScriptId} is missing after being created`);
+  // Setting the URL is what finishes the script, and it's done last, so that
+  // a finished script always has all of its segments.
+  const stillClaimed = await NarrationScripts.rawUpdateOne({ _id: claimedScript._id, scriptUrl: null }, { $set: { scriptUrl } });
+  if (!stillClaimed) {
+    await NarrationSegments.rawRemove({ narrationScriptId: claimedScript._id });
+    return null;
   }
-  return narrationScript;
+  return { ...claimedScript, scriptUrl };
 }
+
+async function abandonScript(narrationScript: DbNarrationScript) {
+  await NarrationScripts.rawRemove({ _id: narrationScript._id, scriptUrl: null });
+  const finishedInTheMeantime = await NarrationScripts.findOne({ _id: narrationScript._id });
+  if (!finishedInTheMeantime) {
+    await NarrationSegments.rawRemove({ narrationScriptId: narrationScript._id });
+  }
+}
+
+const scriptGeneration: ClaimedGeneration<NarrationScriptKey, DbNarrationScript, FinishedNarrationScript> = {
+  findEntry: key => NarrationScripts.findOne(getScriptSelector(key)),
+  isFinished: isFinishedNarrationScript,
+  claimEntry: claimScript,
+  finishEntry: buildAndStoreScript,
+  abandonEntry: abandonScript,
+  abandonedAfterMs: SCRIPT_ABANDONED_AFTER_MS,
+};
 
 /**
  * Gets the narration script for the current revision of a post, creating it
- * (and the records of the segments it divides into) if this revision hasn't
- * been narrated before.
+ * (and the records of the segments it divides into) if there isn't one. A
+ * script is for one revision and one introduction, so a post gets a new one
+ * when its text changes, and also when its title or byline does.
  */
-export async function getOrCreatePostNarrationScript(post: DbPost, context: ResolverContext): Promise<DbNarrationScript> {
+export async function getOrCreatePostNarrationScript(post: DbPost, context: ResolverContext): Promise<FinishedNarrationScript> {
   const revisionId = post.contents_latest;
   if (!revisionId) {
     throw new Error(`Post ${post._id} has no contents to narrate`);
   }
-  return await findNarrationScript(revisionId)
-    ?? await createNarrationScript(revisionId, await getPostDocumentInfo(post, context), context);
+  return await getOrGenerate(scriptGeneration, { revisionId, documentInfo: await getPostDocumentInfo(post, context), context });
 }
 
 /** The same, for a comment. A comment's script begins by saying whose comment it is. */
-export async function getOrCreateCommentNarrationScript(comment: DbComment, context: ResolverContext): Promise<DbNarrationScript> {
+export async function getOrCreateCommentNarrationScript(comment: DbComment, context: ResolverContext): Promise<FinishedNarrationScript> {
   const revisionId = comment.contents_latest;
   if (!revisionId || !isCommentNarratable(comment)) {
     throw new Error(`Comment ${comment._id} can't be narrated`);
   }
-  return await findNarrationScript(revisionId)
-    ?? await createNarrationScript(revisionId, await getCommentDocumentInfo(comment, context), context);
+  return await getOrGenerate(scriptGeneration, { revisionId, documentInfo: await getCommentDocumentInfo(comment, context), context });
 }
 
 /**
@@ -162,22 +229,35 @@ export async function getCommentAuthorVoiceSettings(narrationScript: DbNarration
   return await getUserNarrationVoiceSettings(author);
 }
 
-/**
- * Gets the audio for a segment as spoken with the given settings, generating
- * it if it hasn't been generated with those settings before.
- */
-export async function getOrCreateNarrationSegmentAudio(
-  segment: DbNarrationSegment,
-  narrationScript: DbNarrationScript,
-  settings: NarrationVoiceSettings,
-  currentUser: DbUser,
-): Promise<DbNarrationSegmentAudio> {
-  const audioSelector = { narrationSegmentId: segment._id, ...settings };
-  const existingAudio = await NarrationSegmentAudios.findOne(audioSelector);
-  if (existingAudio) {
-    return existingAudio;
-  }
+function getSegmentAudioSelector({ segment, settings }: SegmentAudioKey) {
+  return { narrationSegmentId: segment._id, ...settings };
+}
 
+export function isFinishedNarrationSegmentAudio(audio: DbNarrationSegmentAudio): audio is FinishedNarrationSegmentAudio {
+  return audio.audioUrl !== null && audio.timingsUrl !== null && audio.durationMs !== null;
+}
+
+async function claimSegmentAudio(key: SegmentAudioKey): Promise<DbNarrationSegmentAudio> {
+  const audioId = await NarrationSegmentAudios.rawInsert({
+    ...getSegmentAudioSelector(key),
+    userId: key.currentUser._id,
+    audioUrl: null,
+    timingsUrl: null,
+    durationMs: null,
+    billedCharacters: null,
+    elevenLabsRequestId: null,
+  }, { quiet: true });
+  const claimedAudio = await NarrationSegmentAudios.findOne({ _id: audioId });
+  if (!claimedAudio) {
+    throw new Error(`Narration segment audio ${audioId} is missing after being created`);
+  }
+  return claimedAudio;
+}
+
+async function synthesizeAndStoreSegmentAudio(
+  claimedAudio: DbNarrationSegmentAudio,
+  { segment, narrationScript, settings }: SegmentAudioKey,
+): Promise<FinishedNarrationSegmentAudio|null> {
   const { blocks } = await fetchNarrationScript(narrationScript.scriptUrl);
   const segmentBlocks = blocks.slice(segment.startBlockIndex, segment.endBlockIndex);
   const segmentText = getNarrationSegmentText(segmentBlocks);
@@ -196,18 +276,39 @@ export async function getOrCreateNarrationSegmentAudio(
     storeNarrationFile(`${filePrefix}-timings.json`, JSON.stringify(timings), "application/json"),
   ]);
 
-  const audioId = await NarrationSegmentAudios.rawInsert({
-    ...audioSelector,
-    userId: currentUser._id,
+  const results = {
     audioUrl,
     timingsUrl,
     durationMs,
     billedCharacters: speech.billedCharacters,
     elevenLabsRequestId: speech.requestId,
-  });
-  const audio = await NarrationSegmentAudios.findOne({ _id: audioId });
-  if (!audio) {
-    throw new Error(`Narration segment audio ${audioId} is missing after being created`);
-  }
-  return audio;
+  };
+  const stillClaimed = await NarrationSegmentAudios.rawUpdateOne({ _id: claimedAudio._id, audioUrl: null }, { $set: results });
+  return stillClaimed ? { ...claimedAudio, ...results } : null;
+}
+
+async function abandonSegmentAudio(audio: DbNarrationSegmentAudio) {
+  await NarrationSegmentAudios.rawRemove({ _id: audio._id, audioUrl: null });
+}
+
+const segmentAudioGeneration: ClaimedGeneration<SegmentAudioKey, DbNarrationSegmentAudio, FinishedNarrationSegmentAudio> = {
+  findEntry: key => NarrationSegmentAudios.findOne(getSegmentAudioSelector(key)),
+  isFinished: isFinishedNarrationSegmentAudio,
+  claimEntry: claimSegmentAudio,
+  finishEntry: synthesizeAndStoreSegmentAudio,
+  abandonEntry: abandonSegmentAudio,
+  abandonedAfterMs: SEGMENT_AUDIO_ABANDONED_AFTER_MS,
+};
+
+/**
+ * Gets the audio for a segment as spoken with the given settings, generating
+ * it if it hasn't been generated with those settings before.
+ */
+export function getOrCreateNarrationSegmentAudio(
+  segment: DbNarrationSegment,
+  narrationScript: FinishedNarrationScript,
+  settings: NarrationVoiceSettings,
+  currentUser: DbUser,
+): Promise<FinishedNarrationSegmentAudio> {
+  return getOrGenerate(segmentAudioGeneration, { segment, narrationScript, settings, currentUser });
 }

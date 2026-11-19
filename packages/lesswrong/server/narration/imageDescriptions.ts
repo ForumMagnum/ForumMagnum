@@ -1,10 +1,12 @@
 import { generateText } from "ai";
 import uniqBy from "lodash/uniqBy";
+import type { Response } from "undici";
 import { z } from "zod";
 import { cloudinaryCloudName } from "@/lib/instanceSettings";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 import NarrationImageDescriptions from "@/server/collections/narrationImageDescriptions/collection";
 import { isImageHostExemptFromMirroring } from "@/server/scripts/convertImagesToCloudinary";
+import { fetchPublicUrl } from "@/server/utils/fetchPublicUrl";
 import { NARRATION_READING_MODEL } from "./llmReadings";
 
 /**
@@ -23,6 +25,13 @@ const IMAGE_TRANSCRIPTION_MAX_WORDS = 150;
 
 /** Images are scaled down to fit within a square of this many pixels before the model sees them */
 const IMAGE_MAX_DIMENSION = 1568;
+/**
+ * An image that's bigger than this isn't downloaded. The scaled-down images
+ * that Cloudinary sends are far smaller, so this is for the images on other
+ * hosts, which arrive as their authors uploaded them.
+ */
+const IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+const IMAGE_DOWNLOAD_TIMEOUT_MS = 30_000;
 const CONCURRENT_DESCRIPTIONS = 8;
 
 const CLOUDINARY_UPLOAD_URL_PREFIX = `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/`;
@@ -101,24 +110,62 @@ function getDownloadUrl(imageUrl: string): string {
   return `${CLOUDINARY_UPLOAD_URL_PREFIX}${CLOUDINARY_TRANSFORMATION}/${imageUrl.slice(CLOUDINARY_UPLOAD_URL_PREFIX.length)}`;
 }
 
+function getTooBigError(imageUrl: string): Error {
+  return new Error(`Image ${imageUrl} is bigger than ${IMAGE_MAX_BYTES} bytes, which is too big to describe`);
+}
+
+/**
+ * Reads the image out of a response, giving up as soon as it turns out to be
+ * bigger than IMAGE_MAX_BYTES. The size that the server declares is checked
+ * first, but the server doesn't have to declare one, or keep to it, so the
+ * bytes are counted as they arrive as well.
+ */
+async function readImageBytes(response: Response, imageUrl: string): Promise<Uint8Array> {
+  if (Number(response.headers.get("content-length")) > IMAGE_MAX_BYTES) {
+    await response.body?.cancel();
+    throw getTooBigError(imageUrl);
+  }
+  if (!response.body) {
+    throw new Error(`Fetching image ${imageUrl} got a response with no body`);
+  }
+
+  const chunks: Uint8Array[] = [];
+  let receivedBytes = 0;
+  // Leaving the loop by throwing cancels the rest of the download
+  for await (const chunk of response.body) {
+    receivedBytes += chunk.byteLength;
+    if (receivedBytes > IMAGE_MAX_BYTES) {
+      throw getTooBigError(imageUrl);
+    }
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}
+
 /**
  * Returns null for an image that doesn't exist. Readers of the post don't see
  * that image either, so it's left out of the narration rather than treated as
  * a failure.
+ *
+ * The URL was written by the post's author. Its host is one of ours (see
+ * hasPermanentUrl), but what's at the URL can still redirect anywhere, so
+ * this only connects to public servers, and limits how much it downloads.
  */
 async function downloadImage(imageUrl: string): Promise<DownloadedImage|null> {
-  const response = await fetch(getDownloadUrl(imageUrl));
+  const response = await fetchPublicUrl(getDownloadUrl(imageUrl), { signal: AbortSignal.timeout(IMAGE_DOWNLOAD_TIMEOUT_MS) });
+  const mediaType = response.headers.get("content-type")?.split(";")[0].trim() ?? "";
+  if (response.ok && describableMediaTypes.has(mediaType)) {
+    return { bytes: await readImageBytes(response, imageUrl), mediaType };
+  }
+
+  await response.body?.cancel();
   if (response.status === 404) {
     return null;
   }
   if (!response.ok) {
     throw new Error(`Fetching image ${imageUrl} failed with status ${response.status}`);
   }
-  const mediaType = response.headers.get("content-type")?.split(";")[0].trim() ?? "";
-  if (!describableMediaTypes.has(mediaType)) {
-    throw new Error(`Image ${imageUrl} has media type "${mediaType}", which can't be described`);
-  }
-  return { bytes: new Uint8Array(await response.arrayBuffer()), mediaType };
+  throw new Error(`Image ${imageUrl} has media type "${mediaType}", which can't be described`);
 }
 
 /**

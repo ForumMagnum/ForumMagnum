@@ -9,6 +9,8 @@ import {
   getOrCreateCommentNarrationScript,
   getOrCreateNarrationSegmentAudio,
   getOrCreatePostNarrationScript,
+  isFinishedNarrationScript,
+  isFinishedNarrationSegmentAudio,
 } from "@/server/narration/narrationGeneration";
 import { listPlayerVoices, listUserSelectableVoices } from "@/server/narration/narrationVoices";
 
@@ -63,7 +65,7 @@ async function narrationSegmentAudiosResolver(
     narrationSegmentId: { $in: segments.map(segment => segment._id) },
     ...voiceSettingsSchema.parse(settings),
   }).fetch();
-  return await accessFilterMultiple(currentUser, "NarrationSegmentAudios", audios, context);
+  return await accessFilterMultiple(currentUser, "NarrationSegmentAudios", audios.filter(isFinishedNarrationSegmentAudio), context);
 }
 
 async function prepareNarrationResolver(_root: void, { postId }: { postId: string }, context: ResolverContext) {
@@ -115,7 +117,7 @@ async function generateNarrationSegmentAudioResolver(
   const currentUser = requireNarrationAccess(context);
   const segment = await context.NarrationSegments.findOne({ _id: narrationSegmentId });
   const narrationScript = segment ? await context.NarrationScripts.findOne({ _id: segment.narrationScriptId }) : null;
-  if (!segment || !narrationScript) {
+  if (!segment || !narrationScript || !isFinishedNarrationScript(narrationScript)) {
     throw new Error(`Narration segment ${narrationSegmentId} not found`);
   }
   const voiceSettings = await getSegmentVoiceSettings(narrationScript, settings ?? null, context);
