@@ -62,7 +62,6 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
     handleSnoozeChoice,
     handleRemoveNeedsReview,
     handlePurge,
-    handleFlag,
   } = useModerationUserActions({ selectedUser: user, currentUser, addToUndoQueue, dispatch });
 
   const { toggleAllPermissions } = useUserContentPermissions(user, dispatch);
@@ -103,15 +102,6 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
         keystroke: 'Q',
         tooltip: "Remove this user from the review queue without approving them or snoozing. Their content stays unreviewed. Signs a 'removed from review queue without snooze/approval' note in their moderator notes.",
         onClick: handleRemoveNeedsReview,
-      },
-      {
-        label: user.sunshineFlagged ? 'Unflag' : 'Flag',
-        keystroke: 'F',
-        tooltip: user.sunshineFlagged
-          ? "Remove this user's flag. Signs an 'Unflag' note in their moderator notes."
-          : "Flag this user for other moderators' attention. Signs a 'Flag' note in their moderator notes.",
-        onClick: handleFlag,
-        active: !!user.sunshineFlagged,
       },
       {
         label: 'Purge',

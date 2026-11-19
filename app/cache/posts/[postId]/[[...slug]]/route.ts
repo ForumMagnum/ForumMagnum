@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { FORUM_WIDE_CACHE_TAG, postCacheTag, postPageCacheConfig } from '@/lib/postPageCache/config';
+import { CACHED_POST_RENDERER_USER_AGENT, FORUM_WIDE_CACHE_TAG, postCacheTag, postPageCacheConfig } from '@/lib/postPageCache/config';
 import { buildPublicPostPath } from '@/lib/postPageCache/cachedPostRoute';
 import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } from '@/lib/routeChecks/statusCodeLoopback';
 
@@ -92,7 +92,7 @@ function getLoopbackHeaders(): Headers {
     'accept': 'text/html',
     'accept-encoding': 'identity',
     'accept-language': 'en-US,en',
-    'user-agent': 'LessWrongCachedPostRenderer/1.0',
+    'user-agent': CACHED_POST_RENDERER_USER_AGENT,
   });
   // Preview deployments sit behind deployment protection, which the loopback
   // must pass too.
