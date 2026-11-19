@@ -96,7 +96,7 @@ const LlmPolicyViolationDropdownItem = ({post, closeMenu}: {
   };
 
   const tooltip = hasComments
-    ? "Unlist this post, leave a moderator comment on it explaining why, and unapprove the author so their future content needs review."
+    ? "Unlist this post. Leave a moderator comment on it explaining why (you'll get a default template that you can modify), and unapprove the author so their future content needs review."
     : "Reject this post (you'll pick a rejection reason) and unapprove the author so their future content needs review.";
 
   return (
