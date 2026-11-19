@@ -792,6 +792,25 @@ const schema = {
       },
     },
   },
+  /**
+   * The ElevenLabs voice that this user's comments are narrated in. Null until
+   * one is chosen, either by the user or, the first time it's needed,
+   * automatically (see server/narration/narrationVoices.ts).
+   */
+  narrationVoiceId: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   // Intercom: Will the user display the intercom while logged in?
   hideIntercom: {
     database: {

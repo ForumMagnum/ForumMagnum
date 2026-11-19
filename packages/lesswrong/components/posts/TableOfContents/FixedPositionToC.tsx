@@ -209,6 +209,19 @@ const styles = defineStyles("FixedPositionToC", (theme: ThemeType) => ({
     height: 'var(--windowHeight, 0px)',
     background: theme.palette.grey[600],
   },
+  // The place that narration is reading, while a post is being narrated. Shown
+  // and positioned by useTocProgressLine, via CSS variables set on the container.
+  narrationMark: {
+    display: 'var(--narrationMarkDisplay, none)',
+    position: 'absolute',
+    left: -4,
+    width: 9,
+    height: 3,
+    marginTop: -1.5,
+    top: 'var(--narrationMarkTop, 0px)',
+    borderRadius: 1.5,
+    background: theme.palette.primary.main,
+  },
   rows: {
     display: 'flex',
     flexDirection: 'column',
@@ -451,6 +464,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
     <div className={classes.wrapper}>
       <div className={classes.progressBarContainer} ref={progressBarRef}>
         <div className={classes.progressBar} />
+        <div className={classes.narrationMark} />
       </div>
       <div className={classes.rows} ref={rowsRef}>
         {titleRow}

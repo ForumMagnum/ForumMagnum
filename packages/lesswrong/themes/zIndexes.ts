@@ -43,6 +43,7 @@ export const defaultZIndexes = {
   languageModelChatButton: 1030,
   sideCommentBox: 1040,
   languageModelChat: 1041,
+  narrationPlayer: 1042,
   postItemMenu: 1050,
   snackbar: 1400,
   tabNavigation: 1101,
