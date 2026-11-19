@@ -36,11 +36,9 @@ const styles = defineStyles('PostKarmaWithPreview', (theme: ThemeType) => ({
   }
 }))
 
-const PostKarmaWithPreview = ({post, displayTitle = false, reviewedAt, children, showLlmScore = false}: {
+const PostKarmaWithPreview = ({post, displayTitle, reviewedAt}: {
   post: SunshinePostsList,
-  displayTitle?: boolean,
-  children?: React.ReactNode,
-  showLlmScore?: boolean,
+  displayTitle: boolean,
   reviewedAt?: Date
 }) => {
   const classes = useStyles(styles);
@@ -48,11 +46,10 @@ const PostKarmaWithPreview = ({post, displayTitle = false, reviewedAt, children,
   return (
     <PostsTooltip
       post={post}
-      showLlmScore={showLlmScore}
       placement={displayTitle ? "right-start" : "bottom-start"}
       clickable
     >
-      {children ?? <span className={classNames(classes.root, {
+      <span className={classNames(classes.root, {
         [classes.titleDisplay]: displayTitle,
       })}>
         <Link
@@ -71,7 +68,7 @@ const PostKarmaWithPreview = ({post, displayTitle = false, reviewedAt, children,
           </span>
           {displayTitle && post.title}
         </Link>
-      </span>}
+      </span>
     </PostsTooltip>
   );
 }

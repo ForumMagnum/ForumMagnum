@@ -36,7 +36,7 @@ import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from
 import {Doc} from 'yjs';
 import * as Y from 'yjs';
 import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
-import {$getRoot, $insertNodes, EditorState, HISTORY_MERGE_TAG, LexicalEditor, SKIP_DOM_SELECTION_TAG} from 'lexical';
+import {$getRoot, $insertNodes, EditorState, HISTORY_MERGE_TAG, LexicalEditor} from 'lexical';
 import { CodeBlockPlugin } from '../editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 import TablesPlugin from '../editor/lexicalPlugins/tables/TablesPlugin';
 
@@ -581,8 +581,6 @@ export interface EditorProps {
    * otherwise show two competing menus on `@`.
    */
   disableMentions?: boolean;
-  /** Loading the initial HTML normally moves focus into the editor; this leaves focus where it is */
-  keepFocusOnLoad?: boolean;
   children?: React.ReactNode;
 }
 
@@ -613,7 +611,6 @@ export default function Editor({
   commentEditor = false,
   disableComponentPicker = false,
   disableMentions = false,
-  keepFocusOnLoad = false,
   children,
 }: EditorProps): JSX.Element {
   const classes = useStyles(styles);
@@ -823,8 +820,8 @@ export default function Editor({
       const root = $getRoot();
       root.clear();
       $insertNodes(nodes);
-    }, keepFocusOnLoad ? { tag: SKIP_DOM_SELECTION_TAG } : undefined);
-  }, [editor, hasInitialHtml, initialHtml, isCollab, keepFocusOnLoad]);
+    });
+  }, [editor, hasInitialHtml, initialHtml, isCollab]);
 
   const onChange = useCallback((editorState: EditorState) => {
     if (!onChangeHtml) return;

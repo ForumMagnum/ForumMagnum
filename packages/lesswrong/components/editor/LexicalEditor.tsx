@@ -281,8 +281,6 @@ interface LexicalEditorProps {
   extraNodes?: LexicalNodeConfig[];
   disableComponentPicker?: boolean;
   disableMentions?: boolean;
-  /** Leave focus where it is when the content loads, rather than moving it into the editor */
-  keepFocusOnLoad?: boolean;
   children?: React.ReactNode;
 }
 
@@ -364,7 +362,6 @@ const LexicalEditor = ({
   extraNodes,
   disableComponentPicker,
   disableMentions,
-  keepFocusOnLoad,
   children,
 }: LexicalEditorProps) => {
   const classes = useStyles(lexicalStyles);
@@ -510,7 +507,6 @@ const LexicalEditor = ({
                   commentEditor={commentEditor}
                   disableComponentPicker={disableComponentPicker}
                   disableMentions={disableMentions}
-                  keepFocusOnLoad={keepFocusOnLoad}
                 >
                   {children}
                 </Editor>
