@@ -35,6 +35,7 @@ import { ultraFeedGraphQLQueries, ultraFeedGraphQLTypeDefs } from '@/server/reso
 import { ultraFeedSubscriptionsQueries, ultraFeedSubscriptionsTypeDefs } from '@/server/resolvers/ultraFeedSubscriptionsResolver';
 import { tagHistoryFeedGraphQLQueries, tagHistoryFeedGraphQLTypeDefs } from '@/server/resolvers/tagHistoryFeed';
 import { userContentFeedGraphQLQueries, userContentFeedGraphQLTypeDefs } from '@/server/resolvers/userContentFeedResolver';
+import { tagContentFeedGraphQLQueries, tagContentFeedGraphQLTypeDefs } from '@/server/resolvers/tagContentFeedResolver';
 import { tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
 import { conversationGqlMutations, conversationGqlTypeDefs } from '@/server/resolvers/conversationResolvers'
 import { researchResolversTypeDefs, researchResolversMutations, researchResolversQueries } from '@/server/resolvers/researchResolvers'
@@ -285,6 +286,7 @@ export const getTypeDefs = () => gql`
   ${recentDiscussionFeedGraphQLTypeDefs}
   ${tagHistoryFeedGraphQLTypeDefs}
   ${userContentFeedGraphQLTypeDefs}
+  ${tagContentFeedGraphQLTypeDefs}
   ${conversationGqlTypeDefs}
   ${researchResolversTypeDefs}
   ${tagGraphQLTypeDefs}
@@ -490,6 +492,7 @@ const getResolvers = () => ({
     ...recentDiscussionFeedGraphQLQueries,
     ...tagHistoryFeedGraphQLQueries,
     ...userContentFeedGraphQLQueries,
+    ...tagContentFeedGraphQLQueries,
     ...siteGraphQLQueries,
     ...dialogueMessageGqlQueries,
     ...getLinkSharedPostGraphQLQueries,

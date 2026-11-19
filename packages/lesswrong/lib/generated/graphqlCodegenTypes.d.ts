@@ -7609,6 +7609,7 @@ type Query = {
   SiteData?: Maybe<Site>;
   SuggestedFeedSubscriptionUsers?: Maybe<SuggestedFeedSubscriptionUsersResult>;
   SuggestedTopActiveUsers?: Maybe<SuggestedTopActiveUsersResult>;
+  TagContentFeed: TagContentFeedQueryResults;
   TagHistoryFeed: TagHistoryFeedQueryResults;
   TagPreview?: Maybe<TagPreviewWithSummaries>;
   TagUpdatesByUser?: Maybe<Array<TagUpdates>>;
@@ -8021,6 +8022,15 @@ type QuerySuggestedFeedSubscriptionUsersArgs = {
 
 type QuerySuggestedTopActiveUsersArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+type QueryTagContentFeedArgs = {
+  cutoff?: InputMaybe<Scalars['Date']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  sortBy: TagContentFeedSortBy;
+  tagId: Scalars['String']['input'];
 };
 
 
@@ -10892,6 +10902,29 @@ type TagtableOfContentsArgs = {
 type TagCommentType =
   | 'DISCUSSION'
   | 'SUBFORUM';
+
+type TagContentFeedEntry = {
+  __typename?: 'TagContentFeedEntry';
+  tagComment?: Maybe<Comment>;
+  tagPost?: Maybe<Post>;
+  type: TagContentFeedEntryType;
+};
+
+type TagContentFeedEntryType =
+  | 'tagComment'
+  | 'tagPost';
+
+type TagContentFeedQueryResults = {
+  __typename?: 'TagContentFeedQueryResults';
+  cutoff?: Maybe<Scalars['Date']['output']>;
+  endOffset: Scalars['Int']['output'];
+  results?: Maybe<Array<TagContentFeedEntry>>;
+};
+
+type TagContentFeedSortBy =
+  | 'magic'
+  | 'new'
+  | 'top';
 
 type TagContributor = {
   __typename?: 'TagContributor';
@@ -14968,6 +15001,34 @@ type UserContentFeedQueryVariables = Exact<{
 
 
 type UserContentFeedQuery = UserContentFeedQuery_Query;
+
+type TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagContentFeedEntry_tagPost_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagContentFeedEntry_tagComment_Comment = (
+  { __typename?: 'Comment' }
+  & UltraFeedComment
+);
+
+type TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagContentFeedEntry = { __typename?: 'TagContentFeedEntry', type: TagContentFeedEntryType, tagPost: TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagContentFeedEntry_tagPost_Post | null, tagComment: TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagContentFeedEntry_tagComment_Comment | null };
+
+type TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults = { __typename: 'TagContentFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults_results_TagContentFeedEntry> | null };
+
+type TagContentFeedQuery_Query = { __typename?: 'Query', TagContentFeed: TagContentFeedQuery_TagContentFeed_TagContentFeedQueryResults };
+
+
+type TagContentFeedQueryVariables = Exact<{
+  tagId: Scalars['String']['input'];
+  sortBy: TagContentFeedSortBy;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Date']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type TagContentFeedQuery = TagContentFeedQuery_Query;
 
 type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User = (
   { __typename?: 'User' }
