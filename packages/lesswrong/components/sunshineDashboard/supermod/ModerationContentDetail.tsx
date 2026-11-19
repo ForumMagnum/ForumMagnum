@@ -104,8 +104,8 @@ const ModerationContentDetail = ({
 }: {
   item: ModerationContentItem | null;
   /**
-   * The Inbox tab's rejected-content pane, which shows a post's co-authors and a
-   * comment's post and parent, and has no scroll-to-bottom button.
+   * The Inbox tab's rejected-content pane, which shows a comment's post and
+   * parent, and has no scroll-to-bottom button.
    */
   inboxPane?: boolean;
 }) => {
@@ -155,7 +155,7 @@ const ModerationContentDetail = ({
               </Link>
               <PostActionsButton post={item} vertical flip className={classes.postActionsButton} />
             </div>
-            {inboxPane && !!item.coauthors?.length && <div className={classes.coauthors}>
+            {!!item.coauthors?.length && <div className={classes.coauthors}>
               Co-authors: {item.coauthors.map((coauthor, i) => <span key={coauthor._id}>
                 {i > 0 && ", "}
                 <UsersName user={coauthor} /> ({coauthor.karma} karma)
