@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import { hasEventsSetting, isEAForum } from '@/lib/instanceSettings';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
-import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import { userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { HighlightableField } from './HighlightableField';
 import SettingsSection from './SettingsSection';
 import SettingsToggleRow from './SettingsToggleRow';
@@ -86,14 +86,14 @@ const PreferencesSettingsTab = ({
         />
       </SettingsSection>
 
-      {userIsAdmin(currentUser) && <SettingsSection title="Narration">
+      <SettingsSection title="Narration">
         <HighlightableField name="narrationVoiceId">
           <NarrationVoiceSetting
             value={settings.narrationVoiceId}
             onChange={(value) => void updateSettings({ narrationVoiceId: value })}
           />
         </HighlightableField>
-      </SettingsSection>}
+      </SettingsSection>
 
       <SettingsSection title="Content">
         <SettingsSelectRow

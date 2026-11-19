@@ -7457,7 +7457,7 @@ export type NarrationSegmentAudio = {
   stability: Scalars['Float']['output'];
   style: Scalars['Float']['output'];
   timingsUrl: Maybe<Scalars['String']['output']>;
-  userId: Scalars['String']['output'];
+  userId: Maybe<Scalars['String']['output']>;
   voiceId: Scalars['String']['output'];
 };
 

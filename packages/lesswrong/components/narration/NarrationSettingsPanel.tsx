@@ -4,6 +4,7 @@ import classNames from "classnames";
 import isEqual from "lodash/isEqual";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ForumIcon from "@/components/common/ForumIcon";
+import { useCurrentUser } from "@/components/common/withUser";
 import { Link } from "@/lib/reactRouterWrapper";
 import { AUTHOR_NARRATION_VOICE, type NarrationListenerSettings } from "@/lib/narration/narrationTypes";
 import { narrationPlayerHasRoom } from "./narrationPlayerLayout";
@@ -186,6 +187,7 @@ const NarrationSettingsPanel = ({ options, settings, onApply, onClose, autoScrol
   setAutoScroll: (autoScroll: boolean) => void
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
   const [draft, setDraft] = useState(settings);
   const previewAudioRef = useRef<HTMLAudioElement|null>(null);
   const models = options.adminOptions?.models;
@@ -222,8 +224,8 @@ const NarrationSettingsPanel = ({ options, settings, onApply, onClose, autoScrol
       playVoicePreview={playVoicePreview}
     />
     <div className={classes.hint}>
-      Each user is randomly assigned an ElevenLabs voice preset.{" "}
-      <Link to="/account?highlightField=narrationVoiceId" target="_blank">Choose my voice</Link>
+      Each user is randomly assigned an ElevenLabs voice preset.
+      {currentUser && <>{" "}<Link to="/account?highlightField=narrationVoiceId" target="_blank">Choose my voice</Link></>}
     </div>
 
     {models && <>

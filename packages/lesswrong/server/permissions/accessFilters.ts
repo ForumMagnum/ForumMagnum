@@ -524,9 +524,11 @@ const accessFilters = {
   ModeratorActions: allowAccess,
   MultiDocuments: multiDocumentCheckAccess,
   NarrationImageDescriptions: denyAll,
-  NarrationScripts: adminOnly,
-  NarrationSegmentAudios: adminOnly,
-  NarrationSegments: adminOnly,
+  // These are only reached through the narration resolvers, which check that
+  // what's narrated is something that the current user can have narrated
+  NarrationScripts: allowAccess,
+  NarrationSegmentAudios: allowAccess,
+  NarrationSegments: allowAccess,
   Notifications: notificationCheckAccess,
   OAuthAccessTokens: denyAll,
   OAuthAuthorizationCodes: denyAll,

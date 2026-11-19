@@ -4,10 +4,12 @@ import type { CommentTreeNode } from "@/lib/utils/unflatten";
 
 /**
  * What the narration player and a post page's comments know about each other.
- * The player is mounted as a dialog, outside the post page's part of the React
- * tree, so this is shared through module-level values rather than context:
- * the post page publishes its comments here for the player to traverse, and
- * the player says which comment it's reading, for that comment to expand.
+ * The player and the comments are in distant parts of the page, and a comment
+ * needs to find out that it's being read without everything around it
+ * rendering again, so this is shared through module-level values rather than
+ * props or context: the post page publishes its comments here for the player
+ * to traverse, and the player says which comment it's reading, for that
+ * comment to expand.
  *
  * "Comments" here includes a question's answers, and the replies to them.
  */

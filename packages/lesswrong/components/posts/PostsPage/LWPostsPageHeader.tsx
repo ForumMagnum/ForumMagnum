@@ -18,7 +18,7 @@ import PostsPageEventData from "./PostsPageEventData";
 import AddToCalendarButton from "../AddToCalendar/AddToCalendarButton";
 import GroupLinks from "../../localGroups/GroupLinks";
 import LWPostsPageHeaderTopRight from "./LWPostsPageHeaderTopRight";
-import PostsAudioPlayerWrapper from "./PostsAudioPlayerWrapper";
+import { PostsPodcastPlayerWithFallback } from "./PostsAudioPlayerWrapper";
 import PostsVote from "../../votes/PostsVote";
 import AudioToggle from "./AudioToggle";
 import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
@@ -248,6 +248,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, dial
   }
 
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
+  const podcastEpisode = ('podcastEpisode' in post) ? post.podcastEpisode : null;
 
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
@@ -268,7 +269,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, dial
 
   const reviewYear = 'reviewWinner' in post && post.reviewWinner?.reviewYear;
 
-  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer}, {[classes.rootWithSplashPageHeader]: showSplashPageHeader})}>
+  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer && !!podcastEpisode}, {[classes.rootWithSplashPageHeader]: showSplashPageHeader})}>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
       {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
@@ -282,8 +283,8 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, dial
       <span className={classes.topRight}>
         <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} annualReviewMarketInfo={annualReviewMarketInfo} />
       </span>
-      {post && <span className={classes.audioPlayerWrapper}>
-        <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
+      {podcastEpisode && <span className={classes.audioPlayerWrapper}>
+        <PostsPodcastPlayerWithFallback podcastEpisode={podcastEpisode} postId={post._id} showEmbeddedPlayer={!!showEmbeddedPlayer} />
       </span>}
     </div>
     <div className={classNames(classes.titleSection, {[classes.titleSectionWithSplashPageHeader]: showSplashPageHeader})}>

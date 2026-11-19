@@ -3447,7 +3447,7 @@ type NarrationSegmentAudio {
   _id: String!
   createdAt: Date!
   narrationSegmentId: String!
-  userId: String!
+  userId: String
   voiceId: String!
   modelId: String!
   stability: Float!

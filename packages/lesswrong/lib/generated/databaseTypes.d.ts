@@ -843,7 +843,7 @@ interface DbNarrationSegmentAudio extends DbObject {
   stability: number
   style: number
   timingsUrl: string | null
-  userId: string
+  userId: string | null
   voiceId: string
 }
 

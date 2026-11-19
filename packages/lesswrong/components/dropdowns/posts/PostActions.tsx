@@ -27,7 +27,6 @@ import DislikeRecommendationDropdownItem from "./DislikeRecommendationDropdownIt
 import HideFrontPageButton from './HideFrontpagePostDropdownItem';
 import LLMScoreDropdownItem from "./LLMScoreDropdownItem";
 import LlmPolicyViolationDropdownItem from "./LlmPolicyViolationDropdownItem";
-import NarrationDropdownItem from "../../narration/NarrationDropdownItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -122,7 +121,6 @@ const PostActions = ({post, closeMenu, includeBookmark=true}: {
     <MoveToAlignmentPostDropdownItem post={post}/>
     <LlmPolicyViolationDropdownItem post={post} closeMenu={closeMenu} />
     <LLMScoreDropdownItem post={post} closeMenu={closeMenu} />
-    <NarrationDropdownItem post={post} closeMenu={closeMenu} />
   </>;
 
   return (

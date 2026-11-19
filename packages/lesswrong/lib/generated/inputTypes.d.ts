@@ -3111,7 +3111,7 @@ interface NarrationSegmentAudio {
   _id: string;
   createdAt: Date;
   narrationSegmentId: string;
-  userId: string;
+  userId: string | null;
   voiceId: string;
   modelId: string;
   stability: number;

@@ -15,14 +15,15 @@ const schema = {
       canRead: ["guests"],
     },
   },
+  /** Whose request it was that the audio was generated for. Null if they weren't logged in. */
   userId: {
     database: {
       type: "VARCHAR(27)",
       foreignKey: "Users",
-      nullable: false,
+      nullable: true,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
     },
   },

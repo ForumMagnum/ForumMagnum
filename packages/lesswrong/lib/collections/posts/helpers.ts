@@ -419,9 +419,11 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
 }
 
 /**
- * Whether the post is allowed AI generated audio
+ * Whether the post is allowed AI generated audio: narration by ElevenLabs on
+ * its page, and Type III Audio's wherever that's still used. (The settings
+ * that this goes by date from when Type III Audio was all there was.)
  */
-export const isPostAllowedType3Audio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost, forumType: ForumTypeString): boolean => {
+export const isPostAllowedGeneratedAudio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost, forumType: ForumTypeString): boolean => {
   if (!allowTypeIIIPlayerSetting.get(forumType)) return false
 
   try {

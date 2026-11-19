@@ -1312,7 +1312,7 @@ CREATE TABLE "NarrationSegmentAudios" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "narrationSegmentId" VARCHAR(27) NOT NULL,
-  "userId" VARCHAR(27) NOT NULL,
+  "userId" VARCHAR(27),
   "voiceId" TEXT NOT NULL,
   "modelId" TEXT NOT NULL,
   "stability" DOUBLE PRECISION NOT NULL,

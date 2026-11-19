@@ -231,7 +231,7 @@ export function listAdminListenerVoices(): NarrationVoice[] {
 }
 
 /** Whether a user may ask to hear things read in a particular voice */
-export function userCanListenInVoice(user: DbUser, voiceId: string): boolean {
+export function userCanListenInVoice(user: DbUser|null, voiceId: string): boolean {
   const allowedVoices = userIsAdmin(user) ? listUserSelectableVoices() : listListenerVoices();
   return allowedVoices.some(voice => voice.voiceId === voiceId);
 }
