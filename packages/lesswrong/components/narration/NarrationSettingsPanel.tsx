@@ -8,19 +8,32 @@ import {
   narrationTuningRanges,
   type NarrationVoiceSettings,
 } from "@/lib/narration/narrationTypes";
+import { narrationPlayerHasRoom } from "./narrationPlayerLayout";
 
 const styles = defineStyles("NarrationSettingsPanel", (theme: ThemeType) => ({
   root: {
     display: "grid",
-    gridTemplateColumns: "max-content 1fr max-content",
+    gridTemplateColumns: "1fr max-content",
     alignItems: "center",
     columnGap: 12,
-    rowGap: 8,
+    rowGap: 6,
     padding: "12px 16px",
     borderBottom: theme.palette.border.faint,
+    // On a phone, the panel can be taller than what's left of the screen
+    maxHeight: "calc(100vh - 200px)",
+    overflowY: "auto",
+    // Each setting's label goes above its control, or beside it if there's room
+    [narrationPlayerHasRoom(theme)]: {
+      gridTemplateColumns: "max-content 1fr max-content",
+      rowGap: 8,
+    },
   },
   label: {
+    gridColumn: "1 / -1",
     color: theme.palette.text.dim,
+    [narrationPlayerHasRoom(theme)]: {
+      gridColumn: "auto",
+    },
   },
   select: {
     minWidth: 0,
@@ -61,6 +74,7 @@ const styles = defineStyles("NarrationSettingsPanel", (theme: ThemeType) => ({
   footer: {
     gridColumn: "1 / -1",
     display: "flex",
+    flexWrap: "wrap",
     alignItems: "center",
     gap: 12,
   },

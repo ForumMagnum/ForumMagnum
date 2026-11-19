@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import classNames from "classnames";
 import moment from "moment";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -7,8 +7,13 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useLocalStorageState } from "@/components/hooks/useLocalStorageState";
 import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
+import { useIsAboveBreakpoint } from "@/components/hooks/useScreenWidth";
+import { LLM_CHAT_SIDEBAR_WIDTH } from "@/components/languageModels/llmChatSidebarWidth";
+import { POSTS_BOTTOM_BAR_SHOWN_PROPERTY } from "@/components/posts/PostsBottomBar";
+import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES } from "@/components/posts/PostsPage/constants";
 import { NARRATION_PLAYBACK_RATE_COOKIE } from "@/lib/cookies/cookies";
 import ForumIcon from "@/components/common/ForumIcon";
+import Loading from "@/components/vulcan-core/Loading";
 import {
   DEFAULT_NARRATION_MODEL_ID,
   defaultNarrationVoiceTuning,
@@ -16,6 +21,14 @@ import {
 } from "@/lib/narration/narrationTypes";
 import { findNarrationComment } from "./narrationComments";
 import { narrationHighlightStyles } from "./narrationHighlighting";
+import {
+  clearNarrationPlayerFootprint,
+  NARRATION_PLAYER_DOCKED_CLASS,
+  NARRATION_PLAYER_FLOATING_BREAKPOINT,
+  narrationDockHeight,
+  narrationPlayerHasRoom,
+  publishNarrationPlayerFootprint,
+} from "./narrationPlayerLayout";
 import { useNarrationPlayback, type NarrationItem } from "./useNarrationPlayback";
 import NarrationSettingsPanel, { type NarrationModelOption, type NarrationVoiceOption } from "./NarrationSettingsPanel";
 
@@ -40,28 +53,74 @@ const SKIP_BACK_MS = 15_000;
 const SKIP_FORWARD_MS = 30_000;
 const playbackRates = [0.75, 1, 1.25, 1.5, 1.75, 2];
 
+const FLOATING_MARGIN = 12;
+/** Post pages have a right-hand margin at least this wide at the widths where the player floats, which it fits inside */
+const FLOATING_WIDTH = RIGHT_COLUMN_WIDTH_WITH_SIDENOTES - (2 * FLOATING_MARGIN);
+
 const styles = defineStyles("NarrationPlayer", (theme: ThemeType) => ({
+  "@global": {
+    // So that the end of the page can be scrolled clear of the docked player
+    [`body.${NARRATION_PLAYER_DOCKED_CLASS}`]: {
+      paddingBottom: narrationDockHeight,
+    },
+  },
   root: {
     position: "fixed",
-    left: "50%",
-    bottom: 16,
-    transform: "translateX(-50%)",
-    width: 720,
-    maxWidth: "calc(100vw - 24px)",
     zIndex: theme.zIndexes.narrationPlayer,
-    background: theme.palette.panelBackground.default,
-    border: theme.palette.border.normal,
-    borderRadius: theme.borderRadius.default,
-    boxShadow: theme.palette.boxShadow.notificationsDrawer,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 13,
     color: theme.palette.text.normal,
+
+    [theme.breakpoints.up(NARRATION_PLAYER_FLOATING_BREAKPOINT)]: {
+      right: FLOATING_MARGIN,
+      bottom: FLOATING_MARGIN,
+      width: FLOATING_WIDTH,
+      background: theme.palette.panelBackground.default,
+      border: theme.palette.border.normal,
+      borderRadius: theme.borderRadius.default,
+      boxShadow: theme.palette.boxShadow.notificationsDrawer,
+      // The LLM chat sidebar takes the right-hand side of the screen for
+      // itself, so the corner that's free is the one next to it
+      "body:has(.SidebarLanguageModelChat-root) &": {
+        right: LLM_CHAT_SIDEBAR_WIDTH + FLOATING_MARGIN,
+      },
+    },
+
+    // Docked across the bottom of the screen, looking like the bottom bar
+    // that post pages have on phones (PostsBottomBar). On phones it sits on
+    // top of that bar, as part of the same panel: when the bar slides away,
+    // the player moves down into its place.
+    [theme.breakpoints.down("md")]: {
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: theme.palette.background.pageActiveAreaBackground,
+      boxShadow: `0 -2px 8px ${theme.palette.greyAlpha(0.1)}`,
+      transform: `translateY(calc(-1 * var(${POSTS_BOTTOM_BAR_SHOWN_PROPERTY}, 0) * var(--header-height)))`,
+      transition: "transform 200ms ease-in-out",
+    },
   },
+  // The timeline has a row to itself, above the buttons, unless there's room
+  // for it between them.
   controls: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    columnGap: 6,
+    rowGap: 2,
+    padding: "8px 12px",
+  },
+  timeline: {
     display: "flex",
     alignItems: "center",
     gap: 6,
-    padding: "8px 12px",
+    order: -1,
+    flex: "1 1 100%",
+    minWidth: 0,
+    [narrationPlayerHasRoom(theme)]: {
+      order: 0,
+      flex: "1 1 0",
+    },
   },
   iconButton: {
     display: "flex",
@@ -108,6 +167,7 @@ const styles = defineStyles("NarrationPlayer", (theme: ThemeType) => ({
   },
   rateSelect: {
     flexShrink: 0,
+    marginLeft: "auto",
     padding: "4px 2px",
     fontFamily: "inherit",
     fontSize: "inherit",
@@ -115,6 +175,9 @@ const styles = defineStyles("NarrationPlayer", (theme: ThemeType) => ({
     background: "transparent",
     border: "none",
     cursor: "pointer",
+    [narrationPlayerHasRoom(theme)]: {
+      marginLeft: 0,
+    },
   },
   nowReading: {
     padding: "8px 16px 0",
@@ -123,9 +186,21 @@ const styles = defineStyles("NarrationPlayer", (theme: ThemeType) => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
+  // Takes the place of the play button's icon while there's something to
+  // wait for. The site's loading indicator is wider than the button, so it's
+  // scaled down to fit.
+  playButtonSpinner: {
+    flexShrink: 0,
+    transform: "scale(0.6)",
+  },
+  // Says what the spinner is for, to screen readers
   status: {
-    padding: "0 16px 8px",
-    color: theme.palette.text.dim,
+    position: "absolute",
+    width: 1,
+    height: 1,
+    overflow: "hidden",
+    clipPath: "inset(50%)",
+    whiteSpace: "nowrap",
   },
   error: {
     padding: "0 16px 8px",
@@ -210,6 +285,26 @@ const NarrationPlayer = ({ postId, onClose }: {
     [narrationVoiceSettings, voices, models],
   );
 
+  const rootRef = useRef<HTMLDivElement|null>(null);
+  const isFloating = useIsAboveBreakpoint(NARRATION_PLAYER_FLOATING_BREAKPOINT);
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) {
+      return;
+    }
+    const publishFootprint = () => publishNarrationPlayerFootprint({
+      isFloating,
+      topEdge: root.offsetHeight + (isFloating ? FLOATING_MARGIN : 0),
+    });
+    publishFootprint();
+    const resizeObserver = new ResizeObserver(publishFootprint);
+    resizeObserver.observe(root);
+    return () => {
+      resizeObserver.disconnect();
+      clearNarrationPlayerFootprint();
+    };
+  }, [isFloating]);
+
   const [showSettings, setShowSettings] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
   const [scrubPositionMs, setScrubPositionMs] = useState<number|null>(null);
@@ -241,9 +336,11 @@ const NarrationPlayer = ({ postId, onClose }: {
     ? "--:--"
     : `${playback.durationIsEstimated ? "~" : ""}${formatTime(durationMs)}`;
   const errorMessage = playback.errorMessage ?? optionsError?.message ?? null;
-  const statusMessage = playback.statusMessage ?? (settings || optionsError ? null : "Loading voices…");
+  const waitingFor = playback.statusMessage ?? (settings || optionsError ? null : "Loading voices…");
+  const statusMessage = errorMessage ? null : waitingFor;
+  const playButtonLabel = isPlayingOrLoading ? "Pause" : "Play";
 
-  return <div className={classes.root} role="region" aria-label="Post narration">
+  return <div ref={rootRef} className={classes.root} role="region" aria-label="Post narration">
     <audio ref={playback.audioRef} preload="auto" {...playback.audioEventHandlers} />
 
     {showSettings && settings && voices && models && <NarrationSettingsPanel
@@ -272,10 +369,14 @@ const NarrationPlayer = ({ postId, onClose }: {
         className={classNames(classes.iconButton, classes.playButton)}
         onClick={isPlayingOrLoading ? playback.pause : playback.play}
         disabled={!settings}
-        aria-label={isPlayingOrLoading ? "Pause" : "Play"}
-        title={isPlayingOrLoading ? "Pause" : "Play"}
+        aria-label={playButtonLabel}
+        aria-busy={!!statusMessage}
+        title={statusMessage ?? playButtonLabel}
       >
-        <ForumIcon icon={isPlayingOrLoading ? "Pause" : "Play"} />
+        {statusMessage
+          ? <Loading white className={classes.playButtonSpinner} />
+          : <ForumIcon icon={playButtonLabel} />
+        }
       </button>
       <button
         type="button"
@@ -288,22 +389,24 @@ const NarrationPlayer = ({ postId, onClose }: {
         <ForumIcon icon="Forward" />
       </button>
 
-      <span className={classes.time}>{formatTime(shownPositionMs)}</span>
-      <input
-        className={classes.scrubber}
-        type="range"
-        min={0}
-        max={durationMs ?? 0}
-        value={shownPositionMs}
-        onChange={event => setScrubPositionMs(Number(event.target.value))}
-        onPointerUp={commitScrub}
-        onKeyUp={commitScrub}
-        onBlur={commitScrub}
-        disabled={durationMs === null}
-        aria-label="Position in narration"
-        aria-valuetext={`${formatTime(shownPositionMs)} of ${durationLabel}`}
-      />
-      <span className={classes.time}>{durationLabel}</span>
+      <div className={classes.timeline}>
+        <span className={classes.time}>{formatTime(shownPositionMs)}</span>
+        <input
+          className={classes.scrubber}
+          type="range"
+          min={0}
+          max={durationMs ?? 0}
+          value={shownPositionMs}
+          onChange={event => setScrubPositionMs(Number(event.target.value))}
+          onPointerUp={commitScrub}
+          onKeyUp={commitScrub}
+          onBlur={commitScrub}
+          disabled={durationMs === null}
+          aria-label="Position in narration"
+          aria-valuetext={`${formatTime(shownPositionMs)} of ${durationLabel}`}
+        />
+        <span className={classes.time}>{durationLabel}</span>
+      </div>
 
       <select
         className={classes.rateSelect}
@@ -329,7 +432,7 @@ const NarrationPlayer = ({ postId, onClose }: {
       </button>
     </div>
 
-    {statusMessage && !errorMessage && <div className={classes.status} role="status">{statusMessage}</div>}
+    <div className={classes.status} role="status">{statusMessage}</div>
     {errorMessage && <div className={classes.error} role="alert">{errorMessage}</div>}
   </div>;
 };
