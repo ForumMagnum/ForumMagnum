@@ -75,7 +75,7 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
   const {hits, loading, error, hasMore, total, loadMore} = useSearchResults(request);
   const searchKey = JSON.stringify(request);
   const analyticsContext = presentation === 'modal' ? "searchBar" : "searchPage";
-  const handleResultKeyDown = useSearchPageNavigation({
+  const resultNavigation = useSearchPageNavigation({
     inputRef, resultsRef, searchKey, loadMore, query: debouncedQuery, enterOpensResult: presentation === 'modal',
   });
 
@@ -148,7 +148,7 @@ const SearchPage = ({presentation = 'page', onClose, filterTabSlot: providedFilt
       <div ref={layoutRef} className={classes.layout}>
         <SearchPageFilters state={state} expandedFilters={expandedFilters} filtersOpen={filtersOpen} setFilters={setFilters} toggleFilter={toggleFilter} clearFilters={clearFilters}
           filtersId={filtersId} />
-        <div className={classes.results} onKeyDown={handleResultKeyDown}>
+        <div className={classes.results} {...resultNavigation}>
           <div className={classes.topBar}>
             <form className={classes.searchBoxRow} role="search" onSubmit={(event) => {
               event.preventDefault();

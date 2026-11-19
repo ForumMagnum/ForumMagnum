@@ -4,6 +4,7 @@ import type { RouterLocation, SegmentedUrl } from './routeChecks/parseRoute';
 import { createPath, type LocationDescriptor, parsePath } from 'history';
 import { parseQuery } from './routeChecks/parseRoute';
 import { LocationContext, NavigationContext, SubscribeLocationContext } from './locationContexts';
+import { shallowEqual } from './utils/componentUtils';
 
 type MaybeRelativeLocationDescriptor = LocationDescriptor|1|-1;
 
@@ -81,11 +82,7 @@ export function useSubscribedLocation<T>(select?: (location: RouterLocation) => 
 }
 
 function selectionsEqual(a: unknown, b: unknown): boolean {
-  if (Object.is(a, b)) return true;
-  if (typeof a !== 'object' || typeof b !== 'object' || !a || !b) return false;
-  const aEntries = Object.entries(a);
-  return aEntries.length === Object.keys(b).length
-    && aEntries.every(([key, value]) => key in b && Object.is(value, Reflect.get(b, key)));
+  return Object.is(a, b) || (typeof a === 'object' && typeof b === 'object' && shallowEqual(a, b));
 }
 
 export const useLocationStore = () => {

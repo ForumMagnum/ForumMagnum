@@ -73,7 +73,6 @@ const styles = defineStyles("SearchAuthorsBar", (theme: ThemeType) => ({
     gap: 6,
     minWidth: 0,
     width: '100%',
-
   },
 }));
 

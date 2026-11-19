@@ -16,7 +16,6 @@ const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {paddingRight: 0},
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 0,
     cursor: 'pointer',
   },
   title: {

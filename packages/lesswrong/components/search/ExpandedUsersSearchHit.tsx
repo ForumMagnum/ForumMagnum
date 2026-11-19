@@ -16,7 +16,6 @@ const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
     paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 0
   },
   link: {
     display: "flex",

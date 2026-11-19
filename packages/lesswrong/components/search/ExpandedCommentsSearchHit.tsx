@@ -17,7 +17,6 @@ const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => (
     paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 0,
     cursor: 'pointer',
   },
   authorRow: {

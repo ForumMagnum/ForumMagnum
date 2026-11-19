@@ -15,7 +15,6 @@ const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => 
     paddingRight: 44,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 0
   },
   body: {
     position: 'relative',

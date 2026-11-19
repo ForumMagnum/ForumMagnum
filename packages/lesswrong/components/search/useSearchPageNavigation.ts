@@ -1,5 +1,4 @@
-import { useEffect, useRef, type KeyboardEvent, type RefObject } from 'react';
-import { getNextSearchResultIndex } from './searchBarNavigation';
+import { useEffect, useRef, type KeyboardEvent, type RefObject, type SyntheticEvent } from 'react';
 
 interface SearchPageNavigationOptions {
   inputRef: RefObject<HTMLInputElement | null>,
@@ -30,8 +29,6 @@ function resultFromTarget(area: HTMLDivElement | null, target: EventTarget | nul
 export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMore, query, enterOpensResult}: SearchPageNavigationOptions) {
   const previousSearchKey = useRef(searchKey);
   const selected = useRef<HTMLElement | null>(null);
-  const attachedArea = useRef<HTMLDivElement | null>(null);
-  const detachListeners = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const area = resultsRef.current;
@@ -41,30 +38,12 @@ export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMo
     previousSearchKey.current = searchKey;
   });
 
-  useEffect(() => {
-    const area = resultsRef.current;
-    if (area === attachedArea.current) return;
-    detachListeners.current?.();
-    attachedArea.current = area;
-    const selectFromEvent = (event: Event) => {
-      const row = resultFromTarget(area, event.target);
-      if (row) selectResult(selected, row);
-    };
-    area?.addEventListener('mousemove', selectFromEvent);
-    area?.addEventListener('focusin', selectFromEvent);
-    detachListeners.current = () => {
-      area?.removeEventListener('mousemove', selectFromEvent);
-      area?.removeEventListener('focusin', selectFromEvent);
-    };
-  });
+  const selectFromEvent = (event: SyntheticEvent) => {
+    const row = resultFromTarget(resultsRef.current, event.target);
+    if (row) selectResult(selected, row);
+  };
 
-  useEffect(() => () => {
-    detachListeners.current?.();
-    attachedArea.current = null;
-    detachListeners.current = null;
-  }, []);
-
-  return (event: KeyboardEvent<HTMLDivElement>) => {
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.defaultPrevented || event.nativeEvent.isComposing
       || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     const input = inputRef.current;
@@ -86,11 +65,14 @@ export function useSearchPageNavigation({inputRef, resultsRef, searchKey, loadMo
     const rows = getResultRows(resultsRef.current);
     if (!rows.length) return;
     const currentIndex = rows.findIndex(row => row === (focusedRow ?? selected.current));
-    const nextIndex = getNextSearchResultIndex(currentIndex, rows.length, event.key);
+    const nextIndex = Math.max(0, Math.min(rows.length - 1, currentIndex + (event.key === 'ArrowDown' ? 1 : -1)));
     const next = rows[nextIndex];
     selectResult(selected, next);
     next.scrollIntoView({block: 'nearest'});
     next.querySelector<HTMLAnchorElement>('a[href]')?.focus({preventScroll: true});
     if (nextIndex === rows.length - 1) void loadMore();
   };
+
+  /** Handlers for an element containing both the input and the results */
+  return {onKeyDown, onMouseMove: selectFromEvent, onFocus: selectFromEvent};
 }

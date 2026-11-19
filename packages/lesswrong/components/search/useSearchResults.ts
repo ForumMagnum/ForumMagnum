@@ -16,19 +16,7 @@ export interface SearchBarHit extends SearchDocument {
 export interface SearchResultsRequest {
   indexName: string;
   query: string;
-  filters?: SearchFilterParams;
-}
-
-function mergeNumericFilters(filters: SearchFilterParams | undefined): string[] | undefined {
-  const bounds = [...(filters?.numericFilters ?? [])];
-  if (filters?.withinMs !== undefined) bounds.push(`publicDateMs>=${Date.now() - filters.withinMs}`);
-  return bounds.length ? bounds : undefined;
-}
-
-function mergeFacetFilters(filters: SearchFilterParams | undefined): string[][] | undefined {
-  const groups = [...(filters?.facetFilters ?? [])];
-  if (isAF()) groups.push(["af:true"]);
-  return groups.length ? groups : undefined;
+  filters: SearchFilterParams;
 }
 
 export function useSearchResults(request: SearchResultsRequest) {
@@ -43,14 +31,12 @@ export function useSearchResults(request: SearchResultsRequest) {
 
   const loadMore = useCallback(async () => {
     const current = pager.current;
-    const {indexName, query, filters} = latestRequest.current;
+    const {indexName, query, filters: {withinMs, facetFilters = [], numericFilters = [], ...filters}} = latestRequest.current;
     if (!indexName || current.loading || !current.hasMore) return;
     current.loading = true;
     setLoading(true);
     setError(false);
     try {
-      const facetFilters = mergeFacetFilters(filters);
-      const numericFilters = mergeNumericFilters(filters);
       const {results} = await getSearchClient({emptyStringSearchResults: "default", mode: "unified"})
         .search<SearchBarHit>([{
           indexName,
@@ -61,12 +47,10 @@ export function useSearchResults(request: SearchResultsRequest) {
             hitsPerPage: pageSize,
             highlightPreTag: "<ais-highlight-0000000000>",
             highlightPostTag: "</ais-highlight-0000000000>",
-            ...(facetFilters && {facetFilters}),
-            ...(numericFilters && {numericFilters}),
-            ...(filters?.tagMatch && {tagMatch: filters.tagMatch}),
-            ...(filters?.tagIds && {tagIds: filters.tagIds}),
-            ...(filters?.authorIds && {authorIds: filters.authorIds}),
-            ...(filters?.postTypes && {postTypes: filters.postTypes}),
+            ...filters,
+            facetFilters: isAF() ? [...facetFilters, ["af:true"]] : facetFilters,
+            // A relative timeframe counts back from the moment of the request
+            numericFilters: withinMs === undefined ? numericFilters : [...numericFilters, `publicDateMs>=${Date.now() - withinMs}`],
           },
         }]);
       if (pager.current !== current) return;

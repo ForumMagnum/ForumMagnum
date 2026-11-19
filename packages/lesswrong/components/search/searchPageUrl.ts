@@ -12,6 +12,7 @@ import {
   searchEventFilters,
   searchPostTypes,
 } from "@/lib/search/searchFilters";
+import pickBy from "lodash/pickBy";
 
 /** What a search URL holds: the search itself, not how its page is laid out */
 export interface SearchPageState {
@@ -41,8 +42,6 @@ export function mergeSearchPageParams(search: string, state: SearchPageState, pr
   return params.toString();
 }
 
-const dayMs = 24 * 60 * 60 * 1000;
-
 export function searchPageStateFromSearch(search: string, presentation: "page" | "modal"): SearchPageState {
   const prefix = presentation === "modal" ? "search." : "";
   const query: Record<string, string> = {};
@@ -68,23 +67,19 @@ function splitList(value: string | undefined): string[] {
   return value ? value.split(",").filter(item => item.length > 0) : [];
 }
 
-function parseIsoDay(value: string | undefined): number | undefined {
-  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
-  const ms = Date.parse(`${value}T00:00:00.000Z`);
-  return Number.isFinite(ms) && new Date(ms).toISOString().slice(0, 10) === value ? ms : undefined;
-}
+/** The time of day a bound given as a bare day stands for */
+const dayBoundSuffix = (end: boolean) => end ? "T23:59:59.999Z" : "T00:00:00.000Z";
 
 function parseDateBound(value: string | undefined, end: boolean): number | undefined {
-  const day = parseIsoDay(value);
-  if (day !== undefined) return day + (end ? dayMs - 1 : 0);
-  if (!value || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) return undefined;
-  const ms = Date.parse(value);
-  return Number.isFinite(ms) && new Date(ms).toISOString() === value ? ms : undefined;
+  if (!value || !/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}\.\d{3}Z)?$/.test(value)) return undefined;
+  const iso = value.length === 10 ? value + dayBoundSuffix(end) : value;
+  const ms = Date.parse(iso);
+  return Number.isFinite(ms) && new Date(ms).toISOString() === iso ? ms : undefined;
 }
 
 function formatDateBound(ms: number, end: boolean): string {
   const iso = new Date(ms).toISOString();
-  return iso.endsWith(end ? "T23:59:59.999Z" : "T00:00:00.000Z") ? iso.slice(0, 10) : iso;
+  return iso.endsWith(dayBoundSuffix(end)) ? iso.slice(0, 10) : iso;
 }
 
 function parseDateRange(past: string | undefined, from: string | undefined, to: string | undefined): SearchDateRange {
@@ -118,21 +113,16 @@ function searchPageStateFromQuery(query: Record<string, string | undefined>): Se
 
 export function searchPageStateToQuery(state: SearchPageState): Record<string, string> {
   const {filters} = state;
-  const entries: [string, string | undefined][] = [
-    ["query", state.query || undefined],
-    ["kinds", state.kinds.length ? state.kinds.join(",") : undefined],
-    ["tags", filters.tagIds.length ? filters.tagIds.join(",") : undefined],
-    ["tagMatch", filters.tagMatch === "all" ? "all" : undefined],
-    ["events", filters.events === defaultSearchFilters.events ? undefined : filters.events],
-    ["authors", filters.authorIds.length ? filters.authorIds.join(",") : undefined],
-    ["types", isDefaultSearchPostTypes(filters.postTypes) ? undefined : filters.postTypes.join(",")],
-    ["past", filters.dateRange.past],
-    ["from", filters.dateRange.start !== undefined ? formatDateBound(filters.dateRange.start, false) : undefined],
-    ["to", filters.dateRange.end !== undefined ? formatDateBound(filters.dateRange.end, true) : undefined],
-  ];
-  const result: Record<string, string> = {};
-  for (const [key, value] of entries) {
-    if (value !== undefined) result[key] = value;
-  }
-  return result;
+  return pickBy({
+    query: state.query,
+    kinds: state.kinds.join(","),
+    tags: filters.tagIds.join(","),
+    tagMatch: filters.tagMatch === "all" ? "all" : undefined,
+    events: filters.events === defaultSearchFilters.events ? undefined : filters.events,
+    authors: filters.authorIds.join(","),
+    types: isDefaultSearchPostTypes(filters.postTypes) ? undefined : filters.postTypes.join(","),
+    past: filters.dateRange.past,
+    from: filters.dateRange.start !== undefined ? formatDateBound(filters.dateRange.start, false) : undefined,
+    to: filters.dateRange.end !== undefined ? formatDateBound(filters.dateRange.end, true) : undefined,
+  }, (value): value is string => !!value);
 }

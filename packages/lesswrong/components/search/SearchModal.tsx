@@ -48,7 +48,6 @@ const styles = defineStyles('SearchModal', (theme: ThemeType) => ({
         '&:hover, &:focus-visible': {transform: 'none'},
       },
     },
-    '@media (prefers-reduced-motion: reduce)': {transition: 'none'},
   },
   dialogFrame: {position: 'relative', flex: 1, minHeight: 0, display: 'flex'},
   dialog: {

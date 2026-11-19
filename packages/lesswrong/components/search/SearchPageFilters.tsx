@@ -7,7 +7,7 @@ import { searchPageStyles } from './searchPageStyles';
 import SearchFilterRow from './SearchFilterRow';
 import SearchAuthorsBar from './SearchAuthorsBar';
 import SearchWikitagsBar from './SearchWikitagsBar';
-import SearchEventsBar from './SearchEventsBar';
+import SearchSegmentedControl, { SearchSegment } from './SearchSegmentedControl';
 import SearchPostTypeBar from './SearchPostTypeBar';
 import SearchDatePresetsBar, { matchSearchDatePreset } from './SearchDatePresetsBar';
 
@@ -29,6 +29,12 @@ const eventFilterSummaries: Record<SearchEventFilter, string> = {
   exclude: "Excluded (default)",
   only: "Only events",
 };
+
+const eventSegments: SearchSegment<SearchEventFilter>[] = [
+  {value: "exclude", label: "Exclude", ariaLabel: "Exclude events"},
+  {value: "include", label: "Include", ariaLabel: "Include events"},
+  {value: "only", label: "Only events"},
+];
 
 function formatDateBound(ms: number | undefined, fallback: string): string {
   return ms === undefined ? fallback : new Date(ms).toISOString().slice(0, 10);
@@ -60,19 +66,16 @@ export default function SearchPageFilters({state, expandedFilters, filtersOpen, 
       <SearchFilterRow label="Author" summary={state.filters.authorIds.length ? `${state.filters.authorIds.length} selected` : "Anyone"} active={!!state.filters.authorIds.length} expanded={expandedFilters.includes("authors")} onToggle={() => toggleFilter("authors")} onReset={() => setFilters({authorIds: []})}>
         <SearchAuthorsBar authorIds={state.filters.authorIds} onChange={(authorIds) => setFilters({authorIds})} />
       </SearchFilterRow>
-
-      <div className={classes.filters}>
-        <SearchFilterRow label="Wikitags" summary={state.filters.tagIds.length ? `${state.filters.tagIds.length} selected · match ${state.filters.tagMatch}` : "Any wikitag"} active={!!state.filters.tagIds.length} expanded={expandedFilters.includes("tags")} onToggle={() => toggleFilter("tags")} onReset={() => setFilters({tagIds: [], tagMatch: "any"})}>
-          <SearchWikitagsBar match={state.filters.tagMatch} onMatchChange={(tagMatch) => setFilters({tagMatch})} tagIds={state.filters.tagIds} onChange={(tagIds) => setFilters({tagIds})} />
-        </SearchFilterRow>
-        <SearchFilterRow label="Events" summary={eventFilterSummaries[state.filters.events]} active={state.filters.events !== defaultSearchFilters.events} expanded={expandedFilters.includes("events")} onToggle={() => toggleFilter("events")} onReset={() => setFilters({events: defaultSearchFilters.events})}>
-          <SearchEventsBar value={state.filters.events} onChange={(events) => setFilters({events})} />
-        </SearchFilterRow>
-        <SearchFilterRow label="Post types" summary={hasPostFilter ? state.filters.postTypes.map(type => searchPostTypeLabels[type]).join(", ") : "All post types"} active={hasPostFilter} expanded={expandedFilters.includes("types")} onToggle={() => toggleFilter("types")} onReset={() => setFilters({postTypes: defaultSearchPostTypes})}>
-          <SearchPostTypeBar className={classes.postTypes} selected={state.filters.postTypes} onChange={(postTypes) => setFilters({postTypes})} />
-        </SearchFilterRow>
-        {hasFilters && <button type="button" className={classNames(classes.clearFilters, classes.clearFiltersButton)} onClick={clearFilters}>Clear filters</button>}
-      </div>
+      <SearchFilterRow label="Wikitags" summary={state.filters.tagIds.length ? `${state.filters.tagIds.length} selected · match ${state.filters.tagMatch}` : "Any wikitag"} active={!!state.filters.tagIds.length} expanded={expandedFilters.includes("tags")} onToggle={() => toggleFilter("tags")} onReset={() => setFilters({tagIds: [], tagMatch: "any"})}>
+        <SearchWikitagsBar match={state.filters.tagMatch} onMatchChange={(tagMatch) => setFilters({tagMatch})} tagIds={state.filters.tagIds} onChange={(tagIds) => setFilters({tagIds})} />
+      </SearchFilterRow>
+      <SearchFilterRow label="Events" summary={eventFilterSummaries[state.filters.events]} active={state.filters.events !== defaultSearchFilters.events} expanded={expandedFilters.includes("events")} onToggle={() => toggleFilter("events")} onReset={() => setFilters({events: defaultSearchFilters.events})}>
+        <SearchSegmentedControl label="Events" segments={eventSegments} value={state.filters.events} onChange={(events) => setFilters({events})} fullWidth />
+      </SearchFilterRow>
+      <SearchFilterRow label="Post types" summary={hasPostFilter ? state.filters.postTypes.map(type => searchPostTypeLabels[type]).join(", ") : "All post types"} active={hasPostFilter} expanded={expandedFilters.includes("types")} onToggle={() => toggleFilter("types")} onReset={() => setFilters({postTypes: defaultSearchPostTypes})}>
+        <SearchPostTypeBar className={classes.postTypes} selected={state.filters.postTypes} onChange={(postTypes) => setFilters({postTypes})} />
+      </SearchFilterRow>
+      {hasFilters && <button type="button" className={classNames(classes.clearFilters, classes.clearFiltersButton)} onClick={clearFilters}>Clear filters</button>}
     </aside>
   );
 }

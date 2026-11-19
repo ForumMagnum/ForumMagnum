@@ -69,13 +69,10 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
       '& $kinds > button': {flex: '1 1 0', justifyContent: 'center', maxWidth: 160},
     },
     [theme.breakpoints.down('sm')]: {
-      height: '100%',
-      maxHeight: '100%',
       margin: 0,
       padding: '0 max(8px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left))',
       '& $layout': {
         height: 'auto',
-        gap: 4,
         flex: '0 0 auto',
         minHeight: 0,
         overflow: 'visible',
@@ -83,10 +80,7 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
         gridTemplateAreas: '"controls" "sidebar" "hits"',
       },
       '& $sidebar': {maxHeight: 'none', marginTop: 0},
-      '& $topBar': {padding: '8px 0 4px'},
-      '& $searchBoxRow': {gap: 4, marginBottom: 4},
-      '& $kinds': {margin: 0, padding: '2px 0'},
-      '& $resultCount': {marginBottom: 0},
+      '& $searchBoxRow': {gap: 4},
     },
   },
   filterTab: {
@@ -164,7 +158,6 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
       position: "static",
     },
     backgroundColor: theme.palette.background.paper,
-
   },
   layout: {
     display: "grid",
@@ -201,7 +194,6 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
     scrollbarGutter: "stable",
     padding: "4px 0 8px",
     backgroundColor: theme.palette.background.paper,
-    border: "none",
     borderRadius: 4,
     zIndex: 9,
     [theme.breakpoints.down('sm')]: {
@@ -252,9 +244,6 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
     alignItems: "center",
     gap: 12,
     marginBottom: 10,
-    [theme.breakpoints.down('sm')]: {
-      width: "100%",
-    },
   },
   searchInputArea: {
     minWidth: 0,
@@ -266,7 +255,6 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
     gap: "4px 10px",
     padding: "2px 14px",
     boxSizing: "border-box",
-    border: "none",
     borderRadius: 3,
     backgroundColor: theme.palette.background.paper,
     transition: "background-color 150ms",
@@ -307,7 +295,6 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
     gap: 6,
     maxWidth: "100%",
     minWidth: 0,
-
   },
   clearFilters: {
     ...theme.typography.body2,
@@ -321,10 +308,6 @@ export const searchPageStyles = defineStyles("SearchPageResults", (theme: ThemeT
     borderRadius: 4,
     padding: "0 12px",
     "&:hover": {backgroundColor: theme.palette.greyAlpha(0.14)},
-  },
-  filters: {
-    marginTop: 0,
-    marginBottom: 0,
   },
   kinds: {
     marginTop: 4,
