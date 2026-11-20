@@ -1,6 +1,6 @@
 import React from 'react';
 import { getCommunityPath, getAllTagsPath } from '@/lib/pathConstants';
-import { REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { BEST_OF_LESSWRONG_PUBLISH_YEAR } from '../../../lib/reviewUtils';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
 
 import { compassIcon } from '../../icons/compassIcon';
@@ -122,7 +122,7 @@ export const getMenuTabs = (): ForumOptions<Array<MenuTab>> => ({
       id: 'bestoflesswrong',
       title: 'Best of LessWrong',
       link: '/bestoflesswrong',
-      tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
+      tooltip: "Top posts from the Annual Review (2018 through " + BEST_OF_LESSWRONG_PUBLISH_YEAR + ")",
       subItem: true,
     }, {
       id: 'highlights',

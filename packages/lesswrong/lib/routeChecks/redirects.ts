@@ -220,15 +220,15 @@ export const redirects = [
   }, {
     source: "/reviewVoting",
     destination: "/reviewVoting/2025",
-    permanent: true
+    permanent: false
   }, {
     source: "/reviewQuickPage",
     destination: "/quickReview/2025",
-    permanent: true
+    permanent: false
   }, {
     source: "/quickReview",
     destination: "/quickReview/2025",
-    permanent: true
+    permanent: false
   }, {
     source: "/tagVoting",
     destination: "/tagActivity",
@@ -236,7 +236,7 @@ export const redirects = [
   }, {
     source: "/nominatePosts",
     destination: "/nominatePosts/2025",
-    permanent: true
+    permanent: false
   }, {
     source: "/tag/create",
     destination: "/w/create",
@@ -336,15 +336,15 @@ export const redirects = [
   }, {
     source: "/nominations",
     destination: "/reviewVoting/2025",
-    permanent: true
+    permanent: false
   }, {
     source: "/reviews",
     destination: "/reviews/2025",
-    permanent: true
+    permanent: false
   }, {
     source: "/reviewAdmin",
     destination: "/reviewAdmin/2025",
-    permanent: true
+    permanent: false
   }, {
     source: "/user/:slug/overview",
     destination: "/users/:slug",
