@@ -1,5 +1,5 @@
 import type { ForumTypeString } from '@/lib/instanceSettings';
-import { classifyHost } from '@/lib/routeUtil';
+import { classifyHost } from '@/lib/classifyLink';
 import { parseRoute, parsePath } from '@/lib/routeChecks/parseRoute';
 import { getMarkdownPathname } from '@/lib/routeChecks/markdownVersionRoutes';
 import { getUrlClass } from '../utils/getUrlClass';

@@ -4,7 +4,8 @@ import React, { CSSProperties, FC } from 'react';
 import { useTracking } from '../lib/analyticsEvents';
 import NextLink from 'next/link';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
-import { classifyHost, useLocation, usePrefetchRoute } from './routeUtil';
+import { useLocation, usePrefetchRoute } from './routeUtil';
+import { classifyHost } from './classifyLink';
 import qs from 'qs'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 

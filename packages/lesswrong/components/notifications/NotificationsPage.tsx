@@ -126,7 +126,7 @@ const NotificationsPage = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
-  const { location: { hash } } = useSubscribedLocation();
+  const hash = useSubscribedLocation(({ location }) => location.hash);
   const { notificationsOpened } = useUnreadNotifications();
   const [activeTab, setActiveTab] = useState<NotificationTab>(() => hashToTab(hash));
   const markedReadForUserRef = useRef<string | null>(null);

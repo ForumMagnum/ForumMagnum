@@ -15,6 +15,10 @@ import SequencesRepo from "../../repos/SequencesRepo";
 import TagsRepo from "../../repos/TagsRepo";
 import UsersRepo from "../../repos/UsersRepo";
 import { getCollection } from "../../collections/allCollections";
+import { sleep } from "@/lib/utils/asyncUtils";
+
+// exportedAt comes from the database clock and the export start from this process.
+const exportClockSkewMarginMs = 60 * 1000;
 
 const HTML_FIELDS = [
   "body",
@@ -122,19 +126,16 @@ export class ElasticExporter {
    *
    * To change the schema, we then:
    *  (1) Make the old index read-only
-   *  (2) Reindex all of the existing data into a new index with the new schema
+   *  (2) Reindex all of the existing data into a new index with the new schema,
+   *      waiting for the reindex to finish
    *  (3) Mark the new index as writable
    *  (4) Update the alias to point to the new index
    *
-   * For a populated index, expect this to take ~a couple of minutes. Note that,
-   * for the sake of data safety, the old index is _not_ automatically deleted.
-   * You should wait a couple of minutes for the reindexing to complete, check
-   * that the document count on the new index is >= the document count on the old
-   * index, then run `Globals.elasticDeleteOrphanedIndexes()`.
-   *
-   * Whilst exporting, there'll be a short period during copying where search
-   * will continue to work but not all the documents are available - this is
-   * currently ~45 seconds for EA forum prod as of 2023-06-22.
+   * For a populated index, expect this to take ~a couple of minutes, during
+   * which writes to the old index fail. Note that, for the sake of data safety,
+   * the old index is _not_ automatically deleted. Check that the document count
+   * on the new index is >= the document count on the old index, then run
+   * `Globals.elasticDeleteOrphanedIndexes()`.
    */
   async configureIndex(collectionName: SearchIndexCollectionName) {
     const client = this.client.getClient();
@@ -154,9 +155,8 @@ export class ElasticExporter {
           "index.blocks.write": true,
         },
       });
-      await this.createIndex(newIndexName, collectionName);
-      await this.updateSynonymsForIndex(newIndexName, synonyms);
-      await client.reindex({
+      await this.createIndex(newIndexName, collectionName, synonyms);
+      const {task} = await client.reindex({
         refresh: true,
         wait_for_completion: false,
         body: {
@@ -164,24 +164,21 @@ export class ElasticExporter {
           dest: {index: newIndexName},
         },
       });
+      if (task === undefined) {
+        throw new Error(`Reindex of ${oldIndexName} into ${newIndexName} did not return a task`);
+      }
+      await this.waitForTask(String(task));
       await client.indices.putSettings({
         index: newIndexName,
         body: {
           "index.blocks.write": false,
         },
       });
-      await client.indices.putAlias({
-        index: newIndexName,
-        name: aliasName,
-      });
-      await client.indices.deleteAlias({
-        index: oldIndexName,
-        name: aliasName,
-      });
+      await this.switchAlias(aliasName, oldIndexName, newIndexName);
     } else {
       // eslint-disable-next-line no-console
       console.log(`Creating index: ${collectionName}`);
-      await this.createIndex(newIndexName, collectionName);
+      await this.createIndex(newIndexName, collectionName, []);
       await client.indices.putAlias({
         index: newIndexName,
         name: aliasName,
@@ -194,9 +191,16 @@ export class ElasticExporter {
    * it, then switching the alias. This will remove any objects that have IDs
    * not present in the postgres DB, eg to clean up search index pollution that
    * was the result of connecting a development DB to a production search index.
+   *
+   * Live writes go through the alias, so they land in the old index until the
+   * switch. Once the alias has moved, every document the old index received
+   * during the export is re-exported from Postgres through the alias, so the new
+   * index ends up with current data rather than with the old index's copy.
+   *
+   * The alias stays on the old index if the new one holds fewer documents than
+   * Postgres had when the export started.
    */
   async recreateIndex(collectionName: SearchIndexCollectionName) {
-    const client = this.client.getClient();
     const collection = getCollection(collectionName) as SearchIndexedCollection;
 
     const aliasName = this.getIndexName(collection);
@@ -209,20 +213,76 @@ export class ElasticExporter {
     
     // eslint-disable-next-line no-console
     console.log(`Creating index: ${collectionName}`);
-    await this.createIndex(newIndexName, collectionName);
-    
+    await this.createIndex(newIndexName, collectionName, await this.getExistingSynonyms());
+
+    const exportStartedAt = new Date(Date.now() - exportClockSkewMarginMs);
+    const expectedCount = await this.getRepoByCollectionName(collectionName).countSearchDocuments();
     console.log(`Loading data into index: ${collectionName}`);
     await this.exportCollection(collectionName, newIndexName);
 
+    const client = this.client.getClient();
+    await client.indices.refresh({index: newIndexName});
+    const {count} = await client.count({index: newIndexName});
+    if (count < expectedCount) {
+      throw new Error(`${newIndexName} has ${count} documents but Postgres had ${expectedCount} when the export started, so the alias stays on ${oldIndexName}`);
+    }
+
     console.log(`Switching alias`);
-    await client.indices.putAlias({
-      index: newIndexName,
-      name: aliasName,
+    await this.switchAlias(aliasName, oldIndexName, newIndexName);
+
+    console.log(`Re-exporting documents written during the export`);
+    await this.reexportDocumentsWrittenSince(collectionName, oldIndexName, exportStartedAt);
+  }
+
+  private async switchAlias(aliasName: string, oldIndexName: string, newIndexName: string): Promise<void> {
+    await this.client.getClient().indices.updateAliases({
+      body: {
+        actions: [
+          {add: {index: newIndexName, alias: aliasName}},
+          {remove: {index: oldIndexName, alias: aliasName}},
+        ],
+      },
     });
-    await client.indices.deleteAlias({
-      index: oldIndexName,
-      name: aliasName,
+  }
+
+  private async reexportDocumentsWrittenSince(
+    collectionName: SearchIndexCollectionName,
+    sourceIndexName: string,
+    since: Date,
+  ): Promise<void> {
+    const client = this.client.getClient();
+    await client.indices.refresh({index: sourceIndexName});
+    const scroll = client.helpers.scrollSearch({
+      index: sourceIndexName,
+      _source: false,
+      size: 1000,
+      query: {range: {exportedAt: {gte: since.toISOString()}}},
     });
+    const documentIds: string[] = [];
+    for await (const page of scroll) {
+      documentIds.push(...page.body.hits.hits.map(hit => hit._id));
+    }
+    for (const documentId of documentIds) {
+      await this.updateDocument(collectionName, documentId);
+    }
+    console.log(`Re-exported ${documentIds.length} documents written during the export`);
+  }
+
+  private async waitForTask(taskId: string): Promise<void> {
+    for (;;) {
+      const {completed, response, error} = await this.client.getClient().tasks.get({task_id: taskId});
+      if (error) {
+        throw new Error(`Task ${taskId} failed: ${JSON.stringify(error)}`);
+      }
+      const failures = response?.failures ?? [];
+      if (failures.length) {
+        throw new Error(`Task ${taskId} had ${failures.length} failures: ${JSON.stringify(failures.slice(0, 10))}`);
+      }
+      if (completed) {
+        return;
+      }
+      await sleep(5000);
+    }
   }
 
   async deleteIndex(collectionName: SearchIndexCollectionName) {
@@ -284,6 +344,7 @@ export class ElasticExporter {
   private async createIndex(
     indexName: string,
     collectionName: SearchIndexCollectionName,
+    synonyms: string[],
   ): Promise<void> {
     const client = this.client.getClient();
     const mappings = this.getCollectionMappings(collectionName);
@@ -305,7 +366,7 @@ export class ElasticExporter {
                 },
                 fm_synonym_filter: {
                   type: "synonym",
-                  synonyms: [],
+                  synonyms,
                 },
                 fm_shingle_filter: {
                   type: "shingle",
@@ -458,14 +519,17 @@ export class ElasticExporter {
     const batchSize = 1000;
     const totalBatches = Math.ceil(total / batchSize);
     const totalErrors: OnDropDocument<SearchDocument>[] = [];
+    // Paging by _id rather than by offset, so rows created during the export
+    // can't shift later pages and skip documents.
+    let afterId = "";
     for (let i = 0; ; i++) {
-      const offset = batchSize * i;
       // eslint-disable-next-line no-console
       console.log(`...starting ${collectionName} batch ${i} of ${totalBatches}`);
-      const documents = await repo.getSearchDocuments(batchSize, offset);
+      const documents = await repo.getSearchDocuments(batchSize, afterId);
       if (documents.length < 1) {
         break;
       }
+      afterId = documents[documents.length - 1]._id;
       const erroredDocuments = await this.createDocuments(collection, documents, alias);
       totalErrors.push.apply(totalErrors, erroredDocuments);
     }
@@ -473,6 +537,7 @@ export class ElasticExporter {
     if (totalErrors.length) {
       // eslint-disable-next-line no-console
       console.error(`${collectionName} indexing errors:`, totalErrors);
+      throw new Error(`Export of ${collectionName} dropped ${totalErrors.length} documents`);
     } else {
       // eslint-disable-next-line no-console
       console.log("No errors found when indexing", collectionName)

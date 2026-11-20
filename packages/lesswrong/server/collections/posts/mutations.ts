@@ -170,7 +170,7 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   await triggerReviewForNewPostIfNeeded(asyncProperties);
 
   if (isElasticEnabled()) {
-    backgroundTask(elasticSyncDocument('Posts', documentWithId._id));
+    backgroundTask(elasticSyncDocument('Posts', documentWithId._id, {includeSequences: true}));
   }
 
   // former newAsync callbacks
@@ -298,7 +298,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   });
 
   if (isElasticEnabled()) {
-    backgroundTask(elasticSyncDocument('Posts', updatedDocument._id));
+    backgroundTask(elasticSyncDocument('Posts', updatedDocument._id, {includeSequences: true}));
   }
 
   backgroundTask(logFieldChanges({ currentUser, collection: Posts, oldDocument, data: origData }));

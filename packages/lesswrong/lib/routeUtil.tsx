@@ -1,11 +1,10 @@
-import { getUrlClass } from "@/server/utils/getUrlClass";
 import qs from 'qs';
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useRef, useSyncExternalStore } from 'react';
 import type { RouterLocation, SegmentedUrl } from './routeChecks/parseRoute';
 import { createPath, type LocationDescriptor, parsePath } from 'history';
 import { parseQuery } from './routeChecks/parseRoute';
-import { urlIsAbsolute } from './vulcan-lib/utils';
 import { LocationContext, NavigationContext, SubscribeLocationContext } from './locationContexts';
+import { shallowEqual } from './utils/componentUtils';
 
 type MaybeRelativeLocationDescriptor = LocationDescriptor|1|-1;
 
@@ -57,8 +56,36 @@ export const useLocation = (): RouterLocation => {
 }
 
 // React Hook which returns the page location, formatted as in useLocation, and
-// triggers a rerender whenever navigation occurs.
-export const useSubscribedLocation = (): RouterLocation => {
+// triggers a rerender whenever the URL changes. Given a selector, it returns
+// what the selector picks and rerenders only when that changes (compared
+// shallowly), eg `useSubscribedLocation(({query}) => query.commentId)`. Prefer
+// a selector in anything rendered many times per page: the URL can change on
+// every keystroke (the search modal keeps its query there).
+export function useSubscribedLocation(): RouterLocation;
+export function useSubscribedLocation<T>(select: (location: RouterLocation) => T): T;
+export function useSubscribedLocation<T>(select?: (location: RouterLocation) => T): RouterLocation|T {
+  const store = useLocationStore();
+  const selected = useRef<{ value: T }|null>(null);
+  const getSnapshot = () => {
+    const location = store.get();
+    if (!select) {
+      return location;
+    }
+    const value = select(location);
+    if (selected.current && selectionsEqual(selected.current.value, value)) {
+      return selected.current.value;
+    }
+    selected.current = { value };
+    return value;
+  };
+  return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
+}
+
+function selectionsEqual(a: unknown, b: unknown): boolean {
+  return Object.is(a, b) || (typeof a === 'object' && typeof b === 'object' && shallowEqual(a, b));
+}
+
+export const useLocationStore = () => {
   return useContext(SubscribeLocationContext)!;
 }
 
@@ -171,59 +198,6 @@ export const removeUrlParameters = (url: string, queryParameterBlacklist: string
   }
   
   return baseUrl + (Object.keys(filteredQuery).length>0 ? '?'+qs.stringify(filteredQuery) : '') + (hash ? '#'+hash : '');
-}
-
-interface DomainList {
-  onsiteDomains: string[]
-  mirrorDomains: string[]
-}
-
-const LwAfDomainWhitelist: DomainList = {
-  onsiteDomains: [
-    "lesswrong.com",
-    "lesserwrong.com",
-    "lessestwrong.com",
-    "baserates.org",
-    "alignmentforum.org",
-    "alignment-forum.com",
-    "arbital.com",
-    // TODO: fix this to not use `getCommandLineArguments` anymore
-    // `localhost:${getCommandLineArguments().localhostUrlPort}`,
-  ],
-  mirrorDomains: [
-    "greaterwrong.com",
-  ],
-}
-
-const URLClass = getUrlClass();
-
-export const classifyHost = (host: string): "onsite"|"offsite"|"mirrorOfUs" => {
-  let urlType: "onsite"|"offsite"|"mirrorOfUs" = "offsite";
-  
-  // Returns true if two domains are either the same, or differ only by addition or removal of a "www."
-  function isSameDomainModuloWWW(a: string, b: string) {
-    return a===b || "www."+a===b || a==="www."+b;
-  }
-
-  LwAfDomainWhitelist.onsiteDomains.forEach((domain) => {
-    if (isSameDomainModuloWWW(host, domain))
-      urlType = "onsite";
-  })
-  LwAfDomainWhitelist.mirrorDomains.forEach((domain) => {
-    if (isSameDomainModuloWWW(host, domain))
-      urlType = "mirrorOfUs";
-  })
-
-  return urlType;
-}
-
-export const classifyLink = (href: string): "onsite"|"offsite"|"mirrorOfUs" => {
-  if (urlIsAbsolute(href)) {
-    const host = new URLClass(href).host;
-    return classifyHost(host);
-  } else {
-    return "onsite";
-  }
 }
 
 // Returns whether a string could, conservatively, possibly be a database ID.

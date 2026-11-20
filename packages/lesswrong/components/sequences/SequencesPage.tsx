@@ -12,7 +12,7 @@ import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '@/lib/in
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useNavigate, useSubscribedLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigate, useSubscribedLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -201,7 +201,8 @@ const SequencesPage = ({documentId}: {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const { query } = useSubscribedLocation();
+  const editParam = useSubscribedLocation(({ query }) => query.edit);
+  const location = useLocation();
   const navigate = useNavigate();
 
   const { loading, data } = useQuery(SequencesPageFragmentQuery, {
@@ -210,7 +211,7 @@ const SequencesPage = ({documentId}: {
   const document = data?.sequence?.result;
 
   const canEdit = !!document && (userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document)));
-  const editRequested = canEdit && query.edit === "true";
+  const editRequested = canEdit && editParam === "true";
 
   const { data: editDocument, error: editError } = useQuery(SequencesEditQuery, {
     variables: { documentId: documentId },
@@ -225,6 +226,7 @@ const SequencesPage = ({documentId}: {
   }, [editing]);
 
   const setEditing = (edit: boolean) => {
+    const { query } = location;
     const newQuery = edit ? { ...query, edit: "true" } : omit(query, "edit");
     navigate({ search: isEmpty(newQuery) ? "" : `?${qs.stringify(newQuery)}` }, { replace: true, scroll: false });
   };

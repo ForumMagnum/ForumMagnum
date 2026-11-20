@@ -4,6 +4,7 @@ import { parseKeystroke, getCode } from '@/lib/vendor/ckeditor5-util/keyboard';
 import type { CommandPaletteItem } from '@/components/common/CommandPalette';
 import { useDialog } from '../common/withDialog';
 import { useCommandPalette } from './useCommandPalette';
+import { isSearchModalOpen } from '../search/searchPageUrl';
 
 function specialKeyPressed(event: KeyboardEvent) {
   return event.metaKey || event.ctrlKey || event.altKey;
@@ -41,8 +42,8 @@ export function useSupermodKeyboardCommands({
   useGlobalKeydown(
     useCallback(
       (event: KeyboardEvent) => {
-        // Don't trigger any shortcuts if a dialog is open
-        if (isDialogOpen) {
+        // Don't trigger any shortcuts if a dialog or the search modal is open
+        if (isDialogOpen || isSearchModalOpen(window.location.search)) {
           return;
         }
 

@@ -18,8 +18,8 @@ const noRefetch = () => {};
  * loaded.
  */
 const PostsPageLoadingPreview = () => {
-  const { params } = useSubscribedLocation();
-  const postPreload = usePostPreload(params._id, null);
+  const postId = useSubscribedLocation(({ params }) => params._id);
+  const postPreload = usePostPreload(postId, null);
 
   // During SSR the post isn't in the cache, and this loading state is never
   // hydrated, so don't try.

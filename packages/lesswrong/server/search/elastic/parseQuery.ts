@@ -14,8 +14,13 @@ const pattern = /(\w+:|-)?("[^"]*"|'[^']*'|[^\s]+)/g;
 
 const userPrefixes = new Set(["user:", "from:", "author:"]);
 
+const normalizeQuery = (query: string): string => query.trim()
+  .replace(/[\u201c\u201d\u201e]/g, '"')
+  .replace(/[\u2018\u2019]/g, "'")
+  .replace(/[\u2010\u2011\u2012\u2013\u2014]/g, "-");
+
 export const parseQuery = (query: string): QueryParserResult => {
-  query = query.trim().replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+  query = normalizeQuery(query);
 
   const tokens: QueryToken[] = [];
   let isAdvanced = false;
@@ -47,9 +52,9 @@ export const parseQuery = (query: string): QueryParserResult => {
     }
 
     // Replace dashes and underscores with spaces, and remove anything else that
-    // isn't whitespace or a word
+    // isn't whitespace, a letter or a digit
     if (type !== "user" && type !== "tag") {
-      token = token.replace(/[-_]/g, " ").replace(/[^\w\s]/g, "");
+      token = token.replace(/[-_]/g, " ").replace(/[^\p{L}\p{N}\s]/gu, "");
     }
 
     tokens.push({type, token});

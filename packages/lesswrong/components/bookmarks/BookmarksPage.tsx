@@ -44,7 +44,7 @@ const styles = defineStyles("BookmarksPage", (theme: ThemeType) => ({
 const BookmarksPage = () => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
-  const { location: {hash} } = useSubscribedLocation()
+  const hash = useSubscribedLocation(({ location }) => location.hash);
   const [activeTab, setActiveTab] = useState<TabType>('bookmarks')
   
   useEffect(() => {

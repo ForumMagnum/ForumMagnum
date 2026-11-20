@@ -3,6 +3,7 @@ import type { MultiResponse, SearchForFacetValues } from "algoliasearch";
 import stringify from "json-stringify-deterministic";
 import LRU from "lru-cache";
 import { z } from "zod";
+import { maxSearchFilterIds, searchPostTypeValues } from "./searchFilters";
 
 /**
  * The is the schema of the request sent from the InstantSearch frontend to
@@ -20,10 +21,15 @@ export const querySchema = z.object({
     numericFilters: z.optional(z.array(z.string())),
     existsFilters: z.optional(z.array(z.string())),
     aroundLatLng: z.optional(z.string()),
+    tagMatch: z.optional(z.enum(["any", "all"])),
+    tagIds: z.optional(z.array(z.string()).max(maxSearchFilterIds)),
+    authorIds: z.optional(z.array(z.string()).max(maxSearchFilterIds)),
+    postTypes: z.optional(z.array(z.enum(searchPostTypeValues)).max(searchPostTypeValues.length)),
   }),
 });
 
 const searchOptionsSchema = z.object({
+  mode: z.optional(z.literal("unified")),
   emptyStringSearchResults: z.union([z.literal("default"), z.literal("empty")]),
 });
 export type SearchOptions = z.infer<typeof searchOptionsSchema>;
@@ -82,12 +88,14 @@ class NativeSearchClient implements Client {
         },
         body,
       }).then((response) => {
+        if (!response.ok) throw new Error(`Search failed: ${response.status}`);
         response.json().then((results) => {
           resolve({results});
         }).catch(reject);
       }).catch(reject);
     });
     this.cache.set(body, promise);
+    void promise.catch(() => { this.cache.del(body); });
     if (cb) {
       promise.then((result) => cb(null, result)).catch((err) => cb(err, null));
     } else {

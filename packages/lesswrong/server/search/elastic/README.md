@@ -19,5 +19,6 @@ mappings accordingly and reindex the existing data.
 
 When a new instance is created it will have an empty list of synonyms. These
 can be edited at the `/admin/synonyms` page. Note that synonyms are not
-duplicated anywhere else, so deleting and rebuilding indexes will not preserve
-the synonym list. `configureIndexes` _does_ preserve synonyms.
+duplicated anywhere else, so deleting an index and creating it again will not
+preserve the synonym list. `configureIndexes` and `recreateIndex` _do_ preserve
+synonyms.

@@ -3,7 +3,6 @@ import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import type { SearchState } from 'react-instantsearch-core';
-import { isLeftClick } from '../search/UsersSearchHit';
 import { SearchHitComponentProps } from '../search/types';
 import classNames from 'classnames';
 import MetaInfo from "../common/MetaInfo";
@@ -61,6 +60,10 @@ const styles = defineStyles("FollowUserSearch", (theme: ThemeType) => ({
     }
   }
 }));
+
+const isLeftClick = (event: React.MouseEvent): boolean => {
+  return event.button === 0 && !event.ctrlKey && !event.metaKey;
+}
 
 const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds }: SearchHitComponentProps & {existingSubscriptionIds?: string[]}) => {
   const classes = useStyles(styles);
