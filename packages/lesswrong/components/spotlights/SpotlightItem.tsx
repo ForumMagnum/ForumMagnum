@@ -60,15 +60,17 @@ const SpotlightEditQueryFragmentQuery = gql(`
 
 const TEXT_WIDTH = 350;
 
-// Eased fade curve: offsets are fractions of the fade region, paired with mask opacity.
+// Eased fade curve, masked onto a card-width container rather than the image itself,
+// so that it doesn't shift when a taller card makes the image wider. Offsets are
+// fractions of the card, paired with mask opacity; the text column ends at ~80%.
 const FADE_CURVE: [offset: number, alpha: number][] = [
   [0, 0],
-  [0.3, 0.03],
-  [0.4, 0.1],
-  [0.5, 0.3],
-  [0.6, 0.6],
-  [0.7, 0.88],
-  [0.78, 1],
+  [0.5, 0.02],
+  [0.64, 0.06],
+  [0.74, 0.14],
+  [0.83, 0.35],
+  [0.91, 0.72],
+  [0.97, 1],
   [1, 1],
 ];
 
@@ -324,7 +326,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
       right: "-6%",
     },
   },
-  splashImageContainer: {
+  imageContainer: {
     position: "absolute",
     top: 0,
     right: 0,
@@ -555,21 +557,23 @@ export const SpotlightItem = ({
               </SuspenseWrapper>}
             </div>
             {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
-            {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
-              <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage, {
+            {spotlight.spotlightSplashImageUrl && <div className={classNames(classes.imageContainer, classes.imageFade)} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
+              <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.splashImage, {
                 [classes.splashImageFlush]: spotlight._id === INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID,
               })}/>
             </div>}
-            {spotlight.spotlightImageId && <CloudinaryImage2
-              publicId={spotlight.spotlightImageId}
-              darkPublicId={spotlight.spotlightDarkImageId}
-              className={classNames(classes.image, {
-                [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
-                [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
-              })}
-              imgProps={{w: "500"}}
-              loading="lazy"
-            />}
+            {spotlight.spotlightImageId && <div className={classNames(classes.imageContainer, {
+              [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
+              [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
+            })}>
+              <CloudinaryImage2
+                publicId={spotlight.spotlightImageId}
+                darkPublicId={spotlight.spotlightDarkImageId}
+                className={classes.image}
+                imgProps={{w: "500"}}
+                loading="lazy"
+              />
+            </div>}
           </div>
           {spotlightReviews.length > 0 && <SpotlightReviews reviewIds={spotlightReviews.map(r=>r._id)}/>}
           {hideBanner && <div className={classes.closeButtonWrapper}>
