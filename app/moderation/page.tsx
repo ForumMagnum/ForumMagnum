@@ -6,10 +6,18 @@ import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { unstable_cache } from 'next/cache';
-import ModerationPageContent, { type ActiveRateLimitDetails } from "./ModerationPageContent";
+import ModerationPageContent, { type ActiveRateLimit, type ActiveRateLimitDetails } from "./ModerationPageContent";
 import { sanitize } from "@/lib/utils/sanitize";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 import { adminAccountSetting, type ForumTypeString } from "@/lib/instanceSettings";
+import VotesRepo from "@/server/repos/VotesRepo";
+import { forumSelect } from "@/lib/forumTypeUtils";
+import { autoCommentRateLimits, autoPostRateLimits } from "@/lib/rateLimits/constants";
+import { calculateRecentKarmaInfo, getActiveRateLimits } from "@/lib/rateLimits/utils";
+import type { AutoRateLimit, RecentVoteInfo, UserKarmaInfo } from "@/lib/rateLimits/types";
+import groupBy from "lodash/groupBy";
+import maxBy from "lodash/maxBy";
+import sortBy from "lodash/sortBy";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), await getPageTitleFields('Moderation Log'), {
@@ -71,9 +79,16 @@ export default async function Page({
     { revalidate: 1800, tags: ['moderation-posts'] }
   );
 
-  const getCachedActiveRateLimits = unstable_cache(
-    async (limit: number, offset: number, showExpired: boolean, showNewUsers: boolean) =>
-      fetchActiveRateLimits(db, limit, offset, showExpired, showNewUsers),
+  const getCachedLiveActiveRateLimits = unstable_cache(
+    async (showNewUsers: boolean, forumType: ForumTypeString) =>
+      fetchLiveActiveRateLimits(db, showNewUsers, forumType),
+    [`moderation-live-rate-limits-${commitSha}`],
+    { revalidate: 1800, tags: ['moderation-rate-limits'] }
+  );
+
+  const getCachedExpiredRateLimits = unstable_cache(
+    async (limit: number, offset: number, showNewUsers: boolean) =>
+      fetchExpiredRateLimits(db, limit, offset, showNewUsers),
     [`moderation-rate-limits-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-rate-limits'] }
   );
@@ -118,7 +133,9 @@ export default async function Page({
 
   const { comments: moderatorCommentIds, count: moderatorCommentsCount } = await getCachedModeratorCommentIds(limit, moderatorCommentsOffset);
   const moderatorPosts = await getCachedModeratorPosts();
-  const { rateLimits: activeRateLimits, count: activeRateLimitsCount } = await getCachedActiveRateLimits(limit, activeRateLimitsOffset, showExpiredRateLimits, showNewUserRateLimits);
+  const { rateLimits: activeRateLimits, count: activeRateLimitsCount } = showExpiredRateLimits
+    ? await getCachedExpiredRateLimits(limit, activeRateLimitsOffset, showNewUserRateLimits)
+    : paginateRateLimits(await getCachedLiveActiveRateLimits(showNewUserRateLimits, forumType), limit, activeRateLimitsOffset);
   const { comments: deletedComments, count: deletedCommentsCount } = await getCachedDeletedComments(limit, deletedCommentsOffset, hideAdminDeletions, hideSelfDeletions, forumType);
   const { posts: rejectedPosts, count: rejectedPostsCount } = await getCachedRejectedPosts(limit, rejectedPostsOffset);
   const { comments: rejectedComments, count: rejectedCommentsCount } = await getCachedRejectedComments(limit, rejectedCommentsOffset);
@@ -340,7 +357,124 @@ function parseActiveRateLimits(rateLimitsJson: string): ActiveRateLimitDetails[]
   }));
 }
 
-async function fetchActiveRateLimits(db: SqlClient, limit: number, offset: number, showExpiredRateLimits: boolean, showNewUserRateLimits: boolean) {
+interface RateLimitCandidateRow extends UserKarmaInfo {
+  userId: string;
+  actionType: AutoRateLimit["actionType"];
+  activatedAt: Date;
+  displayName: string | null;
+  slug: string;
+  createdAt: Date | null;
+  postCount: number | null;
+  commentCount: number | null;
+}
+
+function toActiveRateLimitDetails(rateLimit: AutoRateLimit, activatedAt: Date): ActiveRateLimitDetails {
+  return {
+    actionType: rateLimit.actionType,
+    rateLimitType: rateLimit.rateLimitType ?? null,
+    rateLimitCategory: rateLimit.rateLimitCategory,
+    itemsPerTimeframe: rateLimit.itemsPerTimeframe,
+    timeframeLength: rateLimit.timeframeLength,
+    timeframeUnit: rateLimit.timeframeUnit,
+    rateLimitMessage: sanitize(rateLimit.rateLimitMessage),
+    activatedAt,
+  };
+}
+
+function getLiveActiveRateLimit(candidateRows: RateLimitCandidateRow[], votes: RecentVoteInfo[], autoRateLimits: AutoRateLimit[]): ActiveRateLimit | null {
+  const [user] = candidateRows;
+  const recentKarmaInfo = calculateRecentKarmaInfo(user.userId, votes);
+  const liveRateLimits = getActiveRateLimits({ ...user, recentKarmaInfo }, autoRateLimits)
+    .filter((rateLimit) => rateLimit.rateLimitCategory !== "static");
+
+  const activeRows = candidateRows.filter((row) => liveRateLimits.some((rateLimit) => rateLimit.actionType === row.actionType));
+  const mostRecentRow = maxBy(activeRows, (row) => row.activatedAt.getTime());
+  if (!mostRecentRow) {
+    return null;
+  }
+
+  const rateLimits = activeRows.flatMap((row) => liveRateLimits
+    .filter((rateLimit) => rateLimit.actionType === row.actionType)
+    .map((rateLimit) => toActiveRateLimitDetails(rateLimit, row.activatedAt))
+  );
+
+  return {
+    userId: user.userId,
+    rateLimits,
+    mostRecentActivation: mostRecentRow.activatedAt,
+    user: {
+      _id: user.userId,
+      displayName: user.displayName,
+      slug: user.slug,
+      createdAt: user.createdAt,
+      karma: user.karma,
+      postCount: user.postCount,
+      commentCount: user.commentCount,
+    },
+  };
+}
+
+async function fetchLiveActiveRateLimits(db: SqlClient, showNewUserRateLimits: boolean, forumType: ForumTypeString): Promise<ActiveRateLimit[]> {
+  const candidateRows = await db.manyOrNone<RateLimitCandidateRow>(`
+    WITH latest_events AS (
+      SELECT DISTINCT ON (e."userId", e.properties->>'rateLimitType', e.properties->>'actionType')
+        e."userId",
+        e.name,
+        e.properties->>'actionType' as "actionType",
+        COALESCE((e.properties->>'triggeredAt')::timestamp, e."createdAt") as "triggeredAt"
+      FROM "LWEvents" e
+      WHERE e.name IN ('rateLimitActivated', 'rateLimitDeactivated')
+      ORDER BY e."userId", e.properties->>'rateLimitType', e.properties->>'actionType', e."createdAt" DESC
+    ),
+    candidates AS (
+      SELECT le."userId", le."actionType", MAX(le."triggeredAt") as "activatedAt"
+      FROM latest_events le
+      WHERE le.name = 'rateLimitActivated'
+      GROUP BY le."userId", le."actionType"
+    )
+    SELECT
+      c."userId",
+      c."actionType",
+      c."activatedAt",
+      u."displayName",
+      u.slug,
+      u."createdAt",
+      u."postCount",
+      u."commentCount",
+      u.karma,
+      u."smallUpvoteReceivedCount",
+      u."bigUpvoteReceivedCount",
+      u."smallDownvoteReceivedCount",
+      u."bigDownvoteReceivedCount",
+      u."voteReceivedCount"
+    FROM candidates c
+    JOIN "Users" u ON u._id = c."userId"
+    WHERE $1 OR COALESCE(u."postCount", 0) + COALESCE(u."commentCount", 0) >= 5
+  `, [showNewUserRateLimits]);
+
+  const candidateRowsByUserId = groupBy(candidateRows, (row) => row.userId);
+  const userIds = Object.keys(candidateRowsByUserId);
+  const votesByUser = await new VotesRepo().getVotesOnRecentContentForUsers(userIds);
+  const autoRateLimits: AutoRateLimit[] = [
+    ...forumSelect(autoCommentRateLimits, forumType),
+    ...forumSelect(autoPostRateLimits, forumType),
+  ];
+
+  const liveRateLimits = userIds
+    .map((userId, idx) => getLiveActiveRateLimit(candidateRowsByUserId[userId], votesByUser[idx], autoRateLimits))
+    .filter((rateLimit): rateLimit is ActiveRateLimit => rateLimit !== null);
+
+  return sortBy(liveRateLimits, (rateLimit) => -rateLimit.mostRecentActivation.getTime());
+}
+
+function paginateRateLimits(rateLimits: ActiveRateLimit[], limit: number, offset: number) {
+  return {
+    rateLimits: rateLimits.slice(offset, offset + limit),
+    count: rateLimits.length,
+  };
+}
+
+async function fetchExpiredRateLimits(db: SqlClient, limit: number, offset: number, showNewUserRateLimits: boolean) {
   const activeRateLimitsQuery = `
       WITH latest_events AS (
         SELECT DISTINCT ON (e."userId", e.properties->>'rateLimitType', e.properties->>'actionType')
@@ -361,10 +495,7 @@ async function fetchActiveRateLimits(db: SqlClient, limit: number, offset: numbe
           le."triggeredAt"
         FROM latest_events le
         WHERE
-          ${showExpiredRateLimits
-            ? `le.name = 'rateLimitDeactivated'`
-            : `le.name = 'rateLimitActivated'`
-          }
+          le.name = 'rateLimitDeactivated'
       ),
       users_with_limits AS (
         SELECT
@@ -445,10 +576,7 @@ async function fetchActiveRateLimits(db: SqlClient, limit: number, offset: numbe
         SELECT DISTINCT le."userId"
         FROM latest_events le
         WHERE
-          ${showExpiredRateLimits
-            ? `le.name = 'rateLimitDeactivated'`
-            : `le.name = 'rateLimitActivated'`
-          }
+          le.name = 'rateLimitDeactivated'
       )
       SELECT COUNT(*) as count
       FROM filtered_limits fl

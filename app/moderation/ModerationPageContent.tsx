@@ -94,7 +94,7 @@ export type ModeratorComment = {
 
 export type ActiveRateLimitDetails = {
   actionType: string;
-  rateLimitType: string;
+  rateLimitType: string | null;
   rateLimitCategory: "static" | "rolling" | "timed";
   itemsPerTimeframe: number;
   timeframeLength: number;
