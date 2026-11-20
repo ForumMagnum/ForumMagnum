@@ -3,6 +3,22 @@ import Conversations from "../../server/collections/conversations/collection";
 import keyBy from "lodash/keyBy";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
+/**
+ * Which "Notifications" rows make a conversation unread in the inbox. Scoped to
+ * 'newMessage' because other notification types on message documents (eg
+ * 'newMessageReaction') are cleared by the notifications menu rather than by
+ * opening the conversation, so counting them here left conversations unread
+ * forever. Defined once so the unread check and the mark-as-read update cannot
+ * disagree; expects the "Notifications" row to be aliased as `n`.
+ */
+const NEW_MESSAGE_NOTIFICATION_CONDITION = `
+  n."type" = 'newMessage'
+  AND n."documentType" = 'message'
+  AND n."emailed" IS NOT TRUE
+  AND n."waitingForBatch" IS NOT TRUE
+  AND n."deleted" IS NOT TRUE
+`;
+
 class ConversationsRepo extends AbstractRepo<"Conversations"> {
   constructor() {
     super(Conversations);
@@ -83,13 +99,10 @@ class ConversationsRepo extends AbstractRepo<"Conversations"> {
           FROM "Notifications" n
           INNER JOIN "Messages" m ON
             n."documentId" = m."_id"
-            AND n."documentType" = 'message'
-            AND n."userId" = $2
             AND m."conversationId" = c."_id"
           WHERE
-            n."emailed" IS NOT TRUE
-            AND n."waitingForBatch" IS NOT TRUE
-            AND n."deleted" IS NOT TRUE
+            n."userId" = $2
+            AND ${NEW_MESSAGE_NOTIFICATION_CONDITION}
             AND n."viewed" IS NOT TRUE
         ) AS "hasUnreadMessages"
       FROM "Conversations" c
@@ -106,18 +119,15 @@ class ConversationsRepo extends AbstractRepo<"Conversations"> {
     userId: string,
   ): Promise<void> {
     await this.getRawDb().none(`
+      -- ConversationsRepo.markConversationRead
       UPDATE "Notifications" AS n
       SET "viewed" = TRUE
       FROM "Messages" AS m
       WHERE
-        m."conversationId" = $1 AND
-        n."documentId" = m."_id" AND
-        n."userId" = $2 AND
-        n."type" = 'newMessage' AND
-        n."documentType" = 'message' AND
-        n."emailed" IS NOT TRUE AND
-        n."waitingForBatch" IS NOT TRUE AND
-        n."deleted" IS NOT TRUE
+        m."conversationId" = $1
+        AND n."documentId" = m."_id"
+        AND n."userId" = $2
+        AND ${NEW_MESSAGE_NOTIFICATION_CONDITION}
     `, [conversationId, userId]);
   }
 }
