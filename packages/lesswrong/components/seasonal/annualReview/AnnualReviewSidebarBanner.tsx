@@ -190,7 +190,7 @@ interface PhaseConfig {
 }
 
 const nominatePostsLink = `/nominatePosts/${REVIEW_YEAR}?${qs.stringify(allPostsParams(REVIEW_YEAR))}`;
-const reviewPostsLink = `/reviewVoting`;
+const reviewPostsLink = `/reviewVoting/${REVIEW_YEAR}`;
 
 const phaseConfigs: Partial<Record<ReviewPhase, PhaseConfig>> = {
   NOMINATIONS: {
