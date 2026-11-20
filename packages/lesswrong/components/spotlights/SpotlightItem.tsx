@@ -60,7 +60,23 @@ const SpotlightEditQueryFragmentQuery = gql(`
 
 const TEXT_WIDTH = 350;
 
-const buildFadeMask = (breakpoints: string[]) => {
+// Eased fade curve: offsets are fractions of the fade region, paired with mask opacity.
+const FADE_CURVE: [offset: number, alpha: number][] = [
+  [0, 0],
+  [0.3, 0.03],
+  [0.4, 0.1],
+  [0.5, 0.3],
+  [0.6, 0.6],
+  [0.7, 0.88],
+  [0.78, 1],
+  [1, 1],
+];
+
+const buildFadeMask = (theme: ThemeType, fadeStartPercent: number) => {
+  const breakpoints = FADE_CURVE.map(([offset, alpha]) => {
+    const position = fadeStartPercent + (offset * (100 - fadeStartPercent));
+    return `${theme.palette.inverseGreyAlpha(alpha)} ${position.toFixed(1)}%`;
+  });
   const mask = `linear-gradient(to right, ${breakpoints.join(",")})`;
   return {mask, "-webkit-mask-image": mask};
 }
@@ -186,17 +202,8 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     borderTopRightRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
   },
-  imageFade: buildFadeMask([
-    "transparent 0",
-    `${theme.palette.text.alwaysWhite} 80%`,
-    `${theme.palette.text.alwaysWhite} 100%`,
-  ]),
-  imageFadeCustom: buildFadeMask([
-    "transparent 0",
-    "transparent 30%",
-    `${theme.palette.text.alwaysWhite} 90%`,
-    `${theme.palette.text.alwaysWhite} 100%`,
-  ]),
+  imageFade: buildFadeMask(theme, 0),
+  imageFadeCustom: buildFadeMask(theme, 25),
   author: {
     marginTop: 4,
     color: theme.palette.grey[600],
