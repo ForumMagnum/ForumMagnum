@@ -14,6 +14,7 @@ import {COMMAND_PRIORITY_LOW} from 'lexical';
 import {useEffect, useRef} from 'react';
 
 import {INSERT_IMAGE_COMMAND} from '../ImagesPlugin';
+import {$selectImageContainingCaret} from '../ImagesPlugin/ImageUtils';
 import {
   uploadToCloudinary,
   ImageUploadError,
@@ -52,6 +53,7 @@ export default function DragDropPaste({
     return editor.registerCommand(
       DRAG_DROP_PASTE,
       (files) => {
+        $selectImageContainingCaret();
         (async () => {
           for (const file of files) {
             if (!isMimeType(file, ACCEPTABLE_IMAGE_TYPES)) {
