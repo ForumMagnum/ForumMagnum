@@ -123,7 +123,7 @@ export const getNominationPhaseEndDisplay = (reviewYear: ReviewYear) => getNomin
 export const getReviewPhaseEndDisplay = (reviewYear: ReviewYear) => getReviewPhaseEnd(reviewYear).subtract(1, 'days')
 export const getVotingPhaseEndDisplay = (reviewYear: ReviewYear) => getVotingPhaseEnd(reviewYear).subtract(1, 'days')
 
-const DEBUG_REVIEW_PHASE_OVERRIDE: ReviewPhase | null = null;
+const DEBUG_REVIEW_PHASE_OVERRIDE: ReviewPhase | null = "NOMINATIONS";
 
 
 
