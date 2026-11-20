@@ -6,18 +6,22 @@ import classNames from 'classnames';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import type { InboxAction } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
+import { getActionHighlightStyle, type HighlightableModeratorAction } from './actionHighlightRules';
+import type { ModeratorActionHighlightLevel } from '@/lib/moderatorHighlights/highlightRuleTypes';
+import { moderatorActionHighlightStyles } from './ModerationActionButton';
+import type { ContentPermissionField } from './helpers';
 
 const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) => ({
   permissionButtonsContainer: {
     display: 'flex',
-    flexWrap: 'wrap',
     gap: 4,
   },
   permissionButton: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '4px 4px 4px 8px',
+    justifyContent: 'flex-start',
+    gap: 8,
+    padding: '4px 8px 4px 4px',
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 4,
     backgroundColor: theme.palette.background.paper,
@@ -37,17 +41,45 @@ const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) =>
       },
     },
   },
+  ...moderatorActionHighlightStyles(theme),
+  barePermissionButton: {
+    padding: '2px 4px',
+    border: 0,
+    borderRadius: 0,
+    boxShadow: 'none',
+    backgroundColor: 'transparent',
+    '&:hover': {
+      border: 0,
+      boxShadow: 'none',
+    },
+    '&.active': {
+      border: 0,
+      boxShadow: 'none',
+    },
+  },
   permissionButtonLabel: {
     flexGrow: 1,
   },
 }));
 
+interface ContentPermissionButtonSpec {
+  field: ContentPermissionField;
+  label: string;
+  keystroke: string;
+  onClick: () => void;
+  highlightKey?: HighlightableModeratorAction;
+}
+
 const ModerationPermissionButtons = ({
   user,
   dispatch,
+  highlightedActions,
+  collapsed=false,
 }: {
   user: SunshineUsersList;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
+  highlightedActions?: Map<HighlightableModeratorAction, ModeratorActionHighlightLevel>;
+  collapsed?: boolean;
 }) => {
   const classes = useStyles(styles);
 
@@ -58,38 +90,48 @@ const ModerationPermissionButtons = ({
     toggleDisableVoting,
   } = useUserContentPermissions(user, dispatch);
 
-  return (
-    <div className={classes.permissionButtonsContainer}>
-      <div 
-        className={classNames(classes.permissionButton, user.postingDisabled && 'active')}
-        onClick={toggleDisablePosting}
+  const permissionButtons: ContentPermissionButtonSpec[] = [
+    { field: 'postingDisabled', label: 'Post', keystroke: 'D', onClick: toggleDisablePosting },
+    { field: 'allCommentingDisabled', label: 'Comment', keystroke: 'C', onClick: toggleDisableCommenting },
+    { field: 'conversationsDisabled', label: 'Message', keystroke: 'M', onClick: toggleDisableMessaging, highlightKey: 'disableMessages' },
+    { field: 'votingDisabled', label: 'Vote', keystroke: 'V', onClick: () => toggleDisableVoting() },
+  ];
+
+  // Collapsed, we keep the permissions a moderator has already revoked (so the revocation
+  // stays visible without expanding) alongside the ones we're suggesting they revoke.
+  const visibleButtons = collapsed
+    ? permissionButtons.filter(({field, highlightKey}) => user[field] || (highlightKey && highlightedActions?.has(highlightKey)))
+    : permissionButtons;
+
+  const renderedButtons = visibleButtons.map(({field, label, keystroke, onClick, highlightKey}) => {
+    const permissionDisabled = !!user[field];
+    const highlightStyle = highlightKey
+      ? getActionHighlightStyle(highlightKey, highlightedActions?.get(highlightKey), collapsed)
+      : null;
+
+    return (
+      <div
+        key={field}
+        className={classNames(
+          classes.permissionButton,
+          permissionDisabled && 'active',
+          highlightStyle && classes[highlightStyle],
+          collapsed && classes.barePermissionButton,
+        )}
+        onClick={onClick}
       >
-        <span className={classes.permissionButtonLabel}>Post</span>
-        <KeystrokeDisplay keystroke="D" withMargin activeContext={!!user.postingDisabled} />
+        <KeystrokeDisplay keystroke={keystroke} activeContext={permissionDisabled} />
+        <span className={classes.permissionButtonLabel}>{label}</span>
       </div>
-      <div 
-        className={classNames(classes.permissionButton, user.allCommentingDisabled && 'active')}
-        onClick={toggleDisableCommenting}
-      >
-        <span className={classes.permissionButtonLabel}>Comment</span>
-        <KeystrokeDisplay keystroke="C" withMargin activeContext={!!user.allCommentingDisabled} />
-      </div>
-      <div 
-        className={classNames(classes.permissionButton, user.conversationsDisabled && 'active')}
-        onClick={toggleDisableMessaging}
-      >
-        <span className={classes.permissionButtonLabel}>Message</span>
-        <KeystrokeDisplay keystroke="Shift+M" withMargin splitBeforeTranslation activeContext={!!user.conversationsDisabled} />
-      </div>
-      <div 
-        className={classNames(classes.permissionButton, user.votingDisabled && 'active')}
-        onClick={() => toggleDisableVoting()}
-      >
-        <span className={classes.permissionButtonLabel}>Vote</span>
-        <KeystrokeDisplay keystroke="V" withMargin activeContext={!!user.votingDisabled} />
-      </div>
-    </div>
-  );
+    );
+  });
+
+  // Rendered bare while collapsed, so they flow with the other keyboard-first command rows.
+  if (collapsed) {
+    return <>{renderedButtons}</>;
+  }
+
+  return <div className={classes.permissionButtonsContainer}>{renderedButtons}</div>;
 };
 
 export default ModerationPermissionButtons;
