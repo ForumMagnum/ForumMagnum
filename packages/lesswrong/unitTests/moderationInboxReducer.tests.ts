@@ -1,4 +1,5 @@
 import { inboxStateReducer, type InboxState, type UndoHistoryItem } from '@/components/sunshineDashboard/supermod/inboxReducer';
+import { DEFAULT_SIDEBAR_TAB } from '@/components/sunshineDashboard/supermod/sidebarTabs';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -691,13 +692,13 @@ describe('Moderation Inbox Reducer', () => {
       });
     }
 
-    test('no composer is open by default', () => {
-      expect(stateWithSidebarTab(null).sidebarTab).toBe(null);
+    test('User Messages is expanded by default', () => {
+      expect(stateWithSidebarTab(DEFAULT_SIDEBAR_TAB).sidebarTab).toBe('userMessages');
     });
 
-    test('SET_SIDEBAR_TAB opens a composer', () => {
-      const state = inboxStateReducer(stateWithSidebarTab(null), { type: 'SET_SIDEBAR_TAB', tab: 'reject' });
-      expect(state.sidebarTab).toBe('reject');
+    test('SET_SIDEBAR_TAB selects exactly one section', () => {
+      const state = inboxStateReducer(stateWithSidebarTab('userMessages'), { type: 'SET_SIDEBAR_TAB', tab: 'moderatorActions' });
+      expect(state.sidebarTab).toBe('moderatorActions');
     });
 
     test.each([
@@ -706,14 +707,14 @@ describe('Moderation Inbox Reducer', () => {
       ['NEXT_USER', { type: 'NEXT_USER' }],
       ['OPEN_USER', { type: 'OPEN_USER', userId: 'user2' }],
       ['CLOSE_DETAIL', { type: 'CLOSE_DETAIL' }],
-    ] as const)('%s closes the open composer', (_label, action) => {
+    ] as const)('%s closes the composer and restores User Messages', (_label, action) => {
       const state = inboxStateReducer(stateWithSidebarTab('reject'), action);
-      expect(state.sidebarTab).toBe(null);
+      expect(state.sidebarTab).toBe('userMessages');
     });
 
-    test('selecting a content item closes the open composer', () => {
+    test('selecting a content item closes the composer and restores User Messages', () => {
       const state = inboxStateReducer(stateWithSidebarTab('dm'), { type: 'OPEN_CONTENT', contentIndex: 2 });
-      expect(state.sidebarTab).toBe(null);
+      expect(state.sidebarTab).toBe('userMessages');
       expect(state.focusedContentIndex).toBe(2);
     });
 

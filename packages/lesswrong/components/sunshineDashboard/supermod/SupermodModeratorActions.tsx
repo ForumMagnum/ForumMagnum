@@ -5,11 +5,12 @@ import ModerationActionButtons from './ModerationActionButtons';
 import ModerationSectionTitle from './ModerationSectionTitle';
 import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import ForumIcon from '@/components/common/ForumIcon';
-import { useLocalStorageState } from '@/components/hooks/useLocalStorageState';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
+import { isAnyContentPermissionDisabled } from './helpers';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
+import ModerationSidebarSection from './ModerationSidebarSection';
 
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   sectionTitleRow: {
@@ -20,7 +21,27 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   collapseChevron: {
     fontSize: 16,
     color: theme.palette.grey[600],
+  },
+  collapseButton: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 0,
+    border: 0,
+    background: 'none',
+    color: theme.palette.grey[600],
     cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.grey[800],
+    },
+  },
+  collapsedPermissions: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 4,
+    marginTop: 8,
+    paddingLeft: 4,
   },
   modActionsColumn: {
     display: 'flex',
@@ -50,33 +71,48 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   }
 }));
 
-const SupermodModeratorActions = ({user, currentUser, addToUndoQueue, dispatch}: {
+const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedActions, onToggle, addToUndoQueue, dispatch}: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
+  expanded: boolean,
+  // False while another sidebar section is expanded: the collapsed view drops
+  // its revoked permissions, leaving just the header
+  showCollapsedActions: boolean,
+  onToggle: () => void,
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void,
   dispatch: React.ActionDispatch<[action: InboxAction]>,
 }) => {
   const classes = useStyles(styles);
   const activeModeratorActions = user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)) ?? [];
   const [showRateLimitForm, setShowRateLimitForm] = useState(false);
-
-  const { moderatorActionsCollapsed, setModeratorActionsCollapsed } = useLocalStorageState(
-    'moderatorActionsCollapsed',
-    (key) => `supermod_${key}`,
-    'true'
-  );
-  const isCollapsed = moderatorActionsCollapsed === 'true';
+  const isCollapsed = !expanded;
 
   return (
-    <div>
+    <ModerationSidebarSection
+      fillsAvailableSpace={expanded}
+      withDivider={false}
+    >
       <div className={classes.sectionTitleRow}>
         <ModerationSectionTitle>Moderator Actions</ModerationSectionTitle>
-        <ForumIcon
-          icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"}
-          className={classes.collapseChevron}
-          onClick={() => setModeratorActionsCollapsed(isCollapsed ? 'false' : 'true')}
-        />
+        <button
+          type="button"
+          className={classes.collapseButton}
+          onClick={onToggle}
+          title={expanded ? "Close Moderator Actions" : "Open Moderator Actions"}
+          aria-label={expanded ? "Close Moderator Actions" : "Open Moderator Actions"}
+          aria-expanded={expanded}
+        >
+          <ForumIcon
+            icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
+            className={classes.collapseChevron}
+          />
+        </button>
       </div>
+      {isCollapsed && showCollapsedActions && isAnyContentPermissionDisabled(user) && (
+        <div className={classes.collapsedPermissions}>
+          <ModerationPermissionButtons user={user} dispatch={dispatch} collapsed />
+        </div>
+      )}
       {!isCollapsed && <>
         <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
         <div className={classes.rateLimitSection}>
@@ -106,7 +142,7 @@ const SupermodModeratorActions = ({user, currentUser, addToUndoQueue, dispatch}:
           <UserRateLimitItem userId={user._id} showForm={showRateLimitForm} />
         </div>
       </>}
-    </div>
+    </ModerationSidebarSection>
   );
 }
 
