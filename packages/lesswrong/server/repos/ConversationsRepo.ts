@@ -87,7 +87,6 @@ class ConversationsRepo extends AbstractRepo<"Conversations"> {
             AND n."userId" = $2
             AND m."conversationId" = c."_id"
           WHERE
-            -- Must match markConversationRead below, which only clears 'newMessage'
             n."type" = 'newMessage'
             AND n."emailed" IS NOT TRUE
             AND n."waitingForBatch" IS NOT TRUE
