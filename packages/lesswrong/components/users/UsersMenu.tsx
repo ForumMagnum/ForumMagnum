@@ -33,7 +33,6 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
 
 const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
-const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
 const AFApplicationForm = dynamic(() => import("../alignment-forum/AFApplicationForm"), { ssr: false });
 
 const styles = defineStyles('UsersMenu', (theme: ThemeType) => ({
@@ -187,12 +186,7 @@ const UsersMenu = () => {
                 */}
               {(showNewButtons && userCanQuickTake(currentUser)) ? <DropdownItem
                 title="New Quick Take"
-                onClick={() => {
-                  openDialog({
-                    name:"NewShortformDialog",
-                    contents: ({onClose}) => <NewShortformDialog onClose={onClose}/>
-                  });
-                }}
+                to="/quicktakes"
               /> : null}
 
               {userCanPost(currentUser) ? <DropdownItem
