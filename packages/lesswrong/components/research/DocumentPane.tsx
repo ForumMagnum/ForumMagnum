@@ -132,9 +132,13 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
   },
 }));
 
+function ResearchDocumentBody({ className, children }: { className: string, children: React.ReactNode }) {
+  const classes = useStyles(researchDocumentStyles);
+  return <div className={classNames(className, classes.researchDocumentBody, "content")}>{children}</div>;
+}
+
 const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocument }: DocumentPaneProps) => {
   const classes = useStyles(styles);
-  const contentClasses = useStyles(researchDocumentStyles);
   const apolloClient = useApolloClient();
   const [commentsMarginEl, setCommentsMarginEl] = useState<HTMLDivElement | null>(null);
   const [openThreadCount, setOpenThreadCount] = useState(0);
@@ -231,12 +235,7 @@ const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocumen
 
   return (
     <div className={classes.root}>
-      <div className={classNames(
-        classes.editorWrap,
-        openThreadCount > 0 && classes.editorWrapWithComments,
-        contentClasses.researchDocumentBody,
-        "content",
-      )}>
+      <ResearchDocumentBody className={classNames(classes.editorWrap, openThreadCount > 0 && classes.editorWrapWithComments)}>
         <ResearchNavigationProvider value={researchNavigationContext}>
           <ResearchEditorProvider environment={researchEditorEnvironment}>
             <PendingConversationsProvider value={pendingConversations}>
@@ -258,7 +257,7 @@ const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocumen
           </ResearchEditorProvider>
         </ResearchNavigationProvider>
         <div ref={setCommentsMarginEl} className={classes.commentsMargin} />
-      </div>
+      </ResearchDocumentBody>
     </div>
   );
 };
