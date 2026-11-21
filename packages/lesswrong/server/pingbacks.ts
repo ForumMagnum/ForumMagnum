@@ -2,7 +2,7 @@ import type { ForumTypeString } from '@/lib/instanceSettings';
 import { cheerioParse } from './utils/htmlUtil';
 import { parseRoute, parsePath } from '@/lib/routeChecks/parseRoute';
 import { getSiteUrl } from '../lib/vulcan-lib/utils';
-import { classifyHost } from '../lib/routeUtil';
+import { classifyHost } from '../lib/classifyLink';
 import { getUrlClass } from './utils/getUrlClass';
 import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUtils';
 import { getEditableFieldsByCollection } from '@/server/editor/editableSchemaFieldHelpers';

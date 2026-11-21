@@ -5,7 +5,7 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import HoverPreviewLink from "@/components/linkPreview/HoverPreviewLink";
 import { routePreviewComponentMapping } from "@/lib/routeChecks/hoverPreviewRoutes";
 import { pathnameMatchesRoutePath } from "@/lib/routeChecks";
-import { classifyLink } from "@/lib/routeUtil";
+import { classifyLink } from "@/lib/classifyLink";
 import SingleColumnSection from "@/components/common/SingleColumnSection";
 import ContentStyles from "@/components/common/ContentStyles";
 

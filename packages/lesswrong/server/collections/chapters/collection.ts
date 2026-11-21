@@ -7,11 +7,12 @@ export const Chapters = createCollection({
   collectionName: 'Chapters',
   typeName: 'Chapter',
   schema,
-    getIndexes: () => {
+  getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
-    indexSet.addIndex('Chapters', { sequenceId: 1, number: 1 })
+    indexSet.addIndex('Chapters', { sequenceId: 1, number: 1 });
+    indexSet.addCustomPgIndex(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_chapters_post_ids ON "Chapters" USING gin("postIds");`);
     return indexSet;
   },
-})
+});
 
 export default Chapters;

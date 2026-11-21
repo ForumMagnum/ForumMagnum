@@ -32,7 +32,7 @@ import { useCommentLinkState } from '@/components/comments/CommentsItem/useComme
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
 import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPageSplashImage';
-import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
+import { useLocation, useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
 import SharePostPopup from "../SharePostPopup";
 import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
 import MultiToCLayout from "../TableOfContents/MultiToCLayout";
@@ -230,7 +230,7 @@ const getDebateResponseBlocks = (responses: readonly CommentsList[], replies: re
   replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
 }));
 
-function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurrent | null, defaultTerms: T, query: Record<string, string>) {
+function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurrent | null, defaultTerms: T, query: { view: string, limit: string }) {
   const { forumType } = useForumType();
   const commentOpts = { includeAdminViews: currentUser?.isAdmin };
   let view;
@@ -271,7 +271,21 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const { isAF, forumType } = useForumType();
   const classes = useStyles(styles);
   const post = fullPost ?? postPreload;
-  const location = useSubscribedLocation();
+  // Read when navigating; rendering only depends on the parts of the URL in
+  // urlState, so other URL changes (like the search modal's query) don't
+  // rerender the whole post.
+  const location = useLocation();
+  const urlState = useSubscribedLocation(({ query, params, hash }) => ({
+    commentId: query.commentId,
+    sharePopup: query[SHARE_POPUP_QUERY_PARAM],
+    answersSorting: query.answersSorting,
+    view: query.view,
+    limit: query.limit,
+    revision: query.revision,
+    sequenceId: params.sequenceId,
+    commentIdParam: params.commentId,
+    hash,
+  }));
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
@@ -281,10 +295,9 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
-  const { query, params } = location;
   const [recommId, setRecommId] = useState<string | undefined>();
   const [attributionId, setAttributionId] = useState<string | undefined>();
-  const isCommentPermalink = !!query.commentId;
+  const isCommentPermalink = !!urlState.commentId;
 
   const votingSystem = getVotingSystemByName(post.votingSystem || 'default');
   const voteProps = useVote(post, 'Posts', votingSystem);
@@ -320,10 +333,10 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
 
   const reviewWinner = fullPost?.reviewWinner;
   const hasReviewWinnerArt = !!reviewWinner?.reviewWinnerArt?.splashArtImageUrl;
-  const showSplashPageHeader = hasReviewWinnerArt && !params.sequenceId;
+  const showSplashPageHeader = hasReviewWinnerArt && !urlState.sequenceId;
 
   useEffect(() => {
-    if (preview || !query[SHARE_POPUP_QUERY_PARAM]) return;
+    if (preview || !urlState.sharePopup) return;
 
     if (fullPost) {
       openDialog({
@@ -338,12 +351,13 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
 
     // Remove "sharePopup" from query once the popup is open, to prevent accidentally
     // sharing links with the popup open
+    const { query } = location;
     const currentQuery = isEmpty(query) ? {} : query
     const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
-  }, [navigate, location.location, openDialog, fullPost, query, preview]);
+  }, [navigate, location, openDialog, fullPost, urlState.sharePopup, preview]);
 
-  const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
+  const sortBy: CommentSortingMode = (urlState.answersSorting as CommentSortingMode) || "top";
   const { data: answersAndRepliesData } = useQuery(CommentsListMultiQuery, {
     variables: {
       selector: { answersAndReplies: { postId: post._id, sortBy } },
@@ -378,7 +392,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   // impractical, so load all of them by default.
   const defaultLimit = post.shortform ? maxDocumentsPerRequestSetting.get(forumType) : 1000;
   const defaultTerms = { view: defaultView, limit: defaultLimit };
-  const { view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
+  const { view, limit } = usePostCommentTerms(currentUser, defaultTerms, urlState);
 
   // these are the replies to the debate responses (see earlier comment about deprecated feature)
   const { data: dataDebateResponseReplies } = useQuery(CommentsListMultiQuery, {
@@ -396,6 +410,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
 
   useEffect(() => {
     if (preview) return;
+    const { query } = location;
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
 
     if (recordView) {
@@ -434,7 +449,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
   
-  const isOldVersion = !!(query.revision && post.contents);
+  const isOldVersion = !!(urlState.revision && post.contents);
   
   const sequenceId = getSequenceId();
   const sectionData = useDynamicTableOfContents({
@@ -445,7 +460,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const htmlWithAnchors = sectionData?.html || fullPost?.contents?.html || postPreload?.contents?.htmlHighlight || "";
 
   const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
-  const linkedCommentId = globalLinkedCommentId || params.commentId
+  const linkedCommentId = globalLinkedCommentId || urlState.commentIdParam
 
   const description = fullPost ? getPostDescription(fullPost, forumType) : null
 
@@ -523,7 +538,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
       />
     : null;
 
-  const hashCommentId = location.hash.length >= 1 ? location.hash.slice(1) : null;
+  const hashCommentId = urlState.hash.length >= 1 ? urlState.hash.slice(1) : null;
   // If the comment reference in the hash doesn't appear in the page, try and load it separately as a permalinked comment
   const showHashCommentFallback = useMemo(() => (
     hashCommentId && !loading && ![...(comments ?? []), ...(answersAndReplies ?? [])].map(({ _id }) => _id).includes(hashCommentId)
@@ -618,7 +633,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
         contentType="post"
         className={classNames(classes.postContent, "instapaper_body")}
       >
-        <PostBodyPrefix post={post} query={query}/>
+        <PostBodyPrefix post={post} revision={urlState.revision}/>
         <AnalyticsContext pageSectionContext="postBody">
           <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper post={post}>

@@ -274,6 +274,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
           'title', p."title"
         ) ORDER BY p."baseScore" DESC) FROM "Posts" p WHERE
           p."userId" = u."_id" AND
+          p."hideAuthor" IS NOT TRUE AND
           p."shortform" IS NOT TRUE AND
           ${getViewablePostsSelector("p")}
         ) AS "posts",
@@ -326,21 +327,20 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<SearchUser[]> {
+  getSearchDocuments(limit: number, afterId: string): Promise<SearchUser[]> {
     return this.getRawDb().any(`
       -- UsersRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
-      WHERE u."displayName" IS NOT NULL
-      ORDER BY u."createdAt" DESC
+      WHERE u."displayName" IS NOT NULL AND u."_id" > $2
+      ORDER BY u."_id"
       LIMIT $1
-      OFFSET $2
-    `, [limit, offset]);
+    `, [limit, afterId]);
   }
 
   async countSearchDocuments(): Promise<number> {
     const {count} = await this.getRawDb().one(`
       -- UsersRepo.countSearchDocuments
-      SELECT COUNT(*) FROM "Users"
+      SELECT COUNT(*) FROM "Users" WHERE "displayName" IS NOT NULL
     `);
     return count;
   }

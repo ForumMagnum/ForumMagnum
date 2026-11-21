@@ -47,9 +47,10 @@ const styles = defineStyles('PostBodyPrefix', (theme: ThemeType) => ({
 
 const newUserProcessingTimeHours = 72;
 
-const PostBodyPrefix = ({post, query}: {
+const PostBodyPrefix = ({post, revision}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|SunshinePostsList,
-  query?: any,
+  /** The `revision` query param, when viewing an old version */
+  revision?: string,
 }) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
@@ -85,7 +86,7 @@ const PostBodyPrefix = ({post, query}: {
       </LWTooltip>
     </div>}
     {(isFriendlyUI() || ((post.contents?.wordCount ?? 0) < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD)) && <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI()} />}
-    {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
+    {revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }
 

@@ -186,6 +186,10 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     position: "relative",
     top: 3,
     color: theme.palette.text.secondary,
+    [theme.breakpoints.down('xs')]: {
+      flexShrink: 0,
+      marginRight: 8,
+    },
   },
   titleLink: {
     color: theme.palette.text.bannerAdOverlay,
@@ -244,6 +248,8 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     marginRight: -8,
     marginLeft: "auto",
     display: "flex",
+    alignItems: "center",
+    minWidth: 0,
   },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {
@@ -275,6 +281,12 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     },
   },
   headroomPinnedOpen: {
+    "& header": {
+      backdropFilter: "none",
+    },
+    "& .headroom": {
+      transform: "none !important",
+    },
     "& .headroom--unpinned": {
       transform: "none !important",
     },
@@ -335,12 +347,10 @@ function useGetToC() {
 const Header = ({
   standaloneNavigationPresent,
   stayAtTop=false,
-  searchResultsArea,
   backgroundColor,
 }: {
   standaloneNavigationPresent: boolean,
   stayAtTop?: boolean,
-  searchResultsArea: React.RefObject<HTMLDivElement|null>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
   backgroundColor?: string,
 }) => {
@@ -415,11 +425,6 @@ const Header = ({
     void handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
-  // We do two things when the search is open:
-  //  1) Pin the header open with the Headroom component
-  //  2) Hide the username on mobile so users with long usernames can still
-  //     enter search queries
-  // Called by SearchBar.
   const setSearchOpen = useCallback((isOpen: boolean) => {
     if (isOpen) { captureEvent("searchToggle", {"open": isOpen}) }
     setSearchOpenState(isOpen);
@@ -488,12 +493,12 @@ const Header = ({
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
-    <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
+    <SearchBar onSetIsActive={setSearchOpen} />
 
     {!isLoggedIn && <LWUsersAccountMenu />}
 
     {isLoggedIn && <>
-      <div className={searchOpen ? classes.hideMdDown : undefined}>
+      <div>
         <AnalyticsContext pageSectionContext="usersMenu">
           <UsersMenu />
         </AnalyticsContext>

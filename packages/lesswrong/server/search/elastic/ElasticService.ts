@@ -1,4 +1,4 @@
-import ElasticClient, { ElasticSearchHit } from "./ElasticClient";
+import ElasticClient, { ElasticSearchHit, HitsOnlySearchResponse, cachedPromise } from "./ElasticClient";
 import type { SearchResult } from "./SearchResult";
 import { algoliaIndexPrefix } from '@/lib/instanceSettings';
 import { indexNameToConfig } from "./ElasticConfig";
@@ -8,6 +8,8 @@ import {
   getSearchOriginDate,
 } from "./ElasticQuery";
 import moment from "moment";
+import LRU from "lru-cache";
+import stringify from "json-stringify-deterministic";
 import type { SearchOptions, SearchQuery } from "@/lib/search/NativeSearchClient";
 
 type SanitizedIndexName = {
@@ -31,6 +33,18 @@ const extractNamedHighlight = (
   };
 }
 
+/**
+ * Opening the search modal runs an empty unified search, which has no text
+ * evidence and so scores every eligible document by popularity. Its results are
+ * the same for everyone and change slowly, so they're shared for an hour.
+ * Date filters are left out because their bounds move with the clock.
+ */
+const emptySearchCache = new LRU<string, Promise<HitsOnlySearchResponse>>({
+  maxAge: 1000 * 60 * 60,
+  updateAgeOnGet: false,
+  max: 100,
+});
+
 class ElasticService {
   constructor(
     private client = new ElasticClient(),
@@ -49,26 +63,7 @@ class ElasticService {
           total: 0,
           hits: [],
         }}
-      : await (
-        Array.isArray(index)
-          ? this.client.multiSearch({
-            indexes: index,
-            search,
-            offset: page * hitsPerPage,
-            limit: hitsPerPage,
-          })
-          : this.client.search({
-            index,
-            sorting,
-            search,
-            offset: page * hitsPerPage,
-            limit: hitsPerPage,
-            preTag: params.highlightPreTag,
-            postTag: params.highlightPostTag,
-            filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters),
-            coordinates: this.parseLatLng(params.aroundLatLng),
-          })
-      );
+      : await this.dispatchSearch({index, sorting}, search, params, page * hitsPerPage, hitsPerPage, options);
 
     const nbHits = typeof result.hits.total === "number"
       ? result.hits.total
@@ -127,10 +122,50 @@ class ElasticService {
     };
   }
 
+  private dispatchSearch(
+    {index, sorting}: SanitizedIndexName,
+    search: string,
+    params: SearchQuery["params"],
+    offset: number,
+    limit: number,
+    options: SearchOptions,
+  ): Promise<HitsOnlySearchResponse> {
+    if (options.mode === "unified") {
+      const queryData = {
+        indexes: Array.isArray(index) ? index : [index],
+        filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters, params),
+        preTag: params.highlightPreTag,
+        postTag: params.highlightPostTag,
+        search,
+        offset,
+        limit,
+      };
+      if (search !== "" || queryData.filters.some(({type}) => type === "numeric")) {
+        return this.client.unifiedSearch(queryData);
+      }
+      return cachedPromise(emptySearchCache, stringify(queryData), () => this.client.unifiedSearch(queryData));
+    }
+    if (Array.isArray(index)) {
+      return this.client.multiSearch({indexes: index, search, offset, limit});
+    }
+    return this.client.search({
+      index,
+      sorting,
+      search,
+      offset,
+      limit,
+      preTag: params.highlightPreTag,
+      postTag: params.highlightPostTag,
+      filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters),
+      coordinates: this.parseLatLng(params.aroundLatLng),
+    });
+  }
+
   parseFilters(
     facetFilters?: string[][],
     numericFilters?: string[],
     existsFilters?: string[],
+    search?: SearchQuery["params"],
   ): QueryFilter[] {
     const result: QueryFilter[] = [];
 
@@ -191,6 +226,16 @@ class ElasticService {
         type: "exists",
         field: filter,
       });
+    }
+
+    if (search?.tagIds?.length) {
+      result.push({type: "tag", field: "tags", value: search.tagIds, match: search.tagMatch});
+    }
+    if (search?.authorIds?.length) {
+      result.push({type: "author", field: "author", value: search.authorIds});
+    }
+    if (search?.postTypes?.length) {
+      result.push({type: "postType", field: "postType", value: search.postTypes});
     }
 
     return result;
@@ -260,28 +305,24 @@ class ElasticService {
     indexName: string | string[],
     hits: ElasticSearchHit[],
   ): SearchDocument[] {
-    if (Array.isArray(indexName)) {
-      return hits.map(({_id, _source, _index}) => ({
+    return hits.map(({_id, _source, _index, _score, highlight}) => {
+      const hitIndex = Array.isArray(indexName) ? _index.split("_")[0] : indexName;
+      const config = indexNameToConfig(hitIndex);
+      return {
         ..._source,
         _id,
-        _index: _index.split("_")[0],
-      }))
-    } else {
-      const config = indexNameToConfig(indexName);
-      return hits.map(({_id, _source, highlight}) => ({
-        ..._source,
-        _id,
-        _index: indexName,
+        _index: hitIndex,
+        _score,
         _snippetResult: {
           [config.snippet]: extractNamedHighlight(highlight, config.snippet),
         },
         ...(config.highlight && {
-          _highlightResult: {
-            [config.highlight]: extractNamedHighlight(highlight, config.highlight),
-          },
+          _highlightResult: Object.fromEntries(config.highlight.map(name => [
+            name, extractNamedHighlight(highlight, name),
+          ])),
         }),
-      }));
-    }
+      };
+    });
   }
 }
 

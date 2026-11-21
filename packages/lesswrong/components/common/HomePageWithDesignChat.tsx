@@ -39,8 +39,7 @@ const styles = defineStyles('HomePageWithDesignChat', (theme: ThemeType) => ({
 const HomePageWithDesignChatInner = () => {
   const classes = useStyles(styles);
   const designChat = useHomeDesignChat();
-  const { query } = useSubscribedLocation();
-  const themePublicId = typeof query.theme === 'string' ? query.theme : undefined;
+  const themePublicId = useSubscribedLocation(({ query }) => typeof query.theme === 'string' ? query.theme : undefined);
   const shouldShowSandboxedHome = Boolean(
     themePublicId ||
     designChat.customSrcdoc ||

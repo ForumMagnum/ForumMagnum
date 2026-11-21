@@ -28,3 +28,7 @@ export function deleteIndexByName(indexName: string) {
 export function deleteOrphanedIndexes() {
   return new ElasticExporter().deleteOrphanedIndexes();
 }
+
+export function recreateIndex(collectionName: SearchIndexCollectionName) {
+  return new ElasticExporter().recreateIndex(collectionName);
+}

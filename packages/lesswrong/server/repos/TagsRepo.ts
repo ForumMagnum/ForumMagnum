@@ -46,14 +46,14 @@ class TagsRepo extends AbstractRepo<"Tags"> {
     return this.addLensesToDescription(result);
   }
 
-  async getSearchDocuments(limit: number, offset: number): Promise<SearchTag[]> {
+  async getSearchDocuments(limit: number, afterId: string): Promise<SearchTag[]> {
     const results = await this.getRawDb().any(`
       -- TagsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
-      ORDER BY t."createdAt" DESC
+      WHERE t."_id" > $2
+      ORDER BY t."_id"
       LIMIT $1
-      OFFSET $2
-    `, [limit, offset]);
+    `, [limit, afterId]);
     
     return Promise.all(results.map(result => this.addLensesToDescription(result)));
   }
