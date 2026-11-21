@@ -73,21 +73,14 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
 
   await postsUndraftRateLimit(document, previewDocument, user, context);
 
-  // If the user doesn't have posting permissions, don't let them edit posts at all
-  // This prevents them from publishing previously-made draft posts, etc.
-  if (!userCanPost(user)) {
+  // Both of these restrict publishing, not editing: a user can still revise and
+  // archive a draft that they aren't allowed to publish.
+  if (!userCanPost(user) && !previewDocument.draft) {
     return false;
   }
 
-  // For rejected posts owned by the user, allow redrafting.
-  // Technically this lets someone edit the contents if they do it in the same operation,
-  // but that's more annoying to prevent and I don't expect too many cases of that.
-  // (Also it only matters when doing moderation.)
-  if (userOwns(user, document) && document.rejected) {
-    const isRedrafting = !document.draft && previewDocument.draft;
-    if (!isRedrafting) {
-      return false;
-    }
+  if (userOwns(user, document) && document.rejected && !previewDocument.draft) {
+    return false;
   }
 
   return canUserEditPostMetadata(user, document) || await userIsPostGroupOrganizer(user, document, context)
