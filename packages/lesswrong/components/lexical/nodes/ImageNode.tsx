@@ -247,7 +247,6 @@ export class ImageRenderNode extends DecoratorNode<JSX.Element> {
         showCaption={parent.getShowCaption()}
         captionsEnabled={parent.getCaptionsEnabled()}
         srcSet={parent.getSrcset()}
-        widthPercent={parent.getWidthPercent()}
         resizable={true}
       />
     );
@@ -489,10 +488,16 @@ export class ImageNode extends ElementNode {
       figure.className = className;
     }
     figure.setAttribute('contenteditable', 'false');
+    // Apply the saved size here because imageRef is unavailable while
+    // ImageComponent's LazyImage child is suspended.
+    figure.style.width = this.__widthPercent === null ? '' : `${this.__widthPercent}%`;
     return figure;
   }
 
-  updateDOM(): false {
+  updateDOM(prevNode: ImageNode, dom: HTMLElement): false {
+    if (prevNode.__widthPercent !== this.__widthPercent) {
+      dom.style.width = this.__widthPercent === null ? '' : `${this.__widthPercent}%`;
+    }
     return false;
   }
 
@@ -700,4 +705,3 @@ export function $isImageNode(
 ): node is ImageNode {
   return node instanceof ImageNode;
 }
-
