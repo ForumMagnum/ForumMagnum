@@ -241,25 +241,28 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
       }
     },
   },
-  // Composed from `researchDocumentBodyStyles`, which itself spreads
-  // `postBodyStyles` for full coverage (spoilers, footnotes, embeds, code,
-  // tables, etc.) and then overrides editor-specific typography under
-  // `[data-lexical-editor]`. Combined with `contentStylesClassnames`
-  // skipping `base` for this type, that gives the editor exactly one source
-  // of post-body styling — its own — instead of stacking post-rendering
-  // defaults underneath and fighting them with overrides.
+}), { stylePriority: -1 });
+
+// The research-document editor's styles, in their own sheet so that pages
+// without the editor don't ship them (about 27 KB). The name sorts directly
+// after "ContentStyles" at the same priority, so the rules keep their source
+// position relative to DocumentPane's overrides.
+//
+// Composed from `researchDocumentBodyStyles`, which itself spreads
+// `postBodyStyles` for full coverage (spoilers, footnotes, embeds, code,
+// tables, etc.) and then overrides editor-specific typography under
+// `[data-lexical-editor]`. The editor doesn't also get `base`, so it has
+// exactly one source of post-body styling — its own — instead of stacking
+// post-rendering defaults underneath and fighting them with overrides.
+export const researchDocumentStyles = defineStyles("ContentStylesResearchDocument", (theme: ThemeType) => ({
   researchDocumentBody: researchDocumentBodyStyles(theme),
 }), { stylePriority: -1 });
 
-export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat"|"ultraFeed"|"ultraFeedPost"|"researchDocument";
+export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat"|"ultraFeed"|"ultraFeedPost";
 
 export function contentStylesClassnames(classes: ReturnType<typeof styles.styles>, contentType: ContentStyleType) {
-  // The research-document editor opts out of the shared `base` (postBodyStyles)
-  // so its self-contained rule set isn't fighting post-rendering defaults like
-  // serif typography on `& li`. Every other content type still inherits base.
-  const includeBase = contentType !== "researchDocument";
   return classNames(
-    includeBase && classes.base, "content",
+    classes.base, "content",
     contentType==="post" && classes.postBody,
     contentType==="postHighlight" && classes.postHighlight,
     contentType==="comment" && classes.commentBody,
@@ -270,6 +273,5 @@ export function contentStylesClassnames(classes: ReturnType<typeof styles.styles
     contentType==="llmChat" && classes.llmChat,
     contentType==="ultraFeed" && classes.ultraFeed,
     contentType==="ultraFeedPost" && classes.ultraFeedPost,
-    contentType==="researchDocument" && classes.researchDocumentBody,
   );
 }

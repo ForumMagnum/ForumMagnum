@@ -5,9 +5,10 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { ApolloClient, ApolloLink, InMemoryCache, NetworkStatus } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import { Observable, type Subscriber } from "rxjs";
-import { parse, print } from "graphql";
+import { parse } from "graphql";
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { getInjectedQueryKey } from "@/lib/crud/useQuery";
 import { ForumTypeProvider } from "@/components/hooks/useForumType";
 
 interface SpotlightData {
@@ -72,7 +73,7 @@ describe("useQueryWithLoadMore", () => {
   beforeEach(() => {
     Object.assign(globalThis, { bundleIsServer: false });
     window.__LW_SSR_GQL__ = {
-      [`${print(query)}\n::\n{"limit":1,"selector":{}}`]: { data: spotlightData(1) },
+      [getInjectedQueryKey(query, { limit: 1, selector: {} })]: { data: spotlightData(1) },
     };
   });
 

@@ -145,13 +145,54 @@ function getQueryString(query: unknown): string {
   }
 }
 
+/**
+ * A 64-bit non-cryptographic string hash (two 32-bit lanes, after cyrb53),
+ * synchronous so that the server and the hydrating client compute the same
+ * injected-query keys during render.
+ */
+function hash64(str: string): string {
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (h2 >>> 0).toString(16).padStart(8, "0") + (h1 >>> 0).toString(16).padStart(8, "0");
+}
+
+function getVariablesString(variables: unknown): string {
+  return jsonStringifyDeterministic(replaceUndefinedForJsonStringify(variables ?? {}));
+}
+
+function injectedQueryKeyFromStrings(query: unknown, queryString: string, variablesString: string): string {
+  const operationName = (typeof query === "object" && query && "definitions" in query)
+    ? getOperationName(query as DocumentNode)
+    : undefined;
+  return `${operationName ?? "query"}:${hash64(`${queryString}\n::\n${variablesString}`)}`;
+}
+
+/**
+ * The key under which an SSR'd query result is injected into the page and
+ * looked up during hydration. It hashes the query text and variables rather
+ * than including them: the full query documents, fragments included, added
+ * about 24 KB to every page. The operation name keeps keys readable.
+ */
+export function getInjectedQueryKey(query: unknown, variables: unknown): string {
+  return injectedQueryKeyFromStrings(query, getQueryString(query), getVariablesString(variables));
+}
+
 function useGetInjectedQueryKey(query: unknown, variables: unknown): string {
   const queryString = useMemo(() => getQueryString(query), [query]);
-  const variablesString = useMemo(() => {
-    const normalizedVariables = replaceUndefinedForJsonStringify(variables ?? {});
-    return jsonStringifyDeterministic(normalizedVariables);
-  }, [variables]);
-  return `${queryString}\n::\n${variablesString}`;
+  const variablesString = useMemo(() => getVariablesString(variables), [variables]);
+  return useMemo(
+    () => injectedQueryKeyFromStrings(query, queryString, variablesString),
+    [query, queryString, variablesString],
+  );
 }
 
 /**
