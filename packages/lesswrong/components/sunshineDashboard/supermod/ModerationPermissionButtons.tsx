@@ -7,7 +7,8 @@ import KeystrokeDisplay from './KeystrokeDisplay';
 import type { InboxAction } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import type { ContentPermissionField } from './helpers';
-import { activeCommandButtonStyles } from './ModerationActionButton';
+import { activeCommandButtonStyles, moderatorActionHighlightStyles } from './ModerationActionButton';
+import { getActionHighlightStyle, type HighlightableModeratorAction, type HighlightedModeratorActions } from './actionHighlightRules';
 
 const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) => ({
   permissionButtonsContainer: {
@@ -35,6 +36,7 @@ const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) =>
       borderColor: theme.palette.error.main,
     },
   },
+  ...moderatorActionHighlightStyles(theme),
   barePermissionButton: {
     padding: '2px 4px',
     border: 0,
@@ -51,15 +53,18 @@ interface ContentPermissionButtonSpec {
   label: string;
   keystroke: string;
   onClick: () => void;
+  highlightKey?: HighlightableModeratorAction;
 }
 
 const ModerationPermissionButtons = ({
   user,
   dispatch,
+  highlightedActions,
   collapsed=false,
 }: {
   user: SunshineUsersList;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
+  highlightedActions?: HighlightedModeratorActions;
   collapsed?: boolean;
 }) => {
   const classes = useStyles(styles);
@@ -74,17 +79,18 @@ const ModerationPermissionButtons = ({
   const permissionButtons: ContentPermissionButtonSpec[] = [
     { field: 'postingDisabled', label: 'Post', keystroke: 'D', onClick: toggleDisablePosting },
     { field: 'allCommentingDisabled', label: 'Comment', keystroke: 'C', onClick: toggleDisableCommenting },
-    { field: 'conversationsDisabled', label: 'Message', keystroke: 'M', onClick: toggleDisableMessaging },
+    { field: 'conversationsDisabled', label: 'Message', keystroke: 'M', onClick: toggleDisableMessaging, highlightKey: 'disableMessages' },
     { field: 'votingDisabled', label: 'Vote', keystroke: 'V', onClick: () => toggleDisableVoting() },
   ];
 
-  // Collapsed, show only revoked permissions
+  // Collapsed, show only revoked and suggested permissions
   const visibleButtons = collapsed
-    ? permissionButtons.filter(({field}) => user[field])
+    ? permissionButtons.filter(({field, highlightKey}) => user[field] || (highlightKey && highlightedActions?.has(highlightKey)))
     : permissionButtons;
 
-  const renderedButtons = visibleButtons.map(({field, label, keystroke, onClick}) => {
+  const renderedButtons = visibleButtons.map(({field, label, keystroke, onClick, highlightKey}) => {
     const permissionDisabled = !!user[field];
+    const highlightStyle = highlightKey ? getActionHighlightStyle(highlightedActions, highlightKey) : null;
 
     return (
       <div
@@ -92,6 +98,7 @@ const ModerationPermissionButtons = ({
         className={classNames(
           classes.permissionButton,
           permissionDisabled && 'active',
+          highlightStyle && classes[highlightStyle],
           collapsed && classes.barePermissionButton,
         )}
         onClick={onClick}

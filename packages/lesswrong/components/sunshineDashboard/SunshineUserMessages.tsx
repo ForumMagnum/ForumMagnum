@@ -18,7 +18,7 @@ import LWTooltip from '../common/LWTooltip';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { useDialog } from '../common/withDialog';
 import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEditorContext';
-import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
+import { getHighlightedRejectionTemplateNames, getHighlightedTemplateNames } from './supermod/templateHighlightRules';
 import FormatDate from '../common/FormatDate';
 import GroupedModerationTemplateList from './GroupedModerationTemplateList';
 import CollapsibleSectionHeader from './supermod/CollapsibleSectionHeader';
@@ -265,6 +265,16 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       comments
     );
   }, [user, posts, comments]);
+
+  const highlightedRejectionTemplateNames = useMemo(() => {
+    if (!focusedContent || !posts || !comments) return new Set<string>();
+    return getHighlightedRejectionTemplateNames(focusedContent, {
+      user,
+      moderatorActions: user.moderatorActions ?? [],
+      posts,
+      comments,
+    });
+  }, [focusedContent, user, posts, comments]);
 
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
@@ -652,6 +662,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
           user={user}
           focusedContent={focusedContent}
           active={rejectTabActive}
+          highlightedTemplateNames={highlightedRejectionTemplateNames}
           showCollapsedActions={!actionSectionExpanded}
           onRejectStart={handleContentRejectStart}
           onRejected={handleContentRejected}

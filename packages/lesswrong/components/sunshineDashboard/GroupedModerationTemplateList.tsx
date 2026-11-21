@@ -25,6 +25,7 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { isInTextInput } from './supermod/helpers';
 import { KEYSTROKE_GUTTER } from './supermod/constants';
 import type { TemplateType } from '@/lib/collections/moderationTemplates/constants';
+import { getHighlightRuleTemplateKey } from '@/lib/moderatorHighlights/highlightRuleTypes';
 
 const ModerationTemplatesListQuery = gql(`
   query multiModerationTemplateGroupedTemplateListQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -463,7 +464,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
           key={template._id}
           template={template}
           onTemplateClick={onTemplateClick}
-          highlighted={!!highlightedTemplateNames?.has(template.name)}
+          highlighted={!!highlightedTemplateNames?.has(getHighlightRuleTemplateKey(template))}
           selected={template._id === selectedTemplateId}
           checked={insertedTemplateIds?.has(template._id)}
           onHideTemplate={onHideTemplate}
@@ -647,7 +648,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
   if (onlyHighlighted) {
     // Ordered by the same groups as the full list, so templates from one group stay adjacent.
     const highlightedTemplates = groupTemplatesByLabel(
-      templates.filter(template => highlightedTemplateNames?.has(template.name))
+      templates.filter(template => highlightedTemplateNames?.has(getHighlightRuleTemplateKey(template)))
     ).flatMap(([, templatesInGroup]) => templatesInGroup);
     if (highlightedTemplates.length === 0) return null;
     return <div className={classNames(classes.root, classes.onlyHighlightedList)}>

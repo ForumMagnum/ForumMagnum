@@ -200,6 +200,8 @@ export default () => createJestConfig({
   // },
 
   moduleNameMapper: {
+    // ELD exposes only an ESM import entry; Jest resolves imports as require.
+    '^eld/extrasmall$': '<rootDir>/node_modules/eld/src/entries/static.extrasmall.js',
     // Should match "paths" in tsconfig.json
     "@/client/(.*)": "<rootDir>/packages/lesswrong/stubs/client/$1",
     "@/(.*)": "<rootDir>/packages/lesswrong/$1",
@@ -253,6 +255,7 @@ export default () => createJestConfig({
   // This block needs to live here because otherwise it gets overriden by the
   // default `transformIgnorePatterns` from `createJestConfig`.
   const transpileNodeModules = [
+    "eld",
     "react-instantsearch",
     "@extractus",
     "bellajs",

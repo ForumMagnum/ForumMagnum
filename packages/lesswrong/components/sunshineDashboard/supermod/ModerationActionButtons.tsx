@@ -5,6 +5,7 @@ import { useModerationUserActions } from './useModerationUserActions';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import type { InboxAction } from './inboxReducer';
 import { areAllContentPermissionsDisabled } from './helpers';
+import { getActionHighlightStyle, type HighlightableModeratorAction, type HighlightedModeratorActions } from './actionHighlightRules';
 
 const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
   actionColumns: {
@@ -34,12 +35,14 @@ interface ModeratorActionButtonSpec {
   tooltip: string;
   onClick: () => void;
   active?: boolean;
+  highlightKey: HighlightableModeratorAction;
 }
 
-const ModerationActionButtonList = ({buttons}: {
+const ModerationActionButtonList = ({buttons, highlightedActions}: {
   buttons: ModeratorActionButtonSpec[];
+  highlightedActions?: HighlightedModeratorActions;
 }) => <>
-  {buttons.map(({label, keystroke, tooltip, onClick, active}) => (
+  {buttons.map(({label, keystroke, tooltip, onClick, active, highlightKey}) => (
     <ModerationActionButton
       key={label}
       label={label}
@@ -47,15 +50,17 @@ const ModerationActionButtonList = ({buttons}: {
       tooltip={tooltip}
       onClick={onClick}
       active={!!active}
+      highlightStyle={getActionHighlightStyle(highlightedActions, highlightKey)}
     />
   ))}
 </>;
 
-const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: {
+const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, highlightedActions}: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
+  highlightedActions?: HighlightedModeratorActions;
 }) => {
   const classes = useStyles(styles);
 
@@ -76,18 +81,21 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
       keystroke: 'S',
       tooltip: "Remove this user from the review queue; they'll return after the chosen N number of posts and comments.",
       onClick: handleSnoozeChoice,
+      highlightKey: 'snoozeCustom',
     },
     {
       label: 'Unapprove & Remove',
       keystroke: 'Q',
       tooltip: "Remove this user from the review queue without approving them or snoozing. Their content stays unreviewed. Signs a 'removed from review queue without snooze/approval' note in their moderator notes.",
       onClick: handleRemoveNeedsReview,
+      highlightKey: 'remove',
     },
     {
       label: 'Purge',
       keystroke: 'P',
       tooltip: "Deletes all of this user's posts, comments, sequences, and votes, bans them for 1000 years, and removes them from the review queue. Asks for confirmation first, and signs a 'Purge' note in their moderator notes.",
       onClick: handlePurge,
+      highlightKey: 'purge',
     },
     {
       label: allPermissionsDisabled ? 'Enable Permissions' : 'Disable Permissions',
@@ -97,6 +105,7 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
         : "Disable posting, commenting, messaging, and voting. Signs an 'all permissions disabled' note in their moderator notes.",
       onClick: toggleAllPermissions,
       active: allPermissionsDisabled,
+      highlightKey: 'disablePermissions',
     },
   ];
 
@@ -106,12 +115,14 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
       keystroke: 'A',
       tooltip: "Approve this user and all their content. Marks them as reviewed by you, so their future posts and comments no longer need review. Clears any snooze and any flag, and signs an 'Approved' note in their moderator notes.",
       onClick: handleReview,
+      highlightKey: 'approve',
     },
     {
       label: 'Approve, then Unapprove',
       keystroke: 'Shift+A',
       tooltip: "Approve this user's existing unreviewed posts and comments and remove them from the queue, without marking the user as reviewed, so their future content will still need review. Also clears any snooze and any flag.",
       onClick: handleApproveCurrentOnly,
+      highlightKey: 'approveCurrentOnly',
     },
   ];
 
@@ -120,11 +131,13 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
       <div className={classes.actionColumn}>
         <ModerationActionButtonList
           buttons={restrictiveActionButtons}
+          highlightedActions={highlightedActions}
         />
       </div>
       <div className={classes.actionColumn}>
         <ModerationActionButtonList
           buttons={approveActionButtons}
+          highlightedActions={highlightedActions}
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationPermissionButtons from './ModerationPermissionButtons';
 import ModerationActionButtons from './ModerationActionButtons';
@@ -6,6 +6,7 @@ import CollapsibleSectionHeader from './CollapsibleSectionHeader';
 import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
 import { isAnyContentPermissionDisabled } from './helpers';
+import { getHighlightedModeratorActions, type HighlightedModeratorActions } from './actionHighlightRules';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
@@ -49,9 +50,14 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   }
 }));
 
-const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedActions, onToggle, addToUndoQueue, dispatch}: {
+const NO_HIGHLIGHTED_ACTIONS: HighlightedModeratorActions = new Map();
+
+const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsLoading, expanded, showCollapsedActions, onToggle, addToUndoQueue, dispatch}: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
+  posts: SunshinePostsList[],
+  comments: SunshineCommentsList[],
+  contentsLoading: boolean,
   expanded: boolean,
   // False while another section is expanded
   showCollapsedActions: boolean,
@@ -62,6 +68,16 @@ const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedAct
   const classes = useStyles(styles);
   const activeModeratorActions = user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)) ?? [];
   const [showRateLimitForm, setShowRateLimitForm] = useState(false);
+
+  // Empty lists while loading would satisfy absence-based rules (e.g. Remove, Purge)
+  const highlightedActions = useMemo(() => contentsLoading
+    ? NO_HIGHLIGHTED_ACTIONS
+    : getHighlightedModeratorActions({
+      user,
+      moderatorActions: user.moderatorActions ?? [],
+      posts,
+      comments,
+    }), [user, posts, comments, contentsLoading]);
 
   return (
     <ModerationSidebarSection
@@ -75,15 +91,15 @@ const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedAct
         onToggle={onToggle}
       />}
     >
-      {(expanded || showCollapsedActions) && <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />}
-      {!expanded && showCollapsedActions && isAnyContentPermissionDisabled(user) && (
+      {(expanded || showCollapsedActions) && <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} />}
+      {!expanded && showCollapsedActions && (isAnyContentPermissionDisabled(user) || highlightedActions.has('disableMessages')) && (
         <div className={classes.collapsedPermissions}>
-          <ModerationPermissionButtons user={user} dispatch={dispatch} collapsed />
+          <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} collapsed />
         </div>
       )}
       {expanded && <>
         <div className={classes.rateLimitSection}>
-          <ModerationPermissionButtons user={user} dispatch={dispatch} />
+          <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} />
           <div
             className={classes.rateLimitButton}
             onClick={() => setShowRateLimitForm(!showRateLimitForm)}

@@ -1,52 +1,30 @@
-import { FLAGGED_FOR_N_DMS, AUTO_BLOCKED_FROM_SENDING_DMS, RECENTLY_DOWNVOTED_CONTENT_ALERT, SENT_MODERATOR_MESSAGE } from "@/lib/collections/moderatorActions/constants";
+import type { HighlightRule } from "@/lib/moderatorHighlights/highlightRuleTypes";
+import { highlightRuleOverrides } from "@/lib/moderatorHighlights/highlightRules";
+import type { ContentItem } from "./helpers";
+import { highlightRuleMatches } from "./declarativeHighlightRules";
+import type { HighlightContext, HighlightSignalContext } from "./highlightSignals";
 
-export interface TemplateHighlightContext {
-  user: SunshineUsersList;
-  moderatorActions: ModeratorActionDisplay[];
-  posts: SunshinePostsList[];
-  comments: SunshineCommentsList[];
-}
-
-type HighlightRule = (ctx: TemplateHighlightContext) => boolean;
-
-const TEMPLATE_HIGHLIGHT_RULES: Record<string, HighlightRule> = {
-  "Lotsa DMs": ({ moderatorActions }) => {
-    const flaggedForNDMs = moderatorActions.filter(a => a.active && a.type === FLAGGED_FOR_N_DMS);
-    const autoBlockedFromSendingDMs = moderatorActions.filter(a => a.active && a.type === AUTO_BLOCKED_FROM_SENDING_DMS);
-    return flaggedForNDMs.length >= 1 || autoBlockedFromSendingDMs.length >= 1;
-  },
-  "This isn't gonna work out": ({ moderatorActions }) => {
-    const moderatorMessages = moderatorActions.filter(a => a.type === SENT_MODERATOR_MESSAGE);
-    return moderatorMessages.length >= 2;
-  },
-  "Multiple LLM rejections": ({ moderatorActions, posts, comments }) => {
-    const moderatorMessages = moderatorActions.filter(a => a.type === SENT_MODERATOR_MESSAGE);
-    const userContent = [...posts, ...comments];
-    const highLLMContent = userContent.filter(c => (c.automatedContentEvaluations?.pangramScore ?? 0) >= .2);
-    return highLLMContent.length >= 2 && moderatorMessages.length >= 2;
-  },
-  "Semi-automoderated quality warning (downvoted)": ({ moderatorActions }) =>
-    moderatorActions.some(a => a.active && a.type === RECENTLY_DOWNVOTED_CONTENT_ALERT),
-};
-
-export function getHighlightedTemplateNames(
-  ctx: Omit<TemplateHighlightContext, 'posts' | 'comments'>,
-  posts: SunshinePostsList[],
-  comments: SunshineCommentsList[]
-): Set<string> {
-  const fullCtx: TemplateHighlightContext = {
-    ...ctx,
-    posts,
-    comments,
-  };
+function getMatchingTemplateNames(rules: Record<string, HighlightRule>, signalContext: HighlightSignalContext): Set<string> {
   const highlighted = new Set<string>();
-  for (const [name, condition] of Object.entries(TEMPLATE_HIGHLIGHT_RULES)) {
+  for (const [templateName, rule] of Object.entries(rules)) {
     try {
-      if (condition(fullCtx)) highlighted.add(name);
+      if (highlightRuleMatches(rule, signalContext)) highlighted.add(templateName);
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error(`Error evaluating highlight rule for "${name}":`, e);
+      console.error(`Error evaluating highlight rule for template "${templateName}":`, e);
     }
   }
   return highlighted;
+}
+
+export function getHighlightedRejectionTemplateNames(focusedContent: ContentItem, ctx: HighlightContext): Set<string> {
+  return getMatchingTemplateNames(highlightRuleOverrides.rejectionTemplates, { ...ctx, focusedContent });
+}
+
+export function getHighlightedTemplateNames(
+  ctx: Pick<HighlightContext, 'user' | 'moderatorActions'>,
+  posts: SunshinePostsList[],
+  comments: SunshineCommentsList[]
+): Set<string> {
+  return getMatchingTemplateNames(highlightRuleOverrides.messageTemplates, { ...ctx, posts, comments, focusedContent: null });
 }

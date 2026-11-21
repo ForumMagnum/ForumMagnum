@@ -2,6 +2,7 @@ import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import LWTooltip from '@/components/common/LWTooltip';
 import KeystrokeDisplay from './KeystrokeDisplay';
+import type { ModeratorActionHighlightStyle } from './actionHighlightRules';
 import classNames from 'classnames';
 
 export const commandButtonStyles = (theme: ThemeType) => ({
@@ -23,6 +24,27 @@ export const activeCommandButtonStyles = (theme: ThemeType) => ({
   },
 });
 
+const outlineStyle = (color: string) => ({
+  borderColor: color,
+  boxShadow: `0 0 0 1px ${color}`,
+  '&:hover': {
+    borderColor: color,
+  },
+});
+
+export const moderatorActionHighlightStyles = (theme: ThemeType) => ({
+  subtleOutline: {
+    boxShadow: `0 0 0 1px ${theme.palette.grey[600]}`,
+    '&:hover': {
+      boxShadow: `0 0 0 1px ${theme.palette.grey[700]}`,
+    },
+  },
+  green: outlineStyle(theme.palette.primary.main),
+  gold: outlineStyle(theme.palette.bookPromotion.starGold),
+  black: outlineStyle(theme.palette.grey[900]),
+  red: outlineStyle(theme.palette.error.main),
+});
+
 const styles = defineStyles('ModerationActionButton', (theme: ThemeType) => ({
   actionButton: {
     ...commandButtonStyles(theme),
@@ -34,14 +56,16 @@ const styles = defineStyles('ModerationActionButton', (theme: ThemeType) => ({
     },
     '&.active': activeCommandButtonStyles(theme),
   },
+  ...moderatorActionHighlightStyles(theme),
 }));
 
-const ModerationActionButton = ({label, keystroke, tooltip, onClick, active=false}: {
+const ModerationActionButton = ({label, keystroke, tooltip, onClick, active=false, highlightStyle=null}: {
   label: string;
   keystroke: string;
   tooltip: string;
   onClick: () => void;
   active?: boolean;
+  highlightStyle?: ModeratorActionHighlightStyle | null;
 }) => {
   const classes = useStyles(styles);
   return (
@@ -50,6 +74,7 @@ const ModerationActionButton = ({label, keystroke, tooltip, onClick, active=fals
         className={classNames(
           classes.actionButton,
           active && 'active',
+          highlightStyle && classes[highlightStyle],
         )}
         onClick={onClick}
       >
