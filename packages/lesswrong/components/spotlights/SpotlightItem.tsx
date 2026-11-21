@@ -60,25 +60,7 @@ const SpotlightEditQueryFragmentQuery = gql(`
 
 const TEXT_WIDTH = 350;
 
-// Eased fade curve, masked onto a card-width container rather than the image itself,
-// so that it doesn't shift when a taller card makes the image wider. Offsets are
-// fractions of the card, paired with mask opacity; the text column ends at ~80%.
-const FADE_CURVE: [offset: number, alpha: number][] = [
-  [0, 0],
-  [0.5, 0.02],
-  [0.64, 0.06],
-  [0.74, 0.14],
-  [0.83, 0.35],
-  [0.91, 0.72],
-  [0.97, 1],
-  [1, 1],
-];
-
-const buildFadeMask = (theme: ThemeType, fadeStartPercent: number) => {
-  const breakpoints = FADE_CURVE.map(([offset, alpha]) => {
-    const position = fadeStartPercent + (offset * (100 - fadeStartPercent));
-    return `${theme.palette.inverseGreyAlpha(alpha)} ${position.toFixed(1)}%`;
-  });
+const buildFadeMask = (breakpoints: string[]) => {
   const mask = `linear-gradient(to right, ${breakpoints.join(",")})`;
   return {mask, "-webkit-mask-image": mask};
 }
@@ -204,8 +186,17 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     borderTopRightRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
   },
-  imageFade: buildFadeMask(theme, 0),
-  imageFadeCustom: buildFadeMask(theme, 25),
+  imageFade: buildFadeMask([
+    "transparent 0",
+    `${theme.palette.text.alwaysWhite} 80%`,
+    `${theme.palette.text.alwaysWhite} 100%`,
+  ]),
+  imageFadeCustom: buildFadeMask([
+    "transparent 0",
+    "transparent 30%",
+    `${theme.palette.text.alwaysWhite} 90%`,
+    `${theme.palette.text.alwaysWhite} 100%`,
+  ]),
   author: {
     marginTop: 4,
     color: theme.palette.grey[600],
@@ -326,16 +317,13 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
       right: "-6%",
     },
   },
-  imageContainer: {
+  splashImageContainer: {
     position: "absolute",
     top: 0,
     right: 0,
     width: "100%",
     height: "100%",
     overflow: "hidden",
-    [theme.breakpoints.down('xs')]: {
-      height: "100% !important",
-    }
   },
   reverseIcon: {
     transform: "rotate(180deg)",
@@ -556,24 +544,21 @@ export const SpotlightItem = ({
                 <SpotlightStartOrContinueReading spotlight={spotlight}/>
               </SuspenseWrapper>}
             </div>
-            {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
-            {spotlight.spotlightSplashImageUrl && <div className={classNames(classes.imageContainer, classes.imageFade)} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
-              <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.splashImage, {
+            {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer}>
+              <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage, {
                 [classes.splashImageFlush]: spotlight._id === INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID,
               })}/>
             </div>}
-            {spotlight.spotlightImageId && <div className={classNames(classes.imageContainer, {
-              [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
-              [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
-            })}>
-              <CloudinaryImage2
-                publicId={spotlight.spotlightImageId}
-                darkPublicId={spotlight.spotlightDarkImageId}
-                className={classes.image}
-                imgProps={{w: "500"}}
-                loading="lazy"
-              />
-            </div>}
+            {spotlight.spotlightImageId && <CloudinaryImage2
+              publicId={spotlight.spotlightImageId}
+              darkPublicId={spotlight.spotlightDarkImageId}
+              className={classNames(classes.image, {
+                [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
+                [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
+              })}
+              imgProps={{w: "500"}}
+              loading="lazy"
+            />}
           </div>
           {spotlightReviews.length > 0 && <SpotlightReviews reviewIds={spotlightReviews.map(r=>r._id)}/>}
           {hideBanner && <div className={classes.closeButtonWrapper}>
