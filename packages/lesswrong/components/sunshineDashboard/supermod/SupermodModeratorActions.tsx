@@ -55,6 +55,7 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   modActionItem: {},
   rateLimitSection: {
     display: 'flex',
+    flexDirection: 'column',
     gap: 10,
     alignItems: 'flex-start',
   },
@@ -90,9 +91,9 @@ const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedAct
   return (
     <ModerationSidebarSection
       fillsAvailableSpace={expanded}
+      sharesAvailableSpace
       withDivider={false}
-    >
-      <div className={classes.sectionTitleRow}>
+      header={<div className={classes.sectionTitleRow}>
         <ModerationSectionTitle>Moderator Actions</ModerationSectionTitle>
         <button
           type="button"
@@ -107,7 +108,8 @@ const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedAct
             className={classes.collapseChevron}
           />
         </button>
-      </div>
+      </div>}
+    >
       {isCollapsed && showCollapsedActions && isAnyContentPermissionDisabled(user) && (
         <div className={classes.collapsedPermissions}>
           <ModerationPermissionButtons user={user} dispatch={dispatch} collapsed />
@@ -139,7 +141,12 @@ const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedAct
           (but, still rendering the list of existing rate limits whether you've expanded it or not)
         */}
         <div className={classNames({ [classes.rateLimitForm]: showRateLimitForm })}>
-          <UserRateLimitItem userId={user._id} showForm={showRateLimitForm} />
+          <UserRateLimitItem
+            userId={user._id}
+            showForm={showRateLimitForm}
+            showCustomForm
+            onCustomFormClose={() => setShowRateLimitForm(false)}
+          />
         </div>
       </>}
     </ModerationSidebarSection>

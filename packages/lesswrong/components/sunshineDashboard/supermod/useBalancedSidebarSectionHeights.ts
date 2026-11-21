@@ -3,8 +3,9 @@ import sortBy from 'lodash/sortBy';
 import sumBy from 'lodash/sumBy';
 
 const FILLS_SPACE_SELECTOR = '[data-moderation-sidebar-fills-space="true"]';
-const HIGHLIGHTS_SELECTOR = '[data-moderation-sidebar-highlights="true"]';
+const SHARES_SPACE_SELECTOR = '[data-moderation-sidebar-shares-space="true"]';
 const SECTION_SELECTOR = '[data-moderation-sidebar-section="true"]';
+const SECTION_BODY_SELECTOR = '[data-moderation-sidebar-section-body="true"]';
 
 function getVerticalMargins(element: Element): number {
   const style = getComputedStyle(element);
@@ -16,8 +17,11 @@ function getNaturalSectionHeight(section: HTMLElement): number {
   const style = getComputedStyle(section);
   const chrome = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom)
     + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
-  const sectionChildren = Array.from(section.children);
-  return chrome + sumBy(sectionChildren, child => child.getBoundingClientRect().height + getVerticalMargins(child));
+  // The body is clipped to the section, so measure its contents rather than the body itself
+  const contentElements = Array.from(section.children).flatMap(child =>
+    child.matches(SECTION_BODY_SELECTOR) ? Array.from(child.children) : [child]
+  );
+  return chrome + sumBy(contentElements, element => element.getBoundingClientRect().height + getVerticalMargins(element));
 }
 
 /**
@@ -40,12 +44,11 @@ function getHeightCap(naturalHeights: number[], availableHeight: number): number
 function balanceSectionHeights(root: HTMLElement) {
   const allSections = Array.from(root.querySelectorAll<HTMLElement>(SECTION_SELECTOR));
   const someSectionFillsSpace = !!root.querySelector(FILLS_SPACE_SELECTOR);
-  const balancedSections = someSectionFillsSpace ? [] : allSections.filter(section => section.matches(HIGHLIGHTS_SELECTOR));
+  const balancedSections = someSectionFillsSpace ? [] : allSections.filter(section => section.matches(SHARES_SPACE_SELECTOR));
   const unbalancedSections = allSections.filter(section => !balancedSections.includes(section));
 
   for (const section of unbalancedSections) {
     section.style.minHeight = '';
-    section.style.flexBasis = '';
   }
   if (!balancedSections.length) {
     return;
@@ -56,17 +59,15 @@ function balanceSectionHeights(root: HTMLElement) {
   const heightCap = getHeightCap(naturalHeights, availableHeight);
   for (const [index, section] of balancedSections.entries()) {
     section.style.minHeight = `${Math.min(naturalHeights[index], heightCap)}px`;
-    section.style.flexBasis = `${naturalHeights[index]}px`;
   }
 }
 
 /**
- * Highlighted sections split the sidebar's free height evenly via flex, which
- * makes a long section scroll while a short neighbor sits half empty. Basing
- * each one on its content height means leftover space becomes equal padding
- * for every section, and a min-height of its content height (capped so they
- * all still fit) lets a long section take the slack when space is tight,
- * while short sections keep enough room not to scroll themselves.
+ * Space-sharing sections split the sidebar's free height evenly via flex, which
+ * on its own makes a long section scroll while a short neighbor sits half empty.
+ * A min-height of each section's content height (capped so they all still fit)
+ * makes flex give a long section the room it needs and split the rest evenly
+ * among the others.
  */
 export function useBalancedSidebarSectionHeights(rootRef: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
@@ -89,7 +90,7 @@ export function useBalancedSidebarSectionHeights(rootRef: React.RefObject<HTMLEl
     const observedElements = new WeakSet<Element>();
     const resizeObserver = new ResizeObserver(scheduleBalance);
     const observeSectionChildren = () => {
-      const sectionChildren = Array.from(root.querySelectorAll(`${SECTION_SELECTOR} > *`));
+      const sectionChildren = Array.from(root.querySelectorAll(`${SECTION_SELECTOR} > *, ${SECTION_BODY_SELECTOR} > *`));
       for (const child of sectionChildren) {
         if (!observedElements.has(child)) {
           observedElements.add(child);
@@ -109,7 +110,7 @@ export function useBalancedSidebarSectionHeights(rootRef: React.RefObject<HTMLEl
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['data-moderation-sidebar-fills-space', 'data-moderation-sidebar-highlights'],
+      attributeFilter: ['data-moderation-sidebar-fills-space', 'data-moderation-sidebar-shares-space'],
     });
     scheduleBalance();
 

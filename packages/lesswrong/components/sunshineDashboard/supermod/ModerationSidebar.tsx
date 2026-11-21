@@ -14,9 +14,9 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     flexDirection: 'column',
     height: '100%',
     overflow: 'hidden',
-    // Without another section filling the column, highlighted sections divide
+    // Without another section filling the column, space-sharing sections divide
     // the free height evenly.
-    '&:not(:has([data-moderation-sidebar-fills-space="true"])) [data-moderation-sidebar-highlights="true"]': {
+    '&:not(:has([data-moderation-sidebar-fills-space="true"])) [data-moderation-sidebar-shares-space="true"]': {
       flex: '1 1 0',
     },
   },

@@ -405,11 +405,6 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   // two collapse to bare headers (no suggested templates or submit buttons)
   // so the expanded section gets the full height
   const actionSectionExpanded = rejectTabActive || dmTabActive || sidebarTab === 'moderatorActions';
-  // While an unrejected content item is selected, rejecting it is the primary
-  // action: the section claims the free column height even before its tab is
-  // opened, instead of splitting it evenly with the other highlighted
-  // sections. An explicitly expanded section still takes priority.
-  const rejectSectionFillsSpace = rejectTabActive || (canReject && sidebarTab === null);
   const visibleConversations = userMessagesActive
     ? displayedConversations
     : displayedConversations.slice(0, COLLAPSED_CONVERSATION_COUNT);
@@ -696,13 +691,14 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
   </>;
 
   return <div className={classes.root}>
-    <ModerationSidebarSection>
-      <CollapsibleSectionHeader
+    <ModerationSidebarSection
+      header={<CollapsibleSectionHeader
         title="User Messages"
         expanded={userMessagesActive}
         minimal={userMessagesEmpty && !userMessagesActive}
         onToggle={handleToggleUserMessages}
-      />
+      />}
+    >
       {visibleConversations.map(({ conversation, optimistic }) => {
         const isExpanded = expandedConversationId === conversation._id;
         const conversationItem = (
@@ -753,15 +749,16 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     </ModerationSidebarSection>
 
     <ModerationSidebarSection
-      fillsAvailableSpace={rejectSectionFillsSpace}
-    >
-      <CollapsibleSectionHeader
+      fillsAvailableSpace={rejectTabActive}
+      sharesAvailableSpace
+      header={<CollapsibleSectionHeader
         title="Rejections"
         keystroke="R"
         expanded={rejectTabActive}
         minimal={!canReject && !rejectTabActive}
         onToggle={handleToggleReject}
-      />
+      />}
+    >
       {canReject && focusedContent ? (
         <RejectContentPanel
           user={user}
@@ -780,14 +777,14 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
 
     <ModerationSidebarSection
       fillsAvailableSpace={dmTabActive}
-      hasHighlightedItems={highlightedMessageTemplateNames.size > 0}
-    >
-      <CollapsibleSectionHeader
+      sharesAvailableSpace
+      header={<CollapsibleSectionHeader
         title="Send Message"
         keystroke="Shift+M"
         expanded={dmTabActive}
         onToggle={handleSelectDmTab}
-      />
+      />}
+    >
       {!dmTabActive && !actionSectionExpanded && (
         <GroupedModerationTemplateList
           collectionName="Messages"

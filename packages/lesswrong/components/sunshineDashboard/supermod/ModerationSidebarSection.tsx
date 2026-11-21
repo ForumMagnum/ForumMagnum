@@ -10,16 +10,20 @@ const styles = defineStyles('ModerationSidebarSection', (theme: ThemeType) => ({
     boxSizing: 'border-box',
     display: 'flex',
     flexDirection: 'column',
-    overflow: 'auto',
+    overflow: 'hidden',
     padding: 12,
     backgroundColor: theme.palette.background.paper,
-    // Flexible spacers vertically center short content, then shrink away before
-    // the section itself needs to scroll.
-    '&::before, &::after': {
-      content: '""',
-      flex: '1 1 0',
-      minHeight: 0,
-    },
+  },
+  header: {
+    flexShrink: 0,
+  },
+  // Only the body scrolls, so the header stays pinned to the top of the section
+  body: {
+    flex: '1 1 auto',
+    minHeight: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
   },
   withDivider: {
     borderBottom: theme.palette.border.normal,
@@ -30,14 +34,16 @@ const styles = defineStyles('ModerationSidebarSection', (theme: ThemeType) => ({
 }));
 
 const ModerationSidebarSection = ({
+  header,
   children,
   fillsAvailableSpace = false,
-  hasHighlightedItems = false,
+  sharesAvailableSpace = false,
   withDivider = true,
 }: {
-  children: React.ReactNode;
+  header: React.ReactNode;
+  children?: React.ReactNode;
   fillsAvailableSpace?: boolean;
-  hasHighlightedItems?: boolean;
+  sharesAvailableSpace?: boolean;
   withDivider?: boolean;
 }) => {
   const classes = useStyles(styles);
@@ -50,9 +56,12 @@ const ModerationSidebarSection = ({
       })}
       data-moderation-sidebar-section="true"
       data-moderation-sidebar-fills-space={fillsAvailableSpace ? 'true' : undefined}
-      data-moderation-sidebar-highlights={hasHighlightedItems ? 'true' : undefined}
+      data-moderation-sidebar-shares-space={sharesAvailableSpace ? 'true' : undefined}
     >
-      {children}
+      <div className={classes.header}>{header}</div>
+      <div className={classes.body} data-moderation-sidebar-section-body="true">
+        {children}
+      </div>
     </div>
   );
 };
