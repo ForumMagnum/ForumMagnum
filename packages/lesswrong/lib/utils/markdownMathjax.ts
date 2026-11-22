@@ -121,14 +121,6 @@ var mapping: AnyBecauseTodo = {
 }
 
 export default function (options?: any) {
-  var defaults = {
-    beforeMath: '',
-    afterMath: '',
-    beforeInlineMath: '\\(',
-    afterInlineMath: '\\)',
-    beforeDisplayMath: '\\[',
-    afterDisplayMath: '\\]'
-  }
   // When set, render math as the editable-dialect `<span class="math-tex">`
   // representation that `MathNode.importDOM` consumes (the inverse of the
   // `latex-spans` Turndown rule), rather than bare `\(...\)` / `\[...\]`
@@ -136,6 +128,16 @@ export default function (options?: any) {
   // round-trips into real MathNodes; the publishing path leaves the bare
   // delimiters for `renderMathInHtml` to pre-render for readers.
   var wrapInMathTex = !!(options && options.wrapInMathTex)
+  var defaults = {
+    // A bare `\begin{env}...\end{env}` is display math. MathJax infers that
+    // from the environment, but `MathNode.importDOM` needs explicit `\[...\]`.
+    beforeMath: wrapInMathTex ? '\\[' : '',
+    afterMath: wrapInMathTex ? '\\]' : '',
+    beforeInlineMath: '\\(',
+    afterInlineMath: '\\)',
+    beforeDisplayMath: '\\[',
+    afterDisplayMath: '\\]'
+  }
   // When set, `\(...\)` / `\[...\]` open math with a single backslash (the
   // form the agent read API emits). Reader surfaces leave this off and keep
   // the legacy doubled-backslash delimiters. See `makeMathRule`.
