@@ -63,7 +63,7 @@ export function MarkdownPostListItem({
           <MarkdownPostTagsList post={post} />
         </li>
       </ul>
-      {includeExcerpt && excerpt && <MarkdownNode markdown={excerpt} indentLevel={1} />}
+      {includeExcerpt && excerpt && <MarkdownNode markdown={excerpt} />}
       <div>Read more: <a href={`/api/post/${post.slug}`}>{`/api/post/${post.slug}`}</a></div>
     </div>
   );
