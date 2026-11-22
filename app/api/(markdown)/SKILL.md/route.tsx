@@ -231,6 +231,9 @@ If the quote is plain text (no emphasis markers), the replacement inherits any
 formatting shared by all of the quoted text, so replacing a few words inside an
 italic or bold span keeps them italic or bold. To remove formatting, include the
 markers in the quote (e.g. quote "*some words*" with replacement "some words").
+In edit mode, a replacement with no markdown in it keeps the quoted text's links
+around any link text it doesn't change, and text added just before or after a
+link's text goes outside the link.
 
 If the mode is "edit", the change will be applied immediately; if the mode is
 "suggest", the change will be displayed as a suggestion in the post editor. If

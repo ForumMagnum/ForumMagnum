@@ -513,8 +513,6 @@ describe("replaceText when a quote ends inside or after a link", () => {
   it("replaces a quote ending after a link at the end of a paragraph in edit mode", async () => {
     const editor = await setupEditorWithContent(doc);
 
-    // Narrowing strips the shared "and " and ".", leaving a range that starts
-    // in plain text and ends inside the link's text.
     const replaced = await replaceTextInEditMode(
       editor,
       "and additional discussion in Appendix: Asking the model to explain its reasoning.",
@@ -522,7 +520,7 @@ describe("replaceText when a quote ends inside or after a link", () => {
     );
 
     expect(replaced).toBe(true);
-    expect(getMarkdownContent(editor)).toBe("Intro text and further discussion in the appendix.\n\nNext paragraph.");
+    expect(getMarkdownContent(editor)).toBe("Intro text and further discussion in [the appendix](#appendix).\n\nNext paragraph.");
   });
 
   it("replaces a quote ending exactly at the end of a link in edit mode", async () => {
@@ -535,7 +533,7 @@ describe("replaceText when a quote ends inside or after a link", () => {
     );
 
     expect(replaced).toBe(true);
-    expect(getMarkdownContent(editor)).toBe("Intro text and further discussion in the appendix.\n\nNext paragraph.");
+    expect(getMarkdownContent(editor)).toBe("Intro text and further discussion in [the appendix](#appendix).\n\nNext paragraph.");
   });
 
   it("inserts after a link without cutting it short when the quote starts inside it in edit mode", async () => {
@@ -573,6 +571,51 @@ describe("replaceText when a quote ends inside or after a link", () => {
 
     expect(await replaceTextInEditMode(editor, "foo", "bar")).toBe(true);
     expect(getMarkdownContent(editor)).toBe("See [bar](https://example.com) now.");
+  });
+});
+
+describe("replaceText edit mode with a plain replacement across several links", () => {
+  const doc = "Labs like DeepSeek,[Kimi](https://a.example) or [MiMo](https://b.example) the model makers.";
+  const expected = "Labs like DeepSeek, [Kimi](https://a.example) or [MiMo](https://b.example), the model makers.";
+
+  it("keeps both links when the quote is visible text", async () => {
+    const editor = await setupEditorWithContent(doc);
+
+    expect(await replaceTextInEditMode(
+      editor,
+      "DeepSeek,Kimi or MiMo the model",
+      "DeepSeek, Kimi or MiMo, the model",
+    )).toBe(true);
+    expect(getMarkdownContent(editor)).toBe(expected);
+  });
+
+  it("keeps both links when the quote spells out their markdown", async () => {
+    const editor = await setupEditorWithContent(doc);
+
+    expect(await replaceTextInEditMode(
+      editor,
+      "DeepSeek,[Kimi](https://a.example) or [MiMo](https://b.example) the model",
+      "DeepSeek, Kimi or MiMo, the model",
+    )).toBe(true);
+    expect(getMarkdownContent(editor)).toBe(expected);
+  });
+
+  it("keeps a link whose text is unchanged when a word before it is replaced", async () => {
+    const editor = await setupEditorWithContent("Read [the notes](https://example.com) twice.");
+
+    expect(await replaceTextInEditMode(editor, "Read the notes twice", "Skim the notes once")).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Skim [the notes](https://example.com) once.");
+  });
+
+  it("still removes the links when the visible text is unchanged", async () => {
+    const editor = await setupEditorWithContent(doc);
+
+    expect(await replaceTextInEditMode(
+      editor,
+      "[Kimi](https://a.example) or [MiMo](https://b.example)",
+      "Kimi or MiMo",
+    )).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Labs like DeepSeek,Kimi or MiMo the model makers.");
   });
 });
 

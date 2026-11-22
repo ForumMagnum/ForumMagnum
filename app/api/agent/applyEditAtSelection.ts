@@ -1,8 +1,11 @@
 import { JSDOM } from "jsdom";
+import DiffMatchPatch from "diff-match-patch";
 import { $generateNodesFromDOM } from "@lexical/html";
+import { $isLinkNode } from "@lexical/link";
 import { $appendImportedFootnotes, splitImportedFootnotes } from "./importFootnotes";
 import {
   $createRangeSelection,
+  $createTextNode,
   $isBlockElementNode,
   $isDecoratorNode,
   $getNodeByKey,
@@ -136,11 +139,24 @@ export function $getInheritedTextFormat(
   quote: string,
 ): number {
   if (markdownQuoteToPlainText(quote) !== quote) return 0;
+  const coveredTextNodes = $getCoveredTextNodes(anchor, focus);
+  if (coveredTextNodes.length === 0) return 0;
+  return coveredTextNodes.reduce((format, node) => format & node.getFormat(), coveredTextNodes[0].getFormat());
+}
+
+/**
+ * The text nodes whose text lies between two selection points, or the one
+ * a collapsed selection is in.
+ */
+function $getCoveredTextNodes(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+): TextNode[] {
   const selection = $createRangeSelection();
   selection.anchor.set(anchor.key, anchor.offset, anchor.type);
   selection.focus.set(focus.key, focus.offset, focus.type);
   const collapsed = selection.isCollapsed();
-  const coveredTextNodes = selection.getNodes().filter((node): node is TextNode => {
+  return selection.getNodes().filter((node): node is TextNode => {
     if (!$isTextNode(node)) return false;
     if (collapsed) return true;
     // A boundary node the selection only touches at its edge isn't covered.
@@ -148,8 +164,6 @@ export function $getInheritedTextFormat(
     if (focus.type === "text" && node.getKey() === focus.key && focus.offset <= 0) return false;
     return true;
   });
-  if (coveredTextNodes.length === 0) return 0;
-  return coveredTextNodes.reduce((format, node) => format & node.getFormat(), coveredTextNodes[0].getFormat());
 }
 
 /**
@@ -306,10 +320,12 @@ export function $addTextFormat(node: LexicalNode, format: number): void {
 /**
  * Replace a non-empty range with inline nodes, inserting them where the
  * range starts, inside any link or mark its content started in: before the
- * first selected node. The selected nodes are then removed with Lexical's
- * range removal, which also merges the blocks at the range's ends when it
- * spans several. Inserting first means a link or mark whose whole content is
- * replaced is never left empty, which would remove it.
+ * first selected node. The exception is a link that the range starts at the
+ * start of and extends past, whose text is all removed: the nodes go before
+ * it rather than taking it over. The selected nodes are then removed with
+ * Lexical's range removal, which also merges the blocks at the range's ends
+ * when it spans several. Inserting first means a link or mark whose whole
+ * content is replaced is never left empty, which would remove it.
  */
 function $replaceRange(
   anchor: MarkdownSelectionPoint,
@@ -319,8 +335,9 @@ function $replaceRange(
   const selected = $splitAtRangeEnds(anchor, focus);
   if (!selected) return false;
 
+  const insertBefore = $outsideLinksEndingInRange(selected.first, selected.last);
   for (const node of nodes) {
-    selected.first.insertBefore(node);
+    insertBefore.insertBefore(node);
   }
   const removal = $createRangeSelection();
   $setPointAtNodeEdge(removal.anchor, selected.first, "start");
@@ -328,6 +345,20 @@ function $replaceRange(
   $setSelection(removal);
   removal.removeText();
   return true;
+}
+
+/**
+ * The outermost of the links that `first` starts and that don't contain
+ * `last`, or `first` itself if there's none.
+ */
+function $outsideLinksEndingInRange(first: LexicalNode, last: LexicalNode): LexicalNode {
+  let current = first;
+  for (let parent = current.getParent(); $isLinkNode(parent); parent = current.getParent()) {
+    const containsLast = parent.is(last) || parent.isParentOf(last);
+    if (current.getPreviousSibling() || containsLast) break;
+    current = parent;
+  }
+  return current;
 }
 
 function $setPointAtNodeEdge(point: PointType, node: LexicalNode, edge: "start" | "end"): void {
@@ -655,6 +686,119 @@ function countPlainTextInSuffix(toMarkdown: number[], markdownLength: number, md
   return count;
 }
 
+interface PlainTextHunk {
+  start: number
+  /** Exclusive. */
+  end: number
+  text: string
+}
+
+interface PlannedEdit {
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  text: string
+  format: number
+}
+
+/**
+ * The separate changes that turn `before` into `after`, as ranges of
+ * `before` and their new text. The character diff is cleaned up so that
+ * letters a rewritten phrase happens to share with the old one don't split
+ * it into pieces.
+ */
+function computePlainTextHunks(before: string, after: string): PlainTextHunk[] {
+  const dmp = new DiffMatchPatch();
+  const diffs = dmp.diff_main(before, after);
+  dmp.diff_cleanupSemantic(diffs);
+  const hunks: PlainTextHunk[] = [];
+  let position = 0;
+  for (const [operation, text] of diffs) {
+    if (operation === DiffMatchPatch.DIFF_EQUAL) {
+      position += text.length;
+      continue;
+    }
+    const deletedLength = operation === DiffMatchPatch.DIFF_DELETE ? text.length : 0;
+    const insertedText = operation === DiffMatchPatch.DIFF_INSERT ? text : "";
+    const previous = hunks[hunks.length - 1];
+    if (previous && previous.end === position) {
+      hunks[hunks.length - 1] = { ...previous, end: previous.end + deletedLength, text: previous.text + insertedText };
+    } else {
+      hunks.push({ start: position, end: position + deletedLength, text: insertedText });
+    }
+    position += deletedLength;
+  }
+  return hunks;
+}
+
+/** Whether markdown renders to exactly its own text, unformatted. */
+function $rendersAsItsOwnText(editor: LexicalEditor, markdown: string, markdownIt: MarkdownIt): boolean {
+  const nodes = $inlineMarkdownToNodes(editor, markdown, markdownIt);
+  const allUnformattedText = nodes.every((node) => $isTextNode(node) && node.getFormat() === 0);
+  return allUnformattedText && nodes.map((node) => node.getTextContent()).join("") === markdown;
+}
+
+function $resolveHunk(range: LocatedQuoteRange, hunk: PlainTextHunk): Omit<PlannedEdit, "format"> | null {
+  const anchor = resolveRawIndexToPoint(range.projection, range.rawStart + hunk.start, false);
+  const focus = hunk.start === hunk.end
+    ? anchor
+    : resolveRawIndexToPoint(range.projection, range.rawStart + hunk.end, true);
+  return anchor && focus ? { anchor, focus, text: hunk.text } : null;
+}
+
+function $rangeHasLinkText(anchor: MarkdownSelectionPoint, focus: MarkdownSelectionPoint): boolean {
+  return $getCoveredTextNodes(anchor, focus).some((node) => node.getParents().some($isLinkNode));
+}
+
+/**
+ * Plan a plain-text replacement of a quote with links in it as the separate
+ * changes a diff of the visible text finds, so that link text which didn't
+ * change stays in its link, and text added at a link's edge goes outside it.
+ * Replaced as one range from the first change to the last, the replacement
+ * would all go into the first link and any other links would be deleted.
+ * Returns null where this doesn't apply: the quote has no link text, the
+ * replacement has markdown in it, or the quote doesn't match the document
+ * text exactly.
+ */
+function $planLinkPreservingEdits({
+  editor,
+  anchor,
+  focus,
+  quote,
+  replacement,
+  range,
+  markdownIt,
+}: {
+  editor: LexicalEditor
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  quote: string
+  replacement: string
+  range: LocatedQuoteRange | undefined
+  markdownIt: MarkdownIt
+}): PlannedEdit[] | null {
+  if (!range || !$pointsShareBlock(anchor, focus) || !$rangeHasLinkText(anchor, focus)) return null;
+  const segmentsInRange = range.projection.segments.filter(
+    (segment) => segment.end > range.rawStart && segment.start < range.rawEnd,
+  );
+  if (segmentsInRange.some((segment) => segment.kind !== "text")) return null;
+  const matchedText = range.projection.text.slice(range.rawStart, range.rawEnd);
+  if (markdownQuoteToPlainText(quote) !== matchedText || replacement === matchedText) return null;
+  if (!$rendersAsItsOwnText(editor, replacement, markdownIt)) return null;
+
+  const hunks = computePlainTextHunks(matchedText, replacement);
+  const edits = hunks.map((hunk) => $resolveHunk(range, hunk)).filter((edit) => edit !== null);
+  if (edits.length !== hunks.length) return null;
+  return edits.map((edit) => ({ ...edit, format: $getInheritedTextFormat(edit.anchor, edit.focus, quote) }));
+}
+
+function $applyPlannedEdit(edit: PlannedEdit): boolean {
+  const nodes = edit.text ? [$createTextNode(edit.text)] : [];
+  for (const node of nodes) {
+    $addTextFormat(node, edit.format);
+  }
+  return $applyEditAtSelection({ anchor: edit.anchor, focus: edit.focus, nodes });
+}
+
 /**
  * Apply an "edit" mode replacement at an already-located selection: narrow to
  * the minimal diff (possibly a pure insertion), render the narrowed
@@ -689,6 +833,15 @@ export function $applyEditModeReplacement({
 }): { replaced: boolean, narrowedQuote: string, narrowedReplacement: string } {
   const computedNarrowing = $computeNarrowing(anchor, focus, quote, replacement, range, markdownIt);
   const narrowing = computedNarrowing?.replacement.includes("\n") ? null : computedNarrowing;
+  const linkPreservingEdits = $planLinkPreservingEdits({ editor, anchor, focus, quote, replacement, range, markdownIt });
+  if (linkPreservingEdits) {
+    const results = linkPreservingEdits.toReversed().map($applyPlannedEdit);
+    return {
+      replaced: results.every(Boolean),
+      narrowedQuote: narrowing?.quote ?? quote,
+      narrowedReplacement: narrowing?.replacement ?? replacement,
+    };
+  }
   let importedNodes: LexicalNode[];
   if (narrowing) {
     importedNodes = $inlineMarkdownToNodes(editor, narrowing.replacement, markdownIt);
