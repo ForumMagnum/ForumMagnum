@@ -68,6 +68,18 @@ export function getDbIndexesOnComments() {
   
   // Will be used for experimental shortform display on AllPosts page
   indexSet.addIndex("Comments", { topLevelCommentId: 1, postedAt: 1, baseScore:1});
+
+  // topShortform (AllPosts time blocks): the view's sort order over exactly the rows it
+  // selects, so a date range with no shortform can't fall back to walking all of Comments
+  // by baseScore looking for 5 matches.
+  indexSet.addIndex("Comments",
+    { baseScore: -1, postedAt: -1 },
+    {
+      name: "comments.top_shortform",
+      partialFilterExpression: { shortform: true, parentCommentId: null, deleted: false },
+      concurrently: true,
+    }
+  );
   
   // Filtering comments down to ones that include "nominated for Review" so further sort indexes not necessary
   indexSet.addIndex("Comments",
