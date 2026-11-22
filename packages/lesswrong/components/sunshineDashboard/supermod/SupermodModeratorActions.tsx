@@ -77,7 +77,7 @@ const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedAct
   currentUser: UsersCurrent,
   expanded: boolean,
   // False while another sidebar section is expanded: the collapsed view drops
-  // its revoked permissions, leaving just the header
+  // its revoked permissions, leaving just the header and action buttons
   showCollapsedActions: boolean,
   onToggle: () => void,
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void,
@@ -110,13 +110,13 @@ const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedAct
         </button>
       </div>}
     >
+      <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
       {isCollapsed && showCollapsedActions && isAnyContentPermissionDisabled(user) && (
         <div className={classes.collapsedPermissions}>
           <ModerationPermissionButtons user={user} dispatch={dispatch} collapsed />
         </div>
       )}
       {!isCollapsed && <>
-        <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
         <div className={classes.rateLimitSection}>
           <ModerationPermissionButtons user={user} dispatch={dispatch} />
           <div
