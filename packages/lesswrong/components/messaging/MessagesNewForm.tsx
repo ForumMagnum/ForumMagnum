@@ -204,8 +204,6 @@ const InnerMessagesNewForm = ({
   }, [form, keystrokeSubmitButton, editorIsBlank]);
   const formRef = useFormSubmitOnCmdEnter(handleSubmit);
 
-  // Lets the supermod sidebar submit the form from outside it (the collapsed
-  // Send Message button and its Cmd+M shortcut)
   useEffect(() => {
     if (!registerSubmit) return;
     registerSubmit(() => void handleSubmit());

@@ -14,8 +14,7 @@ const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
     marginTop: 8,
     marginBottom: 12,
   },
-  // Equal-width columns, so the right-hand column starts at the same x whatever
-  // the longest label in the left-hand one happens to be for this user
+  // Equal widths so the right column's x doesn't depend on label lengths
   actionColumn: {
     flex: 1,
     minWidth: 0,
@@ -29,19 +28,12 @@ const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
   },
 }));
 
-/**
- * Actions which take away permissions or take the user out of the review queue go in
- * the left column; actions which approve the user's current content go in the right.
- */
-export type ModeratorActionColumn = 'restrictive' | 'approve';
-
 interface ModeratorActionButtonSpec {
   label: string;
   keystroke: string;
   tooltip: string;
   onClick: () => void;
   active?: boolean;
-  column: ModeratorActionColumn;
 }
 
 const ModerationActionButtonList = ({buttons}: {
@@ -78,27 +70,24 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
   const { toggleAllPermissions } = useUserContentPermissions(user, dispatch);
   const allPermissionsDisabled = areAllContentPermissionsDisabled(user);
 
-  const moderatorActionButtons: ModeratorActionButtonSpec[] = [
+  const restrictiveActionButtons: ModeratorActionButtonSpec[] = [
     {
       label: 'Snooze',
       keystroke: 'S',
       tooltip: "Remove this user from the review queue; they'll return after the chosen N number of posts and comments.",
       onClick: handleSnoozeChoice,
-      column: 'restrictive',
     },
     {
       label: 'Unapprove & Remove',
       keystroke: 'Q',
       tooltip: "Remove this user from the review queue without approving them or snoozing. Their content stays unreviewed. Signs a 'removed from review queue without snooze/approval' note in their moderator notes.",
       onClick: handleRemoveNeedsReview,
-      column: 'restrictive',
     },
     {
       label: 'Purge',
       keystroke: 'P',
       tooltip: "Deletes all of this user's posts, comments, sequences, and votes, bans them for 1000 years, and removes them from the review queue. Asks for confirmation first, and signs a 'Purge' note in their moderator notes.",
       onClick: handlePurge,
-      column: 'restrictive',
     },
     {
       label: allPermissionsDisabled ? 'Enable Permissions' : 'Disable Permissions',
@@ -108,21 +97,21 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
         : "Disable posting, commenting, messaging, and voting. Signs an 'all permissions disabled' note in their moderator notes.",
       onClick: toggleAllPermissions,
       active: allPermissionsDisabled,
-      column: 'restrictive',
     },
+  ];
+
+  const approveActionButtons: ModeratorActionButtonSpec[] = [
     {
       label: 'Approve',
       keystroke: 'A',
       tooltip: "Approve this user and all their content. Marks them as reviewed by you, so their future posts and comments no longer need review. Clears any snooze and any flag, and signs an 'Approved' note in their moderator notes.",
       onClick: handleReview,
-      column: 'approve',
     },
     {
       label: 'Approve, then Unapprove',
       keystroke: 'Shift+A',
       tooltip: "Approve this user's existing unreviewed posts and comments and remove them from the queue, without marking the user as reviewed, so their future content will still need review. Also clears any snooze and any flag.",
       onClick: handleApproveCurrentOnly,
-      column: 'approve',
     },
   ];
 
@@ -130,12 +119,12 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch}: 
     <div className={classes.actionColumns}>
       <div className={classes.actionColumn}>
         <ModerationActionButtonList
-          buttons={moderatorActionButtons.filter(({column: buttonColumn}) => buttonColumn === 'restrictive')}
+          buttons={restrictiveActionButtons}
         />
       </div>
       <div className={classes.actionColumn}>
         <ModerationActionButtonList
-          buttons={moderatorActionButtons.filter(({column: buttonColumn}) => buttonColumn === 'approve')}
+          buttons={approveActionButtons}
         />
       </div>
     </div>

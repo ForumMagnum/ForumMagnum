@@ -114,8 +114,6 @@ export interface IndexedRejectableContent {
  * rejection has reached the Apollo cache.
  */
 export function getNextUnapprovedContentIndex(items: IndexedRejectableContent[], currentContentId: string) {
-  if (items.length === 0) return null;
-
   const currentIndex = items.findIndex(item => item._id === currentContentId);
   for (let offset = 1; offset <= items.length; offset++) {
     const candidateIndex = (currentIndex + offset) % items.length;

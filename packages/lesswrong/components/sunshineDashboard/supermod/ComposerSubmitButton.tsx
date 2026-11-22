@@ -2,34 +2,20 @@ import React from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import KeystrokeDisplay from './KeystrokeDisplay';
+import { commandButtonStyles } from './ModerationActionButton';
 
 const styles = defineStyles('ComposerSubmitButton', (theme: ThemeType) => ({
-  // These commit the composer, so they get the bordered affordance of
-  // ModerationActionButton rather than the bare styling of the "More ..."
-  // disclosure rows they sit under. Keep the left and vertical padding equal
-  // so the keystroke chip sits evenly inside the rounded border.
   root: {
+    ...commandButtonStyles(theme),
     display: 'inline-flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '4px 6px 4px 4px',
     border: `1px solid ${theme.palette.grey[300]}`,
-    borderRadius: 4,
-    backgroundColor: theme.palette.background.paper,
     color: 'inherit',
     fontFamily: 'inherit',
-    fontSize: 12,
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-    // :not(:disabled) so a button with nothing to submit gives no hover feedback,
-    // whichever variant it is
     '&:not(:disabled):hover': {
       backgroundColor: theme.palette.grey[50],
       borderColor: theme.palette.grey[400],
     },
   },
-  // Marks the destructive commit (rejecting content) apart from the benign one
-  // without the weight of a filled button
   danger: {
     color: theme.palette.error.main,
   },

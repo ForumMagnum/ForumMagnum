@@ -3,6 +3,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import SunshineUserMessages from '../SunshineUserMessages';
 import SupermodModeratorActions from './SupermodModeratorActions';
 import { useBalancedSidebarSectionHeights } from './useBalancedSidebarSectionHeights';
+import { FILLS_SPACE_SELECTOR, SHARES_SPACE_SELECTOR } from './ModerationSidebarSection';
 import type { InboxAction } from './inboxReducer';
 import type { ContentItem } from './helpers';
 import type { SelectedSidebarTab } from './sidebarTabs';
@@ -16,7 +17,7 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     overflow: 'hidden',
     // Without another section filling the column, space-sharing sections divide
     // the free height evenly.
-    '&:not(:has([data-moderation-sidebar-fills-space="true"])) [data-moderation-sidebar-shares-space="true"]': {
+    [`&:not(:has(${FILLS_SPACE_SELECTOR})) ${SHARES_SPACE_SELECTOR}`]: {
       flex: '1 1 0',
     },
   },
@@ -55,8 +56,7 @@ const ModerationSidebar = ({
   const rootRef = useRef<HTMLDivElement>(null);
   useBalancedSidebarSectionHeights(rootRef);
   const moderatorActionsExpanded = sidebarTab === 'moderatorActions';
-  // With Rejections or Send Message expanded, Moderator Actions collapses to a
-  // bare header (no action buttons) so the expanded section gets the full height
+  // Moderator Actions collapses to a bare header while one of these is expanded
   const otherActionSectionExpanded = sidebarTab === 'reject' || sidebarTab === 'dm';
 
   const handleRejectStart = useCallback((content: ContentItem) => {

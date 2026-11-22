@@ -21,9 +21,8 @@ import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEdi
 import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
 import FormatDate from '../common/FormatDate';
 import GroupedModerationTemplateList from './GroupedModerationTemplateList';
-import ModerationSectionTitle from './supermod/ModerationSectionTitle';
+import CollapsibleSectionHeader from './supermod/CollapsibleSectionHeader';
 import RejectContentPanel from './supermod/RejectContentPanel';
-import KeystrokeDisplay from './supermod/KeystrokeDisplay';
 import ComposerKeydownWrapper from './supermod/ComposerKeydownWrapper';
 import ComposerSubmitButton from './supermod/ComposerSubmitButton';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
@@ -139,8 +138,7 @@ function getDisplayedConversations({
 const COLLAPSED_CONVERSATION_COUNT = 2;
 
 const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
-  // Makes these three sections flex siblings of Moderator Actions in the
-  // parent sidebar without adding another layout region.
+  // Makes the sections flex children of the parent sidebar
   root: {
     display: 'contents',
   },
@@ -187,9 +185,7 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   conversationForm: {
     marginBottom: 16,
     paddingBottom: 8,
-    // One line tall until the moderator types or inserts a template (the
-    // lexical min-height var is already 1em via MessagesNewForm's own styles,
-    // but the editor wrapper adds a 100px min-height that we undo here)
+    // Undo the editor wrapper's 100px min-height so the composer starts one line tall
     '& .EditorFormComponent-commentEditorHeight': {
       minHeight: 'unset',
     },
@@ -213,16 +209,6 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     maxHeight: "100vh",
     overflow: "hidden",
   },
-  sectionHeaderRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexShrink: 0,
-    marginBottom: 6,
-  },
-  minimalSectionHeaderRow: {
-    marginBottom: 0,
-  },
   emptySectionMessage: {
     display: 'flex',
     alignItems: 'center',
@@ -230,33 +216,6 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     padding: '12px 0',
     color: theme.palette.grey[600],
     fontSize: 14,
-  },
-  sectionHeaderControls: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 6,
-  },
-  disabledSectionHeaderControls: {
-    opacity: 0.4,
-  },
-  sectionToggleButton: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 0,
-    border: 0,
-    background: 'none',
-    color: theme.palette.grey[600],
-    cursor: 'pointer',
-    '&:hover': {
-      color: theme.palette.grey[800],
-    },
-    '&:disabled': {
-      cursor: 'default',
-    },
-  },
-  sectionChevron: {
-    fontSize: 16,
   },
   loadMoreMessages: {
     padding: '2px 0',
@@ -277,43 +236,6 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     marginTop: 4,
   },
 }));
-
-const CollapsibleSectionHeader = ({ title, keystroke, expanded, minimal = false, disabled = false, disabledTitle, onToggle }: {
-  title: string,
-  keystroke?: string,
-  expanded: boolean,
-  minimal?: boolean,
-  disabled?: boolean,
-  disabledTitle?: string,
-  onToggle: () => void,
-}) => {
-  const classes = useStyles(styles);
-
-  return <div className={classNames(classes.sectionHeaderRow, {
-    [classes.minimalSectionHeaderRow]: minimal,
-  })}>
-    <ModerationSectionTitle>{title}</ModerationSectionTitle>
-    <div className={classNames(classes.sectionHeaderControls, {
-      [classes.disabledSectionHeaderControls]: disabled,
-    })}>
-      {keystroke && <KeystrokeDisplay keystroke={keystroke} />}
-      <button
-        type="button"
-        className={classes.sectionToggleButton}
-        onClick={onToggle}
-        disabled={disabled}
-        title={disabled ? disabledTitle : expanded ? `Close ${title}` : `Open ${title}`}
-        aria-label={expanded ? `Close ${title}` : `Open ${title}`}
-        aria-expanded={expanded}
-      >
-        <ForumIcon
-          icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
-          className={classes.sectionChevron}
-        />
-      </button>
-    </div>
-  </div>;
-};
 
 interface SunshineUserMessagesProps {
   user: SunshineUsersList;
@@ -346,8 +268,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
 
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
-  // Templates whose text has been inserted into the draft message; drives the
-  // checkboxes in the template list. Cleared when the message is sent.
+  // Drives the template list's checkboxes
   const [insertedMessageTemplateIds, setInsertedMessageTemplateIds] = useState<Set<string>>(new Set());
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
   const [templateSearchToken, setTemplateSearchToken] = useState(0);
@@ -394,16 +315,13 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
 
   const canReject = canRejectContent(focusedContent);
   const conversationsLoaded = !conversationsLoading || !!data;
-  const hasUserMessages = displayedConversations.length > 0;
-  const userMessagesEmpty = conversationsLoaded && !hasUserMessages;
+  const userMessagesEmpty = conversationsLoaded && displayedConversations.length === 0;
   const userMessagesActive = sidebarTab === 'userMessages'
     && (!userMessagesEmpty || openedEmptySection === 'userMessages');
   const rejectTabActive = sidebarTab === 'reject'
     && (canReject || openedEmptySection === 'reject');
   const dmTabActive = sidebarTab === 'dm';
-  // With Rejections, Send Message, or Moderator Actions expanded, the other
-  // two collapse to bare headers (no suggested templates or submit buttons)
-  // so the expanded section gets the full height
+  // Expanding one of these collapses the others to bare headers
   const actionSectionExpanded = rejectTabActive || dmTabActive || sidebarTab === 'moderatorActions';
   const visibleConversations = userMessagesActive
     ? displayedConversations
@@ -422,35 +340,16 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     }
   }, [openedEmptySection, sidebarTab]);
 
-  // Once the focused item has been rejected (and no rejectable item has taken
-  // its place), the open reject tab has nothing left to show; close it so the
-  // whole section collapses instead of leaving the sidebar stuck with every
-  // section reduced to a bare header. Deliberately opening the tab's empty
-  // state ("Nothing to reject") is exempt.
+  // Close Rejections once nothing is rejectable, unless its empty state was opened deliberately
   useEffect(() => {
     if (sidebarTab === 'reject' && !canReject && openedEmptySection !== 'reject') {
       setSidebarTab(null);
     }
   }, [sidebarTab, canReject, openedEmptySection, setSidebarTab]);
 
-  const handleToggleUserMessages = () => {
-    if (userMessagesActive) {
-      setOpenedEmptySection(null);
-      setSidebarTab(null);
-    } else {
-      setOpenedEmptySection(userMessagesEmpty ? 'userMessages' : null);
-      setSidebarTab('userMessages');
-    }
-  };
-
-  const handleToggleReject = () => {
-    if (rejectTabActive) {
-      setOpenedEmptySection(null);
-      setSidebarTab(null);
-    } else {
-      setOpenedEmptySection(canReject ? null : 'reject');
-      setSidebarTab('reject');
-    }
+  const toggleSection = (section: EmptySection, isActive: boolean, isEmpty: boolean) => {
+    setOpenedEmptySection(!isActive && isEmpty ? section : null);
+    setSidebarTab(isActive ? null : section);
   };
 
   const handleStartConversation = useCallback(() => {
@@ -459,8 +358,6 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     }
   }, [embeddedConversationId, initiateConversation, user._id]);
 
-  // Start the conversation on tab click, not on a second click on the prompt.
-  // Clicking the already-active tab closes the composer.
   const handleSelectDmTab = useCallback(() => {
     if (dmTabActive) {
       setSidebarTab(null);
@@ -472,8 +369,6 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
 
   const { isDialogOpen } = useDialog();
 
-  // Shift+M toggles the Send DM composer from anywhere in the inbox, mirroring
-  // the R shortcut for the reject panel
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
     if (isDialogOpen) return;
     if (e.key.toLowerCase() !== 'm' || !e.shiftKey || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -482,8 +377,6 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     handleSelectDmTab();
   }, [isDialogOpen, handleSelectDmTab]));
 
-  // The message form registers its submit function here so the collapsed Send
-  // Message button (and Cmd+M) can send the draft without the composer open
   const submitMessageRef = useRef<() => void>(() => {});
   const registerSubmitMessage = useCallback((fn: () => void) => {
     submitMessageRef.current = fn;
@@ -537,15 +430,10 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     });
   }, [embeddedConversationId, refetch, finishPendingMessage, captureEvent, currentUser._id]);
 
-  // The conversation check keeps the button disabled during the window between
-  // clicking a template and the message form mounting, when the submit ref is
-  // still a no-op
+  // Until the conversation exists the form isn't mounted, so submitMessageRef is a no-op
   const canSendDraftMessage = insertedMessageTemplateIds.size > 0 && !!embeddedConversationId;
 
-  // Cmd/Ctrl+M sends the drafted message from anywhere in the inbox, mirroring
-  // Cmd+R for rejections; until a template is inserted the key does nothing.
-  // Skipped while typing: the composer has Ctrl+Enter for that, and lexical
-  // itself binds Cmd+M (insert display math).
+  // Ignored while typing: the composer has Ctrl+Enter, and lexical binds Cmd+M (display math)
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
     if (isDialogOpen || !canSendDraftMessage) return;
     if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'm') {
@@ -626,9 +514,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     );
   }, []);
 
-  // A rejection creates a new moderator conversation on the server. Show that
-  // conversation immediately, then replace it with the real result once the
-  // mutation (including its rejection PM) completes.
+  // Show the rejection's new moderator conversation until the refetch returns the real one
   const handleContentRejectStart = useCallback((content: ContentItem) => {
     const latestActivity = new Date().toISOString();
     const optimisticConversation = createOptimisticConversation({
@@ -696,7 +582,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
         title="User Messages"
         expanded={userMessagesActive}
         minimal={userMessagesEmpty && !userMessagesActive}
-        onToggle={handleToggleUserMessages}
+        onToggle={() => toggleSection('userMessages', userMessagesActive, userMessagesEmpty)}
       />}
     >
       {visibleConversations.map(({ conversation, optimistic }) => {
@@ -714,10 +600,12 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
                   })}
                 </span>
                 {conversation.latestActivity && <span className={classes.date}><FormatDate date={conversation.latestActivity} /></span>}
-                {!optimistic && <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
-                  <ForumIcon icon="Link" className={classes.linkIcon} />
-                </Link>}
-                {!optimistic && <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />}
+                {!optimistic && <>
+                  <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
+                    <ForumIcon icon="Link" className={classes.linkIcon} />
+                  </Link>
+                  <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
+                </>}
               </div>
               {!optimistic && isExpanded && (
                 <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
@@ -756,7 +644,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
         keystroke="R"
         expanded={rejectTabActive}
         minimal={!canReject && !rejectTabActive}
-        onToggle={handleToggleReject}
+        onToggle={() => toggleSection('reject', rejectTabActive, !canReject)}
       />}
     >
       {canReject && focusedContent ? (
@@ -785,7 +673,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
         onToggle={handleSelectDmTab}
       />}
     >
-      {!dmTabActive && !actionSectionExpanded && (
+      {!actionSectionExpanded && (
         <GroupedModerationTemplateList
           collectionName="Messages"
           onTemplateClick={handleMessageTemplateClick}
@@ -798,7 +686,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       <div className={classNames({ [classes.hiddenTabContent]: !dmTabActive })}>
         {dmTabContents}
       </div>
-      {!dmTabActive && !actionSectionExpanded && highlightedMessageTemplateNames.size > 0 && (
+      {!actionSectionExpanded && highlightedMessageTemplateNames.size > 0 && (
         <div className={classes.collapsedSendButton}>
           <ComposerSubmitButton
             label="Send Message"

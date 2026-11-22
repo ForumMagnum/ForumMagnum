@@ -1,11 +1,7 @@
 import { useEffect } from 'react';
 import sortBy from 'lodash/sortBy';
 import sumBy from 'lodash/sumBy';
-
-const FILLS_SPACE_SELECTOR = '[data-moderation-sidebar-fills-space="true"]';
-const SHARES_SPACE_SELECTOR = '[data-moderation-sidebar-shares-space="true"]';
-const SECTION_SELECTOR = '[data-moderation-sidebar-section="true"]';
-const SECTION_BODY_SELECTOR = '[data-moderation-sidebar-section-body="true"]';
+import { FILLS_SPACE_SELECTOR, SECTION_BODY_SELECTOR, SECTION_SELECTOR, SHARES_SPACE_SELECTOR, SPACE_ATTRIBUTES } from './ModerationSidebarSection';
 
 function getVerticalMargins(element: Element): number {
   const style = getComputedStyle(element);
@@ -99,7 +95,6 @@ export function useBalancedSidebarSectionHeights(rootRef: React.RefObject<HTMLEl
       }
     };
 
-    observedElements.add(root);
     resizeObserver.observe(root);
     observeSectionChildren();
     const mutationObserver = new MutationObserver(() => {
@@ -110,7 +105,7 @@ export function useBalancedSidebarSectionHeights(rootRef: React.RefObject<HTMLEl
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['data-moderation-sidebar-fills-space', 'data-moderation-sidebar-shares-space'],
+      attributeFilter: SPACE_ATTRIBUTES,
     });
     scheduleBalance();
 

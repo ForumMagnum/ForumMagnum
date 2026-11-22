@@ -5,11 +5,7 @@ import classNames from 'classnames';
 import { KEYSTROKE_GUTTER } from './constants';
 
 const styles = defineStyles('KeystrokeDisplay', (theme: ThemeType) => ({
-  // The whole keystroke (modifiers included, e.g. ⇧M) renders in one box.
-  // Every chip is at least a full gutter wide so that the labels following it —
-  // across command rows, submit buttons and template checkboxes alike — all start
-  // at the same x. minWidth rather than width so a keystroke too long for the
-  // gutter grows instead of being clipped.
+  // minWidth (not width): labels after chips line up at KEYSTROKE_GUTTER, longer keystrokes grow
   root: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -47,10 +43,7 @@ const KeystrokeDisplay = ({
 }) => {
   const classes = useStyles(styles);
 
-  // getEnvKeystrokeText (via parseKeystroke) picks Mac glyphs (⌘, ⇧) from
-  // navigator.userAgent, which the server doesn't have, so until the client has
-  // mounted the raw keystroke text is shown — identical on server and client —
-  // to keep hydration stable.
+  // Mac glyphs come from navigator.userAgent; show raw text until mounted to avoid a hydration mismatch
   const [envReady, setEnvReady] = useState(false);
   useEffect(() => setEnvReady(true), []);
 

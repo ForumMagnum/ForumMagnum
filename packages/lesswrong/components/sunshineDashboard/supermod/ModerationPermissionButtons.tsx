@@ -7,6 +7,7 @@ import KeystrokeDisplay from './KeystrokeDisplay';
 import type { InboxAction } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import type { ContentPermissionField } from './helpers';
+import { activeCommandButtonStyles } from './ModerationActionButton';
 
 const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) => ({
   permissionButtonsContainer: {
@@ -30,28 +31,15 @@ const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) =>
       borderColor: theme.palette.grey[400],
     },
     '&.active': {
-      backgroundColor: theme.palette.error.light,
+      ...activeCommandButtonStyles(theme),
       borderColor: theme.palette.error.main,
-      color: theme.palette.error.contrastText,
-      '&:hover': {
-        backgroundColor: theme.palette.error.main,
-      },
     },
   },
   barePermissionButton: {
     padding: '2px 4px',
     border: 0,
     borderRadius: 0,
-    boxShadow: 'none',
     backgroundColor: 'transparent',
-    '&:hover': {
-      border: 0,
-      boxShadow: 'none',
-    },
-    '&.active': {
-      border: 0,
-      boxShadow: 'none',
-    },
   },
   permissionButtonLabel: {
     flexGrow: 1,
@@ -90,8 +78,7 @@ const ModerationPermissionButtons = ({
     { field: 'votingDisabled', label: 'Vote', keystroke: 'V', onClick: () => toggleDisableVoting() },
   ];
 
-  // Collapsed, we keep the permissions a moderator has already revoked, so the revocation
-  // stays visible without expanding.
+  // Collapsed, show only revoked permissions
   const visibleButtons = collapsed
     ? permissionButtons.filter(({field}) => user[field])
     : permissionButtons;
@@ -115,7 +102,6 @@ const ModerationPermissionButtons = ({
     );
   });
 
-  // Rendered bare while collapsed, so they flow with the other keyboard-first command rows.
   if (collapsed) {
     return <>{renderedButtons}</>;
   }

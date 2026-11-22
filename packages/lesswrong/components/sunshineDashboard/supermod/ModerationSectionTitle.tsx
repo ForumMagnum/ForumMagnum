@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ModerationSectionTitle', (theme: ThemeType) => ({
@@ -13,9 +12,9 @@ const styles = defineStyles('ModerationSectionTitle', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationSectionTitle = ({ children, className }: { children: React.ReactNode, className?: string }) => {
+const ModerationSectionTitle = ({ children }: { children: React.ReactNode }) => {
   const classes = useStyles(styles);
-  return <div className={classNames(classes.root, className)}>{children}</div>;
+  return <div className={classes.root}>{children}</div>;
 };
 
 export default ModerationSectionTitle;

@@ -144,9 +144,6 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
       opacity: 1,
     },
   },
-  // The collapsed (highlighted-only) list sits at the top of its sidebar section,
-  // so it drops the full list's margin and resting fade. Keep each row full-width
-  // so the whole line is hoverable and its action buttons stay right-aligned.
   onlyHighlightedList: {
     marginTop: 0,
     opacity: 1,
@@ -154,8 +151,6 @@ const styles = defineStyles('GroupedModerationTemplateList', (theme: ThemeType) 
       paddingLeft: 0,
       gap: 8,
     },
-    // Centre the checkbox in a keystroke-chip-sized gutter so these labels line up
-    // with the labels of the keystroke command rows above and below them.
     '& .ModerationTemplateSunshineItem-checkbox': {
       marginLeft: (KEYSTROKE_GUTTER - CHECKBOX_SIZE) / 2,
       marginRight: (KEYSTROKE_GUTTER - CHECKBOX_SIZE) / 2,
@@ -470,7 +465,7 @@ const TemplateGroup = ({group, templatesInGroup, expanded, onToggleExpanded, onT
           onTemplateClick={onTemplateClick}
           highlighted={!!highlightedTemplateNames?.has(template.name)}
           selected={template._id === selectedTemplateId}
-          checked={insertedTemplateIds ? insertedTemplateIds.has(template._id) : undefined}
+          checked={insertedTemplateIds?.has(template._id)}
           onHideTemplate={onHideTemplate}
         />
       ))}
@@ -662,7 +657,7 @@ const GroupedModerationTemplateList = ({ collectionName, onTemplateClick, highli
           template={template}
           onTemplateClick={onTemplateClick}
           highlighted
-          checked={insertedTemplateIds ? insertedTemplateIds.has(template._id) : undefined}
+          checked={insertedTemplateIds?.has(template._id)}
         />
       ))}
     </div>;

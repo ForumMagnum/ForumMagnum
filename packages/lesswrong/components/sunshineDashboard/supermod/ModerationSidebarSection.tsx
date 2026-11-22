@@ -2,6 +2,12 @@ import React from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
+export const SECTION_SELECTOR = '[data-moderation-sidebar-section="true"]';
+export const SECTION_BODY_SELECTOR = '[data-moderation-sidebar-section-body="true"]';
+export const FILLS_SPACE_SELECTOR = '[data-moderation-sidebar-fills-space="true"]';
+export const SHARES_SPACE_SELECTOR = '[data-moderation-sidebar-shares-space="true"]';
+export const SPACE_ATTRIBUTES = ['data-moderation-sidebar-fills-space', 'data-moderation-sidebar-shares-space'];
+
 const styles = defineStyles('ModerationSidebarSection', (theme: ThemeType) => ({
   root: {
     flex: '0 1 auto',

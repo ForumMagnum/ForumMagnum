@@ -14,7 +14,7 @@ import ComposerKeydownWrapper from './ComposerKeydownWrapper';
 import ComposerSubmitButton from './ComposerSubmitButton';
 import { getContentTitle, isPost, type ContentItem } from './helpers';
 
-// `loading` adds a Suspense boundary; without one, loading the editor blanks the page.
+// `loading` adds a Suspense boundary; without one, loading the editor blanks the page
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'), { loading: () => null });
 
 const styles = defineStyles('RejectContentPanel', (theme: ThemeType) => ({
@@ -173,25 +173,16 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
   // Bumped when the template list hands focus to the composer; opens the editor
   composerFocusToken: number,
   registerToggleTemplate: (fn: (template: ModerationTemplateFragment) => void) => void,
-  // Like registerToggleTemplate: lets the panel submit the rejection from outside
-  // the composer (the collapsed Send Rejection button and its Cmd+R shortcut)
+  // Exposes handleReject to the collapsed Reject button and Cmd+R
   registerReject: (fn: () => void) => void,
-  // Source of truth while the preview is showing; the reasons html is derived.
-  // Owned by the panel so the template list can show which templates are inserted.
+  // Source of truth while the preview is showing; the reasons html is derived
   addedTemplates: AddedRejectionTemplate[],
   setAddedTemplates: React.Dispatch<React.SetStateAction<AddedRejectionTemplate[]>>,
-  // Owned by the panel (like addedTemplates) because an open editor counts as a
-  // submittable draft even with no templates toggled, and the panel's collapsed
-  // Reject button needs to know that
   editorOpen: boolean,
   setEditorOpen: React.Dispatch<React.SetStateAction<boolean>>,
-  // Called before the mutation begins so the surrounding supermod UI can
-  // update its user and conversation state optimistically
   onRejectStart?: (content: ContentItem) => void,
-  // Called once the rejection mutation has completed (the server will have sent
-  // the rejection PM by then)
+  // Fires after the server has sent the rejection PM
   onRejected?: (content: ContentItem) => void,
-  // Called when the mutation fails so optimistic state can be rolled back
   onRejectFailed?: (content: ContentItem) => void,
   onArrowDownPastEnd: () => void,
   // Escape in the composer closes the panel's tab, as if it were clicked again
@@ -274,9 +265,11 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
     const reason = editorOpen ? fullMessageRef.current : joinTemplateHtml(addedTemplates);
     if (!reason) return;
 
-    const rejectPromise = isPost(focusedContent)
-      ? rejectContent({ collectionName: 'Posts', document: focusedContent, reason })
-      : rejectContent({ collectionName: 'Comments', document: focusedContent, reason });
+    const rejectPromise = rejectContent({
+      collectionName: isPost(focusedContent) ? 'Posts' : 'Comments',
+      document: focusedContent,
+      reason,
+    });
     onRejectStart?.(focusedContent);
     void rejectPromise.then(succeeded => {
       if (succeeded) {
@@ -335,21 +328,16 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
  * Inline replacement for RejectContentDialog in the moderation sidebar:
  * clicking a template below the composer toggles it as a rejection reason.
  * Stays mounted while `active` is false so the draft survives the tab
- * being toggled closed and reopened. While collapsed, it shows a Reject
- * button (Cmd+R) that stays disabled until the draft has a reason.
+ * being toggled closed and reopened.
  */
 const RejectContentPanel = ({ user, focusedContent, active, showCollapsedActions, onRejectStart, onRejected, onRejectFailed, onEscape }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
   active: boolean,
-  // False while another sidebar section is expanded: the collapsed view drops
-  // its Reject button, leaving just the header
+  // False while another section is expanded
   showCollapsedActions: boolean,
-  // Called immediately before the rejection mutation begins
   onRejectStart?: (content: ContentItem) => void,
-  // Called once the rejection mutation has completed
   onRejected?: (content: ContentItem) => void,
-  // Called if the rejection mutation fails
   onRejectFailed?: (content: ContentItem) => void,
   // Escape anywhere in the panel closes its tab, as if it were clicked again
   onEscape: () => void,
@@ -373,14 +361,11 @@ const RejectContentPanel = ({ user, focusedContent, active, showCollapsedActions
     rejectRef.current = fn;
   }, []);
 
-  // An open editor counts as a draft even with no templates toggled, matching
-  // the editor's own submit-button logic
   const hasDraftReasons = addedTemplates.length > 0 || editorOpen;
 
   const { isDialogOpen } = useDialog();
 
-  // Cmd/Ctrl+R sends the drafted rejection from anywhere in the inbox; with no
-  // draft it stays the browser's reload shortcut
+  // With no draft, Cmd+R stays the browser's reload
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
     if (isDialogOpen || !hasDraftReasons) return;
     if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'r') {

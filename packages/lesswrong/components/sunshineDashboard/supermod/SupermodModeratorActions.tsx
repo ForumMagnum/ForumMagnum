@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationPermissionButtons from './ModerationPermissionButtons';
 import ModerationActionButtons from './ModerationActionButtons';
-import ModerationSectionTitle from './ModerationSectionTitle';
+import CollapsibleSectionHeader from './CollapsibleSectionHeader';
 import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
-import ForumIcon from '@/components/common/ForumIcon';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
 import { isAnyContentPermissionDisabled } from './helpers';
 import type { InboxAction } from './inboxReducer';
@@ -13,28 +12,6 @@ import classNames from 'classnames';
 import ModerationSidebarSection from './ModerationSidebarSection';
 
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
-  sectionTitleRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  collapseChevron: {
-    fontSize: 16,
-    color: theme.palette.grey[600],
-  },
-  collapseButton: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 0,
-    border: 0,
-    background: 'none',
-    color: theme.palette.grey[600],
-    cursor: 'pointer',
-    '&:hover': {
-      color: theme.palette.grey[800],
-    },
-  },
   collapsedPermissions: {
     display: 'flex',
     flexDirection: 'column',
@@ -76,8 +53,7 @@ const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedAct
   user: SunshineUsersList,
   currentUser: UsersCurrent,
   expanded: boolean,
-  // False while another sidebar section is expanded: the collapsed view drops
-  // its action buttons and revoked permissions, leaving just the header
+  // False while another section is expanded
   showCollapsedActions: boolean,
   onToggle: () => void,
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void,
@@ -86,37 +62,26 @@ const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedAct
   const classes = useStyles(styles);
   const activeModeratorActions = user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)) ?? [];
   const [showRateLimitForm, setShowRateLimitForm] = useState(false);
-  const isCollapsed = !expanded;
 
   return (
     <ModerationSidebarSection
       fillsAvailableSpace={expanded}
       sharesAvailableSpace
       withDivider={false}
-      header={<div className={classes.sectionTitleRow}>
-        <ModerationSectionTitle>Moderator Actions</ModerationSectionTitle>
-        <button
-          type="button"
-          className={classes.collapseButton}
-          onClick={onToggle}
-          title={expanded ? "Close Moderator Actions" : "Open Moderator Actions"}
-          aria-label={expanded ? "Close Moderator Actions" : "Open Moderator Actions"}
-          aria-expanded={expanded}
-        >
-          <ForumIcon
-            icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
-            className={classes.collapseChevron}
-          />
-        </button>
-      </div>}
+      header={<CollapsibleSectionHeader
+        title="Moderator Actions"
+        expanded={expanded}
+        minimal
+        onToggle={onToggle}
+      />}
     >
-      {(!isCollapsed || showCollapsedActions) && <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />}
-      {isCollapsed && showCollapsedActions && isAnyContentPermissionDisabled(user) && (
+      {(expanded || showCollapsedActions) && <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />}
+      {!expanded && showCollapsedActions && isAnyContentPermissionDisabled(user) && (
         <div className={classes.collapsedPermissions}>
           <ModerationPermissionButtons user={user} dispatch={dispatch} collapsed />
         </div>
       )}
-      {!isCollapsed && <>
+      {expanded && <>
         <div className={classes.rateLimitSection}>
           <ModerationPermissionButtons user={user} dispatch={dispatch} />
           <div
