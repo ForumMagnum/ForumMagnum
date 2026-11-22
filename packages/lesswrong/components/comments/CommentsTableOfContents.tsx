@@ -1,5 +1,5 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import { useScrollHighlight } from '../hooks/useScrollHighlight';
@@ -12,7 +12,6 @@ import TableOfContentsDivider from "../posts/TableOfContents/TableOfContentsDivi
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
 const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
   root: {
@@ -47,12 +46,6 @@ const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
     marginLeft: -7,
     borderLeft: `solid 3px ${theme.palette.secondary.main}`
   },
-  '@global': {
-    // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
-    [`body:has(.headroom--pinned) .${COMMENTS_TITLE_CLASS_NAME}, body:has(.headroom--unfixed) .${COMMENTS_TITLE_CLASS_NAME}`]: {
-      opacity: 0,
-    }
-  }
 }));
 
 const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate}: {
@@ -100,33 +93,11 @@ const CommentsTableOfContentsTitle = ({post}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision
 }) => {
   const classes = useStyles(styles);
-  const [pageHeaderCoversTitle, setPageHeaderCoversTitle] = useState(false);
-  const titleRef = useRef<HTMLAnchorElement|null>(null);
-  const hideTitleContainer = pageHeaderCoversTitle;
-
-  useEffect(() => {
-    const target = titleRef.current;
-    if (target) {
-      // To prevent the comment ToC title from being hidden when scrolling up
-      // This relies on the complementary `top: -1px` styling in `MultiToCLayout` on the parent sticky element
-      const observer = new IntersectionObserver(([e]) => {
-        setPageHeaderCoversTitle(e.intersectionRatio < 1);
-      }, { threshold: [1] });
-  
-      observer.observe(target);
-      return () => observer.unobserve(target);
-    }
-  }, []);
-
-  return <a id="comments-table-of-contents" href="#" className={classNames(
-    classes.postTitle,
-    {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer}
-  )}
+  return <a id="comments-table-of-contents" href="#" className={classes.postTitle}
     onClick={ev => {
       ev.preventDefault();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }}
-    ref={titleRef}
   >
     {post.title?.trim()}
   </a>

@@ -104,11 +104,6 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
   commentToCMargin: {
     marginTop: 'unset',
   },
-  // This is needed for an annoying IntersectionObserver hack to prevent the title from being hidden when scrolling up
-  commentToCIntersection: {
-    // And unfortunately we need !important because otherwise this style gets overriden by the `top: 0` in `stickyBlockScroller`
-    top: '-1px !important'
-  },
   '@global': {
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
@@ -243,7 +238,6 @@ const MultiToCLayout = ({segments, tocRowMap = [], showSplashPageHeader = false,
             {!embedded && <div className={classNames(
               classes.stickyBlockScroller,
               STICKY_BLOCK_SCROLLER_CLASS_NAME,
-              segment.isCommentToC && classes.commentToCIntersection
             )}>
               <div className={classes.stickyBlock}>
                 {segment.toc}
