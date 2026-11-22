@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+# sudoers allows this exact script, not arbitrary docker/systemctl commands.
+cd /opt/lw-analytics/deploy
+/usr/bin/docker compose stop -t 300 clickhouse
+# Do not power off if ClickHouse could not be stopped gracefully.
+test "$(/usr/bin/docker compose ps --status running -q clickhouse)" = ''
+container=$(/usr/bin/docker compose ps -a -q clickhouse)
+test "$(/usr/bin/docker inspect -f '{{.State.ExitCode}}' "$container")" = 0
+/usr/bin/systemctl poweroff

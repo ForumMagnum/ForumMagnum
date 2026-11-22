@@ -1,0 +1,7 @@
+boto3==1.42.30
+psycopg[binary]==3.3.2
+fastapi==0.128.0
+uvicorn==0.40.0
+httpx==0.28.1
+pytest==9.0.2
+ruff==0.14.13

@@ -1,0 +1,54 @@
+{
+  "extractor_fingerprint": "ae85f429dbde53eaf6e6788bac4a454ad3f5177752c2ad0e961e7dc07bdc090e",
+  "properties": 142,
+  "imports": [
+    {
+      "manifests_reconciled": 200,
+      "events_processed": 1000000,
+      "groups": 20,
+      "seconds": 154.17485500010662,
+      "http_requests": 100
+    },
+    {
+      "manifests_reconciled": 16,
+      "events_processed": 75789,
+      "groups": 2,
+      "seconds": 9.664788542082533,
+      "http_requests": 10
+    }
+  ],
+  "projection_readbacks": [
+    {
+      "rows_checked": 75789,
+      "seconds": 44.66012550005689,
+      "float_rounding": {
+        "values": 79,
+        "max_ulps": 1.0
+      }
+    }
+  ],
+  "storage": [
+    {
+      "table": "raw_events",
+      "rows": "1073083",
+      "compressed_bytes": "196284228",
+      "bytes_on_disk": "196334855"
+    },
+    {
+      "table": "raw_events_typed_v1",
+      "rows": "1073083",
+      "compressed_bytes": "290202623",
+      "bytes_on_disk": "291201999"
+    }
+  ],
+  "logical_rows": 1073083,
+  "common_event_mismatches": {
+    "timer_increment": "0",
+    "navigation_to": "0",
+    "browser_response_start": "0"
+  },
+  "python_peak_rss_bytes": 1236172800,
+  "limitation": "Local archived-input fixture; excludes RDS export, S3 transfer and full-history query scaling.",
+  "measured_at": "2026-10-02",
+  "runtime": "Python 3.14 on macOS; local Colima aarch64 ClickHouse 26.3.38.2, 6 CPUs / 12 GiB VM"
+}

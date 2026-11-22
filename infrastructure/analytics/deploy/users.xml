@@ -1,0 +1,55 @@
+<clickhouse>
+  <profiles>
+    <analytics_query>
+      <readonly>1</readonly>
+      <date_time_input_format>best_effort</date_time_input_format>
+      <function_json_value_return_type_allow_nullable>1</function_json_value_return_type_allow_nullable>
+      <max_execution_time>120</max_execution_time>
+      <max_memory_usage>17179869184</max_memory_usage>
+      <max_threads>4</max_threads>
+      <max_result_rows>10000</max_result_rows>
+      <max_result_bytes>8388608</max_result_bytes>
+      <result_overflow_mode>throw</result_overflow_mode>
+      <output_format_json_quote_64bit_integers>1</output_format_json_quote_64bit_integers>
+      <log_queries>0</log_queries>
+      <constraints>
+        <readonly><const/></readonly>
+        <max_execution_time><min>1</min><max>120</max></max_execution_time>
+        <max_memory_usage><min>1</min><max>17179869184</max></max_memory_usage>
+        <max_threads><min>1</min><max>4</max></max_threads>
+        <max_result_rows><min>1</min><max>10000</max></max_result_rows>
+        <max_result_bytes><min>1</min><max>8388608</max></max_result_bytes>
+        <output_format_json_quote_64bit_integers><const/></output_format_json_quote_64bit_integers>
+        <result_overflow_mode><const/></result_overflow_mode>
+      </constraints>
+    </analytics_query>
+  </profiles>
+  <users>
+    <default remove="remove"/>
+    <analytics_ingest>
+      <password_sha256_hex from_env="ANALYTICS_CH_INGEST_PASSWORD_SHA256"/>
+      <networks><ip>127.0.0.1</ip></networks>
+      <profile>default</profile><quota>default</quota>
+      <grants><query>GRANT SELECT, INSERT ON analytics.raw_events</query>
+        <query>GRANT SELECT, INSERT ON analytics.applied_batches</query>
+        <query>GRANT SELECT, INSERT ON analytics.raw_events_typed_v1</query>
+        <query>GRANT SELECT, INSERT ON analytics.applied_batches_typed_v1</query>
+        <query>GRANT SELECT ON analytics.events</query>
+        <query>GRANT SELECT ON analytics.events_typed_v1</query>
+      </grants>
+    </analytics_ingest>
+    <analytics_query>
+      <password_sha256_hex from_env="ANALYTICS_CH_QUERY_PASSWORD_SHA256"/>
+      <networks><ip>127.0.0.1</ip></networks>
+      <profile>analytics_query</profile><quota>default</quota>
+      <grants><query>GRANT SELECT ON analytics.events</query>
+        <query>GRANT SELECT ON analytics.events_typed_v1</query></grants>
+    </analytics_query>
+    <analytics_maintenance>
+      <password_sha256_hex from_env="ANALYTICS_CH_MAINTENANCE_PASSWORD_SHA256"/>
+      <networks><ip>127.0.0.1</ip></networks>
+      <profile>default</profile><quota>default</quota>
+      <grants><query>GRANT ALL ON analytics.*</query><query>GRANT KILL QUERY ON *.*</query></grants>
+    </analytics_maintenance>
+  </users>
+</clickhouse>

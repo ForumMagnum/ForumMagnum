@@ -1,0 +1,34 @@
+[Unit]
+Description=Last twelve months of analytics, read-only source backfill
+Requires=lw-pilot-clickhouse.service
+After=network-online.target lw-pilot-clickhouse.service
+Wants=network-online.target
+RequiresMountsFor=/srv/analytics
+StartLimitIntervalSec=1800
+StartLimitBurst=5
+OnSuccess=lw-pilot-stop.service
+OnFailure=lw-pilot-stop.service
+
+[Service]
+Type=exec
+WorkingDirectory=/opt/lw-analytics
+ExecStart=/opt/lw-analytics/venv/bin/python /opt/lw-analytics/backfill.py --job /etc/lw-analytics/backfill.json
+Restart=on-failure
+RestartSec=60
+RestartPreventExitStatus=78
+TimeoutStopSec=30
+RuntimeMaxSec=144h
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+StateDirectory=lw-analytics
+ReadWritePaths=/srv/analytics/backfill /var/lib/lw-analytics
+MemoryMax=8G
+CPUQuota=200%
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
