@@ -55,9 +55,8 @@ const ModerationSidebar = ({
   const rootRef = useRef<HTMLDivElement>(null);
   useBalancedSidebarSectionHeights(rootRef);
   const moderatorActionsExpanded = sidebarTab === 'moderatorActions';
-  // With Rejections or Send Message expanded, Moderator Actions collapses to its
-  // header and action buttons (no revoked permissions) so the expanded section
-  // gets the most height
+  // With Rejections or Send Message expanded, Moderator Actions collapses to a
+  // bare header (no action buttons) so the expanded section gets the full height
   const otherActionSectionExpanded = sidebarTab === 'reject' || sidebarTab === 'dm';
 
   const handleRejectStart = useCallback((content: ContentItem) => {
