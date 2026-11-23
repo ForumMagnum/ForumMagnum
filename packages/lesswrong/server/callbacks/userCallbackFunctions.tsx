@@ -38,6 +38,7 @@ import { persistentDisplayedModeratorActions, reviewTriggerModeratorActions } fr
 import { updateModeratorAction } from "../collections/moderatorActions/mutations";
 import { invalidateLoginTokensFor } from "../vulcan-lib/apollo-server/authentication";
 import { isUserSelectableVoice } from "../narration/narrationVoices";
+import { validateNamePronunciation } from "../narration/namePronunciation";
 
 async function sendWelcomeMessageTo(userId: string, forumType: ForumTypeString) {
   const context = createAnonymousContext({ forumType });
@@ -266,10 +267,13 @@ export async function changeDisplayNameRateLimit({ oldDocument, newDocument, cur
   }
 }
 
-export function validateNarrationVoice({ oldDocument, newDocument }: UpdateCallbackProperties<"Users">) {
-  const { narrationVoiceId } = newDocument;
+export function validateNarrationSettings({ oldDocument, newDocument }: UpdateCallbackProperties<"Users">) {
+  const { narrationVoiceId, narrationNamePronunciation } = newDocument;
   if (narrationVoiceId && narrationVoiceId !== oldDocument.narrationVoiceId && !isUserSelectableVoice(narrationVoiceId)) {
     throw new Error("That narration voice isn't available");
+  }
+  if (narrationNamePronunciation !== oldDocument.narrationNamePronunciation) {
+    validateNamePronunciation(narrationNamePronunciation);
   }
 }
 

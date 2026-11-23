@@ -645,6 +645,7 @@ extend type Mutation {
   prepareNarration(postId: String!): NarrationScript!
   prepareCommentNarration(commentId: String!): NarrationScript!
   generateNarrationSegmentAudio(narrationSegmentId: String!, voice: NarrationVoiceChoiceInput!): NarrationSegmentAudio!
+  previewNarrationNamePronunciation(userId: String!, pronunciation: String!): String!
 }
 
 type FrontpageScoreTerm {
@@ -8024,6 +8025,7 @@ type User {
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
   narrationVoiceId: String
+  narrationNamePronunciation: String
   hideIntercom: Boolean!
   hailboxOptIn: Boolean
   markDownPostEditor: Boolean!
@@ -10340,6 +10342,7 @@ input UpdateUserDataInput {
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
   narrationVoiceId: String
+  narrationNamePronunciation: String
   hideIntercom: Boolean
   hailboxOptIn: Boolean
   markDownPostEditor: Boolean

@@ -9,8 +9,7 @@ import SettingsSection from './SettingsSection';
 import SettingsToggleRow from './SettingsToggleRow';
 import SettingsSelectRow from './SettingsSelectRow';
 import type { SettingsTabProps } from './settingsTabTypes';
-import { userCanUseHailbox, userCanViewJargonTerms, userHasNarration } from '@/lib/betas';
-import NarrationVoiceSetting from '@/components/narration/NarrationVoiceSetting';
+import { userCanUseHailbox, userCanViewJargonTerms } from '@/lib/betas';
 
 const SORT_DRAFTS_BY_OPTIONS = [
   { value: "wordCount", label: "Wordcount" },
@@ -85,15 +84,6 @@ const PreferencesSettingsTab = ({
           description="Author names are hidden until you hover over them. Reduces bias when reading. Does not work well on mobile."
         />
       </SettingsSection>
-
-      {userHasNarration(currentUser) && <SettingsSection title="Narration">
-        <HighlightableField name="narrationVoiceId">
-          <NarrationVoiceSetting
-            value={settings.narrationVoiceId}
-            onChange={(value) => void updateSettings({ narrationVoiceId: value })}
-          />
-        </HighlightableField>
-      </SettingsSection>}
 
       <SettingsSection title="Content">
         <SettingsSelectRow

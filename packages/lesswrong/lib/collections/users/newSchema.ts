@@ -4,6 +4,7 @@ import {
   userGetProfileUrl,
   getUserEmail,
   userOwnsAndInGroup,
+  userCanEditNarrationSettings,
   karmaChangeUpdateFrequencies,
   userGetAbsoluteProfileUrl,
 } from "./helpers";
@@ -805,7 +806,28 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: [userOwns, "admins"],
-      canUpdate: [userOwns, "admins"],
+      canUpdate: [userCanEditNarrationSettings],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  /**
+   * How narration says this user's name, written in IPA. Empty to leave it to
+   * the speech model, which goes by their display name (see
+   * server/narration/namePronunciation.ts).
+   */
+  narrationNamePronunciation: {
+    database: {
+      type: "TEXT",
+      defaultValue: "",
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userCanEditNarrationSettings],
       validation: {
         optional: true,
       },

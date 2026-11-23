@@ -3,6 +3,7 @@ import { z } from "zod";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { accessFilterMultiple, accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanListenToNarration } from "@/lib/collections/posts/helpers";
+import { userCanEditNarrationSettings } from "@/lib/collections/users/helpers";
 import { isCommentNarratable } from "@/lib/narration/narratableComments";
 import {
   AUTHOR_NARRATION_VOICE,
@@ -11,7 +12,8 @@ import {
   type NarrationVoiceChoice,
   type NarrationVoiceSettings,
 } from "@/lib/narration/narrationTypes";
-import { listElevenLabsSpeechModels } from "@/server/narration/elevenLabs";
+import { listElevenLabsSpeechModels, NARRATION_AUDIO_CONTENT_TYPE } from "@/server/narration/elevenLabs";
+import { synthesizeNamePronunciationPreview } from "@/server/narration/namePronunciation";
 import {
   getAuthorVoiceId,
   getNarratedDocument,
@@ -160,6 +162,23 @@ async function generateNarrationSegmentAudioResolver(
   return await accessFilterSingle(context.currentUser, "NarrationSegmentAudios", audio, context);
 }
 
+/**
+ * Lets whoever is setting how a user's name is pronounced hear what they've
+ * entered before they save it. The audio comes back as a data: URL.
+ */
+async function previewNarrationNamePronunciationResolver(
+  _root: void,
+  { userId, pronunciation }: { userId: string, pronunciation: string },
+  context: ResolverContext,
+) {
+  const user = await context.loaders.Users.load(userId);
+  if (!user || !userCanEditNarrationSettings(context.currentUser, user)) {
+    throw new Error(`You can't set how user ${userId}'s name is pronounced`);
+  }
+  const audio = await synthesizeNamePronunciationPreview(user, pronunciation, context.forumType);
+  return `data:${NARRATION_AUDIO_CONTENT_TYPE};base64,${audio.toString("base64")}`;
+}
+
 export const narrationGraphQLTypeDefs = gql`
   type NarrationVoice {
     voiceId: String!
@@ -199,6 +218,7 @@ export const narrationGraphQLTypeDefs = gql`
     prepareNarration(postId: String!): NarrationScript!
     prepareCommentNarration(commentId: String!): NarrationScript!
     generateNarrationSegmentAudio(narrationSegmentId: String!, voice: NarrationVoiceChoiceInput!): NarrationSegmentAudio!
+    previewNarrationNamePronunciation(userId: String!, pronunciation: String!): String!
   }
 `;
 
@@ -212,4 +232,5 @@ export const narrationGraphQLMutations = {
   prepareNarration: prepareNarrationResolver,
   prepareCommentNarration: prepareCommentNarrationResolver,
   generateNarrationSegmentAudio: generateNarrationSegmentAudioResolver,
+  previewNarrationNamePronunciation: previewNarrationNamePronunciationResolver,
 };

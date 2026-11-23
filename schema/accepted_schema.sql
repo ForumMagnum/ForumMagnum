@@ -3351,6 +3351,7 @@ CREATE TABLE "Users" (
   "showHideKarmaOption" BOOL,
   "showPostAuthorCard" BOOL,
   "narrationVoiceId" TEXT,
+  "narrationNamePronunciation" TEXT NOT NULL DEFAULT '',
   "hideIntercom" BOOL NOT NULL DEFAULT FALSE,
   "hailboxOptIn" BOOL NOT NULL DEFAULT FALSE,
   "markDownPostEditor" BOOL NOT NULL DEFAULT FALSE,

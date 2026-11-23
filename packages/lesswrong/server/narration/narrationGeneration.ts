@@ -1,5 +1,4 @@
 import { put } from "@vercel/blob";
-import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { loadByIds } from "@/lib/loaders";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { isCommentNarratable } from "@/lib/narration/narratableComments";
@@ -7,8 +6,9 @@ import type { NarrationScript, NarrationVoiceSettings } from "@/lib/narration/na
 import NarrationScripts from "@/server/collections/narrationScripts/collection";
 import NarrationSegments from "@/server/collections/narrationSegments/collection";
 import NarrationSegmentAudios from "@/server/collections/narrationSegmentAudios/collection";
-import { synthesizeSpeechWithTimestamps } from "./elevenLabs";
+import { NARRATION_AUDIO_CONTENT_TYPE, synthesizeSpeechWithTimestamps } from "./elevenLabs";
 import { getOrGenerate, type ClaimedGeneration } from "./generationClaims";
+import { getSpokenUserName } from "./namePronunciation";
 import {
   buildNarrationScript,
   getCommentIntroduction,
@@ -89,7 +89,7 @@ async function getShownAuthor(document: Pick<DbPost|DbComment, "userId"|"hideAut
 
 /** What a script calls an author: their name, or if the page doesn't show who they are (`shownAuthor` is null), nobody in particular */
 function getSpokenAuthorName(shownAuthor: DbUser|null, context: ResolverContext): string {
-  return shownAuthor ? userGetDisplayName(shownAuthor, context.forumType) : ANONYMOUS_AUTHOR_NAME;
+  return shownAuthor ? getSpokenUserName(shownAuthor, context.forumType) : ANONYMOUS_AUTHOR_NAME;
 }
 
 /**
@@ -101,7 +101,7 @@ async function getPublicBylineNames(post: DbPost, context: ResolverContext): Pro
   const shownCoauthors = await Promise.all(coauthors.map(coauthor => getPubliclyVisibleUser(coauthor, context)));
   return [
     getSpokenAuthorName(await getShownAuthor(post, context), context),
-    ...shownCoauthors.flatMap(coauthor => coauthor ? [userGetDisplayName(coauthor, context.forumType)] : []),
+    ...shownCoauthors.flatMap(coauthor => coauthor ? [getSpokenUserName(coauthor, context.forumType)] : []),
   ];
 }
 
@@ -299,7 +299,7 @@ async function synthesizeAndStoreSegmentAudio(
 
   const filePrefix = `narration/${narrationScript.revisionId}/segment-${segment.segmentIndex}`;
   const [audioUrl, timingsUrl] = await Promise.all([
-    storeNarrationFile(`${filePrefix}.mp3`, speech.audio, "audio/mpeg"),
+    storeNarrationFile(`${filePrefix}.mp3`, speech.audio, NARRATION_AUDIO_CONTENT_TYPE),
     storeNarrationFile(`${filePrefix}-timings.json`, JSON.stringify(timings), "application/json"),
   ]);
 

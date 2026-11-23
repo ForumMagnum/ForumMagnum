@@ -257,6 +257,7 @@ interface Mutation {
   prepareNarration: NarrationScript;
   prepareCommentNarration: NarrationScript;
   generateNarrationSegmentAudio: NarrationSegmentAudio;
+  previewNarrationNamePronunciation: string;
   PetrovDayLaunchMissile: PetrovDayLaunchMissileData | null;
   submitReviewVote: Post | null;
   AddGivingSeasonHeart: Array<GivingSeasonHeart>;
@@ -7397,6 +7398,7 @@ interface User {
   showHideKarmaOption: boolean | null;
   showPostAuthorCard: boolean | null;
   narrationVoiceId: string | null;
+  narrationNamePronunciation: string | null;
   hideIntercom: boolean;
   hailboxOptIn: boolean | null;
   markDownPostEditor: boolean;
@@ -9427,6 +9429,7 @@ interface UpdateUserDataInput {
   showHideKarmaOption?: boolean | null;
   showPostAuthorCard?: boolean | null;
   narrationVoiceId?: string | null;
+  narrationNamePronunciation?: string | null;
   hideIntercom?: boolean | null;
   hailboxOptIn?: boolean | null;
   markDownPostEditor?: boolean | null;

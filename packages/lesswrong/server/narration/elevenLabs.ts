@@ -3,6 +3,7 @@ import type { NarrationVoiceSettings } from "@/lib/narration/narrationTypes";
 
 const ELEVENLABS_API_ORIGIN = "https://api.elevenlabs.io";
 const NARRATION_OUTPUT_FORMAT = "mp3_44100_128";
+export const NARRATION_AUDIO_CONTENT_TYPE = "audio/mpeg";
 
 const modelsResponseSchema = z.array(z.object({
   model_id: z.string(),

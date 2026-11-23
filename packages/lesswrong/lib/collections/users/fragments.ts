@@ -475,6 +475,7 @@ export const UsersEdit = gql(`
     beta
     theme
     narrationVoiceId
+    narrationNamePronunciation
 
     # Emails
     email
