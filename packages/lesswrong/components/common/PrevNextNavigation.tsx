@@ -47,9 +47,6 @@ const styles = defineStyles("PrevNextNavigation", (theme: ThemeType) => ({
     textAlign: "center",
     fontVariantNumeric: "tabular-nums",
   },
-  hidden: {
-    visibility: "hidden",
-  },
 }));
 
 export interface PrevNextNavigationProps {
@@ -68,9 +65,9 @@ const PrevNextNavigation = ({ onPrevious, onNext, onNextHoverChange, pageIndex =
     <button type="button" className={classes.button} onClick={onPrevious} disabled={onFirstPage}>
       Prev
     </button>
-    <span className={classNames(classes.pageNumber, onFirstPage && classes.hidden)}>
+    {!onFirstPage && <span className={classes.pageNumber}>
       {pageIndex + 1}
-    </span>
+    </span>}
     <button
       type="button"
       className={classes.button}
