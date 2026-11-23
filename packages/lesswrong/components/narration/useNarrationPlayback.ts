@@ -60,6 +60,14 @@ const NarrationSegmentAudiosQuery = gql(`
 
 /** Used to place segments on the timeline before any audio has been generated to measure */
 const DEFAULT_MS_PER_CHARACTER = 65;
+/**
+ * How much of what follows the segment being played is requested ahead of
+ * time, in characters: a little more than is played, at the fastest speed, in
+ * the time that a full-size segment takes to generate. It's counted in
+ * characters rather than segments because a short segment doesn't take long
+ * enough to play for the one after it to be generated meanwhile.
+ */
+const LOOKAHEAD_CHARACTERS = 1500;
 /** After the reader scrolls, how long before the page is scrolled to follow the narration again */
 const USER_SCROLL_GRACE_MS = 5000;
 const POST_CONTENT_ELEMENT_ID = "postContent";
@@ -73,6 +81,13 @@ interface PreparedNarration {
   narrationScriptId: string
   segments: NarrationSegmentInfo[]
   script: NarrationScript
+}
+
+/** One of the segments of an item whose script has been loaded */
+interface PreparedSegment {
+  item: NarrationItem
+  preparedNarration: PreparedNarration
+  segmentIndex: number
 }
 
 interface LoadedSegmentAudio {
@@ -127,6 +142,8 @@ interface EngineState {
   }|null
   /** Incremented whenever playback is redirected, so that work started for an earlier request can tell it's been superseded */
   commandToken: number
+  /** Incremented whenever what follows a segment starts being requested, so that requesting what followed an earlier one stops */
+  lookaheadToken: number
   /** Where playback was last asked to start from, until the audio for it has been loaded */
   pendingTarget: PlaybackTarget|null
   /** Highlights what's being read in the item that the player is showing */
@@ -300,8 +317,9 @@ function findItemForElement(element: Element, postItem: NarrationItem): { item: 
  * audio element. Each of those (an "item") has a script of its own, divided
  * into segments. Audio for a segment is requested (and generated, if nobody
  * has listened to it in that voice before) when playback reaches it, and what
- * comes after the segment being played is requested ahead of time: the item's
- * next segment, or the first segment of the next item.
+ * comes after the segment being played is requested ahead of time: the
+ * segments that follow it, in its item and then in the items after, until
+ * they add up to LOOKAHEAD_CHARACTERS.
  */
 export function useNarrationPlayback({ postId, settings, autoScroll, playbackRate }: {
   postId: string
@@ -321,6 +339,7 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     segmentAudios: new Map(),
     loadedSegment: null,
     commandToken: 0,
+    lookaheadToken: 0,
     pendingTarget: null,
     highlighter: null,
     highlighterItemKey: null,
@@ -435,24 +454,41 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     return loading;
   }, [generateSegmentAudio]);
 
-  /** Requests what will be played after a segment, so that it's ready by then */
-  const loadWhatFollows = useCallback(async (
-    item: NarrationItem,
-    preparedNarration: PreparedNarration,
-    segmentIndex: number,
-    voiceSettings: NarrationListenerSettings|null,
-  ) => {
-    const nextSegment = preparedNarration.segments.at(segmentIndex + 1);
-    if (nextSegment) {
-      await loadSegmentAudio(nextSegment, item, voiceSettings);
-      return;
+  /** What's played after a segment: the next segment of its item, or the first segment of the next item. Null at the end of the narration. */
+  const findFollowingSegment = useCallback(async ({ item, preparedNarration, segmentIndex }: PreparedSegment): Promise<PreparedSegment|null> => {
+    if (segmentIndex + 1 < preparedNarration.segments.length) {
+      return { item, preparedNarration, segmentIndex: segmentIndex + 1 };
     }
     const nextItem = getNextItem(item, engineRef.current.unlockedCommentIds);
-    const nextItemFirstSegment = nextItem ? (await ensurePrepared(nextItem)).segments.at(0) : null;
-    if (nextItem && nextItemFirstSegment) {
-      await loadSegmentAudio(nextItemFirstSegment, nextItem, voiceSettings);
+    const nextPreparedNarration = nextItem ? await ensurePrepared(nextItem) : null;
+    if (!nextItem || !nextPreparedNarration || nextPreparedNarration.segments.length === 0) {
+      return null;
     }
-  }, [ensurePrepared, loadSegmentAudio]);
+    return { item: nextItem, preparedNarration: nextPreparedNarration, segmentIndex: 0 };
+  }, [ensurePrepared]);
+
+  /**
+   * Requests what will be played after a segment, so that it's ready by then:
+   * the segments that follow it, one at a time, until LOOKAHEAD_CHARACTERS of
+   * them are ready or on their way. Stops if it's called again in the
+   * meantime, for what follows another segment.
+   */
+  const loadWhatFollows = useCallback(async (playedSegment: PreparedSegment, voiceSettings: NarrationListenerSettings|null) => {
+    const engine = engineRef.current;
+    const lookaheadToken = ++engine.lookaheadToken;
+    let lastRequested = playedSegment;
+    let charactersAhead = 0;
+    while (charactersAhead < LOOKAHEAD_CHARACTERS) {
+      const following = await findFollowingSegment(lastRequested);
+      if (!following || lookaheadToken !== engine.lookaheadToken) {
+        return;
+      }
+      const segment = following.preparedNarration.segments[following.segmentIndex];
+      await loadSegmentAudio(segment, following.item, voiceSettings);
+      charactersAhead += segment.characterCount;
+      lastRequested = following;
+    }
+  }, [findFollowingSegment, loadSegmentAudio]);
 
   /** Makes an item the one that the player shows the timeline of. A comment is also expanded, if it wasn't. */
   const showItem = useCallback((item: NarrationItem) => {
@@ -492,7 +528,13 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
       }
 
       setStatusMessage("Generating audio…");
-      const segmentAudio = await loadSegmentAudio(segment, target.item, voiceSettings);
+      const loadingSegmentAudio = loadSegmentAudio(segment, target.item, voiceSettings);
+      // What follows is requested along with the segment, not once the segment
+      // has arrived. An item's first segment is short, and generating the long
+      // one after it can take longer than the first takes to play.
+      // A failure here will come up again, and be reported, when playback gets there.
+      void loadWhatFollows({ item: target.item, preparedNarration, segmentIndex }, voiceSettings).catch(() => {});
+      const segmentAudio = await loadingSegmentAudio;
       if (commandToken !== engine.commandToken) {
         return;
       }
@@ -518,8 +560,6 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
       setSegmentTimeMs(offsetMs);
       setStatusMessage(null);
 
-      // A failure here will come up again, and be reported, when playback gets there
-      void loadWhatFollows(target.item, preparedNarration, segmentIndex, voiceSettings).catch(() => {});
       await audioElement.play();
     } catch (error) {
       if (commandToken !== engine.commandToken) {
@@ -791,6 +831,7 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
     const audioElement = audioRef.current;
     return () => {
       engine.commandToken++;
+      engine.lookaheadToken++;
       audioElement?.pause();
       setNarrationFocusedComment(null);
     };

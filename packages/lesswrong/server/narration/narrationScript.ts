@@ -1,3 +1,4 @@
+import clamp from "lodash/clamp";
 import groupBy from "lodash/groupBy";
 import sortBy from "lodash/sortBy";
 import uniq from "lodash/uniq";
@@ -29,11 +30,23 @@ import { verbalizeTables } from "./tableVerbalization";
  * here (or to extractNarrationBlocks, or to the prompts for reading equations,
  * tables and images) would change the script made for a given post.
  */
-export const NARRATION_PREPROCESSOR_VERSION = 3;
+export const NARRATION_PREPROCESSOR_VERSION = 4;
 
 /** The first segment is short, so that playback can start soon after it's requested */
 const FIRST_SEGMENT_TARGET_CHARACTERS = 600;
 const SEGMENT_TARGET_CHARACTERS = 2400;
+/**
+ * How many times the length of the segment before it a segment can be, until
+ * segments reach their full size. A segment's audio is requested when the one
+ * before it is about to play, so it has to be generated in the time that one
+ * takes to play, and at the player's fastest speed, playing a segment only
+ * takes about twice as long as generating it. (Going straight from a short
+ * first segment to a full-size second one left listeners waiting for the
+ * second.) The second segment can grow by more, because it's requested along
+ * with the first, and so also has the time the first takes to generate.
+ */
+const SECOND_SEGMENT_GROWTH_FACTOR = 3;
+const SEGMENT_GROWTH_FACTOR = 1.75;
 /** Under the smallest per-request limit among ElevenLabs' models (5,000 characters, for eleven_v3) */
 const BLOCK_MAX_CHARACTERS = 4500;
 const MATH_CONTEXT_CHARACTERS = 300;
@@ -563,6 +576,19 @@ function splitOversizeBlock(playbackBlock: PlaybackBlock): PlaybackBlock[] {
   ];
 }
 
+function getSegmentTargetCharacters(precedingSegments: NarrationSegmentPlan[]): number {
+  const previousSegment = precedingSegments.at(-1);
+  if (!previousSegment) {
+    return FIRST_SEGMENT_TARGET_CHARACTERS;
+  }
+  const growthFactor = precedingSegments.length === 1 ? SECOND_SEGMENT_GROWTH_FACTOR : SEGMENT_GROWTH_FACTOR;
+  return clamp(
+    previousSegment.characterCount * growthFactor,
+    FIRST_SEGMENT_TARGET_CHARACTERS,
+    SEGMENT_TARGET_CHARACTERS,
+  );
+}
+
 /**
  * Groups blocks into the segments that audio is generated for. Segments end
  * at block boundaries, and preferably just before a heading.
@@ -572,7 +598,7 @@ function planSegments(playbackBlocks: PlaybackBlock[]): NarrationSegmentPlan[] {
   let startBlockIndex = 0;
 
   for (let blockIndex = 1; blockIndex <= playbackBlocks.length; blockIndex++) {
-    const targetCharacters = segments.length === 0 ? FIRST_SEGMENT_TARGET_CHARACTERS : SEGMENT_TARGET_CHARACTERS;
+    const targetCharacters = getSegmentTargetCharacters(segments);
     const currentBlocks = playbackBlocks.slice(startBlockIndex, blockIndex).map(({ block }) => block);
     const currentCharacters = getNarrationSegmentText(currentBlocks).length;
     const nextBlock = playbackBlocks.at(blockIndex);
