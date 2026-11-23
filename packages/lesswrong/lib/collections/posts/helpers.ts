@@ -10,6 +10,7 @@ import moment from 'moment';
 import { isServer } from '@/lib/executionEnvironment';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import { captureException } from '@/lib/sentryWrapper';
+import { userHasNarration } from '@/lib/betas';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -422,8 +423,9 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
 
 /**
  * Whether the post is allowed AI generated audio: narration by ElevenLabs on
- * its page, and Type III Audio's wherever that's still used. (The settings
- * that this goes by date from when Type III Audio was all there was.)
+ * its page for the users who have that (see userCanListenToNarration), and
+ * Type III Audio's for everyone else and wherever else audio is offered. (The
+ * settings that this goes by date from when Type III Audio was all there was.)
  */
 export const isPostAllowedGeneratedAudio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost, forumType: ForumTypeString): boolean => {
   if (!allowTypeIIIPlayerSetting.get(forumType)) return false
@@ -453,6 +455,18 @@ export const isPostAllowedGeneratedAudio = (post: PostsWithNavigation|PostsWithN
     return false
   }
 }
+
+/**
+ * Whether a post's generated audio, for this user, is narration by ElevenLabs
+ * rather than Type III Audio's. The post's page goes by this to choose which
+ * player the audio button opens, and the server to decide whose requests for
+ * narration to serve.
+ */
+export const userCanListenToNarration = (
+  user: UsersCurrent|DbUser|null,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost,
+  forumType: ForumTypeString,
+): boolean => userHasNarration(user) && isPostAllowedGeneratedAudio(post, forumType);
 
 /**
  * Given a url like https://docs.google.com/document/d/1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA/edit#heading=h.82kaw9idgbpe

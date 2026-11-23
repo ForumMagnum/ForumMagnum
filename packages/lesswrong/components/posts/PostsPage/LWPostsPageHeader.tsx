@@ -3,7 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
-import { postGetLink, postGetLinkTarget, detectLinkpost, parseUnsafeUrl } from '@/lib/collections/posts/helpers';
+import { postGetLink, postGetLinkTarget, detectLinkpost, parseUnsafeUrl, userCanListenToNarration } from '@/lib/collections/posts/helpers';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import ReviewPillContainer from './BestOfLessWrong/ReviewPillContainer';
 import PostsTopSequencesNav, { titleStyles } from './PostsTopSequencesNav';
@@ -18,7 +18,7 @@ import PostsPageEventData from "./PostsPageEventData";
 import AddToCalendarButton from "../AddToCalendar/AddToCalendarButton";
 import GroupLinks from "../../localGroups/GroupLinks";
 import LWPostsPageHeaderTopRight from "./LWPostsPageHeaderTopRight";
-import { PostsPodcastPlayerWithFallback } from "./PostsAudioPlayerWrapper";
+import PostsAudioPlayerWrapper from "./PostsAudioPlayerWrapper";
 import PostsVote from "../../votes/PostsVote";
 import AudioToggle from "./AudioToggle";
 import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
@@ -29,6 +29,8 @@ import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './constants';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '@/components/hooks/useForumType';
+import { useCurrentUser } from '@/components/common/withUser';
 
 export const LW_POST_PAGE_PADDING = 110;
 
@@ -238,6 +240,8 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, dial
   showSplashPageHeader?: boolean
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   let feedLinkDomain;
   let feedLink;
@@ -248,7 +252,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, dial
   }
 
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
-  const podcastEpisode = ('podcastEpisode' in post) ? post.podcastEpisode : null;
+  const hasNarrationPlayer = userCanListenToNarration(currentUser, post, forumType);
 
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
@@ -269,7 +273,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, dial
 
   const reviewYear = 'reviewWinner' in post && post.reviewWinner?.reviewYear;
 
-  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer && !!podcastEpisode}, {[classes.rootWithSplashPageHeader]: showSplashPageHeader})}>
+  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent, [classes.rootWithAudioPlayer]: !!showEmbeddedPlayer && !hasNarrationPlayer}, {[classes.rootWithSplashPageHeader]: showSplashPageHeader})}>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
       {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
@@ -283,8 +287,8 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, dial
       <span className={classes.topRight}>
         <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} annualReviewMarketInfo={annualReviewMarketInfo} />
       </span>
-      {podcastEpisode && <span className={classes.audioPlayerWrapper}>
-        <PostsPodcastPlayerWithFallback podcastEpisode={podcastEpisode} postId={post._id} showEmbeddedPlayer={!!showEmbeddedPlayer} />
+      {!hasNarrationPlayer && <span className={classes.audioPlayerWrapper}>
+        <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
       </span>}
     </div>
     <div className={classNames(classes.titleSection, {[classes.titleSectionWithSplashPageHeader]: showSplashPageHeader})}>

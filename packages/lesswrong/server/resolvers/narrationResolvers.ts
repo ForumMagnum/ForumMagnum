@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 import { z } from "zod";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { accessFilterMultiple, accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { isPostAllowedGeneratedAudio } from "@/lib/collections/posts/helpers";
+import { userCanListenToNarration } from "@/lib/collections/posts/helpers";
 import { isCommentNarratable } from "@/lib/narration/narratableComments";
 import {
   AUTHOR_NARRATION_VOICE,
@@ -35,15 +35,15 @@ const voiceChoiceSchema = z.object({
 });
 
 /**
- * Anyone can listen, logged in or not, to the posts that have the button for
- * it on their pages (see postHasAudioPlayer), and to the comments on those
- * posts. This returns the post if it's one of those and the current user can
- * read it, and throws otherwise.
+ * The users who have narration (see userHasNarration) can listen to the posts
+ * whose pages have the audio button without a podcast episode behind it, and
+ * to the comments on those posts. This returns the post if the current user
+ * can have it narrated and can read it, and throws otherwise.
  */
 async function requireNarratablePost(postId: string|null, context: ResolverContext): Promise<DbPost> {
   const post = postId ? await context.loaders.Posts.load(postId) : null;
   const canReadPost = !!(await accessFilterSingle(context.currentUser, "Posts", post, context));
-  if (!post || !canReadPost || !isPostAllowedGeneratedAudio(post, context.forumType)) {
+  if (!post || !canReadPost || !userCanListenToNarration(context.currentUser, post, context.forumType)) {
     throw new Error(`Post ${postId} isn't one that can be narrated`);
   }
   return post;

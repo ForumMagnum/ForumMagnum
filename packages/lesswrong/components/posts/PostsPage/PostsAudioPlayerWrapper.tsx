@@ -56,10 +56,9 @@ export const PostsPodcastPlayerWithFallback = ({
 }
 
 /**
- * The audio player for a post that's shown somewhere other than on its own
- * page (in the feed's dialog). On its own page, a post that has no podcast
- * episode is read by the narration player instead, which works with that
- * page: see PostsPage.
+ * A post's podcast episode player, or failing that, Type III Audio's player.
+ * The post's own page leaves this out for users who get the narration player
+ * there instead (see userCanListenToNarration).
  */
 export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,

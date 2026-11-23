@@ -1,7 +1,7 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { getResponseCounts, isDialogueParticipant, isPostAllowedGeneratedAudio } from '../../../lib/collections/posts/helpers';
+import { getResponseCounts, isDialogueParticipant, userCanListenToNarration } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -313,9 +313,10 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   }, [post, showEmbeddedPlayer, captureEvent, setCookie, forumType]);
 
   // A post with a podcast episode has that episode's player, in its header.
-  // Any other post with audio is narrated, by a player that's fixed to the
-  // screen rather than part of the page.
-  const showNarrationPlayer = showEmbeddedPlayer && !preview && isPostAllowedGeneratedAudio(post, forumType);
+  // Any other post with audio has Type III Audio's player there, except for
+  // users who have narration: for them it's narrated, by a player that's
+  // fixed to the screen rather than part of the page.
+  const showNarrationPlayer = showEmbeddedPlayer && !preview && userCanListenToNarration(currentUser, post, forumType);
 
   const getSequenceId = () => {
     return sequenceIdFromUrl || fullPost?.canonicalSequenceId || null;

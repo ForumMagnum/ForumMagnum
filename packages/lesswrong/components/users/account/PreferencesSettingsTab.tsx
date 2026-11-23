@@ -9,7 +9,7 @@ import SettingsSection from './SettingsSection';
 import SettingsToggleRow from './SettingsToggleRow';
 import SettingsSelectRow from './SettingsSelectRow';
 import type { SettingsTabProps } from './settingsTabTypes';
-import { userCanUseHailbox, userCanViewJargonTerms } from '@/lib/betas';
+import { userCanUseHailbox, userCanViewJargonTerms, userHasNarration } from '@/lib/betas';
 import NarrationVoiceSetting from '@/components/narration/NarrationVoiceSetting';
 
 const SORT_DRAFTS_BY_OPTIONS = [
@@ -86,14 +86,14 @@ const PreferencesSettingsTab = ({
         />
       </SettingsSection>
 
-      <SettingsSection title="Narration">
+      {userHasNarration(currentUser) && <SettingsSection title="Narration">
         <HighlightableField name="narrationVoiceId">
           <NarrationVoiceSetting
             value={settings.narrationVoiceId}
             onChange={(value) => void updateSettings({ narrationVoiceId: value })}
           />
         </HighlightableField>
-      </SettingsSection>
+      </SettingsSection>}
 
       <SettingsSection title="Content">
         <SettingsSelectRow
