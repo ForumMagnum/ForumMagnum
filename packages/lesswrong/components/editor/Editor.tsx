@@ -18,9 +18,10 @@ import Loading from "../vulcan-core/Loading";
 import dynamic from 'next/dynamic';
 import { getYjsStateBase64ForPost } from '../lexical/collaboration';
 
-const CKCommentEditor = dynamic(() => import("./CKCommentEditor"));
-const CKPostEditor = dynamic(() => import("./CKPostEditor"));
-const LexicalEditor = dynamic(() => import("./LexicalEditor"));
+const editorChunkLoading = () => <Loading />;
+const CKCommentEditor = dynamic(() => import("./CKCommentEditor"), { loading: editorChunkLoading });
+const CKPostEditor = dynamic(() => import("./CKPostEditor"), { loading: editorChunkLoading });
+const LexicalEditor = dynamic(() => import("./LexicalEditor"), { loading: editorChunkLoading });
 
 const postEditorHeight = 400;
 const commentEditorHeight = 100;
@@ -764,7 +765,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           <FormLabel className={classes.label}>{label}</FormLabel>
         }
         {loading
-          ? <Loading/>
+          ? <div className={this.getHeightClass()}><Loading/></div>
           : this.renderEditorComponent(this.props.value)
         }
         {this.renderUpdateTypeSelect()}
