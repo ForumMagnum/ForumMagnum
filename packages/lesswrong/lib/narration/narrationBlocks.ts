@@ -140,11 +140,11 @@ const omittedKindByClass = new Map<string, NarrationOmittedKind>([
 
 const ZERO_WIDTH_SPACE = String.fromCharCode(0x200b);
 
-function isTextNode(node: Node): node is Text {
+export function isTextNode(node: Node): node is Text {
   return node.nodeType === TEXT_NODE;
 }
 
-function isElementNode(node: Node): node is Element {
+export function isElementNode(node: Node): node is Element {
   return node.nodeType === ELEMENT_NODE;
 }
 

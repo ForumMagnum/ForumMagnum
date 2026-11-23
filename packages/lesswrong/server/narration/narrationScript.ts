@@ -7,6 +7,8 @@ import {
   extractNarrationBlocks,
   footnoteItemSelector,
   footnoteReferenceSelector,
+  isElementNode,
+  isTextNode,
   type NarrationDomBlock,
   type NarrationImageBlock,
   type NarrationMathPiece,
@@ -30,7 +32,7 @@ import { verbalizeTables } from "./tableVerbalization";
  * here (or to extractNarrationBlocks, or to the prompts for reading equations,
  * tables and images) would change the script made for a given post.
  */
-export const NARRATION_PREPROCESSOR_VERSION = 4;
+export const NARRATION_PREPROCESSOR_VERSION = 5;
 
 /** The first segment is short, so that playback can start soon after it's requested */
 const FIRST_SEGMENT_TARGET_CHARACTERS = 600;
@@ -108,7 +110,7 @@ interface BlockContext {
   isHeading: boolean
   footnote: FootnoteInfo|null
   listNumber: number|null
-  /** The outermost blockquote that the block is in */
+  /** The blockquote that starts the quotation that the block is in */
   quote: Element|null
 }
 
@@ -157,6 +159,30 @@ function getOutermostBlockquote(element: Element): Element|null {
   return (quote.parentElement && getOutermostBlockquote(quote.parentElement)) ?? quote;
 }
 
+function getPreviousSiblingIgnoringWhitespace(node: Node): Node|null {
+  const previous = node.previousSibling;
+  const isWhitespace = !!previous && isTextNode(previous) && previous.data.trim().length === 0;
+  return isWhitespace ? getPreviousSiblingIgnoringWhitespace(previous) : previous;
+}
+
+function getFirstBlockquoteOfRun(quote: Element): Element {
+  const previous = getPreviousSiblingIgnoringWhitespace(quote);
+  const previousIsBlockquote = !!previous && isElementNode(previous) && previous.tagName.toLowerCase() === "blockquote";
+  return previousIsBlockquote ? getFirstBlockquoteOfRun(previous) : quote;
+}
+
+/**
+ * Identifies the quotation that an element is in by the blockquote that the
+ * quotation starts with. A quotation of several paragraphs is often stored as
+ * a blockquote for each paragraph. Blockquotes with nothing between them look
+ * like one quotation on the page, so they're one quotation here too, rather
+ * than each being announced as a quotation of its own.
+ */
+function getQuotationStart(element: Element): Element|null {
+  const outermostBlockquote = getOutermostBlockquote(element);
+  return outermostBlockquote && getFirstBlockquoteOfRun(outermostBlockquote);
+}
+
 function getOrderedListNumber(listItem: Element): number|null {
   const list = listItem.parentElement;
   if (!list || list.tagName.toLowerCase() !== "ol") {
@@ -193,7 +219,7 @@ function getBlockContexts(domBlocks: NarrationDomBlock[], root: Element): BlockC
       isHeading: !!element.closest("h1, h2, h3, h4, h5, h6"),
       footnote,
       listNumber: (listItem && isFirstBlockOfListItem && !footnoteItem) ? getOrderedListNumber(listItem) : null,
-      quote: getOutermostBlockquote(element),
+      quote: getQuotationStart(element),
     };
   });
 }
