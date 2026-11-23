@@ -160,8 +160,26 @@ const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: Theme
   },
   invertColors: {
     filter: "invert(1)",
-  }
+  },
+  inlineReactionsLabel: {
+    borderTop: theme.palette.border.faint,
+    paddingTop: 8,
+    paddingLeft: 12,
+    paddingRight: 8,
+    fontSize: 11,
+    color: theme.palette.grey[600],
+  },
 }))
+
+const reactedDocumentNouns: Record<VoteableCollectionName, string> = {
+  Posts: "post",
+  Comments: "comment",
+  Messages: "message",
+  Tags: "tag",
+  TagRels: "tag relevance",
+  Revisions: "revision",
+  MultiDocuments: "document",
+};
 
 //DEBUG: make the reaction-overview button always visible for testing access
 const alwaysShowReactionOverviewButton = false;
@@ -531,19 +549,28 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, commentBod
 
   const allQuotes = filterNonnull(uniq(relevantReactions?.flatMap(r => r.quotes)))
 
+  const hasInlineAndNonInlineReactions = !allReactsAreInline && allQuotes.length > 0;
+  const documentNoun = reactedDocumentNouns[voteProps.collectionName];
+  const inlineReactionsLabel = allQuotes.length === 1 ? "On a specific passage:" : "On specific passages:";
+
   return <div className={classes.footerReactionHover}>
     <ReactionHoverTopRow
       reactionName={react}
       userReactions={relevantReactions}
       showNonInlineVoteButtons={!allReactsAreInline}
+      nonInlineUsersLabel={hasInlineAndNonInlineReactions ? `On the whole ${documentNoun}:` : undefined}
       voteProps={voteProps}
     />
-    {allQuotes.map(quote => <ReactionQuotesHoverInfo
+    {hasInlineAndNonInlineReactions && <div className={classes.inlineReactionsLabel}>
+      {inlineReactionsLabel}
+    </div>}
+    {allQuotes.map((quote, i) => <ReactionQuotesHoverInfo
       key={`${react}-${slugify(quote)}`}
       react={react}
       quote={quote}
       voteProps={voteProps}
       commentBodyRef={commentBodyRef}
+      hideTopBorder={hasInlineAndNonInlineReactions && i === 0}
     />)}
   </div>
 }
