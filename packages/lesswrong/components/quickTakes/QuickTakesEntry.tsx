@@ -8,6 +8,7 @@ import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants"
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { useNavigate } from "@/lib/routeUtil";
 import LoginPopup from "../users/LoginPopup";
+import { focusLexicalEditorWhenReady } from "../editor/focusLexicalEditor";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -148,12 +149,8 @@ const QuickTakesEntry = ({currentUser, defaultExpanded = false, defaultFocus = f
   }, [navigate, successCallback]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (defaultFocus && ref.current) {
-        const editor = ref.current.querySelector("[contenteditable=\"true\"]");
-        (editor as HTMLDivElement | null)?.focus?.();
-      }
-    }, 0);
+    if (!defaultFocus) return;
+    return focusLexicalEditorWhenReady(ref.current, { preventScroll: true });
     // This should only ever run on the first render
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
