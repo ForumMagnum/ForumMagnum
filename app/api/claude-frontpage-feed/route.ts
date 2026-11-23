@@ -1,20 +1,21 @@
-import { generateText, tool } from "ai";
+import { generateText, stepCountIs, tool, type ToolChoice } from "ai";
 import LRU from "lru-cache";
+import sortBy from "lodash/sortBy";
+import uniqBy from "lodash/uniqBy";
 import { NextRequest, NextResponse } from "next/server";
 import {
   ClaudeFeedItemType,
   ClaudeFeedModelId,
   ClaudeFeedResolvedSettings,
-  claudeFeedItemTypes,
+  ClaudeFeedSearchInput,
+  ClaudeFeedSearchRecord,
   claudeFeedRankingSchema,
   claudeFeedRequestSchema,
-  getClaudeFeedRankingSystemPrompt,
+  claudeFeedSearchInputSchema,
   getClaudeFeedRunAccounting,
+  getClaudeFeedSystemPrompt,
   getGatewayCostUsd,
 } from "@/lib/claudeFeed";
-import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import { RateLimiter } from "@/lib/rateLimiter";
 import {
@@ -22,6 +23,7 @@ import {
   getSearchIndexName,
 } from "@/lib/search/searchUtil";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { serverCaptureEvent } from "@/server/analytics/serverAnalyticsWriter";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import ElasticService from "@/server/search/elastic/ElasticService";
@@ -29,23 +31,24 @@ import type { SearchResultHit } from "@/server/search/elastic/SearchResult";
 
 export const maxDuration = 60;
 
-const BACKFILL_CACHE_SIZE = 64;
-const BACKFILL_CACHE_MAX_AGE_MS = 60 * 1_000;
 const REQUESTER_CACHE_SIZE = 10_000;
 const REQUESTER_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1_000;
 
-interface ClaudeFeedCandidate {
+type ClaudeFeedToolName = "searchLessWrong" | "rankFrontpageItems";
+
+interface ClaudeFeedModelCandidate {
   candidateId: string;
-  id: string;
-  type: ClaudeFeedItemType;
   title: string;
-  url: string;
   byline?: string;
   context?: string;
   snippet?: string;
   karma?: number;
   publishedAt?: string;
-  readingStatus?: "unread" | "unknown";
+}
+
+interface ClaudeFeedCandidate extends ClaudeFeedModelCandidate {
+  id: string;
+  type: ClaudeFeedItemType;
 }
 
 interface AccessibleCandidateInfo {
@@ -53,24 +56,42 @@ interface AccessibleCandidateInfo {
   authoredCandidateIds: Set<string>;
 }
 
-interface CandidateSearchSpec {
-  type: ClaudeFeedItemType;
-  indexName: string;
-  query: string;
-  hitsPerPage: number;
+interface ReadCandidateIds {
+  viewedPostIds: Set<string>;
+  readCommentIds: Set<string>;
+}
+
+interface ResolvedSearchFilter {
+  id: string;
+  label: string;
+}
+
+interface SearchInterval {
+  startedAt: number;
+  endedAt: number;
+}
+
+interface ClaudeFeedSearchLog {
+  searches: ClaudeFeedSearchRecord[];
+  candidatesById: Map<string, ClaudeFeedCandidate>;
+  intervals: SearchInterval[];
+}
+
+interface ClaudeFeedSearchOutcome {
+  resolvedAuthor?: string;
+  resolvedTag?: string;
+  hiddenAsReadCount: number;
+  error?: string;
+  results: ClaudeFeedCandidate[];
+}
+
+interface ClaudeFeedSearchToolOutput extends Omit<ClaudeFeedSearchOutcome, "results"> {
+  results: ClaudeFeedModelCandidate[];
 }
 
 const requesterLimiters = new LRU<string, RateLimiter>({
   max: REQUESTER_CACHE_SIZE,
   maxAge: REQUESTER_CACHE_MAX_AGE_MS,
-});
-
-// The "newest" and "top karma" backfill searches do not depend on the reader's
-// prompt or identity, so a warm instance can reuse them. Raw hits are safe to
-// share because access filtering happens per request, further down.
-const backfillSearchCache = new LRU<string, SearchResultHit[]>({
-  max: BACKFILL_CACHE_SIZE,
-  maxAge: BACKFILL_CACHE_MAX_AGE_MS,
 });
 
 const getSearchService = (() => {
@@ -83,50 +104,12 @@ const getSearchService = (() => {
   };
 })();
 
-
-const promptTypePatternSources: Record<ClaudeFeedItemType, string> = {
-  post: "posts?",
-  comment: "comments?",
-  wiki: "wiki(?:\\s+(?:articles?|pages?))?|wikitags?",
-};
-
-function getAllowedContentTypes(
-  prompt: string,
-  modelContentTypes: ClaudeFeedItemType[],
-): Set<ClaudeFeedItemType> {
-  const normalizedPrompt = prompt.toLowerCase();
-  const onlyTypes = claudeFeedItemTypes.filter((type) => {
-    const typePattern = promptTypePatternSources[type];
-    const onlyBeforeType = new RegExp(`\\b(?:only|just)\\b(?:\\s+\\w+){0,3}\\s+\\b(?:${typePattern})\\b`);
-    const onlyAfterType = new RegExp(`\\b(?:${typePattern})\\b(?:\\s+\\w+){0,2}\\s+\\b(?:only|exclusively)\\b`);
-    return onlyBeforeType.test(normalizedPrompt) || onlyAfterType.test(normalizedPrompt);
-  });
-  if (onlyTypes.length > 0) {
-    return new Set(onlyTypes);
-  }
-
-  const excludedTypes = new Set(claudeFeedItemTypes.filter((type) => {
-    const typePattern = promptTypePatternSources[type];
-    const exclusion = new RegExp(`\\b(?:no|without|exclude|excluding)\\b(?:\\s+\\w+){0,3}\\s+\\b(?:${typePattern})\\b`);
-    return exclusion.test(normalizedPrompt);
-  }));
-  if (excludedTypes.size > 0) {
-    return new Set(claudeFeedItemTypes.filter((type) => !excludedTypes.has(type)));
-  }
-
-  return new Set(modelContentTypes);
-}
-
 function getString(value: unknown): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
 function getNumber(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
-
-function getBoolean(value: unknown): boolean {
-  return value === true;
 }
 
 function getIsoDate(value: unknown): string | undefined {
@@ -151,19 +134,12 @@ function summarizeHtml(html: string | undefined, maxLength: number): string | un
 }
 
 function getPostCandidate(hit: SearchResultHit, snippetChars: number): ClaudeFeedCandidate {
-  const slug = getString(hit.slug) ?? "";
   const author = getString(hit.authorDisplayName) ?? getString(hit.feedName);
   return {
     candidateId: `post:${hit._id}`,
     id: hit._id,
     type: "post",
     title: getString(hit.title) ?? "Untitled post",
-    url: postGetPageUrl({
-      _id: hit._id,
-      slug,
-      isEvent: getBoolean(hit.isEvent),
-      groupId: getString(hit.groupId),
-    }),
     byline: author ? `by ${author}` : undefined,
     snippet: summarizeHtml(getString(hit.body), snippetChars),
     karma: getNumber(hit.baseScore),
@@ -172,8 +148,7 @@ function getPostCandidate(hit: SearchResultHit, snippetChars: number): ClaudeFee
 }
 
 function getCommentCandidate(hit: SearchResultHit, snippetChars: number): ClaudeFeedCandidate | null {
-  const postId = getString(hit.postId);
-  if (!postId) {
+  if (!getString(hit.postId)) {
     return null;
   }
   const postTitle = getString(hit.postTitle) ?? "a LessWrong post";
@@ -183,11 +158,6 @@ function getCommentCandidate(hit: SearchResultHit, snippetChars: number): Claude
     id: hit._id,
     type: "comment",
     title: `Comment on ${postTitle}`,
-    url: commentGetPageUrlFromIds({
-      postId,
-      postSlug: getString(hit.postSlug),
-      commentId: hit._id,
-    }),
     byline: author ? `by ${author}` : undefined,
     context: postTitle,
     snippet: summarizeHtml(getString(hit.body), snippetChars),
@@ -197,13 +167,11 @@ function getCommentCandidate(hit: SearchResultHit, snippetChars: number): Claude
 }
 
 function getWikiCandidate(hit: SearchResultHit, snippetChars: number): ClaudeFeedCandidate {
-  const slug = getString(hit.slug) ?? "";
   return {
     candidateId: `wiki:${hit._id}`,
     id: hit._id,
     type: "wiki",
     title: getString(hit.name) ?? "Untitled wiki article",
-    url: tagGetUrl({ slug }),
     context: "LessWrong wiki",
     snippet: summarizeHtml(getString(hit.description), snippetChars),
     karma: getNumber(hit.baseScore),
@@ -222,125 +190,6 @@ function getCandidate(
     return getCommentCandidate(hit, snippetChars);
   }
   return getWikiCandidate(hit, snippetChars);
-}
-
-// Relevance searches dominate the catalog and the prompt-independent "newest"
-// and "top karma" searches backfill the rest, keeping the mix these sizes had
-// when they were hard-coded against a 42-candidate-per-type cap.
-function getSearchSpecs(prompt: string, settings: ClaudeFeedResolvedSettings): CandidateSearchSpec[] {
-  const relevanceHits = Math.ceil((settings.candidatesPerType * 2) / 3);
-  const recentHits = Math.ceil(settings.candidatesPerType / 5);
-  const karmaHits = Math.ceil(settings.candidatesPerType / 3);
-
-  const specs: CandidateSearchSpec[] = [
-    {
-      type: "post",
-      indexName: getElasticIndexNameWithSorting("Posts", "relevance"),
-      query: prompt,
-      hitsPerPage: relevanceHits,
-    },
-    {
-      type: "comment",
-      indexName: getElasticIndexNameWithSorting("Comments", "relevance"),
-      query: prompt,
-      hitsPerPage: relevanceHits,
-    },
-    {
-      type: "wiki",
-      indexName: getSearchIndexName("Tags"),
-      query: prompt,
-      hitsPerPage: relevanceHits,
-    },
-  ];
-
-  if (settings.includeRecentBackfill) {
-    specs.push({
-      type: "post",
-      indexName: getElasticIndexNameWithSorting("Posts", "newest_first"),
-      query: "",
-      hitsPerPage: recentHits,
-    }, {
-      type: "comment",
-      indexName: getElasticIndexNameWithSorting("Comments", "newest_first"),
-      query: "",
-      hitsPerPage: recentHits,
-    });
-  }
-
-  if (settings.includeTopKarmaBackfill) {
-    specs.push({
-      type: "post",
-      indexName: getElasticIndexNameWithSorting("Posts", "karma"),
-      query: "",
-      hitsPerPage: karmaHits,
-    }, {
-      type: "comment",
-      indexName: getElasticIndexNameWithSorting("Comments", "karma"),
-      query: "",
-      hitsPerPage: karmaHits,
-    }, {
-      type: "wiki",
-      indexName: getSearchIndexName("Tags"),
-      query: "",
-      hitsPerPage: karmaHits,
-    });
-  }
-
-  return specs;
-}
-
-async function runSearchSpec(spec: CandidateSearchSpec): Promise<SearchResultHit[]> {
-  const cacheKey = `${spec.indexName}:${spec.hitsPerPage}`;
-  if (spec.query === "") {
-    const cachedHits = backfillSearchCache.get(cacheKey);
-    if (cachedHits) {
-      return cachedHits;
-    }
-  }
-  const result = await getSearchService().runQuery({
-    indexName: spec.indexName,
-    params: {
-      query: spec.query,
-      hitsPerPage: spec.hitsPerPage,
-    },
-  }, {
-    emptyStringSearchResults: "default",
-  });
-  if (spec.query === "") {
-    backfillSearchCache.set(cacheKey, result.hits);
-  }
-  return result.hits;
-}
-
-async function getCandidates(
-  prompt: string,
-  settings: ClaudeFeedResolvedSettings,
-): Promise<ClaudeFeedCandidate[]> {
-  const specs = getSearchSpecs(prompt, settings);
-  const results = await Promise.all(specs.map(runSearchSpec));
-
-  const candidatesById = new Map<string, ClaudeFeedCandidate>();
-  const countsByType: Record<ClaudeFeedItemType, number> = {
-    post: 0,
-    comment: 0,
-    wiki: 0,
-  };
-
-  for (let resultIndex = 0; resultIndex < results.length; resultIndex++) {
-    const type = specs[resultIndex].type;
-    for (const hit of results[resultIndex]) {
-      if (countsByType[type] >= settings.candidatesPerType) {
-        break;
-      }
-      const candidate = getCandidate(type, hit, settings.snippetChars);
-      if (candidate && !candidatesById.has(candidate.candidateId)) {
-        candidatesById.set(candidate.candidateId, candidate);
-        countsByType[type]++;
-      }
-    }
-  }
-
-  return Array.from(candidatesById.values());
 }
 
 function consumeRequestQuota(requesterId: string, isLoggedIn: boolean): boolean {
@@ -397,11 +246,6 @@ async function getAccessibleCandidateInfo(
   return { accessibleCandidateIds, authoredCandidateIds };
 }
 
-interface ReadCandidateIds {
-  viewedPostIds: Set<string>;
-  readCommentIds: Set<string>;
-}
-
 async function getReadCandidateIds(
   candidates: ClaudeFeedCandidate[],
   context: ResolverContext,
@@ -423,62 +267,226 @@ async function getReadCandidateIds(
 function removeReadCandidates(
   candidates: ClaudeFeedCandidate[],
   authoredCandidateIds: Set<string>,
-  readCandidateIds: ReadCandidateIds,
-  isLoggedIn: boolean,
+  { viewedPostIds, readCommentIds }: ReadCandidateIds,
 ): ClaudeFeedCandidate[] {
-  if (!isLoggedIn) {
-    return candidates.map((candidate) => ({ ...candidate, readingStatus: "unknown" }));
-  }
-
-  return candidates.flatMap((candidate) => {
-    const wasRead = (
-      authoredCandidateIds.has(candidate.candidateId) ||
-      (candidate.type === "post" && readCandidateIds.viewedPostIds.has(candidate.id)) ||
-      (candidate.type === "comment" && readCandidateIds.readCommentIds.has(candidate.id))
-    );
-    return wasRead ? [] : [{ ...candidate, readingStatus: candidate.type === "wiki" ? "unknown" : "unread" }];
-  });
+  return candidates.filter((candidate) => !(
+    authoredCandidateIds.has(candidate.candidateId) ||
+    (candidate.type === "post" && viewedPostIds.has(candidate.id)) ||
+    (candidate.type === "comment" && readCommentIds.has(candidate.id))
+  ));
 }
 
-async function rankCandidates(
-  prompt: string,
-  profile: string | undefined,
-  candidates: ClaudeFeedCandidate[],
-  model: ClaudeFeedModelId,
+async function runElasticSearch(indexName: string, query: string, hitsPerPage: number): Promise<SearchResultHit[]> {
+  const result = await getSearchService().runQuery({
+    indexName,
+    params: {
+      query,
+      hitsPerPage,
+    },
+  }, {
+    emptyStringSearchResults: "default",
+  });
+  return result.hits;
+}
+
+async function resolveAuthor(name: string): Promise<ResolvedSearchFilter | null> {
+  const [hit] = await runElasticSearch(getSearchIndexName("Users"), name, 1);
+  if (!hit) {
+    return null;
+  }
+  const displayName = getString(hit.displayName) ?? name;
+  const slug = getString(hit.slug);
+  return {
+    id: hit._id,
+    label: slug ? `${displayName} (@${slug})` : displayName,
+  };
+}
+
+async function resolveTag(name: string): Promise<ResolvedSearchFilter | null> {
+  const [hit] = await runElasticSearch(getSearchIndexName("Tags"), name, 1);
+  return hit ? { id: hit._id, label: getString(hit.name) ?? name } : null;
+}
+
+function getSearchIndexNameForInput({ type, sort }: ClaudeFeedSearchInput): string {
+  if (type === "post") {
+    return getElasticIndexNameWithSorting("Posts", sort);
+  }
+  if (type === "comment") {
+    return getElasticIndexNameWithSorting("Comments", sort);
+  }
+  return getSearchIndexName("Tags");
+}
+
+function getSearchInputError({ type, author, tag }: ClaudeFeedSearchInput): string | undefined {
+  if (type === "wiki" && (author || tag)) {
+    return "Wiki searches cannot filter by author or tag. Search again without them.";
+  }
+  if (type === "comment" && tag) {
+    return "Tag filters only work for post searches. Search comments by query or author instead.";
+  }
+  return undefined;
+}
+
+async function searchForCandidates(
+  input: ClaudeFeedSearchInput,
   settings: ClaudeFeedResolvedSettings,
-) {
+  context: ResolverContext,
+): Promise<ClaudeFeedSearchOutcome> {
+  const inputError = getSearchInputError(input);
+  if (inputError) {
+    return { hiddenAsReadCount: 0, error: inputError, results: [] };
+  }
+
+  const [author, tag] = await Promise.all([
+    input.author ? resolveAuthor(input.author) : null,
+    input.tag ? resolveTag(input.tag) : null,
+  ]);
+  if (input.author && !author) {
+    return { hiddenAsReadCount: 0, error: `No LessWrong user matches "${input.author}".`, results: [] };
+  }
+  if (input.tag && !tag) {
+    return { hiddenAsReadCount: 0, error: `No LessWrong wiki tag matches "${input.tag}".`, results: [] };
+  }
+
+  const query = [
+    input.query,
+    author ? `user:${author.id}` : "",
+    tag ? `tag:${tag.id}` : "",
+  ].filter((part) => part.length > 0).join(" ");
+  const hits = await runElasticSearch(getSearchIndexNameForInput(input), query, settings.resultsPerSearch);
+  const searchedCandidates = filterNonnull(hits.map((hit) => getCandidate(input.type, hit, settings.snippetChars)));
+
+  const [{ accessibleCandidateIds, authoredCandidateIds }, readCandidateIds] = await Promise.all([
+    getAccessibleCandidateInfo(searchedCandidates, context),
+    getReadCandidateIds(searchedCandidates, context),
+  ]);
+  const accessibleCandidates = searchedCandidates.filter(({ candidateId }) => accessibleCandidateIds.has(candidateId));
+  const unreadCandidates = removeReadCandidates(accessibleCandidates, authoredCandidateIds, readCandidateIds);
+
+  return {
+    resolvedAuthor: author?.label,
+    resolvedTag: tag?.label,
+    hiddenAsReadCount: accessibleCandidates.length - unreadCandidates.length,
+    results: unreadCandidates,
+  };
+}
+
+async function runLoggedSearch(
+  input: ClaudeFeedSearchInput,
+  settings: ClaudeFeedResolvedSettings,
+  context: ResolverContext,
+  searchLog: ClaudeFeedSearchLog,
+): Promise<ClaudeFeedSearchToolOutput> {
+  const startedAt = Date.now();
+  const output = await searchForCandidates(input, settings, context);
+  searchLog.intervals.push({ startedAt, endedAt: Date.now() });
+  searchLog.searches.push({
+    ...input,
+    resolvedAuthor: output.resolvedAuthor,
+    resolvedTag: output.resolvedTag,
+    resultCount: output.results.length,
+    hiddenAsReadCount: output.hiddenAsReadCount,
+    error: output.error,
+  });
+  for (const candidate of output.results) {
+    searchLog.candidatesById.set(candidate.candidateId, candidate);
+  }
+  return {
+    ...output,
+    results: output.results.map(toModelCandidate),
+  };
+}
+
+function toModelCandidate({
+  candidateId,
+  title,
+  byline,
+  context,
+  snippet,
+  karma,
+  publishedAt,
+}: ClaudeFeedCandidate): ClaudeFeedModelCandidate {
+  return { candidateId, title, byline, context, snippet, karma, publishedAt };
+}
+
+function getCoveredDurationMs(intervals: SearchInterval[]): number {
+  return sortBy(intervals, ({ startedAt }) => startedAt).reduce(
+    ({ coveredMs, coveredUntil }, { startedAt, endedAt }) => ({
+      coveredMs: coveredMs + Math.max(0, endedAt - Math.max(startedAt, coveredUntil)),
+      coveredUntil: Math.max(coveredUntil, endedAt),
+    }),
+    { coveredMs: 0, coveredUntil: 0 },
+  ).coveredMs;
+}
+
+function getFeedToolChoice(stepNumber: number, finalStepNumber: number): ToolChoice<Record<ClaudeFeedToolName, unknown>> {
+  if (stepNumber === 0) {
+    return { type: "tool", toolName: "searchLessWrong" };
+  }
+  if (stepNumber >= finalStepNumber) {
+    return { type: "tool", toolName: "rankFrontpageItems" };
+  }
+  return "required";
+}
+
+function sumGatewayCostUsd(providerMetadatas: unknown[]): number | undefined {
+  const costs = providerMetadatas.map((providerMetadata) => getGatewayCostUsd(providerMetadata));
+  if (!costs.every((cost): cost is number => cost !== undefined)) {
+    return undefined;
+  }
+  return costs.reduce((total, cost) => total + cost, 0);
+}
+
+async function generateRankedFeed({ prompt, profile, model, settings, context, searchLog }: {
+  prompt: string;
+  profile: string | undefined;
+  model: ClaudeFeedModelId;
+  settings: ClaudeFeedResolvedSettings;
+  context: ResolverContext;
+  searchLog: ClaudeFeedSearchLog;
+}) {
+  const finalStepNumber = settings.maxSearchRounds;
   const result = await generateText({
     model,
-    system: getClaudeFeedRankingSystemPrompt({
-      rankingInstructions: settings.rankingInstructions,
+    system: getClaudeFeedSystemPrompt({
+      feedInstructions: settings.feedInstructions,
+      maxSearchRounds: settings.maxSearchRounds,
       maxResults: settings.maxResults,
       reasonWords: settings.reasonWords,
     }),
     prompt: JSON.stringify({
       userRequest: prompt,
       readerProfile: profile ?? null,
-      candidateCatalog: candidates,
     }),
     maxOutputTokens: Math.min(2_500, (settings.maxResults * 100) + 400),
     tools: {
+      searchLessWrong: tool({
+        description: "Search LessWrong for posts, comments, or wiki pages. Returns candidates you can rank by candidateId.",
+        inputSchema: claudeFeedSearchInputSchema,
+        execute: (input) => runLoggedSearch(input, settings, context, searchLog),
+      }),
       rankFrontpageItems: tool({
-        description: "Return the user's ranked LessWrong reading queue.",
+        description: "Return the user's ranked LessWrong reading queue. Call this once, after searching.",
         inputSchema: claudeFeedRankingSchema,
       }),
     },
-    toolChoice: {
-      type: "tool",
-      toolName: "rankFrontpageItems",
-    },
+    stopWhen: stepCountIs(finalStepNumber + 1),
+    prepareStep: ({ stepNumber }) => ({ toolChoice: getFeedToolChoice(stepNumber, finalStepNumber) }),
   });
 
-  const toolCall = result.toolCalls.find(({ toolName }) => toolName === "rankFrontpageItems");
-  if (!toolCall) {
+  const rankingCall = result.steps
+    .flatMap((step) => step.toolCalls)
+    .find(({ toolName }) => toolName === "rankFrontpageItems");
+  if (!rankingCall) {
     throw new Error("Claude did not return a ranked feed");
   }
   return {
-    ranking: claudeFeedRankingSchema.parse(toolCall.input),
-    accounting: getClaudeFeedRunAccounting(model, result.totalUsage, getGatewayCostUsd(result.providerMetadata)),
+    ranking: claudeFeedRankingSchema.parse(rankingCall.input),
+    accounting: getClaudeFeedRunAccounting(
+      model,
+      result.totalUsage,
+      sumGatewayCostUsd(result.steps.map((step) => step.providerMetadata)),
+    ),
   };
 }
 
@@ -512,75 +520,45 @@ export async function POST(req: NextRequest) {
     }
 
     const { prompt, profile, model, ...settings } = parsedBody.data;
+    const searchLog: ClaudeFeedSearchLog = {
+      searches: [],
+      candidatesById: new Map(),
+      intervals: [],
+    };
 
-    const searchStartedAt = Date.now();
-    const searchCandidates = await getCandidates(prompt, settings);
-    const searchMs = Date.now() - searchStartedAt;
+    const loopStartedAt = Date.now();
+    const { ranking, accounting } = await generateRankedFeed({ prompt, profile, model, settings, context, searchLog });
+    const loopMs = Date.now() - loopStartedAt;
 
-    // Access filtering and read-status lookups read different tables, so they
-    // run together rather than one after the other.
-    const filterStartedAt = Date.now();
-    const [{ accessibleCandidateIds, authoredCandidateIds }, readCandidateIds] = await Promise.all([
-      getAccessibleCandidateInfo(searchCandidates, context),
-      getReadCandidateIds(searchCandidates, context),
-    ]);
-    const accessibleCandidates = searchCandidates.filter((candidate) => accessibleCandidateIds.has(candidate.candidateId));
-    const candidates = removeReadCandidates(
-      accessibleCandidates,
-      authoredCandidateIds,
-      readCandidateIds,
-      !!context.currentUser,
-    );
-    const filterMs = Date.now() - filterStartedAt;
-
-    if (candidates.length === 0) {
-      return NextResponse.json({ error: "No unread LessWrong items matched this request." }, { status: 404 });
-    }
-
-    const rankStartedAt = Date.now();
-    const { ranking, accounting } = await rankCandidates(prompt, profile, candidates, model, settings);
-    const rankMs = Date.now() - rankStartedAt;
-    const allowedContentTypes = getAllowedContentTypes(prompt, ranking.contentTypes);
-    const candidateById = new Map(candidates.map((candidate) => [candidate.candidateId, candidate]));
-    const seenCandidateIds = new Set<string>();
-    const rankedCandidates = ranking.items.flatMap(({ candidateId, reason }) => {
-      const candidate = candidateById.get(candidateId);
-      if (!candidate || !allowedContentTypes.has(candidate.type) || seenCandidateIds.has(candidateId)) {
-        return [];
-      }
-      seenCandidateIds.add(candidateId);
-      return [{ candidate, reason }];
-    });
-    const items = rankedCandidates
+    const items = uniqBy(ranking.items, ({ candidateId }) => candidateId)
+      .flatMap(({ candidateId, reason }) => {
+        const candidate = searchLog.candidatesById.get(candidateId);
+        return candidate ? [{ id: candidate.id, type: candidate.type, reason }] : [];
+      })
       .slice(0, settings.maxResults)
-      .map(({ candidate, reason }, index) => ({
-        id: candidate.id,
-        type: candidate.type,
-        rank: index + 1,
-        reason,
-      }));
+      .map((item, index) => ({ ...item, rank: index + 1 }));
 
+    const searchMs = getCoveredDurationMs(searchLog.intervals);
     const timings = {
       searchMs,
-      filterMs,
-      rankMs,
+      modelMs: Math.max(0, loopMs - searchMs),
       totalMs: Date.now() - startedAt,
     };
 
     serverCaptureEvent("claudeFrontpageFeedGenerated", {
-      searchCandidateCount: searchCandidates.length,
-      accessibleCandidateCount: accessibleCandidates.length,
-      candidateCount: candidates.length,
+      searchCount: searchLog.searches.length,
+      candidateCount: searchLog.candidatesById.size,
       resultCount: items.length,
       model,
       inputTokens: accounting.usage.inputTokens,
       outputTokens: accounting.usage.outputTokens,
       costUsd: accounting.costUsd,
       costIsEstimated: accounting.costIsEstimated,
-      candidatesPerType: settings.candidatesPerType,
+      maxSearchRounds: settings.maxSearchRounds,
+      resultsPerSearch: settings.resultsPerSearch,
       snippetChars: settings.snippetChars,
       maxResults: settings.maxResults,
-      usesCustomRankingInstructions: !!settings.rankingInstructions?.trim(),
+      usesCustomFeedInstructions: !!settings.feedInstructions,
       ...timings,
       durationMs: timings.totalMs,
     });
@@ -588,7 +566,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       items,
       model,
-      candidateCount: candidates.length,
+      candidateCount: searchLog.candidatesById.size,
+      searches: searchLog.searches,
       timings,
       ...accounting,
     });

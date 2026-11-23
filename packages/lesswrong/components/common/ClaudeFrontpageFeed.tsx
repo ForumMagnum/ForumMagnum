@@ -7,10 +7,12 @@ import {
   ClaudeFeedItem,
   ClaudeFeedItemType,
   ClaudeFeedModelId,
+  ClaudeFeedProfileResponse,
+  ClaudeFeedResponse,
+  ClaudeFeedSearchRecord,
   ClaudeFeedSettings,
   ClaudeFeedStoredRun,
   ClaudeFeedTimings,
-  ClaudeFeedUsage,
   claudeFeedModelConfigs,
   claudeFeedModelIds,
   claudeFeedProfileResponseSchema,
@@ -32,6 +34,7 @@ import {
 } from '@/components/editor/localStorageHandlers';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useQuery } from '@/lib/crud/useQuery';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { gql } from '@/lib/generated/gql-codegen';
 import FeedItemWrapper from '@/components/ultraFeed/FeedItemWrapper';
 import UltraFeedPostItem from '@/components/ultraFeed/UltraFeedPostItem';
@@ -53,26 +56,32 @@ interface FilterOption {
   label: string;
 }
 
-interface ClaudeFeedApiResponse {
-  items: ClaudeFeedItem[];
-  model: ClaudeFeedModelId;
-  usage: ClaudeFeedUsage;
-  costUsd: number;
-  costIsEstimated: boolean;
-  candidateCount: number;
+interface ClaudeFeedRunSummary {
   timings: ClaudeFeedTimings;
+  candidateCount: number;
+  searches: ClaudeFeedSearchRecord[];
 }
 
-interface ClaudeProfileApiResponse {
-  profile: string;
-  model: ClaudeFeedModelId;
-  usage: ClaudeFeedUsage;
-  costUsd: number;
-  costIsEstimated: boolean;
+interface SettingsBounds {
+  min: number;
+  max: number;
 }
 
 const RUN_HISTORY_STORAGE_VERSION = 1;
 const MAX_STORED_RUNS = 50;
+
+const searchTypeLabels: Record<ClaudeFeedItemType, string> = {
+  post: 'posts',
+  comment: 'comments',
+  wiki: 'wiki pages',
+};
+
+const searchSortLabels: Record<ClaudeFeedSearchRecord['sort'], string> = {
+  relevance: 'most relevant',
+  newest_first: 'newest',
+  oldest_first: 'oldest',
+  karma: 'top karma',
+};
 
 const filterOptions: FilterOption[] = [
   { value: 'all', label: 'All' },
@@ -346,15 +355,6 @@ const styles = defineStyles('ClaudeFrontpageFeed', (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     fontSize: '0.78rem',
   },
-  settingsToggle: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 6,
-    color: theme.palette.text.dim,
-    cursor: 'pointer',
-    fontFamily: theme.typography.fontFamily,
-    fontSize: '0.78rem',
-  },
   settingsReset: {
     padding: 0,
     border: 0,
@@ -370,11 +370,19 @@ const styles = defineStyles('ClaudeFrontpageFeed', (theme: ThemeType) => ({
       color: theme.palette.text.normal,
     },
   },
-  runStats: {
+  runDetails: {
     marginTop: 8,
     color: theme.palette.text.dim,
     fontFamily: theme.typography.fontFamily,
     fontSize: '0.74rem',
+  },
+  searchList: {
+    margin: '4px 0 0',
+    paddingLeft: 18,
+    lineHeight: 1.5,
+  },
+  searchError: {
+    color: theme.palette.error.main,
   },
   historyTooltip: {
     background: 'transparent',
@@ -638,7 +646,7 @@ function readStoredSettings(storageKey: string): ClaudeFeedSettings {
     return {
       ...defaultClaudeFeedSettings,
       ...parsedSettings.data,
-      rankingInstructions: parsedSettings.data.rankingInstructions || defaultClaudeFeedSettings.rankingInstructions,
+      feedInstructions: parsedSettings.data.feedInstructions || defaultClaudeFeedSettings.feedInstructions,
       profileInstructions: parsedSettings.data.profileInstructions || defaultClaudeFeedSettings.profileInstructions,
     };
   } catch {
@@ -650,7 +658,30 @@ function writeStoredSettings(storageKey: string, settings: ClaudeFeedSettings): 
   safeStorageSetItem(getBrowserLocalStorage(), storageKey, JSON.stringify(settings));
 }
 
-function clampSetting(value: string, { min, max }: { min: number; max: number }, fallback: number): number {
+function getCustomInstructions(instructions: string, defaultInstructions: string): string | undefined {
+  const trimmedInstructions = instructions.trim();
+  return trimmedInstructions && trimmedInstructions !== defaultInstructions.trim() ? trimmedInstructions : undefined;
+}
+
+function describeSearch(search: ClaudeFeedSearchRecord): string {
+  return filterNonnull([
+    searchTypeLabels[search.type],
+    search.author ? `by ${search.resolvedAuthor ?? search.author}` : null,
+    search.tag ? `tagged ${search.resolvedTag ?? search.tag}` : null,
+    search.query ? `matching “${search.query}”` : null,
+    search.type === 'wiki' ? null : searchSortLabels[search.sort],
+  ]).join(' · ');
+}
+
+function describeSearchOutcome({ error, resultCount, hiddenAsReadCount }: ClaudeFeedSearchRecord): string {
+  if (error) {
+    return error;
+  }
+  const results = `${resultCount} ${resultCount === 1 ? 'result' : 'results'}`;
+  return hiddenAsReadCount > 0 ? `${results}, ${hiddenAsReadCount} already read` : results;
+}
+
+function clampSetting(value: string, { min, max }: SettingsBounds, fallback: number): number {
   const parsedValue = Number.parseInt(value, 10);
   if (!Number.isFinite(parsedValue)) {
     return fallback;
@@ -717,7 +748,7 @@ async function fetchClaudeFeed(
   profile: string,
   model: ClaudeFeedModelId,
   searchSettings: ClaudeFeedSettings,
-): Promise<ClaudeFeedApiResponse> {
+): Promise<ClaudeFeedResponse> {
   const response = await fetch('/api/claude-frontpage-feed', {
     method: 'POST',
     headers: {
@@ -727,13 +758,12 @@ async function fetchClaudeFeed(
       prompt,
       profile: profile.trim() || undefined,
       model,
-      rankingInstructions: searchSettings.rankingInstructions.trim() || undefined,
-      candidatesPerType: searchSettings.candidatesPerType,
+      feedInstructions: getCustomInstructions(searchSettings.feedInstructions, defaultClaudeFeedSettings.feedInstructions),
+      maxSearchRounds: searchSettings.maxSearchRounds,
+      resultsPerSearch: searchSettings.resultsPerSearch,
       snippetChars: searchSettings.snippetChars,
       maxResults: searchSettings.maxResults,
       reasonWords: searchSettings.reasonWords,
-      includeRecentBackfill: searchSettings.includeRecentBackfill,
-      includeTopKarmaBackfill: searchSettings.includeTopKarmaBackfill,
     }),
   });
   const body: unknown = await response.json();
@@ -746,7 +776,7 @@ async function fetchClaudeFeed(
 async function fetchClaudeProfile(
   model: ClaudeFeedModelId,
   searchSettings: ClaudeFeedSettings,
-): Promise<ClaudeProfileApiResponse> {
+): Promise<ClaudeFeedProfileResponse> {
   const response = await fetch('/api/claude-frontpage-profile', {
     method: 'POST',
     headers: {
@@ -754,7 +784,10 @@ async function fetchClaudeProfile(
     },
     body: JSON.stringify({
       model,
-      profileInstructions: searchSettings.profileInstructions.trim() || undefined,
+      profileInstructions: getCustomInstructions(
+        searchSettings.profileInstructions,
+        defaultClaudeFeedSettings.profileInstructions,
+      ),
     }),
   });
   const body: unknown = await response.json();
@@ -895,6 +928,68 @@ const ClaudeFeedResult = ({
   return null;
 };
 
+const SettingsNumberField = ({ label, value, bounds, onChange }: {
+  label: string;
+  value: number;
+  bounds: SettingsBounds;
+  onChange: (value: number) => void;
+}) => {
+  const classes = useStyles(styles);
+  const [draft, setDraft] = useState(String(value));
+
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  const handleChange = (nextDraft: string) => {
+    setDraft(nextDraft);
+    const parsedValue = Number(nextDraft);
+    if (Number.isInteger(parsedValue) && parsedValue >= bounds.min && parsedValue <= bounds.max) {
+      onChange(parsedValue);
+    }
+  };
+
+  const handleBlur = () => {
+    const clampedValue = clampSetting(draft, bounds, value);
+    setDraft(String(clampedValue));
+    onChange(clampedValue);
+  };
+
+  return <label className={classes.settingsField}>
+    <span>{label}</span>
+    <input
+      type="number"
+      className={classes.settingsNumber}
+      min={bounds.min}
+      max={bounds.max}
+      value={draft}
+      onChange={(event) => handleChange(event.target.value)}
+      onBlur={handleBlur}
+    />
+  </label>;
+};
+
+const ClaudeFeedRunDetails = ({ run }: { run: ClaudeFeedRunSummary }) => {
+  const classes = useStyles(styles);
+  return <div className={classes.runDetails}>
+    <div>
+      {run.searches.length} {run.searches.length === 1 ? 'search' : 'searches'}
+      {' · '}{formatDuration(run.timings.searchMs)} searching
+      {' · '}{formatDuration(run.timings.modelMs)} thinking
+      {' · '}{formatDuration(run.timings.totalMs)} total
+      {' · '}{run.candidateCount} candidates
+    </div>
+    <ol className={classes.searchList}>
+      {run.searches.map((search, index) => <li
+        key={index}
+        className={classNames({ [classes.searchError]: !!search.error })}
+      >
+        {describeSearch(search)} — {describeSearchOutcome(search)}
+      </li>)}
+    </ol>
+  </div>;
+};
+
 const ClaudeFrontpageFeed = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -905,7 +1000,7 @@ const ClaudeFrontpageFeed = () => {
   const [model, setModel] = useState<ClaudeFeedModelId>(defaultClaudeFeedModel);
   const [searchSettings, setSearchSettings] = useState<ClaudeFeedSettings>(defaultClaudeFeedSettings);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [runStats, setRunStats] = useState<{ timings: ClaudeFeedTimings; candidateCount?: number } | null>(null);
+  const [lastRun, setLastRun] = useState<ClaudeFeedRunSummary | null>(null);
   const [items, setItems] = useState<ClaudeFeedItem[]>([]);
   const [runs, setRuns] = useState<ClaudeFeedStoredRun[]>([]);
   const [filter, setFilter] = useState<FeedFilter>('all');
@@ -993,7 +1088,7 @@ const ClaudeFrontpageFeed = () => {
     setModel(run.model);
     setError(null);
     setProfileError(null);
-    setRunStats(run.timings ? { timings: run.timings } : null);
+    setLastRun(null);
     if (run.kind === 'feed') {
       setPrompt(run.prompt);
       setProfile(run.profile ?? '');
@@ -1013,6 +1108,7 @@ const ClaudeFrontpageFeed = () => {
     }
     setLoading(true);
     setError(null);
+    setLastRun(null);
     captureEvent('claudeFrontpageFeedRequested', {
       promptLength: trimmedPrompt.length,
       profileLength: trimmedProfile.length,
@@ -1022,7 +1118,11 @@ const ClaudeFrontpageFeed = () => {
       const response = await fetchClaudeFeed(trimmedPrompt, trimmedProfile, model, searchSettings);
       setItems(response.items);
       setModel(response.model);
-      setRunStats({ timings: response.timings, candidateCount: response.candidateCount });
+      setLastRun({
+        timings: response.timings,
+        candidateCount: response.candidateCount,
+        searches: response.searches,
+      });
       const run: ClaudeFeedStoredRun = {
         id: createRunId(),
         kind: 'feed',
@@ -1031,7 +1131,6 @@ const ClaudeFrontpageFeed = () => {
         profile: trimmedProfile || undefined,
         items: response.items,
         model: response.model,
-        timings: response.timings,
         usage: response.usage,
         costUsd: response.costUsd,
         costIsEstimated: response.costIsEstimated,
@@ -1040,9 +1139,10 @@ const ClaudeFrontpageFeed = () => {
       captureEvent('claudeFrontpageFeedReceived', {
         resultCount: response.items.length,
         candidateCount: response.candidateCount,
+        searchCount: response.searches.length,
         totalMs: response.timings.totalMs,
         searchMs: response.timings.searchMs,
-        rankMs: response.timings.rankMs,
+        modelMs: response.timings.modelMs,
         model: response.model,
         costUsd: response.costUsd,
         costIsEstimated: response.costIsEstimated,
@@ -1207,17 +1307,17 @@ const ClaudeFrontpageFeed = () => {
         </button>
       </div>
 
-      <div className={classes.settingsLabel}>Ranking system prompt</div>
+      <div className={classes.settingsLabel}>Search and ranking prompt</div>
       <textarea
         className={classes.settingsPromptInput}
-        value={searchSettings.rankingInstructions}
-        onChange={(event) => updateSearchSettings({ rankingInstructions: event.target.value })}
+        value={searchSettings.feedInstructions}
+        onChange={(event) => updateSearchSettings({ feedInstructions: event.target.value })}
         maxLength={4_000}
-        aria-label="Ranking system prompt"
+        aria-label="Search and ranking prompt"
       />
       <div className={classes.settingsHint}>
-        Claude also always receives the item limit, the reason length, and fixed rules that stop it following
-        instructions found inside post text or your profile.
+        Claude also always receives the search-round and item limits, the reason length, and fixed rules that stop it
+        following instructions found inside search results or your profile.
       </div>
 
       <div className={classes.settingsLabel}>Profile system prompt</div>
@@ -1230,103 +1330,44 @@ const ClaudeFrontpageFeed = () => {
       />
 
       <div className={classes.settingsGrid}>
-        <label className={classes.settingsField}>
-          <span>Candidates per type</span>
-          <input
-            type="number"
-            className={classes.settingsNumber}
-            min={claudeFeedSettingsBounds.candidatesPerType.min}
-            max={claudeFeedSettingsBounds.candidatesPerType.max}
-            value={searchSettings.candidatesPerType}
-            onChange={(event) => updateSearchSettings({
-              candidatesPerType: clampSetting(
-                event.target.value,
-                claudeFeedSettingsBounds.candidatesPerType,
-                defaultClaudeFeedSettings.candidatesPerType,
-              ),
-            })}
-          />
-        </label>
-        <label className={classes.settingsField}>
-          <span>Snippet characters</span>
-          <input
-            type="number"
-            className={classes.settingsNumber}
-            min={claudeFeedSettingsBounds.snippetChars.min}
-            max={claudeFeedSettingsBounds.snippetChars.max}
-            value={searchSettings.snippetChars}
-            onChange={(event) => updateSearchSettings({
-              snippetChars: clampSetting(
-                event.target.value,
-                claudeFeedSettingsBounds.snippetChars,
-                defaultClaudeFeedSettings.snippetChars,
-              ),
-            })}
-          />
-        </label>
-        <label className={classes.settingsField}>
-          <span>Results</span>
-          <input
-            type="number"
-            className={classes.settingsNumber}
-            min={claudeFeedSettingsBounds.maxResults.min}
-            max={claudeFeedSettingsBounds.maxResults.max}
-            value={searchSettings.maxResults}
-            onChange={(event) => updateSearchSettings({
-              maxResults: clampSetting(
-                event.target.value,
-                claudeFeedSettingsBounds.maxResults,
-                defaultClaudeFeedSettings.maxResults,
-              ),
-            })}
-          />
-        </label>
-        <label className={classes.settingsField}>
-          <span>Words per reason</span>
-          <input
-            type="number"
-            className={classes.settingsNumber}
-            min={claudeFeedSettingsBounds.reasonWords.min}
-            max={claudeFeedSettingsBounds.reasonWords.max}
-            value={searchSettings.reasonWords}
-            onChange={(event) => updateSearchSettings({
-              reasonWords: clampSetting(
-                event.target.value,
-                claudeFeedSettingsBounds.reasonWords,
-                defaultClaudeFeedSettings.reasonWords,
-              ),
-            })}
-          />
-        </label>
-        <label className={classes.settingsToggle}>
-          <input
-            type="checkbox"
-            checked={searchSettings.includeRecentBackfill}
-            onChange={(event) => updateSearchSettings({ includeRecentBackfill: event.target.checked })}
-          />
-          <span>Backfill with newest items</span>
-        </label>
-        <label className={classes.settingsToggle}>
-          <input
-            type="checkbox"
-            checked={searchSettings.includeTopKarmaBackfill}
-            onChange={(event) => updateSearchSettings({ includeTopKarmaBackfill: event.target.checked })}
-          />
-          <span>Backfill with top-karma items</span>
-        </label>
+        <SettingsNumberField
+          label="Search rounds"
+          value={searchSettings.maxSearchRounds}
+          bounds={claudeFeedSettingsBounds.maxSearchRounds}
+          onChange={(maxSearchRounds) => updateSearchSettings({ maxSearchRounds })}
+        />
+        <SettingsNumberField
+          label="Results per search"
+          value={searchSettings.resultsPerSearch}
+          bounds={claudeFeedSettingsBounds.resultsPerSearch}
+          onChange={(resultsPerSearch) => updateSearchSettings({ resultsPerSearch })}
+        />
+        <SettingsNumberField
+          label="Snippet characters"
+          value={searchSettings.snippetChars}
+          bounds={claudeFeedSettingsBounds.snippetChars}
+          onChange={(snippetChars) => updateSearchSettings({ snippetChars })}
+        />
+        <SettingsNumberField
+          label="Items in feed"
+          value={searchSettings.maxResults}
+          bounds={claudeFeedSettingsBounds.maxResults}
+          onChange={(maxResults) => updateSearchSettings({ maxResults })}
+        />
+        <SettingsNumberField
+          label="Words per reason"
+          value={searchSettings.reasonWords}
+          bounds={claudeFeedSettingsBounds.reasonWords}
+          onChange={(reasonWords) => updateSearchSettings({ reasonWords })}
+        />
       </div>
       <div className={classes.settingsHint}>
-        Candidates, snippet length, results and reason length set how much text the single ranking call has to read
-        and write, so they are the main levers on how long a run takes.
+        Each search round is another Claude turn, so fewer rounds are faster. Results per search and snippet length
+        set how much text Claude reads in each round.
       </div>
     </div>}
 
-    {runStats && !resultsLoading && <div className={classes.runStats}>
-      {formatDuration(runStats.timings.searchMs)} search
-      {' · '}{formatDuration(runStats.timings.rankMs)} ranking
-      {' · '}{formatDuration(runStats.timings.totalMs)} total
-      {runStats.candidateCount === undefined ? null : `  ·  ${runStats.candidateCount} candidates ranked`}
-    </div>}
+    {lastRun && !resultsLoading && <ClaudeFeedRunDetails run={lastRun}/>}
 
     <nav className={classes.filterRail} aria-label="Filter feed results">
       {filterOptions.map((option) => <button
@@ -1343,6 +1384,9 @@ const ClaudeFrontpageFeed = () => {
     <div className={classes.results} aria-live="polite">
       {resultsLoading && <ClaudeFeedLoading/>}
       {!resultsLoading && error && <div className={classNames(classes.status, classes.error)}>{error}</div>}
+      {!resultsLoading && !error && lastRun && items.length === 0 && (
+        <div className={classes.status}>Claude didn’t find unread items for this request. Its searches are listed above.</div>
+      )}
       {!resultsLoading && !error && documentsUnavailable && (
         <div className={classNames(classes.status, classes.error)}>The selected LessWrong items couldn’t be loaded.</div>
       )}
