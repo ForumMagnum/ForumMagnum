@@ -376,12 +376,12 @@ const FriendlyInbox = ({currentUserId, conversationId, view = "userConversations
         >
           <div className={classes.columnHeader}>
             <div className={classes.headerText}>All messages</div>
-            <SectionFooterCheckbox
+            {(userCanViewModInbox || isModInbox) && <SectionFooterCheckbox
               label={<ForumIcon className={classes.modInboxCheckboxIcon} icon="Flag" />}
               value={isModInbox}
               onClick={() => navigate(location => ({ ...location, search: modInboxQueryParam }))}
               tooltip={isModInbox ? "Hide mod messages" : "Show mod messages"}
-            />
+            />}
             <SectionFooterCheckbox
               label={<ArchiveIcon className={classes.archivedCheckboxIcon} />}
               value={showArchive}
