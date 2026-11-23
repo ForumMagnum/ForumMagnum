@@ -90,7 +90,9 @@ function getLoopbackHeaders(): Headers {
   const headers = new Headers({
     [STATUS_CODE_LOOPBACK_HEADER]: 'true',
     'accept': 'text/html',
-    'accept-encoding': 'identity',
+    // Compressed to cut the loopback's transfer through the CDN. fetch decodes
+    // the body, so the scan and the response above still see plain HTML.
+    'accept-encoding': 'gzip, br',
     'accept-language': 'en-US,en',
     'user-agent': CACHED_POST_RENDERER_USER_AGENT,
   });

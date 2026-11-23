@@ -22,7 +22,6 @@ const contentTypeMap: Record<ContentStyleType, string> = {
   llmChat: "llm chat",
   ultraFeed: "content",
   ultraFeedPost: "post",
-  researchDocument: "research document",
 };
 
 const normalHeading = {

@@ -21,8 +21,7 @@ import {
 } from './lexical/ResearchEditorContext';
 import Loading from '../vulcan-core/Loading';
 import LexicalEditor from '../editor/LexicalEditor';
-import ContentStyles from '../common/ContentStyles';
-import { RESEARCH_DOC_EDITOR_MAX_WIDTH } from '../common/ContentStylesValues';
+import { RESEARCH_DOC_EDITOR_MAX_WIDTH, researchDocumentStyles } from '../common/ContentStylesValues';
 import classNames from 'classnames';
 import {
   ResearchCommentsMarginHostProvider,
@@ -101,8 +100,8 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
     overflow: 'auto',
     position: 'relative',
     // Editor-content typography (sizing of paragraphs, headings, lists, etc.,
-    // plus placeholder positioning) lives in the `researchDocument` content
-    // type in ContentStylesValues, scoped under `[data-lexical-editor]`
+    // plus placeholder positioning) lives in `researchDocumentStyles` in
+    // ContentStylesValues, scoped under `[data-lexical-editor]`
     // so it doesn't leak onto floating menus or popovers inside this wrap.
   },
   editorWrapWithComments: {
@@ -132,6 +131,11 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
     justifyContent: 'center',
   },
 }));
+
+function ResearchDocumentBody({ className, children }: { className: string, children: React.ReactNode }) {
+  const classes = useStyles(researchDocumentStyles);
+  return <div className={classNames(className, classes.researchDocumentBody, "content")}>{children}</div>;
+}
 
 const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocument }: DocumentPaneProps) => {
   const classes = useStyles(styles);
@@ -231,10 +235,7 @@ const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocumen
 
   return (
     <div className={classes.root}>
-      <ContentStyles
-        contentType="researchDocument"
-        className={classNames(classes.editorWrap, openThreadCount > 0 && classes.editorWrapWithComments)}
-      >
+      <ResearchDocumentBody className={classNames(classes.editorWrap, openThreadCount > 0 && classes.editorWrapWithComments)}>
         <ResearchNavigationProvider value={researchNavigationContext}>
           <ResearchEditorProvider environment={researchEditorEnvironment}>
             <PendingConversationsProvider value={pendingConversations}>
@@ -256,7 +257,7 @@ const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocumen
           </ResearchEditorProvider>
         </ResearchNavigationProvider>
         <div ref={setCommentsMarginEl} className={classes.commentsMargin} />
-      </ContentStyles>
+      </ResearchDocumentBody>
     </div>
   );
 };

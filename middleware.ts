@@ -348,14 +348,15 @@ export const config: MiddlewareConfig = {
      * - api (a subset of API routes)
      * - auth (auth routes)
      * - graphql, analyticsEvent, ckeditor-token, feed.xml (high-volume API routes)
-     * - public, reactionImages (static files)
+     * - public, reactionImages, excalidraw-assets/, icons/, profile-placeholder-
+     *   (static files, which would otherwise be fetched twice by the loopback)
      * The rest of these were copied from their docs:
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     {
-      source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|cache/posts|_next/static|_next/image|favicon.ico|sitemap.xml|.well-known|oauth|logout|admin/debugHeaders|robots.txt).*)",
+      source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|excalidraw-assets/|icons/|profile-placeholder-|cache/posts|_next/static|_next/image|favicon.ico|sitemap.xml|.well-known|oauth|logout|admin/debugHeaders|robots.txt).*)",
       missing: [
         { type: 'header', key: 'next-router-state-tree' },
         { type: 'header', key: 'rsc' },
