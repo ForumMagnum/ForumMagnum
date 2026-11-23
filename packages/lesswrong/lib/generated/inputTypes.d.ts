@@ -45,6 +45,7 @@ interface Query {
   CrossedKarmaThreshold: CrossedKarmaThresholdResult | null;
   RecombeeLatestPosts: RecombeeLatestPostsResult | null;
   RecombeeHybridPosts: RecombeeHybridPostsResult | null;
+  ClassicFrontpagePosts: ClassicFrontpagePostsResult | null;
   PostsWithActiveDiscussion: PostsWithActiveDiscussionResult | null;
   PostsBySubscribedAuthors: PostsBySubscribedAuthorsResult | null;
   PostsWithApprovedJargon: PostsWithApprovedJargonResult | null;
@@ -1019,6 +1020,10 @@ interface RecombeeHybridPostsResult {
   results: Array<RecombeeRecommendedPost>;
 }
 
+interface ClassicFrontpagePostsResult {
+  results: Array<RecombeeRecommendedPost>;
+}
+
 interface PostsWithActiveDiscussionResult {
   results: Array<Post>;
 }
@@ -1700,6 +1705,7 @@ interface BookmarksUserDocumentBookmarkInput {
 
 interface BookmarkSelector {
   myBookmarkedPosts: EmptyViewInput | null;
+  myBookmarkedComments: EmptyViewInput | null;
   myBookmarks: EmptyViewInput | null;
   userDocumentBookmark: BookmarksUserDocumentBookmarkInput | null;
 }
@@ -9617,6 +9623,7 @@ interface GraphQLTypeMap {
   CrossedKarmaThresholdResult: CrossedKarmaThresholdResult;
   RecombeeLatestPostsResult: RecombeeLatestPostsResult;
   RecombeeHybridPostsResult: RecombeeHybridPostsResult;
+  ClassicFrontpagePostsResult: ClassicFrontpagePostsResult;
   PostsWithActiveDiscussionResult: PostsWithActiveDiscussionResult;
   PostsBySubscribedAuthorsResult: PostsBySubscribedAuthorsResult;
   PostsWithApprovedJargonResult: PostsWithApprovedJargonResult;

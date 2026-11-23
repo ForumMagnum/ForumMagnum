@@ -4,9 +4,9 @@ import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useDialog } from '../common/withDialog';
+import LWTooltip from '../common/LWTooltip';
 
 import dynamic from 'next/dynamic';
-const LWTooltip = dynamic(() => import("../common/LWTooltip"), { ssr: false });
 const ReplyCommentDialog = dynamic(() => import("./ReplyCommentDialog"), { ssr: false });
 
 export const CommentOnSelectionContext = createContext<((html: string) => void) | null>(null);

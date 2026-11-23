@@ -4,6 +4,8 @@ export const postPageCacheConfig = {
   htmlCacheEnabled: process.env.POST_PAGE_CACHE_HTML_ENABLED === 'true',
 };
 
+export const CACHED_POST_RENDERER_USER_AGENT = 'LessWrongCachedPostRenderer/1.0';
+
 // Carried by every cached logged-out post page and result, so that everything
 // can be purged at once.
 export const FORUM_WIDE_CACHE_TAG = 'lwcache:all';

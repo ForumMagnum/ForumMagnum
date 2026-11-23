@@ -6,6 +6,7 @@ import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';
 import type { EditablePost } from '../posts/helpers';
 import { maybeDate } from '@/lib/utils/dateUtils';
+import moment from 'moment';
 import { isE2E } from '@/lib/executionEnvironment';
 
 export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
@@ -31,9 +32,9 @@ type PostModerationAuthor = PermissionableUser & {
   bannedPersonalUserIds?: string[] | null,
 };
 
-export type AuthorCommentBanReason = "post" | "allPosts" | "allPersonalPosts";
+type AuthorCommentBanReason = "post" | "allPosts" | "allPersonalPosts";
 
-export const getAuthorCommentBanMessage = (reason: AuthorCommentBanReason): string => {
+const getAuthorCommentBanMessage = (reason: AuthorCommentBanReason): string => {
   switch (reason) {
     case "allPersonalPosts":
       return "This post's author has blocked you from commenting on any of their personal blog posts.";
@@ -135,6 +136,9 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
   )
 }
 
+export const MODERATE_OWN_PERSONAL_KARMA_THRESHOLD = 50;
+export const TRUSTLEVEL1_KARMA_THRESHOLD = 2000;
+
 const postHasModerationGuidelines = (
   post: PostsBase | PostsModerationGuidelines | DbPost,
 ): boolean => {
@@ -148,61 +152,71 @@ const postHasModerationGuidelines = (
   );
 }
 
+type ModerationPermission =
+  | { canModerate: true, reason: null }
+  | { canModerate: false, reason: string };
+
 export const userCanModeratePost = (
   user: UsersProfile|UsersCurrent|DbUser|null,
   post?: PostsBase|PostsModerationGuidelines|DbPost|null,
-): boolean => {
-  if (userCanDo(user,"posts.moderate.all")) {
-    return true
+): ModerationPermission => {
+  if (userCanDo(user, "posts.moderate.all")) {
+    return { canModerate: true, reason: null };
   }
-  if (!user || !post) {
-    return false
+  if (!user) {
+    return { canModerate: false, reason: "You must be logged in to moderate comments." };
   }
-  // Users who can moderate their personal posts can moderate any post that
-  // meets all of the following:
-  //  1) they own
-  //  2) has moderation guidelins
-  //  3) is not on the frontpage
-  if (
-    userCanDo(user, "posts.moderate.own.personal") &&
-    userOwns(user, post) &&
-    postHasModerationGuidelines(post) &&
-    !post.frontpageDate
-  ) {
-    return true
+  if (!post || !userOwns(user, post)) {
+    return { canModerate: false, reason: "Only moderators and the post's author can moderate comments on this post." };
   }
-  // Users who can moderate all of their own posts (even those on the frontpage)
-  // can moderate any post that meets all of the following:
-  //  1) they own
-  //  2) has moderation guidelines
-  // We have now checked all the possible conditions for posting, if they fail
-  // this, check they cannot moderate this post
-  return !!(
-    userCanDo(user,"posts.moderate.own") &&
-    userOwns(user, post) &&
-    postHasModerationGuidelines(post)
-  )
+  const canModeratePersonalPosts = userCanDo(user, "posts.moderate.own.personal");
+  const canModerateAllOwnPosts = userCanDo(user, "posts.moderate.own");
+  if (!canModeratePersonalPosts && !canModerateAllOwnPosts) {
+    return { canModerate: false, reason: `You need at least ${MODERATE_OWN_PERSONAL_KARMA_THRESHOLD} karma to moderate comments on your posts.` };
+  }
+  if (post.frontpageDate && !canModerateAllOwnPosts) {
+    return { canModerate: false, reason: `You need at least ${TRUSTLEVEL1_KARMA_THRESHOLD} karma to moderate comments on your frontpage posts.` };
+  }
+  if (!postHasModerationGuidelines(post)) {
+    if (post.shortform) {
+      return { canModerate: false, reason: "You can't moderate comments on your quick takes page because it doesn't have moderation guidelines or a moderation style set." };
+    }
+    return { canModerate: false, reason: "You can only moderate comments on your posts if the post has moderation guidelines or a moderation style set. You can add these by editing the post." };
+  }
+  return { canModerate: true, reason: null };
 }
 
-export const userCanModerateComment = (user: UsersProfile|UsersCurrent|DbUser|null, post: PostsBase|DbPost|null , tag: TagBasicInfo|DbTag|null, comment: CommentsList|DbComment) => {
-  if (!user || !comment) {
-    return false;
+export const userCanModerateComment = (
+  user: UsersProfile|UsersCurrent|DbUser|null,
+  post: PostsBase|DbPost|null,
+  tag: TagBasicInfo|DbTag|null,
+  comment: CommentsList|DbComment,
+): ModerationPermission => {
+  if (!user) {
+    return { canModerate: false, reason: "You must be logged in to delete comments." };
   }
+  if (!post && !tag) {
+    return { canModerate: false, reason: "Comments that aren't on a post or tag can't be deleted." };
+  }
+  const ownsComment = userOwns(user, comment);
+  if (ownsComment && !comment.directChildrenCount) {
+    return { canModerate: true, reason: null };
+  }
+  const hasRepliesReason = "You can't delete your comment because it has replies. You can retract it instead.";
   if (post) {
-    if (userCanModeratePost(user, post)) return true 
-    if (userOwns(user, comment) && !comment.directChildrenCount) return true 
-    return false
-  } else if (tag) {
-    if (userIsMemberOf(user, "sunshineRegiment")) {
-      return true;
-    } else if (userOwns(user, comment) && !comment.directChildrenCount) {
-      return true 
-    } else {
-      return false
+    const postPermission = userCanModeratePost(user, post);
+    if (!postPermission.canModerate && ownsComment && !userOwns(user, post)) {
+      return { canModerate: false, reason: hasRepliesReason };
     }
-  } else {
-    return false
+    return postPermission;
   }
+  if (userIsMemberOf(user, "sunshineRegiment")) {
+    return { canModerate: true, reason: null };
+  }
+  if (ownsComment) {
+    return { canModerate: false, reason: hasRepliesReason };
+  }
+  return { canModerate: false, reason: "Only moderators can delete this comment." };
 }
 
 export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase | DbPost | (EditablePost & { userId: string | null}) | null): boolean => {
@@ -226,7 +240,7 @@ export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: Permis
   )
 }
 
-export const userIsNotShortformOwner = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo): boolean => {
+const userIsNotShortformOwner = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo): boolean => {
   return !!(
     post.shortform &&
     post.userId &&
@@ -250,7 +264,7 @@ export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post
   )
 }
 
-export const getAuthorCommentBanReason = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo|null, postAuthor: PostModerationAuthor|DbUser|null): AuthorCommentBanReason | null => {
+const getAuthorCommentBanReason = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo|null, postAuthor: PostModerationAuthor|DbUser|null): AuthorCommentBanReason | null => {
   if (!post) return null;
   if (userIsBannedFromPost(user, post, postAuthor)) {
     return "post";
@@ -264,40 +278,51 @@ export const getAuthorCommentBanReason = (user: UsersCurrent|DbUser, post: Permi
   return null;
 }
 
-export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PermissionsPostMinimumInfo|null, postAuthor: PostModerationAuthor|DbUser|null, isReply: boolean): boolean => {
-  if (!user) return false
-  if (user.deleted) return false
-  if (user.allCommentingDisabled) return false
+type CommentingPermission =
+  | { canComment: true, reason: null }
+  | { canComment: false, reason: string };
 
-  // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
-  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId !== user._id))
-    return false
-
-  if (post) {
-    if (post.shortform && post.userId && post.userId !== user._id && !isReply) {
-      return false;
-    }
-
-    if (post.commentsLocked) {
-      return false
-    }
-    if (post.rejected) {
-      return false
-    }
-    
-    const lockDate = maybeDate(post.commentsLockedToAccountsCreatedAfter)
-    const userCreatedDate = maybeDate(user.createdAt);
-    
-    if (lockDate && lockDate < userCreatedDate) {
-      return false
-    }
-  
-    if (getAuthorCommentBanReason(user, post, postAuthor)) {
-      return false
-    }
+export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PermissionsPostMinimumInfo|null, postAuthor: PostModerationAuthor|DbUser|null, isReply: boolean): CommentingPermission => {
+  if (!user) {
+    return { canComment: false, reason: "You must be logged in to comment." };
+  }
+  if (user.deleted) {
+    return { canComment: false, reason: "You can't comment because your account has been deleted." };
+  }
+  if (user.allCommentingDisabled) {
+    return { canComment: false, reason: "Commenting has been disabled for your account." };
   }
 
-  return true
+  // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
+  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId !== user._id)) {
+    return { canComment: false, reason: "Commenting on other users' posts has been disabled for your account." };
+  }
+
+  if (!post) {
+    return { canComment: true, reason: null };
+  }
+  if (!isReply && userIsNotShortformOwner(user, post)) {
+    return { canComment: false, reason: "Only the owner of a Quick Take's container can leave top-level comments on it." };
+  }
+  if (post.commentsLocked) {
+    return { canComment: false, reason: "Comments on this post are disabled." };
+  }
+  if (post.rejected) {
+    return { canComment: false, reason: "Comments on this post are disabled because it was rejected." };
+  }
+
+  const lockDate = maybeDate(post.commentsLockedToAccountsCreatedAfter)
+  const userCreatedDate = maybeDate(user.createdAt);
+  if (lockDate && lockDate < userCreatedDate) {
+    const formattedLockDate = moment.utc(lockDate).format("MMMM D, YYYY");
+    return { canComment: false, reason: `Comments on this post are disabled for accounts created after ${formattedLockDate}.` };
+  }
+
+  const authorBanReason = getAuthorCommentBanReason(user, post, postAuthor);
+  if (authorBanReason) {
+    return { canComment: false, reason: getAuthorCommentBanMessage(authorBanReason) };
+  }
+  return { canComment: true, reason: null };
 }
 
 // Return true if the user's account has at least one verified email address.

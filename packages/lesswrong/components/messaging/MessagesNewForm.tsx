@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { TemplateQueryStrings } from "./NewConversationButton";
@@ -113,22 +113,21 @@ const InnerMessagesNewForm = ({
   submitLabel = "Submit",
   sendEmail = true,
   keystrokeSubmitButton = false,
+  registerSubmit,
   fitToContent = false,
-  beforeSubmit,
-  submitMessage,
   prefilledProps,
   templateQueries,
   conversationId,
+  optimisticEvent,
+  failureEvent,
   onSuccess,
 }: {
   isMinimalist: boolean;
   submitLabel?: React.ReactNode;
   sendEmail?: boolean;
   keystrokeSubmitButton?: boolean;
+  registerSubmit?: (fn: () => void) => void;
   fitToContent?: boolean;
-  beforeSubmit?: React.ReactNode;
-  /** Persist a message with associated domain actions; success callbacks run only after completion. */
-  submitMessage?: (data: CreateMessageDataInput) => Promise<messageListFragment>;
   prefilledProps: {
     conversationId: string;
     contents: {
@@ -140,6 +139,8 @@ const InnerMessagesNewForm = ({
   };
   templateQueries?: TemplateQueryStrings;
   conversationId: string;
+  optimisticEvent?: () => void;
+  failureEvent?: () => void;
   onSuccess: (doc: messageListFragment) => void;
 }) => {
   const classes = useStyles(styles);
@@ -172,25 +173,25 @@ const InnerMessagesNewForm = ({
       await onSubmitCallback.current?.();
 
       try {
+        optimisticEvent?.();
         let result: messageListFragment;
 
         const submitData = userIsAdmin(currentUser) 
           ? { ...formApi.state.values, noEmail: !sendEmail } 
           : formApi.state.values;
 
-        if (submitMessage) {
-          result = await submitMessage(submitData);
-        } else {
-          const { data } = await create({ variables: { data: submitData } });
-          if (!data?.createMessage?.data) throw new Error('Failed to create message');
-          result = data.createMessage.data;
+        const { data } = await create({ variables: { data: submitData } });
+        if (!data?.createMessage?.data) {
+          throw new Error('Failed to create message');
         }
+        result = data.createMessage.data;
 
         onSuccessCallback.current?.(result);
 
         onSuccess(result);
         setCaughtError(undefined);
       } catch (error) {
+        failureEvent?.();
         setCaughtError(error);
       }
     },
@@ -198,10 +199,16 @@ const InnerMessagesNewForm = ({
 
 
   const handleSubmit = useCallback(async () => {
-    if (keystrokeSubmitButton && editorIsBlank) return;
+    if (form.state.isSubmitting || (keystrokeSubmitButton && editorIsBlank)) return;
     await form.handleSubmit();
   }, [form, keystrokeSubmitButton, editorIsBlank]);
   const formRef = useFormSubmitOnCmdEnter(handleSubmit);
+
+  useEffect(() => {
+    if (!registerSubmit) return;
+    registerSubmit(() => void handleSubmit());
+    return () => registerSubmit(() => {});
+  }, [registerSubmit, handleSubmit]);
 
   return (
     <div>
@@ -236,8 +243,6 @@ const InnerMessagesNewForm = ({
           </form.Field>
         </div>
 
-        {beforeSubmit}
-
         <form.Subscribe selector={(s) => [s.isSubmitting]}>
           {([isSubmitting]) => (
             <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
@@ -269,9 +274,10 @@ export const MessagesNewForm = ({
   submitLabel,
   sendEmail = true,
   keystrokeSubmitButton,
+  registerSubmit,
+  optimisticEvent,
+  failureEvent,
   fitToContent,
-  beforeSubmit,
-  submitMessage,
   formStyle="default",
 }: {
   conversationId: string;
@@ -281,12 +287,14 @@ export const MessagesNewForm = ({
   sendEmail?: boolean;
   /** Supermod sidebar style: Ctrl+Enter badge on the submit button, disabled while empty */
   keystrokeSubmitButton?: boolean;
+  /** Hands the form's submit function to the parent so it can be triggered from outside (e.g. the supermod sidebar's Cmd+M shortcut) */
+  registerSubmit?: (fn: () => void) => void;
+  /** Called immediately before the mutation so a parent can update optimistically. */
+  optimisticEvent?: () => void;
+  /** Called if the mutation fails so the parent can roll back its optimistic update. */
+  failureEvent?: () => void;
   /** Editor is only as tall as its text, instead of reserving a comment-sized blank area */
   fitToContent?: boolean;
-  /** Rendered between the editor and the submit button */
-  beforeSubmit?: React.ReactNode;
-  /** Persist a message with associated domain actions; success callbacks run only after completion. */
-  submitMessage?: (data: CreateMessageDataInput) => Promise<messageListFragment>;
   formStyle?: FormDisplayMode;
 }) => {
   const classes = useStyles(styles);
@@ -317,9 +325,10 @@ export const MessagesNewForm = ({
         submitLabel={submitLabel}
         sendEmail={sendEmail}
         keystrokeSubmitButton={keystrokeSubmitButton}
+        registerSubmit={registerSubmit}
+        optimisticEvent={optimisticEvent}
+        failureEvent={failureEvent}
         fitToContent={fitToContent}
-        beforeSubmit={beforeSubmit}
-        submitMessage={submitMessage}
         prefilledProps={{
           conversationId,
           contents: {

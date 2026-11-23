@@ -1,20 +1,7 @@
-import moment from 'moment';
 import { UNREVIEWED_MAP_LOCATION_UPDATE } from '@/lib/collections/moderatorActions/constants';
 import { getFreshReviewTriggerActions, isAwaitingReview as isDocumentAwaitingReview } from '@/lib/collections/users/reviewGroups';
 
 export type ContentItem = SunshinePostsList | SunshineCommentsList;
-
-export const POSITIVE_KARMA = 2;
-
-export const CONTENT_PERIODS = [
-  { label: 'Last 30 days', shortLabel: '30d', startsAgo: moment.duration(30, 'days') },
-  { label: 'Last year', shortLabel: '1y', startsAgo: moment.duration(1, 'year') },
-  { label: 'Older', shortLabel: 'older', startsAgo: null },
-];
-
-export function getContentPeriodIndex(postedAt: string, now: moment.Moment) {
-  return CONTENT_PERIODS.findIndex(({ startsAgo }) => !startsAgo || moment(postedAt).isAfter(now.clone().subtract(startsAgo)));
-}
 
 export interface ModerationMapPinItem {
   contentType: 'mapPin';
@@ -34,18 +21,23 @@ type MapPinUserFields = Pick<
   'mapLocation' | 'mapMarkerText' | 'htmlMapMarkerText' | 'moderatorActions' | 'lastRemovedFromReviewQueueAt'
 >;
 
-export function areAllContentPermissionsDisabled(user: {
-  postingDisabled?: boolean | null;
-  allCommentingDisabled?: boolean | null;
-  conversationsDisabled?: boolean | null;
-  votingDisabled?: boolean | null;
-}): boolean {
-  return !!(
-    user.postingDisabled &&
-    user.allCommentingDisabled &&
-    user.conversationsDisabled &&
-    user.votingDisabled
-  );
+const contentPermissionFields = [
+  'postingDisabled',
+  'allCommentingDisabled',
+  'conversationsDisabled',
+  'votingDisabled',
+] as const;
+
+export type ContentPermissionField = typeof contentPermissionFields[number];
+
+type ContentPermissionFlags = Partial<Record<ContentPermissionField, boolean | null>>;
+
+export function areAllContentPermissionsDisabled(user: ContentPermissionFlags): boolean {
+  return contentPermissionFields.every(field => !!user[field]);
+}
+
+export function isAnyContentPermissionDisabled(user: ContentPermissionFlags): boolean {
+  return contentPermissionFields.some(field => !!user[field]);
 }
 
 export function isPost(item: ContentItem): item is SunshinePostsList {
@@ -99,14 +91,7 @@ export function getModerationContentItems(
     ? [...posts, ...comments, mapPin]
     : [...posts, ...comments];
 
-  return items.sort((a, b) =>
-    Number(needsDecision(b)) - Number(needsDecision(a))
-    || new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
-  );
-}
-
-export function needsDecision(item: ModerationContentItem) {
-  return isMapPin(item) || isAwaitingReview(item);
+  return items.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
 }
 
 export function isAwaitingReview(item: ContentItem) {
@@ -117,12 +102,34 @@ export function canRejectContent(item: ContentItem | null | undefined) {
   return !!item && !item.rejected;
 }
 
-export function isRejectionTemplateRelevant(templateName: string, item: ContentItem): boolean {
-  const name = templateName.trim().toLowerCase();
-  if (name.includes('autoreject')) return false;
-  if (name.endsWith('(posts)')) return isPost(item);
-  if (name.endsWith('(comments)')) return !isPost(item);
-  return true;
+export interface IndexedRejectableContent {
+  _id: string;
+  rejected?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+}
+
+/**
+ * Finds the next unapproved item after `currentContentId`, wrapping around the
+ * list once. The current item is never returned, even before its optimistic
+ * rejection has reached the Apollo cache.
+ */
+export function getNextUnapprovedContentIndex(items: IndexedRejectableContent[], currentContentId: string) {
+  const currentIndex = items.findIndex(item => item._id === currentContentId);
+  for (let offset = 1; offset <= items.length; offset++) {
+    const candidateIndex = (currentIndex + offset) % items.length;
+    const candidate = items[candidateIndex];
+    if (candidate._id !== currentContentId && !candidate.rejected && !!candidate.authorIsUnreviewed) {
+      return candidateIndex;
+    }
+  }
+
+  return null;
+}
+
+/** Whether a keyboard event target is a place the moderator is typing, so plain-letter shortcuts should be ignored */
+export function isInTextInput(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
 }
 
 const CONTENT_TITLE_MAX_LENGTH = 25;

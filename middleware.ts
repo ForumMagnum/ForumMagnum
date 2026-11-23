@@ -2,7 +2,7 @@ import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { randomId } from './packages/lesswrong/lib/random';
 import { getMarkdownPathname } from './packages/lesswrong/lib/routeChecks/markdownVersionRoutes';
 import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } from './packages/lesswrong/lib/routeChecks/statusCodeLoopback';
-import { buildCachedPostPath, getCacheablePostPagePath, normalizeAcceptEncoding } from './packages/lesswrong/lib/postPageCache/cachedPostRoute';
+import { buildCachedPostPath, getCacheablePostPagePath } from './packages/lesswrong/lib/postPageCache/cachedPostRoute';
 import { postPageCacheConfig } from './packages/lesswrong/lib/postPageCache/config';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
@@ -282,11 +282,7 @@ function getCachedPostRewriteResponse(request: NextRequest, addedClientId: strin
     return null;
   }
   const targetUrl = new URL(buildCachedPostPath(parsedPath.postId, parsedPath.slug), request.url);
-  // The handler's responses are CDN-cached per post, so the request must not
-  // carry anything that would vary them beyond the normalized encoding.
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('accept-encoding', normalizeAcceptEncoding(request.headers.get('accept-encoding')));
-  const response = NextResponse.rewrite(targetUrl, { request: { headers: requestHeaders } });
+  const response = NextResponse.rewrite(targetUrl);
   response.headers.set('x-lw-post-cache-routing', 'cached');
   if (addedClientId) {
     addClientIdToResponseHeaders(response, addedClientId);
@@ -352,14 +348,15 @@ export const config: MiddlewareConfig = {
      * - api (a subset of API routes)
      * - auth (auth routes)
      * - graphql, analyticsEvent, ckeditor-token, feed.xml (high-volume API routes)
-     * - public, reactionImages (static files)
+     * - public, reactionImages, excalidraw-assets/, icons/, profile-placeholder-
+     *   (static files, which would otherwise be fetched twice by the loopback)
      * The rest of these were copied from their docs:
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     {
-      source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|cache/posts|_next/static|_next/image|favicon.ico|sitemap.xml|.well-known|oauth|logout|admin/debugHeaders|robots.txt).*)",
+      source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|excalidraw-assets/|icons/|profile-placeholder-|cache/posts|_next/static|_next/image|favicon.ico|sitemap.xml|.well-known|oauth|logout|admin/debugHeaders|robots.txt).*)",
       missing: [
         { type: 'header', key: 'next-router-state-tree' },
         { type: 'header', key: 'rsc' },

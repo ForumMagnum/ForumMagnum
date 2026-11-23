@@ -2,14 +2,24 @@ import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationPermissionButtons from './ModerationPermissionButtons';
 import ModerationActionButtons from './ModerationActionButtons';
-import ModerationSectionTitle from './ModerationSectionTitle';
+import CollapsibleSectionHeader from './CollapsibleSectionHeader';
 import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
+import { isAnyContentPermissionDisabled } from './helpers';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
+import ModerationSidebarSection from './ModerationSidebarSection';
 
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
+  collapsedPermissions: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 4,
+    marginTop: 8,
+    paddingLeft: 4,
+  },
   modActionsColumn: {
     display: 'flex',
     flexDirection: 'column',
@@ -22,7 +32,7 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   modActionItem: {},
   rateLimitSection: {
     display: 'flex',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
     gap: 10,
     alignItems: 'flex-start',
   },
@@ -39,9 +49,13 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   }
 }));
 
-const SupermodModeratorActions = ({user, currentUser, addToUndoQueue, dispatch}: {
+const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedActions, onToggle, addToUndoQueue, dispatch}: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
+  expanded: boolean,
+  // False while another section is expanded
+  showCollapsedActions: boolean,
+  onToggle: () => void,
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void,
   dispatch: React.ActionDispatch<[action: InboxAction]>,
 }) => {
@@ -50,36 +64,57 @@ const SupermodModeratorActions = ({user, currentUser, addToUndoQueue, dispatch}:
   const [showRateLimitForm, setShowRateLimitForm] = useState(false);
 
   return (
-    <div>
-      <ModerationSectionTitle>Moderator Actions</ModerationSectionTitle>
-      <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />
-      <div className={classes.rateLimitSection}>
-        <ModerationPermissionButtons user={user} dispatch={dispatch} />
-        <div
-          className={classes.rateLimitButton}
-          onClick={() => setShowRateLimitForm(!showRateLimitForm)}
-        >
-          Limits
+    <ModerationSidebarSection
+      fillsAvailableSpace={expanded}
+      sharesAvailableSpace
+      withDivider={false}
+      header={<CollapsibleSectionHeader
+        title="Moderator Actions"
+        expanded={expanded}
+        minimal
+        onToggle={onToggle}
+      />}
+    >
+      {(expanded || showCollapsedActions) && <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} />}
+      {!expanded && showCollapsedActions && isAnyContentPermissionDisabled(user) && (
+        <div className={classes.collapsedPermissions}>
+          <ModerationPermissionButtons user={user} dispatch={dispatch} collapsed />
         </div>
-      </div>
-      <div className={classes.modActionsColumn}>
-        {activeModeratorActions.map(action => (
-          <div key={action._id} className={classes.modActionItem}>
-            <ModeratorActionItem user={user} moderatorAction={action} comments={[]} posts={[]} />
+      )}
+      {expanded && <>
+        <div className={classes.rateLimitSection}>
+          <ModerationPermissionButtons user={user} dispatch={dispatch} />
+          <div
+            className={classes.rateLimitButton}
+            onClick={() => setShowRateLimitForm(!showRateLimitForm)}
+          >
+            Limits
           </div>
-        ))}
-      </div>
-      {/*
-        TODO: rework rate limits into a nicer UI and/or get rid of them completely
-      since we don't use them a ton.
+        </div>
+        <div className={classes.modActionsColumn}>
+          {activeModeratorActions.map(action => (
+            <div key={action._id} className={classes.modActionItem}>
+              <ModeratorActionItem user={user} moderatorAction={action} comments={[]} posts={[]} />
+            </div>
+          ))}
+        </div>
+        {/* 
+          TODO: rework rate limits into a nicer UI and/or get rid of them completely
+        since we don't use them a ton. 
 
-        For now, we're only showing the options for it when we've toggled the button here.
-        (but, still rendering the list of existing rate limits whether you've expanded it or not)
-      */}
-      <div className={classNames({ [classes.rateLimitForm]: showRateLimitForm })}>
-        <UserRateLimitItem userId={user._id} showForm={showRateLimitForm} />
-      </div>
-    </div>
+          For now, we're only showing the options for it when we've toggled the button here.
+          (but, still rendering the list of existing rate limits whether you've expanded it or not)
+        */}
+        <div className={classNames({ [classes.rateLimitForm]: showRateLimitForm })}>
+          <UserRateLimitItem
+            userId={user._id}
+            showForm={showRateLimitForm}
+            showCustomForm
+            onCustomFormClose={() => setShowRateLimitForm(false)}
+          />
+        </div>
+      </>}
+    </ModerationSidebarSection>
   );
 }
 

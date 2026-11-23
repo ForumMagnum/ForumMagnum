@@ -882,7 +882,7 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
   if (themeName === 'dark' || themeName === 'auto') {
     return Object.fromEntries(Object.entries(styles).map(([attribute,value]) => {
       if (cssAttributesNeedingTransform[attribute]) {
-        const darkModeValue = transformAttributeValueForDarkMode(value)
+        const darkModeValue = transformCssColorAttributeForDarkMode(attribute, value);
         if (themeName === "auto" && darkModeValue !== value) {
           return [attribute, `light-dark(${value},${darkModeValue})`];
         } else {
@@ -897,6 +897,15 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
   } else {
     return styles;
   }
+}
+
+function transformCssColorAttributeForDarkMode(attribute: string, value: string): string {
+  // Text colors we can't parse are left as-is, because the black fallback
+  // used for backgrounds would make the text unreadable in dark mode
+  if (attribute === "color") {
+    return invertColorForDarkMode(value) ?? value;
+  }
+  return transformAttributeValueForDarkMode(value);
 }
 
 function transformAttributeValueForDarkMode(attributeValue: string): string {

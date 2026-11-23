@@ -35,16 +35,25 @@ async function getAppealedContentLinkHtml({ postId, commentId }: AppealTarget, c
   return "content";
 }
 
-function getAppealResolvedHtml(status: "approved" | "denied", contentType: "post" | "comment") {
-  if (status === "approved") {
-    return [
-      `<p>Good news: we've reviewed the rejection of your ${contentType} and reversed it. Thanks for taking the time to explain.</p>`,
-      `<p>Your ${contentType} is now published.</p>`,
-    ].join("");
+async function isAppealedContentDraft({ postId, commentId }: AppealTarget, context: ResolverContext) {
+  if (postId) {
+    const post = await context.loaders.Posts.load(postId);
+    return post.draft;
   }
+  if (commentId) {
+    const comment = await context.loaders.Comments.load(commentId);
+    return comment.draft;
+  }
+  return false;
+}
+
+function getAppealApprovedHtml(contentType: "post" | "comment", isDraft: boolean) {
+  const publicationStatusHtml = isDraft
+    ? `<p>Your ${contentType} is still in your drafts, so you can publish it whenever you're ready.</p>`
+    : `<p>Your ${contentType} is now published.</p>`;
   return [
-    `<p>We've reviewed the rejection of your ${contentType}, and we're keeping the original decision. We know this is disappointing, and we appreciate you taking the time to explain your view.</p>`,
-    `<p>If a moderator has anything to add, they'll reply here. A rejection isn't a ban, and you're welcome to submit something new later.</p>`,
+    `<p>Good news: we've reviewed the rejection of your ${contentType} and reversed it. Thanks for taking the time to explain.</p>`,
+    publicationStatusHtml,
   ].join("");
 }
 
@@ -100,7 +109,7 @@ export async function updateRejectionAppeal({ selector, data }: UpdateRejectionA
   const { currentUser, RejectionAppeals } = context;
   if (!currentUser || !userIsAdminOrMod(currentUser)) throw new Error("Only moderators can resolve a review");
   const { status } = data;
-  if (status !== "approved" && status !== "denied") throw new Error("Choose whether to approve or deny the review");
+  if (status !== "approved" && status !== "denied") throw new Error("Choose whether to approve or dismiss the review");
   const _id = getDocumentId(selector);
   const appeal = await RejectionAppeals.findOne(_id);
   if (!appeal) throw new Error("Review not found");
@@ -108,10 +117,9 @@ export async function updateRejectionAppeal({ selector, data }: UpdateRejectionA
     if (appeal.status !== status) throw new Error("This review has already been resolved with a different decision. Please reload.");
     return appeal;
   }
-  const teamAccount = await getAdminTeamAccount(context);
-  if (!teamAccount) throw new Error("Couldn't find the admin team account");
-
   if (status === "approved") {
+    const teamAccount = await getAdminTeamAccount(context);
+    if (!teamAccount) throw new Error("Couldn't find the admin team account");
     const approvedContent = {
       rejected: false,
       rejectedReason: null,
@@ -129,14 +137,14 @@ export async function updateRejectionAppeal({ selector, data }: UpdateRejectionA
     } else if (appeal.commentId) {
       await updateComment({ data: approvedContent, selector: { _id: appeal.commentId } }, context);
     }
+    await sendMessageAs({
+      author: teamAccount,
+      conversationId: appeal.conversationId,
+      html: getAppealApprovedHtml(appeal.postId ? "post" : "comment", await isAppealedContentDraft(appeal, context)),
+      noEmail: false,
+      context,
+    });
   }
-  await sendMessageAs({
-    author: teamAccount,
-    conversationId: appeal.conversationId,
-    html: getAppealResolvedHtml(status, appeal.postId ? "post" : "comment"),
-    noEmail: false,
-    context,
-  });
   await updateConversation({ data: { awaitingModeratorReply: false }, selector: { _id: appeal.conversationId } }, context);
   return await updateAndReturnDocument({
     status,

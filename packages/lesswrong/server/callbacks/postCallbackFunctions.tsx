@@ -46,7 +46,7 @@ import { updateNotification } from "../collections/notifications/mutations";
 import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
 import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 import { backgroundTask } from "../utils/backgroundTask";
-import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
+import { createAutomatedContentEvaluation, rejectionWasReversedByModerator } from "../collections/automatedContentEvaluations/helpers";
 import CurationEmails from "../collections/curationEmails/collection";
 import { maybeAutoFrontpagePost } from "../frontpageClassifier/predictions";
 import { escapeHtml } from "@/lib/utils/sanitize";
@@ -1030,7 +1030,7 @@ export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPos
   if (shouldPerformAutomatedContentEvaluationOnPost(post, oldPost, context)) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {
-      await createAutomatedContentEvaluation(revision, context, { autoreject: true });
+      await createAutomatedContentEvaluation(revision, context, { autoreject: !rejectionWasReversedByModerator(post) });
     }
   }
 }

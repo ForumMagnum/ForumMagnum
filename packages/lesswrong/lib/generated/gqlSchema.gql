@@ -824,6 +824,14 @@ extend type Query {
   RecombeeHybridPosts(settings: JSON, limit: Int): RecombeeHybridPostsResult
 }
 
+type ClassicFrontpagePostsResult {
+  results: [RecombeeRecommendedPost!]!
+}
+
+extend type Query {
+  ClassicFrontpagePosts(settings: JSON, limit: Int): ClassicFrontpagePostsResult
+}
+
 type PostsWithActiveDiscussionResult {
   results: [Post!]!
 }
@@ -1922,6 +1930,7 @@ input BookmarksUserDocumentBookmarkInput {
 
 input BookmarkSelector {
   myBookmarkedPosts: EmptyViewInput
+  myBookmarkedComments: EmptyViewInput
   myBookmarks: EmptyViewInput
   userDocumentBookmark: BookmarksUserDocumentBookmarkInput
 }
