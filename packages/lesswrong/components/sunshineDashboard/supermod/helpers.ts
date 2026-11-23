@@ -36,10 +36,6 @@ export function areAllContentPermissionsDisabled(user: ContentPermissionFlags): 
   return contentPermissionFields.every(field => !!user[field]);
 }
 
-export function isAnyContentPermissionDisabled(user: ContentPermissionFlags): boolean {
-  return contentPermissionFields.some(field => !!user[field]);
-}
-
 export function isPost(item: ContentItem): item is SunshinePostsList {
   return item.__typename === 'Post';
 };

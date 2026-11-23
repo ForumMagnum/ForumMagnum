@@ -38,10 +38,19 @@ const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) =>
   },
   ...moderatorActionHighlightStyles(theme),
   barePermissionButton: {
-    padding: '2px 4px',
+    padding: '2px 0',
     border: 0,
     borderRadius: 0,
+    boxShadow: 'none',
     backgroundColor: 'transparent',
+    '&:hover': {
+      border: 0,
+      boxShadow: 'none',
+    },
+    '&.active': {
+      border: 0,
+      boxShadow: 'none',
+    },
   },
   permissionButtonLabel: {
     flexGrow: 1,
@@ -83,14 +92,14 @@ const ModerationPermissionButtons = ({
     { field: 'votingDisabled', label: 'Vote', keystroke: 'V', onClick: () => toggleDisableVoting() },
   ];
 
-  // Collapsed, show only revoked and suggested permissions
+  // Collapsed, show only suggested permissions
   const visibleButtons = collapsed
-    ? permissionButtons.filter(({field, highlightKey}) => user[field] || (highlightKey && highlightedActions?.has(highlightKey)))
+    ? permissionButtons.filter(({highlightKey}) => highlightKey && highlightedActions?.has(highlightKey))
     : permissionButtons;
 
   const renderedButtons = visibleButtons.map(({field, label, keystroke, onClick, highlightKey}) => {
     const permissionDisabled = !!user[field];
-    const highlightStyle = highlightKey ? getActionHighlightStyle(highlightedActions, highlightKey) : null;
+    const highlightStyle = highlightKey && !collapsed ? getActionHighlightStyle(highlightedActions, highlightKey) : null;
 
     return (
       <div

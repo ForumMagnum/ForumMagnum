@@ -111,13 +111,16 @@
       "enabled": true,
       "groups": [
         [
-          {"signal":"contentPlaintexts","operator":"matchesRegexCaseSensitive","value":"^(?=(?:[\\s\\S]*?[.!?]\\s+[A-Za-z]){4})(?:[\\s\\S]*?[.!?]\\s+[a-z]){2}","explanation":"A content item has at least four apparent sentence boundaries, including at least two followed by a lowercase letter."}
+          {"signal":"contentPlaintexts","operator":"matchesRegexCaseSensitive","value":"(?:^|(?<!\\b(?:e\\.g|i\\.e|etc|vs|cf))[.!?]\\s+)[a-z]","explanation":"A content item has a sentence that starts with a lowercase letter, including its first sentence (abbreviations like e.g. and i.e. excepted)."}
         ],
         [
           {"signal":"contentPlaintexts","operator":"matchesRegexCaseSensitive","value":"(?:[a-z]\\.[A-Z][a-z][\\s\\S]*?){2}","explanation":"A content item has at least two periods where the next capitalized word starts immediately, without a space."}
         ],
         [
           {"signal":"contentFormattingParagraphs","operator":"matchesRegexCaseSensitive","value":"^[\\s\\S]{1501,}$","explanation":"A paragraph contains at least 1,501 plain-text characters."}
+        ],
+        [
+          {"signal":"maxContentBoldLetterRatio","operator":"gte","value":0.9}
         ]
       ]
     },
@@ -450,7 +453,7 @@
       "enabled": true,
       "groups": [
         [
-          {"signal":"focusedPlaintext","operator":"matchesRegexCaseSensitive","value":"^(?=(?:[\\s\\S]*?[.!?]\\s+[A-Za-z]){4})(?:[\\s\\S]*?[.!?]\\s+[a-z]){2}","explanation":"A content item has at least four apparent sentence boundaries, including at least two followed by a lowercase letter."}
+          {"signal":"focusedPlaintext","operator":"matchesRegexCaseSensitive","value":"(?:^|(?<!\\b(?:e\\.g|i\\.e|etc|vs|cf))[.!?]\\s+)[a-z]","explanation":"The selected content has a sentence that starts with a lowercase letter, including its first sentence (abbreviations like e.g. and i.e. excepted)."}
         ],
         [
           {"signal":"focusedPlaintext","operator":"matchesRegexCaseSensitive","value":"(?:[a-z]\\.[A-Z][a-z][\\s\\S]*?){2}","explanation":"A content item has at least two periods where the next capitalized word starts immediately, without a space."}
@@ -471,6 +474,9 @@
         [
           {"signal":"focusedBlankLineCount","operator":"gte","value":3},
           {"signal":"focusedBlankLineRatio","operator":"gte","value":0.4}
+        ],
+        [
+          {"signal":"focusedBoldLetterRatio","operator":"gte","value":0.9}
         ]
       ]
     },

@@ -16,6 +16,7 @@ import { contentHasOffsiteLink } from "./contentLinks";
 import {
   getBlankLineCountFromHtml,
   getBlankLineRatioFromHtml,
+  getBoldLetterRatioFromHtml,
   getFirstParagraphLength,
   getFormattingParagraphPlaintextsFromHtml,
   getHtml,
@@ -247,6 +248,12 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
       getFormattingParagraphPlaintextsFromHtml(getHtml(content))
     ),
   },
+  maxContentBoldLetterRatio: {
+    type: 'number', group: 'Content',
+    label: "Highest fraction of bold letters in any content item",
+    description: "Between 0 and 1; 1 when some post or comment is entirely bold",
+    compute: ctx => max(allContents(ctx).map(content => getBoldLetterRatioFromHtml(getHtml(content)) ?? 0)) ?? null,
+  },
   maxPangramScoreAmongUnapproved: {
     type: 'number', group: 'LLM detection',
     label: "Highest LLM score among unapproved content",
@@ -345,6 +352,12 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
     compute: ctx => focusedNumber(ctx, content =>
       getLongestFormattingSentenceLengthFromHtml(getHtml(content))
     ),
+  },
+  focusedBoldLetterRatio: {
+    type: 'number', group: 'Selected content',
+    label: "Fraction of the selected content's letters that are bold",
+    description: "Between 0 and 1; no value when the content has no letters",
+    compute: ctx => focusedNumber(ctx, content => getBoldLetterRatioFromHtml(getHtml(content))),
   },
   focusedDuplicatesExistingContent: {
     type: 'boolean', group: 'Selected content',

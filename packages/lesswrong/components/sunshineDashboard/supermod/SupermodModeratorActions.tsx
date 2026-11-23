@@ -5,7 +5,6 @@ import ModerationActionButtons from './ModerationActionButtons';
 import CollapsibleSectionHeader from './CollapsibleSectionHeader';
 import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
-import { isAnyContentPermissionDisabled } from './helpers';
 import { getHighlightedModeratorActions, type HighlightedModeratorActions } from './actionHighlightRules';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
@@ -13,13 +12,26 @@ import classNames from 'classnames';
 import ModerationSidebarSection from './ModerationSidebarSection';
 
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
-  collapsedPermissions: {
+  highlightedActionsRow: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginTop: 8,
+  },
+  // Equal widths so the right column's x doesn't depend on label lengths
+  highlightedActionsColumn: {
+    flex: 1,
+    minWidth: 0,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: 4,
-    marginTop: 8,
-    paddingLeft: 4,
+    '&:empty': {
+      display: 'none',
+    },
+    '&:first-child': {
+      paddingLeft: 4,
+    },
   },
   modActionsColumn: {
     display: 'flex',
@@ -82,7 +94,6 @@ const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsL
   return (
     <ModerationSidebarSection
       fillsAvailableSpace={expanded}
-      sharesAvailableSpace
       withDivider={false}
       header={<CollapsibleSectionHeader
         title="Moderator Actions"
@@ -91,13 +102,19 @@ const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsL
         onToggle={onToggle}
       />}
     >
-      {(expanded || showCollapsedActions) && <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} />}
-      {!expanded && showCollapsedActions && (isAnyContentPermissionDisabled(user) || highlightedActions.has('disableMessages')) && (
-        <div className={classes.collapsedPermissions}>
-          <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} collapsed />
+      {!expanded && showCollapsedActions && highlightedActions.size > 0 && (
+        <div className={classes.highlightedActionsRow}>
+          <div className={classes.highlightedActionsColumn}>
+            <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlightedColumn="restrictive" />
+            <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} collapsed />
+          </div>
+          <div className={classes.highlightedActionsColumn}>
+            <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlightedColumn="approve" />
+          </div>
         </div>
       )}
       {expanded && <>
+        <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} />
         <div className={classes.rateLimitSection}>
           <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} />
           <div

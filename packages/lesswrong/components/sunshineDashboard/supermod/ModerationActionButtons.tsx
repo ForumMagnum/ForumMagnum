@@ -14,6 +14,8 @@ const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
     gap: 8,
     marginTop: 8,
     marginBottom: 12,
+    // Room for the highlight ring, which the scrolling section body would otherwise clip
+    padding: 1,
   },
   // Equal widths so the right column's x doesn't depend on label lengths
   actionColumn: {
@@ -38,9 +40,10 @@ interface ModeratorActionButtonSpec {
   highlightKey: HighlightableModeratorAction;
 }
 
-const ModerationActionButtonList = ({buttons, highlightedActions}: {
+const ModerationActionButtonList = ({buttons, highlightedActions, collapsed}: {
   buttons: ModeratorActionButtonSpec[];
   highlightedActions?: HighlightedModeratorActions;
+  collapsed: boolean;
 }) => <>
   {buttons.map(({label, keystroke, tooltip, onClick, active, highlightKey}) => (
     <ModerationActionButton
@@ -50,17 +53,18 @@ const ModerationActionButtonList = ({buttons, highlightedActions}: {
       tooltip={tooltip}
       onClick={onClick}
       active={!!active}
-      highlightStyle={getActionHighlightStyle(highlightedActions, highlightKey)}
+      highlightStyle={collapsed ? null : getActionHighlightStyle(highlightedActions, highlightKey)}
     />
   ))}
 </>;
 
-const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, highlightedActions}: {
+const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, highlightedActions, onlyHighlightedColumn}: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
   highlightedActions?: HighlightedModeratorActions;
+  onlyHighlightedColumn?: 'restrictive' | 'approve';
 }) => {
   const classes = useStyles(styles);
 
@@ -126,18 +130,27 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, h
     },
   ];
 
+  // When the section is collapsed, only render the highlighted actions in each column
+  if (onlyHighlightedColumn) {
+    const buttonsByColumn = { restrictive: restrictiveActionButtons, approve: approveActionButtons };
+    const highlightedButtons = buttonsByColumn[onlyHighlightedColumn].filter(({highlightKey}) => highlightedActions?.has(highlightKey));
+    return <ModerationActionButtonList buttons={highlightedButtons} highlightedActions={highlightedActions} collapsed />;
+  }
+
   return (
     <div className={classes.actionColumns}>
       <div className={classes.actionColumn}>
         <ModerationActionButtonList
           buttons={restrictiveActionButtons}
           highlightedActions={highlightedActions}
+          collapsed={false}
         />
       </div>
       <div className={classes.actionColumn}>
         <ModerationActionButtonList
           buttons={approveActionButtons}
           highlightedActions={highlightedActions}
+          collapsed={false}
         />
       </div>
     </div>

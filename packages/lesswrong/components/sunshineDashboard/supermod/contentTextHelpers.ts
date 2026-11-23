@@ -1,3 +1,4 @@
+import sumBy from "lodash/sumBy";
 import { isPost, type ContentItem } from "./helpers";
 
 const stripHtml = (html: string) => html.replace(/<[^>]+>/g, ' ');
@@ -87,6 +88,17 @@ export const getFirstParagraphLength = (content: ContentItem): number | null => 
   const [firstParagraph] = getHtml(content).matchAll(PARAGRAPH_REGEX);
   if (!firstParagraph) return null;
   return stripHtml(firstParagraph[1]).trim().length;
+};
+
+const BOLD_REGEX = /<(b|strong)\b[^>]*>([\s\S]*?)<\/\1>/gi;
+
+const countLetters = (text: string) => (text.match(/\p{L}/gu) ?? []).length;
+
+export const getBoldLetterRatioFromHtml = (html: string): number | null => {
+  const letterCount = countLetters(stripHtml(html));
+  if (letterCount === 0) return null;
+  const boldLetterCount = sumBy([...html.matchAll(BOLD_REGEX)], match => countLetters(stripHtml(match[2])));
+  return Math.min(1, boldLetterCount / letterCount);
 };
 
 const LATIN_LETTER_REGEX = /[A-Za-zÀ-ɏ]/;
