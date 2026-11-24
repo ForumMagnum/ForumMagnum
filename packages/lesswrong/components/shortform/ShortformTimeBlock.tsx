@@ -66,7 +66,7 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms}: {
   });
 
   const comments = data?.comments?.results;
-  const { loadMore } = loadMoreProps;
+  const { loadMore, preload } = loadMoreProps;
 
   const totalCount = data?.comments?.totalCount ?? 0;
 
@@ -93,6 +93,7 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms}: {
         <div className={classes.loadMore}>
           <LoadMore
             loadMore={loadMore}
+            preload={preload}
             count={comments.length}
             totalCount={totalCount}
           />
