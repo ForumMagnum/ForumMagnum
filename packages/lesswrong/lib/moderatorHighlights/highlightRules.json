@@ -121,6 +121,9 @@
         ],
         [
           {"signal":"maxContentBoldLetterRatio","operator":"gte","value":0.9}
+        ],
+        [
+          {"signal":"maxContentBlankLineRatio","operator":"gte","value":0.33}
         ]
       ]
     },
@@ -472,8 +475,8 @@
           {"signal":"focusedLongestFormattingSentenceLength","operator":"gte","value":500}
         ],
         [
-          {"signal":"focusedBlankLineCount","operator":"gte","value":3},
-          {"signal":"focusedBlankLineRatio","operator":"gte","value":0.4}
+          {"signal":"focusedBlankLineCount","operator":"gte","value":1},
+          {"signal":"focusedBlankLineRatio","operator":"gte","value":0.33}
         ],
         [
           {"signal":"focusedBoldLetterRatio","operator":"gte","value":0.9}

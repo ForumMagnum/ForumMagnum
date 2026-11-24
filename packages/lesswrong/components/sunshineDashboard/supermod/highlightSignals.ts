@@ -254,6 +254,12 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
     description: "Between 0 and 1; 1 when some post or comment is entirely bold",
     compute: ctx => max(allContents(ctx).map(content => getBoldLetterRatioFromHtml(getHtml(content)) ?? 0)) ?? null,
   },
+  maxContentBlankLineRatio: {
+    type: 'number', group: 'Content',
+    label: "Highest fraction of blank lines in any content item",
+    description: "Between 0 and 1; at least 1/3 when some post or comment separates its paragraphs with a blank line",
+    compute: ctx => max(allContents(ctx).map(content => getBlankLineRatioFromHtml(getHtml(content)) ?? 0)) ?? null,
+  },
   maxPangramScoreAmongUnapproved: {
     type: 'number', group: 'LLM detection',
     label: "Highest LLM score among unapproved content",
@@ -342,7 +348,7 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
   focusedBlankLineRatio: {
     type: 'number', group: 'Selected content',
     label: "Fraction of the selected content's lines that are blank",
-    description: "Between 0 and 1; around 0.5 when every paragraph is separated by a blank line",
+    description: "Between 0 and 1; 1/3 when two paragraphs are separated by a blank line, approaching 1/2 as more paragraphs are double-spaced",
     compute: ctx => focusedNumber(ctx, content => getBlankLineRatioFromHtml(getHtml(content))),
   },
   focusedLongestFormattingSentenceLength: {
