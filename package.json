@@ -163,7 +163,7 @@
     "csso": "^5.0.5",
     "dataloader": "^2.2.2",
     "deepmerge": "^1.2.0",
-    "diff": "^7.0.0",
+    "diff": "^8.0.3",
     "diff-match-patch": "^1.0.5",
     "domhandler": "^5.0.3",
     "draft-convert": "^2.1.2",
