@@ -24,12 +24,13 @@ import VotesRepo from './repos/VotesRepo';
 import { onCastVoteAsync, onVoteCancel, updateKarmaForVoteChange, type VoteChange } from './callbacks/votingCallbacks';
 import { runInTransaction } from './sqlConnection';
 import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
-import { isElasticEnabled } from "../lib/instanceSettings";
+import { isElasticEnabled, recombeeEnabledSetting } from "../lib/instanceSettings";
 import { capitalize } from '@/lib/vulcan-lib/utils';
 import { createVote as createVoteMutator } from '@/server/collections/votes/mutations';
 import { createModeratorAction } from './collections/moderatorActions/mutations';
 import { getSchema } from '@/lib/schema/allSchemas';
 import { backgroundTask } from './utils/backgroundTask';
+import { recombeeApi } from './recombee/client';
 import { PermissionResult } from '@/lib/make_voteable';
 import { isActionActive } from '@/lib/collections/moderatorActions/helpers';
 import { INACTIVITY_THRESHOLD_DAYS } from './updateScores';
@@ -81,9 +82,18 @@ async function afterVotesChanged({ newDocument, cancelledVotes, collection, cont
   if (isElasticEnabled() && collectionIsSearchIndexed(collectionName)) {
     backgroundTask(elasticSyncDocument(collectionName, newDocument._id));
   }
+  if (collectionName === 'Posts' && recombeeEnabledSetting.get(context)) {
+    backgroundTask(syncPostToRecombee(newDocument._id, context));
+  }
   for (const cancelledVote of cancelledVotes) {
     backgroundTask(onVoteCancel(newDocument, cancelledVote, context));
   }
+}
+
+async function syncPostToRecombee(postId: string, context: ResolverContext): Promise<void> {
+  const post = await context.Posts.findOne(postId);
+  if (!post || post.draft) return;
+  await recombeeApi.upsertPost(post, context);
 }
 
 async function invalidatePostPageCacheForVoteable(

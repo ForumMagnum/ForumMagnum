@@ -1,6 +1,6 @@
 import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 import { classifyTagFilters, FilterSettings } from "@/lib/filterSettings";
-import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
+import { isStillRecommendable, recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
 import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendationSettings";
 import { UltraFeedResolverSettings } from "@/components/ultraFeed/ultraFeedSettingsTypes";
 import keyBy from 'lodash/keyBy';
@@ -50,7 +50,7 @@ export async function getRecommendedPostsForUltraFeed(
     if (unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.skipFetchThreshold) {
       // We have enough cached items, return them directly
       const posts = await context.loaders.Posts.loadMany(unviewedRecombeePostIds.slice(0, limit));
-      const loadedPosts = posts.filter((post): post is DbPost => !(post instanceof Error) && !!post && !post.rejected && !post.unlisted);
+      const loadedPosts = posts.filter((post): post is DbPost => !(post instanceof Error) && !!post && isStillRecommendable(post) && !post.unlisted);
       // These IDs come from UltraFeedEvents, which clients can create, so they
       // must be permissions-filtered.
       const filteredPosts = await accessFilterMultiple(currentUser, 'Posts', loadedPosts, context);
@@ -116,7 +116,7 @@ export async function getRecommendedPostsForUltraFeed(
     const postsToReuse = limit - displayPosts.length;
     const reusedPostIds = unviewedRecombeePostIds.slice(0, postsToReuse);
     const reusedPosts = await context.loaders.Posts.loadMany(reusedPostIds);
-    const loadedReusedPosts = reusedPosts.filter((post): post is DbPost => !(post instanceof Error) && !!post && !post.unlisted);
+    const loadedReusedPosts = reusedPosts.filter((post): post is DbPost => !(post instanceof Error) && !!post && isStillRecommendable(post) && !post.unlisted);
     const filteredReusedPosts = await accessFilterMultiple(currentUser, 'Posts', loadedReusedPosts, context);
     
     const reusedDisplayPosts = filteredReusedPosts

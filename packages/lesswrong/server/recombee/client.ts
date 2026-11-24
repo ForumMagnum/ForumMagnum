@@ -94,6 +94,12 @@ interface RecombeeTagFilterExpressions {
   booster?: string,
 }
 
+/**
+ * Recombee's copy of a post can be stale (rejecting a post doesn't update it),
+ * and stale posts still pass the access filter, so check the current DB state.
+ */
+export const isStillRecommendable = (post: DbPost): boolean => !post.rejected && post.baseScore >= 0;
+
 const toReqlStringLiteral = (value: string): string => {
   if (value.includes('\\')) {
     throw new Error(`ReQL string escaping for backslashes is undocumented; can't build a literal for: ${value}`);
@@ -649,8 +655,7 @@ const recombeeApi = {
     const recommendedPostIds = recomms.map(({ id }) => id);
     const postIds = [...includedTopOfListPostIds, ...recommendedPostIds];
 
-    // Rejected posts can still be in Recombee (and pass the access filter), since rejecting a post doesn't update Recombee
-    const posts = filterNonnull(await loadByIds(context, 'Posts', postIds)).filter(post => !post.rejected);
+    const posts = filterNonnull(await loadByIds(context, 'Posts', postIds)).filter(isStillRecommendable);
     const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', posts, context)
 
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recsWithMetadata, curatedPostIds, stickiedPostIds }));
@@ -752,8 +757,7 @@ const recombeeApi = {
         .then(filterNonnull)
         .then(posts => postIds.map(id => posts.find(post => post._id === id)))
         .then(filterNonnull)
-        // Rejected posts can still be in Recombee (and pass the access filter), since rejecting a post doesn't update Recombee
-        .then(posts => posts.filter(post => !post.rejected)),
+        .then(posts => posts.filter(isStillRecommendable)),
       // Here is where we get the results of the non-awaited request for latest posts
       // Hopefully we don't actually need to wait at all, since the recombee call + fetching all the other posts from the DB should take longer than this request
       // In the case we're making a batch request to recombee, we don't launch the request at the top, since we're only using it as a fallback in case recombee returns an error
