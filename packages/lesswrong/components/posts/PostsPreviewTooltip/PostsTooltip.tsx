@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Placement as PopperPlacementType } from "popper.js"
+import type { TooltipPlacement } from "@/components/common/TooltipGroup";
 import { DialogueMessageInfo, PostsPreviewTooltip } from "./PostsPreviewTooltip";
 import {
   DialogueMessagePreviewTooltip,
@@ -32,7 +32,7 @@ interface PostsTooltipPropsBase {
   As?: 'span' | 'div',
   clickable?: boolean,
   flip?: boolean,
-  placement?: PopperPlacementType,
+  placement?: TooltipPlacement,
   children?: ReactNode,
   pageElementContext?: string,
   pageElementSubContext?: string,

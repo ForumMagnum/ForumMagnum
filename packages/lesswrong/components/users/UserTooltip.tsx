@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import type { Placement as PopperPlacementType } from "popper.js"
+import type { TooltipPlacement } from "@/components/common/TooltipGroup";
 import HoverOver from "../common/HoverOver";
 import LWUserTooltipContent from "./LWUserTooltipContent";
 import { defineStyles } from "../hooks/defineStyles";
@@ -18,7 +18,7 @@ const styles = defineStyles("UserTooltip", (theme: ThemeType) => ({
 
 const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, children}: {
   user: UsersMinimumInfo,
-  placement?: PopperPlacementType,
+  placement?: TooltipPlacement,
   inlineBlock?: boolean,
   // LW specific
   hideFollowButton?: boolean,

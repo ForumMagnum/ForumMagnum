@@ -1,4 +1,4 @@
-import type { Placement as PopperPlacementType } from "popper.js"
+import type { TooltipPlacement } from "@/components/common/TooltipGroup";
 import React from 'react';
 import UsersNameDisplay from "./UsersNameDisplay";
 import UsersNameWrapper from "./UsersNameWrapper";
@@ -26,7 +26,7 @@ const UsersName = ({
   nofollow?: boolean,
   /** Makes it not a link, and removes the tooltip. */
   simple?: boolean,
-  tooltipPlacement?: PopperPlacementType,
+  tooltipPlacement?: TooltipPlacement,
   nowrap?: boolean,
   noTooltip?: boolean,
   color?: boolean,

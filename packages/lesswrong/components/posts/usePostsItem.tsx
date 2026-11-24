@@ -11,7 +11,6 @@ import {
   postGetPrimaryTag,
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
-import type { Placement as PopperPlacementType } from "popper.js"
 import { AnnualReviewMarketInfo, getMarketInfo } from "../../lib/collections/posts/annualReviewMarkets";
 import { RECOMBEE_RECOMM_ID_QUERY_PARAM } from './PostsPage/constants';
 import { recombeeEnabledSetting } from '@/lib/instanceSettings';
@@ -70,7 +69,6 @@ export type PostsItemConfig = {
   hideAuthor?: boolean,
   hideTag?: boolean,
   hideTrailingButtons?: boolean,
-  tooltipPlacement?: PopperPlacementType,
   curatedIconLeft?: boolean,
   strikethroughTitle?: boolean,
   translucentBackground?: boolean,
@@ -120,7 +118,6 @@ export const usePostsItem = ({
   hideAuthor = false,
   hideTag = false,
   hideTrailingButtons = false,
-  tooltipPlacement = "bottom-end",
   curatedIconLeft = false,
   strikethroughTitle = false,
   translucentBackground = false,
@@ -248,7 +245,6 @@ export const usePostsItem = ({
     analyticsProps,
     translucentBackground,
     isRead,
-    tooltipPlacement,
     dense,
     curatedIconLeft,
     strikethroughTitle,

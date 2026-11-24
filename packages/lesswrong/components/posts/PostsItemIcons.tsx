@@ -1,8 +1,6 @@
 import React, { ReactNode, useContext } from 'react';
-import classNames from 'classnames';
 import { curatedUrl } from '../recommendations/constants';
 import { Link } from '../../lib/reactRouterWrapper';
-import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { PostIndicator, PostIndicatorHighlightContext, usePostIndicators } from './postIndicators';
@@ -25,8 +23,6 @@ const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
     color: theme.palette.icon.dim4,
     position: "relative",
     top: 3,
-  },
-  dialogueIcon: {
   },
 }));
 
@@ -66,15 +62,6 @@ export const PostsItemIcons = ({post, hideCuratedIcon}: {
 
   return <span className={classes.iconSet}>
     {indicators.curated && !hideCuratedIcon && <CuratedIcon/>}
-
-    {(post.debate || post.collabEditorDialogue) && <span className={classes.postIcon}>
-      <LWTooltip title="Dialogue" placement="right">
-        <ForumIcon
-          icon={"ChatBubbleLeftRightFilled"}
-          className={classNames(classes.icon, classes.dialogueIcon)}
-        />
-      </LWTooltip>
-    </span>}
 
     {indicators.recommended && <IndicatorIcon indicator="recommended">
       <ForumIcon icon="Sparkle" className={classes.icon} />

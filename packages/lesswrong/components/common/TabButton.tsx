@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import LWTooltip from './LWTooltip';
 import ForumIcon from './ForumIcon';
@@ -76,9 +76,6 @@ const styles = defineStyles('TabButton', (theme: ThemeType) => ({
     height: 16,
     width: 16,
   },
-  tagDescriptionTooltip: {
-    margin: 8,
-  },
 }));
 
 export interface TabButtonProps {
@@ -109,9 +106,17 @@ const TabButton = ({
   showTooltip = true,
 }: TabButtonProps) => {
   const classes = useStyles(styles);
+  const [tooltipDismissed, setTooltipDismissed] = useState(false);
+
+  const handleClick = () => {
+    setTooltipDismissed(true);
+    onClick();
+  };
+
   const buttonContent = (
     <button
-      onClick={onClick}
+      onClick={handleClick}
+      onMouseLeave={() => setTooltipDismissed(false)}
       className={classNames(
         classes.tab,
         isActive ? classes.activeTab : classes.inactiveTab,
@@ -129,7 +134,8 @@ const TabButton = ({
     return (
       <LWTooltip
         title={description}
-        popperClassName={classes.tagDescriptionTooltip}
+        distance={8}
+        disabled={tooltipDismissed}
         hideOnTouchScreens
       >
         {buttonContent}

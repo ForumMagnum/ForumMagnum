@@ -2,13 +2,14 @@ import React, { createContext, ReactNode, useContext, useMemo, useState } from '
 import { useForumType } from '@/components/hooks/useForumType';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
 
-export type PostIndicator = "recommended" | "curated" | "personalBlog" | "alignmentForum";
+export type PostIndicator = "recommended" | "curated" | "personalBlog" | "alignmentForum" | "dialogue";
 
 export const postIndicatorLabels: Array<{indicator: PostIndicator, label: string}> = [
   {indicator: "recommended", label: "Recommended"},
   {indicator: "curated", label: "Curated"},
   {indicator: "personalBlog", label: "Personal Blog"},
   {indicator: "alignmentForum", label: "Alignment Forum"},
+  {indicator: "dialogue", label: "Dialogue"},
 ];
 
 export const usePostIndicators = (post: PostsBase): Record<PostIndicator, boolean> => {
@@ -20,6 +21,7 @@ export const usePostIndicators = (post: PostsBase): Record<PostIndicator, boolea
     curated: !!post.curatedDate,
     personalBlog: !post.frontpageDate && !post.isEvent && !post.draft,
     alignmentForum: !isAF && post.af,
+    dialogue: post.debate || !!post.collabEditorDialogue,
   };
 };
 
