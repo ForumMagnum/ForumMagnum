@@ -1,6 +1,5 @@
 import type { SearchRequest, QueryDslQueryContainer } from "@elastic/elasticsearch/lib/api/types";
-import { parseQuery } from "./parseQuery";
-import { englishStopwords } from "./searchTokens";
+import { englishStopwords, parseQuery } from "./parseQuery";
 import maxBy from "lodash/maxBy";
 
 /**

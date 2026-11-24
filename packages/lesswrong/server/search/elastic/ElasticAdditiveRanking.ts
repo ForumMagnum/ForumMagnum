@@ -1,174 +1,82 @@
 import type {
-  QueryDslFunctionScoreContainer,
   QueryDslQueryContainer,
   SearchHighlightField,
   SearchRequest,
+  SortCombinations,
 } from "@elastic/elasticsearch/lib/api/types";
-import ElasticQuery, { QueryFilter, compileAuthorshipQuery } from "./ElasticQuery";
-import { collectionNameToConfig, indexToCollectionName } from "./ElasticConfig";
-import { contentTokens } from "./searchTokens";
-import { searchSort } from "./ElasticSearchSort";
-import { parseQuery } from "./parseQuery";
-import type { SearchQueryData } from "./searchQueryTypes";
-import type { PersonConfidence, PersonSearch } from "./ElasticPersonSearch";
-import groupBy from "lodash/groupBy";
+import ElasticQuery, { CompiledQuery, QueryFilter, compileAuthorshipQuery } from "./ElasticQuery";
+import { IndexConfig, collectionNameToConfig, indexToCollectionName } from "./ElasticConfig";
+import { contentTokens, parseQuery } from "./parseQuery";
+import type { PersonSearch } from "./ElasticPersonSearch";
+import {
+  RelationshipBranch,
+  SearchIdentifier,
+  compoundTitleQuery,
+  curatedFunctions,
+  identifierQuery,
+  identityFunctions,
+  matchFunctions,
+  parseDocumentUrl,
+  parsePastedId,
+  popularityFunctions,
+  relationshipBranches,
+  relationshipScore,
+  textFields,
+  titleFunctions,
+  titlePrefixQuery,
+  wantsUpcomingEvents,
+} from "./ElasticRankingHeuristics";
 
-interface RankingPivots {
-  [index: string]: number;
+export interface SearchQueryData {
+  indexes: string[];
+  search: string;
+  offset?: number;
+  limit?: number;
+  filters?: QueryFilter[];
+  preTag?: string;
+  postTag?: string;
+  person?: PersonSearch;
 }
 
-const rankingWeights = {
-  match: {
-    bm25: 3.0,
-    allTerms: 1.0,
-    titleAll: 1.0,
-    phrase: 1.0,
-    topicalMax: 5.0,
-    pivots: {posts: 8.1, comments: 7.6, users: 12.9, tags: 5.9, sequences: 3.8} satisfies RankingPivots,
-  },
-  navigation: {
-    identifier: 8.0,
-    exactTitle: [0.0, 2.5, 4.5],
-    // A wiki/tag page named by a one-word query is the concept's canonical entry
-    // point, unlike a post that happens to have a generic one-word title.
-    conceptName: 3.0,
-    conceptLead: 1.5,
-    conceptWord: 1.0,
-  },
-  relationship: {
-    // An exact handle must outrank posts that merely mention it in their title.
-    profile: {exact: 8.0, strong: 6.0, weak: 4.0, prefix: 3.0} satisfies Record<PersonConfidence, number>,
-    authored: {exact: 3.0, strong: 3.0, weak: 2.0, prefix: 1.0} satisfies Record<PersonConfidence, number>,
-    authoredComment: {exact: 2.0, strong: 2.0, weak: 1.5, prefix: 0.5} satisfies Record<PersonConfidence, number>,
-    minorShare: 0.5,
-    // Profiles below this get the minor share: inactive namesakes, not active members.
-    minorProfileKarma: 100,
-  },
-  popularity: {
-    slope: 0.8,
-    userSlope: 2.0,
-    userCap: 10.0,
-    cap: 4.0,
-    gateFloor: 0.1,
-    // A one-word query in, or starting a word of, the title opens the popularity
-    // gate to at least this much, so popular titled posts beat passing body
-    // mentions. It adds nothing for an unpopular title, so generic exact titles
-    // still have no unconditional priority.
-    titleGate: 1.0,
-    pivots: {posts: 15, comments: 4, tags: 5, sequences: 15, users: 3000} satisfies RankingPivots,
-  },
-  context: {
-    typeOffsets: {comments: 0.0, users: -0.5} satisfies RankingPivots,
-    curated: 0.5,
-    event: 1.0,
-    // Elasticsearch rejects negative function scores. Every document receives this
-    // constant so the offsets above never push a script result below zero.
-    baseline: 2.0,
-  },
-};
-
-function navigationPoints(tokenCount: number): number {
-  const steps = rankingWeights.navigation.exactTitle;
-  if (tokenCount < 1) return 0;
-  return steps[Math.min(tokenCount, steps.length) - 1];
-}
-
-export interface SearchIdentifier {
-  objectID?: string;
-  slug?: string;
-  index: string;
-  commentId?: string;
-}
-
-const documentId = "([A-Za-z0-9]{17}|[0-9a-f]{24})";
-const documentIdPattern = new RegExp(`^${documentId}$`);
-const commentRoute = new RegExp(`^/posts/[^/]+/[^/]+/comment/${documentId}(?:/|$)`);
-const urlRoutes: [RegExp, string, "objectID" | "slug"][] = [
-  [new RegExp(`^/(?:posts|events)/${documentId}(?:/|$)`), "posts", "objectID"],
-  [new RegExp(`^/(?:s|g)/[^/]+/p/${documentId}(?:/|$)`), "posts", "objectID"],
-  [new RegExp(`^/(?:s|sequences)/${documentId}(?:/|$)`), "sequences", "objectID"],
-  [/^\/users\/([^/?#]+)/, "users", "slug"],
-  [/^\/(?:w|tag|topics)\/([^/?#]+)/, "tags", "slug"],
+// Relevance first; date only breaks exact score ties.
+const searchSort: SortCombinations[] = [
+  {_score: {order: "desc"}},
+  {publicDateMs: {order: "desc", missing: "_last", unmapped_type: "long"}},
+  {objectID: "asc"},
+  {_index: "asc"},
 ];
 
-function parseDocumentUrl(search: string): SearchIdentifier | undefined {
-  const trimmed = search.trim();
-  if (!/^https?:\/\//i.test(trimmed) && !/^\/(?!\/)/.test(trimmed)) return undefined;
-  let url: URL;
-  let pathname: string;
-  try {
-    url = new URL(trimmed, "https://www.lesswrong.com");
-    if (!["lesswrong.com", "www.lesswrong.com", "alignmentforum.org", "www.alignmentforum.org"].includes(url.hostname)
-        || url.username || url.password) return undefined;
-    pathname = decodeURIComponent(url.pathname);
-  } catch {
-    return undefined;
-  }
-  const commentId = [commentRoute.exec(pathname)?.[1], url.searchParams.get("commentId"), url.hash.slice(1)].find(id => id && documentIdPattern.test(id));
-  for (const [pattern, index, kind] of urlRoutes) {
-    const matched = pattern.exec(pathname);
-    if (matched) return {[kind]: matched[1], index, ...(commentId ? {commentId} : {})};
-  }
-  return undefined;
+function minimumShouldMatch(search: string): string {
+  return contentTokens(search).length >= 5 ? "60%" : "2<75%";
 }
 
-const matchScript = "params.bm25 * _score * _score / (_score * _score + params.k * params.k)";
-
-/** Popularity grows with the log of karma, and the gate opens it with the square of the text match */
-const popularityGate = `
-  double karma = doc.containsKey(params.karmaField) && doc[params.karmaField].size() > 0
-    ? Math.max(0, doc[params.karmaField].value) : 0;
-  double popularity = Math.min((double) params.cap, (double) params.slope * Math.log(1 + karma / (double) params.pivot) / Math.log(2));
-  double normalizedMatch = Math.min(_score, (double) params.matchMax) / (double) params.matchMax;
-  double gate = (double) params.gateFloor + (1 - (double) params.gateFloor) * normalizedMatch * normalizedMatch;
-`;
-
-const popularityScript = `${popularityGate}
-  double context = (double) params.baseline + (double) params.typeOffset;
-  double eventWeight = (double) params.eventWeight;
-  if (eventWeight > 0 && doc.containsKey('startTime') && doc['startTime'].size() > 0
-      && doc.containsKey('isEvent') && doc['isEvent'].size() > 0 && doc['isEvent'].value) {
-    double distance = doc['startTime'].value.toInstant().toEpochMilli() - (double) params.now;
-    double beyondOffset = Math.max(0, distance - (double) params.eventOffsetMs);
-    double scale = (double) params.eventScaleMs;
-    double decay = Math.exp(-beyondOffset * beyondOffset * Math.log(2) / (scale * scale));
-    if (distance >= 0) context += eventWeight * decay;
-  }
-  return popularity * gate + context;
-`;
-
-const titleGateScript = `${popularityGate}
-  return popularity * Math.max(0, (double) params.titleGate - gate);
-`;
-
-const dayMs = 24 * 60 * 60 * 1000;
-
-interface IndexFields {
-  title?: string;
-  body?: string;
-  allTermsFields: string[];
-  topicFields: string[];
-}
-
-function indexFields(index: string): IndexFields {
-  const collectionName = indexToCollectionName(index);
-  const config = collectionNameToConfig(collectionName);
-  const names = config.fields.map(field => field.split("^")[0]);
-  const topicFields = names.filter(name => !name.startsWith("author"));
-  switch (index) {
-    case "posts":
-      return {title: "title", body: "body", allTermsFields: ["title", "body"], topicFields};
-    case "sequences":
-      return {title: "title", body: "plaintextDescription", allTermsFields: ["title", "plaintextDescription"], topicFields};
-    case "tags":
-      return {title: "name", body: "description", allTermsFields: ["name", "description"], topicFields};
-    case "users":
-      return {allTermsFields: [], topicFields: ["displayName"]};
-    case "comments":
-      return {body: "body", allTermsFields: ["body"], topicFields};
-    default:
-      throw new Error("Invalid index name: " + index);
-  }
+function textRecall({fields, title}: IndexConfig, search: string): QueryDslQueryContainer {
+  const names = fields.map((field) => field.split("^")[0]);
+  const main = names[0];
+  const should: QueryDslQueryContainer[] = [
+    {term: {objectID: {value: search}}},
+    {multi_match: {
+      query: search,
+      fields: names.map(name => name === title ? `${name}^2` : name),
+      type: "best_fields",
+      fuzziness: 1,
+      prefix_length: 2,
+      max_expansions: 10,
+      minimum_should_match: minimumShouldMatch(search),
+    }},
+    {multi_match: {
+      query: search,
+      fields: names.map((name) => `${name}.exact`),
+      type: "phrase",
+      slop: 2,
+    }},
+    {match_phrase_prefix: {[`${main}.exact`]: {query: search}}},
+  ];
+  if (title) should.push({multi_match: {
+    query: search, fields: [`${title}^2`], fuzziness: "AUTO", prefix_length: 1,
+    max_expansions: 10, minimum_should_match: minimumShouldMatch(search),
+  }});
+  return {bool: {should, minimum_should_match: 1}};
 }
 
 function userNameRecall(search: string, minimumShouldMatch: string): QueryDslQueryContainer {
@@ -179,154 +87,46 @@ function userNameRecall(search: string, minimumShouldMatch: string): QueryDslQue
   ]}};
 }
 
-function userRecall(search: string): QueryDslQueryContainer {
-  const minimumShouldMatch = contentTokens(search).length >= 5 ? "60%" : "2<75%";
-  const profileFields = collectionNameToConfig("Users").fields.map(field => field.split("^")[0]).filter(name => name !== "displayName");
+function userRecall(config: IndexConfig, search: string): QueryDslQueryContainer {
+  const profileFields = config.fields.map(field => field.split("^")[0]).filter(name => name !== "displayName");
   return {bool: {minimum_should_match: 1, should: [
-    userNameRecall(search, minimumShouldMatch),
-    {multi_match: {query: search, fields: profileFields, minimum_should_match: minimumShouldMatch}},
+    userNameRecall(search, minimumShouldMatch(search)),
+    {multi_match: {query: search, fields: profileFields, minimum_should_match: minimumShouldMatch(search)}},
   ]}};
 }
 
-function karmaField(index: string): string {
-  return index === "users" ? "karma" : "baseScore";
+function compileRecall(index: string, config: IndexConfig, search: string): QueryDslQueryContainer {
+  if (!search) return {match_all: {}};
+  return index === "users" ? userRecall(config, search) : textRecall(config, search);
 }
 
-function residualTopicQuery(index: string, topic: string): QueryDslQueryContainer {
-  return {multi_match: {
-    query: topic,
-    fields: indexFields(index).topicFields,
-    minimum_should_match: "2<75%",
-  }};
+function compileTopicalRecall(index: string, config: IndexConfig, search: string, allowCompound = true): QueryDslQueryContainer {
+  if (!search) return {match_none: {}};
+  if (index === "users") return userNameRecall(search, "2<75%");
+  const ordinary: QueryDslQueryContainer = {multi_match: {query: search, fields: textFields(config), fuzziness: 1, prefix_length: 2, max_expansions: 10, minimum_should_match: "2<75%"}};
+  const compound = allowCompound ? compoundTitleQuery(config.title, search) : undefined;
+  return compound ? {dis_max: {queries: [ordinary, compound], tie_breaker: 0}} : ordinary;
 }
 
-interface RelationshipBranch {
-  query: QueryDslQueryContainer;
-  weight: number;
-}
-
-/** One set of branches per confidence, so the query's size doesn't grow with the number of candidates */
-function relationshipBranches(index: string, {topic, candidates}: PersonSearch): RelationshipBranch[] {
-  const {profile, authored, authoredComment, minorShare, minorProfileKarma} = rankingWeights.relationship;
-  return Object.values(groupBy(candidates, candidate => candidate.confidence)).flatMap(group => {
-    const userIds = group.map(candidate => candidate.userId);
-    const {confidence} = group[0];
-    const branches: RelationshipBranch[] = [];
-    if (index === "users" && !topic) {
-      const profileIds: QueryDslQueryContainer = {terms: {objectID: userIds}};
-      branches.push({query: {bool: {should: [], filter: [profileIds, {range: {karma: {gte: minorProfileKarma}}}]}}, weight: profile[confidence]});
-      branches.push({query: {bool: {should: [], filter: [profileIds, {range: {karma: {lt: minorProfileKarma}}}]}}, weight: profile[confidence] * minorShare});
-    }
-    const author = compileAuthorshipQuery(indexToCollectionName(index), userIds);
-    if (author) {
-      const query: QueryDslQueryContainer = topic
-        ? {bool: {should: [], filter: [author], must: [residualTopicQuery(index, topic)]}}
-        : author;
-      branches.push({query, weight: (index === "comments" ? authoredComment : authored)[confidence]});
-    }
-    return branches;
-  });
-}
-
-function identifierQuery(index: string, identifier: SearchIdentifier): QueryDslQueryContainer | undefined {
-  if (index === "comments" && identifier.commentId) return {term: {objectID: {value: identifier.commentId}}};
-  if (identifier.index !== index) return undefined;
-  if (identifier.objectID) return {term: {objectID: {value: identifier.objectID}}};
-  if (!identifier.slug) return undefined;
-  if (index === "users") return {term: {"slug.sort": {value: identifier.slug, case_insensitive: true}}};
-  if (index === "posts" || index === "tags") return {term: {slug: {value: identifier.slug}}};
-  return undefined;
-}
-
-function hasPhraseWords(search: string): boolean {
-  return (search.match(/[\p{L}\p{N}]+/gu)?.length ?? 0) >= 2;
-}
-
-// Shorter fragments ("udt", "cev") continue too many unrelated titles.
-const minTitlePrefixLength = 4;
-const minConceptLength = 3;
-
-/**
- * Titles continuing the query: a phrase prefix for several words, or a title
- * word starting with a single unfinished word ("trans" for "Transgender").
- */
-function titlePrefixQuery(fields: IndexFields, search: string): QueryDslQueryContainer | undefined {
-  if (!fields.title) return undefined;
-  if (hasPhraseWords(search)) return {match_phrase_prefix: {[`${fields.title}.exact`]: {query: search, max_expansions: 50}}};
-  const word = search.trim().toLowerCase();
-  if (word.length < minTitlePrefixLength || !/^[\p{L}\p{N}]+$/u.test(word)) return undefined;
-  return {prefix: {[`${fields.title}.exact`]: {value: word}}};
-}
-
-/**
- * For one-word queries on wiki/tag pages: the exact name, or a name whose first
- * word is the query or a near spelling of it ("career" for "Careers").
- */
-function conceptNameFunctions(index: string, search: string, tokenCount: number): QueryDslFunctionScoreContainer[] {
-  const word = search.trim().toLowerCase();
-  if (index !== "tags" || tokenCount !== 1 || word.length < minConceptLength || !/^[\p{L}\p{N}]+$/u.test(word)) return [];
-  const {conceptName, conceptLead, conceptWord} = rankingWeights.navigation;
-  const exactName: QueryDslQueryContainer = {term: {"name.sort": {value: search.trim(), case_insensitive: true}}};
-  const leadWord: QueryDslQueryContainer = {span_first: {match: {span_multi: {match: {fuzzy: {"name.exact": {value: word, fuzziness: "AUTO", prefix_length: 1}}}}}, end: 1}};
-  return [
-    {weight: conceptName, filter: exactName},
-    {weight: conceptLead, filter: {bool: {should: [], must_not: [exactName], filter: [leadWord]}}},
-    {weight: conceptWord, filter: {bool: {should: [], must_not: [exactName, leadWord], filter: [{match: {name: {query: word}}}]}}},
-  ];
-}
-
-function phraseQuery(fields: IndexFields, search: string): QueryDslQueryContainer {
-  const phrases: QueryDslQueryContainer[] = [];
-  if (fields.title) phrases.push({match_phrase: {[`${fields.title}.exact`]: {query: search, slop: 1}}});
-  if (fields.body) phrases.push({match_phrase: {[`${fields.body}.exact`]: {query: search, slop: 2}}});
-  return {bool: {should: phrases, minimum_should_match: 1}};
-}
-
-function compoundTitleQuery(index: string, search: string): QueryDslQueryContainer | undefined {
-  const title = indexFields(index).title;
-  const token = search.trim().toLowerCase();
-  if (!title || !/^[a-z]{12,24}$/.test(token)) return undefined;
-  const alternatives: QueryDslQueryContainer[] = [];
-  for (let split = 3; split <= token.length - 3; split++) {
-    alternatives.push({span_near: {
-      clauses: [token.slice(0, split), token.slice(split)].map(part => ({span_multi: {match: {
-        fuzzy: {[`${title}.exact`]: {value: part, fuzziness: 1, prefix_length: 2, max_expansions: 5}},
-      }}})),
-      slop: 0, in_order: true,
-    }});
-  }
-  return {dis_max: {queries: alternatives, tie_breaker: 0}};
-}
-
-function matchFunctions(index: string, search: string, tokenCount: number, scoreProximity: boolean): QueryDslFunctionScoreContainer[] {
-  const {bm25, allTerms, phrase} = rankingWeights.match;
-  const pivots: RankingPivots = rankingWeights.match.pivots;
-  const fields = indexFields(index);
-  const functions: QueryDslFunctionScoreContainer[] = [
-    {script_score: {script: {source: matchScript, params: {bm25, k: pivots[index] ?? 5}}}},
-  ];
-  if (tokenCount && fields.allTermsFields.length) {
-    const coverage: QueryDslQueryContainer = {multi_match: {
-      query: search, fields: fields.allTermsFields, type: "cross_fields", operator: "and",
-    }};
-    const compound = scoreProximity ? compoundTitleQuery(index, search) : undefined;
-    functions.push({weight: allTerms, filter: compound
-      ? {dis_max: {queries: [coverage, compound], tie_breaker: 0}} : coverage});
-  }
-  if (scoreProximity && hasPhraseWords(search)) {
-    functions.push({weight: phrase, filter: phraseQuery(fields, search)});
-  }
-  return functions;
-}
-
-function wantsUpcomingEvents(search: string, filters: QueryFilter[]): boolean {
-  if (/\b(?:19|20)\d{2}\b/.test(search) || filters.some(filter => /date|time/i.test(filter.field))) return false;
-  return /\b(?:meetups?|meetings?|events?|upcoming)\b/i.test(search)
-    || filters.some(filter => filter.type === "facet" && filter.field === "isEvent" && filter.value === true && !filter.negated);
+function compileHighlights(
+  query: ElasticQuery,
+  config: IndexConfig,
+  search: string,
+  recall: QueryDslQueryContainer,
+  advanced?: CompiledQuery,
+): Record<string, SearchHighlightField> {
+  if (advanced) return query.compileHighlightFields(advanced, recall);
+  // User recall queries names on displayName.exact, and require_field_match means
+  // highlighting has to use the field the query actually targets.
+  const highlights = search
+    ? Object.fromEntries((config.highlight ?? []).map(name => [name === "displayName" ? `${name}.exact` : name, recall]))
+    : undefined;
+  return query.compileHighlightFields({snippetName: config.snippet, highlights}, recall);
 }
 
 interface BranchInput {
   index: string;
+  config: IndexConfig;
   matchSearch: string;
   tokenCount: number;
   isAdvanced: boolean;
@@ -338,73 +138,18 @@ interface BranchInput {
   eventIntent: boolean;
 }
 
-function compileTopicalRecall(index: string, search: string, allowCompound = true): QueryDslQueryContainer {
-  if (!search) return {match_none: {}};
-  if (index === "users") return userNameRecall(search, "2<75%");
-  const fields = indexFields(index).allTermsFields;
-  const ordinary: QueryDslQueryContainer = {multi_match: {query: search, fields, fuzziness: 1, prefix_length: 2, max_expansions: 10, minimum_should_match: "2<75%"}};
-  const compound = allowCompound ? compoundTitleQuery(index, search) : undefined;
-  return compound ? {dis_max: {queries: [ordinary, compound], tie_breaker: 0}} : ordinary;
-}
-
 function compileInterpretation(input: BranchInput, relationships: RelationshipBranch[]): QueryDslQueryContainer {
-  const {index, matchSearch, tokenCount, isAdvanced, identifier, pastedId, person, recall, eligibility, eventIntent} = input;
-  const fields = indexFields(index);
-  const {navigation, context, popularity} = rankingWeights;
-  const pivots: RankingPivots = popularity.pivots;
+  const {index, config, matchSearch, tokenCount, isAdvanced, identifier, pastedId, person, recall, eligibility, eventIntent} = input;
   const identity = identifier && identifierQuery(index, identifier);
-  const resolvedProfile: QueryDslQueryContainer | undefined = index === "users" && person && !person.topic
-    ? {terms: {objectID: person.candidates.map(candidate => candidate.userId)}} : undefined;
-
-  const outerFunctions: QueryDslFunctionScoreContainer[] = [];
-  if (identity) outerFunctions.push({weight: navigation.identifier, filter: identity});
-  if (pastedId) outerFunctions.push({weight: navigation.identifier, filter: {term: {objectID: {value: pastedId}}}});
-  if (!identity && fields.title && tokenCount && !isAdvanced) {
-    const titlePrefix = titlePrefixQuery(fields, matchSearch);
-    const titleCoverage: QueryDslQueryContainer = {match: {[fields.title]: {query: matchSearch, operator: "and"}}};
-    outerFunctions.push({weight: rankingWeights.match.titleAll * (tokenCount === 1 ? 0.5 : 1), filter: titlePrefix
-      ? {bool: {should: [titleCoverage, titlePrefix], minimum_should_match: 1}}
-      : titleCoverage});
-    const navigationMatches: QueryDslQueryContainer[] = [{
-      term: {[`${fields.title}.sort`]: {value: matchSearch.trim(), case_insensitive: true}},
-    }];
-    if (titlePrefix) {
-      navigationMatches.push({bool: {should: [], filter: [titlePrefix], must_not: [
-        {match_phrase: {[`${fields.title}.exact`]: {query: matchSearch, slop: 1}}},
-      ]}});
-      outerFunctions.push({weight: rankingWeights.match.phrase, filter: {bool: {
-        should: [], filter: [titlePrefix], must_not: [phraseQuery(fields, matchSearch)],
-      }}});
-    }
-    outerFunctions.push({weight: navigationPoints(tokenCount), filter: {bool: {should: navigationMatches, minimum_should_match: 1}}});
-    outerFunctions.push(...conceptNameFunctions(index, matchSearch, tokenCount));
-  }
-  const relationshipScore: QueryDslQueryContainer | undefined = relationships.length ? {function_score: {
-    query: {match_all: {}}, functions: [{weight: 0}, ...relationships.map(branch => ({weight: branch.weight, filter: branch.query}))],
-    score_mode: "max", boost_mode: "replace",
-  }} : undefined;
-  if (index === "posts" || index === "sequences") outerFunctions.push({weight: context.curated, filter: {term: {curated: true}}});
-  const typeOffsets: RankingPivots = context.typeOffsets;
-  const typeOffset = typeOffsets[index] ?? 0;
-  const params = {
-    karmaField: karmaField(index), pivot: pivots[index], cap: index === "users" ? popularity.userCap : popularity.cap, slope: index === "users" ? popularity.userSlope : popularity.slope,
-    gateFloor: popularity.gateFloor, matchMax: rankingWeights.match.topicalMax,
-    baseline: context.baseline, typeOffset,
-    eventWeight: index === "posts" && eventIntent ? context.event : 0,
-    eventScaleMs: 30 * dayMs, eventOffsetMs: 7 * dayMs, now: Date.now(),
-  };
-  outerFunctions.push({
-    ...(resolvedProfile ? {filter: {bool: {should: [], must_not: [resolvedProfile]}}} : {}),
-    script_score: {script: {source: popularityScript, params}},
-  });
-  const titleWord = fields.title && tokenCount === 1 && !isAdvanced && !identity ? titlePrefixQuery(fields, matchSearch) : undefined;
-  if (titleWord && fields.title) outerFunctions.push({
-    filter: {bool: {should: [{match: {[fields.title]: {query: matchSearch}}}, titleWord], minimum_should_match: 1}},
-    script_score: {script: {source: titleGateScript, params: {...params, titleGate: popularity.titleGate}}},
-  });
-  if (resolvedProfile) outerFunctions.push({filter: resolvedProfile, script_score: {script: {
-    source: popularityScript, params: {...params, gateFloor: 1, typeOffset: 0},
-  }}});
+  const outerFunctions = [
+    ...identityFunctions(identity, pastedId),
+    ...(!identity && tokenCount && !isAdvanced ? titleFunctions(index, config, matchSearch, tokenCount) : []),
+    ...curatedFunctions(index),
+    ...popularityFunctions({
+      index, title: config.title, search: matchSearch, person, eventIntent,
+      titleWord: tokenCount === 1 && !isAdvanced && !identity,
+    }),
+  ];
 
   // The recall union is a FILTER. Its title/name/relationship clauses cannot
   // increase BM25 or unlock popularity. A zero-score fallback admits recalled
@@ -413,23 +158,23 @@ function compileInterpretation(input: BranchInput, relationships: RelationshipBr
     query: {bool: {
       should: [],
       filter: [...eligibility, recall],
-      must: [{dis_max: {queries: [compileTopicalRecall(index, matchSearch, !isAdvanced && !identifier), {match_all: {boost: 0}}]}}],
+      must: [{dis_max: {queries: [compileTopicalRecall(index, config, matchSearch, !isAdvanced && !identifier), {match_all: {boost: 0}}]}}],
     }},
-    functions: matchFunctions(index, matchSearch, isAdvanced ? 0 : tokenCount, !isAdvanced && !identifier),
+    functions: matchFunctions(index, config, matchSearch, isAdvanced ? 0 : tokenCount, !isAdvanced && !identifier),
     score_mode: "sum", boost_mode: "replace",
   }};
   const outer: QueryDslQueryContainer = {function_score: {
     query: inner, functions: outerFunctions, score_mode: "sum", boost_mode: "sum",
   }};
-  return relationshipScore ? {bool: {should: [], must: [outer, relationshipScore]}} : outer;
+  return relationships.length ? {bool: {should: [], must: [outer, relationshipScore(relationships)]}} : outer;
 }
 
 function compileIndexBranch(input: BranchInput): QueryDslQueryContainer {
-  const {index, person, identifier, recall, eligibility} = input;
-  const relationships = person ? relationshipBranches(index, person) : [];
+  const {index, config, person, identifier, recall, eligibility} = input;
+  const relationships = person ? relationshipBranches(index, config, person) : [];
   const identity = identifier && identifierQuery(index, identifier);
-  const compound = !input.isAdvanced && !identifier ? compoundTitleQuery(index, input.matchSearch) : undefined;
-  const titlePrefix = !input.isAdvanced && !identifier ? titlePrefixQuery(indexFields(index), input.matchSearch) : undefined;
+  const compound = !input.isAdvanced && !identifier ? compoundTitleQuery(config.title, input.matchSearch) : undefined;
+  const titlePrefix = !input.isAdvanced && !identifier ? titlePrefixQuery(config.title, input.matchSearch) : undefined;
   const recallUnion: QueryDslQueryContainer = identifier ? identity ?? {match_none: {}} : {bool: {
     should: [recall, ...(compound ? [compound] : []), ...(titlePrefix ? [titlePrefix] : []), ...relationships.map(branch => branch.query)], minimum_should_match: 1,
   }};
@@ -457,18 +202,20 @@ export function compileSearchQuery(queryData: SearchQueryData): SearchRequest {
   const queries: QueryDslQueryContainer[] = [];
   const search = rawSearch.trim();
   const identifier = parseDocumentUrl(search);
-  const pastedId = documentIdPattern.test(search) ? search : undefined;
+  const pastedId = parsePastedId(search);
   const {isAdvanced, tokens} = parseQuery(search);
   const matchSearch = isAdvanced
     ? tokens.filter(token => token.type === "must" || token.type === "should").map(token => token.token).join(" ")
     : search;
   const tokenCount = identifier ? 0 : contentTokens(matchSearch).length;
+  const eventIntent = wantsUpcomingEvents(search, filters);
   for (const index of indexes) {
+    const config = collectionNameToConfig(indexToCollectionName(index));
     const elasticQuery = new ElasticQuery({index, search, filters, preTag, postTag});
     for (const field of elasticQuery.getSourceExcludes()) excludes.add(field);
-    const recall = elasticQuery.compileAdditiveRecall();
-    const recallQuery = index === "users" && search && !isAdvanced ? userRecall(search) : recall.query;
-    for (const [name, highlight] of Object.entries(elasticQuery.compileAdditiveHighlights(recallQuery))) {
+    const advanced = isAdvanced ? elasticQuery.compileAdvancedQuery(tokens, true) : undefined;
+    const recall = advanced?.searchQuery ?? compileRecall(index, config, search);
+    for (const [name, highlight] of Object.entries(compileHighlights(elasticQuery, config, search, recall, advanced))) {
       const highlightQuery = highlight.highlight_query;
       const previous = highlightFields[name]?.highlight_query;
       highlightFields[name] = {
@@ -479,8 +226,8 @@ export function compileSearchQuery(queryData: SearchQueryData): SearchRequest {
       };
     }
     queries.push(compileIndexBranch({
-      index, matchSearch, tokenCount, isAdvanced, identifier, pastedId, person,
-      recall: recallQuery, eligibility: recall.filters ?? [], eventIntent: wantsUpcomingEvents(search, filters),
+      index, config, matchSearch, tokenCount, isAdvanced, identifier, pastedId, person,
+      recall, eligibility: elasticQuery.compileFilters(tokens) ?? [], eventIntent,
     }));
   }
   return {

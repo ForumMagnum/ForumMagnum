@@ -13,7 +13,6 @@ import {
   collectionNameToConfig,
 } from "./ElasticConfig";
 import { parseQuery, QueryToken } from "./parseQuery";
-import { contentTokens } from "./searchTokens";
 import { searchOriginDate } from "@/lib/instanceSettings";
 import type { SearchPostType } from "@/lib/search/searchFilters";
 import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
@@ -75,7 +74,7 @@ export type QueryData = {
 
 export type Fuzziness = "AUTO" | number;
 
-type CompiledQuery = {
+export type CompiledQuery = {
   tokens: QueryToken[],
   searchQuery: QueryDslQueryContainer,
   snippetName: string,
@@ -273,7 +272,7 @@ class ElasticQuery {
     }
   }
 
-  private compileFilters(tokens: QueryToken[]) {
+  compileFilters(tokens: QueryToken[]) {
     const filtersByField: Record<string, QueryFilter[]> = {};
     for (const filter of this.queryData.filters) {
       filtersByField[filter.field] ??= [];
@@ -420,7 +419,7 @@ class ElasticQuery {
     };
   }
 
-  private compileAdvancedQuery(tokens: QueryToken[], exactText = false): CompiledQuery {
+  compileAdvancedQuery(tokens: QueryToken[], exactText = false): CompiledQuery {
     const {fields, snippet, highlight} = this.config;
     const textFields = exactText ? fields.map((field) => this.textFieldToExactField(field)) : fields;
     const highlightSuffix = exactText ? ".exact" : "";
@@ -496,57 +495,6 @@ class ElasticQuery {
       snippetQuery: highlightQuery,
       highlights: Object.fromEntries((highlight ?? []).map(name => [`${name}${highlightSuffix}`, highlightQuery])),
     };
-  }
-
-  compileAdditiveRecall(): {query: QueryDslQueryContainer, filters?: QueryDslQueryContainer[]} {
-    const {search} = this.queryData;
-    const {tokens, isAdvanced} = parseQuery(search);
-    const filters = this.compileFilters(tokens);
-    if (!search) return {query: {match_all: {}}, filters};
-    if (isAdvanced) return {query: this.compileAdvancedQuery(tokens, true).searchQuery, filters};
-    const names = this.config.fields.map((field) => field.split("^")[0]);
-    const main = names[0];
-    const titleField = this.collectionName !== "Comments" && isFullTextField(this.collectionName, main) ? main : undefined;
-    const minimumShouldMatch = contentTokens(search).length >= 5 ? "60%" : "2<75%";
-    const should: QueryDslQueryContainer[] = [
-      {term: {objectID: {value: search}}},
-      {multi_match: {
-        query: search,
-        fields: names.map(name => name === titleField ? `${name}^2` : name),
-        type: "best_fields",
-        fuzziness: 1,
-        prefix_length: 2,
-        max_expansions: 10,
-        minimum_should_match: minimumShouldMatch,
-      }},
-      {multi_match: {
-        query: search,
-        fields: names.map((name) => `${name}.exact`),
-        type: "phrase",
-        slop: 2,
-      }},
-      {match_phrase_prefix: {[`${main}.exact`]: {query: search}}},
-    ];
-    if (titleField) should.push({multi_match: {
-      query: search, fields: [`${titleField}^2`], fuzziness: "AUTO", prefix_length: 1,
-      max_expansions: 10, minimum_should_match: minimumShouldMatch,
-    }});
-    return {query: {bool: {should, minimum_should_match: 1}}, filters};
-  }
-
-  compileAdditiveHighlights(recallQuery: QueryDslQueryContainer): Record<string, SearchHighlightField> {
-    const {search} = this.queryData;
-    const {snippet, highlight} = this.config;
-    if (!search) return this.compileHighlightFields({snippetName: snippet}, recallQuery);
-    const {tokens, isAdvanced} = parseQuery(search);
-    if (isAdvanced) {
-      const compiled = this.compileAdvancedQuery(tokens, true);
-      return this.compileHighlightFields(compiled, compiled.searchQuery);
-    }
-    // User recall queries names on displayName.exact, and require_field_match means
-    // highlighting has to use the field the query actually targets.
-    const highlights = Object.fromEntries((highlight ?? []).map(name => [name === "displayName" ? `${name}.exact` : name, recallQuery]));
-    return this.compileHighlightFields({snippetName: snippet, highlights}, recallQuery);
   }
 
   getSourceExcludes(): string[] {
@@ -634,7 +582,7 @@ class ElasticQuery {
     return sort;
   }
 
-  private compileHighlightFields(
+  compileHighlightFields(
     {snippetName, snippetQuery, highlights}: Pick<CompiledQuery, "snippetName" | "snippetQuery" | "highlights">,
     textQuery: QueryDslQueryContainer,
   ): Record<string, SearchHighlightField> {
@@ -642,7 +590,7 @@ class ElasticQuery {
     // The plain highlighter can fail while rewriting filter clauses (notably
     // negated exists queries in article filters). Highlight only the text query,
     // retaining the specialized queries used for quoted and advanced searches.
-    const highlightConfig =  {
+    const highlightConfig = {
       type: "plain",
       pre_tags: [preTag ?? "<em>"],
       post_tags: [postTag ?? "</em>"],

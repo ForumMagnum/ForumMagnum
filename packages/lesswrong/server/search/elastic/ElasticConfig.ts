@@ -35,6 +35,14 @@ export type IndexConfig = {
    */
   fields: string[],
   /**
+   * The document's title or name, if it has one.
+   */
+  title?: string,
+  /**
+   * The document's main text, if it has one.
+   */
+  body?: string,
+  /**
    * The name of the field to create a match snippet from.
    */
   snippet: string,
@@ -172,6 +180,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "body",
       "authorDisplayName^11",
     ],
+    body: "body",
     snippet: "body",
     highlight: ["authorDisplayName"],
     ranking: [
@@ -227,6 +236,8 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "authorDisplayName^4",
       "body",
     ],
+    title: "title",
+    body: "body",
     snippet: "body",
     highlight: ["title", "authorDisplayName"],
     ranking: [
@@ -364,6 +375,8 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "plaintextDescription",
       "authorDisplayName",
     ],
+    title: "title",
+    body: "plaintextDescription",
     snippet: "plaintextDescription",
     highlight: ["title", "authorDisplayName"],
     tiebreaker: "publicDateMs",
@@ -395,6 +408,8 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       "name^30",
       "description",
     ],
+    title: "name",
+    body: "description",
     snippet: "description",
     highlight: ["name"],
     ranking: [

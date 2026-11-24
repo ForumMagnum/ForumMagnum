@@ -8,8 +8,7 @@ import type {
 import { compilePersonLookup, PersonCandidate, PersonSearch, resolvePersonSearch } from "./ElasticPersonSearch";
 import ElasticQuery, { QueryData } from "./ElasticQuery";
 import type { MultiQueryData } from "./ElasticMultiQuery";
-import { compileSearchQuery, personSearchApplies } from "./ElasticAdditiveRanking";
-import type { SearchQueryData } from "./searchQueryTypes";
+import { compileSearchQuery, personSearchApplies, SearchQueryData } from "./ElasticAdditiveRanking";
 import sortBy from "lodash/sortBy";
 import { isElasticEnabled } from "../../../lib/instanceSettings";
 import take from "lodash/take";
