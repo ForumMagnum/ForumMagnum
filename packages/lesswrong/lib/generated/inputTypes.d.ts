@@ -25,6 +25,9 @@ interface Query {
   Lightcone2024FundraiserStripeAmounts: Array<number> | null;
   Lightcone2025FundraiserAirtableAmounts: number;
   LlmModelOptions: Array<string>;
+  narrationOptions: NarrationOptions;
+  narrationSelectableVoices: Array<NarrationVoice>;
+  narrationSegmentAudios: Array<NarrationSegmentAudio>;
   FrontpagePostScoreBreakdown: FrontpagePostScoreBreakdown | null;
   PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData | null;
   petrov2024checkIfNuked: boolean | null;
@@ -251,6 +254,10 @@ interface Mutation {
   MakeElicitPrediction: ElicitBlockData | null;
   MarkAllNotificationsAsRead: boolean | null;
   sendNewDialogueMessageNotification: boolean;
+  prepareNarration: NarrationScript;
+  prepareCommentNarration: NarrationScript;
+  generateNarrationSegmentAudio: NarrationSegmentAudio;
+  previewNarrationNamePronunciation: string;
   PetrovDayLaunchMissile: PetrovDayLaunchMissileData | null;
   submitReviewVote: Post | null;
   AddGivingSeasonHeart: Array<GivingSeasonHeart>;
@@ -869,6 +876,34 @@ interface NotificationCounts {
   unreadNotifications: number;
   unreadPrivateMessages: number;
   faviconBadgeNumber: number;
+}
+
+interface NarrationVoice {
+  voiceId: string;
+  name: string;
+  description: string;
+  previewUrl: string;
+}
+
+interface NarrationModel {
+  modelId: string;
+  name: string;
+  description: string | null;
+}
+
+interface NarrationAdminOptions {
+  voices: Array<NarrationVoice>;
+  models: Array<NarrationModel>;
+}
+
+interface NarrationOptions {
+  voices: Array<NarrationVoice>;
+  adminOptions: NarrationAdminOptions | null;
+}
+
+interface NarrationVoiceChoiceInput {
+  voiceId: string;
+  modelId: string;
 }
 
 interface FrontpageScoreTerm {
@@ -3057,6 +3092,48 @@ interface LlmRunTranscriptEntry {
   url: string | null;
   title: string | null;
   extra: any;
+}
+
+interface NarrationImageDescription {
+  _id: string;
+  createdAt: Date;
+}
+
+interface NarrationScript {
+  _id: string;
+  createdAt: Date;
+  revisionId: string;
+  preprocessorVersion: number;
+  scriptUrl: string | null;
+  segments: Array<NarrationSegment>;
+}
+
+interface NarrationSegmentAudio {
+  _id: string;
+  createdAt: Date;
+  narrationSegmentId: string;
+  userId: string | null;
+  voiceId: string;
+  modelId: string;
+  stability: number;
+  similarityBoost: number;
+  style: number;
+  speed: number;
+  audioUrl: string | null;
+  timingsUrl: string | null;
+  durationMs: number | null;
+  billedCharacters: number | null;
+  elevenLabsRequestId: string | null;
+}
+
+interface NarrationSegment {
+  _id: string;
+  createdAt: Date;
+  narrationScriptId: string;
+  segmentIndex: number;
+  startBlockIndex: number;
+  endBlockIndex: number;
+  characterCount: number;
 }
 
 interface RejectionAppeal {
@@ -7320,6 +7397,8 @@ interface User {
   noKibitz: boolean | null;
   showHideKarmaOption: boolean | null;
   showPostAuthorCard: boolean | null;
+  narrationVoiceId: string | null;
+  narrationNamePronunciation: string | null;
   hideIntercom: boolean;
   hailboxOptIn: boolean | null;
   markDownPostEditor: boolean;
@@ -9349,6 +9428,8 @@ interface UpdateUserDataInput {
   noKibitz?: boolean | null;
   showHideKarmaOption?: boolean | null;
   showPostAuthorCard?: boolean | null;
+  narrationVoiceId?: string | null;
+  narrationNamePronunciation?: string | null;
   hideIntercom?: boolean | null;
   hailboxOptIn?: boolean | null;
   markDownPostEditor?: boolean | null;
@@ -9595,6 +9676,11 @@ interface GraphQLTypeMap {
   ElicitPrediction: ElicitPrediction;
   ElicitBlockData: ElicitBlockData;
   NotificationCounts: NotificationCounts;
+  NarrationVoice: NarrationVoice;
+  NarrationModel: NarrationModel;
+  NarrationAdminOptions: NarrationAdminOptions;
+  NarrationOptions: NarrationOptions;
+  NarrationVoiceChoiceInput: NarrationVoiceChoiceInput;
   FrontpageScoreTerm: FrontpageScoreTerm;
   FrontpagePostScoreBreakdown: FrontpagePostScoreBreakdown;
   PetrovDay2024CheckNumberOfIncomingData: PetrovDay2024CheckNumberOfIncomingData;
@@ -9890,6 +9976,10 @@ interface GraphQLTypeMap {
   MarketplaceHomePageDesign: MarketplaceHomePageDesign;
   AdminHomePageDesign: AdminHomePageDesign;
   LlmRunTranscriptEntry: LlmRunTranscriptEntry;
+  NarrationImageDescription: NarrationImageDescription;
+  NarrationScript: NarrationScript;
+  NarrationSegmentAudio: NarrationSegmentAudio;
+  NarrationSegment: NarrationSegment;
   RejectionAppeal: RejectionAppeal;
   SingleRejectionAppealOutput: SingleRejectionAppealOutput;
   RejectionAppealSelector: RejectionAppealSelector;
@@ -10565,6 +10655,10 @@ interface CreateInputsByCollectionName {
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
+  NarrationImageDescriptions: never;
+  NarrationScripts: never;
+  NarrationSegmentAudios: never;
+  NarrationSegments: never;
   Notifications: never;
   OAuthAccessTokens: never;
   OAuthAuthorizationCodes: never;
@@ -10668,6 +10762,10 @@ interface UpdateInputsByCollectionName {
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
+  NarrationImageDescriptions: never;
+  NarrationScripts: never;
+  NarrationSegmentAudios: never;
+  NarrationSegments: never;
   OAuthAccessTokens: never;
   OAuthAuthorizationCodes: never;
   OAuthClients: never;

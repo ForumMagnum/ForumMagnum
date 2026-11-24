@@ -6,11 +6,12 @@ import ForumIcon from "../common/ForumIcon";
 import { isE2E } from '@/lib/executionEnvironment';
 import { useStyles } from '../hooks/useStyles';
 import { defineStyles } from '../hooks/defineStyles';
+import { bottomClearOfNarrationPlayer, NARRATION_PLAYER_DOCKED_CLASS } from '../narration/narrationPlayerLayout';
 
 const styles = defineStyles("LanguageModelLauncherButton", (theme: ThemeType) => ({
   root: {
     position: "fixed",
-    bottom: 20,
+    bottom: bottomClearOfNarrationPlayer(20),
     right: 80,
     zIndex: theme.zIndexes.languageModelChatButton,
     display: "flex",
@@ -28,6 +29,9 @@ const styles = defineStyles("LanguageModelLauncherButton", (theme: ThemeType) =>
     },
     [theme.breakpoints.down('sm')]: {
       display: "none"
+    },
+    [`body.${NARRATION_PLAYER_DOCKED_CLASS} &`]: {
+      display: "none",
     },
     ...(theme.palette.intercom ? {
       color: theme.palette.text.alwaysBlack,

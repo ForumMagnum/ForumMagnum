@@ -50,6 +50,22 @@ export function getHighlights(): Map<string, Highlight> | null {
   return (CSS as unknown as CSSHighlightsAPI).highlights;
 }
 
+/**
+ * Make the highlight with the given name (styled with ::highlight(name))
+ * cover exactly these ranges. Does nothing in browsers without the CSS Custom
+ * Highlights API.
+ */
+export function setHighlightRanges(name: string, ranges: Range[]): void {
+  const highlights = getHighlights();
+  if (!highlights) return;
+
+  if (ranges.length > 0) {
+    highlights.set(name, new Highlight(...ranges));
+  } else {
+    highlights.delete(name);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Token type → highlight group mapping
 // ---------------------------------------------------------------------------
@@ -300,11 +316,7 @@ export function highlightCodeElement(
 const rangesByContext = new Map<string, Map<string, Range[]>>();
 
 function rebuildHighlights(): void {
-  const highlights = getHighlights();
-  if (!highlights) return;
-
   for (const group of ALL_HIGHLIGHT_GROUPS) {
-    const name = HIGHLIGHT_PREFIX + group;
     const allRanges: Range[] = [];
     for (const [, contextRanges] of rangesByContext) {
       const groupRanges = contextRanges.get(group);
@@ -312,11 +324,7 @@ function rebuildHighlights(): void {
         allRanges.push(...groupRanges);
       }
     }
-    if (allRanges.length > 0) {
-      highlights.set(name, new Highlight(...allRanges));
-    } else {
-      highlights.delete(name);
-    }
+    setHighlightRanges(HIGHLIGHT_PREFIX + group, allRanges);
   }
 }
 

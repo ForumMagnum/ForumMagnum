@@ -1,3 +1,5 @@
+const fiftyThreeBits = Math.pow(2, 53);
+
 // Mixing steps from https://github.com/bryc/code/blob/master/jshash/experimental/cyrb53.js
 export function cyrb53Words(str: string, seed = 0): [low: number, high: number] {
   let h1 = 0xdeadbeef ^ seed;
@@ -12,4 +14,19 @@ export function cyrb53Words(str: string, seed = 0): [low: number, high: number] 
   h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
   h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
   return [h1 >>> 0, h2 >>> 0];
+}
+
+/**
+ * Returns a 53-bit integer hash of the input
+ */
+export function cyrb53(str: string, seed = 0) {
+  const [low, high] = cyrb53Words(str, seed);
+  return (4294967296 * (2097151 & high)) + low;
+}
+
+/**
+ * Returns a pseudorandom number between 0 and 1 by hashing the input
+ */
+export function cyrb53Rand(str: string, seed = 0) {
+  return cyrb53(str, seed) / fiftyThreeBits;
 }

@@ -11,6 +11,11 @@ import { useCookiePreferences } from '../hooks/useCookiesWithConsent';
 import { isStandaloneRoute } from '@/lib/routeChecks';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import {
+  bottomClearOfNarrationPlayer,
+  NARRATION_PLAYER_DOCKED_CLASS,
+  NARRATION_PLAYER_FLOATING_CLASS,
+} from '../narration/narrationPlayerLayout';
 
 const styles = defineStyles('IntercomWrapper', (theme: ThemeType) => ({
   "@global": {
@@ -28,7 +33,17 @@ const styles = defineStyles('IntercomWrapper', (theme: ThemeType) => ({
       "#intercom-container, .intercom-lightweight-app": {
         display: "none",
       }
-    }
+    },
+    [`body.${NARRATION_PLAYER_DOCKED_CLASS} #intercom-container, body.${NARRATION_PLAYER_DOCKED_CLASS} .intercom-lightweight-app`]: {
+      display: "none",
+    },
+    // Intercom's launcher is normally 20px from the bottom of the screen.
+    // Before the messenger has loaded, it's a placeholder with a class of its
+    // own. Afterwards, the element that positions it has no class to select
+    // it by, and is recognizable only by the launcher's frame inside it.
+    [`body.${NARRATION_PLAYER_FLOATING_CLASS} .intercom-lightweight-app-launcher, body.${NARRATION_PLAYER_FLOATING_CLASS} .intercom-app > div:has(> .intercom-launcher-frame)`]: {
+      bottom: `${bottomClearOfNarrationPlayer(20)} !important`,
+    },
   },
 }));
 

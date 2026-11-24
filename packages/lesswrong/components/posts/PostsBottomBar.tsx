@@ -9,9 +9,23 @@ import PostActionsButton from '../dropdowns/posts/PostActionsButton';
 import { usePostsPageContext } from './PostsPage/PostsPageContext';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import isNumber from 'lodash/isNumber';
+import { NARRATION_PLAYER_DOCKED_CLASS } from '../narration/narrationPlayerLayout';
+
+/**
+ * A custom property that's 1 on the body while the bottom bar is on screen,
+ * and otherwise unset. Something that sits on top of the bottom bar uses it to
+ * move up and down as the bar slides in and out. (The bar's height is
+ * `--header-height`.)
+ */
+export const POSTS_BOTTOM_BAR_SHOWN_PROPERTY = "--posts-bottom-bar-shown";
 
 const styles = defineStyles("PostsBottomBar", (theme: ThemeType) => ({
   headroom: {
+    [theme.breakpoints.down('xs')]: {
+      "body:has(& .headroom--pinned)": {
+        [POSTS_BOTTOM_BAR_SHOWN_PROPERTY]: "1",
+      },
+    },
     // Styles for bottom bar scrolling, provided by react-headroom
     // Adapted from Header implementation for bottom positioning
     "& .headroom": {
@@ -54,6 +68,13 @@ const styles = defineStyles("PostsBottomBar", (theme: ThemeType) => ({
     },
     '@media print': {
       display: 'none',
+    },
+    // The narration player sits on top of the bar, as part of the same panel.
+    // The bar's shadow would draw a line between them, and the player isn't
+    // see-through, because it has text in it.
+    [`body.${NARRATION_PLAYER_DOCKED_CLASS} &`]: {
+      boxShadow: 'none',
+      opacity: 1,
     },
   },
   button: {

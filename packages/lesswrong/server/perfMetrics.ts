@@ -1,4 +1,3 @@
-import { cyrb53Words } from "@/lib/utils/cyrb53";
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import { forumTypeSetting } from "@/lib/forumTypeUtils";
 import { v4 } from 'uuid';
@@ -7,6 +6,7 @@ import LRU from 'lru-cache';
 
 import { performanceMetricLoggingEnabled, performanceMetricLoggingSqlSampleRate } from '../lib/instanceSettings';
 import { queuePerfMetric } from './perfMetricsQueue';
+import { cyrb53Rand } from '@/lib/utils/cyrb53';
 
 type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'sql_string' | 'ip' | 'user_agent' | 'user_id'>;
 
@@ -107,17 +107,6 @@ export function addStartRenderTimeToPerfMetric() {
     };
   });
 }
-
-const fiftyThreeBits = Math.pow(2, 53);
-
-/**
- * Modified form of https://github.com/bryc/code/blob/master/jshash/experimental/cyrb53.js
- * Returns a pseudorandom number between 0 and 1 by hashing the input
- */
-export function cyrb53Rand(str: string, seed = 0) {
-  const [low, high] = cyrb53Words(str, seed);
-  return ((4294967296 * (2097151 & high)) + low) / fiftyThreeBits;
-};
 
 // Let's not recompute each trace ID's hash for every child operation we might want to sample
 const SAMPLE_TRACE_CACHE = new LRU<string, boolean>({ max: 500 });

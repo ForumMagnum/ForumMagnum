@@ -805,6 +805,60 @@ interface DbMultiDocument extends DbObject {
   voteCount: number
 }
 
+type NarrationImageDescriptionsCollection = PgCollection<"NarrationImageDescriptions">;
+
+interface DbNarrationImageDescription extends DbObject {
+  __collectionName?: "NarrationImageDescriptions"
+  createdAt: Date
+  imageUrl: string
+  kind: string
+  promptVersion: number
+  reading: string
+}
+
+type NarrationScriptsCollection = PgCollection<"NarrationScripts">;
+
+interface DbNarrationScript extends DbObject {
+  __collectionName?: "NarrationScripts"
+  createdAt: Date
+  introduction: string
+  preprocessorVersion: number
+  revisionId: string
+  scriptUrl: string | null
+}
+
+type NarrationSegmentAudiosCollection = PgCollection<"NarrationSegmentAudios">;
+
+interface DbNarrationSegmentAudio extends DbObject {
+  __collectionName?: "NarrationSegmentAudios"
+  audioUrl: string | null
+  billedCharacters: number | null
+  createdAt: Date
+  durationMs: number | null
+  elevenLabsRequestId: string | null
+  modelId: string
+  narrationSegmentId: string
+  similarityBoost: number
+  speed: number
+  stability: number
+  style: number
+  timingsUrl: string | null
+  userId: string | null
+  voiceId: string
+}
+
+type NarrationSegmentsCollection = PgCollection<"NarrationSegments">;
+
+interface DbNarrationSegment extends DbObject {
+  __collectionName?: "NarrationSegments"
+  characterCount: number
+  createdAt: Date
+  endBlockIndex: number
+  narrationScriptId: string
+  segmentIndex: number
+  startBlockIndex: number
+}
+
 type NotificationsCollection = PgCollection<"Notifications">;
 
 interface DbNotification extends DbObject {
@@ -1904,6 +1958,8 @@ interface DbUser extends DbObject {
   moderationStyle: string | null
   moderatorAssistance: boolean | null
   mongoLocation: any | null
+  narrationNamePronunciation: string
+  narrationVoiceId: string | null
   nearbyEventsNotifications: boolean
   nearbyEventsNotificationsLocation: any | null
   nearbyEventsNotificationsMongoLocation: any | null
@@ -2482,6 +2538,10 @@ interface CollectionsByName {
   ModerationTemplates: ModerationTemplatesCollection
   ModeratorActions: ModeratorActionsCollection
   MultiDocuments: MultiDocumentsCollection
+  NarrationImageDescriptions: NarrationImageDescriptionsCollection
+  NarrationScripts: NarrationScriptsCollection
+  NarrationSegmentAudios: NarrationSegmentAudiosCollection
+  NarrationSegments: NarrationSegmentsCollection
   Notifications: NotificationsCollection
   OAuthAccessTokens: OAuthAccessTokensCollection
   OAuthAuthorizationCodes: OAuthAuthorizationCodesCollection
@@ -2586,6 +2646,10 @@ interface ObjectsByCollectionName {
   ModerationTemplates: DbModerationTemplate
   ModeratorActions: DbModeratorAction
   MultiDocuments: DbMultiDocument
+  NarrationImageDescriptions: DbNarrationImageDescription
+  NarrationScripts: DbNarrationScript
+  NarrationSegmentAudios: DbNarrationSegmentAudio
+  NarrationSegments: DbNarrationSegment
   Notifications: DbNotification
   OAuthAccessTokens: DbOAuthAccessToken
   OAuthAuthorizationCodes: DbOAuthAuthorizationCode
@@ -2690,6 +2754,10 @@ interface ObjectsByTypeName {
   ModerationTemplate: DbModerationTemplate
   ModeratorAction: DbModeratorAction
   MultiDocument: DbMultiDocument
+  NarrationImageDescription: DbNarrationImageDescription
+  NarrationScript: DbNarrationScript
+  NarrationSegmentAudio: DbNarrationSegmentAudio
+  NarrationSegment: DbNarrationSegment
   Notification: DbNotification
   OAuthAccessToken: DbOAuthAccessToken
   OAuthAuthorizationCode: DbOAuthAuthorizationCode

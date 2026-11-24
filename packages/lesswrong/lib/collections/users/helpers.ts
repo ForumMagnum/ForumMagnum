@@ -8,6 +8,7 @@ import type { EditablePost } from '../posts/helpers';
 import { maybeDate } from '@/lib/utils/dateUtils';
 import moment from 'moment';
 import { isE2E } from '@/lib/executionEnvironment';
+import { userHasNarration } from '@/lib/betas';
 
 export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
@@ -70,6 +71,15 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
   return (user: DbUser, document: HasUserIdType): boolean => {
     return userOwns(user, document) && userIsMemberOf(user, group)
   }
+}
+
+/**
+ * Whether a user can change a user's narration settings (the voice their
+ * writing is read in, and how their name is said): their own, or as an admin
+ * anyone's, if narration is something they have.
+ */
+export const userCanEditNarrationSettings = (user: UsersCurrent|DbUser|null, targetUser: UsersMinimumInfo|DbUser): boolean => {
+  return userHasNarration(user) && (userOwns(user, targetUser) || userIsAdmin(user));
 }
 
 /**
