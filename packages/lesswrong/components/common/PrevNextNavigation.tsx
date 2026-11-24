@@ -65,9 +65,9 @@ const PrevNextNavigation = ({ onPrevious, onNext, onNextHoverChange, pageIndex =
     <button type="button" className={classes.button} onClick={onPrevious} disabled={onFirstPage}>
       Prev
     </button>
-    {!onFirstPage && <span className={classes.pageNumber}>
-      {pageIndex + 1}
-    </span>}
+    <span className={classes.pageNumber}>
+      {onFirstPage ? "•" : pageIndex + 1}
+    </span>
     <button
       type="button"
       className={classes.button}
