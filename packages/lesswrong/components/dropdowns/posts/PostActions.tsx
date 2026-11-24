@@ -31,9 +31,7 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { canUserEditPostMetadataWithoutModeratorPowers } from '@/lib/collections/posts/helpers';
-import { Paper } from '@/components/widgets/Paper';
-import LWTooltip from "../../common/LWTooltip";
-import DropdownItem from "../DropdownItem";
+import ModeratorActionsSubmenu from "../ModeratorActionsSubmenu";
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -47,30 +45,7 @@ const styles = defineStyles("PostActions", (theme: ThemeType) => ({
     minWidth: 300,
     maxWidth: "calc(100vw - 100px)",
   },
-  moderatorSubmenu: {
-    minWidth: 250,
-  },
 }))
-
-/**
- * A menu item which, when hovered, opens a submenu containing actions that
- * are only available because the current user is a moderator or admin. This
- * keeps them separate from the actions that regular users see.
- */
-const ModeratorActionsSubmenu = ({children}: {
-  children: React.ReactNode,
-}) => {
-  const classes = useStyles(styles);
-  return <LWTooltip
-    title={<Paper className={classes.moderatorSubmenu}>{children}</Paper>}
-    tooltip={false}
-    clickable
-    inlineBlock={false}
-    placement="left-start"
-  >
-    <DropdownItem title="Moderator actions" icon="Settings" />
-  </LWTooltip>
-}
 
 const PostActions = ({post, closeMenu, includeBookmark=true}: {
   post: PostsList|SunshinePostsList,

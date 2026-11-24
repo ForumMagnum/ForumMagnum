@@ -6,7 +6,7 @@ import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../l
 import { Card } from "@/components/widgets/Paper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
-import { POST_PREVIEW_ELEMENT_CONTEXT, getPostPreviewWidth } from './helpers';
+import { POST_PREVIEW_ELEMENT_CONTEXT, PostsTooltipIsClickableContext, getPostPreviewWidth } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -205,6 +205,7 @@ const PostIndicatorLabels = ({post, trailingSeparator}: {
 const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageInfo}: PostsPreviewTooltipProps) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
+  const isClickable = useContext(PostsTooltipIsClickableContext);
   const [expanded, setExpanded] = useState(false)
 
   const { loading, data: dataHighlight } = useQuery(HighlightWithHashQuery, {
@@ -283,7 +284,7 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
               {eventInfo}
             </ContentStyles>}
           </div>
-          { !postsList && <div className={classes.bookmark}>
+          { !postsList && isClickable && <div className={classes.bookmark}>
             <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked}/>
           </div>}
         </div>

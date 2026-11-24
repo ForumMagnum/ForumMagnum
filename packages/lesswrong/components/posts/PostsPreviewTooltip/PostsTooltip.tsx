@@ -1,6 +1,7 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { TooltipPlacement } from "@/components/common/TooltipGroup";
 import { DialogueMessageInfo, PostsPreviewTooltip } from "./PostsPreviewTooltip";
+import { PostsTooltipIsClickableContext } from "./helpers";
 import {
   DialogueMessagePreviewTooltip,
   PostsPreviewTooltipSingle,
@@ -150,27 +151,29 @@ const PostsTooltip = ({
     </>
   };
   return (
-    <PostIndicatorHighlightProvider>
-      <HoverOver
-        title={renderTitle()}
-        placement={placement}
-        tooltip={false}
-        hideOnTouchScreens
-        inlineBlock={inlineBlock}
-        As={As}
-        clickable={clickable}
-        flip={flip}
-        analyticsProps={{
-          pageElementContext,
-          pageElementSubContext,
-          postId: postId ?? post?._id,
-        }}
-        className={className}
-      >
-        {children}
-        {preload === 'on-screen' && <span ref={tooltipContainerRef} className={classes.sentinel} />}
-      </HoverOver>
-    </PostIndicatorHighlightProvider>
+    <PostsTooltipIsClickableContext.Provider value={!!clickable}>
+      <PostIndicatorHighlightProvider>
+        <HoverOver
+          title={renderTitle()}
+          placement={placement}
+          tooltip={false}
+          hideOnTouchScreens
+          inlineBlock={inlineBlock}
+          As={As}
+          clickable={clickable}
+          flip={flip}
+          analyticsProps={{
+            pageElementContext,
+            pageElementSubContext,
+            postId: postId ?? post?._id,
+          }}
+          className={className}
+        >
+          {children}
+          {preload === 'on-screen' && <span ref={tooltipContainerRef} className={classes.sentinel} />}
+        </HoverOver>
+      </PostIndicatorHighlightProvider>
+    </PostsTooltipIsClickableContext.Provider>
   );
 }
 
