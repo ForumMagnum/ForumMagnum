@@ -8,7 +8,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudName } from '@/lib/instanceSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
 import KarmaDisplay from "../common/KarmaDisplay";
-import PostsTitle from "./PostsTitle";
+import PostsTitle, { undimReadTitleOnHover } from "./PostsTitle";
 import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
@@ -42,6 +42,7 @@ export const styles = defineStyles("PostsItemIntroSequence", (theme: ThemeType)=
     padding: 10,
     alignItems: "center",
     flexWrap: "nowrap",
+    ...undimReadTitleOnHover(theme),
     [theme.breakpoints.down('xs')]: {
       gridTemplateAreas: '"karma title" "karma author"',
       flexWrap: "wrap",

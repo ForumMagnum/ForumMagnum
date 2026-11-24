@@ -12,7 +12,14 @@ const styles = defineStyles('PostsItemNewCommentsListNode', (theme: ThemeType) =
     ...theme.typography.commentStyle,
     color: theme.palette.text.dim700,
     marginBottom: 4
-  }
+  },
+  loading: {
+    display: "flex",
+    alignItems: "center",
+    height: 32,
+    marginLeft: 0,
+    paddingLeft: 8,
+  },
 }))
 
 const PostsItemNewCommentsListNode = ({commentsList, loadingState, title, reverseOrder, post, treeOptions}: {
@@ -43,7 +50,7 @@ const PostsItemNewCommentsListNode = ({commentsList, loadingState, title, revers
         comments={nestedComments}
         startThreadTruncated={true}
       />}
-      {loadingState && <Loading/>}
+      {loadingState && <Loading className={classes.loading}/>}
     </div>
   );
 };

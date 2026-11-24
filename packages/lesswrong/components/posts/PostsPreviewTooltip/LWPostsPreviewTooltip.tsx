@@ -1,11 +1,12 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import classNames from 'classnames';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { Card } from "@/components/widgets/Paper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
-import { POST_PREVIEW_ELEMENT_CONTEXT, getPostPreviewWidth } from './helpers';
+import { POST_PREVIEW_ELEMENT_CONTEXT, PostsTooltipIsClickableContext, getPostPreviewWidth } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -20,6 +21,7 @@ import ContentStyles from "../../common/ContentStyles";
 import EventTime from "../../localGroups/EventTime";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { PostIndicatorHighlightContext, postIndicatorLabels, usePostIndicators } from '../postIndicators';
 
 const PostWithDialogueMessageQuery = gql(`
   query LWPostsPreviewTooltip1($documentId: String, $dialogueMessageId: String) {
@@ -80,6 +82,8 @@ const tooltipInfoStyles = (theme: ThemeType) => ({
   fontSize: "1.1rem",
   color: theme.palette.grey[600],
 })
+
+const indicatorHighlightColor = "light-dark(rgba(0,0,0,.1),rgba(255,255,255,.2))";
 
 const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
   root: {
@@ -173,11 +177,35 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     marginRight: 8
   },
+  highlightedIndicator: {
+    color: theme.palette.text.normal,
+    background: indicatorHighlightColor,
+    boxShadow: `0 0 0 2px ${indicatorHighlightColor}`,
+    borderRadius: 1,
+  },
 }))
+
+const PostIndicatorLabels = ({post, trailingSeparator}: {
+  post: PostsBase,
+  trailingSeparator: boolean,
+}) => {
+  const classes = useStyles(styles);
+  const indicators = usePostIndicators(post);
+  const { highlightedIndicator } = useContext(PostIndicatorHighlightContext);
+  const shownLabels = postIndicatorLabels.filter(({indicator}) => indicators[indicator]);
+
+  return <>
+    {shownLabels.map(({indicator, label}, i) => <span key={indicator}>
+      <span className={classNames(highlightedIndicator === indicator && classes.highlightedIndicator)}>{label}</span>
+      {(trailingSeparator || i < shownLabels.length - 1) && ",  "}
+    </span>)}
+  </>;
+}
 
 const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageInfo}: PostsPreviewTooltipProps) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
+  const isClickable = useContext(PostsTooltipIsClickableContext);
   const [expanded, setExpanded] = useState(false)
 
   const { loading, data: dataHighlight } = useQuery(HighlightWithHashQuery, {
@@ -237,6 +265,7 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
             <ContentStyles contentType="comment" className={classes.tooltipInfo}>
               { postsList && <span>
                 {eventInfo}
+                <PostIndicatorLabels post={post} trailingSeparator={!!postTags?.length} />
                 {postTags?.map((tag, i) => <span key={tag?._id}>{tag?.name}{(i !== (postTags?.length - 1)) ? ",  " : ""}</span>)}
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
@@ -255,7 +284,7 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
               {eventInfo}
             </ContentStyles>}
           </div>
-          { !postsList && <div className={classes.bookmark}>
+          { !postsList && isClickable && <div className={classes.bookmark}>
             <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked}/>
           </div>}
         </div>

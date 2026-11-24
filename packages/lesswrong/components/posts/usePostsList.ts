@@ -4,8 +4,6 @@ import { useCurrentUser } from "../common/withUser";
 import sortBy from 'lodash/sortBy';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
-import type { Placement as PopperPlacementType } from "popper.js"
-import { isFriendlyUI } from "../../themes/forumTheme";
 import { PostsItemConfig } from "./usePostsItem";
 import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -79,7 +77,6 @@ export type PostsListConfig = {
   hideTag?: boolean,
   hideTrailingButtons?: boolean,
   hideTagRelevance?: boolean,
-  tooltipPlacement?: PopperPlacementType,
   boxShadow?: boolean
   curatedIconLeft?: boolean,
   showFinalBottomBorder?: boolean,
@@ -103,10 +100,6 @@ export type PostsListConfig = {
   order?: string[],
   header?: ReactNode,
 }
-
-const getDefaultTooltipPlacement = () => isFriendlyUI()
-  ? "bottom-start"
-  : "bottom-end";
 
 export const usePostsList = <TagId extends string | undefined = undefined>({
   children,
@@ -133,7 +126,6 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   hideTag = false,
   hideTrailingButtons = false,
   hideTagRelevance = false,
-  tooltipPlacement=getDefaultTooltipPlacement(),
   boxShadow = true,
   curatedIconLeft = false,
   showFinalBottomBorder = false,
@@ -289,7 +281,6 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
     showPostedAt,
     showBottomBorder: showFinalBottomBorder ||
       (hasResults && i < (orderedResults!.length - 1)),
-    tooltipPlacement,
     viewType,
   }));
 

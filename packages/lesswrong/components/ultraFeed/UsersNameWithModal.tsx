@@ -7,7 +7,7 @@ import HoverOver from '../common/HoverOver';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import type { Placement as PopperPlacementType } from "popper.js";
+import type { TooltipPlacement } from "@/components/common/TooltipGroup";
 import UserNameDeleted from '../users/UserNameDeleted';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SubscriptionsIcon from '@/lib/vendor/@material-ui/icons/src/NotificationsNone';
@@ -51,7 +51,7 @@ const UsersNameWithModal = ({
   user?: UsersMinimumInfo | null | undefined;
   documentId?: string;
   nofollow?: boolean;
-  tooltipPlacement?: PopperPlacementType;
+  tooltipPlacement?: TooltipPlacement;
   className?: string;
   simple?: boolean;
   showSubscribedIcon?: boolean;

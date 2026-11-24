@@ -1,6 +1,7 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Placement as PopperPlacementType } from "popper.js"
+import type { TooltipPlacement } from "@/components/common/TooltipGroup";
 import { DialogueMessageInfo, PostsPreviewTooltip } from "./PostsPreviewTooltip";
+import { PostsTooltipIsClickableContext } from "./helpers";
 import {
   DialogueMessagePreviewTooltip,
   PostsPreviewTooltipSingle,
@@ -10,6 +11,7 @@ import {
 import HoverOver from "../../common/HoverOver";
 import { usePostForTooltip } from "@/components/hooks/usePostForTooltip";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { PostIndicatorHighlightProvider } from "../postIndicators";
 
 const styles = defineStyles("PostsTooltip", (_theme: ThemeType) => ({
   sentinel: {
@@ -31,7 +33,7 @@ interface PostsTooltipPropsBase {
   As?: 'span' | 'div',
   clickable?: boolean,
   flip?: boolean,
-  placement?: PopperPlacementType,
+  placement?: TooltipPlacement,
   children?: ReactNode,
   pageElementContext?: string,
   pageElementSubContext?: string,
@@ -149,25 +151,29 @@ const PostsTooltip = ({
     </>
   };
   return (
-    <HoverOver
-      title={renderTitle()}
-      placement={placement}
-      tooltip={false}
-      hideOnTouchScreens
-      inlineBlock={inlineBlock}
-      As={As}
-      clickable={clickable}
-      flip={flip}
-      analyticsProps={{
-        pageElementContext,
-        pageElementSubContext,
-        postId: postId ?? post?._id,
-      }}
-      className={className}
-    >
-      {children}
-      {preload === 'on-screen' && <span ref={tooltipContainerRef} className={classes.sentinel} />}
-    </HoverOver>
+    <PostsTooltipIsClickableContext.Provider value={!!clickable}>
+      <PostIndicatorHighlightProvider>
+        <HoverOver
+          title={renderTitle()}
+          placement={placement}
+          tooltip={false}
+          hideOnTouchScreens
+          inlineBlock={inlineBlock}
+          As={As}
+          clickable={clickable}
+          flip={flip}
+          analyticsProps={{
+            pageElementContext,
+            pageElementSubContext,
+            postId: postId ?? post?._id,
+          }}
+          className={className}
+        >
+          {children}
+          {preload === 'on-screen' && <span ref={tooltipContainerRef} className={classes.sentinel} />}
+        </HoverOver>
+      </PostIndicatorHighlightProvider>
+    </PostsTooltipIsClickableContext.Provider>
   );
 }
 

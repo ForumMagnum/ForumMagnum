@@ -96,7 +96,7 @@ const PostsList = ({ posts }: { posts: PostsListWithVotes[] }) => {
               <div className={classes.prob}>{Math.round(p.annualReviewMarketProbability * 100)}%</div>
             )}
           </LWTooltip>
-          <PostsItem post={p} index={i} showKarma={true} showIcons={false} dense={true} showCommentsIcon={false} showPersonalIcon={false} />
+          <PostsItem post={p} index={i} showKarma={true} showIcons={false} dense={true} showCommentsIcon={false} />
         </React.Fragment>
       ))}
     </>

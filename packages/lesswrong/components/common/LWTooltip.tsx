@@ -1,9 +1,9 @@
-import React, { ReactNode, useState, useEffect, useRef, useCallback } from 'react';
+import React, { ReactNode, useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useHover } from './withHover';
-import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { AnalyticsProps } from '../../lib/analyticsEvents';
 import LWPopper from "./LWPopper";
+import { getPopperTarget, isTraySlotPlacement, TooltipGroupContext, TooltipPlacement, TooltipSlotContent } from "./TooltipGroup";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 
@@ -25,7 +25,7 @@ export const TooltipSuggestedWidth = 270;
 
 export type LWTooltipProps = {
   title?: ReactNode,
-  placement?: PopperPlacementType,
+  placement?: TooltipPlacement,
   tooltip?: boolean,
   flip?: boolean,
   clickable?: boolean,
@@ -78,6 +78,7 @@ const LWTooltip = ({
   renderWithoutHover,
 }: LWTooltipProps) => {
   const classes = useStyles(styles);
+  const group = useContext(TooltipGroupContext);
   const [delayedClickable, setDelayedClickable] = useState(false);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -130,31 +131,44 @@ const LWTooltip = ({
 
   if (!title) return <>{children}</>
 
+  const isOpen = forceOpen || (hover && !disabled);
+  const tooltipContent = <div className={classNames(
+    tooltip && classes.tooltip,
+    titleClassName
+  )}>
+    {title}
+  </div>;
+  const floatingTooltip = isTraySlotPlacement(placement)
+    ? <TooltipSlotContent
+        slot={placement.slot}
+        open={isOpen}
+        tooltip={tooltip}
+        hideOnTouchScreens={hideOnTouchScreens}
+        className={popperClassName}
+      >
+        {tooltipContent}
+      </TooltipSlotContent>
+    : <LWPopper
+        {...getPopperTarget(placement, anchorEl ?? defaultAnchorElRef.current, group)}
+        open={isOpen}
+        tooltip={tooltip}
+        allowOverflow={!flip}
+        distance={distance}
+        clickable={delayedClickable}
+        hideOnTouchScreens={hideOnTouchScreens}
+        className={popperClassName}
+      >
+        {tooltipContent}
+      </LWPopper>;
+
   return <As className={classNames(
     inlineBlock && classes.root,
     className
   )} {...eventHandlers} ref={defaultAnchorElRef}>
-    { /* Only render the LWPopper if this element has ever been hovered. (But
-         keep it in the React tree thereafter, so it can remember its state and
-         can have a closing animation if applicable. */ }
-    {(everHovered || renderWithoutHover) && <LWPopper
-      placement={placement}
-      open={forceOpen || (hover && !disabled)}
-      anchorEl={anchorEl ?? defaultAnchorElRef.current}
-      tooltip={tooltip}
-      allowOverflow={!flip}
-      distance={distance}
-      clickable={delayedClickable}
-      hideOnTouchScreens={hideOnTouchScreens}
-      className={popperClassName}
-    >
-      <div className={classNames(
-        tooltip && classes.tooltip,
-        titleClassName
-      )}>
-        {title}
-      </div>
-    </LWPopper>}
+    { /* Only render the floating tooltip if this element has ever been hovered.
+         (But keep it in the React tree thereafter, so it can remember its state
+         and can have a closing animation if applicable. */ }
+    {(everHovered || renderWithoutHover) && floatingTooltip}
 
     {children}
   </As>

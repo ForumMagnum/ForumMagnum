@@ -37,12 +37,13 @@ const UserTooltipProfileQuery = gql(`
 `);
 
 const BIO_MAX_HEIGHT = 200;
+export const USER_TOOLTIP_WIDTH = 350;
 
 const styles = defineStyles('LWUserTooltipContent', (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    width: 350,
+    width: USER_TOOLTIP_WIDTH,
     maxWidth: "unset",
     fontSize: 14,
     fontWeight: 450,
