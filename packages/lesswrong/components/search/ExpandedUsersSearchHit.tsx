@@ -1,5 +1,3 @@
-import SearchResultRow from "./SearchResultRow";
-import SearchHighlight from "./SearchHighlight";
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
@@ -7,6 +5,8 @@ import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
 import FormatDate from "../common/FormatDate";
 import ForumIcon from "../common/ForumIcon";
+import SearchResultRow from "./SearchResultRow";
+import SearchHighlight from "./SearchHighlight";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 

@@ -1,5 +1,3 @@
-import SearchResultRow from "./SearchResultRow";
-import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -8,6 +6,8 @@ import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
+import SearchResultRow from "./SearchResultRow";
+import SearchHighlight from "./SearchHighlight";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -79,7 +79,6 @@ const ExpandedCommentsSearchHit = ({hit, icon, compact}: {
   } else if (comment.tagSlug && comment.tagCommentType) {
     url = tagGetCommentLink({tagSlug: comment.tagSlug, commentId: comment._id, tagCommentType: comment.tagCommentType})
   }
-  
 
   return <SearchResultRow href={url} label={comment.postTitle ?? comment.tagName ?? "Comment"} icon={icon} compact={compact} className={classes.root}>
     <div>

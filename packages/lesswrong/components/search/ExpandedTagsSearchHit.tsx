@@ -1,11 +1,11 @@
-import SearchResultRow from "./SearchResultRow";
-import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudName } from '@/lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useThemeColor } from '../themes/useTheme';
+import SearchResultRow from "./SearchResultRow";
+import SearchHighlight from "./SearchHighlight";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -39,7 +39,7 @@ const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
     columnGap: 3
   },
   title: {
-fontSize: theme.typography.postsItemTitle.fontSize,
+    fontSize: theme.typography.postsItemTitle.fontSize,
     lineHeight: '24px',
     fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.text.normal,

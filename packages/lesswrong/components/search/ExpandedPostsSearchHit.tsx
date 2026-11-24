@@ -1,11 +1,11 @@
-import SearchResultRow from "./SearchResultRow";
-import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
+import SearchResultRow from "./SearchResultRow";
+import SearchHighlight from "./SearchHighlight";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -19,7 +19,7 @@ const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
     cursor: 'pointer',
   },
   title: {
-fontSize: theme.typography.postsItemTitle.fontSize,
+    fontSize: theme.typography.postsItemTitle.fontSize,
     lineHeight: '24px',
     fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.text.normal,
@@ -59,7 +59,6 @@ const ExpandedPostsSearchHit = ({hit, icon, compact}: {
 }) => {
   const classes = useStyles(styles);
   const post: SearchPost = hit
-  
 
   return <SearchResultRow href={postGetPageUrl(post)} label={post.title ?? "Post"} icon={icon} compact={compact} className={classes.root}>
     <div className={classes.title}>

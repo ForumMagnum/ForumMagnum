@@ -1,4 +1,3 @@
-import SearchHighlight from "./SearchHighlight";
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -8,6 +7,7 @@ import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import FormatDate from "../common/FormatDate";
 import UsersProfileImage from "../users/UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
+import SearchHighlight from "./SearchHighlight";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
