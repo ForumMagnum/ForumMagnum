@@ -31,7 +31,7 @@ const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
     columnGap: 16,
     rowGap: '3px',
     color: theme.palette.grey[600],
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: theme.typography.fontFamily,
   },
   metaInfo: {
@@ -51,7 +51,7 @@ const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   },
   role: {
     fontFamily: theme.typography.fontFamily,
-    fontSize: 12,
+    fontSize: 13,
     color: theme.palette.grey[600],
     marginTop: 3
   },

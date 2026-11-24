@@ -30,7 +30,7 @@ const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
     columnGap: 16,
     rowGap: '3px',
     color: theme.palette.grey[600],
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: theme.typography.fontFamily,
   },
   metaInfo: {
@@ -39,15 +39,15 @@ const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
     columnGap: 3
   },
   title: {
-    fontSize: 18,
+fontSize: theme.typography.postsItemTitle.fontSize,
     lineHeight: '24px',
-    fontFamily: theme.typography.title.fontFamily,
-    color: theme.palette.grey[800],
+    fontFamily: theme.typography.postStyle.fontFamily,
+    color: theme.palette.text.normal,
     fontWeight: 400,
   },
   snippet: {
     overflowWrap: "break-word",
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: theme.typography.postStyle.fontFamily,
     wordBreak: "break-word",
     fontSize: 14,
     lineHeight: '21px',

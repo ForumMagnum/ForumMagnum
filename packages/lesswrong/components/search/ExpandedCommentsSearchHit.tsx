@@ -26,9 +26,9 @@ const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => (
     columnGap: 16,
     rowGap: '3px',
     color: theme.palette.grey[600],
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: theme.typography.fontFamily,
-    marginTop: 6
+    marginTop: 2
   },
   metaInfo: {
     display: "flex",
@@ -39,11 +39,11 @@ const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => (
     display: 'flex',
     alignItems: 'center',
     columnGap: 6,
-    fontSize: 15,
-    lineHeight: '22px',
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.grey[800],
-    fontWeight: 600,
+    fontSize: theme.typography.postsItemTitle.fontSize,
+    lineHeight: '24px',
+    fontFamily: theme.typography.postStyle.fontFamily,
+    color: theme.palette.text.normal,
+    fontWeight: 400,
   },
   tagIcon: {
     fontSize: 14,
@@ -51,7 +51,7 @@ const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => (
   },
   snippet: {
     overflowWrap: "break-word",
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: theme.typography.commentStyle.fontFamily,
     wordBreak: "break-word",
     fontSize: 14,
     lineHeight: '21px',
@@ -90,16 +90,16 @@ const ExpandedCommentsSearchHit = ({hit, icon, compact}: {
         <TagIcon className={classes.tagIcon} />
         {comment.tagName}
       </div>}
+      <div className={classes.authorRow}>
+        {comment.authorSlug ? <span>
+          <SearchHighlight hit={hit} attribute="authorDisplayName">{comment.authorDisplayName}</SearchHighlight>
+        </span> : <UserNameDeleted />}
+        <span>{comment.baseScore ?? 0} karma</span>
+        <FormatDate date={comment.createdAt} />
+      </div>
       <div className={classes.snippet}>
         <Snippet className={classes.snippet} attribute="body" hit={comment} tagName="mark" />
       </div>
-    </div>
-    <div className={classes.authorRow}>
-      {comment.authorSlug ? <span>
-        <SearchHighlight hit={hit} attribute="authorDisplayName">{comment.authorDisplayName}</SearchHighlight>
-      </span> : <UserNameDeleted />}
-      <span>{comment.baseScore ?? 0} karma</span>
-      <FormatDate date={comment.createdAt} />
     </div>
   </SearchResultRow>
 }

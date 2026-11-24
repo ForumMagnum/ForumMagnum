@@ -19,10 +19,10 @@ const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
     cursor: 'pointer',
   },
   title: {
-    fontSize: 18,
+fontSize: theme.typography.postsItemTitle.fontSize,
     lineHeight: '24px',
-    fontFamily: theme.typography.title.fontFamily,
-    color: theme.palette.grey[800],
+    fontFamily: theme.typography.postStyle.fontFamily,
+    color: theme.palette.text.normal,
     fontWeight: 400,
     marginBottom: 2
   },
@@ -33,7 +33,7 @@ const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
     columnGap: 16,
     rowGap: '3px',
     color: theme.palette.grey[600],
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: theme.typography.fontFamily,
   },
   metaInfo: {
@@ -48,7 +48,7 @@ const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
     fontSize: 14,
     lineHeight: '22px',
     color: theme.palette.grey[700],
-    marginTop: 7
+    marginTop: 4
   }
 }))
 

@@ -6,7 +6,7 @@ import SearchResultLink from './SearchResultLink';
 
 const styles = defineStyles('SearchResultRow', (theme: ThemeType) => ({
   root: {position: 'relative'},
-  withIcon: {padding: '8px 20px 8px 58px', [theme.breakpoints.down('sm')]: {padding: '8px 8px 8px 46px'}},
+  withIcon: {padding: '10px 16px 10px 42px', [theme.breakpoints.down('sm')]: {padding: '8px 8px 8px 36px'}},
   compact: {padding: '4px 8px 4px 36px'},
   body: {minWidth: 0},
 }));
