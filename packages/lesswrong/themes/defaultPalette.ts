@@ -691,8 +691,12 @@ export const defaultComponentPalette = (dark: boolean, isAF: boolean) => ({
     contrastText: grey[0],
   },
   lwTertiary: {
-    main: isAF ? (dark ? "#7799a4" : "#607e88") : "#69886e",
-    dark: isAF ? (dark ? "#7799a4" : "#607e88") : "#21672b",
+    main: isAF
+      ? "light-dark(#607e88, #7799a4)"
+      : "light-dark(#69886e, #869f8a)",
+    dark: isAF
+      ? "light-dark(#607e88, #7799a4)"
+      : "light-dark(#21672b, #869f8a)",
   },
   action: {
     active: "light-dark(rgba(0, 0, 0, 0.54),#fff)",
