@@ -197,7 +197,7 @@
     "htmlparser2": "^8.0.0",
     "intercom-client": "^5.0.0",
     "io-ts": "^2.2.19",
-    "jimp": "^0.22.12",
+    "jimp": "^2.0.0",
     "js-tiktoken": "^1.0.20",
     "jsdom": "^26.0.0",
     "json-stringify-deterministic": "^1.0.8",
