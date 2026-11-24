@@ -220,7 +220,7 @@
     "markdown-it-sup": "^1.0.0",
     "mathjax-full": "^3.2.2",
     "md5": "^2.3.0",
-    "moment": "^2.29.4",
+    "moment": "^2.31.0",
     "moment-timezone": "^0.5.46",
     "mysql2": "^3.23.1",
     "next": "^16.4.6",
