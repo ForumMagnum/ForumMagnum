@@ -296,7 +296,7 @@
     "@next/bundle-analyzer": "^16.3.4",
     "@next/env": "^16.4.6",
     "@next/eslint-plugin-next": "^16.3.4",
-    "@playwright/test": "^1.43.1",
+    "@playwright/test": "^1.65.1",
     "@stylistic/eslint-plugin-ts": "^4.2.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
