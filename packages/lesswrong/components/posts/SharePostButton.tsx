@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
@@ -10,8 +10,7 @@ import ForumIcon from "../common/ForumIcon";
 import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import SharePostActions from "../dropdowns/posts/SharePostActions";
-import CitePostPopover from "./CitePostPopover";
-import { OpenCitePopoverContext } from "./CitePostPopoverContext";
+import { OpenCitePopoverContext, useCitePostPopover } from "./CitePostPopover";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -35,8 +34,7 @@ const SharePostButton = ({post, className}: {
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null)
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [isCiteOpen, setIsCiteOpen] = useState(false);
-  const openCitePopover = useCallback(() => setIsCiteOpen(true), []);
+  const { openCitePopover, citePopover } = useCitePostPopover(post, anchorEl, "bottom");
   const { captureEvent } = useTracking()
   
   const shareClicked = () => {
@@ -78,13 +76,7 @@ const SharePostButton = ({post, className}: {
         </OpenCitePopoverContext.Provider>
       </LWClickAwayListener>
     </PopperCard>
-    <CitePostPopover
-      post={post}
-      anchorEl={anchorEl.current}
-      open={isCiteOpen}
-      onClose={() => setIsCiteOpen(false)}
-      placement="bottom"
-    />
+    {citePopover}
   </div>
 }
 

@@ -13072,6 +13072,23 @@ type MarkdownFrontPageQueryVariables = Exact<{
 
 type MarkdownFrontPageQuery = MarkdownFrontPageQuery_Query;
 
+type PostCitationQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsCitationInfo
+);
+
+type PostCitationQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostCitationQuery_post_SinglePostOutput_result_Post | null };
+
+type PostCitationQuery_Query = { __typename?: 'Query', post: PostCitationQuery_post_SinglePostOutput | null };
+
+
+type PostCitationQueryVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostCitationQuery = PostCitationQuery_Query;
+
 type PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment_contents_Revision = { __typename?: 'Revision', markdown?: string | null };
 
 type PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment = (
@@ -27041,23 +27058,6 @@ type multiCommentsForAutocompleteWithParentsQueryQueryVariables = Exact<{
 
 
 type multiCommentsForAutocompleteWithParentsQueryQuery = multiCommentsForAutocompleteWithParentsQueryQuery_Query;
-
-type PostCitationQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsCitationInfo
-);
-
-type PostCitationQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostCitationQuery_post_SinglePostOutput_result_Post | null };
-
-type PostCitationQuery_Query = { __typename?: 'Query', post: PostCitationQuery_post_SinglePostOutput | null };
-
-
-type PostCitationQueryVariables = Exact<{
-  postId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type PostCitationQuery = PostCitationQuery_Query;
 
 type AiDigestEmailPostsQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }

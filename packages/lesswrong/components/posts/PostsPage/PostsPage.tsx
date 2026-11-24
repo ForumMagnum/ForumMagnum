@@ -1,9 +1,8 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { getResponseCounts, isDialogueParticipant, POST_PRINT_QUERY_PARAM, userCanListenToNarration } from '../../../lib/collections/posts/helpers';
-import { usePrintOnLoad } from '../../hooks/usePrintOnLoad';
-import { printPostOnlySelector } from '../printPostOnly';
+import { getResponseCounts, isDialogueParticipant, userCanListenToNarration } from '../../../lib/collections/posts/helpers';
+import { usePostPrintView } from '../../hooks/usePostPrintView';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -112,9 +111,6 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
   betweenPostAndComments: {
     minHeight: 24,
-    "@media print": {
-      [printPostOnlySelector]: { display: "none" },
-    },
   },
   recommendations: {
     maxWidth: MAX_COLUMN_WIDTH,
@@ -122,11 +118,6 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
-    // Comments are kept when printing the page normally, and only dropped
-    // when saving the post itself as a PDF
-    "@media print": {
-      [printPostOnlySelector]: { display: "none" },
-    },
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
       marginLeft: 0
@@ -299,10 +290,8 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const [recommId, setRecommId] = useState<string | undefined>();
   const [attributionId, setAttributionId] = useState<string | undefined>();
   const isCommentPermalink = !!query.commentId;
-  // "Save as PDF" opens the page with ?print=1; render only the post, since
-  // the comments and recommendations would be hidden from the printout anyway
-  const isPrintView = !!query[POST_PRINT_QUERY_PARAM];
-  // Print view (Save as PDF) drops everything below the post body, like preview.
+  // The print view ("Save as PDF") shows only the post, like a preview
+  const isPrintView = usePostPrintView(!!fullPost);
   const hidesBelowBody = preview || isPrintView;
 
   const votingSystem = getVotingSystemByName(post.votingSystem || 'default');
@@ -375,7 +364,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
       limit: MAX_ANSWERS_AND_REPLIES_QUERIED,
       enableTotal: false,
     },
-    skip: !post.question || preview || isPrintView,
+    skip: !post.question || hidesBelowBody,
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
@@ -468,15 +457,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
     answers,
   });
   const htmlWithAnchors = sectionData?.html || fullPost?.contents?.html || postPreload?.contents?.htmlHighlight || "";
-  // "Save as PDF" from elsewhere opens the post page with ?print=1; print once
-  // loaded, then drop the parameter so reloads and shared links don't reprint
-  const clearPrintQueryParam = useCallback(() => {
-    const newQuery = {...query, [POST_PRINT_QUERY_PARAM]: undefined};
-    const search = qs.stringify(newQuery);
-    // An empty `search: "?"` would leave a bare "?" on the URL
-    navigate({...location.location, search: search ? `?${search}` : ""}, {replace: true});
-  }, [navigate, location.location, query]);
-  usePrintOnLoad(isPrintView && !!fullPost, clearPrintQueryParam);
 
   const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
   const linkedCommentId = globalLinkedCommentId || params.commentId
@@ -514,7 +494,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
     itemsPerPage: 200,
     fetchPolicy: 'cache-and-network' as const,
     ssr: !isCommentPermalink,
-    skip: preview || isPrintView,
+    skip: hidesBelowBody,
   });
 
   const { loading, data: rawData, networkStatus, loadMoreProps: { loadAll } } = lazyResults;

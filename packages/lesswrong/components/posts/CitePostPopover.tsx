@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { createContext, RefObject, useCallback, useState } from "react";
 import type { Placement as PopperPlacementType } from "popper.js";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import PopperCard from "../common/PopperCard";
@@ -221,25 +221,31 @@ const CitePostPopoverContents = ({post}: {
 };
 
 /**
- * A popover offering ways to cite a post: a plain-text citation, a BibTeX
- * entry (copyable, or downloadable from /api/post/[id]/cite.bib), a Google
- * Scholar lookup, and Internet Archive links for a permanent snapshot of the
- * page. Anchored to the button whose menu opened it, and dismissed by
- * clicking anywhere else.
+ * Provided by the buttons that host a post menu, so that the "Cite" menu item
+ * can open the citation popover after the menu itself has closed.
  */
-const CitePostPopover = ({post, anchorEl, open, onClose, placement = "bottom-end"}: {
+export const OpenCitePopoverContext = createContext<(() => void) | null>(null);
+
+/**
+ * For buttons that host a post menu (the triple-dot menu and the share menu):
+ * returns a function for the "Cite" menu item to call, to be provided through
+ * OpenCitePopoverContext, and the popover itself, to be rendered outside the
+ * menu. The popover offers a plain-text citation, a BibTeX entry (copyable, or
+ * downloadable from /api/post/[id]/cite.bib), a Google Scholar lookup, and
+ * Internet Archive links for a permanent snapshot of the page. It is anchored
+ * to the button and dismissed by clicking anywhere else.
+ */
+export function useCitePostPopover(
   post: PostCitationSource,
-  anchorEl: HTMLElement | null,
-  open: boolean,
-  onClose: () => void,
-  placement?: PopperPlacementType,
-}) => {
-  if (!open) return null;
-  return <PopperCard open={open} anchorEl={anchorEl} placement={placement} allowOverflow flip>
-    <LWClickAwayListener onClickAway={onClose}>
+  anchorEl: RefObject<HTMLElement | null>,
+  placement: PopperPlacementType = "bottom-end",
+) {
+  const [open, setOpen] = useState(false);
+  const openCitePopover = useCallback(() => setOpen(true), []);
+  const citePopover = open && <PopperCard open anchorEl={anchorEl.current} placement={placement} allowOverflow flip>
+    <LWClickAwayListener onClickAway={() => setOpen(false)}>
       <CitePostPopoverContents post={post} />
     </LWClickAwayListener>
   </PopperCard>;
-};
-
-export default CitePostPopover;
+  return { openCitePopover, citePopover };
+}

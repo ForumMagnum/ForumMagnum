@@ -5,7 +5,7 @@ import merge from "lodash/merge";
 import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
-import { formatIsoDate, getPostCitation } from "@/lib/collections/posts/citations";
+import { formatCitationDate, getPostCitation } from "@/lib/collections/posts/citations";
 import { runQueryWithAnonymousCache } from "../postPageCache/anonymousQueryCache";
 
 const PostMetadataQuery = gql(`
@@ -43,7 +43,7 @@ const PostMetadataQuery = gql(`
 function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Post, canonicalUrl: string, forumType: ForumTypeString) {
   const citation = getPostCitation(post, forumType);
   const publicationDate = citation.publishedAt
-    ? formatIsoDate(citation.publishedAt, citation.timezone).replace(/-/g, "/")
+    ? formatCitationDate(citation.publishedAt, citation.timezone, "YYYY/MM/DD")
     : null;
 
   return {

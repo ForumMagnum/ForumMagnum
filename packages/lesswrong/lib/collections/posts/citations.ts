@@ -48,43 +48,11 @@ export interface PostCitation {
  * endpoint). Matches DEFAULT_TIMEZONE in lib/utils/timeUtil, which can't be
  * imported here because that module is client-only.
  */
-export const DEFAULT_CITATION_TIMEZONE = "GMT";
+const DEFAULT_CITATION_TIMEZONE = "GMT";
 
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
-const BIBTEX_MONTH_MACROS = [
-  "jan", "feb", "mar", "apr", "may", "jun",
-  "jul", "aug", "sep", "oct", "nov", "dec",
-];
-
-function toDate(date: Date | string | null | undefined): Date | null {
-  if (!date) return null;
-  const parsed = date instanceof Date ? date : new Date(date);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-}
-
-interface DateParts {
-  year: number
-  /** 0-based, like Date.getMonth() */
-  monthIndex: number
-  day: number
-}
-
-function getDateParts(date: Date, timezone: string): DateParts {
-  const localized = moment(date).tz(timezone);
-  return {
-    year: localized.year(),
-    monthIndex: localized.month(),
-    day: localized.date(),
-  };
-}
-
-/** YYYY-MM-DD in the given timezone. */
-export function formatIsoDate(date: Date, timezone: string): string {
-  return moment(date).tz(timezone).format("YYYY-MM-DD");
+/** Formats a date in the given timezone, using a moment format string. */
+export function formatCitationDate(date: Date, timezone: string, format: string): string {
+  return moment(date).tz(timezone).format(format);
 }
 
 function getAuthorDisplayName(author: PostCitationAuthor | null | undefined): string | null {
@@ -104,7 +72,7 @@ export function getPostCitation(
   return {
     title: post.title ?? "",
     authors: filterNonnull(creditedAuthors.map(getAuthorDisplayName)),
-    publishedAt: toDate(post.postedAt),
+    publishedAt: post.postedAt ? new Date(post.postedAt) : null,
     url: postGetAbsolutePageUrl(post, forumType),
     siteName: forumTitleSetting.get(forumType),
     timezone,
@@ -159,7 +127,7 @@ export function getBibtexKey(citation: PostCitation, postId: string): string {
   const firstAuthor = citation.authors[0] ?? citation.siteName;
   const authorWords = firstAuthor.split(/\s+/).map(toKeyFragment).filter(word => word.length > 0);
   const authorFragment = authorWords[authorWords.length - 1] ?? "";
-  const year = citation.publishedAt ? String(getDateParts(citation.publishedAt, citation.timezone).year) : "";
+  const year = citation.publishedAt ? formatCitationDate(citation.publishedAt, citation.timezone, "YYYY") : "";
   const key = `${authorFragment}${year}${getFirstSignificantTitleWord(citation.title)}`;
   return key.length > 0 ? key : toKeyFragment(postId);
 }
@@ -177,11 +145,10 @@ export function getPostBibtex(citation: PostCitation, postId: string, accessedAt
   }
   fields.push(["title", `{${escapeBibtex(citation.title)}}`]);
   if (citation.publishedAt) {
-    const { year, monthIndex } = getDateParts(citation.publishedAt, citation.timezone);
-    fields.push(["year", String(year)]);
-    fields.push(["month", BIBTEX_MONTH_MACROS[monthIndex]]);
+    fields.push(["year", formatCitationDate(citation.publishedAt, citation.timezone, "YYYY")]);
+    fields.push(["month", formatCitationDate(citation.publishedAt, citation.timezone, "MMM").toLowerCase()]);
   }
-  const accessedDate = formatIsoDate(accessedAt, citation.timezone);
+  const accessedDate = formatCitationDate(accessedAt, citation.timezone, "YYYY-MM-DD");
   fields.push(["publisher", escapeBibtex(citation.siteName)]);
   fields.push(["howpublished", `\\url{${citation.url}}`]);
   fields.push(["urldate", accessedDate]);
@@ -211,11 +178,9 @@ export function getPostPlainTextCitation(citation: PostCitation): string {
   const authorPart = citation.authors.length > 0
     ? formatAuthorList(citation.authors)
     : citation.siteName;
-  let datePart = "n.d.";
-  if (citation.publishedAt) {
-    const { year, monthIndex, day } = getDateParts(citation.publishedAt, citation.timezone);
-    datePart = `${year}, ${MONTH_NAMES[monthIndex]} ${day}`;
-  }
+  const datePart = citation.publishedAt
+    ? formatCitationDate(citation.publishedAt, citation.timezone, "YYYY, MMMM D")
+    : "n.d.";
   const publisherPart = citation.authors.length > 0 ? ` ${citation.siteName}.` : "";
   return `${authorPart}. (${datePart}). ${citation.title}.${publisherPart} ${citation.url}`;
 }

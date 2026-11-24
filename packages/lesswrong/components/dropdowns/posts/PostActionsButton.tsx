@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useRef, useState } from 'react'
+import React, { CSSProperties, useRef, useState } from 'react'
 import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import { useTracking } from '../../../lib/analyticsEvents';
@@ -10,8 +10,7 @@ import PopperCard from "../../common/PopperCard";
 import PostActions from "./PostActions";
 import LWClickAwayListener from "../../common/LWClickAwayListener";
 import { FeedPostMetaInfo } from '../../ultraFeed/ultraFeedTypes';
-import CitePostPopover from '../../posts/CitePostPopover';
-import { OpenCitePopoverContext } from '../../posts/CitePostPopoverContext';
+import { OpenCitePopoverContext, useCitePostPopover } from '../../posts/CitePostPopover';
 
 const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {
@@ -56,8 +55,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [isCiteOpen, setIsCiteOpen] = useState(false);
-  const openCitePopover = useCallback(() => setIsCiteOpen(true), []);
+  const { openCitePopover, citePopover } = useCitePostPopover(post, anchorEl);
   const {captureEvent} = useTracking();
 
   // This is fine with SSR because the popper will only be rendered after use
@@ -105,12 +103,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
         </OpenCitePopoverContext.Provider>
       </LWClickAwayListener>
     </PopperCard>
-    <CitePostPopover
-      post={post}
-      anchorEl={anchorEl.current}
-      open={isCiteOpen}
-      onClose={() => setIsCiteOpen(false)}
-    />
+    {citePopover}
   </div>
 }
 
