@@ -10,6 +10,7 @@ import {
 import HoverOver from "../../common/HoverOver";
 import { usePostForTooltip } from "@/components/hooks/usePostForTooltip";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { PostIndicatorHighlightProvider } from "../postIndicators";
 
 const styles = defineStyles("PostsTooltip", (_theme: ThemeType) => ({
   sentinel: {
@@ -149,25 +150,27 @@ const PostsTooltip = ({
     </>
   };
   return (
-    <HoverOver
-      title={renderTitle()}
-      placement={placement}
-      tooltip={false}
-      hideOnTouchScreens
-      inlineBlock={inlineBlock}
-      As={As}
-      clickable={clickable}
-      flip={flip}
-      analyticsProps={{
-        pageElementContext,
-        pageElementSubContext,
-        postId: postId ?? post?._id,
-      }}
-      className={className}
-    >
-      {children}
-      {preload === 'on-screen' && <span ref={tooltipContainerRef} className={classes.sentinel} />}
-    </HoverOver>
+    <PostIndicatorHighlightProvider>
+      <HoverOver
+        title={renderTitle()}
+        placement={placement}
+        tooltip={false}
+        hideOnTouchScreens
+        inlineBlock={inlineBlock}
+        As={As}
+        clickable={clickable}
+        flip={flip}
+        analyticsProps={{
+          pageElementContext,
+          pageElementSubContext,
+          postId: postId ?? post?._id,
+        }}
+        className={className}
+      >
+        {children}
+        {preload === 'on-screen' && <span ref={tooltipContainerRef} className={classes.sentinel} />}
+      </HoverOver>
+    </PostIndicatorHighlightProvider>
   );
 }
 

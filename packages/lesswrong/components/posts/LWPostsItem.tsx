@@ -13,13 +13,12 @@ import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEA
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import PostsItemTrailingButtons, { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
-import { useHover } from '../common/withHover';
 import { highlightMarket } from '@/lib/collections/posts/annualReviewMarkets';
 import PostsItemTagRelevance from "../tagging/PostsItemTagRelevance";
 import EventVicinity from "../localGroups/EventVicinity";
 import PostsItemComments from "./PostsItemComments";
 import KarmaDisplay from "../common/KarmaDisplay";
-import PostsTitle from "./PostsTitle";
+import PostsTitle, { undimReadTitleOnHover } from "./PostsTitle";
 import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
 import LWTooltip from "../common/LWTooltip";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
@@ -41,6 +40,7 @@ import { maybeDate } from '@/lib/utils/dateUtils';
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import AnimatedExpansion from '../common/AnimatedExpansion';
+import { InteractionWrapper, useClickableCell } from '../common/useClickableCell';
 
 export const KARMA_WIDTH = 32;
 
@@ -101,6 +101,9 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
     // Anchor the trailing buttons to the post row, excluding expanded comments.
     position: "relative",
   },
+  interaction: {
+    display: "contents",
+  },
   postsItem: {
     display: "flex",
     position: "relative",
@@ -108,6 +111,8 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
     paddingLeft: 6,
     alignItems: "center",
     flexWrap: "nowrap",
+    cursor: "pointer",
+    ...undimReadTitleOnHover(theme),
     [theme.breakpoints.down('xs')]: {
       flexWrap: "wrap",
       paddingTop: 8,
@@ -147,6 +152,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   karma: {
     width: KARMA_WIDTH,
     marginRight: 4,
+    cursor: "default",
     [theme.breakpoints.down('xs')]:{
       width: "unset",
       justifyContent: "flex-start",
@@ -176,9 +182,9 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
       paddingRight: 8,
       flex: "unset",
     },
-    '&:hover': {
+    '& a:hover, & a:active': {
       opacity: 1,
-    }
+    },
   },
   spacer: {
     flex: 1,
@@ -206,7 +212,10 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
       width: "unset",
       marginLeft: 0,
       flex: "unset"
-    }
+    },
+    '& a:hover, & a:active': {
+      opacity: 1,
+    },
   },
   event: {
     maxWidth: 250,
@@ -466,7 +475,6 @@ const LWPostsItem = (props: PostsItemConfig) => {
     annualReviewMarketInfo,
     showReadCheckbox,
     showDraftTag,
-    showPersonalIcon,
     showBottomBorder,
     showDismissButton,
     showArchiveButton,
@@ -489,7 +497,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
   } = usePostsItem(props);
 
   const classes = useStyles(styles);
-  const { hover, eventHandlers } = useHover();
+  const { onClick: navigateToPost } = useClickableCell({href: postLink, ignoreLinks: true});
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
@@ -513,7 +521,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
             [classes.isRead]: isRead && !showReadCheckbox  // readCheckbox and post-title read-status don't aesthetically match
           })}
         >
-          <div className={classes.metadataRow} {...eventHandlers}>
+          <div className={classes.metadataRow} onClick={navigateToPost}>
             <PostsItemTooltipWrapper
               post={post}
               placement={tooltipPlacement}
@@ -526,14 +534,16 @@ const LWPostsItem = (props: PostsItemConfig) => {
                 }
               )}
             >
-              {tagRel && <PostsItemTagRelevance tagRel={tagRel} />}
+              {tagRel && <InteractionWrapper className={classes.interaction}>
+                <PostsItemTagRelevance tagRel={tagRel} />
+              </InteractionWrapper>}
               {showKarma && <PostsItem2MetaInfo className={classNames(
                 classes.karma, {
                   [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo, forumType)
                 })}>
                 {post.isEvent
-                  ? <AddToCalendarButton post={post} />
-                  : <KarmaDisplay document={post} />
+                  ? <InteractionWrapper className={classes.interaction}><AddToCalendarButton post={post} /></InteractionWrapper>
+                  : <KarmaDisplay document={post} placement="bottom-start" />
                 }
               </PostsItem2MetaInfo>}
 
@@ -550,10 +560,8 @@ const LWPostsItem = (props: PostsItemConfig) => {
                     read={isRead && !showReadCheckbox} // readCheckbox and post-title read-status don't aesthetically match
                     sticky={sticky}
                     showDraftTag={showDraftTag}
-                    {...(showPersonalIcon ? {showPersonalIcon} : {})}
                     curatedIconLeft={curatedIconLeft}
                     strikethroughTitle={strikethroughTitle}
-                    postItemHovered={hover}
                   />
                 </AnalyticsTracker>
               </span>
@@ -590,14 +598,18 @@ const LWPostsItem = (props: PostsItemConfig) => {
               </PostsItem2MetaInfo>}
 
               {showAuthor && <PostsItem2MetaInfo className={classes.author}>
-                <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top"/>
+                <InteractionWrapper className={classes.interaction}>
+                  <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top"/>
+                </InteractionWrapper>
               </PostsItem2MetaInfo>}
 
               {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo className={classes.unreadDebateResponseContainer}>
-                <div className={classes.unreadDebateResponseCount} onClick={!!post.collabEditorDialogue ? toggleDialogueMessages : toggleComments}>
-                  <DebateIcon className={classes.unreadDebateResponsesIcon}/>
-                  {post.unreadDebateResponseCount}
-                </div>
+                <InteractionWrapper className={classes.interaction}>
+                  <div className={classes.unreadDebateResponseCount} onClick={!!post.collabEditorDialogue ? toggleDialogueMessages : toggleComments}>
+                    <DebateIcon className={classes.unreadDebateResponsesIcon}/>
+                    {post.unreadDebateResponseCount}
+                  </div>
+                </InteractionWrapper>
               </PostsItem2MetaInfo>}
 
               {showDate && <PostsItemDate post={post} useCuratedDate={useCuratedDate} emphasizeIfNew={emphasizeIfNew} />}
@@ -610,25 +622,34 @@ const LWPostsItem = (props: PostsItemConfig) => {
                 </div>}
 
                 {<div className={classes.mobileActions}>
-                  {!resumeReading && <PostActionsButton post={post} autoPlace />}
+                  {!resumeReading && <InteractionWrapper className={classes.interaction}>
+                    <PostActionsButton post={post} autoPlace />
+                  </InteractionWrapper>}
                 </div>}
 
                 {!resumeReading && showCommentsIcon && <div className={classes.commentsIcon}>
-                  <PostsItemComments
-                    small={false}
-                    commentCount={commentCount}
-                    onClick={toggleComments}
-                    unreadComments={hasUnreadComments}
-                    newPromotedComments={hasNewPromotedComments}
-                  />
+                  <InteractionWrapper className={classes.interaction}>
+                    <PostsItemComments
+                      small={false}
+                      commentCount={commentCount}
+                      onClick={toggleComments}
+                      unreadComments={hasUnreadComments}
+                      newPromotedComments={hasNewPromotedComments}
+                    />
+                  </InteractionWrapper>
                 </div>}
 
-                {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
+                {getReviewPhase() === "NOMINATIONS" && <InteractionWrapper className={classes.interaction}>
+                  <PostsItemReviewVote post={post}/>
+                </InteractionWrapper>}
 
                 {postEligibleForReview(post) && postPassedNomination(post) && getReviewPhase() === "REVIEWS" && <span className={classes.reviewPostButton}>
-                  <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="top">
-                  Review
-                </LWTooltip>}/></span>}
+                  <InteractionWrapper className={classes.interaction}>
+                    <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="top">
+                    Review
+                  </LWTooltip>}/>
+                  </InteractionWrapper>
+                </span>}
 
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
 
@@ -641,10 +662,14 @@ const LWPostsItem = (props: PostsItemConfig) => {
                 </LWTooltip>}
               </div>
               {bookmark && <div className={classes.bookmark}>
-                <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked}/>
+                <InteractionWrapper className={classes.interaction}>
+                  <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked}/>
+                </InteractionWrapper>
               </div>}
               <div className={classes.mobileDismissButton}>
-                {showDismissButton && <DismissButton {...{showDismissButton, onDismiss}} />}
+                {showDismissButton && <InteractionWrapper className={classes.interaction}>
+                  <DismissButton {...{showDismissButton, onDismiss}} />
+                </InteractionWrapper>}
               </div>
 
               {resumeReading &&
@@ -659,18 +684,20 @@ const LWPostsItem = (props: PostsItemConfig) => {
                 </div>
               }
             </PostsItemTooltipWrapper>
-            <PostsItemTrailingButtons
-              {...{
-                post,
-                showTrailingButtons,
-                showMostValuableCheckbox,
-                showDismissButton,
-                showArchiveButton,
-                resumeReading,
-                onDismiss,
-                onArchive,
-              }}
-            />
+            <InteractionWrapper className={classes.interaction}>
+              <PostsItemTrailingButtons
+                {...{
+                  post,
+                  showTrailingButtons,
+                  showMostValuableCheckbox,
+                  showDismissButton,
+                  showArchiveButton,
+                  resumeReading,
+                  onDismiss,
+                  onArchive,
+                }}
+              />
+            </InteractionWrapper>
           </div>
 
           <AnimatedExpansion expanded={renderComments && !condensedAndHiddenComments}>
