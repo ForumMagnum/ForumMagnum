@@ -85,7 +85,7 @@
 //
 //
 
-import { grey, greyAlpha, inverseGreyAlpha, primaryAlpha, boxShadowColor, greyBorder, invertIfDarkMode } from "./colorUtil";
+import { grey, greyAlpha, inverseGreyAlpha, primaryAlpha, boxShadowColor, greyBorder } from "./colorUtil";
 import { isBlackBarTitle } from '../components/seasonal/petrovDay/petrov-day-story/petrovConsts';
 
 export const sansSerifStack = [
@@ -148,7 +148,6 @@ export const defaultComponentPalette = (dark: boolean, isAF: boolean) => ({
   primaryAlpha,
   boxShadowColor,
   greyBorder,
-  invertIfDarkMode,
   fonts: {
     sansSerifStack: isAF ? afSansSerifStack : sansSerifStack,
     serifStack: isAF ? afSansSerifStack : serifStack,
