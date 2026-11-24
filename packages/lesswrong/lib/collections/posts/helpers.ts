@@ -213,6 +213,16 @@ export const postGetAbsolutePageUrl = (post: PostsMinimumForGetPageUrl, forumTyp
   return getSiteUrl(forumType).slice(0, -1) + postGetPageUrl(post, sequenceId);
 };
 
+/**
+ * Query parameter which, when present on a post page, opens the browser's
+ * print dialog once the post has loaded (used by "Save as PDF").
+ */
+export const POST_PRINT_QUERY_PARAM = "print";
+
+export const postGetPrintUrl = (post: PostsMinimumForGetPageUrl): string => {
+  return `${postGetPageUrl(post)}?${POST_PRINT_QUERY_PARAM}=1`;
+}
+
 export const postGetCommentsUrl = (
   post: PostsMinimumForGetPageUrl,
   sequenceId: string | null = null,
