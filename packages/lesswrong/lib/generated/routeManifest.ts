@@ -200,6 +200,9 @@ export const routeTrie = {
             "paramName": "idOrSlug",
             "child": {
               "staticChildren": {
+                "cite.bib": {
+                  "hasRoute": true
+                },
                 "comments": {
                   "dynamicChild": {
                     "paramName": "commentId",
@@ -211,6 +214,7 @@ export const routeTrie = {
                 }
               },
               "lowerCase": {
+                "cite.bib": "cite.bib",
                 "comments": "comments"
               },
               "hasRoute": true

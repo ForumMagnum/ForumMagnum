@@ -10,6 +10,7 @@ import ForumIcon from "../common/ForumIcon";
 import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import SharePostActions from "../dropdowns/posts/SharePostActions";
+import { OpenCitePopoverContext, useCitePostPopover } from "./CitePostPopover";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -27,12 +28,13 @@ const styles = defineStyles('SharePostButton', (theme: ThemeType) => ({
 }))
 
 const SharePostButton = ({post, className}: {
-  post: PostsBase,
+  post: PostsListBase,
   className?: string,
 }) => {
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null)
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const { openCitePopover, citePopover } = useCitePostPopover(post, anchorEl, "bottom");
   const { captureEvent } = useTracking()
   
   const shareClicked = () => {
@@ -69,9 +71,12 @@ const SharePostButton = ({post, className}: {
       allowOverflow
     >
       <LWClickAwayListener onClickAway={() => setIsOpen(false)}>
-        <SharePostActions post={post} onClick={() => setIsOpen(false)} />
+        <OpenCitePopoverContext.Provider value={openCitePopover}>
+          <SharePostActions post={post} onClick={() => setIsOpen(false)} />
+        </OpenCitePopoverContext.Provider>
       </LWClickAwayListener>
     </PopperCard>
+    {citePopover}
   </div>
 }
 

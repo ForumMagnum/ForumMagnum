@@ -2,6 +2,7 @@ import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, isDialogueParticipant, userCanListenToNarration } from '../../../lib/collections/posts/helpers';
+import { usePostPrintView } from '../../hooks/usePostPrintView';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -176,6 +177,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   bottomOfPostSubscribe: {
     marginBottom: 40,
     marginTop: 40,
+    "@media print": { display: "none" },
     border: theme.palette.border.commentBorder,
     borderRadius: 5,
     display: "flex",
@@ -223,7 +225,8 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
   reviewVoting: {
     marginTop: 60,
-    marginBottom: -20 // to account or voting UI padding
+    marginBottom: -20, // to account or voting UI padding
+    "@media print": { display: "none" },
   },
 }));
 
@@ -287,6 +290,9 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const [recommId, setRecommId] = useState<string | undefined>();
   const [attributionId, setAttributionId] = useState<string | undefined>();
   const isCommentPermalink = !!query.commentId;
+  // The print view ("Save as PDF") shows only the post, like a preview
+  const isPrintView = usePostPrintView(!!fullPost);
+  const hidesBelowBody = preview || isPrintView;
 
   const votingSystem = getVotingSystemByName(post.votingSystem || 'default');
   const voteProps = useVote(post, 'Posts', votingSystem);
@@ -358,7 +364,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
       limit: MAX_ANSWERS_AND_REPLIES_QUERIED,
       enableTotal: false,
     },
-    skip: !post.question || preview,
+    skip: !post.question || hidesBelowBody,
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
@@ -488,7 +494,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
     itemsPerPage: 200,
     fetchPolicy: 'cache-and-network' as const,
     ssr: !isCommentPermalink,
-    skip: preview,
+    skip: hidesBelowBody,
   });
 
   const { loading, data: rawData, networkStatus, loadMoreProps: { loadAll } } = lazyResults;
@@ -752,16 +758,16 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
           centralColumn: postBodySection,
           rightColumn: rightColumnChildren
         },
-        // In preview mode, keep the same segments (so the layout matches the
-        // non-preview version) but leave out everything below the post body.
-        {centralColumn: !preview && betweenPostAndCommentsSection},
+        // In preview and print modes, keep the same segments (so the layout matches the
+        // normal version) but leave out everything below the post body.
+        {centralColumn: !hidesBelowBody && betweenPostAndCommentsSection},
         {
           toc: commentsToC,
-          centralColumn: !preview && commentsSection,
+          centralColumn: !hidesBelowBody && commentsSection,
           isCommentToC: true
         },
         {
-          centralColumn: !preview && <Suspense>
+          centralColumn: !hidesBelowBody && <Suspense>
             <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
           </Suspense>
         }

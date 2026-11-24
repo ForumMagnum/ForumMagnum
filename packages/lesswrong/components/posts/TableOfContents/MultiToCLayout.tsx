@@ -152,6 +152,9 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
   },
   hideTocButton: {
     position: "fixed",
+    "@media print": {
+      display: "none",
+    },
     top: 0,
     left: 0,
     fontSize: 14,

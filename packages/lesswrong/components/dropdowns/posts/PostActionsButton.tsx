@@ -10,6 +10,7 @@ import PopperCard from "../../common/PopperCard";
 import PostActions from "./PostActions";
 import LWClickAwayListener from "../../common/LWClickAwayListener";
 import { FeedPostMetaInfo } from '../../ultraFeed/ultraFeedTypes';
+import { OpenCitePopoverContext, useCitePostPopover } from '../../posts/CitePostPopover';
 
 const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {
@@ -54,6 +55,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const { openCitePopover, citePopover } = useCitePostPopover(post, anchorEl);
   const {captureEvent} = useTracking();
 
   // This is fine with SSR because the popper will only be rendered after use
@@ -96,9 +98,12 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
       <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
-        <MenuComponent post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} postMetaInfo={postMetaInfo} />
+        <OpenCitePopoverContext.Provider value={openCitePopover}>
+          <MenuComponent post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} postMetaInfo={postMetaInfo} />
+        </OpenCitePopoverContext.Provider>
       </LWClickAwayListener>
     </PopperCard>
+    {citePopover}
   </div>
 }
 
