@@ -47,6 +47,17 @@ import PostsItemTooltipTray, { postsItemTooltipPlacements } from './PostsItemToo
 
 export const KARMA_WIDTH = 32;
 
+export const postsItemBackgroundStyles = (theme: ThemeType) => ({
+  background: theme.palette.panelBackground.default,
+  ...(theme.dark && {
+    background: theme.palette.panelBackground.bannerAdTranslucent,
+    backdropFilter: theme.palette.filters.bannerAdBlur,
+    ...isIfAnyoneBuildsItFrontPage({
+      background: theme.palette.panelBackground.bannerAdTranslucentDeep,
+    })
+  })
+});
+
 export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   row: {
     display: "flex",
@@ -83,14 +94,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   },
   background: {
     width: "100%",
-    background: theme.palette.panelBackground.default,
-    ...(theme.dark && {
-      background: theme.palette.panelBackground.bannerAdTranslucent,
-      backdropFilter: theme.palette.filters.bannerAdBlur,
-      ...isIfAnyoneBuildsItFrontPage({
-        background: theme.palette.panelBackground.bannerAdTranslucentDeep,
-      })
-    })
+    ...postsItemBackgroundStyles(theme),
   },
   checkboxWidth: {
     width: "calc(100% - 24px)"
