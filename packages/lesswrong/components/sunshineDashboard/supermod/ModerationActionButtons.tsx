@@ -1,6 +1,8 @@
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
 import ModerationActionButton from './ModerationActionButton';
+import ModerationPermissionButtons from './ModerationPermissionButtons';
 import { useModerationUserActions } from './useModerationUserActions';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import type { InboxAction } from './inboxReducer';
@@ -16,6 +18,13 @@ const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
     marginBottom: 12,
     // Room for the highlight ring, which the scrolling section body would otherwise clip
     padding: 1,
+  },
+  collapsedActionColumns: {
+    marginBottom: 0,
+    padding: 0,
+    '& > :first-child': {
+      paddingLeft: 4,
+    },
   },
   // Equal widths so the right column's x doesn't depend on label lengths
   actionColumn: {
@@ -42,10 +51,10 @@ interface ModeratorActionButtonSpec {
 
 const ModerationActionButtonList = ({buttons, highlightedActions, collapsed}: {
   buttons: ModeratorActionButtonSpec[];
-  highlightedActions?: HighlightedModeratorActions;
+  highlightedActions: HighlightedModeratorActions;
   collapsed: boolean;
 }) => <>
-  {buttons.map(({label, keystroke, tooltip, onClick, active, highlightKey}) => (
+  {buttons.filter(({highlightKey}) => !collapsed || highlightedActions.has(highlightKey)).map(({label, keystroke, tooltip, onClick, active, highlightKey}) => (
     <ModerationActionButton
       key={label}
       label={label}
@@ -53,18 +62,19 @@ const ModerationActionButtonList = ({buttons, highlightedActions, collapsed}: {
       tooltip={tooltip}
       onClick={onClick}
       active={!!active}
-      highlightStyle={collapsed ? null : highlightedActions?.get(highlightKey)}
+      highlightStyle={collapsed ? null : highlightedActions.get(highlightKey)}
     />
   ))}
 </>;
 
-const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, highlightedActions, onlyHighlightedColumn}: {
+const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, highlightedActions, collapsed=false}: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
   addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
-  highlightedActions?: HighlightedModeratorActions;
-  onlyHighlightedColumn?: 'restrictive' | 'approve';
+  highlightedActions: HighlightedModeratorActions;
+  // Collapsed, show only the highlighted actions and permissions
+  collapsed?: boolean;
 }) => {
   const classes = useStyles(styles);
 
@@ -130,28 +140,14 @@ const ModerationActionButtons = ({user, currentUser, addToUndoQueue, dispatch, h
     },
   ];
 
-  // When the section is collapsed, only render the highlighted actions in each column
-  if (onlyHighlightedColumn) {
-    const buttonsByColumn = { restrictive: restrictiveActionButtons, approve: approveActionButtons };
-    const highlightedButtons = buttonsByColumn[onlyHighlightedColumn].filter(({highlightKey}) => highlightedActions?.has(highlightKey));
-    return <ModerationActionButtonList buttons={highlightedButtons} highlightedActions={highlightedActions} collapsed />;
-  }
-
   return (
-    <div className={classes.actionColumns}>
+    <div className={classNames(classes.actionColumns, collapsed && classes.collapsedActionColumns)}>
       <div className={classes.actionColumn}>
-        <ModerationActionButtonList
-          buttons={restrictiveActionButtons}
-          highlightedActions={highlightedActions}
-          collapsed={false}
-        />
+        <ModerationActionButtonList buttons={restrictiveActionButtons} highlightedActions={highlightedActions} collapsed={collapsed} />
+        {collapsed && <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} collapsed />}
       </div>
       <div className={classes.actionColumn}>
-        <ModerationActionButtonList
-          buttons={approveActionButtons}
-          highlightedActions={highlightedActions}
-          collapsed={false}
-        />
+        <ModerationActionButtonList buttons={approveActionButtons} highlightedActions={highlightedActions} collapsed={collapsed} />
       </div>
     </div>
   );

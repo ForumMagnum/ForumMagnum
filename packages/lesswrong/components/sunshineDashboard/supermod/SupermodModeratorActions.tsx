@@ -12,27 +12,6 @@ import classNames from 'classnames';
 import ModerationSidebarSection from './ModerationSidebarSection';
 
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
-  highlightedActionsRow: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 8,
-    marginTop: 8,
-  },
-  // Equal widths so the right column's x doesn't depend on label lengths
-  highlightedActionsColumn: {
-    flex: 1,
-    minWidth: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: 4,
-    '&:empty': {
-      display: 'none',
-    },
-    '&:first-child': {
-      paddingLeft: 4,
-    },
-  },
   modActionsColumn: {
     display: 'flex',
     flexDirection: 'column',
@@ -98,15 +77,7 @@ const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsL
       />}
     >
       {!expanded && showCollapsedActions && highlightedActions.size > 0 && (
-        <div className={classes.highlightedActionsRow}>
-          <div className={classes.highlightedActionsColumn}>
-            <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlightedColumn="restrictive" />
-            <ModerationPermissionButtons user={user} dispatch={dispatch} highlightedActions={highlightedActions} collapsed />
-          </div>
-          <div className={classes.highlightedActionsColumn}>
-            <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} onlyHighlightedColumn="approve" />
-          </div>
-        </div>
+        <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} collapsed />
       )}
       {expanded && <>
         <ModerationActionButtons user={user} currentUser={currentUser} addToUndoQueue={addToUndoQueue} dispatch={dispatch} highlightedActions={highlightedActions} />

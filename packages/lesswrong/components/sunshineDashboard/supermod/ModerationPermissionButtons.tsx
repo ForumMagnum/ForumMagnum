@@ -73,7 +73,7 @@ const ModerationPermissionButtons = ({
 }: {
   user: SunshineUsersList;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
-  highlightedActions?: HighlightedModeratorActions;
+  highlightedActions: HighlightedModeratorActions;
   collapsed?: boolean;
 }) => {
   const classes = useStyles(styles);
@@ -94,12 +94,12 @@ const ModerationPermissionButtons = ({
 
   // Collapsed, show only suggested permissions
   const visibleButtons = collapsed
-    ? permissionButtons.filter(({highlightKey}) => highlightKey && highlightedActions?.has(highlightKey))
+    ? permissionButtons.filter(({highlightKey}) => highlightKey && highlightedActions.has(highlightKey))
     : permissionButtons;
 
   const renderedButtons = visibleButtons.map(({field, label, keystroke, onClick, highlightKey}) => {
     const permissionDisabled = !!user[field];
-    const highlightStyle = highlightKey && !collapsed ? highlightedActions?.get(highlightKey) : null;
+    const highlightStyle = highlightKey && !collapsed ? highlightedActions.get(highlightKey) : null;
 
     return (
       <div
