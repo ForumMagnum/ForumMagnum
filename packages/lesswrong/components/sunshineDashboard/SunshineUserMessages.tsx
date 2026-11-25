@@ -18,7 +18,7 @@ import LWTooltip from '../common/LWTooltip';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { useDialog } from '../common/withDialog';
 import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEditorContext';
-import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
+import { getHighlightedMessageTemplateIds, getHighlightedRejectionTemplateIds } from './supermod/highlightRules';
 import FormatDate from '../common/FormatDate';
 import GroupedModerationTemplateList from './GroupedModerationTemplateList';
 import CollapsibleSectionHeader from './supermod/CollapsibleSectionHeader';
@@ -254,17 +254,15 @@ type EmptySection = 'userMessages' | 'reject';
 const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedContent, sidebarTab, setSidebarTab, onRejectStart, onRejectFailed}: SunshineUserMessagesProps) => {
   const classes = useStyles(styles);
 
-  const highlightedMessageTemplateNames = useMemo(() => {
+  const highlightedMessageTemplateIds = useMemo(() => {
     if (!posts || !comments) return new Set<string>();
-    return getHighlightedTemplateNames(
-      {
-        user,
-        moderatorActions: user.moderatorActions ?? [],
-      },
-      posts,
-      comments
-    );
+    return getHighlightedMessageTemplateIds({ user, posts, comments });
   }, [user, posts, comments]);
+
+  const highlightedRejectionTemplateIds = useMemo(() => {
+    if (!focusedContent || !posts || !comments) return new Set<string>();
+    return getHighlightedRejectionTemplateIds(focusedContent, { user, posts, comments });
+  }, [focusedContent, user, posts, comments]);
 
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
@@ -567,7 +565,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
     <GroupedModerationTemplateList
       collectionName="Messages"
       onTemplateClick={handleMessageTemplateClick}
-      highlightedTemplateNames={highlightedMessageTemplateNames}
+      highlightedTemplateIds={highlightedMessageTemplateIds}
       insertedTemplateIds={insertedMessageTemplateIds}
       onFocusComposer={handleFocusComposer}
       focusSearchToken={templateSearchToken}
@@ -652,6 +650,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
           user={user}
           focusedContent={focusedContent}
           active={rejectTabActive}
+          highlightedTemplateIds={highlightedRejectionTemplateIds}
           showCollapsedActions={!actionSectionExpanded}
           onRejectStart={handleContentRejectStart}
           onRejected={handleContentRejected}
@@ -677,7 +676,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
         <GroupedModerationTemplateList
           collectionName="Messages"
           onTemplateClick={handleMessageTemplateClick}
-          highlightedTemplateNames={highlightedMessageTemplateNames}
+          highlightedTemplateIds={highlightedMessageTemplateIds}
           insertedTemplateIds={insertedMessageTemplateIds}
           onlyHighlighted
           active={false}
@@ -686,7 +685,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
       <div className={classNames({ [classes.hiddenTabContent]: !dmTabActive })}>
         {dmTabContents}
       </div>
-      {!actionSectionExpanded && highlightedMessageTemplateNames.size > 0 && (
+      {!actionSectionExpanded && highlightedMessageTemplateIds.size > 0 && (
         <div className={classes.collapsedSendButton}>
           <ComposerSubmitButton
             label="Send Message"
