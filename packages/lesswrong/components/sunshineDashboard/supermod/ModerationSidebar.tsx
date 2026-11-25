@@ -34,7 +34,6 @@ const ModerationSidebar = ({
   currentUser,
   posts,
   comments,
-  contentsLoading,
   focusedContent,
   sidebarTab,
   setSidebarTab,
@@ -46,7 +45,6 @@ const ModerationSidebar = ({
   currentUser: UsersCurrent;
   posts: SunshinePostsList[];
   comments: SunshineCommentsList[];
-  contentsLoading: boolean;
   focusedContent: ContentItem | null;
   sidebarTab: SelectedSidebarTab;
   setSidebarTab: (tab: SelectedSidebarTab) => void;
@@ -98,9 +96,6 @@ const ModerationSidebar = ({
       <SupermodModeratorActions
         user={user}
         currentUser={currentUser}
-        posts={posts}
-        comments={comments}
-        contentsLoading={contentsLoading}
         expanded={moderatorActionsExpanded}
         showCollapsedActions={!otherActionSectionExpanded}
         onToggle={() => setSidebarTab(moderatorActionsExpanded ? null : 'moderatorActions')}

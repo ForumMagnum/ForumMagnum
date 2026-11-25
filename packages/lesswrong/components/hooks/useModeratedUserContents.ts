@@ -16,7 +16,8 @@ const SunshineCommentsListMultiQuery = gql(`
 `);
 
 export function useModeratedUserContents(userId: string, contentLimit = 20) {
-  const { posts = [], loading: postsLoading } = usePublishedPosts(userId, contentLimit, false);
+  const { posts: loadedPosts } = usePublishedPosts(userId, contentLimit, false);
+  const posts = useMemo(() => loadedPosts ?? [], [loadedPosts]);
   const { data: commentsData, loading: commentsLoading } = useQuery(SunshineCommentsListMultiQuery, {
     variables: {
       selector: { sunshineNewUsersComments: { userId } },
@@ -35,6 +36,6 @@ export function useModeratedUserContents(userId: string, contentLimit = 20) {
   return {
     posts,
     comments,
-    loading: (postsLoading && !posts.length) || (commentsLoading && !commentsData),
+    loading: !loadedPosts || (commentsLoading && !commentsData),
   };
 }

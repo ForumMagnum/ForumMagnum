@@ -10,6 +10,7 @@ import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
 import ModerationSidebarSection from './ModerationSidebarSection';
+import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   modActionsColumn: {
@@ -43,12 +44,9 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
 
 const NO_HIGHLIGHTED_ACTIONS: HighlightedModeratorActions = new Map();
 
-const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsLoading, expanded, showCollapsedActions, onToggle, addToUndoQueue, dispatch}: {
+const SupermodModeratorActions = ({user, currentUser, expanded, showCollapsedActions, onToggle, addToUndoQueue, dispatch}: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
-  posts: SunshinePostsList[],
-  comments: SunshineCommentsList[],
-  contentsLoading: boolean,
   expanded: boolean,
   // False while another section is expanded
   showCollapsedActions: boolean,
@@ -59,6 +57,7 @@ const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsL
   const classes = useStyles(styles);
   const activeModeratorActions = user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)) ?? [];
   const [showRateLimitForm, setShowRateLimitForm] = useState(false);
+  const { posts, comments, loading: contentsLoading } = useModeratedUserContents(user._id);
 
   // Empty lists while loading would satisfy absence-based rules (e.g. Remove, Purge)
   const highlightedActions = useMemo(() => contentsLoading
