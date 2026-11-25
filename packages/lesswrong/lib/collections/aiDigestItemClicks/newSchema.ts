@@ -27,12 +27,6 @@ const schema = {
       nullable: false,
     },
   },
-  firstClickedAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: false,
-    },
-  },
 } satisfies Record<string, CollectionFieldSpecification<"AiDigestItemClicks">>;
 
 export default schema;

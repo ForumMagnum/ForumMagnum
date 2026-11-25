@@ -134,7 +134,7 @@ function pastQuickTakeRecommendation(
 
 async function loadFirstClickTimes(issueIds: string[]): Promise<Map<string, Date>> {
   const clicks = await AiDigestItemClicks.find({ issueId: { $in: issueIds } }).fetch();
-  return new Map(clicks.map((click) => [aiDigestLinkSlotKey(click), click.firstClickedAt]));
+  return new Map(clicks.map((click) => [aiDigestLinkSlotKey(click), click.createdAt]));
 }
 
 export async function loadAiDigestHistory(userId: string, context: ResolverContext): Promise<AiDigestHistory> {

@@ -55,7 +55,7 @@ export async function createLWEvent({ data }: { data: CreateLWEventDataInput & {
 
   await updatePartiallyReadSequences(asyncProperties);
 
-  await recordAiDigestItemClick(documentWithId);
+  await recordAiDigestItemClick(documentWithId, context);
 
   await sendIntercomEvent(documentWithId, currentUser);
 

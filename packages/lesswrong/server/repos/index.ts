@@ -1,3 +1,4 @@
+import AiDigestItemClicksRepo from "./AiDigestItemClicksRepo";
 import AutomatedContentEvaluationsRepo from "./AutomatedContentEvaluationsRepo";
 import BookmarksRepo from "./BookmarksRepo";
 import BooksRepo from "./BooksRepo";
@@ -49,6 +50,7 @@ declare global {
 }
 
 const allRepos = {
+  aiDigestItemClicks: AiDigestItemClicksRepo,
   automatedContentEvaluations: AutomatedContentEvaluationsRepo,
   bookmarks: BookmarksRepo,
   books: BooksRepo,

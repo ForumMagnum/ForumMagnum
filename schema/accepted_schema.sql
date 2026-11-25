@@ -49,8 +49,7 @@ CREATE TABLE "AiDigestItemClicks" (
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "issueId" VARCHAR(27) NOT NULL,
   "sectionKind" TEXT NOT NULL,
-  "itemIndex" INTEGER NOT NULL,
-  "firstClickedAt" TIMESTAMPTZ NOT NULL
+  "itemIndex" INTEGER NOT NULL
 );
 
 -- Index "idx_AiDigestItemClicks_issueId_sectionKind_itemIndex"

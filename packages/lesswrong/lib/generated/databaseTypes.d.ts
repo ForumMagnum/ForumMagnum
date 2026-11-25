@@ -34,7 +34,6 @@ type AiDigestItemClicksCollection = PgCollection<"AiDigestItemClicks">;
 interface DbAiDigestItemClick extends DbObject {
   __collectionName?: "AiDigestItemClicks"
   createdAt: Date
-  firstClickedAt: Date
   issueId: string
   itemIndex: number
   sectionKind: AiDigestSectionKind
