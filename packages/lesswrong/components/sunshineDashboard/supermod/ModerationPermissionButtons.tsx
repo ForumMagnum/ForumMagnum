@@ -41,16 +41,7 @@ const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) =>
     padding: '2px 0',
     border: 0,
     borderRadius: 0,
-    boxShadow: 'none',
     backgroundColor: 'transparent',
-    '&:hover': {
-      border: 0,
-      boxShadow: 'none',
-    },
-    '&.active': {
-      border: 0,
-      boxShadow: 'none',
-    },
   },
   permissionButtonLabel: {
     flexGrow: 1,
