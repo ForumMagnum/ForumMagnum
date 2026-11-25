@@ -43,6 +43,7 @@ export const EmailFooterRecommendations = async ({emailContext}: {
     emailContext
   });
   const recommendations = recommendationsResult?.data?.Recommendations;
+  emailContext.footerRecommendationPostIds = recommendations?.map(post => post._id) ?? [];
 
   return <>
     <h2 className={classes.recommendedPostsHeader}>Other Recommended Posts</h2>

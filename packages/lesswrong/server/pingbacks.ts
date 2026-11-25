@@ -83,7 +83,7 @@ export const extractLinks = (html: string): Array<string> => {
   return targets;
 }
 
-// Exported to allow running from "yarn repl"
+// Exported to allow running from "npm run repl"
 export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(collectionName: N, forumType: ForumTypeString) {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);
@@ -119,7 +119,7 @@ export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(
   });
 }
 
-// Exported to allow running from "yarn repl"
+// Exported to allow running from "npm run repl"
 export const showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(collectionName: N, _id: string, forumType: ForumTypeString) => {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);

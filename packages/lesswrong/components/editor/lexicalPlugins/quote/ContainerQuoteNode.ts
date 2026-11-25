@@ -96,7 +96,7 @@ export class ContainerQuoteNode extends QuoteNode {
   // Override the base QuoteNode's insertNewAfter which creates a paragraph
   // *after* the quote. As a shadow root, we want new paragraphs to be created
   // *inside* the quote. The ContainerQuotePlugin handles exiting the quote
-  // on Enter at an empty trailing paragraph.
+  // on Enter at an empty paragraph.
   insertNewAfter(_: RangeSelection, restoreSelection?: boolean): ParagraphNode {
     const newBlock = $createParagraphNode();
     const direction = this.getDirection();
@@ -218,4 +218,20 @@ export function $unwrapQuote(quoteNode: ContainerQuoteNode): void {
     quoteNode.insertBefore(child);
   }
   quoteNode.remove();
+}
+
+export function $moveChildOutOfQuote(quoteNode: ContainerQuoteNode, child: LexicalNode): void {
+  if (child.getPreviousSibling() === null) {
+    quoteNode.insertBefore(child);
+    return;
+  }
+
+  const laterSiblings = child.getNextSiblings();
+  quoteNode.insertAfter(child);
+
+  if (laterSiblings.length > 0) {
+    const tailQuote = $createContainerQuoteNode().updateFromJSON(quoteNode.exportJSON());
+    tailQuote.append(...laterSiblings);
+    child.insertAfter(tailQuote);
+  }
 }

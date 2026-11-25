@@ -40,7 +40,7 @@ import { updateUser } from "../collections/users/mutations";
 import { EmailComment } from "../emailComponents/EmailComment";
 import { PostsRevision } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
-import { createAutomatedContentEvaluation } from "@/server/collections/automatedContentEvaluations/helpers";
+import { createAutomatedContentEvaluation, rejectionWasReversedByModerator } from "@/server/collections/automatedContentEvaluations/helpers";
 import { getQuickTakeAutoTagsToApply, getTagBotUserId } from "../languageModels/autoTagCallbacks";
 import { escapeHtml } from "@/lib/utils/sanitize";
 
@@ -98,7 +98,7 @@ const utils = {
         // "fromNow" makes for a more human readable "how long till I can comment/post?".
         // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
         moment.relativeTimeThreshold('ss', 0);
-        throw new Error(`Rate limit: You cannot comment for ${moment(nextEligible).fromNow()} (until ${nextEligible})`);
+        throw new Error(`Rate limit: You cannot comment for ${moment(nextEligible).fromNow(true)} (until ${nextEligible})`);
       }
     }
   },
@@ -1000,6 +1000,6 @@ export async function maybeCreateAutomatedContentEvaluationForComment(
     : null;
 
   if (revision) {
-    await createAutomatedContentEvaluation(revision, context, { autoreject: true });
+    await createAutomatedContentEvaluation(revision, context, { autoreject: !rejectionWasReversedByModerator(comment) });
   }
 }

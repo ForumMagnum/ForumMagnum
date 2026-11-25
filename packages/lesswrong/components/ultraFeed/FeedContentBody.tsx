@@ -163,8 +163,6 @@ export interface FeedContentBodyProps {
   serifStyle?: boolean;
   /** If true, item has been read - apply style changes and text to "read again" */
   isRead?: boolean;
-  /** If true, only clicking the "(read more)" suffix expands; clicks elsewhere in the content are left alone */
-  expandOnlyFromSuffix?: boolean;
 }
 
 const FeedContentBody = ({
@@ -181,7 +179,6 @@ const FeedContentBody = ({
   resetSignal,
   serifStyle = false,
   isRead = false,
-  expandOnlyFromSuffix = false,
 }: FeedContentBodyProps) => {
 
   const classes = useStyles(styles);
@@ -305,10 +302,6 @@ const FeedContentBody = ({
     if (!wasTruncated || isExpanded || wordCount === undefined) {
       return;
     }
-
-    if (expandOnlyFromSuffix && !target.closest('.read-more-suffix')) {
-      return;
-    }
     
     e.preventDefault();
     
@@ -317,7 +310,7 @@ const FeedContentBody = ({
     } else {
       handleExpand();
     }
-  }, [handleExpand, wasTruncated, isExpanded, wordCount, maxWordCount, continueReadingUrl, navigate, expandOnlyFromSuffix]);
+  }, [handleExpand, wasTruncated, isExpanded, wordCount, maxWordCount, continueReadingUrl, navigate]);
 
   const getLineClampClass = () => {
     if (!applyLineClamp || !clampOverride) return "";
@@ -364,7 +357,7 @@ const FeedContentBody = ({
           <div 
             onClick={handleContentClick}
             className={classNames({
-              [classes.clickableContent]: wasTruncated && !isExpanded && !expandOnlyFromSuffix,
+              [classes.clickableContent]: wasTruncated && !isExpanded,
             })}
           >
             <ContentItemBody

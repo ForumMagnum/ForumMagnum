@@ -8,8 +8,7 @@ import { useNavigate } from '@/lib/routeUtil';
 import { isClient } from '@/lib/executionEnvironment';
 import bowser from 'bowser';
 import { isSpecialClick } from '@/lib/utils/eventUtils';
-
-type ScrollFunction = ((el: HTMLElement) => void);
+import { scrollToElementAndHold } from '@/lib/scrollUtils';
 
 export type HashLinkProps = {
   to: string
@@ -33,7 +32,7 @@ export type HashLinkProps = {
 let hashFragment = '';
 let observer: null | MutationObserver = null;
 let asyncTimerId: null | number = null;
-let scrollFunction: null | ScrollFunction = null;
+let scrollBehavior: ScrollBehavior = "auto";
 
 function reset() {
   hashFragment = '';
@@ -46,8 +45,12 @@ function reset() {
 
 function getElAndScroll() {
   const element = document.getElementById(hashFragment);
-  if (element !== null && scrollFunction !== null) {
-    scrollFunction(element);
+  if (element !== null) {
+    scrollToElementAndHold({
+      element,
+      scrollToElement: (behavior) => element.scrollIntoView({ behavior }),
+      behavior: scrollBehavior,
+    });
     reset();
     return true;
   }
@@ -78,23 +81,7 @@ function hashLinkScroll() {
 export function HashLink(props: HashLinkProps) {
   const navigate = useNavigate();
   const isIOS = isClient && bowser.ios;
-
-  function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
-    reset();
-    if (props.onClick) props.onClick(e);
-    hashFragment = props.to
-      .split('#')
-      .slice(1)
-      .join('#');
-    if (hashFragment !== '') {
-      scrollFunction =
-        (el =>
-          props.smooth
-            ? el.scrollIntoView({ behavior: "smooth" })
-            : el.scrollIntoView());
-      hashLinkScroll();
-    }
-  }
+  const handleClick = getHashLinkOnClick(props);
   const { anchorRef, smooth, children, doOnDown, to, ...filteredProps } = props;
   if (doOnDown && !isIOS && !filteredProps.target) {
     return <Link
@@ -145,11 +132,7 @@ export function getHashLinkOnClick(props: HashLinkProps) {
       .slice(1)
       .join('#');
     if (hashFragment !== '') {
-      scrollFunction =
-        (el =>
-          props.smooth
-            ? el.scrollIntoView({ behavior: "smooth" })
-            : el.scrollIntoView());
+      scrollBehavior = props.smooth ? "smooth" : "auto";
       hashLinkScroll();
     }
   }

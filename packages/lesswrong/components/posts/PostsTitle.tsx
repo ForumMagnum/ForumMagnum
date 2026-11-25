@@ -67,9 +67,6 @@ const styles = defineStyles('PostsTitle', (theme: ThemeType) => ({
   },
   read: {
     color: theme.palette.text.dim55,
-    '&:hover': {
-      color: theme.palette.text.normal,
-    }
   },
   eaTitleDesktopEllipsis: {},
   hideXsDown: {
@@ -124,6 +121,12 @@ const styles = defineStyles('PostsTitle', (theme: ThemeType) => ({
   },
 }));
 
+export const undimReadTitleOnHover = (theme: ThemeType) => ({
+  '&:hover .PostsTitle-read': {
+    color: theme.palette.text.normal,
+  },
+});
+
 const tagSettingIcons = new Map([
   [amaTagIdSetting, QuestionAnswerIcon], 
   [openThreadTagIdSetting, AllInclusiveIcon],
@@ -151,12 +154,11 @@ const postIcon = (post: PostsBase|PostsListBase, forumType: ForumTypeString) => 
 
 const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
 
-const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDraftTag=true, wrap=false, showIcons=true, isLink=true, curatedIconLeft=true, strikethroughTitle=false, Wrapper=DefaultWrapper, showEventTag, linkEventProps, postItemHovered, className}: {
+const PostsTitle = ({post, postLink, sticky, read, showDraftTag=true, wrap=false, showIcons=true, isLink=true, curatedIconLeft=true, strikethroughTitle=false, Wrapper=DefaultWrapper, showEventTag, linkEventProps, className}: {
   post: PostsBase|PostsListBase,
   postLink?: string,
   sticky?: boolean,
   read?: boolean,
-  showPersonalIcon?: boolean
   showDraftTag?: boolean,
   wrap?: boolean,
   showIcons?: boolean,
@@ -166,7 +168,6 @@ const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDr
   Wrapper?: FC<PropsWithChildren<{}>>,
   showEventTag?: boolean,
   linkEventProps?: Record<string, string>,
-  postItemHovered?: boolean,
   className?: string,
 }) => {
   const { forumType } = useForumType();
@@ -221,8 +222,6 @@ const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDr
           <PostsItemIcons 
             post={post} 
             hideCuratedIcon={curatedIconLeft} 
-            hidePersonalIcon={!showPersonalIcon}
-            hover={postItemHovered}
           />
         </InteractionWrapper>
       </span>}

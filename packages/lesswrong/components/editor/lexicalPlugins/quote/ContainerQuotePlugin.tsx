@@ -14,7 +14,7 @@ import {
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
-import { ContainerQuoteNode, $isContainerQuoteNode } from './ContainerQuoteNode';
+import { ContainerQuoteNode, $isContainerQuoteNode, $moveChildOutOfQuote } from './ContainerQuoteNode';
 
 /**
  * Returns true if the node is inline (i.e. not a block-level element or
@@ -82,6 +82,52 @@ export function $normalizeQuoteChildren(quoteNode: ContainerQuoteNode): void {
   }
 }
 
+export function $handleEnterInQuote(event: KeyboardEvent | null): boolean {
+  if (event?.shiftKey) {
+    return false;
+  }
+
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+    return false;
+  }
+
+  const anchorNode = selection.anchor.getNode();
+  // Walk up to find the paragraph (or direct element) inside the quote
+  let block = anchorNode;
+  if (!$isParagraphNode(block)) {
+    const parent = block.getParent();
+    if (parent && $isParagraphNode(parent)) {
+      block = parent;
+    } else {
+      return false;
+    }
+  }
+
+  const quoteParent = block.getParent();
+  if (!$isContainerQuoteNode(quoteParent)) {
+    return false;
+  }
+
+  const isEmpty = block.getTextContent().length === 0
+    && block.getChildrenSize() === 0;
+  if (!isEmpty) {
+    return false;
+  }
+
+  // If this is the only child, don't exit (keep at least one paragraph
+  // inside the quote; the user can press Backspace to unwrap instead)
+  if (quoteParent.getChildrenSize() === 1) {
+    return false;
+  }
+
+  $moveChildOutOfQuote(quoteParent, block);
+  block.selectStart();
+
+  event?.preventDefault();
+  return true;
+}
+
 /**
  * ContainerQuotePlugin handles keyboard interactions and structural
  * normalization for the shadow-root ContainerQuoteNode:
@@ -90,8 +136,9 @@ export function $normalizeQuoteChildren(quoteNode: ContainerQuoteNode): void {
  *   backwards-compatibility with documents created using the old flat QuoteNode
  *   (including collaborative Yjs documents).
  *
- * - Enter on an empty trailing paragraph inside a quote: moves the paragraph
- *   out after the quote (exit behavior, like collapsible sections).
+ * - Enter on an empty paragraph inside a quote: moves the paragraph out of the
+ *   quote, splitting the quote in two if the paragraph has siblings on both
+ *   sides.
  */
 export default function ContainerQuotePlugin(): null {
   const [editor] = useLexicalComposerContext();
@@ -104,55 +151,9 @@ export default function ContainerQuotePlugin(): null {
       // children directly inside the quote.
       editor.registerNodeTransform(ContainerQuoteNode, $normalizeQuoteChildren),
 
-      // Handle Enter key: exit quote when pressing Enter on an empty
-      // trailing paragraph
       editor.registerCommand(
         KEY_ENTER_COMMAND,
-        (event) => {
-          const selection = $getSelection();
-          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
-            return false;
-          }
-
-          const anchorNode = selection.anchor.getNode();
-          // Walk up to find the paragraph (or direct element) inside the quote
-          let block = anchorNode;
-          if (!$isParagraphNode(block)) {
-            const parent = block.getParent();
-            if (parent && $isParagraphNode(parent)) {
-              block = parent;
-            } else {
-              return false;
-            }
-          }
-
-          const quoteParent = block.getParent();
-          if (!$isContainerQuoteNode(quoteParent)) {
-            return false;
-          }
-
-          // Only exit if the paragraph is empty and is the last child
-          const isEmpty = block.getTextContent().length === 0
-            && block.getChildrenSize() === 0;
-          const isLastChild = block.getNextSibling() === null;
-
-          if (!isEmpty || !isLastChild) {
-            return false;
-          }
-
-          // If this is the only child, don't exit (keep at least one paragraph
-          // inside the quote; the user can press Backspace to unwrap instead)
-          if (block.getPreviousSibling() === null) {
-            return false;
-          }
-
-          // Move the empty paragraph out after the quote
-          quoteParent.insertAfter(block);
-          block.selectStart();
-
-          event?.preventDefault();
-          return true;
-        },
+        $handleEnterInQuote,
         COMMAND_PRIORITY_LOW,
       ),
     );

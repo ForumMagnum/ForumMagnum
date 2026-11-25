@@ -4,7 +4,7 @@ import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { approveUnreviewedSubmissionsOnApproval, changeDisplayNameRateLimit, clearKarmaChangeBatchOnSettingsChange, createRecombeeUser, handleSetShortformPost, makeFirstUserAdminAndApproved, maybeSendVerificationEmail, newAlignmentUserMoveShortform, newAlignmentUserSendPMAsync, reindexDeletedUserContent, sendWelcomingPM, subscribeOnSignup, syncProfileUpdatedAt, updateDisplayName, updateUserMayTriggerReview, updatingPostAudio, userEditBannedCallbacksAsync, userEditChangeDisplayNameCallbacksAsync, userEditDeleteContentCallbacksAsync, usersEditCheckEmail, closeReviewTriggerModeratorActionsOnReview } from "@/server/callbacks/userCallbackFunctions";
+import { approveUnreviewedSubmissionsOnApproval, changeDisplayNameRateLimit, clearKarmaChangeBatchOnSettingsChange, createRecombeeUser, handleSetShortformPost, makeFirstUserAdminAndApproved, maybeSendVerificationEmail, newAlignmentUserMoveShortform, newAlignmentUserSendPMAsync, reindexDeletedUserContent, sendWelcomingPM, subscribeOnSignup, syncProfileUpdatedAt, updateDisplayName, updateUserMayTriggerReview, updatingPostAudio, userEditBannedCallbacksAsync, userEditChangeDisplayNameCallbacksAsync, userEditDeleteContentCallbacksAsync, usersEditCheckEmail, closeReviewTriggerModeratorActionsOnReview, validateNarrationSettings } from "@/server/callbacks/userCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
@@ -113,6 +113,7 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
   const { oldDocument } = updateCallbackProperties;
 
   await changeDisplayNameRateLimit(updateCallbackProperties);
+  validateNarrationSettings(updateCallbackProperties);
 
   data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 

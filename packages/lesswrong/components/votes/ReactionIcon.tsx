@@ -4,16 +4,20 @@ import classNames from 'classnames';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
+const baseFilter = "opacity(var(--reaction-opacity)) saturate(var(--reaction-saturate))";
+const invertedFilter = `${baseFilter} invert(1)`;
+
+// Filter lives on the img only; a filtered wrapper span misplaces icons in iOS Safari.
 const styles = defineStyles('ReactionIcon', (theme: ThemeType) => ({
   reactionSvg: {
     verticalAlign: "middle",
     marginTop: 1
   },
   invertIfDarkMode: {
-    filter: (theme.palette.type==="dark") ? "invert(1)" : "unset",
+    filter: (theme.palette.type==="dark") ? invertedFilter : baseFilter,
   },
   invertUnlessDarkMode: {
-    filter: (theme.palette.type==="dark") ? "unset" : "invert(1)"
+    filter: (theme.palette.type==="dark") ? baseFilter : invertedFilter,
   }
 }))
 
@@ -32,23 +36,24 @@ const ReactionIcon = ({react, inverted=false, size=18}: {
   const translateX = reactionType.filter?.translateX ?? defaultFilter.translateX
   const translateY = reactionType.filter?.translateY ?? defaultFilter.translateY
 
-  return <span
-    className={classNames(
-      {
-        [classes.invertIfDarkMode]: !inverted,
-        [classes.invertUnlessDarkMode]: inverted,
-      },
-    )}
-  >
+  const filterVars = {
+    "--reaction-opacity": opacity,
+    "--reaction-saturate": saturation,
+  } as React.CSSProperties;
+
+  return <span>
     <img
       src={reactionType.svg}
       style={{
-        filter: `opacity(${opacity}) saturate(${saturation})`,
+        ...filterVars,
         transform: `scale(${scale}) translate(${translateX}px, ${translateY}px)`,
         padding,
         width:size, height:size,
       }}
-      className={classes.reactionSvg}
+      className={classNames(classes.reactionSvg, {
+        [classes.invertIfDarkMode]: !inverted,
+        [classes.invertUnlessDarkMode]: inverted,
+      })}
     />
   </span>
 }

@@ -33,7 +33,7 @@ export async function getRejectionReview({ postId, commentId }: AppealTarget, co
 }
 
 function getAppealLinkReplyHtml(appealUrl: string) {
-  return `<p>Thanks for your message. If you'd like us to take a second look at this rejection, please use our <a href="${appealUrl}">rejection review form</a>. We aim to complete reviews within 72 hours. If you have a question about a separate matter, please use Intercom (bottom right button on LessWrong pages) or email team@lesswrong.com</p>`;
+  return `<p>Thanks for your message. If you'd like us to take a second look at this rejection, please use our <a href="${appealUrl}">rejection review form</a>. If you have a question about a separate matter, we also attempt to respond to that.</p>`;
 }
 
 async function getUnappealedRejectedContent(conversationId: string, userId: string, context: ResolverContext) {

@@ -451,7 +451,8 @@ const PostForm = ({
   const [unanchoredCommentCount, setUnanchoredCommentCount] = useState(0);
   const [showCoauthorSearch, setShowCoauthorSearch] = useState(false);
   const [editingLinkpostUrl, setEditingLinkpostUrl] = useState(false);
-  const [linkpostUrlDraft, setLinkpostUrlDraft] = useState("");
+  const [linkpostUrlBeforeEdit, setLinkpostUrlBeforeEdit] = useState("");
+  const [isMajorUpdate, setIsMajorUpdate] = useState(false);
 
   const accessLevel = (initialData.myEditorAccess ?? "edit") as CollaborativeEditingAccessLevel;
   const canEdit = accessLevelCan(accessLevel, "edit") || !!currentUser?.isAdmin;
@@ -537,6 +538,10 @@ const PostForm = ({
           }
           result = data.createPost.data;
         } else {
+          const publishAsMajorUpdate = isMajorUpdate && !formApi.state.values.draft;
+          if (publishAsMajorUpdate) {
+            formApi.setFieldValue('contents', (contents) => contents && { ...contents, updateType: 'major' });
+          }
           const updatedFields = getUpdatedFieldValues(formApi, ['contents', 'customHighlight', 'moderationGuidelines']);
           const { data } = await mutate({
             variables: {
@@ -548,6 +553,9 @@ const PostForm = ({
             throw new Error('Failed to update post');
           }
           result = data.updatePost.data;
+          if (publishAsMajorUpdate) {
+            setIsMajorUpdate(false);
+          }
         }
 
         onSuccessCallback.current?.(result, meta);
@@ -780,7 +788,7 @@ const PostForm = ({
                         className={classes.linkpostEditIcon}
                         title="Edit linkpost URL"
                         onClick={() => {
-                          setLinkpostUrlDraft(url || "");
+                          setLinkpostUrlBeforeEdit(url);
                           setEditingLinkpostUrl(true);
                         }}
                       >
@@ -790,7 +798,7 @@ const PostForm = ({
                   );
                 }
 
-                if (isLinkpost && editingLinkpostUrl) {
+                if (isLinkpost) {
                   // Show "Linkpost for" label + inline input
                   return (
                     <span className={classes.linkpostInputWrapper}>
@@ -810,33 +818,38 @@ const PostForm = ({
                         type="url"
                         className={classes.linkpostInput}
                         placeholder="url"
-                        value={linkpostUrlDraft}
-                        onChange={(e) => setLinkpostUrlDraft(e.target.value)}
+                        value={url ?? ""}
+                        onFocus={() => {
+                          if (!editingLinkpostUrl) {
+                            setLinkpostUrlBeforeEdit(url ?? "");
+                            setEditingLinkpostUrl(true);
+                          }
+                        }}
+                        onChange={(e) => form.setFieldValue("url", e.target.value.trim())}
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
-                            if (linkpostUrlDraft.trim()) {
-                              form.setFieldValue("url", linkpostUrlDraft.trim());
+                            if (url) {
                               setEditingLinkpostUrl(false);
                             }
                           } else if (e.key === "Escape") {
-                            if (url) {
-                              setEditingLinkpostUrl(false);
+                            if (linkpostUrlBeforeEdit) {
+                              form.setFieldValue("url", linkpostUrlBeforeEdit);
                             } else {
                               form.setFieldValue("postCategory", "post");
-                              setEditingLinkpostUrl(false);
+                              form.setFieldValue("url", "");
                             }
+                            setEditingLinkpostUrl(false);
                           }
                         }}
-                        autoFocus
+                        autoFocus={editingLinkpostUrl}
                       />
                       <button
                         type="button"
                         className={classes.linkpostConfirmButton}
                         title="Confirm URL"
                         onClick={() => {
-                          if (linkpostUrlDraft.trim()) {
-                            form.setFieldValue("url", linkpostUrlDraft.trim());
+                          if (url) {
                             setEditingLinkpostUrl(false);
                           }
                         }}
@@ -859,29 +872,19 @@ const PostForm = ({
                   );
                 }
 
-                // Show toggle button (no URL set, not editing)
                 return (
-                  <LWTooltip title={isLinkpost ? "Remove linkpost" : "Make this a linkpost"}>
+                  <LWTooltip title="Make this a linkpost">
                     <button
                       type="button"
-                      className={classNames(
-                        classes.linkpostToggle,
-                        isLinkpost && classes.linkpostToggleActive,
-                      )}
-                      aria-label={isLinkpost ? "Remove linkpost" : "Make this a linkpost"}
+                      className={classes.linkpostToggle}
+                      aria-label="Make this a linkpost"
                       onClick={() => {
-                        if (isLinkpost) {
-                          form.setFieldValue("postCategory", "post");
-                          form.setFieldValue("url", "");
-                          setEditingLinkpostUrl(false);
-                        } else {
-                          form.setFieldValue("postCategory", "linkpost");
-                          setLinkpostUrlDraft("");
-                          setEditingLinkpostUrl(true);
-                        }
+                        form.setFieldValue("postCategory", "linkpost");
+                        setLinkpostUrlBeforeEdit("");
+                        setEditingLinkpostUrl(true);
                       }}
                     >
-                      {isLinkpost ? "Linkpost" : "+ Linkpost"}
+                      + Linkpost
                     </button>
                   </LWTooltip>
                 );
@@ -1141,6 +1144,8 @@ const PostForm = ({
           addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
           addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
           addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
+          isMajorUpdate={isMajorUpdate}
+          setIsMajorUpdate={setIsMajorUpdate}
         />,
         sidebarPortalTarget
       )}
@@ -1164,6 +1169,8 @@ const PostForm = ({
         addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
         addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
         addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
+        isMajorUpdate={isMajorUpdate}
+        setIsMajorUpdate={setIsMajorUpdate}
       />}
     </form>
     </InlineCommentsPanelContext.Provider>

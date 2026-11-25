@@ -827,7 +827,7 @@ const CLAUDE_BUTTON_TOOLTIP_DISABLED = "Click \"Connect Claude to LW Docs\" belo
 
 function getFeedbackQuery(postId: string, linkSharingKey: string | undefined, forumType: ForumTypeString) {
   const postUrl = postGetAbsoluteEditUrl(postId, forumType, linkSharingKey);
-  return `I'm writing a post on LessWrong and would appreciate your inline feedback on it.  The post is at ${postUrl} and documentation for interacting with the site's API is at https://www.lesswrong.com/api/SKILL.md.`;
+  return `I'm writing a post on LessWrong, at ${postUrl} and documentation for interacting with the site's API is at https://www.lesswrong.com/api/SKILL.md.`;
 }
 
 function AccordionSection({ title, defaultOpen = false, children, className, contentClassName }: {
@@ -1320,6 +1320,8 @@ interface EditorSettingsSidebarProps {
   addOnSuccessCallbackCustom: AddOnSuccessCallback<PostsEditMutationFragment>;
   addOnSubmitCallbackModerationGuidelines: AddOnSubmitCallback<PostsEditMutationFragment>;
   addOnSuccessCallbackModerationGuidelines: AddOnSuccessCallback<PostsEditMutationFragment>;
+  isMajorUpdate: boolean;
+  setIsMajorUpdate: (isMajorUpdate: boolean) => void;
 }
 
 const EditorSettingsSidebar = ({
@@ -1334,6 +1336,8 @@ const EditorSettingsSidebar = ({
   addOnSuccessCallbackCustom,
   addOnSubmitCallbackModerationGuidelines,
   addOnSuccessCallbackModerationGuidelines,
+  isMajorUpdate,
+  setIsMajorUpdate,
 }: EditorSettingsSidebarProps) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
@@ -1520,6 +1524,22 @@ const EditorSettingsSidebar = ({
             Version History
           </button>
         </div>
+
+        {formType === "edit" && (
+          <form.Subscribe selector={(s) => s.values.draft}>
+            {(draft) => !draft && (
+              <AccordionSection title="Advanced">
+                <div className={classes.toggleRow} onClick={() => setIsMajorUpdate(!isMajorUpdate)}>
+                  <span className={classes.toggleLabel}>Publish as major update</span>
+                  <ToggleSwitch value={isMajorUpdate} smallVersion />
+                </div>
+                <p className={classes.sectionText}>
+                  <em>When you next publish changes, existing comments will be marked as responses to the previous version of the post.</em>
+                </p>
+              </AccordionSection>
+            )}
+          </form.Subscribe>
+        )}
 
         <AccordionSection title="Moderation">
         {!isDialogue && (

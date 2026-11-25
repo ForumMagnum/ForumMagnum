@@ -55,7 +55,7 @@ const RecentDiscussionThreadsList = ({
   });
 
   const results = data?.posts?.results;
-  const { loadMore } = loadMoreProps;
+  const { loadMore, preload } = loadMoreProps;
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
 
   useGlobalKeydown((event: KeyboardEvent) => {
@@ -102,7 +102,7 @@ const RecentDiscussionThreadsList = ({
           )}
         </div>}
         <AnalyticsInViewTracker eventProps={{inViewType: "loadMoreButton"}}>
-            { loadMore && <LoadMore loadMore={loadMore}  /> }
+            { loadMore && <LoadMore loadMore={loadMore} preload={preload} /> }
             { (loading || loadingMore) && <Loading />}
         </AnalyticsInViewTracker>
       </div>

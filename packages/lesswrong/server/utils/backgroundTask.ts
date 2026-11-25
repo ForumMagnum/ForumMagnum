@@ -60,7 +60,7 @@ function ensureRequestHasBackgroundTaskHandler() {
 
 let exitWarningRegistered = false;
 
-// Scripts (yarn repl, migrations) exit as soon as their entrypoint resolves,
+// Scripts (npm run repl, migrations) exit as soon as their entrypoint resolves,
 // dropping any background task still running.
 function warnOnExitIfTasksPending() {
   if (exitWarningRegistered) return;

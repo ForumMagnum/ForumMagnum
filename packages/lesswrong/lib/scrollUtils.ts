@@ -81,37 +81,35 @@ function calculateCommentScrollTop(input: HTMLElement | string): number {
   return elemTop + window.scrollY - getCurrentSectionMark() + 1;
 }
 
-let currentScrollFocus: {
+let currentScrollHold: {
   cleanup: () => void;
 } | null = null;
 
+const getDocumentTop = (element: HTMLElement) => element.getBoundingClientRect().top + window.scrollY;
+
 /**
- * To handle layout shift after scroll: Re-scroll to the given element until any user-initiated
- * input events occur, 5s passes, or the element is removed from the DOM
+ * Scroll to an element, then handle layout shift after the scroll: re-scroll to it until any
+ * user-initiated input events occur, 5s passes, or the element is removed from the DOM. Content
+ * above the element can keep changing height after the first scroll (the rest of a post replacing
+ * its preview, images loading), which would otherwise leave the page scrolled to the wrong place.
  *
- * @param id The `id` attribute of the element
+ * @param scrollToElement Scrolls to wherever the element is now. Called once with `behavior`, then
+ * again with instant scrolling each time the element moves.
  */
-export function scrollFocusOnElement({ id, options = {} }: { id: string; options?: ScrollToOptions }) {
+export function scrollToElementAndHold({ element, scrollToElement, behavior }: {
+  element: HTMLElement;
+  scrollToElement: (behavior?: ScrollBehavior) => void;
+  behavior?: ScrollBehavior;
+}) {
   window.killPreloadScroll?.();
 
-  const element = document.getElementById(id);
-
-  if (!element) {
-    return;
+  if (currentScrollHold) {
+    currentScrollHold.cleanup();
+    currentScrollHold = null;
   }
 
-  // Clean up any existing scroll focus
-  if (currentScrollFocus) {
-    currentScrollFocus.cleanup();
-    currentScrollFocus = null;
-  }
-
-  let targetScrollTop = calculateCommentScrollTop(element);
-
-  // Initial scroll
-  // Note: Currently this is calibrated for comments, although the default offset for comments is a good
-  // first guess for any element
-  window.scrollTo({ top: targetScrollTop, ...options });
+  let heldDocumentTop = getDocumentTop(element);
+  scrollToElement(behavior);
 
   // Local ref required because functions using cleanup need to
   // be defined before cleanup is instantiated
@@ -119,30 +117,37 @@ export function scrollFocusOnElement({ id, options = {} }: { id: string; options
     cleanup: () => {},
   };
 
-  const observer = new MutationObserver(() => {
+  const rescrollIfElementMoved = () => {
     // Check if the element is still in the DOM
     if (!element.isConnected) {
       ref.cleanup();
       return;
     }
 
-    const newScrollTop = calculateCommentScrollTop(element);
+    const documentTop = getDocumentTop(element);
 
-    if (Math.abs(newScrollTop - targetScrollTop) <= 40) {
+    if (Math.abs(documentTop - heldDocumentTop) <= 40) {
       return;
     }
 
-    targetScrollTop = newScrollTop;
+    heldDocumentTop = documentTop;
 
     // Override initial behaviour and just scroll instantly if re-scrolling, to avoid intertia resetting
-    window.scrollTo({ top: targetScrollTop, ...options, behavior: "auto"});
-  });
+    scrollToElement("auto");
+  };
 
-  observer.observe(document.body, {
+  const mutationObserver = new MutationObserver(rescrollIfElementMoved);
+
+  mutationObserver.observe(document.body, {
     attributes: true,
     childList: true,
     subtree: true,
   });
+
+  // An image finishing loading changes the layout without mutating the DOM
+  const resizeObserver = new ResizeObserver(rescrollIfElementMoved);
+
+  resizeObserver.observe(document.body);
 
   const userEventListener = function (_: Event) {
     ref.cleanup();
@@ -154,22 +159,44 @@ export function scrollFocusOnElement({ id, options = {} }: { id: string; options
   });
 
   ref.cleanup = () => {
-    observer.disconnect();
+    mutationObserver.disconnect();
+    resizeObserver.disconnect();
     ["mousedown", "keydown", "wheel", "touchstart"].forEach((eventType) => {
       window.removeEventListener(eventType, userEventListener);
     });
 
-    // Clear currentScrollFocus if it's still pointing to this instance
-    if (currentScrollFocus && currentScrollFocus.cleanup === ref.cleanup) {
-      currentScrollFocus = null;
+    // Clear currentScrollHold if it's still pointing to this instance
+    if (currentScrollHold && currentScrollHold.cleanup === ref.cleanup) {
+      currentScrollHold = null;
     }
   };
 
   setTimeout(ref.cleanup, 5000);
 
-  currentScrollFocus = {
+  currentScrollHold = {
     cleanup: ref.cleanup,
   };
+}
+
+/**
+ * Scroll to the element with the given `id` attribute, and keep it there while the layout shifts
+ * (see `scrollToElementAndHold`).
+ *
+ * Note: Currently this is calibrated for comments, although the default offset for comments is a good
+ * first guess for any element
+ */
+export function scrollFocusOnElement({ id, options = {} }: { id: string; options?: ScrollToOptions }) {
+  const element = document.getElementById(id);
+
+  if (!element) {
+    return;
+  }
+
+  scrollToElementAndHold({
+    element,
+    scrollToElement: (behavior) => window.scrollTo({ top: calculateCommentScrollTop(element), ...options, behavior }),
+    behavior: options.behavior,
+  });
 }
 
 /**

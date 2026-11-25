@@ -84,6 +84,20 @@ describe('updateComment – ', () => {
     )
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
+  it("fails when alignmentForum user updates another user's title", async () => {
+    const user = await createDummyUser({groups: ['alignmentForum']})
+    const otherUser = await createDummyUser()
+    const post = await createDummyPost()
+    const comment = await createDummyComment(otherUser, {postId: post._id})
+    await userUpdateFieldFails({
+      user,
+      document: comment,
+      fieldName: 'title',
+      collectionType: 'Comment',
+      newValue: "New title",
+    })
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
+  });
   it("succeeds when user updates their own body", async () => {
     const user = await createDummyUser()
     const post = await createDummyPost()

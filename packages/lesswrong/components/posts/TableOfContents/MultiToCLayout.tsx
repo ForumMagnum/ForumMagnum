@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { narrationDockHeight } from '@/components/narration/narrationPlayerLayout';
 
 export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
@@ -113,7 +114,7 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
       top: "var(--header-height)",
-      height: `calc(100vh - var(--header-height) - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`
+      height: `calc(100vh - var(--header-height) - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px) - ${narrationDockHeight})`
     }
   },
   stickyBlockScroller: {
@@ -125,8 +126,8 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     marginLeft: 1,
     paddingLeft: 16,
     textAlign: "left",
-    maxHeight: `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`,
-    height: `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`,
+    maxHeight: `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px) - ${narrationDockHeight})`,
+    height: `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px) - ${narrationDockHeight})`,
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
@@ -176,7 +177,7 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     paddingTop: 12,
     paddingBottom: 20,
     height: `var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`,
-    bottom: 0,
+    bottom: narrationDockHeight,
     left: 0,
     width: 240,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,

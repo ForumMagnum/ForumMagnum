@@ -158,6 +158,10 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     'html:has(&)': {
       ...hideScrollBars,
     },
+    // Includes portaled popovers, which render outside the inbox root
+    'html:has(&) *': {
+      ...hideScrollBars,
+    },
   },
   mainContent: {
     flex: 1,

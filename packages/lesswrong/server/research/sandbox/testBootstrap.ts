@@ -16,7 +16,7 @@ import { buildBootstrapJsonl } from "@/server/research/sessionReconstruction";
  * context, and to inspect `usage.cache_read_input_tokens` from the response.
  *
  * Invoke with:
- *   yarn repl dev lw packages/lesswrong/server/research/sandbox/testBootstrap.ts
+ *   npm run repl -- dev lw packages/lesswrong/server/research/sandbox/testBootstrap.ts
  *
  * Optional: set `RESEARCH_TEST_CONVERSATION_ID=<id>` to target a specific
  * conversation; default is the most-recently-active one in the DB.

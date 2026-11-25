@@ -22,7 +22,7 @@ import { SideItemsSidebar } from '../contents/SideItems';
 import { commentBodyStyles, postBodyStyles } from '@/themes/stylePiping';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
-import { invertHexColor } from '@/themes/colorUtil';
+import { invertIfDarkMode } from '@/themes/colorUtil';
 
 const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
   hoverWrapper: {
@@ -76,10 +76,10 @@ const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
   },
   highlighted: {},
   backgroundIsCurrent: {
-    backgroundColor: theme.dark ? invertHexColor('#616161') : '#616161',
+    backgroundColor: invertIfDarkMode('#616161'),
     colorScheme: theme.dark ? "light" : "dark",
     "&$highlighted": {
-      backgroundColor: theme.dark ? invertHexColor('#9e9e9e') : '#9e9e9e',
+      backgroundColor: invertIfDarkMode('#9e9e9e'),
     },
     marginLeft:12,
   },

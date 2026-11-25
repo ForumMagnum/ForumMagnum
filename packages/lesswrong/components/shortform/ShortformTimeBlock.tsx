@@ -6,6 +6,7 @@ import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { postsItemBackgroundStyles } from '../posts/LWPostsItem';
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentShortformTimeBlockQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -28,15 +29,28 @@ const styles = defineStyles('ShortformTimeBlock', (theme: ThemeType) => ({
   },
   loadMore: {
     marginTop: 6
-  }
+  },
+  shortformItem: {
+    "&.CommentFrame-isSingleLine": {
+      ...postsItemBackgroundStyles(theme),
+      ...(theme.dark && {
+        border: "none",
+      }),
+      "& .SingleLineComment-odd:not(:hover)": {
+        backgroundColor: "transparent",
+      },
+    },
+  },
 }))
 
 const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
+  const classes = useStyles(styles);
   if (!comment.post) {
     return null;
   }
   return (
     <CommentsNode
+      className={classes.shortformItem}
       treeOptions={{
         post: comment.post || undefined,
         forceSingleLine: true
@@ -66,7 +80,7 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms}: {
   });
 
   const comments = data?.comments?.results;
-  const { loadMore } = loadMoreProps;
+  const { loadMore, preload } = loadMoreProps;
 
   const totalCount = data?.comments?.totalCount ?? 0;
 
@@ -93,6 +107,7 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms}: {
         <div className={classes.loadMore}>
           <LoadMore
             loadMore={loadMore}
+            preload={preload}
             count={comments.length}
             totalCount={totalCount}
           />

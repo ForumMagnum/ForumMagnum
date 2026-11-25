@@ -9,6 +9,7 @@ import LoadMore from "../common/LoadMore";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { postsItemBackgroundStyles } from '../posts/LWPostsItem';
 
 const INITIAL_LIMIT = 5
 
@@ -16,6 +17,14 @@ const styles = defineStyles('TagEditsTimeBlock', (theme: ThemeType) => ({
   subtitle: {
     marginTop: 6,
     marginBottom: 6
+  },
+  collapsedTagUpdates: {
+    "&&": {
+      ...postsItemBackgroundStyles(theme),
+      ...(theme.dark && {
+        borderColor: "transparent",
+      }),
+    },
   },
 }));
 
@@ -107,6 +116,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty}: {
     </div>
     {tagUpdatesInTimeBlock.map(tagUpdates => <SingleLineTagUpdates
       key={tagUpdates.tag._id}
+      collapsedClassName={classes.collapsedTagUpdates}
       tag={tagUpdates.tag}
       revisionIds={tagUpdates.revisionIds}
       commentIds={tagUpdates.commentIds}

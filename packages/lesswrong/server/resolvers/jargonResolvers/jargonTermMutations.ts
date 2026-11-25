@@ -9,7 +9,7 @@ import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { getAdminTeamAccount } from '@/server/utils/adminTeamAccount';
 import { z } from 'zod';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
-import { cyrb53Rand } from '@/server/perfMetrics';
+import { cyrb53Rand } from '@/lib/utils/cyrb53';
 import JargonTermsRepo from '@/server/repos/JargonTermsRepo';
 import { randomId } from '@/lib/random';
 import { defaultGlossaryPrompt, defaultExamplePost, defaultExampleTerm, defaultExampleAltTerm, defaultExampleDefinition, JARGON_LLM_MODEL } from '@/lib/collections/jargonTerms/constants';

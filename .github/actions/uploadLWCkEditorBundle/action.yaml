@@ -12,4 +12,4 @@ runs:
 
     - name: Upload ckEditor bundle
       shell: bash
-      run: yarn upload-ckeditor-bundle ${{ inputs.mode }} lw
+      run: npm run upload-ckeditor-bundle -- ${{ inputs.mode }} lw

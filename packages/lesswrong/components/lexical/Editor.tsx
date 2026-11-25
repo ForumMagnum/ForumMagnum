@@ -36,7 +36,7 @@ import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from
 import {Doc} from 'yjs';
 import * as Y from 'yjs';
 import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
-import {$getRoot, $insertNodes, EditorState, SKIP_DOM_SELECTION_TAG} from 'lexical';
+import {$getRoot, $insertNodes, EditorState, HISTORY_MERGE_TAG, LexicalEditor} from 'lexical';
 import { CodeBlockPlugin } from '../editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 import TablesPlugin from '../editor/lexicalPlugins/tables/TablesPlugin';
 
@@ -68,7 +68,7 @@ import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DateTimePlugin from './plugins/DateTimePlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 // import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
-import { MathPlugin } from '../editor/lexicalPlugins/math/MathPlugin';
+import { MATH_EQUATION_EDIT_TAG, MathPlugin } from '../editor/lexicalPlugins/math/MathPlugin';
 import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
 import FigmaPlugin from './plugins/FigmaPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
@@ -581,8 +581,6 @@ export interface EditorProps {
    * otherwise show two competing menus on `@`.
    */
   disableMentions?: boolean;
-  /** Loading the initial HTML normally moves focus into the editor; this leaves focus where it is */
-  keepFocusOnLoad?: boolean;
   children?: React.ReactNode;
 }
 
@@ -613,7 +611,6 @@ export default function Editor({
   commentEditor = false,
   disableComponentPicker = false,
   disableMentions = false,
-  keepFocusOnLoad = false,
   children,
 }: EditorProps): JSX.Element {
   const classes = useStyles(styles);
@@ -823,8 +820,8 @@ export default function Editor({
       const root = $getRoot();
       root.clear();
       $insertNodes(nodes);
-    }, keepFocusOnLoad ? { tag: SKIP_DOM_SELECTION_TAG } : undefined);
-  }, [editor, hasInitialHtml, initialHtml, isCollab, keepFocusOnLoad]);
+    });
+  }, [editor, hasInitialHtml, initialHtml, isCollab]);
 
   const onChange = useCallback((editorState: EditorState) => {
     if (!onChangeHtml) return;
@@ -844,6 +841,15 @@ export default function Editor({
     onUnmount: "cancelPending",
     allowExplicitCallAfterUnmount: false,
   });
+
+  const handleEditorUpdate = useCallback((editorState: EditorState, _editor: LexicalEditor, tags: Set<string>) => {
+    if (tags.has(HISTORY_MERGE_TAG) && !tags.has(MATH_EQUATION_EDIT_TAG)) return;
+    if (isCollab) {
+      debouncedOnChange(editorState);
+    } else {
+      onChange(editorState);
+    }
+  }, [isCollab, debouncedOnChange, onChange]);
 
   return (
     <>
@@ -965,7 +971,8 @@ export default function Editor({
                 // reported (the editor was empty before it), and a click is
                 // what then updated the contents the form submits.
                 ignoreSelectionChange={!isCollab}
-                onChange={isCollab ? debouncedOnChange : onChange}
+                ignoreHistoryMergeTagChange={false}
+                onChange={handleEditorUpdate}
               />
             )}
             <MarkdownShortcutPlugin />

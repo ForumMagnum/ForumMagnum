@@ -16,6 +16,8 @@ import groupBy from 'lodash/groupBy';
 //   groupByField: The name of the field whose value varies between queries in
 //     the batch.
 //   id: The value of the field whose values vary between queries in the batch.
+//   options: Applied to the one query that serves the whole batch, so a `limit`
+//     caps the total number of rows across all ids, not the number per id.
 //
 export async function getWithLoader<N extends CollectionNameString>(
   context: ResolverContext,

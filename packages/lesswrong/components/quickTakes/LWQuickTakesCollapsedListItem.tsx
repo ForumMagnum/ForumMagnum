@@ -61,6 +61,7 @@ const styles = defineStyles("LWQuickTakesCollapsedListItem", (theme: ThemeType) 
   hoverOver: {
     width: 400,
     background: theme.palette.panelBackground.bannerAdTranslucentDeep,
+    boxShadow: theme.palette.boxShadow.lwCard,
   },
   commentCountText: {
     fontSize: 13,
@@ -176,7 +177,7 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, linesToDisplay=2
           comment={quickTake}
           treeOptions={{
             post: quickTake.post || undefined,
-            showCollapseButtons: true,
+            hideActionsMenu: true,
             hideReply: true,
             forceSingleLine: false,
             forceNotSingleLine: true,

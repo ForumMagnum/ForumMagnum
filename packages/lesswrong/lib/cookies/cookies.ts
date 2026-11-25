@@ -70,6 +70,12 @@ export const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
   description: "Whether to show the podcast player on a posts pages",
 });
 
+export const NARRATION_PLAYBACK_RATE_COOKIE = registerCookie({
+  name: "narration_playback_rate",
+  type: "necessary",
+  description: "The playback speed chosen in the post narration player",
+});
+
 export const HIDE_MAP_COOKIE = registerCookie({name: `hideMapFromFrontpage`, type: "necessary", description: "Stores whether the user has hidden the map from the frontpage."});
 
 export const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';

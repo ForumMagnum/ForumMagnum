@@ -1,7 +1,7 @@
 import React from 'react';
 import ModeCommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
-import type { Placement as PopperPlacementType } from "popper.js"
+import type { TooltipPlacement } from "@/components/common/TooltipGroup";
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
 import UsersName from "../users/UsersName";
 import UsersNameWithModal from "../ultraFeed/UsersNameWithModal";
@@ -52,7 +52,7 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, simple=false, tool
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
   simple?: boolean,
-  tooltipPlacement?: PopperPlacementType,
+  tooltipPlacement?: TooltipPlacement,
   newPromotedComments?: boolean,
   showMarkers?: boolean,
   useUltraFeedModal?: boolean,

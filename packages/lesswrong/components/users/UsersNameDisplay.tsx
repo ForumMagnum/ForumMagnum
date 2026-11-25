@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import type { Placement as PopperPlacementType } from "popper.js"
+import type { TooltipPlacement } from "@/components/common/TooltipGroup";
 import UserNameDeleted from "./UserNameDeleted";
 import UserTooltip from "./UserTooltip";
 import { useNoKibitz } from '../hooks/useNoKibitz';
@@ -57,7 +57,7 @@ const UsersNameDisplay = ({
   /** If set, the follow button is hidden (relevant to LWTooltip. */
   hideFollowButton?: boolean,
   /** Positioning of the tooltip, if there is one */
-  tooltipPlacement?: PopperPlacementType,
+  tooltipPlacement?: TooltipPlacement,
   /** If provided, a tracking string added to the link */
   pageSectionContext?: string,
   /** An additional class to apply to the text */

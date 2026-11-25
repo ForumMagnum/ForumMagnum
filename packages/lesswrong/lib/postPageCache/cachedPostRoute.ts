@@ -21,6 +21,10 @@ const HTML_CACHE_ALLOWED_COOKIES: ReadonlySet<string> = new Set([
   '_vercel_sso_nonce',
 ]);
 
+export function isSlackLinkExpander(userAgent: string | null): boolean {
+  return !!userAgent?.startsWith("Slackbot-LinkExpanding");
+}
+
 interface ParsedPostPagePath {
   postId: string
   slug: string | null
@@ -51,7 +55,8 @@ function matchPostPagePath(pathname: string): ParsedPostPagePath | null {
 
 // The post page path of a request that the cached post route handler can
 // serve: a logged-out, cookieless GET of /posts/:id[/:slug] with no query
-// string. Anything else changes the render and is served by the regular route.
+// string, not from Slack's link expander (which gets a larger preview card).
+// Anything else changes the render and is served by the regular route.
 export function getCacheablePostPagePath(request: NextRequest): ParsedPostPagePath | null {
   if (request.method !== 'GET' && request.method !== 'HEAD') return null;
   const parsedPath = matchPostPagePath(request.nextUrl.pathname);
@@ -62,33 +67,7 @@ export function getCacheablePostPagePath(request: NextRequest): ParsedPostPagePa
   // running the middleware.)
   if (request.nextUrl.search) return null;
   if (request.headers.get(STATUS_CODE_LOOPBACK_HEADER)) return null;
+  if (isSlackLinkExpander(request.headers.get('user-agent'))) return null;
   if (request.cookies.getAll().some((cookie) => !HTML_CACHE_ALLOWED_COOKIES.has(cookie.name))) return null;
   return parsedPath;
-}
-
-type NormalizedAcceptEncoding = 'gzip' | 'identity';
-
-// The CDN varies on Accept-Encoding; collapsing it to the two encodings the
-// cached post route handler emits keeps it to two entries per page.
-export function normalizeAcceptEncoding(header: string | null): NormalizedAcceptEncoding {
-  if (!header) return 'identity';
-  let gzipQ: number | null = null;
-  let wildcardQ: number | null = null;
-  for (const rawPart of header.split(',')) {
-    const [codingPart, ...params] = rawPart.trim().split(';');
-    const coding = codingPart.trim().toLowerCase();
-    if (!coding) continue;
-    let q = 1;
-    for (const param of params) {
-      const [name, value] = param.trim().split('=');
-      if (name?.trim().toLowerCase() === 'q') {
-        const parsed = Number.parseFloat(value ?? '');
-        q = Number.isFinite(parsed) ? parsed : 0;
-      }
-    }
-    if (coding === 'gzip' || coding === 'x-gzip') gzipQ = q;
-    else if (coding === '*') wildcardQ = q;
-  }
-  const effectiveQ = gzipQ ?? wildcardQ ?? 0;
-  return effectiveQ > 0 ? 'gzip' : 'identity';
 }

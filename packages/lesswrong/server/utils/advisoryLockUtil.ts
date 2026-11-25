@@ -1,6 +1,6 @@
 import { captureException } from "@/lib/sentryWrapper";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
-import { cyrb53Rand } from '@/server/perfMetrics';
+import { cyrb53Rand } from '@/lib/utils/cyrb53';
 import type { ITask } from "pg-promise";
 
 /**

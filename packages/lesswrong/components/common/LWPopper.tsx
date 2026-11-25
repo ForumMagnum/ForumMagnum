@@ -4,11 +4,11 @@ import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { createPortal } from 'react-dom';
-import type { State } from '@popperjs/core/lib/types';
+import type { Modifier, State } from '@popperjs/core/lib/types';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 
-const styles = defineStyles("LWPopper", (theme: ThemeType) => ({
+export const styles = defineStyles("LWPopper", (theme: ThemeType) => ({
   popper: {
     position: "absolute",
     zIndex: theme.zIndexes.lwPopper
@@ -38,6 +38,16 @@ const styles = defineStyles("LWPopper", (theme: ThemeType) => ({
   },
 }))
 
+const matchAnchorWidthModifier: Modifier<"matchAnchorWidth", Record<string, never>> = {
+  name: "matchAnchorWidth",
+  enabled: true,
+  phase: "beforeWrite",
+  requires: ["computeStyles"],
+  fn: ({state}) => {
+    state.styles.popper.width = `${state.rects.reference.width}px`;
+  },
+};
+
 // This is a wrapper around the Popper library so we can easily replace it with different versions and
 // implementations
 const LWPopper = ({
@@ -47,6 +57,7 @@ const LWPopper = ({
   allowOverflow,
   overflowPadding,
   preventOverflowOnBothAxes,
+  matchAnchorWidth,
   flip,
   open,
   anchorEl,
@@ -62,6 +73,8 @@ const LWPopper = ({
   overflowPadding?: number,
   /** Also shift along the placement axis when there is not enough space beside the anchor. */
   preventOverflowOnBothAxes?: boolean,
+  /** Make the popper exactly as wide as its anchor. */
+  matchAnchorWidth?: boolean,
   flip?: boolean,
   open: boolean,
   placement?: PopperPlacementType,
@@ -113,7 +126,8 @@ const LWPopper = ({
         },
       }] : []),
       ...flipModifier,
-      ...preventOverflowModifier
+      ...preventOverflowModifier,
+      ...(matchAnchorWidth ? [matchAnchorWidthModifier] : []),
     ],
   });
 

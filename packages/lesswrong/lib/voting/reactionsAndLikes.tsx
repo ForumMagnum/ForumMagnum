@@ -1,5 +1,5 @@
 import { VotingProps } from "@/components/votes/votingProps";
-import type { NamesAttachedReactionsList, UserVoteOnSingleReaction } from "./namesAttachedReactions";
+import { reactsVoteSchema, type NamesAttachedReactionsList, type UserVoteOnSingleReaction } from "./namesAttachedReactions";
 import { addReactsVote, removeReactsVote, getDocumentHighlights } from './reactionDisplayHelpers';
 import { defineVotingSystem } from './defineVotingSystem';
 import { loadByIds } from '../loaders';
@@ -9,6 +9,8 @@ import uniq from 'lodash/uniq';
 import { userGetDisplayName } from "../collections/users/helpers";
 import sortBy from 'lodash/sortBy';
 import type { TagLens } from "../arbital/useTagLenses";
+import { parseExtendedVote } from './voteTypes';
+import { z } from 'zod';
 
 /**
  * Reactions-and-likes voting
@@ -22,6 +24,10 @@ type ReactionsAndLikesScore = {
   usersWhoLiked: LikesList
   reacts: NamesAttachedReactionsList
 }
+
+const reactionsAndLikesVoteSchema = z.object({
+  reacts: reactsVoteSchema.optional(),
+});
 
 export const reactionsAndLikesVotingSystem = defineVotingSystem<ReactionsAndLikesVote, ReactionsAndLikesScore>({
   name: "reactionsAndLikes",
@@ -92,7 +98,9 @@ export const reactionsAndLikesVotingSystem = defineVotingSystem<ReactionsAndLike
       reacts: mergedReacts,
     };
   },
-  
+
+  validateExtendedVote: (extendedVote: unknown) => parseExtendedVote(reactionsAndLikesVoteSchema, extendedVote),
+
   isAllowedExtendedVote: ({user, document, oldExtendedScore, extendedVote, skipRateLimits}: {
     user: UsersCurrent|DbUser,
     document: DbVoteableType,

@@ -1,13 +1,14 @@
 import React, { useCallback, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import ModerationUserFeed from './ModerationUserFeed';
+import ModerationContentList from './ModerationContentList';
+import ModerationContentDetail from './ModerationContentDetail';
 import type { InboxAction, InboxState } from './inboxReducer';
 import ModerationSidebar from './ModerationSidebar';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
-import { hideScrollBars, prettyScrollbars } from '@/themes/styleUtils';
+import { prettyScrollbars } from '@/themes/styleUtils';
 import type { SelectedSidebarTab } from './sidebarTabs';
-import { getModerationContentItems, isMapPin } from './helpers';
+import { getModerationContentItems, getNextUnapprovedContentIndex, isMapPin, type ContentItem } from './helpers';
 import ConcurrentModeratorChangeIndicator from './ConcurrentModeratorChangeIndicator';
 
 const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
@@ -20,7 +21,7 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   },
   contentSection: {
     display: 'grid',
-    gridTemplateColumns: '470px 1fr 440px',
+    gridTemplateColumns: '300px 1fr 1fr 400px',
   },
   userColumn: {
     borderRight: theme.palette.border.normal,
@@ -36,8 +37,13 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   },
   sidebarColumn: {
     height: 'calc(100vh - 64px)',
-    overflow: 'auto',
-    ...hideScrollBars,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  // Takes the column height left below the concurrent-change banner
+  sidebarBody: {
+    flex: 1,
+    minHeight: 0,
   },
   // Sits flush against the bottom of the column, taking only the height its
   // contents need, so the rest goes to the user info above it.
@@ -72,17 +78,28 @@ const ModerationUserDetailView = ({
 }) => {
   const classes = useStyles(styles);
 
-  const allContent = useMemo(
-    () => getModerationContentItems(user, posts, comments),
-    [user, posts, comments],
-  );
-  const focusedItem = allContent[focusedContentIndex];
-  const focusedContent = focusedItem && !isMapPin(focusedItem) ? focusedItem : null;
-
   const setSidebarTab = useCallback(
     (tab: SelectedSidebarTab) => dispatch({ type: 'SET_SIDEBAR_TAB', tab }),
     [dispatch]
   );
+
+  const allContent = useMemo(
+    () => getModerationContentItems(user, posts, comments),
+    [user, posts, comments],
+  );
+
+  const focusedItem = useMemo(() =>
+    allContent[focusedContentIndex] || null,
+    [allContent, focusedContentIndex]
+  );
+  const focusedContent = focusedItem && !isMapPin(focusedItem) ? focusedItem : null;
+
+  const handleContentRejectStart = useCallback((content: ContentItem) => {
+    const nextContentIndex = getNextUnapprovedContentIndex(allContent, content._id);
+    if (nextContentIndex !== null) {
+      dispatch({ type: 'OPEN_CONTENT', contentIndex: nextContentIndex });
+    }
+  }, [allContent, dispatch]);
 
   return (
     <div className={classes.root}>
@@ -90,7 +107,8 @@ const ModerationUserDetailView = ({
         <div className={classes.userColumn}>
           <ModerationUserInfoColumn
             user={user}
-            items={allContent}
+            posts={posts}
+            comments={comments}
             currentUser={currentUser}
             dispatch={dispatch}
           />
@@ -102,29 +120,33 @@ const ModerationUserDetailView = ({
           </div>
         </div>
         <div className={classes.contentListColumn}>
-          <ModerationUserFeed
-            key={user._id}
-            user={user}
+          <ModerationContentList
             items={allContent}
-            focusedItemId={focusedItem?._id ?? null}
+            title="Content"
+            focusedItemId={allContent[focusedContentIndex]?._id ?? null}
             runningLlmCheckId={runningLlmCheckId}
             dispatch={dispatch}
           />
         </div>
+        <div className={classes.contentListColumn}>
+          <ModerationContentDetail item={focusedItem} />
+        </div>
         <div className={classes.sidebarColumn}>
           <ConcurrentModeratorChangeIndicator documentId={user._id} variant="banner" />
-          <ModerationSidebar
-            user={user}
-            currentUser={currentUser}
-            posts={posts}
-            comments={comments}
-            focusedContent={focusedContent}
-            sidebarTab={sidebarTab}
-            rejectComposerFocusToken={state.rejectComposerFocusToken ?? 0}
-            setSidebarTab={setSidebarTab}
-            addToUndoQueue={addToUndoQueue}
-            dispatch={dispatch}
-          />
+          <div className={classes.sidebarBody}>
+            <ModerationSidebar
+              user={user}
+              currentUser={currentUser}
+              posts={posts}
+              comments={comments}
+              focusedContent={focusedContent}
+              sidebarTab={sidebarTab}
+              setSidebarTab={setSidebarTab}
+              addToUndoQueue={addToUndoQueue}
+              dispatch={dispatch}
+              onContentRejectStart={handleContentRejectStart}
+            />
+          </div>
         </div>
       </div>
     </div>

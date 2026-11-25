@@ -115,5 +115,7 @@ export function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefini
     }
   );
   sheets.add(sheet);
-  return sheets.toString();
+  // Without line breaks and indentation: this CSS is embedded in every page's
+  // HTML, where the whitespace was about 12% of its size.
+  return sheets.toString({ format: false });
 }

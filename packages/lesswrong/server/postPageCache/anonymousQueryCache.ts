@@ -7,8 +7,6 @@ import { getOperationAST, print, type DocumentNode, type ExecutionResult } from 
 import type { ResultOf, TypedDocumentNode, VariablesOf } from '@graphql-typed-document-node/core';
 import type { OperationVariables } from '@apollo/client';
 import {
-  CommentPermalinkDocument,
-  CommentPermalinkMetadataDocument,
   PostMetadataDocument,
   PostsPageWrapperDocument,
   multiCommentReviewPillContainerQueryDocument,
@@ -28,7 +26,7 @@ const gunzipAsync = promisify(gunzip);
 // Part of every cache key. Bump when the meaning of a cached result changes
 // without its query document changing.
 const CACHE_FORMAT_VERSION = 1;
-const CACHE_TTL_SECONDS = 2 * 60 * 60;
+const CACHE_TTL_SECONDS = 24 * 60 * 60;
 // Vercel Runtime Cache accepts `set` calls for serialized items above 2MB but
 // never returns them.
 const MAX_STORED_ITEM_BYTES = 1_900_000;
@@ -67,6 +65,9 @@ function postIdsFromSelector(variables: { selector?: object | null }): PostIds {
 // The post-page operations whose results are shared between all logged-out
 // visitors, with the post IDs each result depends on. Results that yield no
 // post ID are not stored, so that every entry can be purged by post tag.
+// The comment permalink queries are left out: each permalink is requested too
+// rarely for its entry to be read back before it expires, so caching them cost
+// writes without saving queries.
 // Operations whose results depend on per-visitor state (client ID, sharing
 // keys, revision previews) must not be listed. Each spec is typed against its
 // document when constructed; the map erases that.
@@ -75,9 +76,7 @@ const cachedOperations = new Map<string, CachedOperationSpec<any>>([
   cachedOperation(postCommentsThreadQueryDocument, { postIdsFromVariables: postIdsFromSelector }),
   cachedOperation(multiPostPingbacksListQueryDocument, { postIdsFromVariables: postIdsFromSelector }),
   cachedOperation(multiCommentReviewPillContainerQueryDocument, { postIdsFromVariables: postIdsFromSelector }),
-  cachedOperation(CommentPermalinkDocument, { postIdsFromResult: (data) => [data.comment?.result?.postId] }),
   cachedOperation(PostMetadataDocument, { postIdsFromVariables: (variables) => [variables.postId] }),
-  cachedOperation(CommentPermalinkMetadataDocument, { postIdsFromResult: (data) => [data.comment?.result?.postId] }),
 ]);
 
 function isContextEligibleForSharedCache(context: Partial<ResolverContext>): boolean {

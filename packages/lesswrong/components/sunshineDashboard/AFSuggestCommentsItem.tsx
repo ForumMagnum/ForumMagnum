@@ -22,17 +22,14 @@ import SidebarAction from "./SidebarAction";
 import OmegaIcon from "../icons/OmegaIcon";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import uniq from 'lodash/uniq';
-import without from 'lodash/without';
+import { SetCommentSuggestedForAlignmentMutation } from '../alignment-forum/alignmentSuggestionMutations';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-const SuggestAlignmentCommentUpdateMutation = gql(`
-  mutation updateCommentAFSuggestCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
-    updateComment(selector: $selector, data: $data) {
-      data {
-        ...SuggestAlignmentComment
-      }
+const ReviewCommentForAlignmentMutation = gql(`
+  mutation reviewCommentForAlignment($commentId: String!, $approved: Boolean!) {
+    reviewCommentForAlignment(commentId: $commentId, approved: $approved) {
+      ...SuggestAlignmentComment
     }
   }
 `);
@@ -51,29 +48,18 @@ const AFSuggestCommentsItem = ({comment}: {
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const [updateComment] = useMutation(SuggestAlignmentCommentUpdateMutation);
+  const [setCommentSuggestedForAlignment] = useMutation(SetCommentSuggestedForAlignmentMutation);
+  const [reviewCommentForAlignment] = useMutation(ReviewCommentForAlignmentMutation);
 
   const handleMoveToAlignment = async () => {
-    await updateComment({
-      variables: {
-        selector: { _id: comment._id },
-        data: {
-          reviewForAlignmentUserId: currentUser!._id,
-          afDate: new Date(),
-          af: true,
-        }
-      }
+    await reviewCommentForAlignment({
+      variables: { commentId: comment._id, approved: true }
     })
   }
 
   const handleDisregardForAlignment = () => {
-    void updateComment({
-      variables: {
-        selector: { _id: comment._id },
-        data: {
-          reviewForAlignmentUserId: currentUser!._id,
-        }
-      }
+    void reviewCommentForAlignment({
+      variables: { commentId: comment._id, approved: false }
     })
   }
   
@@ -108,22 +94,16 @@ const AFSuggestCommentsItem = ({comment}: {
         { hover && <SidebarActionMenu>
           { userHasVoted ?
             <SidebarAction title="Unendorse for Alignment" onClick={() => (
-              updateComment({
-                variables: {
-                  selector: { _id: comment._id },
-                  data: {suggestForAlignmentUserIds: without(comment.suggestForAlignmentUserIds, currentUser._id)}
-                }
+              setCommentSuggestedForAlignment({
+                variables: { commentId: comment._id, suggested: false }
               })
             )}>
               <UndoIcon/>
             </SidebarAction>
             :
             <SidebarAction title="Endorse for Alignment" onClick={() => (
-              updateComment({
-                variables: {
-                  selector: { _id: comment._id },
-                  data: {suggestForAlignmentUserIds: uniq([...comment.suggestForAlignmentUserIds, currentUser._id])}
-                }
+              setCommentSuggestedForAlignment({
+                variables: { commentId: comment._id, suggested: true }
               })
             )}>
               <PlusOneIcon/>

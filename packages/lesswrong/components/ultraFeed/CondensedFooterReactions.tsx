@@ -8,7 +8,6 @@ import ReactionIcon from "../votes/ReactionIcon";
 import UltraFeedReactionsPalette from "../votes/UltraFeedReactionsPalette";
 import ReactionsPalette from "../votes/ReactionsPalette";
 import { useNamesAttachedReactionsVoting } from "../votes/lwReactions/NamesAttachedReactionsVoteOnComment";
-import type { EmojiReactName } from "@/lib/voting/namesAttachedReactions";
 import LWPopper from "../common/LWPopper";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import DetailedReactionOverview from "../votes/lwReactions/DetailedReactionOverview";
@@ -54,6 +53,10 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       width: ICON_BUTTON_SIZE_MOBILE,
       height: ICON_BUTTON_SIZE_MOBILE,
+    },
+    '& + &': {
+      marginLeft: -4,
+      zIndex: 1,
     },
   },
   ellipsisIconWrapper: {
@@ -425,12 +428,17 @@ const CondensedFooterReactions = ({
   const sortedReactions = visibleReactionsDisplay.sort((a, b) => b.numberShown - a.numberShown);
   const totalReactionCount = sortedReactions.reduce((sum, reaction) => sum + reaction.numberShown, 0);
 
+  const showAllReactionIcons = sortedReactions.length <= 2;
+  const iconReactions = showAllReactionIcons ? sortedReactions : sortedReactions.slice(0, 1);
+
   const topIconElement: React.ReactNode | null = sortedReactions.length > 0 && totalReactionCount > 0 ? (
     <div className={classes.reactionIconContainer}>
-      <div className={classes.reactionIconWrapper}>
-        <ReactionIcon react={sortedReactions[0]?.react as EmojiReactName} />
-      </div>
-      {sortedReactions.length > 1 && (
+      {iconReactions.map(({ react }) => (
+        <div key={react} className={classes.reactionIconWrapper}>
+          <ReactionIcon react={react} />
+        </div>
+      ))}
+      {!showAllReactionIcons && (
         <div className={classes.ellipsisIconWrapper}>
           •••
         </div>
