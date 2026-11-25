@@ -1,6 +1,7 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Placement as PopperPlacementType } from "popper.js"
+import type { TooltipPlacement } from "@/components/common/TooltipGroup";
 import { DialogueMessageInfo, PostsPreviewTooltip } from "./PostsPreviewTooltip";
+import { PostsTooltipIsClickableContext } from "./helpers";
 import {
   DialogueMessagePreviewTooltip,
   PostsPreviewTooltipSingle,
@@ -10,6 +11,7 @@ import {
 import HoverOver from "../../common/HoverOver";
 import { usePostForTooltip } from "@/components/hooks/usePostForTooltip";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { PostIndicatorHighlightProvider } from "../postIndicators";
 
 const styles = defineStyles("PostsTooltip", (_theme: ThemeType) => ({
   sentinel: {
@@ -31,10 +33,8 @@ interface PostsTooltipPropsBase {
   As?: 'span' | 'div',
   clickable?: boolean,
   flip?: boolean,
-  placement?: PopperPlacementType,
+  placement?: TooltipPlacement,
   children?: ReactNode,
-  /** Show the automated writing evaluation in the preview header. */
-  showLlmScore?: boolean,
   pageElementContext?: string,
   pageElementSubContext?: string,
   //bypasses the component and just returns the children
@@ -75,7 +75,6 @@ const PostsTooltip = ({
   flip,
   placement,
   children,
-  showLlmScore = false,
   pageElementContext,
   pageElementSubContext,
   disabled,
@@ -109,7 +108,7 @@ const PostsTooltip = ({
   const renderTitle = useCallback(() => {
     if (tagRelId) {
       return (
-        <TaggedPostTooltipSingle tagRelId={tagRelId} showLlmScore={showLlmScore} />
+        <TaggedPostTooltipSingle tagRelId={tagRelId} />
       );
     }
     if (post) {
@@ -119,14 +118,13 @@ const PostsTooltip = ({
           postsList={postsList}
           comment={comment}
           hash={hash}
-          showLlmScore={showLlmScore}
         />
       );
     }
 
     if (postId) {
       if (dialogueMessageInfo) {
-        return <DialogueMessagePreviewTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo} showLlmScore={showLlmScore}/>
+        return <DialogueMessagePreviewTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo}/>
       }
 
       const actualCommentId = commentId ?? comment?._id;
@@ -135,19 +133,17 @@ const PostsTooltip = ({
           <PostsPreviewTooltipSingleWithComment
             postId={postId}
             commentId={actualCommentId}
-            showLlmScore={showLlmScore}
           />
         )
         : (
           <PostsPreviewTooltipSingle
             postId={postId}
             postsList={postsList}
-            showLlmScore={showLlmScore}
           />
         );
     }
     return null;
-  }, [tagRelId, post, postId, postsList, comment, commentId, dialogueMessageInfo, hash, showLlmScore]);
+  }, [tagRelId, post, postId, postsList, comment, commentId, dialogueMessageInfo, hash]);
 
   if (disabled) {
     return <>
@@ -155,25 +151,29 @@ const PostsTooltip = ({
     </>
   };
   return (
-    <HoverOver
-      title={renderTitle()}
-      placement={placement}
-      tooltip={false}
-      hideOnTouchScreens
-      inlineBlock={inlineBlock}
-      As={As}
-      clickable={clickable}
-      flip={flip}
-      analyticsProps={{
-        pageElementContext,
-        pageElementSubContext,
-        postId: postId ?? post?._id,
-      }}
-      className={className}
-    >
-      {children}
-      {preload === 'on-screen' && <span ref={tooltipContainerRef} className={classes.sentinel} />}
-    </HoverOver>
+    <PostsTooltipIsClickableContext.Provider value={!!clickable}>
+      <PostIndicatorHighlightProvider>
+        <HoverOver
+          title={renderTitle()}
+          placement={placement}
+          tooltip={false}
+          hideOnTouchScreens
+          inlineBlock={inlineBlock}
+          As={As}
+          clickable={clickable}
+          flip={flip}
+          analyticsProps={{
+            pageElementContext,
+            pageElementSubContext,
+            postId: postId ?? post?._id,
+          }}
+          className={className}
+        >
+          {children}
+          {preload === 'on-screen' && <span ref={tooltipContainerRef} className={classes.sentinel} />}
+        </HoverOver>
+      </PostIndicatorHighlightProvider>
+    </PostsTooltipIsClickableContext.Provider>
   );
 }
 

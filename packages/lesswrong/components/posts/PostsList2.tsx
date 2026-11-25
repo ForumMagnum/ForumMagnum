@@ -12,7 +12,6 @@ import SectionFooter from "../common/SectionFooter";
 import PostsItem from "./PostsItem";
 import PostsLoading from "./PostsLoading";
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
-import { HideIfRepeated } from './HideRepeatedPostsContext';
 import { useLoadMoreExpansion } from '../hooks/useLoadMoreExpansion';
 
 const Error = ({error}: any) => <div>
@@ -87,7 +86,6 @@ const PostsListLoaded = ({...props}: PostsList2Props) => {
     viewType,
     showPlacement,
     header,
-    repeatedPostsPrecedence,
   } = usePostsList(props);
   const classes = useStyles(styles);
   const { listRef, prepareForLoadMore } = useLoadMoreExpansion({
@@ -135,12 +133,10 @@ const PostsListLoaded = ({...props}: PostsList2Props) => {
             showPlacement && classes.postsGrid,
           )}>
             {itemProps?.map((props) => <React.Fragment key={props.post._id}>
-              <HideIfRepeated precedence={repeatedPostsPrecedence} postId={props.post._id}>
-                {showPlacement && props.index !== undefined && <div className={classes.placement}>
-                  #{props.index + 1}
-                </div>}
-                <PostsItem  {...props} />
-              </HideIfRepeated>
+              {showPlacement && props.index !== undefined && <div className={classes.placement}>
+                #{props.index + 1}
+              </div>}
+              <PostsItem  {...props} />
             </React.Fragment>)}
           </div>
         </AnalyticsContext>

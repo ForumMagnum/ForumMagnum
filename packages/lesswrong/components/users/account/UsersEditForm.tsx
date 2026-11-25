@@ -34,6 +34,8 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   hideProfileTopPosts: 'profile',
   biography: 'profile',
   fullName: 'profile',
+  narrationVoiceId: 'profile',
+  narrationNamePronunciation: 'profile',
   commentSorting: 'preferences',
   sortDraftsBy: 'preferences',
   hideFrontpageMap: 'preferences',
@@ -274,8 +276,8 @@ const UsersEditForm = ({ terms, accountManagement, activeSettingsTab }: {
 
   return (
     <div className={classes.root}>
-      {loadingUser && <Loading />}
-      {!loadingUser && userBySlug && (
+      {loadingUser && !userBySlug && <Loading />}
+      {userBySlug && (
         <UsersSettingsForm
           // Keyed so that navigating between different users' settings pages
           // fully resets local settings state, drafts, and the save queue

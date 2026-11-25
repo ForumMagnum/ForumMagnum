@@ -27,6 +27,7 @@ const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
   return (
     <DropdownItem
       title={title}
+      reserveIconSpace
       onClick={setRead.bind(null, !isRead)}
     />
   );

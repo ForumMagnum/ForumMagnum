@@ -18,12 +18,12 @@ for the design context.
 ### Running it
 
 ```sh
-set -a && source .env.local && set +a
+set -a && source .env && set +a
 npx ts-node -r tsconfig-paths/register --swc --project tsconfig-repl.json \
   packages/lesswrong/server/research/sandbox/smokeTest.ts
 ```
 
-Auth: relies on `VERCEL_OIDC_TOKEN` from `.env.local` (refreshed via `vercel env pull`).
+Auth: relies on `VERCEL_OIDC_TOKEN` from `.env` (refreshed via `vercel env pull`).
 Falls back to `VERCEL_TOKEN` + `VERCEL_TEAM_ID` + `VERCEL_PROJECT_ID` if OIDC isn't present.
 
 ### Verified behaviour (2026-05-05, SDK `@vercel/sandbox@1.10.0`)

@@ -474,6 +474,8 @@ export const UsersEdit = gql(`
     showCommunityInRecentDiscussion
     beta
     theme
+    narrationVoiceId
+    narrationNamePronunciation
 
     # Emails
     email

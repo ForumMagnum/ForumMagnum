@@ -267,9 +267,9 @@ const TeamInboxThreadView = ({ thread, currentUser, dispatch }: {
                 disabled={pending}
                 onClick={() => void resolveAppeal('denied')}
               >
-                Deny
+                Dismiss
               </Button>
-              <span className={classes.resolveNote}>The user gets an automated message with the outcome.</span>
+              <span className={classes.resolveNote}>Approving sends the user an automated message. Dismissing sends nothing.</span>
             </>
             : isOpen
               ? <Button className={classes.button} disabled={pending} onClick={() => void setAwaitingModeratorReply(false, true)}>Mark done</Button>

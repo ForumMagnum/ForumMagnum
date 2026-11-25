@@ -8,6 +8,7 @@ import { debugSuspenseBoundaries, NamedSuspenseBoundary } from "@/components/com
 import type { DocumentNode, GraphQLFormattedError, OperationDefinitionNode } from 'graphql';
 import { print } from "graphql";
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
+import { cyrb53Words } from "@/lib/utils/cyrb53";
 import jsonStringifyDeterministic from "json-stringify-deterministic";
 import { SsrQueryCache, useSsrQueryCache } from "./ssrQueryCache";
 import { useSSRResolverContext } from "./ssrResolverContext";
@@ -145,13 +146,39 @@ function getQueryString(query: unknown): string {
   }
 }
 
+function hash64(str: string): string {
+  const [low, high] = cyrb53Words(str);
+  return high.toString(16).padStart(8, "0") + low.toString(16).padStart(8, "0");
+}
+
+function getVariablesString(variables: unknown): string {
+  return jsonStringifyDeterministic(replaceUndefinedForJsonStringify(variables ?? {}));
+}
+
+function injectedQueryKeyFromStrings(query: unknown, queryString: string, variablesString: string): string {
+  const operationName = (typeof query === "object" && query && "definitions" in query)
+    ? getOperationName(query as DocumentNode)
+    : undefined;
+  return `${operationName ?? "query"}:${hash64(`${queryString}\n::\n${variablesString}`)}`;
+}
+
+/**
+ * The key under which an SSR'd query result is injected into the page and
+ * looked up during hydration. It hashes the query text and variables rather
+ * than including them: the full query documents, fragments included, added
+ * about 24 KB to every page. The operation name keeps keys readable.
+ */
+export function getInjectedQueryKey(query: unknown, variables: unknown): string {
+  return injectedQueryKeyFromStrings(query, getQueryString(query), getVariablesString(variables));
+}
+
 function useGetInjectedQueryKey(query: unknown, variables: unknown): string {
   const queryString = useMemo(() => getQueryString(query), [query]);
-  const variablesString = useMemo(() => {
-    const normalizedVariables = replaceUndefinedForJsonStringify(variables ?? {});
-    return jsonStringifyDeterministic(normalizedVariables);
-  }, [variables]);
-  return `${queryString}\n::\n${variablesString}`;
+  const variablesString = useMemo(() => getVariablesString(variables), [variables]);
+  return useMemo(
+    () => injectedQueryKeyFromStrings(query, queryString, variablesString),
+    [query, queryString, variablesString],
+  );
 }
 
 /**

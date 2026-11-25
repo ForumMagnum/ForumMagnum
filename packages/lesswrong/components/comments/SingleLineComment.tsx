@@ -146,6 +146,7 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
   },
   preview: {
     width: 400,
+    boxShadow: theme.palette.boxShadow.lwCard,
   },
   deemphasize: {
     opacity: 0.5

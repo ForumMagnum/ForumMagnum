@@ -25,7 +25,10 @@ export const LLM_FAMILIES: LlmFamily[] = [
   {
     name: "Claude Fable",
     accountSlug: "fable",
-    versions: [{ name: "Fable5.1", fullName: "Claude Fable 5.1", gatewayModelId: "anthropic/claude-fable-5.1", retired: false }],
+    versions: [
+      { name: "Fable5.2", fullName: "Claude Fable 5.2", gatewayModelId: "anthropic/claude-fable-5.2", retired: false },
+      { name: "Fable5.1", fullName: "Claude Fable 5.1", gatewayModelId: "anthropic/claude-fable-5.1", retired: false },
+    ],
   },
   {
     name: "ChatGPT Sol",

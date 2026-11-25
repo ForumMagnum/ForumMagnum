@@ -227,11 +227,11 @@ async function pullEnv({ environment, codegen }: {
   codegen?: boolean | null;
 }) {
   const vercelEnvName = getVercelEnvName(environment, !!codegen);
-  const settingsFileName = `.env.local`;
+  const settingsFileName = `.env`;
   const tempFileName = '.env.temp';
 
   try {
-    // Download settings to a temp file, then replace .env.local with it if
+    // Download settings to a temp file, then replace .env with it if
     // they're different. This avoids "changing" the settings file when it
     // isn't actually changed, which would cause any development servers
     // watching that file to force-refresh everything.
@@ -251,6 +251,11 @@ async function pullEnv({ environment, codegen }: {
       await fs.unlink(tempFileName);
     } catch {}
     throw new Error(`Failed to pull Vercel environment "${vercelEnvName}" with error: ${e}`);
+  }
+
+  const { stdout: resetOutput } = await exec("scripts/resetMisplacedEnvLocal.sh");
+  if (resetOutput) {
+    console.log(resetOutput.trim());
   }
 }
 

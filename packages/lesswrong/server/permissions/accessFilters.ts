@@ -475,6 +475,7 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 const accessFilters = {
   AiDigestIssueGenerations: adminOnly,
   AiDigestIssues: aiDigestIssueCheckAccess,
+  AiDigestItemClicks: adminOnly,
   AiDigestSchedules: adminOnly,
   ArbitalCaches: allowAccess,
   ArbitalTagContentRels: allowAccess,
@@ -523,6 +524,12 @@ const accessFilters = {
   ModerationTemplates: allowAccess,
   ModeratorActions: allowAccess,
   MultiDocuments: multiDocumentCheckAccess,
+  NarrationImageDescriptions: denyAll,
+  // These are only reached through the narration resolvers, which check that
+  // what's narrated is something that the current user can have narrated
+  NarrationScripts: allowAccess,
+  NarrationSegmentAudios: allowAccess,
+  NarrationSegments: allowAccess,
   Notifications: notificationCheckAccess,
   OAuthAccessTokens: denyAll,
   OAuthAuthorizationCodes: denyAll,

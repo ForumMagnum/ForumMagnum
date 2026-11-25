@@ -43,6 +43,18 @@ CREATE TABLE "AiDigestIssues" (
 -- Index "idx_AiDigestIssues_recipientId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_AiDigestIssues_recipientId_createdAt" ON "AiDigestIssues" USING btree ("recipientId", "createdAt");
 
+-- Table "AiDigestItemClicks"
+CREATE TABLE "AiDigestItemClicks" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "issueId" VARCHAR(27) NOT NULL,
+  "sectionKind" TEXT NOT NULL,
+  "itemIndex" INTEGER NOT NULL
+);
+
+-- Index "idx_AiDigestItemClicks_issueId_sectionKind_itemIndex"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_AiDigestItemClicks_issueId_sectionKind_itemIndex" ON "AiDigestItemClicks" USING btree ("issueId", "sectionKind", "itemIndex");
+
 -- Table "AiDigestSchedules"
 CREATE TABLE "AiDigestSchedules" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1276,6 +1288,80 @@ CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_slug" ON "MultiDocuments" USING b
 
 -- Index "idx_MultiDocuments_oldSlugs"
 CREATE INDEX IF NOT EXISTS "idx_MultiDocuments_oldSlugs" ON "MultiDocuments" USING gin ("oldSlugs");
+
+-- Table "NarrationImageDescriptions"
+CREATE TABLE "NarrationImageDescriptions" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "imageUrl" TEXT NOT NULL,
+  "promptVersion" INTEGER NOT NULL,
+  "kind" TEXT NOT NULL,
+  "reading" TEXT NOT NULL
+);
+
+-- Index "idx_NarrationImageDescriptions_imageUrl_promptVersion"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_NarrationImageDescriptions_imageUrl_promptVersion" ON "NarrationImageDescriptions" USING btree ("imageUrl", "promptVersion");
+
+-- Table "NarrationScripts"
+CREATE TABLE "NarrationScripts" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "preprocessorVersion" INTEGER NOT NULL,
+  "introduction" TEXT NOT NULL,
+  "scriptUrl" TEXT
+);
+
+-- Index "idx_NarrationScripts_revisionId_preprocessorVersion_introduction"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_NarrationScripts_revisionId_preprocessorVersion_introduction" ON "NarrationScripts" USING btree (
+  "revisionId",
+  "preprocessorVersion",
+  "introduction"
+);
+
+-- Table "NarrationSegmentAudios"
+CREATE TABLE "NarrationSegmentAudios" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "narrationSegmentId" VARCHAR(27) NOT NULL,
+  "userId" VARCHAR(27),
+  "voiceId" TEXT NOT NULL,
+  "modelId" TEXT NOT NULL,
+  "stability" DOUBLE PRECISION NOT NULL,
+  "similarityBoost" DOUBLE PRECISION NOT NULL,
+  "style" DOUBLE PRECISION NOT NULL,
+  "speed" DOUBLE PRECISION NOT NULL,
+  "audioUrl" TEXT,
+  "timingsUrl" TEXT,
+  "durationMs" INTEGER,
+  "billedCharacters" INTEGER,
+  "elevenLabsRequestId" TEXT
+);
+
+-- Index "idx_NarrationSegmentAudios_segment_settings"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_NarrationSegmentAudios_segment_settings" ON "NarrationSegmentAudios" USING btree (
+  "narrationSegmentId",
+  "voiceId",
+  "modelId",
+  "stability",
+  "similarityBoost",
+  "style",
+  "speed"
+);
+
+-- Table "NarrationSegments"
+CREATE TABLE "NarrationSegments" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "narrationScriptId" VARCHAR(27) NOT NULL,
+  "segmentIndex" INTEGER NOT NULL,
+  "startBlockIndex" INTEGER NOT NULL,
+  "endBlockIndex" INTEGER NOT NULL,
+  "characterCount" INTEGER NOT NULL
+);
+
+-- Index "idx_NarrationSegments_narrationScriptId_segmentIndex"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_NarrationSegments_narrationScriptId_segmentIndex" ON "NarrationSegments" USING btree ("narrationScriptId", "segmentIndex");
 
 -- Table "Notifications"
 CREATE TABLE "Notifications" (
@@ -3276,6 +3362,8 @@ CREATE TABLE "Users" (
   "noKibitz" BOOL,
   "showHideKarmaOption" BOOL,
   "showPostAuthorCard" BOOL,
+  "narrationVoiceId" TEXT,
+  "narrationNamePronunciation" TEXT NOT NULL DEFAULT '',
   "hideIntercom" BOOL NOT NULL DEFAULT FALSE,
   "hailboxOptIn" BOOL NOT NULL DEFAULT FALSE,
   "markDownPostEditor" BOOL NOT NULL DEFAULT FALSE,
@@ -3779,6 +3867,11 @@ WHERE
   "unsubscribeFromAll" IS NOT TRUE AND
   "deleted" IS NOT TRUE AND
   "email" IS NOT NULL;
+
+-- CustomIndex "idx_Users_subscribed_to_aiDigest"
+CREATE INDEX IF NOT EXISTS "idx_Users_subscribed_to_aiDigest" ON "Users" ("_id")
+WHERE
+  "emailSubscribedToAiDigest" IS TRUE;
 
 -- CustomIndex "idx_Users_banned_karma"
 CREATE INDEX IF NOT EXISTS "idx_Users_banned_karma" ON "Users" ("karma" DESC NULLS LAST, "banned")

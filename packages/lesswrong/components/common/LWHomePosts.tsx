@@ -1,5 +1,5 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -9,7 +9,6 @@ import { useFilterSettings } from '../hooks/useFilterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
-import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { PostFeedDetails, homepagePostFeedsSetting, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
@@ -21,19 +20,15 @@ import { RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../l
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import isEqual from 'lodash/isEqual';
 import { capitalize } from "../../lib/vulcan-lib/utils";
-import SettingsButton from "../icons/SettingsButton";
 import SingleColumnSection from "./SingleColumnSection";
 import PostsList2 from "../posts/PostsList2";
 import TagFilterSettings from "../tagging/TagFilterSettings";
-import { RecombeePostsList } from "../posts/RecombeePostsList";
-import CuratedPostsList from "../recommendations/CuratedPostsList";
+import { HomePostsList } from "../posts/HomePostsList";
 import RecombeePostsListSettings from "../posts/RecombeePostsListSettings";
 import BookmarksList from "../bookmarks/BookmarksList";
 import ContinueReadingList from "../recommendations/ContinueReadingList";
-import WelcomePostItem from "../recommendations/WelcomePostItem";
 import { SuspenseWrapper } from './SuspenseWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import PostsLoading from '../posts/PostsLoading';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import AnalyticsInViewTracker from './AnalyticsInViewTracker';
 import UltraFeedSubscriptionsFeed from '../ultraFeed/UltraFeedSubscriptionsFeed';
@@ -46,6 +41,10 @@ import UltraFeedFollowingSettings from '../ultraFeed/UltraFeedFollowingSettings'
 import { IsReturningVisitorContext } from '@/components/layout/IsReturningVisitorContextProvider';
 import ErrorBoundary from './ErrorBoundary';
 import UltraFeedErrorFallback from '../ultraFeed/UltraFeedErrorFallback';
+import ForumIcon from './ForumIcon';
+import LWTooltip from './LWTooltip';
+import PostsListDebugSettings from '../posts/PostsListDebugSettings';
+import { PostsListDebugContext, getVisitorScenarioActivityFactor, type VisitorScenario } from '../posts/postsListDebugContext';
 
 
 
@@ -107,57 +106,47 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
   tagFilterSettingsExpandedMobile: {
     [theme.breakpoints.down('sm')]: expandedTagFilterSettingsStyles,
   },
-  tagFilterSettingsButtonContainerDesktop: {
-    [theme.breakpoints.up('md')]: {
-      alignSelf: "end",
-      opacity: 0.8,
-      display: "flex",
-      border: theme.palette.greyBorder("1px", 0.07),
-      borderRadius: 3,
-      background: theme.palette.panelBackground.bannerAdTranslucent,
-      padding: "5.5px",
-    },
-  },
-  tagFilterSettingsButtonContainerMobile: {
-    [theme.breakpoints.down('sm')]: {
-      alignSelf: "end",
-      opacity: 0.8,
-      display: "flex",
-      border: theme.palette.greyBorder("1px", 0.07),
-      borderRadius: 3,
-      background: theme.palette.panelBackground.default,
-      padding: "5.5px",
-      [theme.breakpoints.down('xs')]: {
-        padding: "4.5px",
-      },
-    },
-    [theme.breakpoints.up('md')]: {
-      display: "none",
-    },
-  },
   ultraFeedSettingsContainer: {
     marginTop: 16,
   },
   ultraFeedFollowingSettingsContainer: {
     marginTop: 16,
   },
-  hideDesktopSettingsButtonOnMobile: {
-    [theme.breakpoints.down('sm')]: {
-      display: "none",
+  controlButtons: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+  },
+  controlButton: {
+    display: "flex",
+    opacity: 0.8,
+    border: theme.palette.greyBorder("1px", 0.07),
+    borderRadius: 3,
+    padding: "5.5px",
+    color: theme.palette.grey[600],
+    cursor: "pointer",
+    '&:hover': {
+      opacity: 1,
+      color: theme.palette.grey[1000],
     },
+  },
+  controlButtonDesktop: {
+    background: theme.palette.panelBackground.bannerAdTranslucent,
+  },
+  controlButtonMobile: {
+    background: theme.palette.panelBackground.default,
+    [theme.breakpoints.down('xs')]: {
+      padding: "4.5px",
+    },
+  },
+  controlIcon: {
+    fontSize: 18,
+  },
+  debugIconActive: {
+    color: theme.palette.primary.main,
   },
   subscribedAnnouncementPost: {
     marginBottom: 32,
-  },
-  suggestedUsersHideLabel: {
-    ...theme.typography.commentStyle,
-    padding: 4,
-    fontSize: "1rem",
-    color: "unset",
-    opacity: 0.7,
-    '&:hover': {
-      opacity: 0.5,
-    }
   },
   checkboxContainer: {
     display: 'flex',
@@ -189,16 +178,11 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
   },
 }));
 
-export const filterSettingsToggleLabels = {
-  desktopVisible: "Customize (Hide)",
-  desktopHidden: "Customize",
-  mobileVisible: "Customize (Hide)",
-  mobileHidden: "Customize",
-};
-
 const advancedSortingText = "Advanced Sorting/Filtering";
 
 const defaultLimit = 13;
+
+const postsListDebugTabs = ['forum-classic', 'recombee-hybrid', 'recombee-lesswrong-custom'];
 
 function getDefaultDesktopFilterSettingsVisibility(currentUser: UsersCurrent | null) {
   if (!currentUser) {
@@ -359,69 +343,88 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
   };
 }
 
+const PostsListControlButton = ({ platform, tooltip, onClick, children }: {
+  platform: Platform,
+  tooltip: string,
+  onClick: () => void,
+  children: React.ReactNode,
+}) => {
+  const classes = useStyles(styles);
+  const isDesktop = platform === 'desktop';
+
+  return <LWTooltip
+    title={tooltip}
+    placement="top-end"
+    distance={8}
+    hideOnTouchScreens
+    className={isDesktop ? classes.hideOnMobile : classes.hideOnDesktop}
+  >
+    <button
+      type="button"
+      aria-label={tooltip}
+      onClick={onClick}
+      className={classNames(classes.controlButton, isDesktop ? classes.controlButtonDesktop : classes.controlButtonMobile)}
+    >
+      {children}
+    </button>
+  </LWTooltip>;
+}
+
+const settingsButtonTooltip = "Filter Settings";
+
 const FrontpageSettingsButton = ({
-  selectedTab,
   changeShowTagFilterSettingsDesktop,
   toggleMobileSettingsVisible,
-  desktopSettingsVisible,
   mobileSettingsVisible,
   filterSettings,
-  styleDesktopButton = true,
-  labelOverride,
-  labelClassName,
 }: {
-  selectedTab: string;
   changeShowTagFilterSettingsDesktop: () => void;
-  toggleMobileSettingsVisible?: (newVisibilityState: boolean) => void;
-  desktopSettingsVisible: boolean;
+  toggleMobileSettingsVisible: (newVisibilityState: boolean) => void;
   mobileSettingsVisible: boolean;
   filterSettings: FilterSettings;
-  styleDesktopButton?: boolean;
-  labelOverride?: (settingsVisible: boolean) => string;
-  labelClassName?: string;
 }) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
-
-  const desktopConfiguration = labelOverride ? {
-    showIcon: false,
-    label: labelOverride(desktopSettingsVisible)
-  } : {
-    showIcon: true,
-  } as const;
-
-  const mobileConfiguration = labelOverride ? {
-    showIcon: false,
-    label: labelOverride(mobileSettingsVisible)
-  } : {
-    showIcon: true,
-  } as const;
+  const icon = <ForumIcon icon="Settings" className={classes.controlIcon} />;
 
   return <>
-    {/* Desktop button */}
-    <div className={classNames(classes.hideDesktopSettingsButtonOnMobile, {
-      [classes.tagFilterSettingsButtonContainerDesktop]: styleDesktopButton
-    })}>
-      <SettingsButton
-        {...desktopConfiguration}
-        labelClassName={labelClassName}
-        onClick={changeShowTagFilterSettingsDesktop}
-      />
-    </div>
-    {/* Mobile button */}
-    {toggleMobileSettingsVisible && <div className={classes.tagFilterSettingsButtonContainerMobile}>
-      <SettingsButton
-        {...mobileConfiguration}
-        onClick={() => {
-          toggleMobileSettingsVisible(!mobileSettingsVisible);
-          captureEvent("filterSettingsClicked", {
-            settingsVisible: !mobileSettingsVisible,
-            settings: filterSettings,
-            pageSectionContext: "latestPosts",
-            mobile: true
-          });
-        } } />
-    </div>}
+    <PostsListControlButton platform="desktop" tooltip={settingsButtonTooltip} onClick={changeShowTagFilterSettingsDesktop}>
+      {icon}
+    </PostsListControlButton>
+    <PostsListControlButton
+      platform="mobile"
+      tooltip={settingsButtonTooltip}
+      onClick={() => {
+        toggleMobileSettingsVisible(!mobileSettingsVisible);
+        captureEvent("filterSettingsClicked", {
+          settingsVisible: !mobileSettingsVisible,
+          settings: filterSettings,
+          pageSectionContext: "latestPosts",
+          mobile: true
+        });
+      }}
+    >
+      {icon}
+    </PostsListControlButton>
+  </>;
+}
+
+const debugButtonTooltip = "Scoring debug";
+
+const PostsListDebugButton = ({ active, onClick }: {
+  active: boolean,
+  onClick: () => void,
+}) => {
+  const classes = useStyles(styles);
+  const icon = <ForumIcon icon="Insights" className={classNames(classes.controlIcon, { [classes.debugIconActive]: active })} />;
+
+  return <>
+    <PostsListControlButton platform="desktop" tooltip={debugButtonTooltip} onClick={onClick}>
+      {icon}
+    </PostsListControlButton>
+    <PostsListControlButton platform="mobile" tooltip={debugButtonTooltip} onClick={onClick}>
+      {icon}
+    </PostsListControlButton>
   </>;
 }
 
@@ -460,6 +463,19 @@ const LWHomePosts = ({ children, }: {
   const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs, filterSettings);
   const { settings: ultraFeedSettings, updateSettings: updateUltraFeedSettings, truncationMaps } = useUltraFeedSettings();
 
+  const [postsListDebugVisible, setPostsListDebugVisible] = useState(false);
+  const [visitorScenario, setVisitorScenario] = useState<VisitorScenario>("actual");
+  const showPostsListDebugButton = (userIsAdmin(currentUser) || query.postsListDebug === '1')
+    && postsListDebugTabs.includes(selectedTab);
+  const postsListDebugActive = showPostsListDebugButton && postsListDebugVisible;
+  const algoActivityFactor = postsListDebugActive ? getVisitorScenarioActivityFactor(visitorScenario) : undefined;
+  const postsListDebugSettings = useMemo(
+    () => postsListDebugActive
+      ? { filterSettings, scenario: visitorScenario, activityFactorOverride: algoActivityFactor }
+      : null,
+    [postsListDebugActive, filterSettings, visitorScenario, algoActivityFactor],
+  );
+
   const changeShowTagFilterSettingsDesktop = () => {
     toggleDesktopSettingsVisible(!desktopSettingsVisible);
     
@@ -495,11 +511,11 @@ const LWHomePosts = ({ children, }: {
     (userIsAdmin(currentUser) && selectedTab.includes('recombee'))
   );
 
-  const settingsButtonProps = { selectedTab, changeShowTagFilterSettingsDesktop, desktopSettingsVisible, mobileSettingsVisible, filterSettings };
-
   const inlineTabSettingsButton = <FrontpageSettingsButton
-    {...settingsButtonProps}
+    changeShowTagFilterSettingsDesktop={changeShowTagFilterSettingsDesktop}
     toggleMobileSettingsVisible={toggleMobileSettingsVisible}
+    mobileSettingsVisible={mobileSettingsVisible}
+    filterSettings={filterSettings}
   />;
 
   const settingsPotentiallyVisible = desktopSettingsVisible || mobileSettingsVisible;
@@ -567,6 +583,10 @@ const LWHomePosts = ({ children, }: {
     </>
   );
 
+  const postsListDebugSettingsElement = postsListDebugActive && settingsPotentiallyVisible && <div className={settingsVisibleClassName}>
+    <PostsListDebugSettings scenario={visitorScenario} onScenarioChange={setVisitorScenario} />
+  </div>;
+
   let settings = null;
   if (selectedTab === 'forum-classic') { 
     settings = filterSettingsElement;
@@ -607,52 +627,46 @@ const LWHomePosts = ({ children, }: {
               showDescriptionOnHover
             />
           </div>
-          {showInlineTabSettingsButton && inlineTabSettingsButton}
+          <div className={classes.controlButtons}>
+            {showPostsListDebugButton && <PostsListDebugButton
+              active={postsListDebugVisible}
+              onClick={() => setPostsListDebugVisible(!postsListDebugVisible)}
+            />}
+            {showInlineTabSettingsButton && inlineTabSettingsButton}
+          </div>
         </div>
         {settings}
+        {postsListDebugSettingsElement}
+        <PostsListDebugContext.Provider value={postsListDebugSettings}>
         <SuspenseWrapper name="LWHomePostsInner">
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
               {/* LATEST POSTS (Hacker News Algorithm) */}
               {/* Frustratingly, the AnalyticsContext update doesn't update upon switching tab so it's necessary to have a wrapper around each section individually, could be investigated further */}
               {(selectedTab === 'forum-classic') && <AnalyticsContext feedType={selectedTab}>
-                <SuspenseWrapper
-                  name="LWHomePosts-forum-classic"
-                  fallback={<PostsLoading placeholderCount={defaultLimit+2} loadMore/>}
-                >
-                  <HideRepeatedPostsProvider>
-                    <WelcomePostItem repeatedPostsPrecedence={1} />
-                    <CuratedPostsList overrideLimit={2} repeatedPostsPrecedence={2}/>
-                    <PostsList2
-                      terms={recentPostsTerms}
-                      alwaysShowLoadMore
-                      animateLoadMore
-                      hideHiddenFrontPagePosts
-                      repeatedPostsPrecedence={3}
-                    >
-                      <Link to={"/allPosts"}>{advancedSortingText}</Link>
-                    </PostsList2> 
-                  </HideRepeatedPostsProvider>
-                </SuspenseWrapper>
+                <HomePostsList algorithm={'forum-classic'} settings={{ filterSettings, algoActivityFactor }}>
+                  <Link to={"/allPosts"}>{advancedSortingText}</Link>
+                </HomePostsList>
               </AnalyticsContext>}
               
               {/* ENRICHED LATEST POSTS */}
               {selectedTab === 'recombee-hybrid' && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList 
+                <HomePostsList 
                   algorithm={'recombee-hybrid'} 
                   settings={{
                     ...scenarioConfig,
                     hybridScenarios: {
                       fixed: 'forum-classic', 
                       configurable: 'recombee-lesswrong-custom'
-                    }
+                    },
+                    algoActivityFactor,
                   }} 
                 />
               </AnalyticsContext>}
 
               {/* JUST RECOMMENDATIONS */}
               {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
+                <HomePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
               </AnalyticsContext>}
 
               {/* BOOKMARKS */}
@@ -718,6 +732,7 @@ const LWHomePosts = ({ children, }: {
 
             </AllowHidingFrontPagePostsContext.Provider>
         </SuspenseWrapper>
+        </PostsListDebugContext.Provider>
         
         {!selectedTabSettings.isInfiniteScroll && <>
           {children}

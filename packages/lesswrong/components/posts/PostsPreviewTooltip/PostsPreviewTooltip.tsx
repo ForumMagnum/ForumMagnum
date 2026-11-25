@@ -6,9 +6,8 @@ export interface DialogueMessageInfo {
   dialogueMessageContents: string
 }
 
-export interface PostsPreviewTooltipProps {
+export type PostsPreviewTooltipProps = {
   postsList?: boolean,
-  showLlmScore?: boolean,
   hash?: string|null,
   post: PostsList|SunshinePostsList|null,
   comment?: CommentsList,

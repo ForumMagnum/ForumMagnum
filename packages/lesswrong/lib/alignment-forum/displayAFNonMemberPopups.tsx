@@ -4,33 +4,12 @@ import React, { useCallback } from 'react';
 import {userNeedsAFNonMemberWarning} from "./users/helpers";
 import {OpenDialogContextType, useDialog} from "../../components/common/withDialog";
 import { useMutation } from "@apollo/client/react";
-import { gql } from '@/lib/generated/gql-codegen';
-import uniq from 'lodash/uniq';
 import { useCurrentUser } from '@/components/common/withUser';
+import { SetCommentSuggestedForAlignmentMutation, SetPostSuggestedForAlignmentMutation } from '@/components/alignment-forum/alignmentSuggestionMutations';
 
 import dynamic from 'next/dynamic';
 const AFNonMemberInitialPopup = dynamic(() => import("@/components/alignment-forum/AFNonMemberInitialPopup"), { ssr: false });
 const AFNonMemberSuccessPopup = dynamic(() => import("@/components/alignment-forum/AFNonMemberSuccessPopup"), { ssr: false });
-
-const SuggestAlignmentCommentUpdateMutation = gql(`
-  mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
-    updateComment(selector: $selector, data: $data) {
-      data {
-        ...SuggestAlignmentComment
-      }
-    }
-  }
-`);
-
-const SuggestAlignmentPostUpdateMutation = gql(`
-  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
-    updatePost(selector: $selector, data: $data) {
-      data {
-        ...SuggestAlignmentPost
-      }
-    }
-  }
-`);
 
 const isComment = (document: PostsBase | CommentsList): document is CommentsList => {
   if ('answer' in document) return true //only comments can be answers
@@ -54,18 +33,15 @@ export const useAfNonMemberSuccessHandling = () => {
   const { forumType } = useForumType();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
-  const [updateComment] = useMutation(SuggestAlignmentCommentUpdateMutation);
-  const [updatePost] = useMutation(SuggestAlignmentPostUpdateMutation);
+  const [setCommentSuggestedForAlignment] = useMutation(SetCommentSuggestedForAlignmentMutation);
+  const [setPostSuggestedForAlignment] = useMutation(SetPostSuggestedForAlignmentMutation);
   
   return useCallback((document: PostsBase | CommentsList) => {
     if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, forumType, false)) {
       if (isComment(document)) {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        void updateComment({
-          variables: {
-            selector: { _id: document._id},
-            data: {suggestForAlignmentUserIds: uniq([...document.suggestForAlignmentUserIds, currentUser._id])}
-          }
+        void setCommentSuggestedForAlignment({
+          variables: { commentId: document._id, suggested: true }
         });
         openDialog({
           name: "AFNonMemberSuccessPopup",
@@ -77,11 +53,8 @@ export const useAfNonMemberSuccessHandling = () => {
         })
       } else {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        void updatePost({
-          variables: {
-            selector: { _id: document._id },
-            data: { suggestForAlignmentUserIds: uniq([...document.suggestForAlignmentUserIds, currentUser._id]) }
-          }
+        void setPostSuggestedForAlignment({
+          variables: { postId: document._id, suggested: true }
         })
         openDialog({
           name: "AFNonMemberSuccessPopup",
@@ -92,5 +65,5 @@ export const useAfNonMemberSuccessHandling = () => {
         })
       }
     }
-  }, [currentUser, openDialog, updateComment, updatePost, forumType]);
+  }, [currentUser, openDialog, setCommentSuggestedForAlignment, setPostSuggestedForAlignment, forumType]);
 }

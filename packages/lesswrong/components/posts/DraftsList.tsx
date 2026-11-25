@@ -150,7 +150,6 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
           toggleDeleteDraft={toggleDelete}
           hideAuthor
           showDraftTag={false}
-          showPersonalIcon={false}
           showBottomBorder={i < results.length-1}
           strikethroughTitle={post.deletedDraft}
         />

@@ -25,6 +25,9 @@ const styles = defineStyles('ExplicitSaveTextSetting', (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     lineHeight: 1.45,
     marginBottom: 8,
+    '& a': {
+      color: theme.palette.primary.main,
+    },
   },
   inputRow: {
     display: 'flex',
@@ -50,6 +53,9 @@ const styles = defineStyles('ExplicitSaveTextSetting', (theme: ThemeType) => ({
       borderColor: theme.palette.primary.main,
       boxShadow: `0 0 0 3px ${theme.palette.primary.main}22`,
     },
+    '&::placeholder': {
+      color: theme.palette.grey[400],
+    },
   },
   error: {
     fontSize: 12.5,
@@ -74,20 +80,25 @@ const ExplicitSaveTextSetting = ({
   label,
   description,
   type = 'text',
+  placeholder,
   value,
   confirmMessage,
   savedNote,
   onSave,
+  renderDraftActions,
 }: {
   label: string;
-  description?: string;
+  description?: React.ReactNode;
   type?: 'text' | 'email';
+  placeholder?: string;
   value: string | null | undefined;
   /** If provided, ask for confirmation with this message before saving */
   confirmMessage?: (newValue: string) => string;
   /** Shown after a successful save */
   savedNote?: string;
   onSave: (value: string) => Promise<UserSettingsSaveResult>;
+  /** Controls beside the input that act on what's been typed, whether or not it's been saved */
+  renderDraftActions?: (draft: string) => React.ReactNode;
 }) => {
   const classes = useStyles(styles);
   const [draft, setDraft] = useState(value ?? '');
@@ -122,6 +133,7 @@ const ExplicitSaveTextSetting = ({
           className={classes.input}
           type={type}
           value={draft}
+          placeholder={placeholder}
           onChange={(e) => {
             setDraft(e.target.value);
             setNote(null);
@@ -132,6 +144,7 @@ const ExplicitSaveTextSetting = ({
             }
           }}
         />
+        {renderDraftActions?.(draft)}
         {isChanged && <SettingsSaveButton saving={saving} onClick={() => void handleSave()} />}
       </div>
       {error && <div className={classes.error}>{error}</div>}

@@ -8,7 +8,7 @@ import PostsRepo from "@/server/repos/PostsRepo";
 import AiDigestSchedulesRepo from "@/server/repos/AiDigestSchedulesRepo";
 import AiDigestIssues from "@/server/collections/aiDigestIssues/collection";
 import AiDigestSchedules from "@/server/collections/aiDigestSchedules/collection";
-import LWEvents from "@/server/collections/lwevents/collection";
+import { createLWEvent } from "@/server/collections/lwevents/mutations";
 import UltraFeedEvents from "@/server/collections/ultraFeedEvents/collection";
 import Users from "@/server/collections/users/collection";
 import { clearAiDigestRecommendationHistory, loadAiDigestHistory } from "@/server/aiDigest/aiDigestHistory";
@@ -249,22 +249,24 @@ it("attributes a visit from a digest email link to the recommendation it was for
 
   // Visit the second recommendation and the curated post from their title
   // links, recording the links' UTM parameters as the post page does.
+  const readerContext = computeContextFromUser({ user: reader, isSSR: false });
   for (const postId of [second, curated]) {
     const link = titleLinkTo(postId);
-    await LWEvents.rawInsert({
-      name: "post-view",
-      userId: reader._id,
-      documentId: postId,
-      important: false,
-      intercom: false,
-      properties: {
-        utmCampaign: link.searchParams.get("utm_campaign"),
-        utmContent: link.searchParams.get("utm_content"),
+    await createLWEvent({
+      data: {
+        name: "post-view",
+        documentId: postId,
+        important: false,
+        intercom: false,
+        properties: {
+          utmCampaign: link.searchParams.get("utm_campaign"),
+          utmContent: link.searchParams.get("utm_content"),
+        },
       },
-    });
+    }, readerContext);
   }
 
-  const history = await loadAiDigestHistory(reader._id, computeContextFromUser({ user: reader, isSSR: false }));
+  const history = await loadAiDigestHistory(reader._id, readerContext);
   const clickedByTitle = Object.fromEntries(history.pastRecommendations.map((recommendation) => [
     recommendation.type === "post" ? recommendation.title : recommendation.snippet,
     recommendation.recommendations.some((event) => !!event.clickedAt),

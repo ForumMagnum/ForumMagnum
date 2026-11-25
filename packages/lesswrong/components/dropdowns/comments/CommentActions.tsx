@@ -1,5 +1,6 @@
 import React from 'react';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
+import { userIsAdminOrMod, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import EditCommentDropdownItem from "./EditCommentDropdownItem";
@@ -23,6 +24,7 @@ import BanUserFromPostDropdownItem from "./BanUserFromPostDropdownItem";
 import LockThreadDropdownItem from "./LockThreadDropdownItem";
 import { useCurrentUser } from '@/components/common/withUser';
 import BookmarkDropdownItem from "../posts/BookmarkDropdownItem";
+import ModeratorActionsSubmenu from "../ModeratorActionsSubmenu";
 
 
 const PostsDetailsQuery = gql(`
@@ -59,10 +61,41 @@ const CommentActions = ({comment, post, tag, showEdit}: {
   // selected the thing, and closes the menu, but doesn't do the
   // thing.
 
+  // Moderators and admins see moderator-only actions grouped into a submenu,
+  // as in PostActions. An action that regular users can take on their own
+  // comments, or on comments on their own posts, goes in the submenu if the
+  // current user is neither and so can only take it because they're a
+  // moderator.
+  const showModeratorSubmenu = userIsAdminOrMod(currentUser);
+  const ownsPost = !!postDetails && userOwns(currentUser, postDetails);
+  const commentAuthorActionsAreModeratorOnly = showModeratorSubmenu && !userOwns(currentUser, comment);
+  const deleteIsModeratorOnly = commentAuthorActionsAreModeratorOnly && !ownsPost;
+  const banFromPostIsModeratorOnly = showModeratorSubmenu && !ownsPost;
+
+  const editItems = <>
+    <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
+    <PinToProfileDropdownItem comment={comment} post={post} />
+  </>;
+  const commentAuthorItems = <>
+    <MoveToAnswersDropdownItem comment={comment} post={postDetails} />
+    <QuickTakeTagsDropdownItem comment={comment} />
+    <ShortformFrontpageDropdownItem comment={comment} />
+  </>;
+  const deleteItem = <DeleteCommentDropdownItem comment={comment} post={postDetails} tag={tag} />;
+  const banFromPostItem = <BanUserFromPostDropdownItem comment={comment} post={postDetails} />;
+
+  const moderatorItems = <>
+    {commentAuthorActionsAreModeratorOnly && editItems}
+    {commentAuthorActionsAreModeratorOnly && commentAuthorItems}
+    {deleteIsModeratorOnly && deleteItem}
+    <LockThreadDropdownItem comment={comment} />
+    {banFromPostIsModeratorOnly && banFromPostItem}
+    <ToggleIsModeratorCommentDropdownItem comment={comment} />
+  </>;
+
   return (
     <DropdownMenu>
-      <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
-      <PinToProfileDropdownItem comment={comment} post={post} />
+      {!commentAuthorActionsAreModeratorOnly && editItems}
       <CommentSubscriptionsDropdownItem comment={comment} post={post} />
       {!comment.draft && <BookmarkDropdownItem documentId={comment._id} collectionName="Comments" preventMenuClose />}
       <ReportCommentDropdownItem comment={comment} post={post} />
@@ -71,21 +104,18 @@ const CommentActions = ({comment, post, tag, showEdit}: {
       <SuggestAlignmentCommentDropdownItem comment={comment} post={postDetails} />
 
       {postDetails &&
-        userCanModeratePost(currentUser, postDetails) &&
+        (ownsPost || userCanModeratePost(currentUser, postDetails).canModerate) &&
         postDetails.user &&
           <DropdownDivider />
       }
 
-      <MoveToAnswersDropdownItem comment={comment} post={postDetails} />
-      <QuickTakeTagsDropdownItem comment={comment} />
-      <ShortformFrontpageDropdownItem comment={comment} />
-      <DeleteCommentDropdownItem comment={comment} post={postDetails} tag={tag} />
+      {!commentAuthorActionsAreModeratorOnly && commentAuthorItems}
+      {!deleteIsModeratorOnly && deleteItem}
       <RetractCommentDropdownItem comment={comment} />
-      <LockThreadDropdownItem comment={comment} />
-      <BanUserFromPostDropdownItem comment={comment} post={postDetails} />
+      {!banFromPostIsModeratorOnly && banFromPostItem}
       <BanUserFromAllPostsDropdownItem comment={comment} post={postDetails} />
       <BanUserFromAllPersonalPostsDropdownItem comment={comment} post={postDetails} />
-      <ToggleIsModeratorCommentDropdownItem comment={comment} />
+      {showModeratorSubmenu && <ModeratorActionsSubmenu>{moderatorItems}</ModeratorActionsSubmenu>}
     </DropdownMenu>
   );
 }

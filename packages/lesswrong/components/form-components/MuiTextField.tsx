@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
-const styles = defineStyles('MuiTextField', (theme: ThemeType) => ({
+export const styles = defineStyles('MuiTextField', (theme: ThemeType) => ({
   textField: {
     fontSize: "15px",
     width: 350,

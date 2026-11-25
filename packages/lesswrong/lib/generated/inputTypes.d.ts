@@ -26,6 +26,10 @@ interface Query {
   Lightcone2024FundraiserStripeAmounts: Array<number> | null;
   Lightcone2025FundraiserAirtableAmounts: number;
   LlmModelOptions: Array<string>;
+  narrationOptions: NarrationOptions;
+  narrationSelectableVoices: Array<NarrationVoice>;
+  narrationSegmentAudios: Array<NarrationSegmentAudio>;
+  FrontpagePostScoreBreakdown: FrontpagePostScoreBreakdown | null;
   PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData | null;
   petrov2024checkIfNuked: boolean | null;
   PetrovDayCheckIfIncoming: PetrovDayCheckIfIncomingData | null;
@@ -45,6 +49,7 @@ interface Query {
   CrossedKarmaThreshold: CrossedKarmaThresholdResult | null;
   RecombeeLatestPosts: RecombeeLatestPostsResult | null;
   RecombeeHybridPosts: RecombeeHybridPostsResult | null;
+  ClassicFrontpagePosts: ClassicFrontpagePostsResult | null;
   PostsWithActiveDiscussion: PostsWithActiveDiscussionResult | null;
   PostsBySubscribedAuthors: PostsBySubscribedAuthorsResult | null;
   PostsWithApprovedJargon: PostsWithApprovedJargonResult | null;
@@ -250,13 +255,22 @@ interface Mutation {
   MakeElicitPrediction: ElicitBlockData | null;
   MarkAllNotificationsAsRead: boolean | null;
   sendNewDialogueMessageNotification: boolean;
+  prepareNarration: NarrationScript;
+  prepareCommentNarration: NarrationScript;
+  generateNarrationSegmentAudio: NarrationSegmentAudio;
+  previewNarrationNamePronunciation: string;
   PetrovDayLaunchMissile: PetrovDayLaunchMissileData | null;
   submitReviewVote: Post | null;
   AddGivingSeasonHeart: Array<GivingSeasonHeart>;
   RemoveGivingSeasonHeart: Array<GivingSeasonHeart>;
   ImportGoogleDoc: Post | null;
+  setPostSuggestedForCuration: Post | null;
   alignmentComment: Comment | null;
   alignmentPost: Post | null;
+  setPostSuggestedForAlignment: Post | null;
+  setCommentSuggestedForAlignment: Comment | null;
+  reviewPostForAlignment: Post | null;
+  reviewCommentForAlignment: Comment | null;
   markConversationRead: boolean;
   sendEventTriggeredDM: boolean;
   initiateConversation: Conversation | null;
@@ -417,7 +431,7 @@ interface EmptyViewInput {
 
 interface EmailPreview {
   to: string | null;
-  subject: string | null;
+  subject: string;
   html: string | null;
   text: string | null;
 }
@@ -874,6 +888,50 @@ interface CommentNotificationFilterFacts {
   replyToMyComment: boolean;
 }
 
+interface NarrationVoice {
+  voiceId: string;
+  name: string;
+  description: string;
+  previewUrl: string;
+}
+
+interface NarrationModel {
+  modelId: string;
+  name: string;
+  description: string | null;
+}
+
+interface NarrationAdminOptions {
+  voices: Array<NarrationVoice>;
+  models: Array<NarrationModel>;
+}
+
+interface NarrationOptions {
+  voices: Array<NarrationVoice>;
+  adminOptions: NarrationAdminOptions | null;
+}
+
+interface NarrationVoiceChoiceInput {
+  voiceId: string;
+  modelId: string;
+}
+
+interface FrontpageScoreTerm {
+  label: string;
+  value: number;
+}
+
+interface FrontpagePostScoreBreakdown {
+  filteredScore: number;
+  additiveTerms: Array<FrontpageScoreTerm>;
+  multiplicativeTerms: Array<FrontpageScoreTerm>;
+  ageHours: number;
+  ageOffsetHours: number;
+  decayExponent: number;
+  decayDivisor: number;
+  activityFactor: number | null;
+}
+
 interface PetrovDay2024CheckNumberOfIncomingData {
   count: number | null;
 }
@@ -1004,6 +1062,10 @@ interface RecombeeLatestPostsResult {
 }
 
 interface RecombeeHybridPostsResult {
+  results: Array<RecombeeRecommendedPost>;
+}
+
+interface ClassicFrontpagePostsResult {
   results: Array<RecombeeRecommendedPost>;
 }
 
@@ -1688,6 +1750,7 @@ interface BookmarksUserDocumentBookmarkInput {
 
 interface BookmarkSelector {
   myBookmarkedPosts: EmptyViewInput | null;
+  myBookmarkedComments: EmptyViewInput | null;
   myBookmarks: EmptyViewInput | null;
   userDocumentBookmark: BookmarksUserDocumentBookmarkInput | null;
 }
@@ -3041,6 +3104,48 @@ interface LlmRunTranscriptEntry {
   extra: any;
 }
 
+interface NarrationImageDescription {
+  _id: string;
+  createdAt: Date;
+}
+
+interface NarrationScript {
+  _id: string;
+  createdAt: Date;
+  revisionId: string;
+  preprocessorVersion: number;
+  scriptUrl: string | null;
+  segments: Array<NarrationSegment>;
+}
+
+interface NarrationSegmentAudio {
+  _id: string;
+  createdAt: Date;
+  narrationSegmentId: string;
+  userId: string | null;
+  voiceId: string;
+  modelId: string;
+  stability: number;
+  similarityBoost: number;
+  style: number;
+  speed: number;
+  audioUrl: string | null;
+  timingsUrl: string | null;
+  durationMs: number | null;
+  billedCharacters: number | null;
+  elevenLabsRequestId: string | null;
+}
+
+interface NarrationSegment {
+  _id: string;
+  createdAt: Date;
+  narrationScriptId: string;
+  segmentIndex: number;
+  startBlockIndex: number;
+  endBlockIndex: number;
+  characterCount: number;
+}
+
 interface RejectionAppeal {
   _id: string;
   createdAt: Date;
@@ -4337,6 +4442,7 @@ interface PostsMagicInput {
   meta?: boolean | null;
   forum?: boolean | null;
   limit?: number | null;
+  algoActivityFactor?: number | null;
 }
 
 interface PostsTopInput {
@@ -7301,6 +7407,8 @@ interface User {
   noKibitz: boolean | null;
   showHideKarmaOption: boolean | null;
   showPostAuthorCard: boolean | null;
+  narrationVoiceId: string | null;
+  narrationNamePronunciation: string | null;
   hideIntercom: boolean;
   hailboxOptIn: boolean | null;
   markDownPostEditor: boolean;
@@ -8342,7 +8450,6 @@ interface CreatePostDataInput {
   feedLink?: string | null;
   curatedDate?: Date | null;
   metaDate?: Date | null;
-  suggestForCuratedUserIds?: Array<string> | null;
   frontpageDate?: Date | null;
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
@@ -8407,7 +8514,6 @@ interface CreatePostDataInput {
   af?: boolean | null;
   afDate?: Date | null;
   afSticky?: boolean | null;
-  suggestForAlignmentUserIds?: Array<string> | null;
   reviewForAlignmentUserId?: string | null;
   agentFoundationsId?: string | null;
   swrCachingEnabled?: boolean | null;
@@ -8458,7 +8564,6 @@ interface UpdatePostDataInput {
   feedLink?: string | null;
   curatedDate?: Date | null;
   metaDate?: Date | null;
-  suggestForCuratedUserIds?: Array<string> | null;
   frontpageDate?: Date | null;
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
@@ -8524,7 +8629,6 @@ interface UpdatePostDataInput {
   af?: boolean | null;
   afDate?: Date | null;
   afSticky?: boolean | null;
-  suggestForAlignmentUserIds?: Array<string> | null;
   reviewForAlignmentUserId?: string | null;
   agentFoundationsId?: string | null;
   swrCachingEnabled?: boolean | null;
@@ -9335,6 +9439,8 @@ interface UpdateUserDataInput {
   noKibitz?: boolean | null;
   showHideKarmaOption?: boolean | null;
   showPostAuthorCard?: boolean | null;
+  narrationVoiceId?: string | null;
+  narrationNamePronunciation?: string | null;
   hideIntercom?: boolean | null;
   hailboxOptIn?: boolean | null;
   markDownPostEditor?: boolean | null;
@@ -9583,6 +9689,13 @@ interface GraphQLTypeMap {
   ElicitBlockData: ElicitBlockData;
   NotificationCounts: NotificationCounts;
   CommentNotificationFilterFacts: CommentNotificationFilterFacts;
+  NarrationVoice: NarrationVoice;
+  NarrationModel: NarrationModel;
+  NarrationAdminOptions: NarrationAdminOptions;
+  NarrationOptions: NarrationOptions;
+  NarrationVoiceChoiceInput: NarrationVoiceChoiceInput;
+  FrontpageScoreTerm: FrontpageScoreTerm;
+  FrontpagePostScoreBreakdown: FrontpagePostScoreBreakdown;
   PetrovDay2024CheckNumberOfIncomingData: PetrovDay2024CheckNumberOfIncomingData;
   PetrovDayCheckIfIncomingData: PetrovDayCheckIfIncomingData;
   PetrovDayLaunchMissileData: PetrovDayLaunchMissileData;
@@ -9609,6 +9722,7 @@ interface GraphQLTypeMap {
   CrossedKarmaThresholdResult: CrossedKarmaThresholdResult;
   RecombeeLatestPostsResult: RecombeeLatestPostsResult;
   RecombeeHybridPostsResult: RecombeeHybridPostsResult;
+  ClassicFrontpagePostsResult: ClassicFrontpagePostsResult;
   PostsWithActiveDiscussionResult: PostsWithActiveDiscussionResult;
   PostsBySubscribedAuthorsResult: PostsBySubscribedAuthorsResult;
   PostsWithApprovedJargonResult: PostsWithApprovedJargonResult;
@@ -9875,6 +9989,10 @@ interface GraphQLTypeMap {
   MarketplaceHomePageDesign: MarketplaceHomePageDesign;
   AdminHomePageDesign: AdminHomePageDesign;
   LlmRunTranscriptEntry: LlmRunTranscriptEntry;
+  NarrationImageDescription: NarrationImageDescription;
+  NarrationScript: NarrationScript;
+  NarrationSegmentAudio: NarrationSegmentAudio;
+  NarrationSegment: NarrationSegment;
   RejectionAppeal: RejectionAppeal;
   SingleRejectionAppealOutput: SingleRejectionAppealOutput;
   RejectionAppealSelector: RejectionAppealSelector;
@@ -10518,6 +10636,7 @@ interface CreateInputsByCollectionName {
   Users: CreateUserInput;
   AiDigestIssueGenerations: never;
   AiDigestIssues: never;
+  AiDigestItemClicks: never;
   AiDigestSchedules: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
@@ -10550,6 +10669,10 @@ interface CreateInputsByCollectionName {
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
+  NarrationImageDescriptions: never;
+  NarrationScripts: never;
+  NarrationSegmentAudios: never;
+  NarrationSegments: never;
   Notifications: never;
   OAuthAccessTokens: never;
   OAuthAuthorizationCodes: never;
@@ -10621,6 +10744,7 @@ interface UpdateInputsByCollectionName {
   Users: UpdateUserInput;
   AiDigestIssueGenerations: never;
   AiDigestIssues: never;
+  AiDigestItemClicks: never;
   AiDigestSchedules: never;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
@@ -10653,6 +10777,10 @@ interface UpdateInputsByCollectionName {
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
+  NarrationImageDescriptions: never;
+  NarrationScripts: never;
+  NarrationSegmentAudios: never;
+  NarrationSegments: never;
   OAuthAccessTokens: never;
   OAuthAuthorizationCodes: never;
   OAuthClients: never;

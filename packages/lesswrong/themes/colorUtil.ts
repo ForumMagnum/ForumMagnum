@@ -1,4 +1,5 @@
 import mapValues from "lodash/mapValues";
+import { cssNamedColors } from "./cssNamedColors";
 
 type ColorTuple=[number,number,number,number]; //RGBA, all channels floating point zero to one
 
@@ -23,11 +24,13 @@ function toHex2(n: number): string {
 export function parseColor(color: string): ColorTuple|null
 {
   switch(color) {
-    case "white": return [1,1,1,1];
-    case "black": return [0,0,0,1];
     case "transparent": return [0,0,0,0];
     case "inherit": return null;
     default: break;
+  }
+  const namedColorHex = cssNamedColors.get(color);
+  if (namedColorHex) {
+    return parseColor(namedColorHex);
   }
   if (color.startsWith("#")) {
     // #rrggbb or #rgb format
@@ -141,6 +144,14 @@ export function invertHexColor(color: string): string {
   return colorToString(inverted);
 }
 
+export function invertHexColorPreservingHue(color: string): string {
+  const parsed = parseColor(color);
+  validateColor(parsed!);
+  const inverted = invertColorPreservingHue(parsed!);
+  validateColor(inverted);
+  return colorToString(inverted);
+}
+
 export const grey = mapValues({
   // Exactly matches @/lib/vendor/@material-ui/core/src/colors/grey
   50: '#fafafa',
@@ -192,6 +203,7 @@ export const primaryAlpha = greyAlpha;
 export const boxShadowColor = (alpha: number) => greyAlpha(alpha);
 export const greyBorder = (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`;
 export const invertIfDarkMode = (color: string) => `light-dark(${color},${invertHexColor(color)})`;
+export const invertIfDarkModePreservingHue = (color: string) => `light-dark(${color},${invertHexColorPreservingHue(color)})`;
 
 /**
  * Converts an HSL color value to RGB. Conversion formula

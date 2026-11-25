@@ -1,11 +1,11 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React from "react";
-import type { Placement as PopperPlacementType } from "popper.js"
+import type { TooltipPlacement } from "@/components/common/TooltipGroup";
 import LWTooltip from "./LWTooltip";
 
 const KarmaDisplay = ({document, placement="left", linkItem}: {
   document: VoteableType,
-  placement?: PopperPlacementType,
+  placement?: TooltipPlacement,
   linkItem?: React.ReactNode,
 }) => {
   const { isAF } = useForumType();

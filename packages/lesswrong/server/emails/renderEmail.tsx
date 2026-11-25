@@ -31,7 +31,10 @@ export interface RenderedEmail {
   subject: string,
   html: string,
   text: string,
+  footerRecommendationPostIds: string[],
 }
+
+type BodyLogSummarizer = (email: RenderedEmail) => Record<string, unknown>;
 
 // How many characters to wrap the plain-text version of the email to
 const plainTextWordWrap = 80;
@@ -212,10 +215,11 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     subject: taggedSubject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
+    footerRecommendationPostIds: emailContext.footerRecommendationPostIds,
   }
 }
 
-export async function createEmailContext(user: DbUser|null, forumTypeOrContext: ForumTypeString | ResolverContext) {
+export async function createEmailContext(user: DbUser|null, forumTypeOrContext: ForumTypeString | ResolverContext): Promise<EmailContextType> {
   const resolverContextWithDefault = typeof forumTypeOrContext === "string"
     ? computeContextFromUser({ user, isSSR: false, forumType: forumTypeOrContext })
     : forumTypeOrContext;
@@ -225,6 +229,7 @@ export async function createEmailContext(user: DbUser|null, forumTypeOrContext: 
     resolverContext: resolverContextWithDefault,
     stylesUsed: new Set<StyleDefinition<string, string>>(),
     currentUser: currentUser.data?.currentUser ?? null,
+    footerRecommendationPostIds: [],
   };
 }
 
@@ -283,6 +288,7 @@ export const wrapAndSendEmail = async ({
   forumType,
   backgroundColor,
   includeUnsubscribeFooter,
+  summarizeBodyForLog,
 }: {
   forumType: ForumTypeString;
   user: DbUser | null;
@@ -294,6 +300,11 @@ export const wrapAndSendEmail = async ({
   utmParams?: Partial<Record<UtmParam, string>>;
   backgroundColor?: string;
   includeUnsubscribeFooter?: boolean;
+  /**
+   * The emailSent event stores this in place of the email's html and text. For
+   * high-volume emails whose bodies are too large to store for every recipient.
+   */
+  summarizeBodyForLog?: BodyLogSummarizer;
 }): Promise<boolean> => {
   if (isE2E) {
     return true;
@@ -312,7 +323,7 @@ export const wrapAndSendEmail = async ({
   try {
     const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams, forumType, backgroundColor, includeUnsubscribeFooter });
     const succeeded = await sendEmail(email);
-    backgroundTask(logSentEmail(email, user, {succeeded}, forumType));
+    backgroundTask(logSentEmail(email, user, {succeeded}, forumType, summarizeBodyForLog));
     return succeeded;
   } catch(e) {
     // eslint-disable-next-line no-console
@@ -344,14 +355,14 @@ async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
   }
 }
 
-async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, additionalFields: any, forumType: ForumTypeString) {
-  // Remove the html, which is very large and bloats LWEvents
-  // We still have the text content of the email, which is sufficient for email history
-  const { html, ...emailFields } = renderedEmail;
+async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, additionalFields: any, forumType: ForumTypeString, summarizeBodyForLog?: BodyLogSummarizer) {
+  const { html, text, footerRecommendationPostIds, ...emailFields } = renderedEmail;
+  const loggedBody = summarizeBodyForLog ? summarizeBodyForLog(renderedEmail) : { html, text };
 
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
     ...emailFields,
+    ...loggedBody,
     user: user?._id,
   };
   // Log in LWEvents table

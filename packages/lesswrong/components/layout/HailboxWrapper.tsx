@@ -12,6 +12,7 @@ import { isStandaloneRoute } from '@/lib/routeChecks';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useAbstractThemeOptions, useThemeColor } from '@/components/themes/useTheme';
 import { defaultZIndexes } from '@/themes/zIndexes';
+import { bottomClearOfNarrationPlayer, NARRATION_PLAYER_DOCKED_CLASS } from '@/components/narration/narrationPlayerLayout';
 
 const styles = defineStyles('HailboxWrapper', (theme: ThemeType) => ({
   root: {
@@ -23,8 +24,12 @@ const styles = defineStyles('HailboxWrapper', (theme: ThemeType) => ({
       "&:hover": {
         boxShadow: `0 6px 8px ${theme.palette.greyAlpha(0.2)}`,
       },
+      bottom: bottomClearOfNarrationPlayer(20),
     },
     [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+    [`body.${NARRATION_PLAYER_DOCKED_CLASS} &`]: {
       display: "none",
     },
   },

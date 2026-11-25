@@ -1,11 +1,12 @@
 type AiDigestIssueGenerationsViewName = never
 type AiDigestIssuesViewName = "recipientIssues";
+type AiDigestItemClicksViewName = never
 type AiDigestSchedulesViewName = never
 type ArbitalCachesViewName = never
 type ArbitalTagContentRelsViewName = never
 type AutomatedContentEvaluationsViewName = never
 type BansViewName = never
-type BookmarksViewName = "myBookmarkedPosts"|"myBookmarks"|"userDocumentBookmark";
+type BookmarksViewName = "myBookmarkedComments"|"myBookmarkedPosts"|"myBookmarks"|"userDocumentBookmark";
 type BooksViewName = never
 type ChaptersViewName = "SequenceChapters";
 type CkEditorUserSessionsViewName = never
@@ -47,6 +48,10 @@ type MigrationsViewName = never
 type ModerationTemplatesViewName = "moderationTemplatesList"|"moderationTemplatesPage";
 type ModeratorActionsViewName = "restrictionModerationActions"|"userModeratorActions";
 type MultiDocumentsViewName = "lensBySlug"|"pingbackLensPages"|"summariesByParentId";
+type NarrationImageDescriptionsViewName = never
+type NarrationScriptsViewName = never
+type NarrationSegmentAudiosViewName = never
+type NarrationSegmentsViewName = never
 type NotificationsViewName = "adminAlertNotifications"|"unreadUserNotifications"|"userNotifications";
 type OAuthAccessTokensViewName = never
 type OAuthAuthorizationCodesViewName = never
@@ -103,6 +108,7 @@ type YjsDocumentsViewName = never
 interface ViewTermsByCollectionName {
   AiDigestIssueGenerations: ViewTermsBase
   AiDigestIssues: AiDigestIssuesViewTerms
+  AiDigestItemClicks: ViewTermsBase
   AiDigestSchedules: ViewTermsBase
   ArbitalCaches: ViewTermsBase
   ArbitalTagContentRels: ViewTermsBase
@@ -150,6 +156,10 @@ interface ViewTermsByCollectionName {
   ModerationTemplates: ModerationTemplatesViewTerms
   ModeratorActions: ModeratorActionsViewTerms
   MultiDocuments: MultiDocumentsViewTerms
+  NarrationImageDescriptions: ViewTermsBase
+  NarrationScripts: ViewTermsBase
+  NarrationSegmentAudios: ViewTermsBase
+  NarrationSegments: ViewTermsBase
   Notifications: NotificationsViewTerms
   OAuthAccessTokens: ViewTermsBase
   OAuthAuthorizationCodes: ViewTermsBase

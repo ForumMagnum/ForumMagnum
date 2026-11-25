@@ -12,7 +12,7 @@ import { commentIsPubliclyVisible } from "@/server/permissions/accessFilters";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { getLlmReplyHtml } from "./llmReplyHtml";
-import { buildThreadContextMessage } from "./threadContext";
+import { buildThreadContext } from "./threadContext";
 
 export async function runCommentReply(run: DbLlmRun): Promise<void> {
   const replyComment = await getReplyComment(run);
@@ -27,7 +27,7 @@ export async function runCommentReply(run: DbLlmRun): Promise<void> {
 
   const response = run.response ?? await generateLlmRunResponse(run, {
     model: getLlmReplyModel(run.gatewayModelId),
-    contextMessage: await buildThreadContextMessage(post, triggerComment, context),
+    ...await buildThreadContext(post, triggerComment, context),
     tools: getLlmTools(context),
   });
   if (!await context.LlmRuns.findOne({ _id: run._id, status: "running", attemptCount: run.attemptCount })) {

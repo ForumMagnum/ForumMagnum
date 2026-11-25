@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { NetworkStatus, type OperationVariables } from "@apollo/client";
+import { NetworkStatus, type OperationVariables, type WatchQueryFetchPolicy } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { Kind } from "graphql";
@@ -49,6 +49,57 @@ type ValidPaginatedData<TData> = HasPaginatedField<TData> extends never | undefi
 
 export type WrappedFetchMore = () => Promise<void>
 
+interface PaginationState {
+  selector?: Record<string, unknown>;
+  limit: number;
+  loadedLimit: number;
+  preloadedLimit?: number;
+}
+
+interface PreloadedPage<TData, TVariables> {
+  variables: TVariables;
+  shownData: TData;
+  data?: TData;
+}
+
+/**
+ * Whether a preloaded page is the one that loading more would show now. It
+ * isn't if the list has changed since the page was requested (eg it was
+ * refetched after a mutation): revealing it would replace the list with an
+ * older version of itself.
+ */
+function isPreloadOfNextPage<TData, TVariables>(
+  page: PreloadedPage<TData, TVariables> | null,
+  shownData: TData | undefined,
+  nextVariables: TVariables,
+): page is PreloadedPage<TData, TVariables> {
+  return !!page && page.shownData === shownData && isEqual(page.variables, nextVariables);
+}
+
+interface PreloadedPageFetchPolicies {
+  fetchPolicy: WatchQueryFetchPolicy;
+  nextFetchPolicy?: () => WatchQueryFetchPolicy;
+}
+
+const keepCacheFirst = (): WatchQueryFetchPolicy => "cache-first";
+
+/**
+ * A page revealed from a preload is already in the cache, so the caller's
+ * fetch policies must not request it a second time.
+ *
+ * If the caller has a nextFetchPolicy, cache-first may already be the query's
+ * current policy, and when variables change apollo replaces a fetchPolicy that
+ * matches the current one with the caller's initial policy. A nextFetchPolicy
+ * function takes precedence over that. It's only passed where the caller has a
+ * nextFetchPolicy of their own to go back to afterwards, because apollo ignores
+ * options that are undefined, so the function would otherwise stay in effect.
+ */
+function getPreloadedPageFetchPolicies(callerHasNextFetchPolicy: boolean): PreloadedPageFetchPolicies {
+  return callerHasNextFetchPolicy
+    ? { fetchPolicy: "cache-first", nextFetchPolicy: keepCacheFirst }
+    : { fetchPolicy: "cache-first" };
+}
+
 export function useQueryWithLoadMore<
   TData extends Record<string, any>,
   TVariables extends OperationVariables
@@ -76,7 +127,7 @@ export function useQueryWithLoadMore<
     : (limit ?? 10);
 
   // Keep the last successful limit separately so a failed request can be retried.
-  const [paginationState, setPaginationState] = useState({
+  const [paginationState, setPaginationState] = useState<PaginationState>({
     selector, limit: initialLimit, loadedLimit: initialLimit,
   });
   const enableTotal = variables.enableTotal;
@@ -88,8 +139,10 @@ export function useQueryWithLoadMore<
     setPaginationState(pagination);
   }
 
+  const showingPreloadedPage = pagination.limit === pagination.preloadedLimit;
   const queryOutput = useQuery(query, {
     ...remainingOptions,
+    ...(showingPreloadedPage && getPreloadedPageFetchPolicies(!!remainingOptions.nextFetchPolicy)),
     ssr,
     notifyOnNetworkStatusChange,
     variables: { ...variables, limit: pagination.limit },
@@ -137,8 +190,39 @@ export function useQueryWithLoadMore<
       : current);
   };
 
+  const nextLimit = pagination.loadedLimit + itemsPerPage;
+  const nextVariables = { ...variables, limit: nextLimit };
+  const preloadedPage = useRef<PreloadedPage<NonNullable<typeof queryOutput.data>, typeof nextVariables> | null>(null);
+
+  // Requests the next page without changing anything that's rendered (it stays
+  // out of the cache), so that loadMore can show it without waiting. Showing it
+  // means putting it in the cache, which a no-cache caller has opted out of.
+  const preload = useStabilizedCallbackAsync<void>(async () => {
+    const shownData = queryOutput.data;
+    if (!shownData || remainingOptions.fetchPolicy === "no-cache") return;
+    if (isPreloadOfNextPage(preloadedPage.current, shownData, nextVariables)) return;
+
+    const requested = { variables: nextVariables, shownData };
+    preloadedPage.current = requested;
+    try {
+      const { data: preloadedData } = await queryOutput.client.query({ query, variables: nextVariables, fetchPolicy: "no-cache" });
+      if (preloadedPage.current === requested) preloadedPage.current = { ...requested, data: preloadedData };
+    } catch {
+      // Not reported: loadMore makes the request again, and reports its failure.
+      if (preloadedPage.current === requested) preloadedPage.current = null;
+    }
+  });
+
   const loadMore = useStabilizedCallbackAsync<void>(async () => {
-    await loadWithLimit(pagination.loadedLimit + itemsPerPage);
+    const preloaded = preloadedPage.current;
+    // If a preload is still in flight, apollo deduplicates this request against it.
+    if (!isPreloadOfNextPage(preloaded, queryOutput.data, nextVariables) || !preloaded.data) {
+      await loadWithLimit(nextLimit);
+      return;
+    }
+    preloadedPage.current = null;
+    queryOutput.client.writeQuery({ query, variables: nextVariables, data: preloaded.data });
+    setPaginationState({ ...pagination, limit: nextLimit, loadedLimit: nextLimit, preloadedLimit: nextLimit });
   });
 
   // Requests as many results as the server will return in a single query.
@@ -152,6 +236,7 @@ export function useQueryWithLoadMore<
     networkStatus,
     loadMoreProps: {
       loadMore,
+      preload,
       loadAll,
       count,
       totalCount,

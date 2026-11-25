@@ -10,6 +10,7 @@ import gql from "graphql-tag"
 import { defaultNotificationsView } from '@/lib/collections/notifications/views';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { getCommentNotificationFilterHistory } from '../commentNotificationFilters';
+import { sanitize } from '@/lib/utils/sanitize';
 
 export const notificationResolversGqlTypeDefs = gql`
   type NotificationCounts {
@@ -158,7 +159,7 @@ const extractLatestDialogueMessageByUser = async (dialogueHtml: string, userId: 
     if (messageUserId === userId) {
       latestMessage = {
         dialogueMessageId: $(message).attr('message-id') ?? "",
-        dialogueMessageContents: $(message).html() ?? "",
+        dialogueMessageContents: sanitize($(message).html() ?? ""),
       };
     }
   });

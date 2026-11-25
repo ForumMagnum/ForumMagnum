@@ -4,6 +4,7 @@ import { Votes } from '../../../server/collections/votes/collection';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import type { VoteDocTuple } from '../../../lib/voting/vote';
 import UsersRepo from "../../repos/UsersRepo";
+import sumBy from "lodash/sumBy";
 
 export const recalculateAFBaseScore = async (document: VoteableType): Promise<number> => {
   let votes = await Votes.find({
@@ -26,22 +27,19 @@ export function getVoteAFPower({user, voteType, document}: {
 }
 
 
+export function voteIsByAuthor(vote: DbVote, document: Pick<DbVoteableType, 'userId'>): boolean {
+  return vote.userId === document.userId || !!vote.authorIds?.includes(vote.userId);
+}
+
 async function updateUserAFKarmaForVote (newDocument: DbVoteableType, vote: DbVote, multiplier: number) {
-  if (newDocument.af && (newDocument.userId !== vote.userId)) {
-    const documentUser = await Users.findOne({_id:newDocument.userId})
-    if (!documentUser) throw Error("Can't find user to update Alignment Karma")
-    const karmaUpdate = (vote.afPower || 0) * multiplier;
-    const newAfKarma = (documentUser.afKarma || 0) + karmaUpdate;
-    if (newAfKarma > 0) {
-      await Users.rawUpdateOne({_id:newDocument.userId}, {
-        $inc: {afKarma: karmaUpdate},
-        $addToSet: {groups: 'alignmentVoters'}
-      })
-    } else {
-      // Need to use Math.abs since the multiplier is -1 for downvotes (which is almost certainly what's triggering this)
-      await new UsersRepo().removeAlignmentGroupAndKarma(newDocument.userId!, Math.abs(karmaUpdate));
-    }
+  if (!newDocument.af || !newDocument.userId || voteIsByAuthor(vote, newDocument)) {
+    return;
   }
+  const karmaUpdate = (vote.afPower || 0) * multiplier;
+  if (karmaUpdate === 0) {
+    return;
+  }
+  await new UsersRepo().applyAFKarmaChange(newDocument.userId, karmaUpdate);
 }
 
 export async function grantUserAFKarmaForVote ({newDocument, vote}: VoteDocTuple) {
@@ -53,30 +51,32 @@ export async function revokeUserAFKarmaForCancelledVote ({newDocument, vote}: Vo
 
 }
 
-export async function moveToAFUpdatesUserAFKarma (document: Pick<DbPost|DbComment, 'af' | 'afBaseScore' | 'userId' | '_id'>, oldDocument: Pick<DbPost|DbComment, 'af' | 'afBaseScore' | 'userId' | '_id'>) {
-  if (document.af && !oldDocument.af) {
-    await Users.rawUpdateOne({_id:document.userId}, {
-      $inc: {afKarma: document.afBaseScore ?? 0},
+async function getAFKarmaFromNonAuthorVotes(document: Pick<DbPost|DbComment, 'userId' | '_id'>): Promise<number> {
+  const votes = await Votes.find({
+    documentId: document._id,
+    cancelled: false,
+  }).fetch();
+  return sumBy(votes.filter(vote => !voteIsByAuthor(vote, document)), vote => vote.afPower ?? 0);
+}
+
+export async function moveToAFUpdatesUserAFKarma (document: Pick<DbPost|DbComment, 'af' | 'userId' | '_id'>, oldDocument: Pick<DbPost|DbComment, 'af' | 'userId' | '_id'>) {
+  const movedToAF = document.af && !oldDocument.af;
+  const movedOffAF = !document.af && oldDocument.af;
+  if (!movedToAF && !movedOffAF) {
+    return;
+  }
+  const afKarmaFromVotes = await getAFKarmaFromNonAuthorVotes(document);
+  if (movedToAF) {
+    await Users.rawUpdateOne({_id: document.userId}, {
+      $inc: {afKarma: afKarmaFromVotes},
       $addToSet: {groups: 'alignmentVoters'}
     })
-    await Votes.rawUpdateMany({documentId: document._id}, {
-      $set: {documentIsAf: true}
-    }, {multi: true})
-  } else if (!document.af && oldDocument.af) {
-    const documentUser = await Users.findOne({_id:document.userId})
-    if (!documentUser) throw Error("Can't find user for updating karma after moving document to AIAF")
-    const karmaUpdate = -(document.afBaseScore ?? 0);
-    const newAfKarma = (documentUser.afKarma || 0) + karmaUpdate;
-    if (newAfKarma > 0) {
-      await Users.rawUpdateOne({_id:document.userId}, {$inc: {afKarma: karmaUpdate}})
-    } else {
-      // Need to use Math.abs since the multiplier is -1 for downvotes (which is almost certainly what's triggering this)
-      await new UsersRepo().removeAlignmentGroupAndKarma(document.userId, Math.abs(karmaUpdate));
-    }
-    await Votes.rawUpdateMany({documentId: document._id}, {
-      $set: {documentIsAf: false}
-    }, {multi: true})
+  } else if (afKarmaFromVotes !== 0) {
+    await new UsersRepo().applyAFKarmaChange(document.userId, -afKarmaFromVotes);
   }
+  await Votes.rawUpdateMany({documentId: document._id}, {
+    $set: {documentIsAf: movedToAF}
+  }, {multi: true})
 }
 
 
