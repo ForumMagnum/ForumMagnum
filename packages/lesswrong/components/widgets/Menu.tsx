@@ -10,7 +10,7 @@ import { Paper } from './Paper';
 const styles = defineStyles("Menu", (theme) => ({
   menu: {
     display: "inline-block",
-    zIndex: theme.zIndexes.lwPopper,
+    zIndex: theme.zIndexes.lwPopperTooltip + 1,
   },
 }));
 
