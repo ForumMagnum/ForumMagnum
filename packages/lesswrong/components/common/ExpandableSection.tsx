@@ -31,18 +31,32 @@ const styles = defineStyles("ExpandableSection", (theme: ThemeType) => ({
       display: "none",
     },
   },
+  // The tooltip wrapper is as tall as the title's line, which is what lets the
+  // button align with the text. Only the button should respond to the mouse.
+  expandTooltip: {
+    pointerEvents: "none",
+  },
+  expandButton: {
+    display: "inline-flex",
+    verticalAlign: "middle",
+    padding: 6,
+    margin: -6,
+    border: "none",
+    background: "none",
+    color: "inherit",
+    cursor: "pointer",
+    pointerEvents: "auto",
+    "&:hover": {
+      color: theme.palette.grey[800],
+    }
+  },
   expandIcon: {
-    verticalAlign: 'middle',
     transform: "translateY(-1px)",
     fontSize: 16,
-    cursor: "pointer",
     transition: "transform 0.2s ease-in-out",
     "@media (prefers-reduced-motion: reduce)": {
       transition: "none",
     },
-    "&:hover": {
-      color: theme.palette.grey[800],
-    }
   },
   chevronExpanded: {
     transform: "rotate(90deg)",
@@ -87,6 +101,7 @@ const ExpandableSection = ({
 }: ExpandableSectionProps) => {
   const classes = useStyles(styles);
   const contentRef = useRef<HTMLDivElement>(null);
+  const expandLabel = expanded ? "Collapse" : "Expand";
 
   return (
     <AnalyticsContext pageSectionContext={pageSectionContext}>
@@ -97,16 +112,24 @@ const ExpandableSection = ({
             <div className={classes.title}>
               {title}
               <LWTooltip
-                title={expanded ? "Collapse" : "Expand"}
+                title={expandLabel}
                 hideOnTouchScreens
+                className={classes.expandTooltip}
               >
-                <ForumIcon
-                  icon="ThickChevronRight"
+                <button
+                  type="button"
+                  aria-label={expandLabel}
+                  aria-expanded={expanded}
                   onClick={toggleExpanded}
-                  className={classNames(classes.expandIcon, {
-                    [classes.chevronExpanded]: expanded,
-                  })}
-                />
+                  className={classes.expandButton}
+                >
+                  <ForumIcon
+                    icon="ThickChevronRight"
+                    className={classNames(classes.expandIcon, {
+                      [classes.chevronExpanded]: expanded,
+                    })}
+                  />
+                </button>
               </LWTooltip>
             </div>
           }
