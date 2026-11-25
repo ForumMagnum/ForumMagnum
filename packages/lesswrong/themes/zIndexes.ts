@@ -52,7 +52,6 @@ export const defaultZIndexes = {
   karmaChangeNotifier: 1400,
   backdrop: 1310,
   notificationsMenu: 1500,
-  splashHeaderImageOptions: 2000,
   afNonMemberPopup: 9999,
   commandPalette: 9999,
   lwPopper: 10000,

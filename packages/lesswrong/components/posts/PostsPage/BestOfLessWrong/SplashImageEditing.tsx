@@ -1,11 +1,10 @@
-import React, { RefObject } from 'react';
+import React, { RefObject, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useHover } from '@/components/common/withHover';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import SplashImageEditingOptions from "./SplashImageEditingOptions";
 import ImageCropPreview from "./ImageCropPreview";
-import LWPopper from "../../../common/LWPopper";
+import LWDialog from "../../../common/LWDialog";
 
 const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({ 
   root: {
@@ -38,17 +37,14 @@ const styles = defineStyles("SplashImageEditing", (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
     cursor: 'pointer',
   },
-  splashContent: {
-    padding: 8,
-    minHeight: '50vh',
-    minWidth: '100vw',
-    backgroundColor: theme.palette.background.paper,
+  optionsDialogPaper: {
+    width: 'calc(100vw - 80px)',
   },
 }));
 
 const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { imgRef: RefObject<HTMLImageElement|null>, imageFlipped: boolean, setImageFlipped: (imageFlipped: boolean) => void, post: PostsWithNavigation|PostsWithNavigationAndRevision}) => {
   const classes = useStyles(styles);
-  const { anchorEl, hover, eventHandlers } = useHover();
+  const [optionsOpen, setOptionsOpen] = useState(false);
 
   const [flipMutation] = useMutation(gql(`
     mutation flipSplashArtImage($reviewWinnerArtId: String!) {
@@ -68,14 +64,15 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
   return <div className={classes.root}>
     <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
     <ImageCropPreview imgRef={imgRef} flipped={imageFlipped} />
-    <div {...eventHandlers}>
-      <div className={classes.changeImageBox}>Change image</div>
-      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-end" clickable={true} flip={true}>
-        <div className={classes.splashContent}>
-          <SplashImageEditingOptions post={post}/>
-        </div>
-      </LWPopper>
-    </div>
+    <div className={classes.changeImageBox} onClick={() => setOptionsOpen(true)}>Change image</div>
+    <LWDialog
+      open={optionsOpen}
+      onClose={() => setOptionsOpen(false)}
+      maxWidth={false}
+      paperClassName={classes.optionsDialogPaper}
+    >
+      <SplashImageEditingOptions post={post}/>
+    </LWDialog>
   </div>
 }
 
