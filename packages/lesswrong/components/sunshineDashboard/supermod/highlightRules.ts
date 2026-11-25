@@ -1,7 +1,7 @@
 import maxBy from "lodash/maxBy";
 import sumBy from "lodash/sumBy";
 import { FLAGGED_FOR_N_DMS, AUTO_BLOCKED_FROM_SENDING_DMS, SENT_MODERATOR_MESSAGE } from "@/lib/collections/moderatorActions/constants";
-import { isPost, type ContentItem } from "./helpers";
+import { areAllContentPermissionsDisabled, isPost, type ContentItem } from "./helpers";
 import { getProseLanguageCounts } from "./contentLanguage";
 import { contentHasOffsiteLink } from "./contentLinks";
 import {
@@ -313,7 +313,7 @@ export function getHighlightedModeratorActions(ctx: HighlightContext): Highlight
     },
     {
       action: 'disablePermissions', color: 'black',
-      highlight: rejectedCount >= 2 || summary.mostRecentContentIsRejected,
+      highlight: !areAllContentPermissionsDisabled(ctx.user) && (rejectedCount >= 2 || summary.mostRecentContentIsRejected),
       strong: rejectedCount >= 2,
     },
     {
