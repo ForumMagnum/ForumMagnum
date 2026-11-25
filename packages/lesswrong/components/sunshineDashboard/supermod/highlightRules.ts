@@ -3,7 +3,7 @@ import sumBy from "lodash/sumBy";
 import { FLAGGED_FOR_N_DMS, AUTO_BLOCKED_FROM_SENDING_DMS, SENT_MODERATOR_MESSAGE } from "@/lib/collections/moderatorActions/constants";
 import { areAllContentPermissionsDisabled, isPost, type ContentItem } from "./helpers";
 import { getProseLanguageCounts } from "./contentLanguage";
-import { contentHasOffsiteLink } from "./contentLinks";
+import { getLinkHrefs, isOffsiteLink } from "./contentLinks";
 import {
   getBlankLineRatioFromHtml,
   getBoldLetterRatioFromHtml,
@@ -196,8 +196,10 @@ export function getHighlightedRejectionTemplateIds(focusedContent: ContentItem, 
   const { html, text, titleAndText } = details;
   const contents: ContentItem[] = [...ctx.posts, ...ctx.comments];
   const focusedIsPost = isPost(focusedContent);
-  const isLinkpost = isPost(focusedContent) && !!focusedContent.url;
-  const linkCount = (html.match(/<a\s[^>]*href/gi) ?? []).length;
+  const linkpostUrl = isPost(focusedContent) ? focusedContent.url : null;
+  const isLinkpost = !!linkpostUrl;
+  const linkHrefs = getLinkHrefs(html);
+  const linkCount = linkHrefs.length;
   const pangramScore = getPangramScore(focusedContent);
   const mentionsAi = MENTIONS_AI.test(titleAndText);
   const mentionsAiOrAgents = MENTIONS_AI_OR_AGENTS.test(titleAndText);
@@ -243,7 +245,7 @@ export function getHighlightedRejectionTemplateIds(focusedContent: ContentItem, 
     // No LLM (autoreject)
     '2m37jFoGn4XrbngSz': pangramScore > 0.3,
     // Difficult to evaluate (offsite content)
-    wqaWetK6QoP523Ewx: linkCount === 1 || contentHasOffsiteLink(focusedContent),
+    wqaWetK6QoP523Ewx: linkCount === 1 || isOffsiteLink(linkpostUrl) || linkHrefs.some(isOffsiteLink),
     // Not obviously not spam
     jTB9sweKK9pRLM4db: (text.length < 600 && (linkCount === 1 || isLinkpost)) || OBFUSCATED_CONTACT_ADDRESS.test(text),
     // We only accept English-language content

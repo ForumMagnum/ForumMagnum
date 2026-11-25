@@ -1,12 +1,7 @@
 import { parseDocumentFromString } from '@/lib/domParser';
 import { classifyHost } from '@/lib/routeUtil';
 
-interface ContentWithLinks {
-  url?: string | null;
-  contents?: { html: string | null } | null;
-}
-
-function isOffsiteLink(href: string | null | undefined): boolean {
+export function isOffsiteLink(href: string | null | undefined): boolean {
   if (!href) return false;
   const trimmedHref = href.trim();
   try {
@@ -18,10 +13,7 @@ function isOffsiteLink(href: string | null | undefined): boolean {
   }
 }
 
-export function contentHasOffsiteLink({ url, contents }: ContentWithLinks): boolean {
-  if (isOffsiteLink(url)) return true;
-  if (!contents?.html) return false;
-  const { document } = parseDocumentFromString(contents.html);
-  return Array.from(document.querySelectorAll('a[href]'))
-    .some(link => isOffsiteLink(link.getAttribute('href')));
+export function getLinkHrefs(html: string): string[] {
+  const { document } = parseDocumentFromString(html);
+  return Array.from(document.querySelectorAll('a[href]'), link => link.getAttribute('href') ?? '');
 }
