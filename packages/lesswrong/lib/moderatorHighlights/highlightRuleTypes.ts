@@ -57,17 +57,12 @@ export interface HighlightRule {
   level2Groups?: HighlightCondition[][];
 }
 
-/** Template rules are keyed by trimmed template name, since template _ids differ between databases. */
 export type HighlightRuleOverrides = Record<HighlightRuleCategory, Record<string, HighlightRule>>;
 
 export type ModeratorActionHighlightLevel = 1 | 2;
 
 function emptyHighlightRuleOverrides(): HighlightRuleOverrides {
   return { actions: {}, messageTemplates: {}, rejectionTemplates: {} };
-}
-
-export function getHighlightRuleTemplateKey(template: { name: string }): string {
-  return template.name.trim();
 }
 
 export function isNumericHighlightOperator(operator: HighlightConditionOperator): operator is NumericHighlightOperator {

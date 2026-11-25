@@ -15,7 +15,6 @@ import SectionTitle from '@/components/common/SectionTitle';
 import { useSubscribedLocation } from '@/lib/routeUtil';
 import {
   formatHighlightRuleOverrides,
-  getHighlightRuleTemplateKey,
   parseHighlightRuleOverrides,
   type HighlightRule,
   type HighlightRuleCategory,
@@ -108,6 +107,7 @@ interface RuleSectionEntry {
 }
 
 interface HighlightRuleTemplate {
+  _id: string;
   name: string;
 }
 
@@ -124,15 +124,15 @@ function getTemplateEntries(
   templates: HighlightRuleTemplate[],
   templatesLoaded: boolean,
 ): RuleSectionEntry[] {
-  const existingTemplateKeys = new Set(templates.map(getHighlightRuleTemplateKey));
-  const templateKeys = [...new Set([
-    ...existingTemplateKeys,
+  const templateNamesById = new Map(templates.map(template => [template._id, template.name]));
+  const templateIds = [...new Set([
+    ...templateNamesById.keys(),
     ...Object.keys(categoryRules),
   ])];
-  return templateKeys.map(templateKey => ({
-    key: templateKey,
-    title: templateKey,
-    warning: templatesLoaded && !existingTemplateKeys.has(templateKey) ? "No template with this name" : undefined,
+  return templateIds.map(templateId => ({
+    key: templateId,
+    title: templateNamesById.get(templateId) ?? templateId,
+    warning: templatesLoaded && !templateNamesById.has(templateId) ? "No template with this ID" : undefined,
   }));
 }
 
@@ -223,7 +223,7 @@ const HighlightRuleEditorPage = () => {
 
   const messageTemplates = messageTemplateData?.moderationTemplates?.results ?? [];
   const rejectionTemplates = rejectionTemplateData?.moderationTemplates?.results ?? [];
-  const targetTemplateKey = hash.startsWith('#') ? decodeURIComponent(hash.slice(1)) : null;
+  const targetTemplateKey = hash.startsWith('#') ? hash.slice(1) : null;
 
   useEffect(() => {
     if (!targetTemplateKey) return;

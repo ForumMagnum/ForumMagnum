@@ -330,11 +330,11 @@ const RejectContentEditor = ({ user, focusedContent, active, editorContainerRef,
  * Stays mounted while `active` is false so the draft survives the tab
  * being toggled closed and reopened.
  */
-const RejectContentPanel = ({ user, focusedContent, active, highlightedTemplateNames, showCollapsedActions, onRejectStart, onRejected, onRejectFailed, onEscape }: {
+const RejectContentPanel = ({ user, focusedContent, active, highlightedTemplateIds, showCollapsedActions, onRejectStart, onRejected, onRejectFailed, onEscape }: {
   user: SunshineUsersList,
   focusedContent: ContentItem,
   active: boolean,
-  highlightedTemplateNames: Set<string>,
+  highlightedTemplateIds: Set<string>,
   // False while another section is expanded
   showCollapsedActions: boolean,
   onRejectStart?: (content: ContentItem) => void,
@@ -387,7 +387,7 @@ const RejectContentPanel = ({ user, focusedContent, active, highlightedTemplateN
       <GroupedModerationTemplateList
         collectionName="Rejections"
         onTemplateClick={(template) => toggleTemplateRef.current(template)}
-        highlightedTemplateNames={highlightedTemplateNames}
+        highlightedTemplateIds={highlightedTemplateIds}
         insertedTemplateIds={insertedTemplateIds}
         onlyHighlighted
         active={false}
@@ -415,7 +415,7 @@ const RejectContentPanel = ({ user, focusedContent, active, highlightedTemplateN
       <GroupedModerationTemplateList
         collectionName="Rejections"
         onTemplateClick={(template) => toggleTemplateRef.current(template)}
-        highlightedTemplateNames={highlightedTemplateNames}
+        highlightedTemplateIds={highlightedTemplateIds}
         insertedTemplateIds={insertedTemplateIds}
         focusSearchToken={templateSearchToken}
         active={active}

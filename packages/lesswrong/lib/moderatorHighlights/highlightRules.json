@@ -71,7 +71,7 @@
     }
   },
   "messageTemplates": {
-    "No Org Usernames": {
+    "jLmxBpT6S5tKZeRje": {
       "enabled": true,
       "groups": [
         [
@@ -79,7 +79,7 @@
         ]
       ]
     },
-    "Make Username Pronounceable": {
+    "QgjTGcAXTubHLFT3T": {
       "enabled": true,
       "groups": [
         [
@@ -93,7 +93,7 @@
         ]
       ]
     },
-    "Politics": {
+    "qeA9Nz5wcK5Jf3DNc": {
       "enabled": true,
       "groups": [
         [
@@ -107,7 +107,7 @@
         ]
       ]
     },
-    "Formatting / Grammar": {
+    "kjngfezNkPWoJKXaR": {
       "enabled": true,
       "groups": [
         [
@@ -127,7 +127,7 @@
         ]
       ]
     },
-    "Lotsa DMs": {
+    "Jk8MT3Bx8gtLQDqPJ": {
       "enabled": true,
       "groups": [
         [
@@ -135,7 +135,7 @@
         ]
       ]
     },
-    "This isn't gonna work out": {
+    "HDoZ8fssGxkdrWk7B": {
       "enabled": true,
       "groups": [
         [
@@ -143,7 +143,7 @@
         ]
       ]
     },
-    "Multiple LLM rejections": {
+    "6agTZiaGBy3rmuFPi": {
       "enabled": true,
       "groups": [
         [
@@ -152,7 +152,7 @@
         ]
       ]
     },
-    "Barely approved AI content": {
+    "cqS4KAvpsRwop9bzE": {
       "enabled": true,
       "groups": [
         [
@@ -161,7 +161,7 @@
         ]
       ]
     },
-    "No Unmotivated Vibecoded AI Research": {
+    "QpuGWbJHRyFz7jnFL": {
       "enabled": true,
       "groups": [
         [
@@ -170,7 +170,7 @@
         ]
       ]
     },
-    "Semi-automoderated quality warning (downvoted)": {
+    "Yban5DJx6wdwfT55u": {
       "enabled": true,
       "groups": [
         [
@@ -179,7 +179,7 @@
         ]
       ]
     },
-    "Semi-Automated Quality (low average)": {
+    "9hJ97QDSFJ73FHm27": {
       "enabled": true,
       "groups": [
         [
@@ -192,7 +192,7 @@
         ]
       ]
     },
-    "Bad fit first post, unlikely to get better": {
+    "c9fBRe7pg4vAxxE8K": {
       "enabled": true,
       "groups": [
         [
@@ -201,7 +201,7 @@
         ]
       ]
     },
-    "Your Submissions Aren't Finding Traction": {
+    "SDueuoox7Rtv2KzzR": {
       "enabled": true,
       "groups": [
         [
@@ -214,7 +214,7 @@
     }
   },
   "rejectionTemplates": {
-    "Probably Insufficient Quality for AI Post": {
+    "oEDFB6quMvtbrrTJF": {
       "enabled": true,
       "groups": [
         [
@@ -222,7 +222,7 @@
         ]
       ]
     },
-    "Insufficient Quality for AI Content (posts)": {
+    "zjuhK23edCtaHFBiM": {
       "enabled": true,
       "groups": [
         [
@@ -231,7 +231,7 @@
         ]
       ]
     },
-    "Insufficient Quality for AI Content (comments)": {
+    "dc6jmTmGBGcehmjp5": {
       "enabled": true,
       "groups": [
         [
@@ -240,7 +240,7 @@
         ]
       ]
     },
-    "Insufficient quality": {
+    "jMnuDMzkxxv6KYXoe": {
       "enabled": true,
       "groups": [
         [
@@ -273,7 +273,7 @@
         ]
       ]
     },
-    "No Unmotivated Vibecoded AI Research": {
+    "yEuGMPp9n69hQTaQZ": {
       "enabled": true,
       "groups": [
         [
@@ -283,7 +283,7 @@
         ]
       ]
     },
-    "Missing some AI alignment basics": {
+    "RaZbGQgQFHTnhADtc": {
       "enabled": true,
       "groups": [
         [
@@ -292,7 +292,7 @@
         ]
       ]
     },
-    "Roko's Basilisk": {
+    "CZXcvC7MRQFisDLzu": {
       "enabled": true,
       "groups": [
         [
@@ -300,7 +300,7 @@
         ]
       ]
     },
-    "Duplicate": {
+    "zJnR8uwyfFHysrEXE": {
       "enabled": true,
       "groups": [
         [
@@ -308,7 +308,7 @@
         ]
       ]
     },
-    "No, we won't answer followup questions": {
+    "92jk7orNzXeXsBwhn": {
       "enabled": true,
       "groups": [
         [
@@ -317,7 +317,7 @@
         ]
       ]
     },
-    "Political norm": {
+    "znkq9eFiHSGapPxuY": {
       "enabled": true,
       "groups": [
         [
@@ -333,7 +333,7 @@
         ]
       ]
     },
-    "No LLM Case Studies": {
+    "bNowHrpefEixoSqep": {
       "enabled": true,
       "groups": [
         [
@@ -342,7 +342,7 @@
         ]
       ]
     },
-    "LLM sycophancy trap": {
+    "TSr4KisbusfQLBRk4": {
       "enabled": true,
       "groups": [
         [
@@ -351,7 +351,7 @@
         ]
       ]
     },
-    "Potentially / Partially LLM": {
+    "6mfStWue5fFundnh5": {
       "enabled": true,
       "groups": [
         [
@@ -360,7 +360,7 @@
         ]
       ]
     },
-    "No LLM": {
+    "ABq6EDegQoLmrRijt": {
       "enabled": true,
       "groups": [
         [
@@ -368,7 +368,7 @@
         ]
       ]
     },
-    "No LLM (autoreject)": {
+    "2m37jFoGn4XrbngSz": {
       "enabled": true,
       "groups": [
         [
@@ -376,7 +376,7 @@
         ]
       ]
     },
-    "Difficult to evaluate (offsite content)": {
+    "wqaWetK6QoP523Ewx": {
       "enabled": true,
       "groups": [
         [
@@ -387,7 +387,7 @@
         ]
       ]
     },
-    "Not obviously not spam": {
+    "jTB9sweKK9pRLM4db": {
       "enabled": true,
       "groups": [
         [
@@ -403,7 +403,7 @@
         ]
       ]
     },
-    "We only accept English-language content": {
+    "ewGaTQKLqLRT3H5su": {
       "enabled": true,
       "groups": [
         [
@@ -414,7 +414,7 @@
         ]
       ]
     },
-    "Submitted by Accident?": {
+    "NunBbAcEEr9TcDcBh": {
       "enabled": true,
       "groups": [
         [
@@ -427,7 +427,7 @@
         ]
       ]
     },
-    "Clearer intro": {
+    "3AtQ4JaEpEPD8t7f2": {
       "enabled": true,
       "groups": [
         [
@@ -443,7 +443,7 @@
         ]
       ]
     },
-    "Too Chonky Abstract paragraph": {
+    "DAcutGyaqj2xy6cwB": {
       "enabled": true,
       "groups": [
         [
@@ -452,7 +452,7 @@
         ]
       ]
     },
-    "Formatting": {
+    "zszEyQ6mmCjKQq43F": {
       "enabled": true,
       "groups": [
         [
@@ -483,7 +483,7 @@
         ]
       ]
     },
-    "Difficult to evaluate, with potential yellow flags.": {
+    "MRTY3fzc5zumSdZPX": {
       "enabled": true,
       "groups": [
         [
@@ -494,7 +494,7 @@
         ]
       ]
     },
-    "LLM (English translation)": {
+    "RccfQuaa6veciDgEh": {
       "enabled": true,
       "groups": [
         [
@@ -502,7 +502,7 @@
         ]
       ]
     },
-    "No fiction/poetry from new users": {
+    "5csYohfiLuTa3s9cv": {
       "enabled": true,
       "groups": [
         [
