@@ -221,6 +221,9 @@ export default () => createJestConfig({
     // nothing to do with that. I guess React 19 contains a broken polyfill or
     // something?
     "react-dom/server": "react-dom/server.edge",
+    // eld's package.json exports only have an "import" condition, which jest's
+    // CommonJS resolver doesn't match.
+    "^eld/(\\w+)$": "<rootDir>/node_modules/eld/src/entries/static.$1.js",
   },
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
@@ -275,6 +278,7 @@ export default () => createJestConfig({
     "entities",
     "uuid",
     "hailbox",
+    "eld",
   ];
   
   config.transformIgnorePatterns = [
