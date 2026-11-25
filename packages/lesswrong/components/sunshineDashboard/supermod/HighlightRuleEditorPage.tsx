@@ -22,7 +22,6 @@ import {
 } from '@/lib/moderatorHighlights/highlightRuleTypes';
 import { HIGHLIGHT_RULES_FILE_PATH, highlightRuleOverrides } from '@/lib/moderatorHighlights/highlightRules';
 import {
-  DEFAULT_ACTION_HIGHLIGHT_RULES,
   highlightableModeratorActions,
   moderatorActionHighlightColors,
   moderatorActionHighlightLabels,
@@ -167,9 +166,8 @@ function withRulesFirst(
   return [...entries.filter(entry => hasRule(entry.key)), ...entries.filter(entry => !hasRule(entry.key))];
 }
 
-const RuleSection = ({category, defaults, entries, scope, supportsLevel2, expandedAnchor, overrides, onChange}: {
+const RuleSection = ({category, entries, scope, supportsLevel2, expandedAnchor, overrides, onChange}: {
   category: HighlightRuleCategory,
-  defaults: Record<string, HighlightRule>,
   entries: RuleSectionEntry[],
   scope: SignalScope,
   supportsLevel2?: boolean,
@@ -177,8 +175,8 @@ const RuleSection = ({category, defaults, entries, scope, supportsLevel2, expand
   overrides: HighlightRuleOverrides,
   onChange: (overrides: HighlightRuleOverrides) => void,
 }) => <>
-  {withRulesFirst(entries, key => !!(overrides[category][key] ?? defaults[key])).map(entry => {
-    const rule = overrides[category][entry.key] ?? defaults[entry.key] ?? emptyRule();
+  {withRulesFirst(entries, key => !!overrides[category][key]).map(entry => {
+    const rule = overrides[category][entry.key] ?? emptyRule();
     return <div key={entry.key} id={entry.key}>
       <HighlightRuleEditor
         title={entry.title}
@@ -188,10 +186,9 @@ const RuleSection = ({category, defaults, entries, scope, supportsLevel2, expand
         scope={scope}
         supportsLevel2={supportsLevel2}
         initiallyExpanded={entry.key === expandedAnchor}
-        isCustomized={!!overrides[category][entry.key]}
-        hasDefault={!!defaults[entry.key]}
+        hasRule={!!overrides[category][entry.key]}
         onChange={updated => onChange(withRule(overrides, category, entry.key, updated))}
-        onReset={() => onChange(withoutRule(overrides, category, entry.key))}
+        onDelete={() => onChange(withoutRule(overrides, category, entry.key))}
       />
     </div>;
   })}
@@ -276,7 +273,6 @@ const HighlightRuleEditorPage = () => {
     <SectionTitle title="Moderator Actions" />
     <RuleSection
       category="actions"
-      defaults={DEFAULT_ACTION_HIGHLIGHT_RULES}
       entries={getActionEntries()}
       scope="user"
       supportsLevel2
@@ -287,7 +283,6 @@ const HighlightRuleEditorPage = () => {
     <SectionTitle title="Message Templates" />
     <RuleSection
       category="messageTemplates"
-      defaults={{}}
       entries={getTemplateEntries(overrides.messageTemplates, messageTemplates, !!messageTemplateData)}
       scope="user"
       expandedAnchor={targetTemplateKey}
@@ -298,7 +293,6 @@ const HighlightRuleEditorPage = () => {
     <SectionTitle title="Rejection Templates" />
     <RuleSection
       category="rejectionTemplates"
-      defaults={{}}
       entries={getTemplateEntries(overrides.rejectionTemplates, rejectionTemplates, !!rejectionTemplateData)}
       scope="all"
       expandedAnchor={targetTemplateKey}

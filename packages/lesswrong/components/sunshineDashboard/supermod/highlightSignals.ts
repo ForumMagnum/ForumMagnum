@@ -440,6 +440,4 @@ const HIGHLIGHT_SIGNAL_DEFINITIONS = {
   },
 } satisfies Record<string, HighlightSignal>;
 
-export type HighlightSignalName = keyof typeof HIGHLIGHT_SIGNAL_DEFINITIONS;
-
 export const HIGHLIGHT_SIGNALS: Record<string, HighlightSignal> = HIGHLIGHT_SIGNAL_DEFINITIONS;

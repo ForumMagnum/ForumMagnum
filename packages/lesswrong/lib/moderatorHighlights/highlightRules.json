@@ -68,6 +68,62 @@
           {"signal":"approvedContentCount","operator":"gte","value":1}
         ]
       ]
+    },
+    "approveCurrentOnly": {
+      "enabled": true,
+      "groups": [
+        [
+          {"signal":"unapprovedContentCount","operator":"gte","value":1},
+          {"signal":"maxPangramScoreAmongUnapproved","operator":"lte","value":0.2}
+        ]
+      ],
+      "level2Groups": [
+        [
+          {"signal":"unapprovedContentMissingPangramScoreCount","operator":"eq","value":0}
+        ]
+      ]
+    },
+    "purge": {
+      "enabled": true,
+      "groups": [
+        [
+          {"signal":"contentCount","operator":"lte","value":3},
+          {"signal":"approvedContentCount","operator":"eq","value":0}
+        ]
+      ],
+      "level2Groups": [
+        [
+          {"signal":"rejectedContentCount","operator":"gte","value":2}
+        ]
+      ]
+    },
+    "disablePermissions": {
+      "enabled": true,
+      "groups": [
+        [
+          {"signal":"rejectedContentCount","operator":"gte","value":2}
+        ],
+        [
+          {"signal":"mostRecentContentIsRejected","operator":"isTrue","value":null}
+        ]
+      ],
+      "level2Groups": [
+        [
+          {"signal":"rejectedContentCount","operator":"gte","value":2}
+        ]
+      ]
+    },
+    "disableMessages": {
+      "enabled": true,
+      "groups": [
+        [
+          {"signal":"conversationsDisabled","operator":"isFalse","value":null},
+          {"signal":"activeDmFlagCount","operator":"gte","value":1}
+        ]
+      ],
+      "level2Groups": [
+        []
+      ]
     }
   },
   "messageTemplates": {

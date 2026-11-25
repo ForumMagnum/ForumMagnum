@@ -10,7 +10,7 @@ import {
   type NumericHighlightOperator,
   type RegexHighlightOperator,
 } from "@/lib/moderatorHighlights/highlightRuleTypes";
-import { HIGHLIGHT_SIGNALS, type HighlightSignalContext, type HighlightSignalName } from "./highlightSignals";
+import { HIGHLIGHT_SIGNALS, type HighlightSignalContext } from "./highlightSignals";
 
 function compareNumbers(operator: NumericHighlightOperator, signalValue: number, target: number): boolean {
   switch (operator) {
@@ -98,18 +98,3 @@ export function evaluateActionHighlightRule(
   if (!highlightRuleMatches(rule, ctx)) return null;
   return anyGroupMatches(rule.level2Groups ?? [], ctx) ? 2 : 1;
 }
-
-export function numberCondition(
-  signal: HighlightSignalName,
-  operator: NumericHighlightOperator,
-  value: number,
-): HighlightCondition {
-  return { signal, operator, value };
-}
-
-export function booleanCondition(signal: HighlightSignalName, expected: boolean): HighlightCondition {
-  return { signal, operator: expected ? 'isTrue' : 'isFalse', value: null };
-}
-
-/** One empty group, i.e. always matches. */
-export const ALWAYS: HighlightCondition[][] = [[]];

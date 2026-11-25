@@ -77,10 +77,6 @@ const styles = defineStyles('HighlightRuleEditor', (theme: ThemeType) => ({
     background: theme.palette.greyAlpha(0.08),
     color: theme.palette.grey[700],
   },
-  customizedBadge: {
-    background: theme.palette.primaryAlpha(0.12),
-    color: theme.palette.primary.dark,
-  },
   warningBadge: {
     color: theme.palette.error.main,
   },
@@ -424,22 +420,20 @@ const ConditionGroupsEditor = ({groups, scope, emptyNote, onChange}: {
   </div>;
 };
 
-export const HighlightRuleEditor = ({title, description, rule, scope, isCustomized, hasDefault, warning, supportsLevel2, initiallyExpanded, onChange, onReset}: {
+export const HighlightRuleEditor = ({title, description, rule, scope, hasRule, warning, supportsLevel2, initiallyExpanded, onChange, onDelete}: {
   title: string,
   description?: string,
   rule: HighlightRule,
   scope: SignalScope,
-  isCustomized: boolean,
-  hasDefault: boolean,
+  hasRule: boolean,
   warning?: string,
   supportsLevel2?: boolean,
   initiallyExpanded?: boolean,
   onChange: (rule: HighlightRule) => void,
-  onReset: () => void,
+  onDelete: () => void,
 }) => {
   const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(!!initiallyExpanded);
-  const hasRule = hasDefault || isCustomized;
 
   useEffect(() => {
     if (initiallyExpanded) setExpanded(true);
@@ -458,7 +452,6 @@ export const HighlightRuleEditor = ({title, description, rule, scope, isCustomiz
       </button>
       {warning && <span className={classNames(classes.badge, classes.warningBadge)}>{warning}</span>}
       {!hasRule && <span className={classes.badge}>No rule</span>}
-      {isCustomized && hasDefault && <span className={classNames(classes.badge, classes.customizedBadge)}>Customized</span>}
       {hasRule && <label className={classes.enabledToggle}>
         <input
           type="checkbox"
@@ -467,8 +460,8 @@ export const HighlightRuleEditor = ({title, description, rule, scope, isCustomiz
         />
         <span>Enabled</span>
       </label>}
-      {isCustomized && <button type="button" className={classNames(classes.textButton, { [classes.dangerButton]: !hasDefault })} onClick={onReset}>
-        {hasDefault ? 'Reset to default' : 'Delete rule'}
+      {hasRule && <button type="button" className={classNames(classes.textButton, classes.dangerButton)} onClick={onDelete}>
+        Delete rule
       </button>}
     </div>
     {expanded && <>
