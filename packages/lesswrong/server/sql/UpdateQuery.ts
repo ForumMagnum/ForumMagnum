@@ -171,6 +171,10 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     // If we're updating the value of a JSON blob without totally replacing
     // it then we need to wrap the update in a call to `JSONB_SET`.
     if (field.includes(".")) {
+      const rootField = field.split(".")[0];
+      if (this.getField(rootField)?.isArray()) {
+        throw new Error(`Can't update "${field}": nested updates inside array columns are not supported; set the whole "${rootField}" array instead`);
+      }
       const updateValue = this.compileUpdateExpression(value);
       const {column, path} = this.buildJsonUpdatePath(field);
       // Check if we're trying to unset the field (currently you can only unset fields in the first level)

@@ -1,10 +1,11 @@
 import { initGlobals } from "./scriptUtil";
 import * as tsNode from 'ts-node';
 import omit from "lodash/omit";
-import { loadReplEnv, ProjectEnv } from "./runWithVercelEnv";
+import { loadReplEnv } from "./runWithVercelEnv";
 import { PassThrough, Writable } from "stream";
 
 import { initConsole } from "../packages/lesswrong/server/serverStartup";
+import { waitForBackgroundTasks } from "../packages/lesswrong/server/utils/backgroundTask";
 
 /* eslint-disable no-console */
 
@@ -63,6 +64,7 @@ async function replMain() {
     } catch(e) {
       console.error(e);
     } finally {
+      await waitForBackgroundTasks();
       process.exit(0);
     }
   } else if (defaultExport && typeof defaultExport==='function') {
@@ -74,6 +76,7 @@ async function replMain() {
     } catch(e) {
       console.error(e);
     } finally {
+      await waitForBackgroundTasks();
       process.exit(0);
     }
   }

@@ -60,8 +60,8 @@ function ensureRequestHasBackgroundTaskHandler() {
 
 let exitWarningRegistered = false;
 
-// Scripts (npm run repl, migrations) exit as soon as their entrypoint resolves,
-// dropping any background task still running.
+// Scripts that exit without awaiting waitForBackgroundTasks (such as
+// migrations) drop any background task still running.
 function warnOnExitIfTasksPending() {
   if (exitWarningRegistered) return;
   exitWarningRegistered = true;
