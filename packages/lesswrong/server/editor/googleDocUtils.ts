@@ -430,7 +430,7 @@ async function googleDocCropImages(html: string): Promise<string> {
     try {
       const buffer = await googleDocGetImageBuffer(src);
 
-      const { default: Jimp } = await import('jimp');
+      const { Jimp, JimpMime } = await import('jimp');
       const image = await Jimp.read(buffer);
       const originalWidth = image.bitmap.width;
       const originalHeight = image.bitmap.height;
@@ -439,13 +439,18 @@ async function googleDocCropImages(html: string): Promise<string> {
         throw new Error(`width or height not defined for image`)
       }
 
+      const mimeType = Object.values(JimpMime).find((supportedMimeType) => supportedMimeType === image.mime);
+      if (!mimeType) {
+        throw new Error(`Unsupported image type: ${image.mime}`)
+      }
+
       const leftPixels = Math.round(leftRelative * originalWidth)
       const topPixels = Math.round(topRelative * originalHeight)
       const widthPixels = Math.min(Math.round(widthRelative * originalWidth), originalWidth - leftPixels)
       const heightPixels = Math.min(Math.round(heightRelative * originalHeight), originalHeight - topPixels)
 
-      const croppedImage = await image.crop(leftPixels, topPixels, widthPixels, heightPixels);
-      const croppedBuffer = await croppedImage.getBufferAsync(image.getMIME());
+      const croppedImage = image.crop({ x: leftPixels, y: topPixels, w: widthPixels, h: heightPixels });
+      const croppedBuffer = await croppedImage.getBuffer(mimeType);
 
       const url = await uploadBufferToCloudinary(croppedBuffer)
 
