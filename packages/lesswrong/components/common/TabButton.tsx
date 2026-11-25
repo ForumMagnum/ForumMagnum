@@ -134,6 +134,7 @@ const TabButton = ({
     return (
       <LWTooltip
         title={description}
+        placement="top-start"
         distance={8}
         disabled={tooltipDismissed}
         hideOnTouchScreens

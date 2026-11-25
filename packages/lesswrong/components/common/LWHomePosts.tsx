@@ -20,7 +20,6 @@ import { RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../l
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import isEqual from 'lodash/isEqual';
 import { capitalize } from "../../lib/vulcan-lib/utils";
-import SettingsButton from "../icons/SettingsButton";
 import SingleColumnSection from "./SingleColumnSection";
 import PostsList2 from "../posts/PostsList2";
 import TagFilterSettings from "../tagging/TagFilterSettings";
@@ -107,34 +106,6 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
   tagFilterSettingsExpandedMobile: {
     [theme.breakpoints.down('sm')]: expandedTagFilterSettingsStyles,
   },
-  tagFilterSettingsButtonContainerDesktop: {
-    [theme.breakpoints.up('md')]: {
-      alignSelf: "end",
-      opacity: 0.8,
-      display: "flex",
-      border: theme.palette.greyBorder("1px", 0.07),
-      borderRadius: 3,
-      background: theme.palette.panelBackground.bannerAdTranslucent,
-      padding: "5.5px",
-    },
-  },
-  tagFilterSettingsButtonContainerMobile: {
-    [theme.breakpoints.down('sm')]: {
-      alignSelf: "end",
-      opacity: 0.8,
-      display: "flex",
-      border: theme.palette.greyBorder("1px", 0.07),
-      borderRadius: 3,
-      background: theme.palette.panelBackground.default,
-      padding: "5.5px",
-      [theme.breakpoints.down('xs')]: {
-        padding: "4.5px",
-      },
-    },
-    [theme.breakpoints.up('md')]: {
-      display: "none",
-    },
-  },
   ultraFeedSettingsContainer: {
     marginTop: 16,
   },
@@ -146,34 +117,36 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
     alignItems: "center",
     gap: 8,
   },
-  debugIcon: {
-    cursor: "pointer",
+  controlButton: {
+    display: "flex",
+    opacity: 0.8,
+    border: theme.palette.greyBorder("1px", 0.07),
+    borderRadius: 3,
+    padding: "5.5px",
     color: theme.palette.grey[600],
+    cursor: "pointer",
+    '&:hover': {
+      opacity: 1,
+      color: theme.palette.grey[1000],
+    },
+  },
+  controlButtonDesktop: {
+    background: theme.palette.panelBackground.bannerAdTranslucent,
+  },
+  controlButtonMobile: {
+    background: theme.palette.panelBackground.default,
+    [theme.breakpoints.down('xs')]: {
+      padding: "4.5px",
+    },
+  },
+  controlIcon: {
     fontSize: 18,
   },
   debugIconActive: {
     color: theme.palette.primary.main,
   },
-  debugIconTooltip: {
-    display: "flex",
-  },
-  hideDesktopSettingsButtonOnMobile: {
-    [theme.breakpoints.down('sm')]: {
-      display: "none",
-    },
-  },
   subscribedAnnouncementPost: {
     marginBottom: 32,
-  },
-  suggestedUsersHideLabel: {
-    ...theme.typography.commentStyle,
-    padding: 4,
-    fontSize: "1rem",
-    color: "unset",
-    opacity: 0.7,
-    '&:hover': {
-      opacity: 0.5,
-    }
   },
   checkboxContainer: {
     display: 'flex',
@@ -204,13 +177,6 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
     marginTop: -8,
   },
 }));
-
-export const filterSettingsToggleLabels = {
-  desktopVisible: "Customize (Hide)",
-  desktopHidden: "Customize",
-  mobileVisible: "Customize (Hide)",
-  mobileHidden: "Customize",
-};
 
 const advancedSortingText = "Advanced Sorting/Filtering";
 
@@ -377,92 +343,88 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
   };
 }
 
+const PostsListControlButton = ({ platform, tooltip, onClick, children }: {
+  platform: Platform,
+  tooltip: string,
+  onClick: () => void,
+  children: React.ReactNode,
+}) => {
+  const classes = useStyles(styles);
+  const isDesktop = platform === 'desktop';
+
+  return <LWTooltip
+    title={tooltip}
+    placement="top-end"
+    distance={8}
+    hideOnTouchScreens
+    className={isDesktop ? classes.hideOnMobile : classes.hideOnDesktop}
+  >
+    <button
+      type="button"
+      aria-label={tooltip}
+      onClick={onClick}
+      className={classNames(classes.controlButton, isDesktop ? classes.controlButtonDesktop : classes.controlButtonMobile)}
+    >
+      {children}
+    </button>
+  </LWTooltip>;
+}
+
+const settingsButtonTooltip = "Filter Settings";
+
 const FrontpageSettingsButton = ({
-  selectedTab,
   changeShowTagFilterSettingsDesktop,
   toggleMobileSettingsVisible,
-  desktopSettingsVisible,
   mobileSettingsVisible,
   filterSettings,
-  styleDesktopButton = true,
-  labelOverride,
-  labelClassName,
 }: {
-  selectedTab: string;
   changeShowTagFilterSettingsDesktop: () => void;
-  toggleMobileSettingsVisible?: (newVisibilityState: boolean) => void;
-  desktopSettingsVisible: boolean;
+  toggleMobileSettingsVisible: (newVisibilityState: boolean) => void;
   mobileSettingsVisible: boolean;
   filterSettings: FilterSettings;
-  styleDesktopButton?: boolean;
-  labelOverride?: (settingsVisible: boolean) => string;
-  labelClassName?: string;
 }) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
-
-  const desktopConfiguration = labelOverride ? {
-    showIcon: false,
-    label: labelOverride(desktopSettingsVisible)
-  } : {
-    showIcon: true,
-  } as const;
-
-  const mobileConfiguration = labelOverride ? {
-    showIcon: false,
-    label: labelOverride(mobileSettingsVisible)
-  } : {
-    showIcon: true,
-  } as const;
+  const icon = <ForumIcon icon="Settings" className={classes.controlIcon} />;
 
   return <>
-    {/* Desktop button */}
-    <div className={classNames(classes.hideDesktopSettingsButtonOnMobile, {
-      [classes.tagFilterSettingsButtonContainerDesktop]: styleDesktopButton
-    })}>
-      <SettingsButton
-        {...desktopConfiguration}
-        labelClassName={labelClassName}
-        onClick={changeShowTagFilterSettingsDesktop}
-      />
-    </div>
-    {/* Mobile button */}
-    {toggleMobileSettingsVisible && <div className={classes.tagFilterSettingsButtonContainerMobile}>
-      <SettingsButton
-        {...mobileConfiguration}
-        onClick={() => {
-          toggleMobileSettingsVisible(!mobileSettingsVisible);
-          captureEvent("filterSettingsClicked", {
-            settingsVisible: !mobileSettingsVisible,
-            settings: filterSettings,
-            pageSectionContext: "latestPosts",
-            mobile: true
-          });
-        } } />
-    </div>}
+    <PostsListControlButton platform="desktop" tooltip={settingsButtonTooltip} onClick={changeShowTagFilterSettingsDesktop}>
+      {icon}
+    </PostsListControlButton>
+    <PostsListControlButton
+      platform="mobile"
+      tooltip={settingsButtonTooltip}
+      onClick={() => {
+        toggleMobileSettingsVisible(!mobileSettingsVisible);
+        captureEvent("filterSettingsClicked", {
+          settingsVisible: !mobileSettingsVisible,
+          settings: filterSettings,
+          pageSectionContext: "latestPosts",
+          mobile: true
+        });
+      }}
+    >
+      {icon}
+    </PostsListControlButton>
   </>;
 }
+
+const debugButtonTooltip = "Scoring debug";
 
 const PostsListDebugButton = ({ active, onClick }: {
   active: boolean,
   onClick: () => void,
 }) => {
   const classes = useStyles(styles);
-  const icon = <LWTooltip title="Scoring debug" placement="top" inlineBlock={false} className={classes.debugIconTooltip}>
-    <ForumIcon
-      icon="Insights"
-      className={classNames(classes.debugIcon, { [classes.debugIconActive]: active })}
-      onClick={onClick}
-    />
-  </LWTooltip>;
+  const icon = <ForumIcon icon="Insights" className={classNames(classes.controlIcon, { [classes.debugIconActive]: active })} />;
 
   return <>
-    <div className={classNames(classes.hideDesktopSettingsButtonOnMobile, classes.tagFilterSettingsButtonContainerDesktop)}>
+    <PostsListControlButton platform="desktop" tooltip={debugButtonTooltip} onClick={onClick}>
       {icon}
-    </div>
-    <div className={classes.tagFilterSettingsButtonContainerMobile}>
+    </PostsListControlButton>
+    <PostsListControlButton platform="mobile" tooltip={debugButtonTooltip} onClick={onClick}>
       {icon}
-    </div>
+    </PostsListControlButton>
   </>;
 }
 
@@ -549,11 +511,11 @@ const LWHomePosts = ({ children, }: {
     (userIsAdmin(currentUser) && selectedTab.includes('recombee'))
   );
 
-  const settingsButtonProps = { selectedTab, changeShowTagFilterSettingsDesktop, desktopSettingsVisible, mobileSettingsVisible, filterSettings };
-
   const inlineTabSettingsButton = <FrontpageSettingsButton
-    {...settingsButtonProps}
+    changeShowTagFilterSettingsDesktop={changeShowTagFilterSettingsDesktop}
     toggleMobileSettingsVisible={toggleMobileSettingsVisible}
+    mobileSettingsVisible={mobileSettingsVisible}
+    filterSettings={filterSettings}
   />;
 
   const settingsPotentiallyVisible = desktopSettingsVisible || mobileSettingsVisible;
