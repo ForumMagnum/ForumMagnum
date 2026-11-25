@@ -22,7 +22,13 @@ import { SideItemsSidebar } from '../contents/SideItems';
 import { commentBodyStyles, postBodyStyles } from '@/themes/stylePiping';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
-import { invertIfDarkMode } from '@/themes/colorUtil';
+import { invertHexColor } from '@/themes/colorUtil';
+
+// The current user's messages set the opposite color-scheme from the page, and
+// light-dark() resolves against the element's own color-scheme. So these
+// colors are written with the dark-scheme variant being the one shown in the
+// light theme.
+const oppositeSchemeColor = (lightThemeColor: string) => `light-dark(${invertHexColor(lightThemeColor)},${lightThemeColor})`;
 
 const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
   hoverWrapper: {
@@ -76,10 +82,10 @@ const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
   },
   highlighted: {},
   backgroundIsCurrent: {
-    backgroundColor: invertIfDarkMode('#616161'),
+    backgroundColor: oppositeSchemeColor('#616161'),
     colorScheme: theme.dark ? "light" : "dark",
     "&$highlighted": {
-      backgroundColor: invertIfDarkMode('#9e9e9e'),
+      backgroundColor: oppositeSchemeColor('#9e9e9e'),
     },
     marginLeft:12,
   },
