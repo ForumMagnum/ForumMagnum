@@ -1,7 +1,7 @@
 import { useForumType } from '@/components/hooks/useForumType';
 import React, { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { getResponseCounts, isDialogueParticipant } from '../../../lib/collections/posts/helpers';
+import { getResponseCounts, isDialogueParticipant, userCanListenToNarration } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -54,6 +54,8 @@ import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
 import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
 import AFUnreviewedCommentCount from "../../alignment-forum/AFUnreviewedCommentCount";
 import CommentsListSection from "../../comments/CommentsListSection";
+import { usePublishedNarrationComments } from "../../narration/narrationComments";
+import NarrationPlayer from "../../narration/NarrationPlayer";
 import CommentsTableOfContents from "../../comments/CommentsTableOfContents";
 import AttributionInViewTracker from "../../common/AttributionInViewTracker";
 import NotifyMeButton from "../../notifications/NotifyMeButton";
@@ -310,6 +312,12 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   }, [post, showEmbeddedPlayer, captureEvent, setCookie, forumType]);
 
+  // A post with a podcast episode has that episode's player, in its header.
+  // Any other post with audio has Type III Audio's player there, except for
+  // users who have narration: for them it's narrated, by a player that's
+  // fixed to the screen rather than part of the page.
+  const showNarrationPlayer = showEmbeddedPlayer && !preview && userCanListenToNarration(currentUser, post, forumType);
+
   const getSequenceId = () => {
     return sequenceIdFromUrl || fullPost?.canonicalSequenceId || null;
   }
@@ -507,6 +515,8 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const { commentCount: totalComments } = getResponseCounts({ post, answers, forumType })
   const commentTree = useMemo(() => unflattenComments(comments ?? []), [comments]);
   const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
+  const answersThenComments = useMemo(() => [...answersTree, ...commentTree], [answersTree, commentTree]);
+  usePublishedNarrationComments(answersThenComments);
   const answerCount = post.question ? answersTree.length : undefined;
 
   // Hide the table of contents on questions that are foreign crossposts
@@ -769,6 +779,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
     </SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>
     <PostsBottomBar />
+    {showNarrationPlayer && <NarrationPlayer key={post._id} postId={post._id} onClose={toggleEmbeddedPlayer} />}
     </PostsPageContext.Provider>
   </AnalyticsContext>
 }

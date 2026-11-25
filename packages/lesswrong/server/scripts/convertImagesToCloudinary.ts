@@ -326,10 +326,19 @@ function getImageUrlWhitelist() {
   ].concat(localUploadUrl ? [new URL(localUploadUrl).host] : []);
 }
 
+/**
+ * Whether images on this host are left where they are by mirroring. An image
+ * on one of these hosts keeps its URL; an image anywhere else is replaced, in a
+ * later revision, by a copy with a different URL.
+ */
+export function isImageHostExemptFromMirroring(hostname: string): boolean {
+  return getImageUrlWhitelist().includes(hostname);
+}
+
 function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
   try {
     const parsedUrl = new URL(url);
-    if (getImageUrlWhitelist().indexOf(parsedUrl.hostname) !== -1) {
+    if (isImageHostExemptFromMirroring(parsedUrl.hostname)) {
       return false;
     }
     return filterFn(url);

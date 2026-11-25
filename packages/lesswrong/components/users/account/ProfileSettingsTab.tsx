@@ -5,11 +5,16 @@ import AutoSavedEditorField from '@/components/editor/AutoSavedEditorField';
 import { commitUserEditorField } from './useAutoSavedUserSettings';
 import SettingsSection from './SettingsSection';
 import SettingsTextRow from './SettingsTextRow';
+import { HighlightableField } from './HighlightableField';
 import type { SettingsTabProps } from './settingsTabTypes';
+import { userCanEditNarrationSettings } from '@/lib/collections/users/helpers';
+import NarrationVoiceSetting from '@/components/narration/NarrationVoiceSetting';
+import NarrationNamePronunciationSetting from '@/components/narration/NarrationNamePronunciationSetting';
 
 const ProfileSettingsTab = ({
   settings,
   updateSettings,
+  currentUser,
   fieldWrapperClass,
 }: SettingsTabProps) => {
   return (
@@ -47,6 +52,20 @@ const ProfileSettingsTab = ({
             description="Your legal name, if different from your display name"
           />
         </SettingsSection>
+
+        {userCanEditNarrationSettings(currentUser, settings) && <SettingsSection title="Narration">
+          <HighlightableField name="narrationVoiceId">
+            <NarrationVoiceSetting
+              value={settings.narrationVoiceId}
+              onChange={(value) => void updateSettings({ narrationVoiceId: value })}
+            />
+          </HighlightableField>
+          <NarrationNamePronunciationSetting
+            userId={settings._id}
+            value={settings.narrationNamePronunciation}
+            onSave={(value) => updateSettings({ narrationNamePronunciation: value })}
+          />
+        </SettingsSection>}
     </div>
   );
 };

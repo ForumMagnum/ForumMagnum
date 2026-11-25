@@ -144,6 +144,14 @@ export function invertHexColor(color: string): string {
   return colorToString(inverted);
 }
 
+export function invertHexColorPreservingHue(color: string): string {
+  const parsed = parseColor(color);
+  validateColor(parsed!);
+  const inverted = invertColorPreservingHue(parsed!);
+  validateColor(inverted);
+  return colorToString(inverted);
+}
+
 export const grey = mapValues({
   // Exactly matches @/lib/vendor/@material-ui/core/src/colors/grey
   50: '#fafafa',
@@ -195,6 +203,7 @@ export const primaryAlpha = greyAlpha;
 export const boxShadowColor = (alpha: number) => greyAlpha(alpha);
 export const greyBorder = (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`;
 export const invertIfDarkMode = (color: string) => `light-dark(${color},${invertHexColor(color)})`;
+export const invertIfDarkModePreservingHue = (color: string) => `light-dark(${color},${invertHexColorPreservingHue(color)})`;
 
 /**
  * Converts an HSL color value to RGB. Conversion formula

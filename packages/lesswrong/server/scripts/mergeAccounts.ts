@@ -16,6 +16,7 @@ import { getUnusedSlugByCollectionName } from '@/server/utils/slugUtil';
 import { getCollection } from "../collections/allCollections";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateUser } from '../collections/users/mutations';
+import { invalidateLoginTokensFor } from '../vulcan-lib/apollo-server/authentication';
 
 type TransferableCollectionName = 
  | 'Bans'
@@ -315,6 +316,20 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   }
 }
 
+const getRetiredEmailAddress = (address: string) => {
+  const atIndex = address.lastIndexOf("@")
+  if (atIndex < 0) throw new Error(`Can't retire malformed email address: ${address}`)
+  return `${address.slice(0, atIndex)}+old${address.slice(atIndex)}`
+}
+
+const getLowercaseEmailAddresses = (user: DbUser): Set<string> => {
+  const addresses = filterNonnull([user.email, ...(user.emails ?? []).map(({address}) => address)])
+  return new Set(addresses.map((address) => address.toLowerCase()))
+}
+
+const retireSharedEmailAddress = (address: string, sharedAddresses: Set<string>) =>
+  sharedAddresses.has(address.toLowerCase()) ? getRetiredEmailAddress(address) : address
+
 const incompleteMergeResult = (failures: MergeAccountsFailure[]): MergeAccountsResult => {
   // eslint-disable-next-line no-console
   console.log("Merge ran out of its time budget; returning an incomplete (resumable) result")
@@ -552,34 +567,19 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun, deadlin
     recordMergeFailure({failures, stage: "change slugs", err})
   }
 
-  // if the two accounts share an email address, change the sourceUser email to "+old"
+  // Append "+old" to the source's copies of the target's email addresses, in
+  // both `email` and the legacy `emails` array: login, password reset and
+  // OAuth account matching look users up by either field, and must only find
+  // the target. "+old" addresses still deliver, if need be.
   try {
-    if (!dryRun && !!sourceUser.email && !!targetUser.email) {
-      const splitEmail = sourceUser.email.split("@")
-      const newEmail = `${splitEmail[0]}+old@${splitEmail[1]}` 
-      if (sourceUser.email === targetUser.email) {
-        // appending "+old" should still allow the email to work if need be
-        await Users.rawUpdateOne(
-          {_id: sourceUserId},
-          {$set: {
-            email: newEmail
-          }}
-        );
-      }
-
-      if ((sourceUser?.emails) && (targetUser?.emails)) {
-        const sourceEmailsEmail = sourceUser.emails.length > 0 && sourceUser.emails[0]
-        const targetEmailsEmail = targetUser.emails.length > 0 && targetUser.emails[0]
-
-        if (sourceEmailsEmail && targetEmailsEmail && sourceEmailsEmail.address === targetEmailsEmail.address) {
-          await Users.rawUpdateOne(
-            {_id: sourceUserId},
-            {$set: {
-              'emails.0': {address: newEmail, verified: sourceEmailsEmail ? sourceEmailsEmail.verified : false}
-            }}
-          );
-        }
-      }
+    if (!dryRun) {
+      const targetEmailAddresses = getLowercaseEmailAddresses(targetUser)
+      const retiredEmail = sourceUser.email && retireSharedEmailAddress(sourceUser.email, targetEmailAddresses)
+      const retiredEmails = sourceUser.emails?.map((entry) => ({
+        ...entry,
+        address: retireSharedEmailAddress(entry.address, targetEmailAddresses),
+      })) ?? null
+      await Users.rawUpdateOne({_id: sourceUserId}, {$set: {email: retiredEmail, emails: retiredEmails}})
     }
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -614,12 +614,11 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun, deadlin
     // eslint-disable-next-line no-console
     console.log("Marking old account as deleted")
     await runMergeStep({failures, stage: "mark source account deleted", fn: async () => {
-      await updateUser({
-        data: {
-            deleted: true,
-            'services.resume': null
-        } as UpdateUserDataInput, selector: { _id: sourceUserId }
-      }, createAnonymousContext())
+      await updateUser({ data: { deleted: true }, selector: { _id: sourceUserId } }, createAnonymousContext())
+      // Deactivated accounts can still log in (to reactivate themselves), so
+      // a merged-away account has to lose its credentials.
+      await Users.rawUpdateOne({_id: sourceUserId}, {$set: {'services.password': null}})
+      await invalidateLoginTokensFor(sourceUserId)
     }})
   }
 

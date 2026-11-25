@@ -19,12 +19,14 @@ const optInOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.beta; // 
 const shippedFeature = (user: UsersCurrent|DbUser|null): boolean => true; // eslint-disable-line no-unused-vars
 const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-disable-line no-unused-vars
 const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user) || optInOnly(user);
+const moderatorOrBeta = (user: UsersCurrent|DbUser|null): boolean => moderatorOnly(user) || optInOnly(user);
 
 //////////////////////////////////////////////////////////////////////////////
 // Features in progress                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
 export const userCanCreateCommitMessages = moderatorOnly;
+export const userHasNarration = moderatorOrBeta;
 export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => !!user;
 // TODO: Consider porting EA tag subscriptions (including new-post notifications) to LW/AF.
 export const userHasNewTagSubscriptions: BetaGate = (user) => isEAForum() ? shippedFeature(user) : disabled(user);

@@ -607,6 +607,47 @@ extend type Query {
   LlmModelOptions: [String!]!
 }
 
+type NarrationVoice {
+  voiceId: String!
+  name: String!
+  description: String!
+  previewUrl: String!
+}
+
+type NarrationModel {
+  modelId: String!
+  name: String!
+  description: String
+}
+
+type NarrationAdminOptions {
+  voices: [NarrationVoice!]!
+  models: [NarrationModel!]!
+}
+
+type NarrationOptions {
+  voices: [NarrationVoice!]!
+  adminOptions: NarrationAdminOptions
+}
+
+input NarrationVoiceChoiceInput {
+  voiceId: String!
+  modelId: String!
+}
+
+extend type Query {
+  narrationOptions: NarrationOptions!
+  narrationSelectableVoices: [NarrationVoice!]!
+  narrationSegmentAudios(narrationScriptId: String!, voice: NarrationVoiceChoiceInput!): [NarrationSegmentAudio!]!
+}
+
+extend type Mutation {
+  prepareNarration(postId: String!): NarrationScript!
+  prepareCommentNarration(commentId: String!): NarrationScript!
+  generateNarrationSegmentAudio(narrationSegmentId: String!, voice: NarrationVoiceChoiceInput!): NarrationSegmentAudio!
+  previewNarrationNamePronunciation(userId: String!, pronunciation: String!): String!
+}
+
 type FrontpageScoreTerm {
   label: String!
   value: Float!
@@ -3387,6 +3428,48 @@ type LlmRunTranscriptEntry {
   url: String
   title: String
   extra: JSON
+}
+
+type NarrationImageDescription {
+  _id: String!
+  createdAt: Date!
+}
+
+type NarrationScript {
+  _id: String!
+  createdAt: Date!
+  revisionId: String!
+  preprocessorVersion: Int!
+  scriptUrl: String
+  segments: [NarrationSegment!]!
+}
+
+type NarrationSegmentAudio {
+  _id: String!
+  createdAt: Date!
+  narrationSegmentId: String!
+  userId: String
+  voiceId: String!
+  modelId: String!
+  stability: Float!
+  similarityBoost: Float!
+  style: Float!
+  speed: Float!
+  audioUrl: String
+  timingsUrl: String
+  durationMs: Int
+  billedCharacters: Int
+  elevenLabsRequestId: String
+}
+
+type NarrationSegment {
+  _id: String!
+  createdAt: Date!
+  narrationScriptId: String!
+  segmentIndex: Int!
+  startBlockIndex: Int!
+  endBlockIndex: Int!
+  characterCount: Int!
 }
 
 type RejectionAppeal {
@@ -7941,6 +8024,8 @@ type User {
   noKibitz: Boolean
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
+  narrationVoiceId: String
+  narrationNamePronunciation: String
   hideIntercom: Boolean!
   hailboxOptIn: Boolean
   markDownPostEditor: Boolean!
@@ -10256,6 +10341,8 @@ input UpdateUserDataInput {
   noKibitz: Boolean
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
+  narrationVoiceId: String
+  narrationNamePronunciation: String
   hideIntercom: Boolean
   hailboxOptIn: Boolean
   markDownPostEditor: Boolean

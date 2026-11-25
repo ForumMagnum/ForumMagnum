@@ -12,6 +12,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Drawer } from '@/components/material-ui/Drawer'
 import ForumIcon from "../common/ForumIcon";
 import ErrorBoundary from "../common/ErrorBoundary";
+import LWTooltip from "../common/LWTooltip";
 import NotificationsList from "./NotificationsList";
 import { useReadQuery } from '@/lib/crud/useQuery';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
@@ -152,9 +153,9 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
               {notificationCategoryTabs.map(notificationCategory =>
                 <Tab
                   icon={
-                    <span title={notificationCategory.name}>
+                    <LWTooltip title={notificationCategory.name} placement="bottom">
                       {notificationCategory.icon()}
-                    </span>
+                    </LWTooltip>
                   }
                   key={notificationCategory.name}
                   className={classes.tabLabel}

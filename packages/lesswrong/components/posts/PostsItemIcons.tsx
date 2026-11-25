@@ -1,25 +1,16 @@
-import { useForumType } from '@/components/hooks/useForumType';
-import React, { useContext } from 'react';
-import classNames from 'classnames';
-import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import React, { ReactNode, useContext } from 'react';
 import { curatedUrl } from '../recommendations/constants';
 import { Link } from '../../lib/reactRouterWrapper';
-import { recombeeEnabledSetting } from '@/lib/instanceSettings';
-import { useTracking } from '@/lib/analyticsEvents';
-import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
-import { recombeeApi } from '@/lib/recombee/client';
-import { useCurrentUser } from '../common/withUser';
-import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
-import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
-import OmegaIcon from "../icons/OmegaIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { PostIndicator, PostIndicatorHighlightContext, usePostIndicators } from './postIndicators';
 
 const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
   iconSet: {
     marginLeft: 8,
     marginRight: 8,
     lineHeight: "1.0rem",
+    cursor: "default",
     '&:empty': {
       display: 'none',
     },
@@ -28,141 +19,52 @@ const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
     marginRight: 4,
   },
   icon: {
-    // note: the specificity seems necessary to successfully override the OmegaIcon styling.
-    // not sure if this is best way to do this
-    '&&': {
-      "--icon-size": "15.6px",
-      fontSize: "15.6px",
-      color: theme.palette.icon.dim4,
-      position: "relative",
-      top: 3,
-    },
-  },
-  curatedIcon: {
     "--icon-size": "15.6px",
     color: theme.palette.icon.dim4,
     position: "relative",
     top: 3,
   },
-  question: {
-    "--icon-size": "15.6px",
-    color: theme.palette.icon.dim4,
-    fontWeight: '600'
-  },
-  alignmentIcon: {
-    '&&':{
-      top: 0,
-    }
-  },
-  linkIcon: {
-    position: "relative",
-    "--icon-size": "15.6px",
-    top: 3,
-    color: theme.palette.icon.dim4,
-  },
-  dialogueIcon: {
-  },
-  recommendationIcon: {
-    color: theme.palette.icon.dim4,
-    '&:hover': {
-      opacity: 0.5
-    }
-  }
 }));
+
+const IndicatorIcon = ({indicator, children}: {
+  indicator: PostIndicator,
+  children: ReactNode,
+}) => {
+  const classes = useStyles(styles);
+  const { setHighlightedIndicator } = useContext(PostIndicatorHighlightContext);
+
+  return <span
+    className={classes.postIcon}
+    onMouseEnter={() => setHighlightedIndicator(indicator)}
+    onMouseLeave={() => setHighlightedIndicator(null)}
+  >
+    {children}
+  </span>
+}
 
 export const CuratedIcon = ({hasColor}: {
   hasColor?: boolean,
 }) => {
   const classes = useStyles(styles);
-  return <span className={classes.postIcon}>
-      <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="bottom-start">
-        <Link to={curatedUrl}>
-          <ForumIcon icon="Star" className={classNames(
-            classes.curatedIcon,
-          )}/>
-        </Link>
-      </LWTooltip>
-    </span>
+  return <IndicatorIcon indicator="curated">
+    <Link to={curatedUrl}>
+      <ForumIcon icon="Star" className={classes.icon}/>
+    </Link>
+  </IndicatorIcon>
 }
 
-const RecommendedPostIcon = ({post, hover}: {
+export const PostsItemIcons = ({post, hideCuratedIcon}: {
   post: PostsBase,
-  hover?: boolean,
-}) => {
-  const { forumType } = useForumType();
-  const classes = useStyles(styles);
-  const { captureEvent } = useTracking() 
-  const { setIsHiddenMutation } = useSetIsHiddenMutation();
-  const currentUser = useCurrentUser();
-
-  const notInterestedClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!!currentUser && recombeeEnabledSetting.get(forumType) && isRecombeeRecommendablePost(post, forumType)) {
-      void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote", forumType);
-    }
-
-    void setIsHiddenMutation({postId: post._id, isHidden: true})
-    captureEvent("recommendationNotInterestedClicked", {postId: post._id})
-  }
-
-  return <span className={classes.postIcon}>
-    <LWTooltip title="Hide this recommendation and show fewer like it" placement="right"> 
-      {hover 
-        ? <ForumIcon icon="NotInterested" onClick={notInterestedClick} className={classNames(classes.icon, classes.recommendationIcon)} />
-        : <ForumIcon icon="Sparkle" className={classNames(classes.icon, classes.recommendationIcon)} />
-      }
-    </LWTooltip>
-  </span>
-}
-
-export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}: {
-  post: PostsBase,
-  hover?: boolean,
   hideCuratedIcon?: boolean,
-  hidePersonalIcon?: boolean
 }) => {
-  const { isAF } = useForumType();
   const classes = useStyles(styles);
-  const showRecommendationIcon = useContext(IsRecommendationContext)
+  const indicators = usePostIndicators(post);
 
   return <span className={classes.iconSet}>
-    {post.curatedDate && !hideCuratedIcon && <CuratedIcon/>}
-    
-    {post.question && <span className={classes.postIcon}>
-      <LWTooltip title={<div>Question <div><em>(click to view all questions)</em></div></div>} placement="right">
-        <Link to={"/questions"}><span className={classes.question}>Q</span></Link>
-      </LWTooltip>
-    </span>}
+    {indicators.curated && !hideCuratedIcon && <CuratedIcon/>}
 
-    {post.url && <span className={classes.postIcon}>
-      <LWTooltip title={<div>Link Post <div><em>(Click to see linked content)</em></div></div>} placement="right">
-        <a href={post.url}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
-      </LWTooltip>
-    </span>}
-
-    {(post.debate || post.collabEditorDialogue) && <span className={classes.postIcon}>
-      <LWTooltip title="Dialogue" placement="right">
-        <ForumIcon
-          icon={"ChatBubbleLeftRightFilled"}
-          className={classNames(classes.icon, classes.dialogueIcon)}
-        />
-      </LWTooltip>
-    </span>}
-
-    {!hidePersonalIcon && !post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>
-      <LWTooltip title="Personal Blogpost" placement="right">
-        <ForumIcon icon="User" className={classes.icon} />
-      </LWTooltip>
-    </span>}
-
-    {!isAF && post.af && <span className={classes.postIcon}>
-      <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
-          <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
-      </LWTooltip>
-    </span>}
-
-    {showRecommendationIcon && <RecommendedPostIcon post={post} hover={hover}/>}
+    {indicators.recommended && <IndicatorIcon indicator="recommended">
+      <ForumIcon icon="Sparkle" className={classes.icon} />
+    </IndicatorIcon>}
   </span>
 }

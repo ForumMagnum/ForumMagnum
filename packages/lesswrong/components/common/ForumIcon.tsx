@@ -6,6 +6,10 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { SpeakerWaveIcon } from "../icons/speakerWaveIcon";
 import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
+import PlayIcon from "@heroicons/react/24/solid/PlayIcon";
+import PauseIcon from "@heroicons/react/24/solid/PauseIcon";
+import BackwardIcon from "@heroicons/react/24/solid/BackwardIcon";
+import ForwardIcon from "@heroicons/react/24/solid/ForwardIcon";
 import UserOutlineIcon from "@heroicons/react/24/outline/UserIcon";
 import UserCircleIcon from "@heroicons/react/24/outline/UserCircleIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
@@ -290,6 +294,10 @@ export type ForumIconName =
   "ExpandMore" |
   "ExpandLess" |
   "PlaylistAdd"|
+  "Play" |
+  "Pause" |
+  "Backward" |
+  "Forward" |
   "PlusOne" |
   "Undo" |
   "Clear" |
@@ -440,6 +448,10 @@ const icons: Record<ForumIconName, IconComponent> = {
   ExpandMore: MuiExpandMoreIcon,
   ExpandLess: MuiExpandLessIcon,
   PlaylistAdd: MuiPlaylistAddIcon,
+  Play: PlayIcon,
+  Pause: PauseIcon,
+  Backward: BackwardIcon,
+  Forward: ForwardIcon,
   PlusOne: PlusOneIcon,
   Undo: UndoIcon,
   Clear: ClearIcon,

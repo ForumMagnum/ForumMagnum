@@ -2,44 +2,27 @@ import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Geosuggest from 'react-geosuggest'
 // These imports need to be separate to satisfy eslint, for some reason
-import type { Suggest, QueryType } from 'react-geosuggest';
+import type { GeosuggestProps, Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { mapsAPIKey } from '@/lib/instanceSettings';
 import { rootStyles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
-import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField/TextField';
+import type { InputBaseComponentProps } from '@/lib/vendor/@material-ui/core/src/InputBase/InputBase';
 import classNames from 'classnames';
 import type { FieldValueBinding } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { styles as muiTextFieldStyles } from './MuiTextField';
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
-export const geoSuggestStyles = (theme: ThemeType) => ({
+const geoSuggestDropdownStyles = (theme: ThemeType) => ({
   "& .geosuggest": {
     fontSize: "1rem",
     position: "relative",
     paddingRight: 3,
     width: "100%",
     textAlign: "left",
-  },
-  
-  "& .geosuggest__input": {
-    backgroundColor: 'transparent',
-    border: "2px solid transparent",
-    borderBottom: `1px solid ${theme.palette.text.normal}`,
-    padding: ".5em .5em 0.5em 0em !important",
-    width: 350,
-    fontSize: 13,
-    color: theme.palette.primary.main,
-    [theme.breakpoints.down('sm')]: {
-      width: "100%"
-    },
-  },
-  "& .geosuggest__input:focus": {
-    outline: "none",
-    borderBottom: `2px solid ${theme.palette.text.normal}`,
-    borderBottomColor: theme.palette.geosuggest.dropdownActiveBackground,
-    boxShadow: "0 0 0 transparent",
   },
   
   "& .geosuggest__suggests": {
@@ -85,13 +68,37 @@ export const geoSuggestStyles = (theme: ThemeType) => ({
   }
 })
 
+export const geoSuggestStyles = (theme: ThemeType) => ({
+  ...geoSuggestDropdownStyles(theme),
+
+  "& .geosuggest__input": {
+    backgroundColor: 'transparent',
+    border: "2px solid transparent",
+    borderBottom: `1px solid ${theme.palette.text.normal}`,
+    padding: ".5em .5em 0.5em 0em !important",
+    width: 350,
+    fontSize: 13,
+    color: theme.palette.primary.main,
+    [theme.breakpoints.down('sm')]: {
+      width: "100%"
+    },
+  },
+  "& .geosuggest__input:focus": {
+    outline: "none",
+    borderBottom: `2px solid ${theme.palette.text.normal}`,
+    borderBottomColor: theme.palette.geosuggest.dropdownActiveBackground,
+    boxShadow: "0 0 0 transparent",
+  },
+})
+
 const styles = defineStyles('LocationFormComponent', (theme: ThemeType) => ({
+  textFieldInput: {
+    width: "100%",
+    ...geoSuggestDropdownStyles(theme),
+  },
   root: {
     ...geoSuggestStyles(theme),
     ...theme.typography.commentStyle
-  },
-  label: {
-    fontSize: 10
   },
   sectionTitle: {
     fontSize: 12,
@@ -147,6 +154,23 @@ export const useGoogleMaps = (): [boolean, any] => {
   return [true, window?.google?.maps];
 }
 
+const GeosuggestInput = ({ className, inputRef, placeholder, onFocus, onBlur, geosuggestProps }: InputBaseComponentProps) => {
+  const classes = useStyles(styles);
+  const typedGeosuggestProps: GeosuggestProps = geosuggestProps;
+
+  return (
+    <div className={classes.textFieldInput} onFocus={onFocus} onBlur={onBlur}>
+      <Geosuggest
+        ref={inputRef}
+        inputClassName={className}
+        // Geosuggest substitutes its own default placeholder for undefined
+        placeholder={placeholder ?? ""}
+        {...typedGeosuggestProps}
+      />
+    </div>
+  );
+}
+
 export const LocationFormComponent = ({
   field,
   label,
@@ -164,6 +188,7 @@ export const LocationFormComponent = ({
   locationTypes?: QueryType[];
 }) => {
   const classes = useStyles(styles);
+  const textFieldClasses = useStyles(muiTextFieldStyles);
   const [mapsLoaded] = useGoogleMaps();
   const geosuggestEl = useRef<Geosuggest>(null);
 
@@ -171,6 +196,11 @@ export const LocationFormComponent = ({
   const initialLocation =
     value?.formatted_address ??
     '';
+
+  // Geosuggest owns the text in its input, and only reports it when it
+  // changes. Until the first report, the input shows initialLocation.
+  const [reportedInputText, setReportedInputText] = useState<string | null>(null);
+  const inputText = reportedInputText ?? initialLocation;
 
   useEffect(() => {
     if (geosuggestEl.current) {
@@ -186,8 +216,9 @@ export const LocationFormComponent = ({
     }
   }, [stringVersionFieldName, form]);
 
-  const handleCheckClear = useCallback((v: AnyBecauseTodo) => {
-    if (v === '') {
+  const handleInputTextChange = useCallback((text: string | undefined) => {
+    setReportedInputText(text ?? '');
+    if (text === '') {
       updateSibling(null);
       field.handleChange(null);
     }
@@ -201,22 +232,30 @@ export const LocationFormComponent = ({
   }, [field, updateSibling]);
   if (!mapsLoaded) return <Loading />;
 
-  const isGrey = variant === 'grey';
-  const labelNode = isGrey
-    ? <SectionTitle title={label} noTopMargin titleClassName={classes.sectionTitle} />
-    : value && <FormLabel className={classes.label}>{label}</FormLabel>;
+  const geosuggestProps: GeosuggestProps = {
+    onChange: handleInputTextChange,
+    onSuggestSelect: handleSuggestSelect,
+    initialValue: initialLocation,
+    types: locationTypes,
+  };
+
+  if (variant === 'grey') {
+    return (
+      <div className={classNames(classes.root, classes.greyRoot)}>
+        {label && <SectionTitle title={label} noTopMargin titleClassName={classes.sectionTitle} />}
+        <Geosuggest ref={geosuggestEl} placeholder={label} {...geosuggestProps} />
+      </div>
+    );
+  }
 
   return (
-    <div className={classNames(classes.root, isGrey && classes.greyRoot)}>
-      {label && labelNode}
-      <Geosuggest
-        ref={geosuggestEl}
-        placeholder={label}
-        onChange={handleCheckClear}
-        onSuggestSelect={handleSuggestSelect}
-        initialValue={initialLocation}
-        types={locationTypes}
-      />
-    </div>
+    <TextField
+      className={textFieldClasses.textField}
+      label={label}
+      value={inputText}
+      inputRef={geosuggestEl}
+      InputProps={{ inputComponent: GeosuggestInput }}
+      inputProps={{ geosuggestProps }}
+    />
   );
 }

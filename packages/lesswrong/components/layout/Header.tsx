@@ -26,6 +26,7 @@ import ForumIcon from "@/components/common/ForumIcon";
 import { isHomeRoute } from '@/lib/routeChecks';
 import NotificationsMenu from "../notifications/NotificationsMenu";
 import { IsLlmChatSidebarOpenContext } from './Layout';
+import { LLM_CHAT_SIDEBAR_WIDTH } from '../languageModels/llmChatSidebarWidth';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 import FundraiserBanner from '../common/FundraiserBanner';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
@@ -110,8 +111,6 @@ const textColorOverrideStyles = ({
     },
   },
 });
-
-const LLM_CHAT_SIDEBAR_WIDTH = 500;
 
 type HeaderHeightContextValue = {
   showFundraiserBanner: boolean;

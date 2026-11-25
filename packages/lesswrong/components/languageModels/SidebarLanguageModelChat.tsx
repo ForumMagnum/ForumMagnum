@@ -4,12 +4,13 @@ import ForumIcon from "../common/ForumIcon";
 import { LanguageModelChat } from './LanguageModelChat';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useLlmChat } from './LlmChatWrapper';
+import { LLM_CHAT_SIDEBAR_WIDTH } from './llmChatSidebarWidth';
 
 const styles = defineStyles('SidebarLanguageModelChat', (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
-    width: 500,
-    minWidth: 500,
+    width: LLM_CHAT_SIDEBAR_WIDTH,
+    minWidth: LLM_CHAT_SIDEBAR_WIDTH,
     height: "100vh",
     position: "sticky",
     top: 0,

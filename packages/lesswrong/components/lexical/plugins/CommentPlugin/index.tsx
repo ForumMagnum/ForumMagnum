@@ -116,6 +116,26 @@ function createRectsFromDOMRange(range: Range): DOMRect[] {
   return selectionRects;
 }
 
+/**
+ * A collapsed range whose line has no rendered box (e.g. an empty paragraph
+ * in an LLM content block, whose <br> is display:none) has an all-zero
+ * bounding rect, which would put the comment box at the top-left of the page.
+ * In that case, use a zero-width rect at the left edge of the containing element.
+ */
+function getRangeAnchorRect(range: Range): DOMRect {
+  const rangeRect = range.getBoundingClientRect();
+  if (rangeRect.width > 0 || rangeRect.height > 0) {
+    return rangeRect;
+  }
+  const {startContainer} = range;
+  const containingElement = startContainer instanceof Element ? startContainer : startContainer.parentElement;
+  if (!containingElement) {
+    return rangeRect;
+  }
+  const {left, top, height} = containingElement.getBoundingClientRect();
+  return new DOMRect(left, top, 0, height);
+}
+
 
 const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   commentInputBox: {
@@ -627,7 +647,7 @@ function CommentInputBox({
         );
         const boxElem = boxRef.current;
         if (range !== null && boxElem !== null) {
-          const {left, bottom, width} = range.getBoundingClientRect();
+          const {left, bottom, width} = getRangeAnchorRect(range);
           const selectionRects = createRectsFromDOMRange(range);
           let correctedLeft =
             selectionRects.length === 1 ? left + (width / 2) - 125 : left - 125;

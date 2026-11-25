@@ -1,5 +1,5 @@
 import type { ForumTypeString } from '@/lib/instanceSettings';
-import { isPostAllowedType3Audio, postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { isPostAllowedGeneratedAudio, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { type3ApiTokenSetting, type3SourceUrlSetting } from "./databaseSettings";
 import { Posts } from "@/server/collections/posts/collection.ts";
 import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAnalyticsWriter";
@@ -36,7 +36,7 @@ const type3ApiRequest = async (
 
 const isDocumentAllowedType3Audio = (document: DbPost | DbTag, collectionName: 'Posts' | 'Tags', forumType: ForumTypeString) => {
   if (collectionName === 'Posts') {
-    return isPostAllowedType3Audio(document as DbPost, forumType);
+    return isPostAllowedGeneratedAudio(document as DbPost, forumType);
   } else {
     return isTagAllowedType3Audio(document as DbTag, forumType);
   }

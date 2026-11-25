@@ -5,22 +5,36 @@ import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { darken, lighten } from '@/lib/vendor/@material-ui/core/src/styles/colorManipulator';
+import { darken, fade, lighten } from '@/lib/vendor/@material-ui/core/src/styles/colorManipulator';
 import { FieldValueBinding } from '@/components/tanstack-form-components/BaseAppForm';
+import { invertIfDarkMode, invertIfDarkModePreservingHue } from '@/themes/colorUtil';
 
 const styles = defineStyles("DatePicker", (theme: ThemeType) => {
+  // Shades made with lighten/darken are computed from these light-mode colors
+  // and then inverted for dark mode. Applying lighten/darken to an
+  // already-inverted color moves the dark-mode shade in the wrong direction
+  // (eg a hover state that gets less prominent instead of more).
+  const lightModeHighlightedColor = "#3dcc4a";
+  const lightModeHolidaysColor = "#ff6803";
+  const lightModeMutedColor = "#ccc";
+  const lightModeSelectedColor = "#216ba5";
+
   const datepicker__backgroundColor = theme.palette.grey[140];
-  const datepicker__borderColor = theme.palette.invertIfDarkMode("#aeaeae");
-  const datepicker__highlightedColor = theme.palette.invertIfDarkMode("#3dcc4a");
-  const datepicker__holidaysColor = theme.palette.invertIfDarkMode("#ff6803");
-  const datepicker__mutedColor = theme.palette.invertIfDarkMode("#ccc");
-  const datepicker__selectedColor = theme.palette.invertIfDarkMode("#216ba5");
-  const datepicker__selectedColorDisabled = theme.dark
-    ? "rgba(222, 148, 90, .5)"
-    : "rgba(33, 107, 165, .5)";
+  const datepicker__borderColor = invertIfDarkMode("#aeaeae");
+  const datepicker__highlightedColor = invertIfDarkModePreservingHue(lightModeHighlightedColor);
+  const datepicker__highlightedHoverColor = invertIfDarkModePreservingHue(darken(lightModeHighlightedColor, .05));
+  const datepicker__holidaysColor = invertIfDarkModePreservingHue(lightModeHolidaysColor);
+  const datepicker__holidaysHoverColor = invertIfDarkModePreservingHue(darken(lightModeHolidaysColor, .1));
+  const datepicker__mutedColor = invertIfDarkMode(lightModeMutedColor);
+  const datepicker__mutedHoverColor = invertIfDarkMode(darken(lightModeMutedColor, .1));
+  const datepicker__selectedColor = invertIfDarkModePreservingHue(lightModeSelectedColor);
+  const datepicker__selectedHoverColor = invertIfDarkModePreservingHue(darken(lightModeSelectedColor, .05));
+  const datepicker__selectedColorDisabled = fade(datepicker__selectedColor, .5);
+  const datepicker__keyboardSelectedColor = invertIfDarkModePreservingHue(lighten(lightModeSelectedColor, .45));
   const datepicker__textColor = theme.palette.text.maxIntensity;
   const datepicker__headerColor = theme.palette.greyAlpha(1.0);
-  const datepicker__navigationDisabledColor = lighten(datepicker__mutedColor, .1);
+  const datepicker__navigationDisabledColor = invertIfDarkMode(lighten(lightModeMutedColor, .1));
+  const datepicker__navigationHoverColor = invertIfDarkMode(darken(lightModeMutedColor, .15));
   const datepicker__border = `1px solid ${datepicker__borderColor};`;
   const datepicker__borderRadius = "0.3rem";
   const datepicker__dayMargin = "0.166rem";
@@ -241,8 +255,8 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
         },
       
         "&:hover": {
-          "*::before": {
-            borderColor: darken(datepicker__mutedColor, .15),
+          "& *::before": {
+            borderColor: datepicker__navigationHoverColor,
           }
         }
       },
@@ -440,7 +454,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
           color: theme.palette.text.invertedBackgroundText,
       
           "&:hover": {
-            backgroundColor: "color.adjust(datepicker__selectedColor, -5%)",
+            backgroundColor: datepicker__selectedHoverColor,
           }
         }
       },
@@ -481,7 +495,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
           color: theme.palette.text.invertedBackgroundText,
       
           '&:not([aria-disabled="true"]):hover': {
-            backgroundColor: darken(datepicker__highlightedColor, .05),
+            backgroundColor: datepicker__highlightedHoverColor,
           },
       
           "&--custom-1": {
@@ -515,7 +529,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
           },
       
           "&:not([aria-disabled='true']):hover": {
-            backgroundColor: darken(datepicker__holidaysColor, .1),
+            backgroundColor: datepicker__holidaysHoverColor,
           },
       
           "&:hover .overlay": {
@@ -530,17 +544,17 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
           color: theme.palette.text.invertedBackgroundText,
       
           '&:not([aria-disabled="true"]):hover': {
-            backgroundColor: darken(datepicker__selectedColor, .05),
+            backgroundColor: datepicker__selectedHoverColor,
           }
         },
       
         "&--keyboard-selected": {
           borderRadius: datepicker__borderRadius,
-          backgroundColor: lighten(datepicker__selectedColor, .45),
+          backgroundColor: datepicker__keyboardSelectedColor,
           color: theme.palette.text.maxIntensity,
       
           '&:not([aria-disabled="true"]):hover': {
-            backgroundColor: darken(datepicker__selectedColor, .05),
+            backgroundColor: datepicker__selectedHoverColor,
           }
         },
       
@@ -603,7 +617,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
           cursor: "pointer",
       
           "& .react-datepicker__year-read-view--down-arrow, & .react-datepicker__month-read-view--down-arrow": {
-            borderTopColor: darken(datepicker__mutedColor, .1),
+            borderTopColor: datepicker__mutedHoverColor,
           }
         },
       
@@ -661,11 +675,11 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
           backgroundColor: datepicker__mutedColor,
       
           "& .react-datepicker__navigation--years-upcoming": {
-            borderBottomColor: darken(datepicker__mutedColor, .1),
+            borderBottomColor: datepicker__mutedHoverColor,
           },
       
           "& .react-datepicker__navigation--years-previous": {
-            borderTopColor: darken(datepicker__mutedColor, .1),
+            borderTopColor: datepicker__mutedHoverColor,
           }
         },
       
