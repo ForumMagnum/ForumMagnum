@@ -19,10 +19,7 @@ const ReviewWinnerArtImagesMultiQuery = gql(`
 
 const styles = defineStyles("SplashImageEditingOptions", (theme: ThemeType) => ({
   root: { 
-    zIndex: theme.zIndexes.splashHeaderImageOptions,
-    marginBottom: '40px', 
     gap: '10px',
-    width: 'calc(100vw - 40px)',
     flexWrap: 'wrap',
     backgroundColor: theme.palette.background.paper,
     padding: 20,
