@@ -90,7 +90,7 @@ export const getFirstParagraphLength = (content: ContentItem): number | null => 
 
 const BOLD_REGEX = /<(b|strong)\b[^>]*>([\s\S]*?)<\/\1>/gi;
 
-const countLetters = (text: string) => (text.match(/\p{L}/gu) ?? []).length;
+export const countLetters = (text: string) => (text.match(/\p{L}/gu) ?? []).length;
 
 export const getBoldLetterRatioFromHtml = (html: string): number | null => {
   const letterCount = countLetters(stripHtml(html));
