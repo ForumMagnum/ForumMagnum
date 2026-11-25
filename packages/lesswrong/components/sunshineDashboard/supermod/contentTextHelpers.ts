@@ -58,8 +58,6 @@ const getBlankLineStatsFromHtml = (html: string): BlankLineStats => {
   return { blankRuns, textBlocks };
 };
 
-export const getBlankLineCountFromHtml = (html: string): number => getBlankLineStatsFromHtml(html).blankRuns;
-
 export const getBlankLineRatioFromHtml = (html: string): number | null => {
   const { blankRuns, textBlocks } = getBlankLineStatsFromHtml(html);
   if (blankRuns + textBlocks === 0) return null;
@@ -99,14 +97,4 @@ export const getBoldLetterRatioFromHtml = (html: string): number | null => {
   if (letterCount === 0) return null;
   const boldLetterCount = sumBy([...html.matchAll(BOLD_REGEX)], match => countLetters(stripHtml(match[2])));
   return Math.min(1, boldLetterCount / letterCount);
-};
-
-const LATIN_LETTER_REGEX = /[A-Za-zÀ-ɏ]/;
-
-export const getLetters = (content: ContentItem) => getPlaintext(content).match(/\p{L}/gu) ?? [];
-
-export const getNonLatinLetterRatio = (content: ContentItem): number | null => {
-  const letters = getLetters(content);
-  if (letters.length === 0) return null;
-  return letters.filter(letter => !LATIN_LETTER_REGEX.test(letter)).length / letters.length;
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import LWTooltip from '@/components/common/LWTooltip';
 import KeystrokeDisplay from './KeystrokeDisplay';
-import type { ModeratorActionHighlightStyle } from './actionHighlightRules';
+import type { ModeratorActionHighlightStyle } from './highlightRules';
 import classNames from 'classnames';
 
 export const commandButtonStyles = (theme: ThemeType) => ({

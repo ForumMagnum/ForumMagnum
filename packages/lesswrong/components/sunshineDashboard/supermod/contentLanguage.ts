@@ -70,7 +70,7 @@ interface ProseLanguageCounts {
   nonEnglishLetters: number;
 }
 
-function getProseLanguageCounts(html: string): ProseLanguageCounts | null {
+export function getProseLanguageCounts(html: string): ProseLanguageCounts | null {
   const text = proseFromHtml(html).normalize('NFKC')
     .replace(/(?:https?:\/\/|www\.)\S+|[\w.+-]+@[\w.-]+\.[a-z]+/gi, ' ');
   const letters = letterCount(text);
@@ -87,15 +87,4 @@ function getProseLanguageCounts(html: string): ProseLanguageCounts | null {
     }
   }
   return { letters, nonEnglishLetters };
-}
-
-/** Fraction of authored prose confidently identified as non-English. */
-export function getNonEnglishProseRatio(html: string): number | null {
-  const counts = getProseLanguageCounts(html);
-  return counts ? counts.nonEnglishLetters / counts.letters : null;
-}
-
-/** Absolute amount of non-English prose, unaffected by an accompanying translation. */
-export function getNonEnglishProseLetterCount(html: string): number | null {
-  return getProseLanguageCounts(html)?.nonEnglishLetters ?? null;
 }

@@ -4202,7 +4202,6 @@ type Mutation = {
   setIsHidden: User;
   setPostSuggestedForAlignment?: Maybe<Post>;
   setPostSuggestedForCuration?: Maybe<Post>;
-  setSupermodHighlightRuleOverrides: Scalars['JSON']['output'];
   setVoteComment?: Maybe<Comment>;
   setVoteMessage?: Maybe<Message>;
   setVoteMultiDocument?: Maybe<MultiDocument>;
@@ -4964,11 +4963,6 @@ type MutationsetPostSuggestedForAlignmentArgs = {
 type MutationsetPostSuggestedForCurationArgs = {
   postId: Scalars['String']['input'];
   suggested: Scalars['Boolean']['input'];
-};
-
-
-type MutationsetSupermodHighlightRuleOverridesArgs = {
-  overrides: Scalars['JSON']['input'];
 };
 
 
@@ -21959,31 +21953,6 @@ type CurationPostViewQueryQueryVariables = Exact<{
 
 
 type CurationPostViewQueryQuery = CurationPostViewQueryQuery_Query;
-
-type setSupermodHighlightRuleOverridesMutation_Mutation = { __typename?: 'Mutation', setSupermodHighlightRuleOverrides: any };
-
-
-type setSupermodHighlightRuleOverridesMutationVariables = Exact<{
-  overrides: Scalars['JSON']['input'];
-}>;
-
-
-type setSupermodHighlightRuleOverridesMutation = setSupermodHighlightRuleOverridesMutation_Mutation;
-
-type moderationTemplatesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = { __typename?: 'ModerationTemplate', _id: string, name: string, collectionName: ModerationTemplateType };
-
-type moderationTemplatesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', results: Array<moderationTemplatesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
-
-type moderationTemplatesForHighlightRulesQuery_Query = { __typename?: 'Query', moderationTemplates: moderationTemplatesForHighlightRulesQuery_moderationTemplates_MultiModerationTemplateOutput | null };
-
-
-type moderationTemplatesForHighlightRulesQueryVariables = Exact<{
-  selector: InputMaybe<ModerationTemplateSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type moderationTemplatesForHighlightRulesQuery = moderationTemplatesForHighlightRulesQuery_Query;
 
 type ModerationInboxQueueQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }

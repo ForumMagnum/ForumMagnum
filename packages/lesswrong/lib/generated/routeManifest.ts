@@ -88,9 +88,6 @@ export const routeTrie = {
         "supermod": {
           "hasPage": true
         },
-        "supermodHighlights": {
-          "hasPage": true
-        },
         "synonyms": {
           "hasPage": true
         },
@@ -111,7 +108,6 @@ export const routeTrie = {
         "pangram": "pangram",
         "random-user": "random-user",
         "supermod": "supermod",
-        "supermodhighlights": "supermodHighlights",
         "synonyms": "synonyms",
         "tagmerge": "tagMerge"
       },

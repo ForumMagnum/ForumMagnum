@@ -18,7 +18,7 @@ import LWTooltip from '../common/LWTooltip';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { useDialog } from '../common/withDialog';
 import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEditorContext';
-import { getHighlightedRejectionTemplateIds, getHighlightedTemplateIds } from './supermod/templateHighlightRules';
+import { getHighlightedMessageTemplateIds, getHighlightedRejectionTemplateIds } from './supermod/highlightRules';
 import FormatDate from '../common/FormatDate';
 import GroupedModerationTemplateList from './GroupedModerationTemplateList';
 import CollapsibleSectionHeader from './supermod/CollapsibleSectionHeader';
@@ -256,24 +256,12 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, focusedC
 
   const highlightedMessageTemplateIds = useMemo(() => {
     if (!posts || !comments) return new Set<string>();
-    return getHighlightedTemplateIds(
-      {
-        user,
-        moderatorActions: user.moderatorActions ?? [],
-      },
-      posts,
-      comments
-    );
+    return getHighlightedMessageTemplateIds({ user, posts, comments });
   }, [user, posts, comments]);
 
   const highlightedRejectionTemplateIds = useMemo(() => {
     if (!focusedContent || !posts || !comments) return new Set<string>();
-    return getHighlightedRejectionTemplateIds(focusedContent, {
-      user,
-      moderatorActions: user.moderatorActions ?? [],
-      posts,
-      comments,
-    });
+    return getHighlightedRejectionTemplateIds(focusedContent, { user, posts, comments });
   }, [focusedContent, user, posts, comments]);
 
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();

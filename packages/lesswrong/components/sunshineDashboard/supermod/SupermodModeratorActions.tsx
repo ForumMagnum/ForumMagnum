@@ -5,7 +5,7 @@ import ModerationActionButtons from './ModerationActionButtons';
 import CollapsibleSectionHeader from './CollapsibleSectionHeader';
 import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
-import { getHighlightedModeratorActions, type HighlightedModeratorActions } from './actionHighlightRules';
+import { getHighlightedModeratorActions, type HighlightedModeratorActions } from './highlightRules';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
@@ -84,12 +84,7 @@ const SupermodModeratorActions = ({user, currentUser, posts, comments, contentsL
   // Empty lists while loading would satisfy absence-based rules (e.g. Remove, Purge)
   const highlightedActions = useMemo(() => contentsLoading
     ? NO_HIGHLIGHTED_ACTIONS
-    : getHighlightedModeratorActions({
-      user,
-      moderatorActions: user.moderatorActions ?? [],
-      posts,
-      comments,
-    }), [user, posts, comments, contentsLoading]);
+    : getHighlightedModeratorActions({ user, posts, comments }), [user, posts, comments, contentsLoading]);
 
   return (
     <ModerationSidebarSection

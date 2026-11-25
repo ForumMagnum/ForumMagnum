@@ -5,7 +5,7 @@ import { useModerationUserActions } from './useModerationUserActions';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import type { InboxAction } from './inboxReducer';
 import { areAllContentPermissionsDisabled } from './helpers';
-import { getActionHighlightStyle, type HighlightableModeratorAction, type HighlightedModeratorActions } from './actionHighlightRules';
+import type { HighlightableModeratorAction, HighlightedModeratorActions } from './highlightRules';
 
 const styles = defineStyles('ModerationActionButtons', (theme: ThemeType) => ({
   actionColumns: {
@@ -53,7 +53,7 @@ const ModerationActionButtonList = ({buttons, highlightedActions, collapsed}: {
       tooltip={tooltip}
       onClick={onClick}
       active={!!active}
-      highlightStyle={collapsed ? null : getActionHighlightStyle(highlightedActions, highlightKey)}
+      highlightStyle={collapsed ? null : highlightedActions?.get(highlightKey)}
     />
   ))}
 </>;

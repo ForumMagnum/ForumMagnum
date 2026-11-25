@@ -8,7 +8,7 @@ import type { InboxAction } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import type { ContentPermissionField } from './helpers';
 import { activeCommandButtonStyles, moderatorActionHighlightStyles } from './ModerationActionButton';
-import { getActionHighlightStyle, type HighlightableModeratorAction, type HighlightedModeratorActions } from './actionHighlightRules';
+import type { HighlightableModeratorAction, HighlightedModeratorActions } from './highlightRules';
 
 const styles = defineStyles('ModerationPermissionButtons', (theme: ThemeType) => ({
   permissionButtonsContainer: {
@@ -99,7 +99,7 @@ const ModerationPermissionButtons = ({
 
   const renderedButtons = visibleButtons.map(({field, label, keystroke, onClick, highlightKey}) => {
     const permissionDisabled = !!user[field];
-    const highlightStyle = highlightKey && !collapsed ? getActionHighlightStyle(highlightedActions, highlightKey) : null;
+    const highlightStyle = highlightKey && !collapsed ? highlightedActions?.get(highlightKey) : null;
 
     return (
       <div
