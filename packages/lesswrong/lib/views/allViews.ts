@@ -69,6 +69,7 @@ import { YjsDocumentsViews } from '../collections/yjsDocuments/views';
 export const allViews = {
   AiDigestIssueGenerations: new CollectionViewSet('AiDigestIssueGenerations', {}),
   AiDigestIssues: AiDigestIssuesViews,
+  AiDigestItemClicks: new CollectionViewSet('AiDigestItemClicks', {}),
   AiDigestSchedules: new CollectionViewSet('AiDigestSchedules', {}),
   ArbitalCaches: new CollectionViewSet('ArbitalCaches', {}),
   ArbitalTagContentRels: new CollectionViewSet('ArbitalTagContentRels', {}),
