@@ -85,7 +85,7 @@
 //
 //
 
-import { grey, greyAlpha, inverseGreyAlpha, primaryAlpha, boxShadowColor, greyBorder } from "./colorUtil";
+import { grey, greyAlpha, inverseGreyAlpha, primaryAlpha, boxShadowColor, greyBorder, invertIfDarkModePreservingHue } from "./colorUtil";
 import { isBlackBarTitle } from '../components/seasonal/petrovDay/petrov-day-story/petrovConsts';
 
 export const sansSerifStack = [
@@ -195,8 +195,8 @@ export const defaultComponentPalette = (dark: boolean, isAF: boolean) => ({
     tooltipText: "#fff",
     tooltipTextDim: "#c2c2c2",
     negativeKarmaRed: "#ff8a80",
-    charsAdded: "#008800",
-    charsRemoved: "#880000",
+    charsAdded: invertIfDarkModePreservingHue("#008800"),
+    charsRemoved: invertIfDarkModePreservingHue("#880000"),
     invertedBackgroundText: inverseGreyAlpha(1),
     invertedBackgroundText2: inverseGreyAlpha(0.7),
     invertedBackgroundText3: inverseGreyAlpha(0.5),
