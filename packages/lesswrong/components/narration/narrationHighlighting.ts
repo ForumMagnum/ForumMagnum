@@ -17,10 +17,12 @@ import { setNarrationPositionRange } from "./narrationPosition";
 
 const WORD_HIGHLIGHT_NAME = "narration-word";
 /**
- * ::highlight() only paints behind text. Rendered equations draw their glyphs
- * with CSS generated content, and images have no text at all, so an equation
- * that's being read or an image that's being described is marked with an
- * attribute instead.
+ * ::highlight() can't mark an equation that's being read or an image that's
+ * being described, so those are marked with an attribute instead. Rendered
+ * equations draw their glyphs with CSS generated content, which it doesn't
+ * paint behind. Over an image it paints on top: Firefox tints the image, and
+ * Chrome covers it completely, as it also does to an iframe. So it's turned
+ * off for both, wherever they are in what's highlighted.
  */
 const CURRENT_ELEMENT_ATTRIBUTE = "data-narration-current";
 
@@ -34,13 +36,17 @@ export const narrationHighlightStyles = defineStyles("NarrationHighlightCSS", (t
     [`::highlight(${WORD_HIGHLIGHT_NAME})`]: {
       backgroundColor: theme.palette.blockquoteHighlight.commentHovered,
     },
-    [`[${CURRENT_ELEMENT_ATTRIBUTE}]`]: {
+    [`:is(img, iframe)::highlight(${WORD_HIGHLIGHT_NAME})`]: {
+      backgroundColor: "transparent",
+    },
+    [`[${CURRENT_ELEMENT_ATTRIBUTE}]:not(img)`]: {
       backgroundColor: theme.palette.blockquoteHighlight.commentHovered,
       borderRadius: 2,
     },
     [`img[${CURRENT_ELEMENT_ATTRIBUTE}]`]: {
       outline: `4px solid ${theme.palette.blockquoteHighlight.commentHovered}`,
       outlineOffset: 2,
+      borderRadius: 2,
     },
   },
 }));
