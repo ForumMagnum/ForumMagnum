@@ -159,6 +159,13 @@ const styles = defineStyles("NarrationPlayer", (theme: ThemeType) => ({
       background: theme.palette.primary.dark,
     },
   },
+  // The circle that the three tips of the play icon's triangle lie on is
+  // centred 1.6 units left of the middle of the icon's 24-unit viewBox. This
+  // moves it onto the middle of the button, so that the tips are all the same
+  // distance from the button's edge.
+  playIcon: {
+    transform: "translateX(6.67%)",
+  },
   time: {
     flexShrink: 0,
     minWidth: 44,
@@ -371,7 +378,7 @@ const NarrationPlayer = ({ postId, postHasBody, onClose }: {
       >
         {statusMessage
           ? <Loading white className={classes.playButtonSpinner} />
-          : <ForumIcon icon={playButtonLabel} />
+          : <ForumIcon icon={playButtonLabel} className={classNames({ [classes.playIcon]: !isPlayingOrLoading })} />
         }
       </button>
       <button
