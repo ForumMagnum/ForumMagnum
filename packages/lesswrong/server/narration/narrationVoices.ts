@@ -181,7 +181,7 @@ const defaultVoices: DefaultVoice[] = [
  * people who wrote what they're listening to). The first is what posts are
  * read in unless the listener chooses otherwise.
  */
-const LISTENER_VOICE_NAMES = ["Eddie", "Maisie"];
+const LISTENER_VOICE_NAMES = ["Finley", "Maisie"];
 
 function getDefaultVoiceByName(name: string): DefaultVoice {
   const voice = defaultVoices.find(defaultVoice => defaultVoice.name === name);
