@@ -157,6 +157,7 @@ export const UsersCurrent = gql(`
     draftsListShowArchived
     draftsListShowShared
     lastNotificationsCheck
+    hideCommentNotificationFilterSuggestion
     bannedUserIds
     bannedPersonalUserIds
     moderationStyle

@@ -7472,6 +7472,7 @@ interface User {
   notificationShortformContent: any;
   notificationRepliesToMyComments: any;
   commentNotificationFilter: string | null;
+  hideCommentNotificationFilterSuggestion: boolean | null;
   notificationRepliesToSubscribedComments: any;
   notificationSubscribedUserPost: any;
   notificationSubscribedUserComment: any;
@@ -9495,6 +9496,7 @@ interface UpdateUserDataInput {
   notificationShortformContent?: any;
   notificationRepliesToMyComments?: any;
   commentNotificationFilter?: string | null;
+  hideCommentNotificationFilterSuggestion?: boolean | null;
   notificationRepliesToSubscribedComments?: any;
   notificationSubscribedUserPost?: any;
   notificationSubscribedUserComment?: any;

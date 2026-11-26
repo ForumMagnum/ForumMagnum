@@ -8099,6 +8099,7 @@ type User {
   notificationShortformContent: JSON
   notificationRepliesToMyComments: JSON
   commentNotificationFilter: String
+  hideCommentNotificationFilterSuggestion: Boolean
   notificationRepliesToSubscribedComments: JSON
   notificationSubscribedUserPost: JSON
   notificationSubscribedUserComment: JSON
@@ -10408,6 +10409,7 @@ input UpdateUserDataInput {
   notificationShortformContent: JSON
   notificationRepliesToMyComments: JSON
   commentNotificationFilter: String
+  hideCommentNotificationFilterSuggestion: Boolean
   notificationRepliesToSubscribedComments: JSON
   notificationSubscribedUserPost: JSON
   notificationSubscribedUserComment: JSON

@@ -1915,6 +1915,7 @@ interface DbUser extends DbObject {
   hiddenPostsMetadata: Array<PostMetadataInput!>
   hideAFNonMemberInitialWarning: boolean
   hideActiveDialogueUsers: boolean
+  hideCommentNotificationFilterSuggestion: boolean
   hideCommunitySection: boolean
   hideDialogueFacilitation: boolean
   hideElicitPredictions: boolean

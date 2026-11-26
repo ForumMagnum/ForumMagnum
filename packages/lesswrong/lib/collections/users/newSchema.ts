@@ -1860,6 +1860,22 @@ const schema = {
       },
     },
   },
+  hideCommentNotificationFilterSuggestion: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   notificationRepliesToSubscribedComments: {
     database: {
       type: "JSONB",
