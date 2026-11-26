@@ -1,17 +1,14 @@
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import classNames from "classnames";
-import moment from "moment";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useLocalStorageState } from "@/components/hooks/useLocalStorageState";
-import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
 import { useIsAboveBreakpoint } from "@/components/hooks/useScreenWidth";
 import { LLM_CHAT_SIDEBAR_WIDTH } from "@/components/languageModels/llmChatSidebarWidth";
 import { POSTS_BOTTOM_BAR_SHOWN_PROPERTY } from "@/components/posts/PostsBottomBar";
 import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES } from "@/components/posts/PostsPage/constants";
-import { NARRATION_PLAYBACK_RATE_COOKIE } from "@/lib/cookies/cookies";
 import ForumIcon from "@/components/common/ForumIcon";
 import Loading from "@/components/vulcan-core/Loading";
 import {
@@ -30,6 +27,7 @@ import {
   publishNarrationPlayerFootprint,
 } from "./narrationPlayerLayout";
 import { useNarrationPlayback, type NarrationItem } from "./useNarrationPlayback";
+import { formatNarrationPlaybackRate, narrationPlaybackRates, useNarrationPlaybackRate } from "./useNarrationPlaybackRate";
 import NarrationSettingsPanel, { type NarrationOptions } from "./NarrationSettingsPanel";
 
 const NarrationOptionsQuery = gql(`
@@ -59,7 +57,6 @@ const NarrationOptionsQuery = gql(`
 
 const SKIP_BACK_MS = 15_000;
 const SKIP_FORWARD_MS = 30_000;
-const playbackRates = [0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3];
 
 const FLOATING_MARGIN = 12;
 /** Post pages have a right-hand margin at least this wide at the widths where the player floats, which it fits inside */
@@ -274,8 +271,10 @@ function resolveSettings(storedSettings: NarrationListenerSettings|null, options
   };
 }
 
-const NarrationPlayer = ({ postId, onClose }: {
+const NarrationPlayer = ({ postId, postHasBody, onClose }: {
   postId: string
+  /** Whether the post has any text of its own. A shortform container usually doesn't, and then narration is of its comments only. */
+  postHasBody: boolean
   onClose: () => void
 }) => {
   const classes = useStyles(styles);
@@ -314,17 +313,9 @@ const NarrationPlayer = ({ postId, onClose }: {
   const [autoScroll, setAutoScroll] = useState(true);
   const [scrubPositionMs, setScrubPositionMs] = useState<number|null>(null);
 
-  const [cookies, setCookie] = useCookiesWithConsent([NARRATION_PLAYBACK_RATE_COOKIE]);
-  const storedPlaybackRate = Number(cookies[NARRATION_PLAYBACK_RATE_COOKIE]);
-  const playbackRate = playbackRates.includes(storedPlaybackRate) ? storedPlaybackRate : 1;
-  const setPlaybackRate = (newPlaybackRate: number) => {
-    setCookie(NARRATION_PLAYBACK_RATE_COOKIE, String(newPlaybackRate), {
-      path: "/",
-      expires: moment().add(2, "years").toDate(),
-    });
-  };
+  const { playbackRate, setPlaybackRate } = useNarrationPlaybackRate();
 
-  const playback = useNarrationPlayback({ postId, settings, autoScroll, playbackRate });
+  const playback = useNarrationPlayback({ postId, postHasBody, settings, autoScroll, playbackRate });
   const { phase, positionMs, durationMs } = playback;
   const nowReadingLabel = getNowReadingLabel(playback.currentItem);
   const isPlayingOrLoading = phase === "playing" || phase === "loading";
@@ -419,7 +410,7 @@ const NarrationPlayer = ({ postId, onClose }: {
         onChange={event => setPlaybackRate(Number(event.target.value))}
         aria-label="Playback speed"
       >
-        {playbackRates.map(rate => <option key={rate} value={rate}>{rate}×</option>)}
+        {narrationPlaybackRates.map(rate => <option key={rate} value={rate}>{formatNarrationPlaybackRate(rate)}</option>)}
       </select>
       <button
         type="button"

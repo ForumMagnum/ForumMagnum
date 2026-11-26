@@ -2,10 +2,10 @@
 import React, { useRef } from "react";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
-import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { useMessages } from "@/components/common/withMessages";
 import Loading from "@/components/vulcan-core/Loading";
 import ExplicitSaveTextSetting from "../users/account/ExplicitSaveTextSetting";
+import SettingsButton from "../users/account/SettingsButton";
 import type { UserSettingsSaveResult } from "../users/account/useAutoSavedUserSettings";
 
 const PreviewNarrationNamePronunciationMutation = gql(`
@@ -16,37 +16,11 @@ const PreviewNarrationNamePronunciationMutation = gql(`
 
 const IPA_URL = "https://en.wikipedia.org/wiki/International_Phonetic_Alphabet";
 
-const styles = defineStyles("NarrationNamePronunciationSetting", (theme: ThemeType) => ({
-  previewButton: {
-    border: `1px solid ${theme.palette.greyAlpha(0.2)}`,
-    borderRadius: 6,
-    padding: "8px 16px",
-    fontSize: 13,
-    fontWeight: 500,
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.grey[700],
-    background: "none",
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-    transition: "border-color 0.15s ease, color 0.15s ease",
-    "&:hover:not(:disabled)": {
-      borderColor: theme.palette.greyAlpha(0.4),
-      color: theme.palette.grey[900],
-      background: theme.palette.greyAlpha(0.03),
-    },
-    "&:disabled": {
-      opacity: 0.5,
-      cursor: "not-allowed",
-    },
-  },
-}));
-
 /** Plays how narration would say the user's name with `pronunciation`, which needn't be what's saved */
 const NamePronunciationPreviewButton = ({ userId, pronunciation }: {
   userId: string
   pronunciation: string
 }) => {
-  const classes = useStyles(styles);
   const { flash } = useMessages();
   const previewAudioRef = useRef<HTMLAudioElement|null>(null);
 
@@ -60,15 +34,13 @@ const NamePronunciationPreviewButton = ({ userId, pronunciation }: {
     onError: (error) => flash({ messageString: error.message, type: "error" }),
   });
 
-  return <button
-    type="button"
-    className={classes.previewButton}
+  return <SettingsButton
     onClick={() => void previewPronunciation({ variables: { userId, pronunciation } })}
     disabled={loading}
-    aria-label="Preview pronunciation"
+    ariaLabel="Preview pronunciation"
   >
     {loading ? <Loading /> : "Preview"}
-  </button>;
+  </SettingsButton>;
 };
 
 /**

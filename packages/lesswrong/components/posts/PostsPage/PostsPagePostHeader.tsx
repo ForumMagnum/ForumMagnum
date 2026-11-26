@@ -211,7 +211,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
             <ReadTime post={post} dialogueResponses={dialogueResponses} />
           </>
         }
-        <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+        <AudioToggle toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
         {post.isEvent && <GroupLinks document={post} noMargin />}
         {answersNode}
         {!post.shortform &&

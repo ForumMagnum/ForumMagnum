@@ -8,6 +8,7 @@ import { SpeakerWaveIcon } from "../icons/speakerWaveIcon";
 import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
 import PlayIcon from "@heroicons/react/24/solid/PlayIcon";
 import PauseIcon from "@heroicons/react/24/solid/PauseIcon";
+import StopIcon from "@heroicons/react/24/solid/StopIcon";
 import BackwardIcon from "@heroicons/react/24/solid/BackwardIcon";
 import ForwardIcon from "@heroicons/react/24/solid/ForwardIcon";
 import UserOutlineIcon from "@heroicons/react/24/outline/UserIcon";
@@ -296,6 +297,7 @@ export type ForumIconName =
   "PlaylistAdd"|
   "Play" |
   "Pause" |
+  "Stop" |
   "Backward" |
   "Forward" |
   "PlusOne" |
@@ -450,6 +452,7 @@ const icons: Record<ForumIconName, IconComponent> = {
   PlaylistAdd: MuiPlaylistAddIcon,
   Play: PlayIcon,
   Pause: PauseIcon,
+  Stop: StopIcon,
   Backward: BackwardIcon,
   Forward: ForwardIcon,
   PlusOne: PlusOneIcon,

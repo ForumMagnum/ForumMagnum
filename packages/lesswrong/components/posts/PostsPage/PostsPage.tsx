@@ -297,9 +297,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
 
   const toggleEmbeddedPlayer = useCallback(() => {
-    if (!post || !postHasAudioPlayer(post, forumType)) {
-      return;
-    }
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("toggleAudioPlayer", { action });
@@ -310,13 +307,16 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
       path: "/"
     });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
-  }, [post, showEmbeddedPlayer, captureEvent, setCookie, forumType]);
+  }, [showEmbeddedPlayer, captureEvent, setCookie]);
 
   // A post with a podcast episode has that episode's player, in its header.
   // Any other post with audio has Type III Audio's player there, except for
   // users who have narration: for them it's narrated, by a player that's
-  // fixed to the screen rather than part of the page.
-  const showNarrationPlayer = showEmbeddedPlayer && !preview && userCanListenToNarration(currentUser, post, forumType);
+  // fixed to the screen rather than part of the page. Narration is also the
+  // only audio that a shortform container has.
+  const hasNarration = userCanListenToNarration(currentUser, post, forumType);
+  const hasAudioPlayer = hasNarration || !!postHasAudioPlayer(post, forumType);
+  const showNarrationPlayer = showEmbeddedPlayer && !preview && hasNarration;
 
   const getSequenceId = () => {
     return sequenceIdFromUrl || fullPost?.canonicalSequenceId || null;
@@ -581,7 +581,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
             showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
             answerCount={answerCount}
-            toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+            toggleEmbeddedPlayer={hasAudioPlayer ? toggleEmbeddedPlayer : undefined}
             annualReviewMarketInfo={marketInfo}
             showSplashPageHeader={showSplashPageHeader}
           />
@@ -779,7 +779,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded,
     </SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>
     <PostsBottomBar />
-    {showNarrationPlayer && <NarrationPlayer key={post._id} postId={post._id} onClose={toggleEmbeddedPlayer} />}
+    {showNarrationPlayer && <NarrationPlayer key={post._id} postId={post._id} postHasBody={!!htmlWithAnchors} onClose={toggleEmbeddedPlayer} />}
     </PostsPageContext.Provider>
   </AnalyticsContext>
 }

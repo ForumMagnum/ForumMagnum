@@ -72,13 +72,40 @@ interface SelectOption {
   value: string | number;
 }
 
-interface SettingsSelectRowProps {
+interface SettingsSelectProps {
   value: string | number | null | undefined;
   onChange: (value: string) => void;
-  label: string;
-  description?: string;
   options: SelectOption[] | readonly SelectOption[];
 }
+
+interface SettingsSelectRowProps extends SettingsSelectProps {
+  label: string;
+  description?: string;
+  /** More controls for the same setting, shown under the select */
+  controlsBelowSelect?: React.ReactNode;
+}
+
+/** The select of a SettingsSelectRow on its own, for a select that goes with other controls */
+export const SettingsSelect = ({ value, onChange, options, ariaLabel }: SettingsSelectProps & {
+  ariaLabel?: string;
+}) => {
+  const classes = useStyles(styles);
+
+  return (
+    <select
+      className={classes.select}
+      value={value ?? ''}
+      onChange={(e) => onChange(e.target.value)}
+      aria-label={ariaLabel}
+    >
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
+};
 
 const SettingsSelectRow = ({
   value,
@@ -86,6 +113,7 @@ const SettingsSelectRow = ({
   label,
   description,
   options,
+  controlsBelowSelect,
 }: SettingsSelectRowProps) => {
   const classes = useStyles(styles);
 
@@ -96,17 +124,8 @@ const SettingsSelectRow = ({
         {description && <div className={classes.description}>{description}</div>}
       </div>
       <div className={classes.selectWrapper}>
-        <select
-          className={classes.select}
-          value={value ?? ''}
-          onChange={(e) => onChange(e.target.value)}
-        >
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <SettingsSelect value={value} onChange={onChange} options={options} />
+        {controlsBelowSelect}
       </div>
     </div>
   );

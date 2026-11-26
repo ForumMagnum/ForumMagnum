@@ -421,13 +421,18 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   return typeof result === "object" ? result : undefined;
 }
 
+type PostWithAudioEligibility = PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost;
+
+const isPostPublishedForEveryone = (post: PostWithAudioEligibility): boolean =>
+  !post.draft && !post.authorIsUnreviewed && !post.rejected && post.status === postStatuses.STATUS_APPROVED;
+
 /**
  * Whether the post is allowed AI generated audio: narration by ElevenLabs on
  * its page for the users who have that (see userCanListenToNarration), and
  * Type III Audio's for everyone else and wherever else audio is offered. (The
  * settings that this goes by date from when Type III Audio was all there was.)
  */
-export const isPostAllowedGeneratedAudio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost, forumType: ForumTypeString): boolean => {
+export const isPostAllowedGeneratedAudio = (post: PostWithAudioEligibility, forumType: ForumTypeString): boolean => {
   if (!allowTypeIIIPlayerSetting.get(forumType)) return false
 
   try {
@@ -439,15 +444,12 @@ export const isPostAllowedGeneratedAudio = (post: PostsWithNavigation|PostsWithN
         TYPE_III_ALLOWED_POST_IDS.includes(post._id) ||
         post.baseScore > type3KarmaCutoffSetting.get(forumType) ||
         post.forceAllowType3Audio) &&
-      !post.draft &&
-      !post.authorIsUnreviewed &&
-      !post.rejected &&
+      isPostPublishedForEveryone(post) &&
       !post.podcastEpisodeId &&
       !post.isEvent &&
       !post.question &&
       !post.debate &&
-      !post.shortform &&
-      post.status === postStatuses.STATUS_APPROVED
+      !post.shortform
     );
   } catch (e) {
     // eslint-disable-next-line no-console
@@ -457,16 +459,27 @@ export const isPostAllowedGeneratedAudio = (post: PostsWithNavigation|PostsWithN
 }
 
 /**
- * Whether a post's generated audio, for this user, is narration by ElevenLabs
- * rather than Type III Audio's. The post's page goes by this to choose which
- * player the audio button opens, and the server to decide whose requests for
- * narration to serve.
+ * Whether a shortform container can be narrated. It isn't allowed Type III
+ * Audio's, which only reads a post's own text, and a container has little or
+ * none. Narration goes on from a post into its comments, and a container's
+ * comments are what there is to hear. Those are from any time since the
+ * container was made, so how old it is doesn't count against it.
+ */
+const isShortformAllowedNarration = (post: PostWithAudioEligibility, forumType: ForumTypeString): boolean =>
+  allowTypeIIIPlayerSetting.get(forumType) && post.shortform && isPostPublishedForEveryone(post);
+
+/**
+ * Whether a post's page has narration by ElevenLabs for this user: instead of
+ * Type III Audio's, for a post that's allowed generated audio, and as the only
+ * audio there is for a shortform container. The post's page goes by this to
+ * choose which player the audio button opens, and the server to decide whose
+ * requests for narration to serve.
  */
 export const userCanListenToNarration = (
   user: UsersCurrent|DbUser|null,
-  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost,
+  post: PostWithAudioEligibility,
   forumType: ForumTypeString,
-): boolean => userHasNarration(user) && isPostAllowedGeneratedAudio(post, forumType);
+): boolean => userHasNarration(user) && (isPostAllowedGeneratedAudio(post, forumType) || isShortformAllowedNarration(post, forumType));
 
 /**
  * Given a url like https://docs.google.com/document/d/1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA/edit#heading=h.82kaw9idgbpe
