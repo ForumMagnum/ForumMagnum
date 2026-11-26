@@ -317,7 +317,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, dial
             </div>
             <LWCommentCount answerCount={answerCount} commentCount={post.commentCount} label={false} />
             <div className={classes.audioToggle}>
-              <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+              <AudioToggle toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
             </div>
             <PostActionsButton post={post} flip />
           </div>

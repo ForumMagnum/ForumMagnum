@@ -76,7 +76,9 @@ export function findNarrationComment(commentId: string): NarrationCommentEntry|n
 
 /**
  * The comment that's read after the given one (or first, if null). Null if
- * there are no more, or if the given comment is no longer displayed.
+ * there are no more, or if the given comment is no longer displayed. A
+ * retracted comment is never the next one: it's only read if playback is
+ * started in it. The replies under it are read as usual.
  */
 export function getNextNarrationComment(afterCommentId: string|null, unlockedCommentIds: ReadonlySet<string>): NarrationCommentEntry|null {
   const entries = getDisplayedComments();
@@ -85,7 +87,7 @@ export function getNextNarrationComment(afterCommentId: string|null, unlockedCom
     return null;
   }
   return entries.slice(afterIndex + 1).find(
-    entry => isCommentNarratable(entry.comment) && !isSkippedForLowKarma(entry, unlockedCommentIds)
+    entry => isCommentNarratable(entry.comment) && !entry.comment.retracted && !isSkippedForLowKarma(entry, unlockedCommentIds)
   ) ?? null;
 }
 

@@ -844,7 +844,6 @@ const UltraFeedPostDialog = ({
                 />
                 <div className={classes.audioToggle}>
                   <AudioToggle 
-                    post={displayPost} 
                     toggleEmbeddedPlayer={toggleEmbeddedPlayer} 
                     showEmbeddedPlayer={showEmbeddedPlayer} 
                   />

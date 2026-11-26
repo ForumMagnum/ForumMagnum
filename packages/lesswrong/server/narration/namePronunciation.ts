@@ -57,7 +57,7 @@ export async function synthesizeNamePronunciationPreview(user: DbUser, pronuncia
   validateNamePronunciation(pronunciation);
   const spokenName = getSpokenName(userGetDisplayName(user, forumType), pronunciation);
   const { audio } = await synthesizeSpeechWithTimestamps({
-    text: getCommentIntroduction({ answer: false, parentCommentId: null }, spokenName, null),
+    text: getCommentIntroduction({ answer: false, parentCommentId: null, retracted: false }, spokenName, null),
     previousText: null,
     nextText: null,
     settings: {

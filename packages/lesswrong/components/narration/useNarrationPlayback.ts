@@ -320,9 +320,14 @@ function findItemForElement(element: Element, postItem: NarrationItem): { item: 
  * comes after the segment being played is requested ahead of time: the
  * segments that follow it, in its item and then in the items after, until
  * they add up to LOOKAHEAD_CHARACTERS.
+ *
+ * A post with no text of its own (`postHasBody` is false; most shortform
+ * containers) has no script, and the server won't make one. It's never an
+ * item: narration starts with the first comment.
  */
-export function useNarrationPlayback({ postId, settings, autoScroll, playbackRate }: {
+export function useNarrationPlayback({ postId, postHasBody, settings, autoScroll, playbackRate }: {
   postId: string
+  postHasBody: boolean
   /** What to read things in. Null until the settings to use are known; nothing can be played before then. */
   settings: NarrationListenerSettings|null
   autoScroll: boolean
@@ -609,9 +614,15 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
       void audioElement.play();
     } else {
       engine.unlockedCommentIds = new Set();
-      void playFrom({ item: postItem, position: startOfItem });
+      const firstItem = postHasBody ? postItem : getNextItem(postItem, engine.unlockedCommentIds);
+      if (firstItem) {
+        void playFrom({ item: firstItem, position: startOfItem });
+      } else {
+        setPhase("error");
+        setErrorMessage("There are no comments here to read");
+      }
     }
-  }, [playFrom, postItem]);
+  }, [playFrom, postItem, postHasBody]);
 
   const pause = useCallback(() => {
     engineRef.current.commandToken++;
@@ -685,11 +696,14 @@ export function useNarrationPlayback({ postId, settings, autoScroll, playbackRat
   // play is first pressed, so that the timeline shows the narration's length
   // and double-clicking a paragraph works straight away.
   useEffect(() => {
+    if (!postHasBody) {
+      return;
+    }
     ensurePrepared(postItem).catch((error: unknown) => {
       setPhase(currentPhase => currentPhase === "idle" ? "error" : currentPhase);
       setErrorMessage(error instanceof Error ? error.message : String(error));
     });
-  }, [ensurePrepared, postItem]);
+  }, [ensurePrepared, postItem, postHasBody]);
 
   useEffect(() => {
     const audioElement = audioRef.current;

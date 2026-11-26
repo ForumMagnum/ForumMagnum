@@ -1,7 +1,5 @@
-import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import classNames from 'classnames';
-import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from "../../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -33,20 +31,23 @@ const styles = defineStyles("AudioToggle", (theme: ThemeType) => ({
   }
 }));
 
-const AudioToggle = ({post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
+/**
+ * The button that shows and hides a post's audio player. Whoever renders the
+ * player knows whether there is one, and passes `toggleEmbeddedPlayer` only if
+ * so: without it there's no button.
+ */
+const AudioToggle = ({toggleEmbeddedPlayer, showEmbeddedPlayer}: {
   toggleEmbeddedPlayer?: (e: React.MouseEvent) => void,
   showEmbeddedPlayer?: boolean,
 }) => {
-  const { forumType } = useForumType();
   const classes = useStyles(styles);
 
-  if (!postHasAudioPlayer(post, forumType)) {
+  if (!toggleEmbeddedPlayer) {
     return null;
   }
 
   return <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
-    <a href="#" onClick={(e: React.MouseEvent) => toggleEmbeddedPlayer?.(e)}>
+    <a href="#" onClick={toggleEmbeddedPlayer}>
       <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
     </a>
   </LWTooltip>

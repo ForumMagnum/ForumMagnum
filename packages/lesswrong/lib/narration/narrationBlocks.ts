@@ -54,6 +54,9 @@ export interface NarrationFootnoteRefPiece {
 
 export type NarrationPiece = NarrationTextPiece | NarrationMathPiece | NarrationFootnoteRefPiece;
 
+/** A piece that takes up part of its block's sourceText, which a footnote marker doesn't */
+export type NarrationRenderedPiece = NarrationTextPiece | NarrationMathPiece;
+
 export interface NarrationTextBlock {
   type: "text"
   container: Element
@@ -146,6 +149,18 @@ export function isTextNode(node: Node): node is Text {
 
 export function isElementNode(node: Node): node is Element {
   return node.nodeType === ELEMENT_NODE;
+}
+
+export function isRenderedPiece(piece: NarrationPiece): piece is NarrationRenderedPiece {
+  return piece.type !== "footnoteRef";
+}
+
+export function getPieceSourceEnd(piece: NarrationRenderedPiece): number {
+  return piece.type === "text" ? piece.sourceStart + piece.rawOffsets.length : piece.sourceEnd;
+}
+
+export function getPieceNode(piece: NarrationRenderedPiece): Node {
+  return piece.type === "text" ? piece.node : piece.element;
 }
 
 function getClassNames(element: Element): string[] {

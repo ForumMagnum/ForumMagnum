@@ -1,10 +1,8 @@
-import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import classNames from 'classnames';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
-import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import FooterTagList from "../../tagging/FooterTagList";
 import LWPostsPageTopHeaderVote from "../../votes/LWPostsPageTopHeaderVote";
 import AudioToggle from "./AudioToggle";
@@ -27,6 +25,10 @@ const styles = defineStyles('LWPostsPageHeaderTopRight', (theme: ThemeType) => (
     // the page.
     zIndex: 100,
   },
+  rootShortform: {
+    marginTop: 12,
+    marginRight: 8
+  },
   vote: {
     display: 'flex',
     flexDirection: 'row-reverse',
@@ -38,10 +40,6 @@ const styles = defineStyles('LWPostsPageHeaderTopRight', (theme: ThemeType) => (
     display: 'flex',
     alignItems: 'center',
     opacity: 0.3
-  },
-  postActionsButtonShortform: {
-    marginTop: 12,
-    marginRight: 8
   },
   tagList: {
     marginTop: 12,
@@ -70,23 +68,22 @@ export const LWPostsPageHeaderTopRight = ({post, toggleEmbeddedPlayer, showEmbed
   higherContrast?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
-  const { forumType } = useForumType();
   const classes = useStyles(styles);
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
-  return <div className={classes.root}>
+  return <div className={classNames(classes.root, post.shortform && classes.rootShortform)}>
       {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
         <div className={classNames(classes.tagList, higherContrast && classes.darkerOpacity)}>
           <FooterTagList post={post} hideScore useAltAddTagButton align="right" noBackground neverCoreStyling tagRight={false} annualReviewMarketInfo={annualReviewMarketInfo}/>
         </div>
       </AnalyticsContext>}
-      {!post.shortform && postHasAudioPlayer(post, forumType) && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>
-        <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+      {toggleEmbeddedPlayer && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>
+        <AudioToggle toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
       </div>}
       {!post.shortform && <div className={classes.vote}>
         <LWPostsPageTopHeaderVote post={post} votingSystem={votingSystem} /> 
       </div>}
-      <PostActionsButton post={post} className={classNames(classes.postActionsButton, post.shortform && classes.postActionsButtonShortform)} flip />
+      <PostActionsButton post={post} className={classes.postActionsButton} flip />
   </div>;
 }
 
