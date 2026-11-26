@@ -2,6 +2,7 @@ import { useForumType } from '@/components/hooks/useForumType';
 import React from 'react';
 import { hasEventsSetting } from '@/lib/instanceSettings';
 import { allowSubscribeToSequencePosts } from '@/lib/betas';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import KarmaChangeNotifierSettings from '@/components/users/KarmaChangeNotifierSettings';
 import UsersEmailVerification from '@/components/users/UsersEmailVerification';
@@ -10,12 +11,14 @@ import { HighlightableField } from './HighlightableField';
 import SettingsSection from './SettingsSection';
 import SettingsToggleRow from './SettingsToggleRow';
 import NotificationSettingsRow, { NotificationColumnHeaders } from './NotificationSettingsRow';
+import CommentNotificationFilterSettings from './CommentNotificationFilterSettings';
 import type { SettingsTabProps } from './settingsTabTypes';
 
 const NotificationsSettingsTab = ({
   settings,
   updateSettings,
   bind,
+  currentUser,
   isCurrentUser,
   fieldWrapperClass,
 }: SettingsTabProps) => {
@@ -141,6 +144,17 @@ const NotificationsSettingsTab = ({
           label="AI-proposed fixes for typos in my content"
         />
       </SettingsSection>
+
+      {/* Only readable by the user themself and admins. Unlike the karma section
+          below, null is a valid value here, so it can't be used to detect that. */}
+      {(isCurrentUser || userIsAdmin(currentUser)) && <SettingsSection
+        title="Reply Filter"
+        description="Choose which replies to your posts and comments notify you, on-site and by email. A reply that doesn't qualify yet is checked again each time it's voted on during its first week. Counts use replies' current karma, and ignore whether your settings above would have delivered them."
+      >
+        <HighlightableField name="commentNotificationFilter">
+          <CommentNotificationFilterSettings settings={settings} updateSettings={updateSettings} />
+        </HighlightableField>
+      </SettingsSection>}
 
       <SettingsSection title="Messages & Collaboration">
         <NotificationColumnHeaders />

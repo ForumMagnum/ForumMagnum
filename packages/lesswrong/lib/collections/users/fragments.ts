@@ -157,6 +157,7 @@ export const UsersCurrent = gql(`
     draftsListShowArchived
     draftsListShowShared
     lastNotificationsCheck
+    hideCommentNotificationFilterSuggestion
     bannedUserIds
     bannedPersonalUserIds
     moderationStyle
@@ -532,6 +533,7 @@ export const UsersEdit = gql(`
     notificationShortformContent
     notificationCommentsOnSubscribedPost
     notificationRepliesToMyComments
+    commentNotificationFilter
     notificationRepliesToSubscribedComments
     notificationSubscribedUserPost
     notificationSubscribedUserComment

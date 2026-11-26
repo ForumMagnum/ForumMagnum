@@ -1877,6 +1877,7 @@ interface DbUser extends DbObject {
   coauthoredPostCount: number
   collapseModerationGuidelines: boolean | null
   commentCount: number
+  commentNotificationFilter: string | null
   commentSorting: string | null
   commentingOnOtherUsersDisabled: boolean | null
   conversationsDisabled: boolean | null
@@ -1914,6 +1915,7 @@ interface DbUser extends DbObject {
   hiddenPostsMetadata: Array<PostMetadataInput!>
   hideAFNonMemberInitialWarning: boolean
   hideActiveDialogueUsers: boolean
+  hideCommentNotificationFilterSuggestion: boolean
   hideCommunitySection: boolean
   hideDialogueFacilitation: boolean
   hideElicitPredictions: boolean

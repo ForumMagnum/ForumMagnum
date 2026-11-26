@@ -22,6 +22,7 @@ interface Query {
   crossSiteLinkPreview: CrossSiteLinkPreviewData | null;
   ElicitBlockData: ElicitBlockData | null;
   unreadNotificationCounts: NotificationCounts;
+  commentNotificationFilterHistory: Array<CommentNotificationFilterFacts>;
   Lightcone2024FundraiserStripeAmounts: Array<number> | null;
   Lightcone2025FundraiserAirtableAmounts: number;
   LlmModelOptions: Array<string>;
@@ -876,6 +877,15 @@ interface NotificationCounts {
   unreadNotifications: number;
   unreadPrivateMessages: number;
   faviconBadgeNumber: number;
+}
+
+interface CommentNotificationFilterFacts {
+  commentKarma: number;
+  commenterKarma: number;
+  commenterIsFollowed: boolean;
+  topLevelOnMyPost: boolean;
+  downthreadOnMyPost: boolean;
+  replyToMyComment: boolean;
 }
 
 interface NarrationVoice {
@@ -7461,6 +7471,8 @@ interface User {
   notificationCommentsOnSubscribedPost: any;
   notificationShortformContent: any;
   notificationRepliesToMyComments: any;
+  commentNotificationFilter: string | null;
+  hideCommentNotificationFilterSuggestion: boolean | null;
   notificationRepliesToSubscribedComments: any;
   notificationSubscribedUserPost: any;
   notificationSubscribedUserComment: any;
@@ -9483,6 +9495,8 @@ interface UpdateUserDataInput {
   notificationCommentsOnSubscribedPost?: any;
   notificationShortformContent?: any;
   notificationRepliesToMyComments?: any;
+  commentNotificationFilter?: string | null;
+  hideCommentNotificationFilterSuggestion?: boolean | null;
   notificationRepliesToSubscribedComments?: any;
   notificationSubscribedUserPost?: any;
   notificationSubscribedUserComment?: any;
@@ -9676,6 +9690,7 @@ interface GraphQLTypeMap {
   ElicitPrediction: ElicitPrediction;
   ElicitBlockData: ElicitBlockData;
   NotificationCounts: NotificationCounts;
+  CommentNotificationFilterFacts: CommentNotificationFilterFacts;
   NarrationVoice: NarrationVoice;
   NarrationModel: NarrationModel;
   NarrationAdminOptions: NarrationAdminOptions;

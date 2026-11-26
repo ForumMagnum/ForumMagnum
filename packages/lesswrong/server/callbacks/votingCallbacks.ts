@@ -23,6 +23,7 @@ import { MODERATE_OWN_PERSONAL_KARMA_THRESHOLD, TRUSTLEVEL1_KARMA_THRESHOLD } fr
 import { backgroundTask } from '../utils/backgroundTask';
 import { maybeEvaluateTypoReacts } from './typoSuggestionCallbacks';
 import { maybeNotifyMessageReaction } from './messageReactionCallbacks';
+import { notifyUsersWhenVoteMakesCommentPassFilter } from '../commentNotificationFilters';
 
 async function updateTrustedStatus({newDocument, vote}: VoteDocTuple, context: ResolverContext) {
   const { Users } = context;
@@ -178,6 +179,7 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
   backgroundTask(checkAutomod(voteDocTuple, collection, user, context));
   backgroundTask(maybeEvaluateTypoReacts(voteDocTuple, context));
   backgroundTask(maybeNotifyMessageReaction(voteDocTuple, context));
+  backgroundTask(notifyUsersWhenVoteMakesCommentPassFilter(voteDocTuple, context));
   await maybeCreateReviewMarket(voteDocTuple, collection, user, context);
 }
 

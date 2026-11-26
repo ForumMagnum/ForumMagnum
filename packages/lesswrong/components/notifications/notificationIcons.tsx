@@ -75,3 +75,7 @@ export function getNotificationIconByNotificationName(notificationName: string) 
     default: return null;
   }
 }
+
+export function getCommentNotificationFilterSuggestionIcon() {
+  return <ForumIcon icon="Settings" style={iconStyles}/>;
+}

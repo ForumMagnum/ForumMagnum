@@ -15,7 +15,7 @@ import { recombeeApi } from "../recombee/client";
 import { getCommentAncestorIds, getCommentSubtree } from "../utils/commentTreeUtils";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAnalyticsWriter";
-import { commentAncestorsToNotifySetting } from "../databaseSettings";
+import { getCommentNotificationFilterResults, getCommentReplyRecipients, getParentCommentsToNotify, getPostAuthorIds, getPostCommentSubscribers } from "../commentNotificationFilters";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { postGetAbsolutePageUrl } from "@/lib/collections/posts/helpers";
 import { wrapAndSendEmail } from "../emails/renderEmail";
@@ -23,7 +23,6 @@ import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import moment from "moment";
 import isEqual from "lodash/isEqual";
-import uniq from "lodash/uniq";
 import maxBy from "lodash/maxBy";
 import difference from "lodash/difference";
 import intersection from "lodash/intersection";
@@ -129,9 +128,9 @@ const utils = {
   },
 
   sendNewCommentNotifications: async (comment: DbComment, context: ResolverContext) => {
-    const { Users, UserTagRels, loaders, repos } = context;
+    const { Users, UserTagRels, loaders } = context;
     const post = comment.postId ? await loaders.Posts.load(comment.postId) : null;
-    
+
     if (comment.legacyData?.arbitalPageId) return;
     
     if (post?.isEvent) {
@@ -141,60 +140,26 @@ const utils = {
     // keep track of whom we've notified (so that we don't notify the same user twice for one comment,
     // if e.g. they're both the author of the post and the author of a comment being replied to)
     let notifiedUsers: Array<string> = [];
-  
-  
-  
+
+    const parentComments = await getParentCommentsToNotify(comment, context);
+    const { withheldUserIds } = await getCommentNotificationFilterResults({ comment, post, parentComments, context });
+
     // 1. Notify users who are subscribed to the parent comment
     if (comment.parentCommentId) {
-  
-      const parentComments: { commentId: string; userId: string }[] = await repos.comments.getParentCommentIds({
-        commentId: comment._id,
-        limit: commentAncestorsToNotifySetting.get(context),
-      });
-  
-      let newReplyUserIds: string[] = [];
-      let newReplyToYouDirectUserIds: string[] = [];
-      let newReplyToYouIndirectUserIds: string[] = [];
-  
-      for (const {commentId: currentParentCommentId, userId: currentParentCommentAuthorId} of parentComments) {
-        const subscribedUsers = await getSubscribedUsers({
-          documentId: currentParentCommentId,
-          collectionName: "Comments",
-          type: subscriptionTypes.newReplies,
-          potentiallyDefaultSubscribedUserIds: [currentParentCommentAuthorId],
-          userIsDefaultSubscribed: u => u.auto_subscribe_to_my_comments
-        })
-        const subscribedUserIds = subscribedUsers.map(u=>u._id);
-  
-        // Don't notify the author of their own comment, and filter out the author
-        // of the parent-comment to be treated specially (with a newReplyToYou
-        // notification instead of a newReply notification).
-        newReplyUserIds = [...newReplyUserIds, ...difference(subscribedUserIds, [comment.userId, currentParentCommentAuthorId])]
-  
-        // Separately notify authors of replies to their own comments
-        if (subscribedUserIds.includes(currentParentCommentAuthorId) && currentParentCommentAuthorId !== comment.userId) {
-          if (currentParentCommentId === comment.parentCommentId) {
-            newReplyToYouDirectUserIds = [...newReplyToYouDirectUserIds, currentParentCommentAuthorId]
-          } else {
-            newReplyToYouIndirectUserIds = [...newReplyToYouIndirectUserIds, currentParentCommentAuthorId]
-          }
-        }
-      }
+      const replyRecipients = await getCommentReplyRecipients(comment, parentComments);
+      const { newReplyUserIds } = replyRecipients;
+      const newReplyToYouDirectUserIds = difference(replyRecipients.newReplyToYouDirectUserIds, withheldUserIds);
+      const newReplyToYouIndirectUserIds = difference(replyRecipients.newReplyToYouIndirectUserIds, withheldUserIds);
 
-      // Take the difference to prevent double-notifying
-      newReplyUserIds = uniq(difference(newReplyUserIds, [...newReplyToYouDirectUserIds, ...newReplyToYouIndirectUserIds]));
-      newReplyToYouIndirectUserIds = uniq(difference(newReplyToYouIndirectUserIds, newReplyToYouDirectUserIds)); // Direct replies take precedence over indirect replies
-      newReplyToYouDirectUserIds = uniq(newReplyToYouDirectUserIds);
-  
       await Promise.all([
         createNotifications({ context, userIds: newReplyUserIds, notificationType: 'newReply', documentType: 'comment', documentId: comment._id}),
         createNotifications({ context, userIds: newReplyToYouDirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: true}}),
         createNotifications({ context, userIds: newReplyToYouIndirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: false}})
       ]);
-  
-      notifiedUsers = [...notifiedUsers, ...newReplyUserIds, ...newReplyToYouDirectUserIds];
+
+      notifiedUsers = [...notifiedUsers, ...newReplyUserIds, ...newReplyToYouDirectUserIds, ...newReplyToYouIndirectUserIds];
     }
-  
+
     // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)
     if (post && comment.debateResponse) {
       // Get all the debate participants, but exclude the comment author if they're a debate participant
@@ -224,13 +189,7 @@ const utils = {
     
     // 3. Notify users who are subscribed to the post (which may or may not include the post's author)
     let userIdsSubscribedToPost: Array<string> = [];
-    const usersSubscribedToPost = await getSubscribedUsers({
-      documentId: comment.postId,
-      collectionName: "Posts",
-      type: subscriptionTypes.newComments,
-      potentiallyDefaultSubscribedUserIds: post ? [post.userId, ...post.coauthorUserIds] : [],
-      userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
-    })
+    const usersSubscribedToPost = await getPostCommentSubscribers(comment, post);
     userIdsSubscribedToPost = usersSubscribedToPost.map(u=>u._id);
     
     // if the post is associated with a group, also (potentially) notify the group organizers
@@ -262,7 +221,10 @@ const utils = {
     
     // remove userIds of users that have already been notified
     // and of comment author (they could be replying in a thread they're subscribed to)
-    const postSubscriberIdsToNotify = difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
+    // A filter only covers replies to your own posts, so it doesn't withhold
+    // this from someone who wrote a parent comment and subscribed to the post.
+    const withheldPostAuthorIds = intersection(withheldUserIds, getPostAuthorIds(post));
+    const postSubscriberIdsToNotify = difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId, ...withheldPostAuthorIds])
     if (postSubscriberIdsToNotify.length > 0) {
       await createNotifications({ context, userIds: postSubscriberIdsToNotify, notificationType: 'newComment', documentType: 'comment', documentId: comment._id})
       notifiedUsers = [ ...notifiedUsers, ...postSubscriberIdsToNotify]
