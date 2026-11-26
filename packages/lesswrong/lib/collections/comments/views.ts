@@ -202,6 +202,28 @@ function commentReplies(terms: CommentsViewTerms) {
   }
 }
 
+/**
+ * Replies to the pingbacks to a post (which are comments on the posts that
+ * link to it), and their descendants.
+ */
+async function pingbackReplies(terms: CommentsViewTerms, _: ApolloClient | undefined, context: ResolverContext) {
+  if (!terms.postId) {
+    throw new Error("Invalid pingbackReplies view: postId is required");
+  }
+  const pingbacks = await context.Pingbacks.find({ targetPostId: terms.postId, deleted: false }, {}, { _id: 1 }).fetch();
+  const pingbackIds = pingbacks.map(pingback => pingback._id);
+  const replies = await context.Comments.find({ pingbackId: { $in: pingbackIds } }, {}, { _id: 1 }).fetch();
+  return {
+    selector: {
+      $or: [
+        { pingbackId: { $in: pingbackIds } },
+        { topLevelCommentId: { $in: replies.map(reply => reply._id) } },
+      ],
+    },
+    options: { sort: { promoted: -1, deleted: 1, baseScore: -1, postedAt: -1 } },
+  };
+}
+
 function postCommentsDeleted(terms: CommentsViewTerms) {
   return {
     selector: {
@@ -773,6 +795,7 @@ function alignmentSuggestedComments(terms: CommentsViewTerms) {
 // Create the CollectionViewSet instance
 export const CommentsViews = new CollectionViewSet('Comments', {
   commentReplies,
+  pingbackReplies,
   postCommentsDeleted,
   allCommentsDeleted,
   postCommentsTop,

@@ -131,6 +131,16 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
   }
 }));
 
+export const CommentCollapseButton = ({collapsed, onClick}: {
+  collapsed?: boolean,
+  onClick?: () => void,
+}) => {
+  const classes = useStyles(styles);
+  return <a className={classes.collapse} onClick={onClick}>
+    [<span className={classes.collapseCharacter}>{collapsed ? "+" : "-"}</span>]
+  </a>
+}
+
 export const CommentsItemMeta = ({
   treeOptions,
   comment,
@@ -231,15 +241,11 @@ export const CommentsItemMeta = ({
         />
       }
       {(showCollapseButtons || collapsed) &&
-        <a className={classes.collapse} onClick={toggleCollapse}>
-          <>[<span className={classes.collapseCharacter}>{collapsed ? "+" : "-"}</span>]</>
-        </a>
+        <CommentCollapseButton collapsed={collapsed} onClick={toggleCollapse} />
       }
-      {singleLineCollapse && <a className={classes.collapse} onClick={() =>
+      {singleLineCollapse && <CommentCollapseButton collapsed={collapsed} onClick={() =>
         setSingleLine && setSingleLine(true)
-      }>
-        [<span>{collapsed ? "+" : "-"}</span>]
-      </a>}
+      } />}
       <CommentUserName
         comment={comment}
         className={classes.username}

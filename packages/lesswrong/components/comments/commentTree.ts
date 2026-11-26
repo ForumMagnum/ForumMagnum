@@ -14,6 +14,13 @@ export interface CommentTreeOptions {
    * this can be unpopulated in some contexts, as with the post field).
    */
   tag?: TagBasicInfo,
+
+  /**
+   * If a comment-tree is replies to a pingback, shown under it on the linked
+   * post, that pingback's ID. (`post` is then the post containing the link,
+   * which the replies are comments on.)
+   */
+  parentPingbackId?: string,
   
   /**
    * In theory, `postPage` is a flag that indicates whether this comment

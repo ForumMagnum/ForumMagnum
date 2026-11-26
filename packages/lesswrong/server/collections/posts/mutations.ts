@@ -13,6 +13,7 @@ import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, checkRecentRepo
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { hasEmbeddingsForRecommendations } from "@/server/embeddings";
+import { castInitialPingbackVotes, syncPostPingbacks } from "@/server/postPingbacks";
 import { maybeAutoFrontpagePost } from "@/server/frontpageClassifier/predictions";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { handleCrosspostUpdate } from "@/server/fmCrosspost/crosspost";
@@ -152,6 +153,9 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     props: afterCreateProperties,
   });
 
+  await syncPostPingbacks(documentWithId, context);
+  backgroundTask(castInitialPingbackVotes(documentWithId._id, context));
+
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Posts', documentWithId);
 
   // former newAfter callbacks
@@ -195,7 +199,7 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   // pages of the posts it links to.
   await invalidatePostPageCache([
     documentWithId._id,
-    ...(documentWithId.draft ? [] : getPingbackTargetPostIds(documentWithId.pingbacks)),
+    ...(documentWithId.draft ? [] : await getPingbackTargetPostIds(documentWithId._id, context)),
   ]);
 
   return documentWithId;
@@ -220,6 +224,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   } = await getLegacyUpdateCallbackProps('Posts', { selector, context, data, schema });
 
   const { oldDocument } = updateCallbackProperties;
+  const oldPingbackTargetPostIds = await getPingbackTargetPostIds(oldDocument._id, context);
 
   data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
 
@@ -258,6 +263,11 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });
+
+  if (updatedDocument.contents_latest !== oldDocument.contents_latest) {
+    await syncPostPingbacks(updatedDocument, context);
+    backgroundTask(castInitialPingbackVotes(updatedDocument._id, context));
+  }
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Posts', updatedDocument, oldDocument);
   await updateCoauthoredPostCountsAfterPostUpdate(context, updatedDocument, oldDocument);
@@ -308,7 +318,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   // draft affects no other page.
   const pingbackTargetPostIds = (oldDocument.draft && updatedDocument.draft)
     ? []
-    : [...getPingbackTargetPostIds(oldDocument.pingbacks), ...getPingbackTargetPostIds(updatedDocument.pingbacks)];
+    : [...oldPingbackTargetPostIds, ...await getPingbackTargetPostIds(updatedDocument._id, context)];
   await invalidatePostPageCache(
     [updatedDocument._id, ...pingbackTargetPostIds],
     { hardDelete: postVisibilityChanged(oldDocument, updatedDocument) },

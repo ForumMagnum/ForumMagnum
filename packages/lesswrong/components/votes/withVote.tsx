@@ -90,6 +90,17 @@ const performVoteMessageMutation = gql(`
   }
 `)
 
+const performVotePingbackMutation = gql(`
+  mutation performVotePingback($documentId: String, $voteType: String, $extendedVote: JSON) {
+    performVotePingback(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
+      document {
+        ...WithVotePingback
+      }
+      showVotingPatternWarning
+    }
+  }
+`)
+
 const performVoteMutations = {
   Comment: performVoteCommentMutation,
   Post: performVotePostMutation,
@@ -98,6 +109,7 @@ const performVoteMutations = {
   Revision: performVoteRevisionMutation,
   Tag: performVoteTagMutation,
   MultiDocument: performVoteMultiDocumentMutation,
+  Pingback: performVotePingbackMutation,
 } satisfies Record<typeof collectionNameToTypeName[VoteableCollectionName], DocumentNode>;
 
 export const useVote = <T extends VoteableTypeClient, CollectionName extends VoteableCollectionName>(document: T, collectionName: CollectionName, votingSystem?: VotingSystem): VotingProps<T> & { collectionName: CollectionName } => {

@@ -17,6 +17,7 @@ import LocalgroupsRepo from "./LocalgroupsRepo";
 import LlmRunsRepo from "./LlmRunsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import OAuthAuthorizationCodesRepo from "./OAuthAuthorizationCodesRepo";
+import PingbacksRepo from "./PingbacksRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
 import PostRelationsRepo from "./PostRelationsRepo";
@@ -69,6 +70,7 @@ const allRepos = {
   localgroups: LocalgroupsRepo,
   manifoldProbabilitiesCachesRepo: ManifoldProbabilitiesCachesRepo,
   oAuthAuthorizationCodes: OAuthAuthorizationCodesRepo,
+  pingbacks: PingbacksRepo,
   postEmbeddings: PostEmbeddingsRepo,
   postRecommendations: PostRecommendationsRepo,
   postRelations: PostRelationsRepo,

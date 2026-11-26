@@ -132,6 +132,7 @@ import { graphqlOAuthAuthorizationCodeQueryTypeDefs, oAuthAuthorizationCodeGqlFi
 import { graphqlOAuthClientQueryTypeDefs, oAuthClientGqlFieldResolvers } from "@/server/collections/oAuthClients/queries";
 import { graphqlPetrovDayActionQueryTypeDefs, petrovDayActionGqlQueryHandlers, petrovDayActionGqlFieldResolvers } from "@/server/collections/petrovDayActions/queries";
 import { graphqlPetrovDayLaunchQueryTypeDefs, petrovDayLaunchGqlFieldResolvers } from "@/server/collections/petrovDayLaunchs/queries";
+import { graphqlPingbackQueryTypeDefs, pingbackGqlQueryHandlers, pingbackGqlFieldResolvers } from "@/server/collections/pingbacks/queries";
 import { graphqlPodcastEpisodeQueryTypeDefs, podcastEpisodeGqlQueryHandlers, podcastEpisodeGqlFieldResolvers } from "@/server/collections/podcastEpisodes/queries";
 import { graphqlPodcastQueryTypeDefs, podcastGqlQueryHandlers, podcastGqlFieldResolvers } from "@/server/collections/podcasts/queries";
 import { graphqlPostRecommendationQueryTypeDefs, postRecommendationGqlFieldResolvers } from "@/server/collections/postRecommendations/queries";
@@ -235,6 +236,7 @@ const { graphqlVoteTypeDefs: tagRelVoteTypeDefs, graphqlVoteMutations: tagRelVot
 const { graphqlVoteTypeDefs: revisionVoteTypeDefs, graphqlVoteMutations: revisionVoteMutations } = getVoteGraphql('Revisions');
 const { graphqlVoteTypeDefs: tagVoteTypeDefs, graphqlVoteMutations: tagVoteMutations } = getVoteGraphql('Tags');
 const { graphqlVoteTypeDefs: multiDocumentVoteTypeDefs, graphqlVoteMutations: multiDocumentVoteMutations } = getVoteGraphql('MultiDocuments');
+const { graphqlVoteTypeDefs: pingbackVoteTypeDefs, graphqlVoteMutations: pingbackVoteMutations } = getVoteGraphql('Pingbacks');
 
 export const getTypeDefs = () => gql`
   type Query
@@ -270,6 +272,7 @@ export const getTypeDefs = () => gql`
   ${revisionVoteTypeDefs}
   ${tagVoteTypeDefs}
   ${multiDocumentVoteTypeDefs}
+  ${pingbackVoteTypeDefs}
   ${commentTypeDefs}
   # # End vote typedefs
   ${karmaChangesTypeDefs}
@@ -370,6 +373,7 @@ export const getTypeDefs = () => gql`
   ${graphqlNarrationScriptQueryTypeDefs}
   ${graphqlNarrationSegmentAudioQueryTypeDefs}
   ${graphqlNarrationSegmentQueryTypeDefs}
+  ${graphqlPingbackQueryTypeDefs}
   ${graphqlRejectionAppealQueryTypeDefs}
   ${graphqlTypoSuggestionQueryTypeDefs}
   ${graphqlIframeWidgetSrcdocQueryTypeDefs}
@@ -582,6 +586,7 @@ const getResolvers = () => ({
     ...subscriptionGqlQueryHandlers,
     ...tagFlagGqlQueryHandlers,
     ...tagRelGqlQueryHandlers,
+    ...pingbackGqlQueryHandlers,
     ...tagGqlQueryHandlers,
     ...typingIndicatorGqlQueryHandlers,
     ...userMostValuablePostGqlQueryHandlers,
@@ -600,6 +605,7 @@ const getResolvers = () => ({
     ...revisionVoteMutations,
     ...tagVoteMutations,
     ...multiDocumentVoteMutations,
+    ...pingbackVoteMutations,
     ...commentMutations,
     ...notificationResolversGqlMutations,
     ...elicitPredictionsGraphQLMutations,
@@ -748,6 +754,7 @@ const getResolvers = () => ({
   ...narrationScriptGqlFieldResolvers,
   ...narrationSegmentAudioGqlFieldResolvers,
   ...narrationSegmentGqlFieldResolvers,
+  ...pingbackGqlFieldResolvers,
   ...rejectionAppealGqlFieldResolvers,
   ...typoSuggestionGqlFieldResolvers,
   ...iframeWidgetSrcdocGqlFieldResolvers,

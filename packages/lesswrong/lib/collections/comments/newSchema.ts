@@ -292,6 +292,23 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
+  // Set on a reply to a pingback: a top-level comment on the post containing
+  // the link, which the linked post shows nested under that pingback.
+  pingbackId: {
+    database: {
+      type: "VARCHAR(27)",
+      foreignKey: "Pingbacks",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   llmRunId: {
     database: {
       type: "VARCHAR(27)",

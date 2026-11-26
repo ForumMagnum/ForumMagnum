@@ -1,6 +1,7 @@
 import type { ForumTypeString } from '@/lib/instanceSettings';
+import type { CheerioAPI, Element } from 'cheerio';
 import { cheerioParse } from './utils/htmlUtil';
-import { parseRoute, parsePath } from '@/lib/routeChecks/parseRoute';
+import { parseRoute, parsePath, type PingbackDocument } from '@/lib/routeChecks/parseRoute';
 import { getSiteUrl } from '../lib/vulcan-lib/utils';
 import { classifyHost } from '../lib/routeUtil';
 import { getUrlClass } from './utils/getUrlClass';
@@ -13,24 +14,46 @@ import { routePingbackMapping } from '@/lib/routeChecks/pingbackRoutes';
 
 type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 
+type PingbackExclusions = Array<{collectionName: string, documentId: string}>|null
+
+export interface ResolvedPingbackLink {
+  pingback: PingbackDocument,
+  anchor: Element,
+}
+
 // Given an HTML document, extract the links from it and convert them to a set
 // of pingbacks, formatted as a dictionary from collection name -> array of
 // document IDs.
 //   html: The document to extract links from
 //   exclusions: An array of documents (as
 //     {collectionName,documentId}) to exclude. Used for excluding self-links.
-export const htmlToPingbacks = async (html: string, exclusions: Array<{collectionName: string, documentId: string}>|null, forumType: ForumTypeString): Promise<PingbacksIndex> => {
-  const URLClass = getUrlClass()
-  const links = extractLinks(html);
-  
+export const htmlToPingbacks = async (html: string, exclusions: PingbackExclusions, forumType: ForumTypeString): Promise<PingbacksIndex> => {
+  const links = await resolvePingbackLinks(cheerioParse(html), exclusions, forumType);
+
   // collection name => array of distinct referenced document IDs in that
   // collection, in order of first appearance.
-  const pingbacks: Partial<Record<CollectionNameString, Array<string>>> = {};
+  const pingbacks: PingbacksIndex = {};
+  for (const { pingback } of links) {
+    const documentIds = pingbacks[pingback.collectionName] ?? [];
+    if (!documentIds.includes(pingback.documentId)) {
+      pingbacks[pingback.collectionName] = [...documentIds, pingback.documentId];
+    }
+  }
+  return pingbacks;
+};
 
+/**
+ * The links in a parsed HTML document that point at documents which can
+ * receive pingbacks, in document order, with the anchor element of each.
+ */
+export async function resolvePingbackLinks($: CheerioAPI, exclusions: PingbackExclusions, forumType: ForumTypeString): Promise<ResolvedPingbackLink[]> {
+  const URLClass = getUrlClass();
   const context = createAnonymousContext({forumType});
-  
-  for (let link of links)
-  {
+  const resolvedLinks: ResolvedPingbackLink[] = [];
+
+  for (const anchor of $('a').toArray()) {
+    const link = $(anchor).attr('href');
+    if (!link) continue;
     try {
       // HACK: Parse URLs as though relative to example.com because they have to
       // be the builtin URL parser needs them to be relative to something with a
@@ -38,7 +61,7 @@ export const htmlToPingbacks = async (html: string, exclusions: Array<{collectio
       // it's in the domain whitelist (which it will only be if it's overridden
       // by an absolute link).
       const linkTargetAbsolute = new URLClass(link, getSiteUrl(context.forumType));
-      
+
       const hostType = classifyHost(linkTargetAbsolute.host)
       if (hostType==="onsite" || hostType==="mirrorOfUs") {
         const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
@@ -50,17 +73,8 @@ export const htmlToPingbacks = async (html: string, exclusions: Array<{collectio
         if (parsedUrl.routePattern && routePingbackMapping[parsedUrl.routePattern]) {
           const getPingback = routePingbackMapping[parsedUrl.routePattern];
           const pingback = await getPingback(parsedUrl, context);
-          if (pingback) {
-            if (exclusions && exclusions.find(
-              exclusion => exclusion.documentId===pingback.documentId && exclusion.collectionName===pingback.collectionName))
-            {
-              // Pingback is excluded
-            } else {
-              if (!(pingback.collectionName in pingbacks))
-                pingbacks[pingback.collectionName] = [];
-              if (!pingbacks[pingback.collectionName]!.includes(pingback.documentId))
-                pingbacks[pingback.collectionName]!.push(pingback.documentId);
-            }
+          if (pingback && !isExcludedPingback(pingback, exclusions)) {
+            resolvedLinks.push({ pingback, anchor });
           }
         }
       }
@@ -69,8 +83,14 @@ export const htmlToPingbacks = async (html: string, exclusions: Array<{collectio
       console.error(err) // eslint-disable-line
     }
   }
-  return pingbacks;
-};
+  return resolvedLinks;
+}
+
+function isExcludedPingback(pingback: PingbackDocument, exclusions: PingbackExclusions): boolean {
+  return !!exclusions?.some(exclusion =>
+    exclusion.documentId===pingback.documentId && exclusion.collectionName===pingback.collectionName
+  );
+}
 
 export const extractLinks = (html: string): Array<string> => {
   const $ = cheerioParse(html);

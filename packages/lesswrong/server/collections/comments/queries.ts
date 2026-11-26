@@ -49,6 +49,14 @@ export const graphqlCommentQueryTypeDefs = gql`
     parentCommentId: String
   }
   
+  input CommentsPingbackRepliesInput {
+    userId: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
+    postId: String
+  }
+  
   input CommentsPostCommentsDeletedInput {
     userId: String
     commentIds: [String!]
@@ -454,6 +462,7 @@ export const graphqlCommentQueryTypeDefs = gql`
   input CommentSelector  {
     default: CommentDefaultViewInput
     commentReplies: CommentsCommentRepliesInput
+    pingbackReplies: CommentsPingbackRepliesInput
     postCommentsDeleted: CommentsPostCommentsDeletedInput
     allCommentsDeleted: CommentsAllCommentsDeletedInput
     postCommentsTop: CommentsPostCommentsTopInput

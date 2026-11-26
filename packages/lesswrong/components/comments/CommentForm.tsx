@@ -240,6 +240,7 @@ export const CommentForm = ({
   initialData?: CommentEdit;
   prefilledProps?: {
     postId?: string;
+    pingbackId?: string;
     parentAnswerId?: string;
     debateResponse?: boolean;
     contents?: CreateRevisionDataInput;

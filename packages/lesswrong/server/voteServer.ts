@@ -77,7 +77,7 @@ async function afterVotesChanged({ newDocument, cancelledVotes, collection, cont
   context: ResolverContext,
 }): Promise<void> {
   const { collectionName } = collection;
-  await invalidatePostPageCacheForVoteable(collectionName, newDocument);
+  await invalidatePostPageCacheForVoteable(collectionName, newDocument, context);
   if (isElasticEnabled() && collectionIsSearchIndexed(collectionName)) {
     backgroundTask(elasticSyncDocument(collectionName, newDocument._id));
   }
@@ -88,11 +88,12 @@ async function afterVotesChanged({ newDocument, cancelledVotes, collection, cont
 
 async function invalidatePostPageCacheForVoteable(
   collectionName: CollectionNameString,
-  document: { _id: string, postId?: string | null, pingbacks?: DbPost['pingbacks'] },
+  document: { _id: string, postId?: string | null },
+  context: ResolverContext,
 ): Promise<void> {
   if (collectionName === 'Posts') {
     // Pages that list the post as a pingback show its score.
-    await invalidatePostPageCache([document._id, ...getPingbackTargetPostIds(document.pingbacks)]);
+    await invalidatePostPageCache([document._id, ...await getPingbackTargetPostIds(document._id, context)]);
   } else if (collectionName === 'Comments' && document.postId) {
     await invalidatePostPageCache(document.postId);
   }

@@ -109,6 +109,9 @@ const OverallVoteAxis = ({
   if (collectionName === "Revisions") {
     documentTypeName = "revision";
   }
+  if (collectionName === "Pingbacks") {
+    documentTypeName = "mention";
+  }
 
   const af = (document as any).af;
   const afBaseScore = voteProps.document.afBaseScore;

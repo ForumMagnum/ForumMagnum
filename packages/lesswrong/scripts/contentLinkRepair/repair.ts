@@ -4,6 +4,8 @@ import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { getNextVersionAfterSemver, htmlToChangeMetrics } from "@/server/editor/utils";
 import { randomId } from "@/lib/random";
 import { htmlToPingbacks } from "@/server/pingbacks";
+import { castInitialPingbackVotes, syncPostPingbacks } from "@/server/postPingbacks";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { forumTypeSetting } from "@/lib/forumTypeUtils";
 import { collectionNameSchema, type LinkDocument, type LinkRepair, type LinkRewriter, type StoredRevision, transformContents } from "./content";
 
@@ -223,6 +225,9 @@ export async function repairLinkDocuments(
     let report: RepairReport;
     try {
       report = await db.tx(repairDocument.bind(null, document, repair, dryRun));
+      if (report.status === "rewritten" && document.collectionName === "Posts") {
+        await syncRepairedPostPingbacks(document.documentId);
+      }
       if (report.status === "rewritten") stats.rewritten++;
       else if (report.status === "would-rewrite") stats.wouldRewrite++;
       else stats.unchanged++;
@@ -233,4 +238,12 @@ export async function repairLinkDocuments(
     await appendFile(reportPath, `${JSON.stringify(report)}\n`);
   }
   return stats;
+}
+
+async function syncRepairedPostPingbacks(postId: string) {
+  const context = createAnonymousContext();
+  const post = await context.Posts.findOne({ _id: postId });
+  if (!post) throw new Error(`Repaired post ${postId} not found`);
+  await syncPostPingbacks(post, context);
+  await castInitialPingbackVotes(post._id, context);
 }
