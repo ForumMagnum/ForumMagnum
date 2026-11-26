@@ -9,8 +9,7 @@ import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
 import PlayIcon from "@heroicons/react/24/solid/PlayIcon";
 import PauseIcon from "@heroicons/react/24/solid/PauseIcon";
 import StopIcon from "@heroicons/react/24/solid/StopIcon";
-import BackwardIcon from "@heroicons/react/24/solid/BackwardIcon";
-import ForwardIcon from "@heroicons/react/24/solid/ForwardIcon";
+import SlidersIcon from "@heroicons/react/24/outline/AdjustmentsHorizontalIcon";
 import UserOutlineIcon from "@heroicons/react/24/outline/UserIcon";
 import UserCircleIcon from "@heroicons/react/24/outline/UserCircleIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
@@ -297,9 +296,8 @@ export type ForumIconName =
   "PlaylistAdd"|
   "Play" |
   "Pause" |
+  "Sliders" |
   "Stop" |
-  "Backward" |
-  "Forward" |
   "PlusOne" |
   "Undo" |
   "Clear" |
@@ -452,9 +450,8 @@ const icons: Record<ForumIconName, IconComponent> = {
   PlaylistAdd: MuiPlaylistAddIcon,
   Play: PlayIcon,
   Pause: PauseIcon,
+  Sliders: SlidersIcon,
   Stop: StopIcon,
-  Backward: BackwardIcon,
-  Forward: ForwardIcon,
   PlusOne: PlusOneIcon,
   Undo: UndoIcon,
   Clear: ClearIcon,
