@@ -212,7 +212,12 @@ export const userCanModerateComment = (
   if (ownsComment && !comment.directChildrenCount) {
     return { canModerate: true, reason: null };
   }
-  const hasRepliesReason = "You can't delete your comment because it has replies. You can retract it instead.";
+  const hasRepliesReason = ownsComment
+    ? "You can't delete your comment because it has replies. You can retract it instead."
+    : "You can't delete this comment because it has replies.";
+  if (comment.directChildrenCount && !comment.deleted && !userIsAdmin(user)) {
+    return { canModerate: false, reason: hasRepliesReason };
+  }
   if (post) {
     const postPermission = userCanModeratePost(user, post);
     if (!postPermission.canModerate && ownsComment && !userOwns(user, post)) {

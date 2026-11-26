@@ -45,7 +45,7 @@ const DeleteCommentDialog = ({comment, onClose}: {
       flash({messageString: "Successfully deleted comment", type: "success"})
       if (onClose)
         onClose();
-    }).catch(/* error */);
+    }).catch((e) => flash({messageString: e.message}));
   }
 
   const handleDeletePublic = (event: React.MouseEvent) => {
@@ -60,7 +60,7 @@ const DeleteCommentDialog = ({comment, onClose}: {
       flash({messageString: "Successfully deleted comment", type: "success"})
       if (onClose)
         onClose();
-    }).catch(/* error */);
+    }).catch((e) => flash({messageString: e.message}));
   }
 
   const render = () => {
