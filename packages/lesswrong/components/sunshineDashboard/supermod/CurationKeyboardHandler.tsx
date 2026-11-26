@@ -43,7 +43,7 @@ const CurationKeyboardHandler = ({
 
   const escapeCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Exit Editor',
-    keystroke: 'Escape',
+    keystroke: 'esc',
     isDisabled: () => false,
     execute: () => (document.activeElement as HTMLElement)?.blur?.(),
   }), []);

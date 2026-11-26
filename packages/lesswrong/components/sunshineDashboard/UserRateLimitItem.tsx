@@ -403,17 +403,20 @@ export const UserRateLimitsForm = ({
 
 type UserRateLimitItemProps = {
   showForm?: boolean;
+  // Opens the custom rate limit form along with the rest of the form
+  showCustomForm?: boolean;
+  onCustomFormClose?: () => void;
+} & ({
   userId: string;
   user?: undefined;
 } | {
-  showForm?: boolean;
   userId?: undefined;
   user: SunshineUsersList;
-};
+});
 
 export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
   const classes = useStyles(styles);
-  const { showForm } = props;
+  const { showForm, showCustomForm, onCustomFormClose } = props;
 
   const userId = props.userId ?? props.user._id;
 
@@ -492,17 +495,19 @@ export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
           <MenuItem value='custom'>Custom</MenuItem>
         </Select>
       </div>}
-      {(createNewRateLimit || editingExistingRateLimitId) && <div className={classes.rateLimitForm}>
+      {(createNewRateLimit || editingExistingRateLimitId || showCustomForm) && <div className={classes.rateLimitForm}>
         <UserRateLimitsForm
           {...existingOrDefaultValue}
           onSuccess={async () => {
             await refetch();
             setCreateNewRateLimit(false);
             setEditingExistingRateLimitId(undefined);
+            onCustomFormClose?.();
           }}
           onCancel={() => {
             setCreateNewRateLimit(false);
             setEditingExistingRateLimitId(undefined);
+            onCustomFormClose?.();
           }}
         />
       </div>}

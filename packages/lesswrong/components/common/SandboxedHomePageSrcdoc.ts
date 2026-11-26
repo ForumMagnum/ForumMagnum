@@ -60,7 +60,7 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
   <script src="https://cdn.tailwindcss.com" defer></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin defer></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin defer></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin defer></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.12/babel.min.js" crossorigin defer></script>
   <script src="https://unpkg.com/hyphen@1.14.1/hyphen.js" crossorigin defer></script>
   <script src="https://unpkg.com/hyphen@1.14.1/patterns/en-us.js" crossorigin defer></script>
   <script>

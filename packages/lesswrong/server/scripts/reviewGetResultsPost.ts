@@ -2,7 +2,7 @@
  * Generates the HTML for the "Voting Results for the XXXX Review" blog post.
  *
  * Run via:
- *   yarn repl prod packages/lesswrong/server/scripts/reviewGetResultsPost.ts 'getReviewPrizesPost()'
+ *   npm run repl -- prod packages/lesswrong/server/scripts/reviewGetResultsPost.ts 'getReviewPrizesPost()'
  */
 
 import fs from 'fs';

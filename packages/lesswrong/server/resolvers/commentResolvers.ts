@@ -42,7 +42,7 @@ export const graphqlMutations = {
     const post = comment.postId ? await context.Posts.findOne(comment.postId) : null;
     const tag = comment.tagId ? await context.Tags.findOne(comment.tagId) : null;
     
-    if (currentUser && userCanModerateComment(currentUser, post, tag, comment))
+    if (currentUser && userCanModerateComment(currentUser, post, tag, comment).canModerate)
     {
       let set: Record<string,any> = {deleted: deleted}
       if (deleted) {

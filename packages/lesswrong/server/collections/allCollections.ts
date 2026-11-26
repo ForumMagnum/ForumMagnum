@@ -9,6 +9,7 @@ import type PgCollection from '../sql/PgCollection';
 // Collection imports
 import { AiDigestIssueGenerations } from './aiDigestIssueGenerations/collection';
 import { AiDigestIssues } from './aiDigestIssues/collection';
+import { AiDigestItemClicks } from './aiDigestItemClicks/collection';
 import { AiDigestSchedules } from './aiDigestSchedules/collection';
 import { ArbitalCaches } from './arbitalCache/collection';
 import { ArbitalTagContentRels } from './arbitalTagContentRels/collection';
@@ -56,6 +57,10 @@ import { Migrations } from './migrations/collection';
 import { ModerationTemplates } from './moderationTemplates/collection';
 import { ModeratorActions } from './moderatorActions/collection';
 import { MultiDocuments } from './multiDocuments/collection';
+import { NarrationImageDescriptions } from './narrationImageDescriptions/collection';
+import { NarrationScripts } from './narrationScripts/collection';
+import { NarrationSegmentAudios } from './narrationSegmentAudios/collection';
+import { NarrationSegments } from './narrationSegments/collection';
 import { Notifications } from './notifications/collection';
 import { OAuthAccessTokens } from './oAuthAccessTokens/collection';
 import { OAuthAuthorizationCodes } from './oAuthAuthorizationCodes/collection';
@@ -127,11 +132,11 @@ function getTestCollectionsByTypeName() {
 
 // TODO: maybe put this behind a proxy like `getAllRepos` for performance?
 const allCollections = {
-  AiDigestIssueGenerations, AiDigestIssues, AiDigestSchedules, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
+  AiDigestIssueGenerations, AiDigestIssues, AiDigestItemClicks, AiDigestSchedules, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
   CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks,
   DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, LlmRuns, LlmRunTranscriptEntries, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
-  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, Pingbacks,
+  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, NarrationImageDescriptions, NarrationScripts, NarrationSegmentAudios, NarrationSegments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, Pingbacks,
   PodcastEpisodes, Podcasts, PostEmbeddings, PostPreviews, PostRecommendations, PostRelations, PostSummaries, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
   RecommendationsCaches, RejectionAppeals, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,

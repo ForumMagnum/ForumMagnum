@@ -3,14 +3,15 @@ import { KARMA_WIDTH } from './LWPostsItem';
 import PostsTooltip from "./PostsPreviewTooltip/PostsTooltip";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import KarmaDisplay from "../common/KarmaDisplay";
-import PostsTitle from "./PostsTitle";
+import PostsTitle, { undimReadTitleOnHover } from "./PostsTitle";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = defineStyles("Pingback", (_theme: ThemeType) => ({
+const styles = defineStyles("Pingback", (theme: ThemeType) => ({
   root: {
     display: "flex",
     marginBottom: 2,
+    ...undimReadTitleOnHover(theme),
   },
   karma: {
     width: KARMA_WIDTH,

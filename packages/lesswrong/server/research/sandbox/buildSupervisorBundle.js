@@ -17,7 +17,7 @@ const RESEARCH_TOOL_OUT = path.join(DIST_DIR, "research-tool.cjs");
  * Outputs a single CommonJS file to `dist/` that runs in the sandbox's vanilla
  * `node24` runtime with zero npm dependencies. esbuild compiles the TypeScript
  * entry directly, so this script is plain Node (no ts-node) and only depends on
- * esbuild — it must run with no DB connection, both for local dev (`yarn
+ * esbuild — it must run with no DB connection, both for local dev (`npm run
  * research-supervisor-build`) and as a step in the deploy build.
  *
  * The output is uploaded into the sandbox snapshot by

@@ -75,6 +75,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
   const highlightDate = post?.lastVisitedAt ? new Date(post.lastVisitedAt) : undefined;
 
   const postAuthor = post.user;
+  const commentingPermission = userIsAllowedToComment(currentUser, post, postAuthor, false);
 
   const userIsDebateParticipant =
     currentUser
@@ -86,7 +87,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
       <div id="comments"/>
 
       {newForm
-        && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor, false))
+        && (!currentUser || !post || commentingPermission.canComment)
         && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
         && (
         <div id={`posts-debate-thread-new-comment`} className={classes.newComment}>
@@ -98,8 +99,8 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
           />
         </div>
       )}
-      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor, false) &&
-        <CantCommentExplanation post={post}/>
+      {currentUser && post && !commentingPermission.canComment &&
+        <CantCommentExplanation reason={commentingPermission.reason}/>
       }
       <div className={classes.debateCommentsList}>
         <CommentsList

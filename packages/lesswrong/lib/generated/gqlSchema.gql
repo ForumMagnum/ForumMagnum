@@ -1,4 +1,4 @@
-# Generated file - run 'yarn generate' to update.
+# Generated file - run 'npm run generate' to update.
 
 type Query
 
@@ -27,7 +27,7 @@ input EmptyViewInput {
 
 type EmailPreview {
   to: String
-  subject: String
+  subject: String!
   html: String
   text: String
 }
@@ -599,8 +599,18 @@ type NotificationCounts {
   faviconBadgeNumber: Int!
 }
 
+type CommentNotificationFilterFacts {
+  commentKarma: Float!
+  commenterKarma: Float!
+  commenterIsFollowed: Boolean!
+  topLevelOnMyPost: Boolean!
+  downthreadOnMyPost: Boolean!
+  replyToMyComment: Boolean!
+}
+
 extend type Query {
   unreadNotificationCounts: NotificationCounts!
+  commentNotificationFilterHistory(userId: String!): [CommentNotificationFilterFacts!]!
 }
 
 extend type Mutation {
@@ -615,6 +625,67 @@ extend type Query {
 
 extend type Query {
   LlmModelOptions: [String!]!
+}
+
+type NarrationVoice {
+  voiceId: String!
+  name: String!
+  description: String!
+  previewUrl: String!
+}
+
+type NarrationModel {
+  modelId: String!
+  name: String!
+  description: String
+}
+
+type NarrationAdminOptions {
+  voices: [NarrationVoice!]!
+  models: [NarrationModel!]!
+}
+
+type NarrationOptions {
+  voices: [NarrationVoice!]!
+  adminOptions: NarrationAdminOptions
+}
+
+input NarrationVoiceChoiceInput {
+  voiceId: String!
+  modelId: String!
+}
+
+extend type Query {
+  narrationOptions: NarrationOptions!
+  narrationSelectableVoices: [NarrationVoice!]!
+  narrationSegmentAudios(narrationScriptId: String!, voice: NarrationVoiceChoiceInput!): [NarrationSegmentAudio!]!
+}
+
+extend type Mutation {
+  prepareNarration(postId: String!): NarrationScript!
+  prepareCommentNarration(commentId: String!): NarrationScript!
+  generateNarrationSegmentAudio(narrationSegmentId: String!, voice: NarrationVoiceChoiceInput!): NarrationSegmentAudio!
+  previewNarrationNamePronunciation(userId: String!, pronunciation: String!): String!
+}
+
+type FrontpageScoreTerm {
+  label: String!
+  value: Float!
+}
+
+type FrontpagePostScoreBreakdown {
+  filteredScore: Float!
+  additiveTerms: [FrontpageScoreTerm!]!
+  multiplicativeTerms: [FrontpageScoreTerm!]!
+  ageHours: Float!
+  ageOffsetHours: Float!
+  decayExponent: Float!
+  decayDivisor: Float!
+  activityFactor: Float
+}
+
+extend type Query {
+  FrontpagePostScoreBreakdown(postId: String!, filterSettings: JSON!, activityFactorOverride: Float): FrontpagePostScoreBreakdown
 }
 
 type PetrovDay2024CheckNumberOfIncomingData {
@@ -676,6 +747,7 @@ extend type Query {
 
 extend type Mutation {
   ImportGoogleDoc(fileUrl: String!, postId: String): Post
+  setPostSuggestedForCuration(postId: String!, suggested: Boolean!): Post
 }
 
 type UserReadHistoryResult {
@@ -813,6 +885,14 @@ extend type Query {
   RecombeeHybridPosts(settings: JSON, limit: Int): RecombeeHybridPostsResult
 }
 
+type ClassicFrontpagePostsResult {
+  results: [RecombeeRecommendedPost!]!
+}
+
+extend type Query {
+  ClassicFrontpagePosts(settings: JSON, limit: Int): ClassicFrontpagePostsResult
+}
+
 type PostsWithActiveDiscussionResult {
   results: [Post!]!
 }
@@ -846,8 +926,12 @@ extend type Query {
 }
 
 extend type Mutation {
-  alignmentComment(commentId: String, af: Boolean): Comment
+  alignmentComment(commentId: String!, af: Boolean!): Comment
   alignmentPost(postId: String, af: Boolean): Post
+  setPostSuggestedForAlignment(postId: String!, suggested: Boolean!): Post
+  setCommentSuggestedForAlignment(commentId: String!, suggested: Boolean!): Comment
+  reviewPostForAlignment(postId: String!, approved: Boolean!): Post
+  reviewCommentForAlignment(commentId: String!, approved: Boolean!): Comment
 }
 
 type AllTagsActivityFeedQueryResults {
@@ -1907,6 +1991,7 @@ input BookmarksUserDocumentBookmarkInput {
 
 input BookmarkSelector {
   myBookmarkedPosts: EmptyViewInput
+  myBookmarkedComments: EmptyViewInput
   myBookmarks: EmptyViewInput
   userDocumentBookmark: BookmarksUserDocumentBookmarkInput
 }
@@ -3373,6 +3458,48 @@ type LlmRunTranscriptEntry {
   url: String
   title: String
   extra: JSON
+}
+
+type NarrationImageDescription {
+  _id: String!
+  createdAt: Date!
+}
+
+type NarrationScript {
+  _id: String!
+  createdAt: Date!
+  revisionId: String!
+  preprocessorVersion: Int!
+  scriptUrl: String
+  segments: [NarrationSegment!]!
+}
+
+type NarrationSegmentAudio {
+  _id: String!
+  createdAt: Date!
+  narrationSegmentId: String!
+  userId: String
+  voiceId: String!
+  modelId: String!
+  stability: Float!
+  similarityBoost: Float!
+  style: Float!
+  speed: Float!
+  audioUrl: String
+  timingsUrl: String
+  durationMs: Int
+  billedCharacters: Int
+  elevenLabsRequestId: String
+}
+
+type NarrationSegment {
+  _id: String!
+  createdAt: Date!
+  narrationScriptId: String!
+  segmentIndex: Int!
+  startBlockIndex: Int!
+  endBlockIndex: Int!
+  characterCount: Int!
 }
 
 type Pingback {
@@ -4879,6 +5006,7 @@ input PostsMagicInput {
   meta: Boolean
   forum: Boolean
   limit: Int
+  algoActivityFactor: Float
 }
 
 input PostsTopInput {
@@ -7981,6 +8109,8 @@ type User {
   noKibitz: Boolean
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
+  narrationVoiceId: String
+  narrationNamePronunciation: String
   hideIntercom: Boolean!
   hailboxOptIn: Boolean
   markDownPostEditor: Boolean!
@@ -8043,6 +8173,8 @@ type User {
   notificationCommentsOnSubscribedPost: JSON
   notificationShortformContent: JSON
   notificationRepliesToMyComments: JSON
+  commentNotificationFilter: String
+  hideCommentNotificationFilterSuggestion: Boolean
   notificationRepliesToSubscribedComments: JSON
   notificationSubscribedUserPost: JSON
   notificationSubscribedUserComment: JSON
@@ -9200,7 +9332,6 @@ input CreatePostDataInput {
   feedLink: String
   curatedDate: Date
   metaDate: Date
-  suggestForCuratedUserIds: [String!]
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
@@ -9265,7 +9396,6 @@ input CreatePostDataInput {
   af: Boolean
   afDate: Date
   afSticky: Boolean
-  suggestForAlignmentUserIds: [String!]
   reviewForAlignmentUserId: String
   agentFoundationsId: String
   swrCachingEnabled: Boolean
@@ -9316,7 +9446,6 @@ input UpdatePostDataInput {
   feedLink: String
   curatedDate: Date
   metaDate: Date
-  suggestForCuratedUserIds: [String!]
   frontpageDate: Date
   autoFrontpage: String
   collectionTitle: String
@@ -9382,7 +9511,6 @@ input UpdatePostDataInput {
   af: Boolean
   afDate: Date
   afSticky: Boolean
-  suggestForAlignmentUserIds: [String!]
   reviewForAlignmentUserId: String
   agentFoundationsId: String
   swrCachingEnabled: Boolean
@@ -10301,6 +10429,8 @@ input UpdateUserDataInput {
   noKibitz: Boolean
   showHideKarmaOption: Boolean
   showPostAuthorCard: Boolean
+  narrationVoiceId: String
+  narrationNamePronunciation: String
   hideIntercom: Boolean
   hailboxOptIn: Boolean
   markDownPostEditor: Boolean
@@ -10354,6 +10484,8 @@ input UpdateUserDataInput {
   notificationCommentsOnSubscribedPost: JSON
   notificationShortformContent: JSON
   notificationRepliesToMyComments: JSON
+  commentNotificationFilter: String
+  hideCommentNotificationFilterSuggestion: Boolean
   notificationRepliesToSubscribedComments: JSON
   notificationSubscribedUserPost: JSON
   notificationSubscribedUserComment: JSON

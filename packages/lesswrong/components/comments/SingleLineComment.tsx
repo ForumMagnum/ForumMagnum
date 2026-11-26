@@ -147,6 +147,7 @@ export const singleLineCommentStyles = defineStyles("SingleLineComment", (theme:
   },
   preview: {
     width: 400,
+    boxShadow: theme.palette.boxShadow.lwCard,
   },
   deemphasize: {
     opacity: 0.5

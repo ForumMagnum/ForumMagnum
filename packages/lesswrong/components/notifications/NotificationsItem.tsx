@@ -9,6 +9,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '@/lib/routeChecks/parseRouteWithErrors';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
+import { Link } from '../../lib/reactRouterWrapper';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import LWTooltip from "../common/LWTooltip";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
@@ -16,7 +17,7 @@ import ConversationPreview from "../messaging/ConversationPreview";
 import PostNominatedNotification from "../review/PostNominatedNotification";
 import TagRelNotificationItem from "./TagRelNotificationItem";
 import { onsiteHoverViewComponents } from '@/lib/notificationTypeComponents';
-import { getNotificationIconByNotificationName } from './notificationIcons';
+import { getCommentNotificationFilterSuggestionIcon, getNotificationIconByNotificationName } from './notificationIcons';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -254,6 +255,24 @@ const NotificationsItem = ({notification, lastNotificationsCheck}: {
         </div>
       </a>
     </PreviewTooltip>
+  );
+}
+
+export const CommentNotificationFilterSuggestionItem = ({onClick}: {
+  onClick: () => void,
+}) => {
+  const classes = useStyles(styles);
+  return (
+    <Link
+      to="/account?highlightField=commentNotificationFilter"
+      className={classNames(classes.root, classes.unread)}
+      onClick={onClick}
+    >
+      {getCommentNotificationFilterSuggestionIcon()}
+      <div className={classes.notificationLabel}>
+        Lots of notifications? Set up a reply filter.
+      </div>
+    </Link>
   );
 }
 

@@ -24,6 +24,12 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { invertHexColor } from '@/themes/colorUtil';
 
+// The current user's messages set the opposite color-scheme from the page, and
+// light-dark() resolves against the element's own color-scheme. So these
+// colors are written with the dark-scheme variant being the one shown in the
+// light theme.
+const oppositeSchemeColor = (lightThemeColor: string) => `light-dark(${invertHexColor(lightThemeColor)},${lightThemeColor})`;
+
 const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
   hoverWrapper: {
     width: '100%',
@@ -76,10 +82,10 @@ const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
   },
   highlighted: {},
   backgroundIsCurrent: {
-    backgroundColor: theme.dark ? invertHexColor('#616161') : '#616161',
+    backgroundColor: oppositeSchemeColor('#616161'),
     colorScheme: theme.dark ? "light" : "dark",
     "&$highlighted": {
-      backgroundColor: theme.dark ? invertHexColor('#9e9e9e') : '#9e9e9e',
+      backgroundColor: oppositeSchemeColor('#9e9e9e'),
     },
     marginLeft:12,
   },

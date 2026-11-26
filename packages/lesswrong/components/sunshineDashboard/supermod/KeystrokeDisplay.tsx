@@ -1,20 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { getEnvKeystrokeText } from '@/lib/vendor/ckeditor5-util/keyboard';
 import classNames from 'classnames';
+import { KEYSTROKE_GUTTER } from './constants';
 
 const styles = defineStyles('KeystrokeDisplay', (theme: ThemeType) => ({
+  // minWidth (not width): labels after chips line up at KEYSTROKE_GUTTER, longer keystrokes grow
   root: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 4,
-  },
-  keystrokeChar: {
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 18,
+    minWidth: KEYSTROKE_GUTTER,
     height: 18,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
     fontSize: 10,
     color: theme.palette.grey[600],
     fontFamily: theme.typography.fontFamily,
@@ -37,30 +36,26 @@ const KeystrokeDisplay = ({
   keystroke,
   withMargin = false,
   activeContext = false,
-  splitBeforeTranslation = false,
 }: {
   keystroke: string;
   withMargin?: boolean;
   activeContext?: boolean;
-  splitBeforeTranslation?: boolean;
 }) => {
   const classes = useStyles(styles);
 
-  const displayedKeystrokes = splitBeforeTranslation ? keystroke.split('+').map(key => getEnvKeystrokeText(key)) : getEnvKeystrokeText(keystroke).split('');
+  // Mac glyphs come from navigator.userAgent; show raw text until mounted to avoid a hydration mismatch
+  const [envReady, setEnvReady] = useState(false);
+  useEffect(() => setEnvReady(true), []);
 
   return (
-    <span className={classNames(classes.root, withMargin && classes.withMargin)}>
-      {displayedKeystrokes.map((char) => (
-        <span
-          key={char}
-          className={classNames(
-            classes.keystrokeChar,
-            activeContext && classes.activeContext,
-          )}
-        >
-          <span>{char}</span>
-        </span>
-      ))}
+    <span
+      className={classNames(
+        classes.root,
+        withMargin && classes.withMargin,
+        activeContext && classes.activeContext,
+      )}
+    >
+      {envReady ? getEnvKeystrokeText(keystroke) : keystroke}
     </span>
   );
 };

@@ -55,6 +55,7 @@ const styles = defineStyles("LoadMore", (theme: ThemeType) => ({
  */
 const LoadMore = ({
   loadMore,
+  preload,
   count,
   totalCount,
   className=null,
@@ -70,6 +71,9 @@ const LoadMore = ({
 }: {
   // loadMore: Callback when clicked.
   loadMore: WrappedFetchMore | LoadMoreCallback,
+  // preload: Callback when the link is hovered or touched, to start loading
+  // before it's clicked.
+  preload?: () => void,
   // count/totalCount: If provided, looks like "Load More (10/25)"
   count?: number,
   totalCount?: number,
@@ -98,6 +102,7 @@ const LoadMore = ({
     void loadMore();
     captureEvent("loadMoreClicked")
   }
+  const handlePreload = () => preload?.();
 
   if (!hideLoading && (loading || (networkStatus && queryIsUpdating(networkStatus)))) {
     return <Loading className={classNames(classes.loading, loadingClassName, {[classes.sectionFooterStyles]: sectionFooterStyles})} />
@@ -114,17 +119,20 @@ const LoadMore = ({
       })}
       href="#"
       onClick={handleClickLoadMore}
+      onMouseEnter={handlePreload}
+      onTouchStart={handlePreload}
     >
       {totalCount ? `${message} (${count}/${totalCount})` : `${message}`}
     </a>
   )
 }
 
-export const LoadMorePlaceholder = ({sectionFooterStyles}: {
+export const LoadMorePlaceholder = ({sectionFooterStyles, className}: {
   sectionFooterStyles?: boolean,
+  className?: string,
 }) => {
   const classes = useStyles(styles);
-  return <a className={classNames(classes.root, sectionFooterStyles && classes.sectionFooterStyles)} href="#">
+  return <a className={classNames(classes.root, className, sectionFooterStyles && classes.sectionFooterStyles)} href="#">
     Load More
   </a>
 }

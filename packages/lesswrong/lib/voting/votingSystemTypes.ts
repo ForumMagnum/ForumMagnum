@@ -60,6 +60,12 @@ export interface VotingSystem<ExtendedVoteType = any, ExtendedScoreType = any> {
     currentUser: UsersCurrent;
   }) => ExtendedScoreType;
   computeExtendedScore: (votes: DbVote[], context: ResolverContext) => Promise<ExtendedScoreType>;
+  /**
+   * Checks an extended vote as received from a client, which can be any JSON,
+   * before it is stored. Throws if it isn't a well-formed vote for this voting
+   * system. Otherwise returns it with unrecognized fields removed.
+   */
+  validateExtendedVote: (extendedVote: unknown) => ExtendedVoteType | null;
   isAllowedExtendedVote?: (args: { user: UsersCurrent | DbUser; document: DbVoteableType; oldExtendedScore: ExtendedScoreType; extendedVote: ExtendedVoteType; skipRateLimits?: boolean; }) => { allowed: true; } | { allowed: false; reason: string; };
   isNonblankExtendedVote: (vote: DbVote) => boolean;
   getCommentHighlights?: (props: {

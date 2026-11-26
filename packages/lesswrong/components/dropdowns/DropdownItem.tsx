@@ -21,6 +21,9 @@ const styles = defineStyles("DropdownItem", (theme: ThemeType) => ({
     overflowX: "clip",
     textOverflow: "ellipsis",
   },
+  iconPlaceholder: {
+    width: 24,
+  },
   afterIcon: {
     fontSize: '16px !important',
     marginLeft: 8,
@@ -65,6 +68,7 @@ export const DropdownItem = ({
   to,
   icon,
   iconClassName,
+  reserveIconSpace,
   menuItemClassName,
   afterIcon,
   tooltip,
@@ -76,6 +80,7 @@ export const DropdownItem = ({
   sideMessage?: string,
   icon?: ForumIconName | (() => ReactElement),
   iconClassName?: string,
+  reserveIconSpace?: boolean,
   menuItemClassName?: string,
   afterIcon?: ForumIconName | (() => ReactElement),
   tooltip?: string,
@@ -113,6 +118,9 @@ export const DropdownItem = ({
                 ? <ForumIcon icon={icon} className={iconClassName} />
                 : icon()
               }
+            </ListItemIcon>}
+            {!icon && reserveIconSpace && <ListItemIcon>
+              <span className={classes.iconPlaceholder} />
             </ListItemIcon>}
             <span className={classes.title}>{title}</span>
             {typeof afterIcon === "string"

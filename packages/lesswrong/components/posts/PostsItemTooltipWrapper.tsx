@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Placement as PopperPlacementType } from "popper.js"
+import type { TooltipPlacement } from "@/components/common/TooltipGroup";
 import PostsTooltip from "./PostsPreviewTooltip/PostsTooltip";
 
 /**
@@ -16,7 +16,7 @@ const PostsItemTooltipWrapper = ({
 }: {
   children?: React.ReactNode,
   post: PostsList,
-  placement?: PopperPlacementType,
+  placement?: TooltipPlacement,
   As?: 'span' | 'div',
   disabled?: boolean,
   className?: string,

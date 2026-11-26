@@ -1,5 +1,5 @@
 import type { ForumTypeString } from '@/lib/instanceSettings';
-import { isPostAllowedType3Audio, postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { isPostAllowedGeneratedAudio, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { type3ApiTokenSetting, type3SourceUrlSetting } from "./databaseSettings";
 import { Posts } from "@/server/collections/posts/collection.ts";
 import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAnalyticsWriter";
@@ -36,7 +36,7 @@ const type3ApiRequest = async (
 
 const isDocumentAllowedType3Audio = (document: DbPost | DbTag, collectionName: 'Posts' | 'Tags', forumType: ForumTypeString) => {
   if (collectionName === 'Posts') {
-    return isPostAllowedType3Audio(document as DbPost, forumType);
+    return isPostAllowedGeneratedAudio(document as DbPost, forumType);
   } else {
     return isTagAllowedType3Audio(document as DbTag, forumType);
   }
@@ -74,7 +74,7 @@ export const regenerateType3Audio = async (document: DbPost | DbTag, collectionN
   captureEvent("regenerateType3Audio", {documentId: document._id, collectionName, ...body});
 }
 
-// Exported to allow running with "yarn repl"
+// Exported to allow running with "npm run repl"
 export const regenerateType3AudioForDocumentId = async (documentId: string, collectionName: 'Posts' | 'Tags', forumType: ForumTypeString) => {
   const document = await (collectionName === 'Posts' 
     ? Posts.findOne({_id: documentId})
@@ -96,7 +96,7 @@ const deleteType3Audio = async (document: DocumentWithAudio, collectionName: 'Po
   captureEvent("deleteType3Audio", {documentId: document._id, collectionName, ...body});
 }
 
-// Exported to allow running with "yarn repl"
+// Exported to allow running with "npm run repl"
 export const deleteType3AudioForDocumentId = async (documentId: string, collectionName: 'Posts' | 'Tags', forumType: ForumTypeString) => {
   const document = await (collectionName === 'Posts' 
     ? Posts.findOne({_id: documentId})
@@ -107,7 +107,7 @@ export const deleteType3AudioForDocumentId = async (documentId: string, collecti
   await deleteType3Audio(document, collectionName, forumType);
 }
 
-// Exported to allow running with "yarn repl"
+// Exported to allow running with "npm run repl"
 export const regenerateAllType3AudioForUser = async (userId: string, forumType: ForumTypeString) => {
   const posts = await Posts.find({
     userId

@@ -8,6 +8,7 @@ import EventTime from "../localGroups/EventTime";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import LWTooltip from "../common/LWTooltip";
 import TimeTag from "../common/TimeTag";
+import type { TooltipPlacement } from "../common/TooltipGroup";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -59,12 +60,13 @@ const styles = defineStyles("PostsItemDate", (theme: ThemeType) => ({
   },
 }));
 
-const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfNew}: {
+const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfNew, tooltipPlacement="right"}: {
   post: PostsBase,
   noStyles?: boolean,
   includeAgo?: boolean,
   useCuratedDate?: boolean,
   emphasizeIfNew?: boolean,
+  tooltipPlacement?: TooltipPlacement,
 }) => {
   const baseClasses = useStyles(styles);
   const classes = noStyles
@@ -81,7 +83,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   const now = useCurrentTime();
   if (post.isEvent && post.startTime) {
     return <LWTooltip
-      placement="right"
+      placement={tooltipPlacement}
       title={<span>
         <div className={classes.tooltipSmallText}>Event starts at</div>
         <EventTime post={post} />
@@ -98,7 +100,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
 
   if (post.isEvent && !post.startTime) {
     return <LWTooltip
-      placement="right"
+      placement={tooltipPlacement}
       title={<span>To Be Determined</span>}
     >
       <PostsItem2MetaInfo className={classes.startTime}>
@@ -130,7 +132,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
 
   if (post.curatedDate) {
     return <LWTooltip
-      placement="right"
+      placement={tooltipPlacement}
       title={<div>
         <div>Curated on <ExpandedDate date={post.curatedDate}/></div>
         <div>Posted on <ExpandedDate date={post.postedAt}/></div>
@@ -141,7 +143,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   }
 
   return <LWTooltip
-    placement="right"
+    placement={tooltipPlacement}
     title={<ExpandedDate date={post.postedAt}/>}
   >
     {dateElement}

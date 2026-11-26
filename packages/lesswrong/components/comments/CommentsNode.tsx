@@ -20,6 +20,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 import AnimatedExpansion from '../common/AnimatedExpansion';
 import AnimatedCollapse from '../common/AnimatedCollapse';
 import { useExpansionHeightAnimation } from './useExpansionHeightAnimation';
+import { useNarrationCommentFocus } from '../narration/narrationComments';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -113,6 +114,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
   const hasInContextLinks = commentPermalinkStyleSetting.get(forumType) === 'in-context';
 
   const { linkedCommentId, scrollToCommentId } = useCommentLinkState();
+  const narrationFocus = useNarrationCommentFocus(comment._id);
 
   const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, expandOnlyCommentIds, noDOMId, onToggleCollapsed } = treeOptions;
   const animateWholeThread = forceSingleLine && loadChildrenSeparately;
@@ -297,6 +299,19 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
   const onClickFrame = useCallback((event: React.MouseEvent) => {
     handleExpand({ event, scroll: scrollOnExpand });
   }, [handleExpand, scrollOnExpand]);
+
+  // When narration gets to this comment, show all of it. When it gets to a
+  // reply under this comment, make sure the replies are showing.
+  useEffect(() => {
+    if (!narrationFocus) {
+      return;
+    }
+    setCollapsed(false);
+    if (narrationFocus === "self") {
+      handleExpand({});
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [narrationFocus]);
 
   const result = (
     <CommentFrame

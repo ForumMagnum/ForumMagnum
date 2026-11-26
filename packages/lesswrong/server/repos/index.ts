@@ -1,3 +1,4 @@
+import AiDigestItemClicksRepo from "./AiDigestItemClicksRepo";
 import AutomatedContentEvaluationsRepo from "./AutomatedContentEvaluationsRepo";
 import BookmarksRepo from "./BookmarksRepo";
 import BooksRepo from "./BooksRepo";
@@ -14,7 +15,6 @@ import HomePageDesignsRepo from "./HomePageDesignsRepo";
 import JargonTermsRepo from "./JargonTermsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import LlmRunsRepo from "./LlmRunsRepo";
-import LWEventsRepo from "./LWEventsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import OAuthAuthorizationCodesRepo from "./OAuthAuthorizationCodesRepo";
 import PingbacksRepo from "./PingbacksRepo";
@@ -51,6 +51,7 @@ declare global {
 }
 
 const allRepos = {
+  aiDigestItemClicks: AiDigestItemClicksRepo,
   automatedContentEvaluations: AutomatedContentEvaluationsRepo,
   bookmarks: BookmarksRepo,
   books: BooksRepo,
@@ -67,7 +68,6 @@ const allRepos = {
   jargonTerms: JargonTermsRepo,
   llmRuns: LlmRunsRepo,
   localgroups: LocalgroupsRepo,
-  lwEvents: LWEventsRepo,
   manifoldProbabilitiesCachesRepo: ManifoldProbabilitiesCachesRepo,
   oAuthAuthorizationCodes: OAuthAuthorizationCodesRepo,
   pingbacks: PingbacksRepo,

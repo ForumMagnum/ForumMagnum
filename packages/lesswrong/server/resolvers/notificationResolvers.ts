@@ -8,6 +8,9 @@ import { handleDialogueHtml } from '../editor/conversionUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import gql from "graphql-tag"
 import { defaultNotificationsView } from '@/lib/collections/notifications/views';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { getCommentNotificationFilterHistory } from '../commentNotificationFilters';
+import { sanitize } from '@/lib/utils/sanitize';
 
 export const notificationResolversGqlTypeDefs = gql`
   type NotificationCounts {
@@ -17,8 +20,18 @@ export const notificationResolversGqlTypeDefs = gql`
     faviconBadgeNumber: Int!
   }
 
+  type CommentNotificationFilterFacts {
+    commentKarma: Float!
+    commenterKarma: Float!
+    commenterIsFollowed: Boolean!
+    topLevelOnMyPost: Boolean!
+    downthreadOnMyPost: Boolean!
+    replyToMyComment: Boolean!
+  }
+
   extend type Query {
     unreadNotificationCounts: NotificationCounts!
+    commentNotificationFilterHistory(userId: String!): [CommentNotificationFilterFacts!]!
   }
   extend type Mutation {
     MarkAllNotificationsAsRead: Boolean
@@ -62,6 +75,13 @@ export const notificationResolversGqlMutations = {
 }
 
 export const notificationResolversGqlQueries = {
+  async commentNotificationFilterHistory (_root: void, { userId }: { userId: string }, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || (currentUser._id !== userId && !userIsAdmin(currentUser))) {
+      throw new Error("Unauthorized");
+    }
+    return getCommentNotificationFilterHistory(userId, context);
+  },
   async unreadNotificationCounts (root: void, args: {}, context: ResolverContext): Promise<NotificationCountsResult> {
     const checkedAt = new Date();
     const { currentUser } = context;
@@ -139,7 +159,7 @@ const extractLatestDialogueMessageByUser = async (dialogueHtml: string, userId: 
     if (messageUserId === userId) {
       latestMessage = {
         dialogueMessageId: $(message).attr('message-id') ?? "",
-        dialogueMessageContents: $(message).html() ?? "",
+        dialogueMessageContents: sanitize($(message).html() ?? ""),
       };
     }
   });

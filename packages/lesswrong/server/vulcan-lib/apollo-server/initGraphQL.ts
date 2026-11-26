@@ -23,6 +23,8 @@ import { elicitPredictionsGraphQLTypeDefs, elicitPredictionsGraphQLQueries, elic
 import { notificationResolversGqlTypeDefs, notificationResolversGqlQueries, notificationResolversGqlMutations } from '@/server/resolvers/notificationResolvers'
 import { lightcone2024FundraiserGraphQLTypeDefs, lightcone2024FundraiserGraphQLQueries } from '@/server/resolvers/lightcone2024FundraiserResolvers';
 import { llmModelGraphQLTypeDefs, llmModelGraphQLQueries } from '@/server/resolvers/llmModelResolvers';
+import { narrationGraphQLTypeDefs, narrationGraphQLQueries, narrationGraphQLMutations } from '@/server/resolvers/narrationResolvers';
+import { frontpageScoreDebugGraphQLTypeDefs, frontpageScoreDebugGraphQLQueries } from '@/server/resolvers/frontpageScoreDebugResolvers';
 import { petrovDay2024GraphQLQueries, petrovDay2024GraphQLTypeDefs } from '@/server/resolvers/petrovDay2024Resolvers';
 import { petrovDayLaunchGraphQLMutations, petrovDayLaunchGraphQLQueries, petrovDayLaunchGraphQLTypeDefs } from '@/server/resolvers/petrovDayResolvers';
 import { reviewVoteGraphQLMutations, reviewVoteGraphQLTypeDefs, reviewVoteGraphQLQueries } from '@/server/resolvers/reviewVoteResolvers';
@@ -120,6 +122,10 @@ import { graphqlMigrationQueryTypeDefs, migrationGqlFieldResolvers } from "@/ser
 import { graphqlModerationTemplateQueryTypeDefs, moderationTemplateGqlQueryHandlers, moderationTemplateGqlFieldResolvers } from "@/server/collections/moderationTemplates/queries";
 import { graphqlModeratorActionQueryTypeDefs, moderatorActionGqlQueryHandlers, moderatorActionGqlFieldResolvers } from "@/server/collections/moderatorActions/queries";
 import { graphqlMultiDocumentQueryTypeDefs, multiDocumentGqlQueryHandlers, multiDocumentGqlFieldResolvers } from "@/server/collections/multiDocuments/queries";
+import { graphqlNarrationImageDescriptionQueryTypeDefs, narrationImageDescriptionGqlFieldResolvers } from "@/server/collections/narrationImageDescriptions/queries";
+import { graphqlNarrationScriptQueryTypeDefs, narrationScriptGqlFieldResolvers } from "@/server/collections/narrationScripts/queries";
+import { graphqlNarrationSegmentAudioQueryTypeDefs, narrationSegmentAudioGqlFieldResolvers } from "@/server/collections/narrationSegmentAudios/queries";
+import { graphqlNarrationSegmentQueryTypeDefs, narrationSegmentGqlFieldResolvers } from "@/server/collections/narrationSegments/queries";
 import { graphqlNotificationQueryTypeDefs, notificationGqlQueryHandlers, notificationGqlFieldResolvers } from "@/server/collections/notifications/queries";
 import { graphqlOAuthAccessTokenQueryTypeDefs, oAuthAccessTokenGqlFieldResolvers } from "@/server/collections/oAuthAccessTokens/queries";
 import { graphqlOAuthAuthorizationCodeQueryTypeDefs, oAuthAuthorizationCodeGqlFieldResolvers } from "@/server/collections/oAuthAuthorizationCodes/queries";
@@ -277,6 +283,8 @@ export const getTypeDefs = () => gql`
   ${notificationResolversGqlTypeDefs}
   ${lightcone2024FundraiserGraphQLTypeDefs}
   ${llmModelGraphQLTypeDefs}
+  ${narrationGraphQLTypeDefs}
+  ${frontpageScoreDebugGraphQLTypeDefs}
   ${petrovDay2024GraphQLTypeDefs}
   ${petrovDayLaunchGraphQLTypeDefs}
   ${reviewVoteGraphQLTypeDefs}
@@ -361,6 +369,10 @@ export const getTypeDefs = () => gql`
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
   ${graphqlHomePageDesignQueryTypeDefs}
   ${graphqlLlmRunTranscriptEntryQueryTypeDefs}
+  ${graphqlNarrationImageDescriptionQueryTypeDefs}
+  ${graphqlNarrationScriptQueryTypeDefs}
+  ${graphqlNarrationSegmentAudioQueryTypeDefs}
+  ${graphqlNarrationSegmentQueryTypeDefs}
   ${graphqlPingbackQueryTypeDefs}
   ${graphqlRejectionAppealQueryTypeDefs}
   ${graphqlTypoSuggestionQueryTypeDefs}
@@ -483,6 +495,8 @@ const getResolvers = () => ({
     ...elicitPredictionsGraphQLQueries,
     ...lightcone2024FundraiserGraphQLQueries,
     ...llmModelGraphQLQueries,
+    ...narrationGraphQLQueries,
+    ...frontpageScoreDebugGraphQLQueries,
     ...petrovDay2024GraphQLQueries,
     ...petrovDayLaunchGraphQLQueries,
     ...reviewVoteGraphQLQueries,
@@ -612,6 +626,7 @@ const getResolvers = () => ({
     ...bookmarkGqlMutations,
     ...homePageDesignGqlMutations,
     ...typoSuggestionGqlMutations,
+    ...narrationGraphQLMutations,
     ...hidePostGqlMutations,
     ...sequencesResolversMutations,
     ...markAsUnreadMutations,
@@ -735,6 +750,10 @@ const getResolvers = () => ({
   ...googleServiceAccountSessionGqlFieldResolvers,
   ...homePageDesignGqlFieldResolvers,
   ...llmRunTranscriptEntryGqlFieldResolvers,
+  ...narrationImageDescriptionGqlFieldResolvers,
+  ...narrationScriptGqlFieldResolvers,
+  ...narrationSegmentAudioGqlFieldResolvers,
+  ...narrationSegmentGqlFieldResolvers,
   ...pingbackGqlFieldResolvers,
   ...rejectionAppealGqlFieldResolvers,
   ...typoSuggestionGqlFieldResolvers,

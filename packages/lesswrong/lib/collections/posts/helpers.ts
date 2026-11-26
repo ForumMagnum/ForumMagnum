@@ -1,6 +1,6 @@
 import { aboutPostIdSetting, allowTypeIIIPlayerSetting, type ForumTypeString, siteUrlSetting, cloudinaryCloudName, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdmin } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdmin, userIsMemberOf, type PermissionableUser } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn, type SharableDocument } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import maxBy from "lodash/maxBy";
@@ -10,6 +10,7 @@ import moment from 'moment';
 import { isServer } from '@/lib/executionEnvironment';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import { captureException } from '@/lib/sentryWrapper';
+import { userHasNarration } from '@/lib/betas';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -165,8 +166,7 @@ ${postGetAbsoluteLink(post, forumType)}
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
-const getSocialImagePreviewPrefix = (forumType: ForumTypeString) =>
-  `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,ar_1.91,g_auto/`;
+const cloudinaryUploadUrlPrefix = `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/`;
 
 // Select the social preview image for the post.
 // For events, we use their event image if that is set.
@@ -178,9 +178,12 @@ export const getSocialPreviewImage = (post: DbPost, forumType: ForumTypeString):
   // edit this to support the old field "socialPreviewImageId", which still has the old data
   const manualId = (post.isEvent && post.eventImageId) ? post.eventImageId : post.socialPreview?.imageId
   if (manualId) {
-    return getSocialImagePreviewPrefix(forumType) + manualId;
+    return `${cloudinaryUploadUrlPrefix}c_fill,ar_1.91,g_auto,w_1200,q_auto,f_jpg/${manualId}`;
   }
   const autoUrl = post.socialPreviewImageAutoUrl
+  if (autoUrl?.startsWith(cloudinaryUploadUrlPrefix)) {
+    return autoUrl.replace(cloudinaryUploadUrlPrefix, `${cloudinaryUploadUrlPrefix}c_limit,w_1200,q_auto,f_jpg/`);
+  }
   return autoUrl || ''
 }
 
@@ -364,6 +367,10 @@ export const userCanEditPostSharingSettings = (currentUser: UsersCurrent|DbUser|
   return userOwns(currentUser, post) || userIsAdmin(currentUser);
 }
 
+export const userCanSuggestPostsForCuration = (user: PermissionableUser|DbUser|null): boolean => {
+  return userCanDo(user, 'posts.moderate.all') || userIsMemberOf(user, 'canSuggestCuration');
+}
+
 export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): boolean => {
   if (userCanDo(currentUser, "posts.remove.all")) {
     return true
@@ -415,9 +422,12 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
 }
 
 /**
- * Whether the post is allowed AI generated audio
+ * Whether the post is allowed AI generated audio: narration by ElevenLabs on
+ * its page for the users who have that (see userCanListenToNarration), and
+ * Type III Audio's for everyone else and wherever else audio is offered. (The
+ * settings that this goes by date from when Type III Audio was all there was.)
  */
-export const isPostAllowedType3Audio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost, forumType: ForumTypeString): boolean => {
+export const isPostAllowedGeneratedAudio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost, forumType: ForumTypeString): boolean => {
   if (!allowTypeIIIPlayerSetting.get(forumType)) return false
 
   try {
@@ -445,6 +455,18 @@ export const isPostAllowedType3Audio = (post: PostsWithNavigation|PostsWithNavig
     return false
   }
 }
+
+/**
+ * Whether a post's generated audio, for this user, is narration by ElevenLabs
+ * rather than Type III Audio's. The post's page goes by this to choose which
+ * player the audio button opens, and the server to decide whose requests for
+ * narration to serve.
+ */
+export const userCanListenToNarration = (
+  user: UsersCurrent|DbUser|null,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost,
+  forumType: ForumTypeString,
+): boolean => userHasNarration(user) && isPostAllowedGeneratedAudio(post, forumType);
 
 /**
  * Given a url like https://docs.google.com/document/d/1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA/edit#heading=h.82kaw9idgbpe

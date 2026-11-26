@@ -216,7 +216,7 @@ const ModerationGuidelinesBox = ({commentType = "post", documentId}: {
   return (
     <div className={classes.root} onClick={expandable ? handleClick : undefined}>
       {
-        !!(isPostType(document) ? userCanModeratePost(currentUser, document) : userCanModerateSubforum(currentUser, document)) &&
+        !!(isPostType(document) ? userCanModeratePost(currentUser, document).canModerate : userCanModerateSubforum(currentUser, document)) &&
         <span onClick={openEditDialog}>
           <TooltipSpan
             title="Edit moderation guidelines"

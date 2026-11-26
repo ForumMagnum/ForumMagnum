@@ -12,10 +12,12 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Drawer } from '@/components/material-ui/Drawer'
 import ForumIcon from "../common/ForumIcon";
 import ErrorBoundary from "../common/ErrorBoundary";
+import LWTooltip from "../common/LWTooltip";
 import NotificationsList from "./NotificationsList";
 import { useReadQuery } from '@/lib/crud/useQuery';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { registerComponent } from '@/lib/vulcan-lib/components';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   root: {
@@ -46,11 +48,29 @@ const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
       color: theme.palette.greyAlpha(1.0),
     },
   },
-  cancelWrapper: {
+  headerButtons: {
     position: "absolute",
     top: 0,
-    height: 48,
     right: 0,
+    display: "flex",
+  },
+  settingsLink: {
+    display: "block",
+    height: 48,
+    padding: "12px 6px",
+    color: theme.palette.icon.dim5,
+    "&:hover": {
+      color: theme.palette.icon.normal,
+    },
+  },
+  settingsIcon: {
+    "--icon-size": "20px",
+  },
+  // Covers the header's bell icon, so that clicking the bell a second time
+  // closes the drawer rather than hitting something else
+  cancelWrapper: {
+    height: 48,
+    paddingLeft: 8,
     paddingRight: 5,
     cursor: "pointer",
   },
@@ -72,7 +92,7 @@ const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   hiddenTab: {
     pointerEvents: "none",
     minWidth: "auto",
-    width: 24,
+    width: 68,
   },
 }));
 
@@ -152,26 +172,33 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
               {notificationCategoryTabs.map(notificationCategory =>
                 <Tab
                   icon={
-                    <span title={notificationCategory.name}>
+                    <LWTooltip title={notificationCategory.name} placement="bottom">
                       {notificationCategory.icon()}
-                    </span>
+                    </LWTooltip>
                   }
                   key={notificationCategory.name}
                   className={classes.tabLabel}
                 />
               )}
               
-              {/* Include an extra, hidden tab to reserve space for the close/X
-                * button (which hovers over the tabs). Selecting this "tab"
+              {/* Include an extra, hidden tab to reserve space for the settings
+                * and close/X buttons (which hover over the tabs). Selecting this "tab"
                 * (with a keyboard shortcut) closes the drawer (with a special
                 * case in onChange).
                 */}
               <Tab className={classes.hiddenTab} />
             </Tabs>
-            <div className={classes.cancelWrapper} onClick={() => setIsOpen(false)}>
-              <ClearIcon className={classes.cancel} />
+            <div className={classes.headerButtons}>
+              <LWTooltip title="Notification settings" placement="bottom">
+                <Link to="/account?tab=settings-notifications" onClick={onClose} className={classes.settingsLink}>
+                  <ForumIcon icon="Settings" className={classes.settingsIcon}/>
+                </Link>
+              </LWTooltip>
+              <div className={classes.cancelWrapper} onClick={() => setIsOpen(false)}>
+                <ClearIcon className={classes.cancel} />
+              </div>
             </div>
-            <NotificationsList terms={{...notificationTerms, userId: currentUserId}}/>
+            <NotificationsList terms={{...notificationTerms, userId: currentUserId}} closeMenu={onClose}/>
           </div>}
         </Drawer>}
       </ErrorBoundary>

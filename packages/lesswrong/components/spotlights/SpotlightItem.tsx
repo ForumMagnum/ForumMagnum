@@ -324,9 +324,6 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     width: "100%",
     height: "100%",
     overflow: "hidden",
-    [theme.breakpoints.down('xs')]: {
-      height: "100% !important",
-    }
   },
   reverseIcon: {
     transform: "rotate(180deg)",
@@ -547,8 +544,7 @@ export const SpotlightItem = ({
                 <SpotlightStartOrContinueReading spotlight={spotlight}/>
               </SuspenseWrapper>}
             </div>
-            {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
-            {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
+            {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer}>
               <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage, {
                 [classes.splashImageFlush]: spotlight._id === INKHAVEN_RESIDENCY_3_SPOTLIGHT_ID,
               })}/>

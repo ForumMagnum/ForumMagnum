@@ -46,7 +46,7 @@ import { updateNotification } from "../collections/notifications/mutations";
 import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
 import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 import { backgroundTask } from "../utils/backgroundTask";
-import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
+import { createAutomatedContentEvaluation, rejectionWasReversedByModerator } from "../collections/automatedContentEvaluations/helpers";
 import CurationEmails from "../collections/curationEmails/collection";
 import { maybeAutoFrontpagePost } from "../frontpageClassifier/predictions";
 import { escapeHtml } from "@/lib/utils/sanitize";
@@ -160,7 +160,7 @@ const utils = {
         // "fromNow" makes for a more human readable "how long till I can comment/post?".
         // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
         moment.relativeTimeThreshold('ss', 0);
-        throw new Error(`Rate limit: You cannot post for ${moment(nextEligible).fromNow()}, until ${nextEligible}`);
+        throw new Error(`Rate limit: You cannot post for ${moment(nextEligible).fromNow(true)}, until ${nextEligible}`);
       }
     }
   },
@@ -1030,7 +1030,7 @@ export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPos
   if (shouldPerformAutomatedContentEvaluationOnPost(post, oldPost, context)) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {
-      await createAutomatedContentEvaluation(revision, context, { autoreject: true });
+      await createAutomatedContentEvaluation(revision, context, { autoreject: !rejectionWasReversedByModerator(post) });
     }
   }
 }

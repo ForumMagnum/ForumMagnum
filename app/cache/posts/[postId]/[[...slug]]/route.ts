@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { FORUM_WIDE_CACHE_TAG, postCacheTag, postPageCacheConfig } from '@/lib/postPageCache/config';
-import { buildPublicPostPath, normalizeAcceptEncoding } from '@/lib/postPageCache/cachedPostRoute';
+import { CACHED_POST_RENDERER_USER_AGENT, FORUM_WIDE_CACHE_TAG, postCacheTag, postPageCacheConfig } from '@/lib/postPageCache/config';
+import { buildPublicPostPath } from '@/lib/postPageCache/cachedPostRoute';
 import { STATUS_CODE_LOOPBACK_HEADER, findStatusCodeInStream, fixLoopbackUrl } from '@/lib/routeChecks/statusCodeLoopback';
 
 // Renders a post page for logged-out visitors in a form that Vercel's CDN
 // caches, one entry per post, through a loopback to the regular /posts route.
 // Reached via the rewrite in middleware.ts.
 
-const CDN_MAX_AGE_SECONDS = 2 * 60 * 60;
+const CDN_MAX_AGE_SECONDS = 24 * 60 * 60;
 const CDN_STALE_WHILE_REVALIDATE_SECONDS = 2 * 60 * 60;
 // The status marker is rendered as soon as the post query resolves, well
 // before the comments.
@@ -57,7 +57,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<Ca
   // Without the marker the render didn't reach the point that determines the
   // status, so its output must not be stored.
   const cacheable = !!statusMetadata && (status === 200 || status === 404);
-  const encoding = normalizeAcceptEncoding(request.headers.get('accept-encoding'));
   const outcome = cacheable ? 'render' : 'uncached-render';
   const renderMs = Date.now() - startedAt;
   // Structured line for the log drain: Vercel parses JSON console output, and
@@ -68,7 +67,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<Ca
 
   const headers = new Headers({
     'content-type': loopbackResponse.headers.get('content-type') ?? 'text/html; charset=utf-8',
-    'vary': 'Accept-Encoding',
     'x-lw-post-cache': outcome,
     'x-lw-post-cache-render-ms': String(renderMs),
   });
@@ -80,16 +78,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<Ca
     headers.set('vercel-cache-tag', `${postCacheTag(postId)},${FORUM_WIDE_CACHE_TAG}`);
   }
 
-  let body: ReadableStream<Uint8Array> = bodyBranch;
-  if (encoding === 'gzip') {
-    // Vercel's size limit for cached responses applies to the bytes the
-    // function emits, so compressing here rather than at the edge makes it
-    // apply to the compressed size.
-    headers.set('content-encoding', 'gzip');
-    body = bodyBranch.pipeThrough(new CompressionStream('gzip'));
-  }
-
-  return new NextResponse(body, { status, headers });
+  // Left uncompressed for the CDN to encode: Next drops a route handler's
+  // Content-Encoding header, so a body compressed here would be cached and
+  // served as if it were plain HTML.
+  return new NextResponse(bodyBranch, { status, headers });
 }
 
 // A fixed header set, so that nothing the visitor sent (cookies, user agent,
@@ -98,9 +90,11 @@ function getLoopbackHeaders(): Headers {
   const headers = new Headers({
     [STATUS_CODE_LOOPBACK_HEADER]: 'true',
     'accept': 'text/html',
-    'accept-encoding': 'identity',
+    // Compressed to cut the loopback's transfer through the CDN. fetch decodes
+    // the body, so the scan and the response above still see plain HTML.
+    'accept-encoding': 'gzip, br',
     'accept-language': 'en-US,en',
-    'user-agent': 'LessWrongCachedPostRenderer/1.0',
+    'user-agent': CACHED_POST_RENDERER_USER_AGENT,
   });
   // Preview deployments sit behind deployment protection, which the loopback
   // must pass too.

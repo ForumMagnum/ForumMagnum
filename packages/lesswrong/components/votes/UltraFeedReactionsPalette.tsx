@@ -71,7 +71,7 @@ const styles = defineStyles('UltraFeedReactionsPalette', (theme: ThemeType) => (
     marginRight: 12,
     padding: 8,
     '& img': {
-      filter: 'opacity(1)',
+      '--reaction-opacity': '1 !important',
     }
   },
   tooltipLabel: {

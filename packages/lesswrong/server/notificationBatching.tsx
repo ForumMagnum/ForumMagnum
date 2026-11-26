@@ -165,7 +165,7 @@ export const graphqlQueries = {
 export const graphqlTypeDefs = gql`
   type EmailPreview {
     to: String
-    subject: String
+    subject: String!
     html: String
     text: String
   }

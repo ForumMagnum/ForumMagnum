@@ -244,8 +244,7 @@ class PgCollectionClass<
   ) {
     options = Object.assign({noSafetyHarness: true}, options);
     const query = new DeleteQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, options, options);
-    const result = await this.executeWriteQuery(query, {selector, options});
-    return {deletedCount: result.length};
+    await this.executeWriteQuery(query, {selector, options});
   }
 
   async _ensureIndex(

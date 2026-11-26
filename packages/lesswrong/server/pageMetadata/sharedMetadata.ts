@@ -2,6 +2,7 @@ import { getForumTypeForPage } from '@/server/utils/pageUtil';
 import { gql } from '@/lib/generated/gql-codegen';
 import { noIndexSetting, tabLongTitleSetting, tabTitleSetting, taglineSetting, siteImageSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
+import { isSlackLinkExpander } from '@/lib/postPageCache/cachedPostRoute';
 import { getPageTitleString } from '@/lib/pageTitle';
 import { CombinedGraphQLErrors } from '@apollo/client';
 import { captureException } from '@/lib/sentryWrapper';
@@ -46,7 +47,7 @@ export async function getDefaultMetadata() {
     twitter: {
       description: taglineSetting.get(forumType),
       images: siteImageSetting.get(forumType),
-      ...(userAgent?.startsWith("Slackbot-LinkExpanding") ? { card: "summary_large_image" } : { card: "summary" }),
+      card: isSlackLinkExpander(userAgent) ? "summary_large_image" : "summary",
     },
     openGraph: {
       title: tabLongTitleSetting.get(forumType) || tabTitleSetting.get(forumType),

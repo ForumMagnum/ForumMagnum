@@ -15,11 +15,10 @@ const SunshineCommentsListMultiQuery = gql(`
   }
 `);
 
-export const MODERATED_USER_CONTENT_LIMIT = 20;
-
-export function useModeratedUserContents(userId: string, contentLimit = MODERATED_USER_CONTENT_LIMIT) {
-  const { posts = [] } = usePublishedPosts(userId, contentLimit, false);
-  const { data: commentsData } = useQuery(SunshineCommentsListMultiQuery, {
+export function useModeratedUserContents(userId: string, contentLimit = 20) {
+  const { posts: loadedPosts } = usePublishedPosts(userId, contentLimit, false);
+  const posts = useMemo(() => loadedPosts ?? [], [loadedPosts]);
+  const { data: commentsData, loading: commentsLoading } = useQuery(SunshineCommentsListMultiQuery, {
     variables: {
       selector: { sunshineNewUsersComments: { userId } },
       limit: contentLimit,
@@ -37,5 +36,6 @@ export function useModeratedUserContents(userId: string, contentLimit = MODERATE
   return {
     posts,
     comments,
+    loading: !loadedPosts || (commentsLoading && !commentsData),
   };
 }

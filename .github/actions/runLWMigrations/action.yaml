@@ -14,4 +14,4 @@ runs:
       shell: bash
       env:
         FORUM_MAGNUM_MIGRATE_CI: 1
-      run: yarn migrate up ${{ inputs.mode }} lw
+      run: npm run migrate -- up ${{ inputs.mode }} lw

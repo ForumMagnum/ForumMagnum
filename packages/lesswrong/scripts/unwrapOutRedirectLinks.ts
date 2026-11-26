@@ -8,8 +8,8 @@ import { collectLinkDocuments, repairLinkDocuments } from "@/scripts/contentLink
 // /out was an open redirect and has been removed; this replaces each LW/AF /out
 // link with its destination. Dry-run by default:
 //
-//   yarn repl dev lw packages/lesswrong/scripts/unwrapOutRedirectLinks.ts 'unwrapOutRedirectLinks("/tmp/out-preview.jsonl")'
-//   yarn repl dev lw packages/lesswrong/scripts/unwrapOutRedirectLinks.ts 'unwrapOutRedirectLinks("/tmp/out-applied.jsonl", { dryRun: false })'
+//   npm run repl -- dev lw packages/lesswrong/scripts/unwrapOutRedirectLinks.ts 'unwrapOutRedirectLinks("/tmp/out-preview.jsonl")'
+//   npm run repl -- dev lw packages/lesswrong/scripts/unwrapOutRedirectLinks.ts 'unwrapOutRedirectLinks("/tmp/out-applied.jsonl", { dryRun: false })'
 //
 // Posts and comments get a patch revision, as in overcomingBiasLinks/README.md.
 

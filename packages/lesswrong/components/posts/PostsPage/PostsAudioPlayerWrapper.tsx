@@ -2,7 +2,7 @@ import type { ForumTypeString } from '@/lib/instanceSettings';
 import { useForumType } from '@/components/hooks/useForumType';
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { isPostAllowedType3Audio } from '../../../lib/collections/posts/helpers';
+import { isPostAllowedGeneratedAudio } from '../../../lib/collections/posts/helpers';
 import PostsPodcastPlayer from "./PostsPodcastPlayer";
 import T3AudioPlayer from "./T3AudioPlayer";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -19,7 +19,7 @@ const styles = defineStyles('PostsAudioPlayerWrapper', (theme: ThemeType) => ({
 
 export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes, forumType: ForumTypeString) => {
   return (('podcastEpisode' in post) && post.podcastEpisode)
-    || isPostAllowedType3Audio(post, forumType);
+    || isPostAllowedGeneratedAudio(post, forumType);
 }
 
 interface PostsPodcastPlayerWithFallbackProps {
@@ -55,6 +55,11 @@ export const PostsPodcastPlayerWithFallback = ({
   </div>;
 }
 
+/**
+ * A post's podcast episode player, or failing that, Type III Audio's player.
+ * The post's own page leaves this out for users who get the narration player
+ * there instead (see userCanListenToNarration).
+ */
 export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer: boolean,
@@ -69,7 +74,7 @@ export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer}: {
         postId={post._id}
         showEmbeddedPlayer={showEmbeddedPlayer}
       />
-      : isPostAllowedType3Audio(post, forumType) && <T3AudioPlayer showEmbeddedPlayer={showEmbeddedPlayer} documentId={post._id} collectionName="Posts" />}
+      : isPostAllowedGeneratedAudio(post, forumType) && <T3AudioPlayer showEmbeddedPlayer={showEmbeddedPlayer} documentId={post._id} collectionName="Posts" />}
   </>;
 }
 

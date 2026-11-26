@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CommentsNode from '@/components/comments/CommentsNode';
 import { isMapPin, isPost, type ModerationContentItem } from './helpers';
+import ForumIcon from '@/components/common/ForumIcon';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import PostBodyPrefix from '@/components/posts/PostsPage/PostBodyPrefix';
@@ -32,6 +33,28 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
     textAlign: 'center',
     color: theme.palette.grey[600],
     fontSize: 14,
+  },
+  scrollToBottomButton: {
+    position: 'absolute',
+    bottom: '10vh',
+    right: 24,
+    width: 40,
+    height: 40,
+    borderRadius: '50%',
+    backgroundColor: theme.palette.grey[500],
+    color: theme.palette.background.paper,
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: theme.palette.boxShadow.default,
+    transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
+    zIndex: 1000,
+    '&:hover': {
+      backgroundColor: theme.palette.grey[700],
+      boxShadow: theme.palette.boxShadow.lwCard,
+    },
   },
   commentsNode: {
     overflow: 'hidden',
@@ -77,14 +100,31 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
 }));
 const ModerationContentDetail = ({
   item,
+  inboxPane = false,
 }: {
   item: ModerationContentItem | null;
+  /**
+   * The Inbox tab's rejected-content pane, which shows a comment's post and
+   * parent, and has no scroll-to-bottom button.
+   */
+  inboxPane?: boolean;
 }) => {
   const classes = useStyles(styles);
+  const contentWrapperRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = useCallback(() => {
+    if (contentWrapperRef.current) {
+      const commentFormElement = contentWrapperRef.current.querySelector('#posts-thread-new-comment');
+      if (commentFormElement) {
+        commentFormElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, []);
+
   if (!item) {
     return (
       <div className={classes.root}>
-        <div className={classes.contentWrapper}>
+        <div className={classes.contentWrapper} ref={contentWrapperRef}>
           <div className={classes.empty}>
             Select content to view details
           </div>
@@ -95,7 +135,7 @@ const ModerationContentDetail = ({
 
   if (isMapPin(item)) {
     return <div className={classes.root}>
-      <div className={classes.contentWrapper}>
+      <div className={classes.contentWrapper} ref={contentWrapperRef}>
         <ModerationMapPinDetail item={item} />
       </div>
     </div>;
@@ -105,7 +145,7 @@ const ModerationContentDetail = ({
 
   return (
     <div className={classes.root}>
-      <div className={classes.contentWrapper}>
+      <div className={classes.contentWrapper} ref={contentWrapperRef}>
         {post
           ? <div className={classes.postContent}>
             {item.draft && <div className={classes.draftNotice}>[Draft]</div>}
@@ -129,11 +169,20 @@ const ModerationContentDetail = ({
             </ContentStyles>
           </div>
           : <div className={classes.commentsNode}>
-            {item.postId && <ModerationCommentPostContext postId={item.postId} showOpeningText={!item.parentCommentId} />}
-            <CommentsNode treeOptions={{showPostTitle: !item.postId}} comment={item} forceUnTruncated forceUnCollapsed showParentDefault/>
+            {inboxPane && item.postId && <ModerationCommentPostContext postId={item.postId} showOpeningText={!item.parentCommentId} />}
+            <CommentsNode treeOptions={{showPostTitle: !inboxPane || !item.postId}} comment={item} forceUnTruncated forceUnCollapsed showParentDefault={inboxPane}/>
             </div>
           }
       </div>
+      {post && !inboxPane && (
+        <button 
+          className={classes.scrollToBottomButton} 
+          onClick={scrollToBottom}
+          aria-label="Scroll to bottom"
+        >
+          <ForumIcon icon="NarrowArrowDown" />
+        </button>
+      )}
     </div>
   );
 };

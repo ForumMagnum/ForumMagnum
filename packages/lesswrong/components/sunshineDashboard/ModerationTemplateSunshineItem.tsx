@@ -6,10 +6,11 @@ import BasicFormStyles from '../form-components/BasicFormStyles';
 import { ContentItemBody } from '../contents/ContentItemBody';
 import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
-import Row from '../common/Row';
 import ContentStyles from '../common/ContentStyles';
 import ForumIcon from '../common/ForumIcon';
 import type { DragHandleProps } from '../form-components/sortableList';
+
+export const CHECKBOX_SIZE = 12;
 
 const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType) => ({
   templateItem: {
@@ -49,18 +50,27 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   dragHandleIcon: {
     fontSize: 16,
   },
-  shortcutNumber: {
-    position: "absolute",
-    left: 6,
-    top: "50%",
-    transform: "translateY(-50%)",
-    fontSize: 11,
-    fontWeight: 600,
-    color: theme.palette.grey[500],
-  },
   templateName: {
     flex: 1,
     minWidth: 0,
+  },
+  checkbox: {
+    width: CHECKBOX_SIZE,
+    height: CHECKBOX_SIZE,
+    flexShrink: 0,
+    marginRight: 4,
+    border: `1px solid ${theme.palette.grey[400]}`,
+    borderRadius: 2,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    borderColor: theme.palette.grey[800],
+  },
+  checkboxIcon: {
+    fontSize: 11,
+    color: theme.palette.grey[800],
   },
   actions: {
     display: "flex",
@@ -90,22 +100,11 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   highlighted: {
     border: theme.palette.border.intense
   },
-  // Defined before `suggested` so a selected-and-suggested row keeps the suggested
-  // background and only picks up the outline
   selected: {
-    outline: theme.palette.greyBorder("1px", 0.3),
     backgroundColor: theme.palette.greyAlpha(0.1),
   },
   suggested: {
-    backgroundColor: theme.palette.grey[900],
-    color: theme.palette.grey[100],
     fontWeight: 600,
-    marginBottom: 1,
-    marginTop: 1,
-    borderRadius: 4,
-    '&:hover': {
-      backgroundColor: theme.palette.grey[800],
-    },
   },
   hovercard: {
     padding: 16,
@@ -141,12 +140,13 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   },
 }));
 
-export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted, selected, shortcutNumber, dragHandleProps, onHide, onUnhide}: {
+export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted, selected, checked, dragHandleProps, onHide, onUnhide}: {
   template: ModerationTemplateFragment,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
   highlighted?: boolean,
   selected?: boolean,
-  shortcutNumber?: string,
+  // Omit to hide the checkbox
+  checked?: boolean,
   dragHandleProps?: DragHandleProps,
   onHide?: (template: ModerationTemplateFragment) => void,
   onUnhide?: (template: ModerationTemplateFragment) => void,
@@ -158,9 +158,6 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
   if (edit) {
     return (
         <div className={classNames(classes.editContainer, {[classes.deleted]: template.deleted, [classes.highlighted]: hash === `#${template._id}`})}>
-          <Row>
-            <h3>{template.name}{template.deleted && <> [Deleted]</>}</h3>
-          </Row>
           <BasicFormStyles>
             <ModerationTemplatesForm
               initialData={template}
@@ -206,7 +203,11 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highl
             <ForumIcon icon="DragIndicator" className={classes.dragHandleIcon} />
           </span>
         )}
-        {shortcutNumber !== undefined && <span className={classes.shortcutNumber}>{shortcutNumber}</span>}
+        {checked !== undefined && (
+          <span className={classNames(classes.checkbox, { [classes.checkboxChecked]: checked })}>
+            {checked && <ForumIcon icon="Check" className={classes.checkboxIcon} />}
+          </span>
+        )}
         <span className={classes.templateName}>{template.name}</span>
         <span className={classes.actions}>
           {onHide && (

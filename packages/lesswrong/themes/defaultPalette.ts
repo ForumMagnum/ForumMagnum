@@ -85,7 +85,7 @@
 //
 //
 
-import { grey, greyAlpha, inverseGreyAlpha, primaryAlpha, boxShadowColor, greyBorder, invertIfDarkMode } from "./colorUtil";
+import { grey, greyAlpha, inverseGreyAlpha, primaryAlpha, boxShadowColor, greyBorder, invertIfDarkModePreservingHue } from "./colorUtil";
 import { isBlackBarTitle } from '../components/seasonal/petrovDay/petrov-day-story/petrovConsts';
 
 export const sansSerifStack = [
@@ -148,7 +148,6 @@ export const defaultComponentPalette = (dark: boolean, isAF: boolean) => ({
   primaryAlpha,
   boxShadowColor,
   greyBorder,
-  invertIfDarkMode,
   fonts: {
     sansSerifStack: isAF ? afSansSerifStack : sansSerifStack,
     serifStack: isAF ? afSansSerifStack : serifStack,
@@ -196,8 +195,8 @@ export const defaultComponentPalette = (dark: boolean, isAF: boolean) => ({
     tooltipText: "#fff",
     tooltipTextDim: "#c2c2c2",
     negativeKarmaRed: "#ff8a80",
-    charsAdded: "#008800",
-    charsRemoved: "#880000",
+    charsAdded: invertIfDarkModePreservingHue("#008800"),
+    charsRemoved: invertIfDarkModePreservingHue("#880000"),
     invertedBackgroundText: inverseGreyAlpha(1),
     invertedBackgroundText2: inverseGreyAlpha(0.7),
     invertedBackgroundText3: inverseGreyAlpha(0.5),
@@ -691,8 +690,12 @@ export const defaultComponentPalette = (dark: boolean, isAF: boolean) => ({
     contrastText: grey[0],
   },
   lwTertiary: {
-    main: isAF ? (dark ? "#7799a4" : "#607e88") : "#69886e",
-    dark: isAF ? (dark ? "#7799a4" : "#607e88") : "#21672b",
+    main: isAF
+      ? "light-dark(#607e88, #7799a4)"
+      : "light-dark(#69886e, #869f8a)",
+    dark: isAF
+      ? "light-dark(#607e88, #7799a4)"
+      : "light-dark(#21672b, #869f8a)",
   },
   action: {
     active: "light-dark(rgba(0, 0, 0, 0.54),#fff)",

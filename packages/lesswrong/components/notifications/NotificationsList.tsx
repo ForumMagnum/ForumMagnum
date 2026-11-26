@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import NotificationsItem from "./NotificationsItem";
+import NotificationsItem, { CommentNotificationFilterSuggestionItem } from "./NotificationsItem";
 import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NotificationsListMultiQuery } from './NotificationsListMultiQuery';
 import { useCurrentUser } from '../common/withUser';
+import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -37,11 +39,15 @@ const styles = defineStyles('NotificationsList', (theme: ThemeType) => ({
   },
 }));
 
-const NotificationsList = ({terms}: {
+const MANY_UNREAD_NOTIFICATIONS = 10;
+
+const NotificationsList = ({terms, closeMenu}: {
   terms: NotificationsViewTerms,
+  closeMenu: () => void,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
   const { view, limit, ...selectorTerms } = terms;
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(NotificationsListMultiQuery, {
     variables: {
@@ -59,9 +65,21 @@ const NotificationsList = ({terms}: {
     ((currentUser?.lastNotificationsCheck) || ""),
   );
 
+  const { latestUnreadCount } = useUnreadNotifications();
+  const [unreadCountWhenOpened] = useState(latestUnreadCount ?? 0);
+  const showFilterSuggestion = terms.type === undefined
+    && unreadCountWhenOpened >= MANY_UNREAD_NOTIFICATIONS
+    && !currentUser?.hideCommentNotificationFilterSuggestion;
+
+  const onClickFilterSuggestion = () => {
+    void updateCurrentUser({ hideCommentNotificationFilterSuggestion: true });
+    closeMenu();
+  };
+
   if (results?.length) {
     return (
       <ul className={classes.root}>
+        {showFilterSuggestion && <CommentNotificationFilterSuggestionItem onClick={onClickFilterSuggestion}/>}
         {results.map(notification =>
           <NotificationsItem
             notification={notification}

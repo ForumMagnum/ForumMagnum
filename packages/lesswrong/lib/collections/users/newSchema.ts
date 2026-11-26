@@ -4,6 +4,7 @@ import {
   userGetProfileUrl,
   getUserEmail,
   userOwnsAndInGroup,
+  userCanEditNarrationSettings,
   karmaChangeUpdateFrequencies,
   userGetAbsoluteProfileUrl,
 } from "./helpers";
@@ -787,6 +788,46 @@ const schema = {
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  /**
+   * The ElevenLabs voice that this user's comments are narrated in. Null until
+   * one is chosen, either by the user or, the first time it's needed,
+   * automatically (see server/narration/narrationVoices.ts).
+   */
+  narrationVoiceId: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userCanEditNarrationSettings],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  /**
+   * How narration says this user's name, written in IPA. Empty to leave it to
+   * the speech model, which goes by their display name (see
+   * server/narration/namePronunciation.ts).
+   */
+  narrationNamePronunciation: {
+    database: {
+      type: "TEXT",
+      defaultValue: "",
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userCanEditNarrationSettings],
       validation: {
         optional: true,
       },
@@ -1803,6 +1844,36 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+    },
+  },
+  commentNotificationFilter: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  hideCommentNotificationFilterSuggestion: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   notificationRepliesToSubscribedComments: {

@@ -52,7 +52,7 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
     captureEvent("recommendationNotInterestedClicked", {postId: post._id, pageSubElementContext: "tripleDot"})
   }
 
-  const title = 'Dismiss recommendation'
+  const title = 'Recommend less like this'
   const icon = 'NotInterested'
   return (
     <DropdownItem

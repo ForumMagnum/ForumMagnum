@@ -1,11 +1,12 @@
 import { useForumType } from '@/components/hooks/useForumType';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import classNames from 'classnames';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { Card } from "@/components/widgets/Paper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
-import { POST_PREVIEW_ELEMENT_CONTEXT, getPostPreviewWidth } from './helpers';
+import { POST_PREVIEW_ELEMENT_CONTEXT, PostsTooltipIsClickableContext, getPostPreviewWidth } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -20,24 +21,7 @@ import ContentStyles from "../../common/ContentStyles";
 import EventTime from "../../localGroups/EventTime";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
-import LLMScoreBadge from '@/components/sunshineDashboard/supermod/LLMScoreBadge';
-
-const PostLlmScoreQuery = gql(`
-  query PostLlmScorePreview($documentId: String) {
-    post(selector: { documentId: $documentId }) {
-      result {
-        _id
-        automatedContentEvaluations {
-          ...AutomatedContentEvaluationsFragment
-        }
-        contents {
-          _id
-          html
-        }
-      }
-    }
-  }
-`);
+import { PostIndicatorHighlightContext, postIndicatorLabels, usePostIndicators } from '../postIndicators';
 
 const PostWithDialogueMessageQuery = gql(`
   query LWPostsPreviewTooltip1($documentId: String, $dialogueMessageId: String) {
@@ -92,6 +76,15 @@ const highlightStyles = (theme: ThemeType) => ({
   ...highlightSimplifiedStyles
 })
 
+const tooltipInfoStyles = (theme: ThemeType) => ({
+  marginLeft: 2,
+  ...theme.typography.italic,
+  fontSize: "1.1rem",
+  color: theme.palette.grey[600],
+})
+
+const indicatorHighlightColor = "light-dark(rgba(0,0,0,.1),rgba(255,255,255,.2))";
+
 const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
   root: {
     width: getPostPreviewWidth(),
@@ -132,10 +125,7 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
     marginBottom: -6,
   },
   tooltipInfo: {
-    marginLeft: 2,
-    ...theme.typography.italic,
-    fontSize: "1.1rem",
-    color: theme.palette.grey[600],
+    ...tooltipInfoStyles(theme),
     display: "flex",
     alignItems: "center",
     // Allow the username child to shrink below its intrinsic width so the
@@ -152,6 +142,10 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
+  eventInfo: {
+    ...tooltipInfoStyles(theme),
+    marginTop: 4,
+  },
   highlight: {
     ...highlightStyles(theme)
   },
@@ -161,14 +155,6 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
   bookmark: {
     marginTop: -4,
     paddingRight: 4
-  },
-  headerActions: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    gap: 8,
-    marginLeft: 8,
-    flexShrink: 0,
   },
   continue: {
     color: theme.palette.grey[500],
@@ -191,20 +177,36 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     marginRight: 8
   },
+  highlightedIndicator: {
+    color: theme.palette.text.normal,
+    background: indicatorHighlightColor,
+    boxShadow: `0 0 0 2px ${indicatorHighlightColor}`,
+    borderRadius: 1,
+  },
 }))
 
-const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageInfo, showLlmScore = false}: PostsPreviewTooltipProps) => {
+const PostIndicatorLabels = ({post, trailingSeparator}: {
+  post: PostsBase,
+  trailingSeparator: boolean,
+}) => {
+  const classes = useStyles(styles);
+  const indicators = usePostIndicators(post);
+  const { highlightedIndicator } = useContext(PostIndicatorHighlightContext);
+  const shownLabels = postIndicatorLabels.filter(({indicator}) => indicators[indicator]);
+
+  return <>
+    {shownLabels.map(({indicator, label}, i) => <span key={indicator}>
+      <span className={classNames(highlightedIndicator === indicator && classes.highlightedIndicator)}>{label}</span>
+      {(trailingSeparator || i < shownLabels.length - 1) && ",  "}
+    </span>)}
+  </>;
+}
+
+const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageInfo}: PostsPreviewTooltipProps) => {
   const { forumType } = useForumType();
   const classes = useStyles(styles);
+  const isClickable = useContext(PostsTooltipIsClickableContext);
   const [expanded, setExpanded] = useState(false)
-
-  const suppliedLlmScorePost = post && 'automatedContentEvaluations' in post ? post : undefined;
-  const { data: llmScoreData } = useQuery(PostLlmScoreQuery, {
-    variables: { documentId: post?._id },
-    skip: !showLlmScore || !post || !!suppliedLlmScorePost,
-    fetchPolicy: "cache-first",
-  });
-  const llmScorePost = suppliedLlmScorePost ?? llmScoreData?.post?.result;
 
   const { loading, data: dataHighlight } = useQuery(HighlightWithHashQuery, {
     variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, hash },
@@ -246,6 +248,10 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
   if (post.isEvent && post.location) {
     eventLocation = <div>{post.location}</div>
   }
+  const eventInfo = (post.startTime || eventLocation) && <>
+    {post.startTime && <EventTime post={post} />}
+    {eventLocation}
+  </>
 
   const postTags = post.tags?.slice(0,2)
 
@@ -258,8 +264,8 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
             </div>
             <ContentStyles contentType="comment" className={classes.tooltipInfo}>
               { postsList && <span>
-                {post.startTime && <EventTime post={post} />}
-                {eventLocation}
+                {eventInfo}
+                <PostIndicatorLabels post={post} trailingSeparator={!!postTags?.length} />
                 {postTags?.map((tag, i) => <span key={tag?._id}>{tag?.name}{(i !== (postTags?.length - 1)) ? ",  " : ""}</span>)}
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
@@ -274,19 +280,13 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
                 </div>
               </>}
             </ContentStyles>
+            {!postsList && eventInfo && <ContentStyles contentType="comment" className={classes.eventInfo}>
+              {eventInfo}
+            </ContentStyles>}
           </div>
-          <div className={showLlmScore ? classes.headerActions : undefined}>
-            {showLlmScore && llmScorePost && <LLMScoreBadge
-              documentId={post._id}
-              automatedContentEvaluations={llmScorePost.automatedContentEvaluations}
-              contentHtml={llmScorePost.contents?.html ?? ''}
-              contentType="Post"
-              showWhenEmpty
-            />}
-            {!postsList && <div className={classes.bookmark}>
-              <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked}/>
-            </div>}
-          </div>
+          { !postsList && isClickable && <div className={classes.bookmark}>
+            <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked}/>
+          </div>}
         </div>
         {renderedComment
           ? <div className={classes.comment}>
@@ -323,3 +323,5 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
 }
 
 export default LWPostsPreviewTooltip
+
+

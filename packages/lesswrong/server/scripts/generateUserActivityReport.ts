@@ -4,7 +4,7 @@ import { calculateActivityFactor } from "../../lib/collections/useractivities/ut
 import { defaultActivityHalfLife } from '@/lib/instanceSettings';
 import fs from "fs";
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl"
 export const generateUserActivityReport = async (forumType: ForumTypeString, activityHalfLifeHours: number = defaultActivityHalfLife) => {
   const db = getSqlClientOrThrow()
 

@@ -1,4 +1,4 @@
-// TODO: run `yarn run generate` after creating component
+// TODO: run `npm run generate` after creating component
 import React from 'react';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useStyles, defineStyles } from '@/components/hooks/useStyles';

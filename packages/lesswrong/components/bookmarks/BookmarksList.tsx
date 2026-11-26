@@ -6,6 +6,7 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import PostsLoading from "../posts/PostsLoading";
 import PostsItem from "../posts/PostsItem";
 import LoadMore from "../common/LoadMore";
+import SectionFooter from "../common/SectionFooter";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '../hooks/defineStyles';
@@ -44,7 +45,7 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false}:
     variables: {
       selector: { myBookmarkedPosts: {} },
       limit,
-      enableTotal: false,
+      enableTotal: !hideLoadMore,
     },
     skip: !currentUser?._id,
     fetchPolicy: "cache-and-network",
@@ -69,7 +70,9 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false}:
           showBottomBorder={i < bookmarkedPosts.length-1}
         />
       )}
-      {!hideLoadMore && <LoadMore {...loadMoreProps} />}
+      {!hideLoadMore && <SectionFooter>
+        <LoadMore {...loadMoreProps} sectionFooterStyles />
+      </SectionFooter>}
     </div>
   </AnalyticsContext>
 }

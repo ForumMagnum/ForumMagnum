@@ -68,7 +68,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   // here. We should do something more complicated to give client-side feedback
   // if you're banned.
   // @ts-ignore
-  const userCanCommentOrLoggedOut = useFilteredCurrentUser(u => !u || userIsAllowedToComment(u, treeOptions.post ?? null, null, true));
+  const userCanCommentOrLoggedOut = useFilteredCurrentUser(u => !u || userIsAllowedToComment(u, treeOptions.post ?? null, null, true).canComment);
 
   const now = useCurrentTime();
   const votingSystemName = votingSystem.name;

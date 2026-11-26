@@ -7,6 +7,7 @@ import { isAnyTest } from '../executionEnvironment';
 // Collection imports
 import { default as AiDigestIssueGenerations } from '../collections/aiDigestIssueGenerations/newSchema';
 import { default as AiDigestIssues } from '../collections/aiDigestIssues/newSchema';
+import { default as AiDigestItemClicks } from '../collections/aiDigestItemClicks/newSchema';
 import { default as AiDigestSchedules } from '../collections/aiDigestSchedules/newSchema';
 import { default as ArbitalCaches } from '../collections/arbitalCache/newSchema';
 import { default as ArbitalTagContentRels } from '../collections/arbitalTagContentRels/newSchema';
@@ -54,6 +55,10 @@ import { default as Migrations } from '../collections/migrations/newSchema';
 import { default as ModerationTemplates } from '../collections/moderationTemplates/newSchema';
 import { default as ModeratorActions } from '../collections/moderatorActions/newSchema';
 import { default as MultiDocuments } from '../collections/multiDocuments/newSchema';
+import { default as NarrationImageDescriptions } from '../collections/narrationImageDescriptions/newSchema';
+import { default as NarrationScripts } from '../collections/narrationScripts/newSchema';
+import { default as NarrationSegmentAudios } from '../collections/narrationSegmentAudios/newSchema';
+import { default as NarrationSegments } from '../collections/narrationSegments/newSchema';
 import { default as Notifications } from '../collections/notifications/newSchema';
 import { default as OAuthAccessTokens } from '../collections/oAuthAccessTokens/newSchema';
 import { default as OAuthAuthorizationCodes } from '../collections/oAuthAuthorizationCodes/newSchema';
@@ -118,11 +123,11 @@ if (isAnyTest || bundleIsCodegen) {
 }
 
 export const allSchemas = {
-  AiDigestIssueGenerations, AiDigestIssues, AiDigestSchedules, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
+  AiDigestIssueGenerations, AiDigestIssues, AiDigestItemClicks, AiDigestSchedules, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
   CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks,
   DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, LlmRuns, LlmRunTranscriptEntries, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
-  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, Pingbacks,
+  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, NarrationImageDescriptions, NarrationScripts, NarrationSegmentAudios, NarrationSegments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, Pingbacks,
   PodcastEpisodes, Podcasts, PostEmbeddings, PostPreviews, PostRecommendations, PostRelations, PostSummaries, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
   RecommendationsCaches, RejectionAppeals, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,

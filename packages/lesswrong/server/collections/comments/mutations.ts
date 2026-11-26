@@ -1,7 +1,7 @@
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { invalidatePostPageCache } from '@/server/postPageCache/invalidatePostPageCache';
 import schema from "@/lib/collections/comments/newSchema";
-import { getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsAllowedToComment } from "@/lib/collections/users/helpers";
+import { userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { captureException } from "@/lib/sentryWrapper";
 import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
@@ -92,14 +92,14 @@ async function newCheck(user: DbUser | null, document: CreateCommentDataInput | 
 
   const author = await context.loaders.Users.load(post.userId);
   const isReply = !!document.parentCommentId;
-  if (!userIsAllowedToComment(user, post, author, isReply)) {
-    const authorBanReason = getAuthorCommentBanReason(user, post, author);
-    if (authorBanReason && !userCanDo(user, `posts.moderate.all`)) {
-      throw new GraphQLError(getAuthorCommentBanMessage(authorBanReason), {
-        extensions: { noSentryCapture: true },
-      });
+  const commentingPermission = userIsAllowedToComment(user, post, author, isReply);
+  if (!commentingPermission.canComment) {
+    if (userCanDo(user, `posts.moderate.all`)) {
+      return true;
     }
-    return userCanDo(user, `posts.moderate.all`)
+    throw new GraphQLError(commentingPermission.reason, {
+      extensions: { code: "FORBIDDEN", noSentryCapture: true },
+    });
   }
 
   return userCanDo(user, 'comments.new')
@@ -110,11 +110,6 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
   if (document.draft && !previewDocument.draft) {
     await commentsRateLimit(document.postId, user, context);
   }
-  if (userCanDo(user, 'comments.alignment.move.all') ||
-      userCanDo(user, 'comments.alignment.suggest')) {
-    return true
-  }
-  
   return userOwns(user, document)
     ? !document.rejected && userCanDo(user, 'comments.edit.own')
     : userCanDo(user, `comments.edit.all`)

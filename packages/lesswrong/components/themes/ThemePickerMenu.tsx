@@ -8,7 +8,7 @@ import { HomeDesignChatContext } from '../common/HomeDesignChatContext';
 import { useCurrentUser } from '../common/withUser';
 import { isMobile } from '../../lib/utils/isMobile'
 import { useNavigate } from '@/lib/routeUtil';
-import { Paper }from '@/components/widgets/Paper';
+import { Card } from '@/components/widgets/Paper';
 import LWTooltip from "../common/LWTooltip";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
@@ -75,7 +75,7 @@ const ThemePickerMenu = ({children}: {
   }
 
   const submenu = (
-    <Paper>
+    <Card>
       <DropdownMenu>
           <>
             {isLW && <>
@@ -98,7 +98,7 @@ const ThemePickerMenu = ({children}: {
             )}
           </>
       </DropdownMenu>
-    </Paper>
+    </Card>
   );
 
   return <LWTooltip

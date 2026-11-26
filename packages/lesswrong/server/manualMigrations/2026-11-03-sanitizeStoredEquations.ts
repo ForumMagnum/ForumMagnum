@@ -14,8 +14,8 @@ import { editableFieldIsNormalized, getEditableCollectionNames, getEditableField
 //
 // It covers Revisions.html and every denormalized editable field. Idempotent.
 //
-// Dry run: yarn repl dev lw "packages/lesswrong/server/manualMigrations/2026-11-03-sanitizeStoredEquations.ts" 'sanitizeStoredEquations({dryRun: true})'
-// Real run: yarn repl dev lw "packages/lesswrong/server/manualMigrations/2026-11-03-sanitizeStoredEquations.ts"
+// Dry run: npm run repl -- dev lw "packages/lesswrong/server/manualMigrations/2026-11-03-sanitizeStoredEquations.ts" 'sanitizeStoredEquations({dryRun: true})'
+// Real run: npm run repl -- dev lw "packages/lesswrong/server/manualMigrations/2026-11-03-sanitizeStoredEquations.ts"
 
 const SCAN_WINDOW_SIZE = 10000;
 const SUSPICIOUS_EQUATION_PATTERN = /\son[a-z]+\s*=|javascript:|position:\s*fixed/i;

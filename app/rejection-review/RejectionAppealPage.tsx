@@ -447,9 +447,8 @@ const SubmittedState = ({ item, reasons, explanation, conversationId }: {
   return <div className={classes.endState}>
     <h2 className={classes.endStateHeading}>Your review request has been submitted</h2>
     <p className={classes.endStateMessage}>
-      Thanks for taking the time to explain. A moderator will look at your request, usually within 72 hours. We've
-      added a summary of it to your conversation with us, and we'll message you there once we've made a decision.
-      You can add anything else there in the meantime.
+      Your request has been filed. Moderators make a best effort attempt to review messages quickly. If the decision
+      is reconsidered, we will notify you.
     </p>
     {conversationId && <ViewConversationButton conversationId={conversationId} />}
     <div className={classes.submittedSummary}>
@@ -473,8 +472,8 @@ const AlreadyAppealedState = ({ appeal }: { appeal: RejectionAppealsUserInfo }) 
       {appeal.status && <>Status: {APPEAL_STATUS_LABELS[appeal.status]}</>}
       {appeal.status === "open" && <>
         <br />
-        We aim to complete reviews within 72 hours. We'll message you in your conversation with us once we've made
-        a decision.
+        Moderators make a best effort attempt to review messages quickly. If the decision is reconsidered, we will
+        notify you.
       </>}
     </p>
     {appeal.conversationId && <ViewConversationButton conversationId={appeal.conversationId} />}
@@ -589,8 +588,8 @@ const RejectionAppealPage = () => {
         {error && <div className={classes.error}>{error}</div>}
         <div className={classes.submitRow}>
           <span className={classes.submitNote}>
-            If you do request a review, a moderator will look at it, usually within 72 hours, and reply in your
-            conversation with us.
+            Moderators make a best effort attempt to review messages quickly. If the decision is reconsidered, we will
+            notify you.
           </span>
           <button
             className={classNames(classes.button, classes.primaryButton)}

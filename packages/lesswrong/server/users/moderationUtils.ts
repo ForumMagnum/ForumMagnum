@@ -65,7 +65,9 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
   //eslint-disable-next-line no-console
   console.info("Deleting posts: ", posts);
   for (let post of posts) {
-    await updatePost({ data: {status: postStatuses.STATUS_DELETED}, selector: { _id: post._id } }, context)
+    if (post.status !== postStatuses.STATUS_DELETED) {
+      await updatePost({ data: {status: postStatuses.STATUS_DELETED}, selector: { _id: post._id } }, context)
+    }
 
     const notifications = await Notifications.find({documentId: post._id}).fetch();
     //eslint-disable-next-line no-console

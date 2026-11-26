@@ -15,10 +15,8 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
   },
 
-  // For the highlighted section only, disable the half-opacity-on-hover effect
-  // that's otherwise globally applied to <a> tags.
   highlighted: {
-    '& $link': {
+    '& $link, & $link:hover': {
       color: theme.palette.link.tocLinkHighlighted,
     },
     '& $highlightDot:after': {
@@ -26,9 +24,6 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
       position: 'relative',
       top: 1
     },
-    "& a:focus, & a:hover": {
-      opacity: "initial",
-    }
   },
   dense: {
     paddingTop: "0 !important",
@@ -41,9 +36,10 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     paddingBottom: 6,
     color: theme.palette.link.tocLink,
     lineHeight: "1em",
-    '&:hover':{
-      color: theme.palette.link.tocLinkHighlighted
-    }
+    '&:hover': {
+      color: theme.palette.text.normal,
+      opacity: 1,
+    },
   },
   highlightDot: {},
   // Makes sure that the start of the ToC is in line with the start of the text
@@ -51,9 +47,6 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     paddingTop: 3,
     paddingBottom: 12,
     borderBottom: theme.palette.border.faint,
-    '&:hover': {
-      opacity: "unset"
-    }
   },
   level0: {
     maxWidth: '100%',
