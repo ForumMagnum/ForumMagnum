@@ -16,6 +16,7 @@
 //    having been rendered into the DOM.
 //  * Resizing is by percent-of-editor-width (like ImageNode) rather than by
 //    pixel width and height.
+//  * A diagram can have a caption; see CaptionedExcalidrawNode.
 
 import type {
   DOMConversionMap,
@@ -25,12 +26,21 @@ import type {
   LexicalEditor,
   LexicalNode,
   NodeKey,
+  SerializedElementNode,
   SerializedLexicalNode,
   Spread,
 } from 'lexical';
 import type {JSX} from 'react';
 
-import {DecoratorNode} from 'lexical';
+import {$generateNodesFromDOM} from '@lexical/html';
+import {$wrapNodeInElement} from '@lexical/utils';
+import {
+  $createParagraphNode,
+  $getEditor,
+  DecoratorNode,
+  ElementNode,
+  isHTMLElement,
+} from 'lexical';
 import * as React from 'react';
 import {
   EXCALIDRAW_DIAGRAM_CLASS,
@@ -38,6 +48,12 @@ import {
   EXCALIDRAW_SCENE_ATTRIBUTE,
 } from '@/lib/lexical/excalidrawDiagrams';
 import { sanitize } from '@/lib/utils/sanitize';
+import {
+  $createImageCaptionNode,
+  $isCaptionNodeEmpty,
+  $isImageCaptionNode,
+  type ImageCaptionNode,
+} from '../ImageNode';
 
 const ExcalidrawComponent = React.lazy(() => import('./ExcalidrawComponent'));
 
@@ -50,6 +66,8 @@ export type SerializedExcalidrawNode = Spread<
   SerializedLexicalNode
 >;
 
+export type SerializedCaptionedExcalidrawNode = SerializedElementNode;
+
 function parseWidthPercent(domNode: HTMLElement): number | null {
   const match = /^([\d.]+)%$/.exec(domNode.style.width);
   if (!match) {
@@ -57,6 +75,17 @@ function parseWidthPercent(domNode: HTMLElement): number | null {
   }
   const widthPercent = parseFloat(match[1]);
   return Number.isFinite(widthPercent) ? widthPercent : null;
+}
+
+function $convertExcalidrawCaption(domNode: HTMLElement): ImageCaptionNode | null {
+  const figcaption = domNode.querySelector('figcaption');
+  if (!figcaption) {
+    return null;
+  }
+  const captionNode = $createImageCaptionNode().append(
+    ...$generateNodesFromDOM($getEditor(), figcaption),
+  );
+  return $isCaptionNodeEmpty(captionNode) ? null : captionNode;
 }
 
 function $convertExcalidrawElement(
@@ -70,15 +99,18 @@ function $convertExcalidrawElement(
   // If the scene data is missing (eg because this HTML went through the
   // sanitizer), we still keep the rendered SVG; the diagram just isn't
   // editable.
-  const node = $createExcalidrawNode(
+  const diagramNode = $createExcalidrawNode(
     excalidrawData ?? '[]',
     svg?.outerHTML ?? '',
     parseWidthPercent(domNode),
   );
+  const captionNode = $convertExcalidrawCaption(domNode);
   return {
-    node,
-    // The SVG's contents (eg its <text> elements) are part of this node, not
-    // separate Lexical nodes.
+    node: captionNode
+      ? $createCaptionedExcalidrawNode().append(diagramNode, captionNode)
+      : diagramNode,
+    // The SVG's contents (eg its <text> elements) are part of the diagram
+    // node, not separate Lexical nodes, and the caption is converted above.
     forChild: () => null,
   };
 }
@@ -132,13 +164,16 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
 
   // View
   createDOM(config: EditorConfig): HTMLElement {
-    const div = document.createElement('div');
+    // ExcalidrawComponent sets the diagram's width on the nearest <figure>,
+    // which is this element unless a CaptionedExcalidrawNode provides one
+    // that also contains the caption.
+    const element = document.createElement(this.hasCaption() ? 'div' : 'figure');
     const theme = config.theme;
     const className = theme.image;
     if (className !== undefined) {
-      div.className = className;
+      element.className = className;
     }
-    return div;
+    return element;
   }
 
   updateDOM(): false {
@@ -210,6 +245,10 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
     return self;
   }
 
+  hasCaption(): boolean {
+    return $isCaptionedExcalidrawNode(this.getParent());
+  }
+
   decorate(_editor: LexicalEditor, _config: EditorConfig): JSX.Element {
     return (
       <ExcalidrawComponent
@@ -217,6 +256,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
         data={this.__data}
         svg={this.__svg}
         widthPercent={this.__widthPercent}
+        hasCaption={this.hasCaption()}
       />
     );
   }
@@ -234,4 +274,107 @@ export function $isExcalidrawNode(
   node: LexicalNode | null | undefined,
 ): node is ExcalidrawNode {
   return node instanceof ExcalidrawNode;
+}
+
+function isExcalidrawFigureElement(element: Element): element is HTMLElement {
+  return (
+    isHTMLElement(element) &&
+    element.tagName === 'FIGURE' &&
+    element.classList.contains(EXCALIDRAW_DIAGRAM_CLASS)
+  );
+}
+
+/**
+ * A diagram with a caption: an ExcalidrawNode followed by an ImageCaptionNode
+ * (the same node that holds the captions of images). This node only exists
+ * while the diagram has a caption; a diagram without one is an ExcalidrawNode
+ * on its own.
+ *
+ * The caption isn't part of ExcalidrawNode because that's a decorator node,
+ * which can't have children, and it can't be turned into an element node
+ * without making the collaborative (Yjs) documents that already contain
+ * diagrams unloadable, since the two kinds of node are stored differently.
+ */
+export class CaptionedExcalidrawNode extends ElementNode {
+  static getType(): string {
+    return 'captioned-excalidraw';
+  }
+
+  static clone(node: CaptionedExcalidrawNode): CaptionedExcalidrawNode {
+    return new CaptionedExcalidrawNode(node.__key);
+  }
+
+  static importJSON(
+    serializedNode: SerializedCaptionedExcalidrawNode,
+  ): CaptionedExcalidrawNode {
+    return $createCaptionedExcalidrawNode().updateFromJSON(serializedNode);
+  }
+
+  createDOM(): HTMLElement {
+    const figure = document.createElement('figure');
+    figure.setAttribute('contenteditable', 'false');
+    return figure;
+  }
+
+  updateDOM(): false {
+    return false;
+  }
+
+  // Importing is handled by ExcalidrawNode, since whether the result is one
+  // of these depends on whether the diagram has a caption.
+  static importDOM(): null {
+    return null;
+  }
+
+  exportDOM(): DOMExportOutput {
+    return {
+      element: document.createElement('div'),
+      // The children are exported into the element above: the diagram as a
+      // <figure>, and the caption as a <figcaption>, which belongs inside of
+      // that <figure>.
+      after: (container) => {
+        const exportedChildren = isHTMLElement(container) ? Array.from(container.children) : [];
+        const figure = exportedChildren.find(isExcalidrawFigureElement);
+        figure?.append(...exportedChildren.filter((child) => child !== figure));
+        return figure;
+      },
+    };
+  }
+
+  getDiagramNode(): ExcalidrawNode | null {
+    return this.getChildren().find($isExcalidrawNode) ?? null;
+  }
+
+  getCaptionNode(): ImageCaptionNode | null {
+    return this.getChildren().find($isImageCaptionNode) ?? null;
+  }
+
+  isShadowRoot(): true {
+    return true;
+  }
+
+  canBeEmpty(): false {
+    return false;
+  }
+
+  canIndent(): false {
+    return false;
+  }
+}
+
+export function $createCaptionedExcalidrawNode(): CaptionedExcalidrawNode {
+  return new CaptionedExcalidrawNode();
+}
+
+export function $isCaptionedExcalidrawNode(
+  node: LexicalNode | null | undefined,
+): node is CaptionedExcalidrawNode {
+  return node instanceof CaptionedExcalidrawNode;
+}
+
+/** Gives a diagram that doesn't have a caption an empty one. */
+export function $addExcalidrawCaption(diagramNode: ExcalidrawNode): ImageCaptionNode {
+  const captionNode = $createImageCaptionNode().append($createParagraphNode());
+  $wrapNodeInElement(diagramNode, $createCaptionedExcalidrawNode).append(captionNode);
+  return captionNode;
 }

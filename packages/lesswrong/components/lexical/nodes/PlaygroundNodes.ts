@@ -27,7 +27,7 @@ import {AutocompleteNode} from './AutocompleteNode';
 import {DateTimeNode} from './DateTimeNode/DateTimeNode';
 import {EmojiNode} from './EmojiNode';
 import { MathNode } from '@/components/editor/lexicalPlugins/math/MathNode';
-import {ExcalidrawNode} from './ExcalidrawNode';
+import {CaptionedExcalidrawNode, ExcalidrawNode} from './ExcalidrawNode';
 import {FigmaNode} from './FigmaNode';
 import {ImageCaptionNode, ImageNode, ImageRenderNode} from './ImageNode';
 import {KeywordNode} from './KeywordNode';
@@ -100,6 +100,7 @@ const PlaygroundNodes: Array<LexicalNodeConfig> = validateLexicalNodes({
   MentionNode,
   EmojiNode,
   ExcalidrawNode,
+  CaptionedExcalidrawNode,
   MathNode,
   AutocompleteNode,
   KeywordNode,

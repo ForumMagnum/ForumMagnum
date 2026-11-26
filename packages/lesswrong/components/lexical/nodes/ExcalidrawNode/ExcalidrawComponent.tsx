@@ -17,6 +17,7 @@
 //    playground's global CSS.
 //  * A diagram without scene data (eg one that was imported from sanitized
 //    HTML) is displayed but can't be opened for editing.
+//  * There's a button for adding and removing a caption.
 
 import type {NodeKey} from 'lexical';
 import type {JSX} from 'react';
@@ -38,18 +39,24 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { EXCALIDRAW_DARK_MODE_FILTER } from '@/lib/lexical/excalidrawDiagrams';
 import ImageResizer from '../../ui/ImageResizer';
+import { ChatSquareQuoteIcon } from '../../icons/ChatSquareQuoteIcon';
 import { PencilFillIcon } from '../../icons/PencilFillIcon';
-import { EDIT_EXCALIDRAW_COMMAND } from '../../plugins/ExcalidrawPlugin/commands';
+import {
+  EDIT_EXCALIDRAW_COMMAND,
+  TOGGLE_EXCALIDRAW_CAPTION_COMMAND,
+} from '../../plugins/ExcalidrawPlugin/commands';
 import {$isExcalidrawNode} from '.';
 import ExcalidrawImage from './ExcalidrawImage';
 
 const styles = defineStyles('LexicalExcalidrawComponent', (theme: ThemeType) => ({
-  // This is the element that ImageResizer resizes (it looks for a <figure>)
-  figure: {
+  diagram: {
     position: 'relative',
     width: 'fit-content',
     maxWidth: '100%',
-    margin: '1em auto',
+    margin: '0 auto',
+  },
+  resizedDiagram: {
+    width: '100%',
   },
   button: {
     display: 'block',
@@ -78,10 +85,14 @@ const styles = defineStyles('LexicalExcalidrawComponent', (theme: ThemeType) => 
       width: '100%',
     },
   },
-  editButton: {
+  overlayButtons: {
     position: 'absolute',
     right: 4,
     top: 4,
+    display: 'flex',
+    gap: 4,
+  },
+  overlayButton: {
     width: 35,
     height: 35,
     display: 'flex',
@@ -97,6 +108,10 @@ const styles = defineStyles('LexicalExcalidrawComponent', (theme: ThemeType) => 
       backgroundColor: theme.palette.lexicalEditor.editButtonHover,
     },
   },
+  activeOverlayButton: {
+    borderColor: theme.palette.lexicalEditor.focusRing,
+    color: theme.palette.lexicalEditor.focusRing,
+  },
 }));
 
 export default function ExcalidrawComponent({
@@ -104,11 +119,13 @@ export default function ExcalidrawComponent({
   data,
   svg,
   widthPercent,
+  hasCaption,
 }: {
   data: string;
   nodeKey: NodeKey;
   svg: string;
   widthPercent: number | null;
+  hasCaption: boolean;
 }): JSX.Element | null {
   const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
@@ -124,6 +141,39 @@ export default function ExcalidrawComponent({
   const openModal = useCallback(() => {
     editor.dispatchCommand(EDIT_EXCALIDRAW_COMMAND, nodeKey);
   }, [editor, nodeKey]);
+
+  const toggleCaption = (event: React.MouseEvent) => {
+    // Adding or removing a caption replaces the DOM that this is rendered
+    // into (see ExcalidrawNode.createDOM). If the click then reached the
+    // editor's own click handling, it would be a click on an element that's
+    // no longer in the editor, which deselects the diagram.
+    event.stopPropagation();
+    editor.dispatchCommand(TOGGLE_EXCALIDRAW_CAPTION_COMMAND, nodeKey);
+  };
+
+  // Adding or removing a caption replaces the DOM that this is rendered into
+  // (see ExcalidrawNode.createDOM). A selected diagram normally has the
+  // keyboard focus, from having been clicked on; that focus is lost along
+  // with the old DOM, and without it keyboard input doesn't reach the editor.
+  useEffect(() => {
+    if (isSelected && document.activeElement === document.body) {
+      buttonRef.current?.focus({preventScroll: true});
+    }
+  }, [isSelected]);
+
+  // The width goes on the <figure> that this is inside of (see
+  // ExcalidrawNode.createDOM), which is also what ImageResizer resizes.
+  useEffect(() => {
+    const figureElement = imageContainerRef.current?.closest('figure');
+    if (!figureElement) {
+      return;
+    }
+    if (widthPercent !== null) {
+      figureElement.style.width = `${widthPercent}%`;
+    } else {
+      figureElement.style.removeProperty('width');
+    }
+  }, [widthPercent]);
 
   useEffect(() => {
     if (!isEditable) {
@@ -188,10 +238,14 @@ export default function ExcalidrawComponent({
     return null;
   }
 
+  const captionButtonLabel = hasCaption ? 'Remove caption' : 'Add caption';
+
   return (
-    <figure
-      className={classes.figure}
-      style={widthPercent !== null ? {width: `${widthPercent}%`} : undefined}>
+    <div
+      className={classNames(
+        classes.diagram,
+        widthPercent !== null && classes.resizedDiagram,
+      )}>
       {/* type="button", so that clicking it doesn't submit a form that the
           editor is inside of */}
       <button
@@ -207,15 +261,34 @@ export default function ExcalidrawComponent({
           svg={svg}
         />
       </button>
-      {isSelected && isEditable && hasSceneData && (
-        <div
-          className={classes.editButton}
-          role="button"
-          aria-label="Edit diagram"
-          tabIndex={0}
-          onMouseDown={event => event.preventDefault()}
-          onClick={openModal}>
-          <PencilFillIcon />
+      {isSelected && isEditable && (
+        <div className={classes.overlayButtons}>
+          <div
+            className={classNames(
+              classes.overlayButton,
+              hasCaption && classes.activeOverlayButton,
+            )}
+            role="button"
+            aria-label={captionButtonLabel}
+            aria-pressed={hasCaption}
+            title={captionButtonLabel}
+            tabIndex={0}
+            onMouseDown={event => event.preventDefault()}
+            onClick={toggleCaption}>
+            <ChatSquareQuoteIcon />
+          </div>
+          {hasSceneData && (
+            <div
+              className={classes.overlayButton}
+              role="button"
+              aria-label="Edit diagram"
+              title="Edit diagram"
+              tabIndex={0}
+              onMouseDown={event => event.preventDefault()}
+              onClick={openModal}>
+              <PencilFillIcon />
+            </div>
+          )}
         </div>
       )}
       {(isSelected || isResizing) && isEditable && (
@@ -227,6 +300,6 @@ export default function ExcalidrawComponent({
           onResizeEnd={onResizeEnd}
         />
       )}
-    </figure>
+    </div>
   );
 }
