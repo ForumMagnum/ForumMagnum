@@ -7,13 +7,17 @@ import {
   extractNarrationBlocks,
   footnoteItemSelector,
   footnoteReferenceSelector,
+  getPieceNode,
+  getPieceSourceEnd,
   isElementNode,
+  isRenderedPiece,
   isTextNode,
   type NarrationDomBlock,
   type NarrationImageBlock,
   type NarrationMathPiece,
   type NarrationOmittedKind,
   type NarrationPiece,
+  type NarrationRenderedPiece,
   type NarrationTableRowBlock,
   type NarrationTextBlock,
 } from "@/lib/narration/narrationBlocks";
@@ -32,7 +36,7 @@ import { verbalizeTables } from "./tableVerbalization";
  * here (or to extractNarrationBlocks, or to the prompts for reading equations,
  * tables and images) would change the script made for a given post.
  */
-export const NARRATION_PREPROCESSOR_VERSION = 5;
+export const NARRATION_PREPROCESSOR_VERSION = 6;
 
 /** The first segment is short, so that playback can start soon after it's requested */
 const FIRST_SEGMENT_TARGET_CHARACTERS = 600;
@@ -67,7 +71,12 @@ const pronunciationAliases: Array<{ pattern: RegExp, speech: string }> = [
   { pattern: /\bvs\.?(?=\s)/gi, speech: "versus" },
 ];
 
+const strikethroughSelector = "s, del, strike";
+const STRIKETHROUGH_START = "(crossed out: ";
+const STRIKETHROUGH_END = " end crossed out)";
+
 const urlPattern = /\bhttps?:\/\/\S+/g;
+const letterOrDigitPattern = /[\p{L}\p{N}]/u;
 const endsWithPunctuationPattern = /[.!?:;,…—]["'”’)\]]*$/;
 const sentenceBreakPattern = /[.!?]["'”’)\]]*\s+/g;
 const wordBreakPattern = /\s+/g;
@@ -95,9 +104,12 @@ interface SpeechText {
   spans: NarrationSpan[]
 }
 
-interface SourceReplacement {
+interface SourceRange {
   sourceStart: number
   sourceEnd: number
+}
+
+interface SourceReplacement extends SourceRange {
   speech: string
 }
 
@@ -265,9 +277,56 @@ function findFootnoteMarkerGaps(block: NarrationTextBlock): SourceReplacement[] 
     position > 0
     && position < sourceText.length
     && sourceText[position - 1] !== " "
-    && /[\p{L}\p{N}]/u.test(sourceText[position])
+    && letterOrDigitPattern.test(sourceText[position])
   );
   return uniq(gapPositions).map(position => ({ sourceStart: position, sourceEnd: position, speech: " " }));
+}
+
+function isStruckThrough(piece: NarrationRenderedPiece): boolean {
+  return !!getPieceNode(piece).parentElement?.closest(strikethroughSelector);
+}
+
+function trimSourceRange(sourceText: string, { sourceStart, sourceEnd }: SourceRange): SourceRange {
+  const text = sourceText.slice(sourceStart, sourceEnd);
+  return {
+    sourceStart: sourceStart + text.length - text.trimStart().length,
+    sourceEnd: sourceEnd - text.length + text.trimEnd().length,
+  };
+}
+
+/**
+ * The parts of a block's text that are crossed out. Crossed-out text is often
+ * stored as several elements in a row (when there's a link or a footnote
+ * marker inside it, for example). Those look like one crossing-out on the
+ * page, so they're one range here. Crossed-out text with nothing in it to
+ * say isn't included: a row of crossed-out spaces gets used as a dividing line.
+ */
+function findStruckRanges({ sourceText, pieces }: NarrationTextBlock): SourceRange[] {
+  const struckPieceRanges = pieces.filter(isRenderedPiece).filter(isStruckThrough).map(
+    (piece): SourceRange => ({ sourceStart: piece.sourceStart, sourceEnd: getPieceSourceEnd(piece) })
+  );
+  const struckRanges = struckPieceRanges.reduce<SourceRange[]>((merged, range) => {
+    const previous = merged.at(-1);
+    const continuesPrevious = !!previous && sourceText.slice(previous.sourceEnd, range.sourceStart).trim().length === 0;
+    return continuesPrevious
+      ? [...merged.slice(0, -1), { sourceStart: previous.sourceStart, sourceEnd: range.sourceEnd }]
+      : [...merged, range];
+  }, []);
+  return struckRanges
+    .filter(({ sourceStart, sourceEnd }) => letterOrDigitPattern.test(sourceText.slice(sourceStart, sourceEnd)))
+    .map(range => trimSourceRange(sourceText, range));
+}
+
+function getStrikethroughMarkers(sourceText: string, { sourceStart, sourceEnd }: SourceRange): SourceReplacement[] {
+  const followsText = sourceStart > 0 && sourceText[sourceStart - 1] !== " ";
+  const endsWithPunctuation = endsWithPunctuationPattern.test(sourceText.slice(sourceStart, sourceEnd));
+  const precedesWord = letterOrDigitPattern.test(sourceText.charAt(sourceEnd));
+  const startMarker = `${followsText ? " " : ""}${STRIKETHROUGH_START}`;
+  const endMarker = `${endsWithPunctuation ? "" : ","}${STRIKETHROUGH_END}${precedesWord ? " " : ""}`;
+  return [
+    { sourceStart, sourceEnd: sourceStart, speech: startMarker },
+    { sourceStart: sourceEnd, sourceEnd, speech: endMarker },
+  ];
 }
 
 function replacementsOverlap(a: SourceReplacement, b: SourceReplacement): boolean {
@@ -276,27 +335,35 @@ function replacementsOverlap(a: SourceReplacement, b: SourceReplacement): boolea
 
 /**
  * Combines the replacements for a block into a sorted, non-overlapping list.
- * Equations always win, since their source ranges aren't text.
+ * Structural replacements always win over pattern replacements that they
+ * overlap: an equation's source range isn't text, and the markers around
+ * crossed-out text are no use unless both of them are said.
  */
-function resolveReplacements(mathReplacements: SourceReplacement[], patternReplacements: SourceReplacement[]): SourceReplacement[] {
-  const patternReplacementsOutsideMath = patternReplacements.filter(
-    replacement => !mathReplacements.some(mathReplacement => replacementsOverlap(replacement, mathReplacement))
+function resolveReplacements(structuralReplacements: SourceReplacement[], patternReplacements: SourceReplacement[]): SourceReplacement[] {
+  const compatiblePatternReplacements = patternReplacements.filter(
+    replacement => !structuralReplacements.some(structuralReplacement => replacementsOverlap(replacement, structuralReplacement))
   );
-  const sorted = sortBy([...mathReplacements, ...patternReplacementsOutsideMath], replacement => replacement.sourceStart);
+  const sorted = sortBy([...structuralReplacements, ...compatiblePatternReplacements], replacement => replacement.sourceStart);
   return sorted.reduce<SourceReplacement[]>((accepted, replacement) => {
     const previous = accepted.at(-1);
     return (previous && replacement.sourceStart < previous.sourceEnd) ? accepted : [...accepted, replacement];
   }, []);
 }
 
+/**
+ * Speech for an empty source range was added rather than made from any of the
+ * block's text, so like a block's prefix and suffix, it gets no span: nothing
+ * on the page is highlighted as being read while it's said.
+ */
 function appendSpeech(speechText: SpeechText, speech: string, sourceStart: number, sourceEnd: number, atomic: boolean): SpeechText {
   if (speech.length === 0) {
     return speechText;
   }
   const speechStart = speechText.speech.length;
+  const span: NarrationSpan = { speechStart, speechEnd: speechStart + speech.length, sourceStart, sourceEnd, atomic };
   return {
     speech: speechText.speech + speech,
-    spans: [...speechText.spans, { speechStart, speechEnd: speechStart + speech.length, sourceStart, sourceEnd, atomic }],
+    spans: sourceStart === sourceEnd ? speechText.spans : [...speechText.spans, span],
   };
 }
 
@@ -339,8 +406,9 @@ function verbalizeTextBlock(block: NarrationTextBlock, context: BlockContext, eq
     sourceEnd: piece.sourceEnd,
     speech: getGeneratedReading(equationReadings, piece, `equation: ${piece.tex}`),
   }));
+  const strikethroughMarkers = findStruckRanges(block).flatMap(range => getStrikethroughMarkers(block.sourceText, range));
   const textReplacements = [...findPatternReplacements(block.sourceText), ...findFootnoteMarkerGaps(block)];
-  const replacements = resolveReplacements(mathReplacements, textReplacements);
+  const replacements = resolveReplacements([...strikethroughMarkers, ...mathReplacements], textReplacements);
   const body = buildSpeechFromSource(block.sourceText, replacements);
   if (body.speech.trim().length === 0) {
     return emptySpeechText;
@@ -524,17 +592,32 @@ export function getPostIntroduction(title: string, authorNames: string[]): strin
   return `${titleSentence} By ${authors}.`;
 }
 
-/**
- * Comments are heard one after another, in the order they're shown, so a
- * reply says whose comment it's replying to. `parentAuthorName` is null for a
- * comment that isn't a reply, and for a reply to a comment whose author isn't
- * shown.
- */
-export function getCommentIntroduction(
+function getRetractedCommentIntroduction(
   comment: Pick<DbComment, "answer"|"parentCommentId">,
   authorName: string,
   parentAuthorName: string|null,
 ): string {
+  if (comment.parentCommentId) {
+    return parentAuthorName ? `Retracted reply by ${authorName} to ${parentAuthorName}.` : `Retracted reply by ${authorName}.`;
+  }
+  return comment.answer ? `Retracted answer by ${authorName}.` : `Retracted comment by ${authorName}.`;
+}
+
+/**
+ * Comments are heard one after another, in the order they're shown, so a
+ * reply says whose comment it's replying to. `parentAuthorName` is null for a
+ * comment that isn't a reply, and for a reply to a comment whose author isn't
+ * shown. A retracted comment's text is crossed out on the page without
+ * anything in the text saying so, so its introduction says that it's retracted.
+ */
+export function getCommentIntroduction(
+  comment: Pick<DbComment, "answer"|"parentCommentId"|"retracted">,
+  authorName: string,
+  parentAuthorName: string|null,
+): string {
+  if (comment.retracted) {
+    return getRetractedCommentIntroduction(comment, authorName, parentAuthorName);
+  }
   if (comment.parentCommentId) {
     return parentAuthorName ? `${authorName} replies to ${parentAuthorName}.` : `Reply by ${authorName}.`;
   }

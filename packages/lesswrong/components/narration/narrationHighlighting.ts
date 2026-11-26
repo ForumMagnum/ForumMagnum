@@ -5,12 +5,12 @@ import { setHighlightRanges } from "@/lib/codeHighlighting";
 import {
   extractNarrationBlocks,
   footnoteItemSelector,
+  getPieceNode,
+  getPieceSourceEnd,
+  isRenderedPiece,
   matchNarrationBlockFingerprints,
   type NarrationDomBlock,
-  type NarrationMathPiece,
-  type NarrationPiece,
   type NarrationTextBlock,
-  type NarrationTextPiece,
 } from "@/lib/narration/narrationBlocks";
 import type { NarrationBlockTiming, NarrationScript, NarrationSegmentTimings } from "@/lib/narration/narrationTypes";
 import { setNarrationPositionRange } from "./narrationPosition";
@@ -70,20 +70,6 @@ interface HighlightTargets {
   ranges: Range[]
   /** Equations and images, which are marked with CURRENT_ELEMENT_ATTRIBUTE */
   elements: Element[]
-}
-
-type RenderedPiece = NarrationTextPiece | NarrationMathPiece;
-
-function isRenderedPiece(piece: NarrationPiece): piece is RenderedPiece {
-  return piece.type !== "footnoteRef";
-}
-
-function getPieceSourceEnd(piece: RenderedPiece): number {
-  return piece.type === "text" ? piece.sourceStart + piece.rawOffsets.length : piece.sourceEnd;
-}
-
-function getPieceNode(piece: RenderedPiece): Node {
-  return piece.type === "text" ? piece.node : piece.element;
 }
 
 function mapScriptBlocksToPage(script: NarrationScript, root: Element): Array<NarrationDomBlock|null> {
