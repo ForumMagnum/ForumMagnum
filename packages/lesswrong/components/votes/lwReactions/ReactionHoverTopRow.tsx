@@ -40,6 +40,11 @@ const styles = defineStyles("ReactionHoverTopRow", (theme: ThemeType) => ({
     marginRight: 10,
     marginBottom: 4
   },
+  nonInlineUsersLabel: {
+    fontSize: 11,
+    color: theme.palette.grey[600],
+    marginBottom: 2,
+  },
   hoverBallotReactDescription: {
     fontSize: 11,
     marginBottom: 8,
@@ -49,10 +54,11 @@ const styles = defineStyles("ReactionHoverTopRow", (theme: ThemeType) => ({
   },
 }))
 
-const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButtons, voteProps}: {
+const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButtons, nonInlineUsersLabel, voteProps}: {
   reactionName: EmojiReactName
   userReactions: UserReactInfo[],
   showNonInlineVoteButtons: boolean,
+  nonInlineUsersLabel?: string,
   voteProps: VotingProps<VoteableTypeClient>,
 }) => {
   const classes = useStyles(styles);
@@ -71,6 +77,7 @@ const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButt
         reaction={getNamesAttachedReactionsByName(reactionName)}
         className={classes.hoverBallotReactDescription}
       />
+      {nonInlineUsersLabel && <div className={classes.nonInlineUsersLabel}>{nonInlineUsersLabel}</div>}
       <UsersWhoReacted reactions={nonInlineReactions} wrap showTooltip={false}/>
     </div>
     {showNonInlineVoteButtons && <ReactOrAntireactVote

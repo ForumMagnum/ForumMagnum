@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import type { EmojiReactName, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
 import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
@@ -41,10 +42,17 @@ const styles = defineStyles("ReactionQuotesHoverInfo", (theme: ThemeType) => ({
     maxWidth: 205,
   },
   tinyQuote: {
-    textOverflow: "ellipsis", 
+    display: "flex",
     marginBottom: 6,
-    overflow: "hidden",
     maxHeight: "2em",
+  },
+  tinyQuoteText: {
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  noTopBorder: {
+    borderTop: "none",
   },
   tinyQuoteReactToggle: {
     position: "relative",
@@ -63,11 +71,12 @@ const styles = defineStyles("ReactionQuotesHoverInfo", (theme: ThemeType) => ({
   }
 }));
 
-const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef}: {
+const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, hideTopBorder=false}: {
   react: EmojiReactName,
   quote: QuoteLocator,
   voteProps: VotingProps<VoteableTypeClient>,
   commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
+  hideTopBorder?: boolean,
 }) => {
   const classes = useStyles(styles);
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
@@ -91,11 +100,13 @@ const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef}: {
   const setCurrentUserQuoteReaction = (reactionName: EmojiReactName, reaction: VoteOnReactionType) => setCurrentUserReaction(reactionName, reaction, quote);
 
   return <div className={classes.root}>
-    <div key={quote} className={classes.quote}>
+    <div key={quote} className={classNames(classes.quote, {[classes.noTopBorder]: hideTopBorder})}>
       <div className={classes.tinyQuoteRow} onMouseEnter={() => handleHoverQuote(quote)} onMouseLeave={() => handleLeaveQuote()}>
         <div className={classes.tinyQuoteWrapper}>
           <div className={classes.tinyQuote}>
-            {quote.trim()}
+            <span>“</span>
+            <span className={classes.tinyQuoteText}>{quote.trim()}</span>
+            <span>”</span>
           </div>
           <div className={classes.usersWhoQuoted}>
             <UsersWhoReacted reactions={reactionsToQuote} />
