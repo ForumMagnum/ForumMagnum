@@ -224,22 +224,7 @@ jobs:
 
   runIntegrationTests:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: ankane/pgvector
-        env:
-          POSTGRES_DB: unittest_jest_template
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
     env:
-      PG_URL: postgres://postgres:postgres@localhost:5432/postgres
       NODE_OPTIONS: "--max_old_space_size=4096"
       SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
       ENV_NAME: test
@@ -255,8 +240,6 @@ jobs:
       run: |
         npm install --global vercel@latest
         vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
-    - name: Setup database schema
-      run: npm run create-integration-db-ci
     - name: npm run integration-ci
       run: npm run integration-ci
 

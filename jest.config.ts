@@ -4,10 +4,22 @@
  */
 
 import nextJest from 'next/jest.js'
+import { loadEnvConfig } from '@next/env'
 
 const createJestConfig = nextJest({
   dir: './',
 })
+
+// next/jest loads dotenv files, including the `.env` that our run scripts sync from Vercel. Without this, local
+// tests would run with whichever environment was last synced (its database URL, API keys and settings) and
+// behave differently from CI, which has no `.env`. By now the files are already loaded, so this call only
+// returns what was read from them.
+function removeVariablesLoadedFromDotenvFiles() {
+  const { parsedEnv } = loadEnvConfig('./');
+  for (const name of Object.keys(parsedEnv ?? {})) {
+    delete process.env[name];
+  }
+}
 
 export default () => createJestConfig({
   // All imported modules in your tests should be mocked automatically
@@ -238,6 +250,8 @@ export default () => createJestConfig({
   // Whether to use watchman for file crawling
   // watchman: true,
 })().then(config => {
+  removeVariablesLoadedFromDotenvFiles();
+
   // react-instantsearch contains a file (connectors.js) that requires
   // compilation, which is technically not kosher for things that live in
   // node_modules. By default, jest will not compile it and try to use it

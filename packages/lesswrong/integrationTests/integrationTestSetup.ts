@@ -1,12 +1,9 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
-import process from 'process';
-import { setSqlClient } from '../server/sql/sqlClient';
-import {
-  createTestingSqlClientFromTemplate,
-  dropTestingDatabases,
-} from '../server/testingSqlClient';
+import { closeSqlClient, getSqlClient, setSqlClient } from '../server/sql/sqlClient';
+import { createTestingSqlClientFromTemplate } from '../server/testingSqlClient';
+import { integrationTestTemplateDatabase } from './minipgDatabase';
 import { getAllCollections } from '../server/collections/allCollections';
 import PgCollection from '../server/sql/PgCollection';
 import { waitUntilPgQueriesFinished } from './utils';
@@ -36,7 +33,7 @@ const ensurePgConnection = async () => {
   if (!pgConnected) {
     try {
       preparePgTables();
-      const {sql} = await createTestingSqlClientFromTemplate("unittest_jest_template");
+      const {sql} = await createTestingSqlClientFromTemplate(integrationTestTemplateDatabase);
       setSqlClient(sql);
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -90,11 +87,5 @@ afterAll(async () => {
 
   await waitForBackgroundTasks();
 
-  // Our approach to database cleanup is to just delete all the runs older than 1 day.
-  // This allows us to inspect the databases created during the last run if necessary
-  // for debugging whilst also making sure that we clean up after ourselves eventually
-  // (assuming that the tests are run again some day).
-  if (process.env.JEST_WORKER_ID === "1") {
-    await dropTestingDatabases();
-  }
+  await closeSqlClient(getSqlClient());
 });

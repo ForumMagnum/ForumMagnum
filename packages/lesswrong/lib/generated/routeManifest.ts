@@ -389,9 +389,6 @@ export const routeTrie = {
             "update-user-activities": "update-user-activities"
           }
         },
-        "dropAndCreatePg": {
-          "hasRoute": true
-        },
         "getLlmFeedback": {
           "hasRoute": true
         },
@@ -433,9 +430,6 @@ export const routeTrie = {
           "hasRoute": true
         },
         "notificationEvents": {
-          "hasRoute": true
-        },
-        "quit": {
           "hasRoute": true
         },
         "registerClientId": {
@@ -666,7 +660,6 @@ export const routeTrie = {
         "autocomplete": "autocomplete",
         "autocomplete405b": "autocomplete405b",
         "cron": "cron",
-        "dropandcreatepg": "dropAndCreatePg",
         "getllmfeedback": "getLlmFeedback",
         "health": "health",
         "homedesignchat": "homeDesignChat",
@@ -675,7 +668,6 @@ export const routeTrie = {
         "mcp": "mcp",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",
-        "quit": "quit",
         "registerclientid": "registerClientId",
         "research": "research",
         "search": "search",

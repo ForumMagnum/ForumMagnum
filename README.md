@@ -240,7 +240,7 @@ We use [Jest](https://jestjs.io/) for unit and integration testing, and [Playwri
 ### Jest
 
 * Run the unit test suite with `npm run unit`
-* Run the integration test suite with `npm run integration` (you may need to run `npm run create-integration-db` first so that the db is up-to-date)
+* Run the integration test suite with `npm run integration`. It starts its own temporary Postgres server using [minipg](https://github.com/progrium/minipg), which is downloaded into `node_modules/.cache/minipg` the first time, so there is no database to set up. This works on Apple Silicon Macs and x86-64 Linux.
 
 Both commands support a `-watch` suffix to watch the file system, and a `-coverage` suffix to generate a code coverage report. After generating both code coverage reports they can be combined into a single report with `npm run combine-coverage`.
 
