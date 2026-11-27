@@ -44,7 +44,7 @@ describe("executePromiseQueue", () => {
     const promiseGenerators = Array.from({ length: 12 }, () => async () => {
       inFlight.current++;
       inFlight.max = Math.max(inFlight.max, inFlight.current);
-      await sleep(20);
+      await sleep(1);
       inFlight.current--;
       return "pending";
     });
