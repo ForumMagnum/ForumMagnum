@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from "moment-timezone";
 import { truncate } from "@/lib/editor/ellipsize";
 
 // ── Constants ──
@@ -109,9 +109,9 @@ export function getListPostImageUrl(post: PostWithPreview): string | null {
   return imageUrl;
 }
 
-export function formatReadableDate(date: Date | string): string {
-  const m = moment(new Date(date));
-  if (m.year() === moment().year()) {
+export function formatReadableDate(date: Date | string, timezone: string, now: Date): string {
+  const m = moment(new Date(date)).tz(timezone);
+  if (m.year() === moment(now).tz(timezone).year()) {
     return m.format("MMM D");
   }
   return m.format("MMM D, YYYY");

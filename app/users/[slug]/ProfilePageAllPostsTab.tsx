@@ -9,6 +9,8 @@ import classNames from "classnames";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import LWTooltip from "@/components/common/LWTooltip";
 import { ExpandedDate } from "@/components/common/FormatDate";
+import { useTimezone } from "@/components/common/withTimezone";
+import { useCurrentTime } from "@/lib/utils/TimeProvider";
 import { Link } from "@/lib/reactRouterWrapper";
 import { profileStyles, TabPanel } from "./profileStyles";
 import LoadMore from "@/components/common/LoadMore";
@@ -355,6 +357,8 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
   const { forumType } = useForumType();
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageAllPostsTabUnsharedStyles);
+  const { timezone } = useTimezone();
+  const now = useCurrentTime();
   const userId = user._id;
 
   const { data: recentPostsData, loading: recentPostsLoading, loadMoreProps } = useQueryWithLoadMore(ProfilePostsQuery, {
@@ -412,7 +416,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
                   )}
                   <div className={classNames(classes.listArticleMeta)}>
                     <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
-                      <span className={classes.listDate}>{formatReadableDate(post.postedAt!)}</span>
+                      <span className={classes.listDate}>{formatReadableDate(post.postedAt!, timezone, now)}</span>
                     </LWTooltip>
                     <span className={classes.listMetaDivider} aria-hidden="true">•</span>
                     <LWTooltip title="Karma score">
