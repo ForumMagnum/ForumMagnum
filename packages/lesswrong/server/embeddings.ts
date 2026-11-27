@@ -7,15 +7,16 @@ import { forEachDocumentBatchInCollection } from "./manualMigrations/migrationUt
 import { getOpenAI, isOpenAIAPIEnabled } from "./languageModels/languageModelIntegration";
 import { htmlToTextDefault } from "../lib/htmlToText";
 import { inspect } from "util";
-import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";
 // Avoid importing all of js-tiktoken and defer until usage, it's very large and increases bundle size noticeably
 // eslint-disable-next-line no-restricted-imports
 import { type TiktokenModel } from "js-tiktoken/lite";
-import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
+import { fetchFragment } from "./fetchFragment";
+import { getLatestContentsRevision } from "./collections/revisions/helpers";
 import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
 import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/newSchema";
+import { hashPostText } from "../lib/collections/postEmbeddings/helpers";
 import { PostsPage } from "@/lib/collections/posts/fragments";
 
 export const hasEmbeddingsForRecommendations = () => !isE2E;
@@ -184,20 +185,18 @@ const getEmbeddingsForPost = async (
   postId: string,
   forumType: ForumTypeString,
 ): Promise<EmbeddingsWithHash> => {
-  const post = await fetchFragmentSingle({
-    context: createAnonymousContext({ forumType }),
-    collectionName: "Posts",
-    fragmentDoc: PostsPage,
-    selector: {_id: postId},
-    currentUser: null,
-    skipFiltering: true,
-  });
+  const context = createAnonymousContext({ forumType });
+  const post = await context.loaders.Posts.load(postId);
   if (!post) {
     throw new Error(`Can't find post with id ${postId}`);
   }
-  const text = htmlToTextDefault(post.contents?.html ?? "");
+  // Read the revision directly rather than through the `contents` resolver,
+  // which hides the contents of posts by unreviewed authors from logged-out
+  // viewers and so would have us embedding the empty string for them.
+  const revision = await getLatestContentsRevision(post, context);
+  const text = htmlToTextDefault(revision?.html ?? "");
   const embeddings = await getEmbeddingsFromApi(text);
-  const hash = md5(text);
+  const hash = hashPostText(text);
   return {hash, ...embeddings};
 }
 
@@ -205,7 +204,7 @@ const getEmbeddingsForPosts = async (
   posts: PostsPage[],
 ): Promise<Record<string, EmbeddingsWithHash>> => {
   const textMappings = Object.fromEntries(posts.map((post) => [post._id, htmlToTextDefault(post.contents?.html ?? "")] as const));
-  const hashMappings = mapValues(textMappings, (postText: string) => md5(postText));
+  const hashMappings = mapValues(textMappings, hashPostText);
 
   const embeddingResult = await getBatchEmbeddingsFromApi(textMappings);
 

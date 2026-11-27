@@ -4,6 +4,7 @@ import { frontpageClassifierModel, type FrontpageClassifierModel } from '../../l
 import { getSqlClientOrThrow } from '../sql/sqlClient';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { adminAccountSetting } from '../../lib/instanceSettings';
+import { isEmbeddingOfEmptyText } from '../../lib/collections/postEmbeddings/helpers';
 
 export type ClassifierModel = FrontpageClassifierModel;
 
@@ -23,27 +24,8 @@ export interface PredictionResult {
 
 
 export async function classifyPost(postId: string): Promise<PredictionResult | null> {
-  if (frontpageClassifierModel.metadata.trainingSetSize === 0) {
-    throw new Error('Placeholder model detected. Please train the real model first.');
-  }
-
-  const model = new LogisticRegression();
-  model.fromJSON(frontpageClassifierModel.model);
-  const threshold = frontpageClassifierModel.metadata.threshold;
-
-  const embedding = await PostEmbeddings.findOne({ postId });
-
-  if (!embedding || !embedding.embeddings) {
-    return null;
-  }
-
-  const probability = model.predict(embedding.embeddings);
-  const isFrontpage = probability >= threshold;
-
-  return {
-    isFrontpage,
-    probability
-  };
+  const predictionsByPostId = await classifyPosts([postId]);
+  return predictionsByPostId[postId] ?? null;
 }
 
 export async function classifyPosts(
@@ -61,11 +43,14 @@ export async function classifyPosts(
 
   const embeddings = await PostEmbeddings.find(
     { postId: { $in: postIds } },
-    { projection: { postId: 1, embeddings: 1 } }
+    { projection: { postId: 1, postHash: 1, embeddings: 1 } }
   ).fetch();
 
-  const embeddingsByPostId = new Map<string, number[]>();
-  embeddings.forEach(e => embeddingsByPostId.set(e.postId, e.embeddings));
+  // An embedding of the empty string says nothing about the post, so leave
+  // those posts unclassified (and therefore in the manual review queue).
+  const embeddingsByPostId = new Map<string, number[]>(
+    embeddings.filter(e => !isEmbeddingOfEmptyText(e)).map(e => [e.postId, e.embeddings])
+  );
 
   for (const postId of postIds) {
     const embeddingData = embeddingsByPostId.get(postId);
