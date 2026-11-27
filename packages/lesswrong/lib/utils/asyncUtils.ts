@@ -1,5 +1,3 @@
-import { inspect } from "util";
-
 /// Like _.filter, but with an async filter function. Given an array and an async function, return
 /// an array containing the subset of the original array for which the filter returns true, in the
 /// same order. Filters will be run on array elements in parallel (to the extent async is parallel).
@@ -67,26 +65,23 @@ export async function executePromiseQueue<T>(
   promiseGenerators: (() => Promise<T>)[],
   maxConcurrent: number
 ): Promise<T[]> {
-  let queue: Promise<T>[] = [];
+  const inFlight = new Set<Promise<T>>();
   const results: Promise<T>[] = [];
 
   // Execute up to maxConcurrent queries at a time
   for (const promiseGenerator of promiseGenerators) {
-    // Add the new promise to the queue
     const promise = promiseGenerator();
-    queue.push(promise);
     results.push(promise);
+    inFlight.add(promise);
+    const removeFromInFlight = () => { inFlight.delete(promise); };
+    void promise.then(removeFromInFlight, removeFromInFlight);
 
     // If the queue is full, wait for one promise to finish
-    if (queue.length >= maxConcurrent) {
-      await Promise.race(queue);
-      // Remove resolved promises from the queue
-      queue = queue.filter((p) => inspect(p).includes("pending"));
+    if (inFlight.size >= maxConcurrent) {
+      await Promise.race(inFlight);
     }
   }
 
-  // Wait for all remaining promises to finish
-  await Promise.all(queue);
   return Promise.all(results);
 }
 

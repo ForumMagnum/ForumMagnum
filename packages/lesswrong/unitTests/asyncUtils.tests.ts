@@ -38,6 +38,21 @@ describe("executePromiseQueue", () => {
       ).toBeLessThanOrEqual(140); // allow some tolerance
     }
   });
+
+  test("executePromiseQueue respects maxConcurrent when results contain the word \"pending\"", async () => {
+    const inFlight = { current: 0, max: 0 };
+    const promiseGenerators = Array.from({ length: 12 }, () => async () => {
+      inFlight.current++;
+      inFlight.max = Math.max(inFlight.max, inFlight.current);
+      await sleep(1);
+      inFlight.current--;
+      return "pending";
+    });
+
+    await executePromiseQueue(promiseGenerators, 3);
+
+    expect(inFlight.max).toBe(3);
+  });
 });
 
 describe("executeChunkedQueue", () => {
