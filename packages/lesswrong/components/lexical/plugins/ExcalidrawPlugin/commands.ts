@@ -9,3 +9,11 @@ export const INSERT_EXCALIDRAW_COMMAND: LexicalCommand<void> = createCommand(
 export const EDIT_EXCALIDRAW_COMMAND: LexicalCommand<NodeKey> = createCommand(
   'EDIT_EXCALIDRAW_COMMAND',
 );
+
+/**
+ * Adds a caption to the ExcalidrawNode with the given key, or removes the
+ * caption if it has one.
+ */
+export const TOGGLE_EXCALIDRAW_CAPTION_COMMAND: LexicalCommand<NodeKey> = createCommand(
+  'TOGGLE_EXCALIDRAW_CAPTION_COMMAND',
+);

@@ -121,7 +121,7 @@ export class ImageCaptionNode extends ElementNode {
   createDOM(): HTMLElement {
     const dom = document.createElement('figcaption');
     dom.className = 'image-caption-container';
-    dom.setAttribute('data-placeholder', 'Enter image caption');
+    dom.setAttribute('data-placeholder', 'Enter caption');
     dom.setAttribute('data-empty', 'true');
     dom.setAttribute('contenteditable', 'true');
     return dom;
