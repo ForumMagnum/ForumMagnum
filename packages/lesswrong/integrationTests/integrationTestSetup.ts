@@ -1,7 +1,7 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
-import { setSqlClient } from '../server/sql/sqlClient';
+import { closeSqlClient, getSqlClient, setSqlClient } from '../server/sql/sqlClient';
 import { createTestingSqlClientFromTemplate } from '../server/testingSqlClient';
 import { integrationTestTemplateDatabase } from './minipgDatabase';
 import { getAllCollections } from '../server/collections/allCollections';
@@ -86,4 +86,6 @@ afterAll(async () => {
   }
 
   await waitForBackgroundTasks();
+
+  await closeSqlClient(getSqlClient());
 });
