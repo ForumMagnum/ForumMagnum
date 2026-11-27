@@ -418,17 +418,11 @@ export async function approveUnreviewedSubmissions(userId: string, context: Reso
   const { Comments, Posts } = context;
 
   // For each non-rejected post by this author which has the authorIsUnreviewed
-  // flag set, clear the flag so it's visible. For non-draft posts, also update
-  // postedAt to now so they appear in the right place in the latest posts list.
-  // Drafts keep their original postedAt since it will be set when they're undrafted.
+  // flag set, clear the flag so it's visible.
   const unreviewedPosts = await Posts.find({userId, authorIsUnreviewed: true, rejected: {$ne: true}}).fetch();
   for (let post of unreviewedPosts) {
-    const data: UpdatePostDataInput = { authorIsUnreviewed: false };
-    if (!post.draft) {
-      data.postedAt = new Date();
-    }
     await updatePost({
-      data,
+      data: { authorIsUnreviewed: false },
       selector: { _id: post._id }
     }, context);
   }

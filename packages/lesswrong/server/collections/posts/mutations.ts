@@ -9,7 +9,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 import { moveToAFUpdatesUserAFKarma } from "@/server/callbacks/alignment-forum/callbacks";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, checkRecentRepost, clearCourseEndTime, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, maybeSendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection, maybeCreateAutomatedContentEvaluation, purgeCurationEmailQueueWhenUncurating } from "@/server/callbacks/postCallbackFunctions";
+import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, checkRecentRepost, clearCourseEndTime, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostedAtOnModerationApproval, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, maybeSendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection, maybeCreateAutomatedContentEvaluation, purgeCurationEmailQueueWhenUncurating } from "@/server/callbacks/postCallbackFunctions";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { hasEmbeddingsForRecommendations } from "@/server/embeddings";
@@ -228,6 +228,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   // former updateBefore callbacks
   await checkRecentRepost(updateCallbackProperties.newDocument, currentUser, context);
   data = setPostUndraftedFields(data, updateCallbackProperties);
+  data = resetPostedAtOnModerationApproval(data, updateCallbackProperties);
   data = onEditAddLinkSharingKey(data, updateCallbackProperties);
 
   data = await createRevisionsForEditableFields({
@@ -244,7 +245,6 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   let modifier = dataToModifier(data);
   modifier = clearCourseEndTime(modifier, oldDocument);
   modifier = removeFrontpageDate(modifier, oldDocument);
-  modifier = resetPostApprovedDate(modifier, oldDocument);
 
   data = modifierToData(modifier);
   let updatedDocument = await updateAndReturnDocument(data, Posts, postSelector, context);

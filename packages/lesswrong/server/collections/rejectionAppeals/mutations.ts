@@ -127,13 +127,7 @@ export async function updateRejectionAppeal({ selector, data }: UpdateRejectionA
       reviewedByUserId: currentUser._id,
     };
     if (appeal.postId) {
-      const post = await context.loaders.Posts.load(appeal.postId);
-      if (!post) throw new Error("Post not found");
-      const approvedPost: UpdatePostDataInput = { ...approvedContent };
-      if (post.authorIsUnreviewed && !post.draft) {
-        approvedPost.postedAt = new Date();
-      }
-      await updatePost({ data: approvedPost, selector: { _id: appeal.postId } }, context);
+      await updatePost({ data: approvedContent, selector: { _id: appeal.postId } }, context);
     } else if (appeal.commentId) {
       await updateComment({ data: approvedContent, selector: { _id: appeal.commentId } }, context);
     }
