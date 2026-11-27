@@ -50,6 +50,7 @@ import { createAutomatedContentEvaluation, rejectionWasReversedByModerator } fro
 import CurationEmails from "../collections/curationEmails/collection";
 import { maybeAutoFrontpagePost } from "../frontpageClassifier/predictions";
 import { escapeHtml } from "@/lib/utils/sanitize";
+import { getPreviewDocument } from "../vulcan-lib/mutators";
 
 
 /** Create notifications for a new post being published */
@@ -591,6 +592,16 @@ export function setPostUndraftedFields(data: UpdatePostDataInput, { oldDocument:
   return data;
 }
 
+function postIsHeldForModeration(post: Pick<DbPost, '_id' | 'status' | 'rejected' | 'authorIsUnreviewed'>): boolean {
+  return post.rejected || post.authorIsUnreviewed || !postIsApproved(post);
+}
+
+export function resetPostedAtOnModerationApproval(data: UpdatePostDataInput, oldDocument: DbPost): UpdatePostDataInput {
+  const newDocument = getPreviewDocument<'Posts'>(data, oldDocument);
+  const isGoingLive = !newDocument.draft && postIsHeldForModeration(oldDocument) && !postIsHeldForModeration(newDocument);
+  return isGoingLive ? { ...data, postedAt: new Date() } : data;
+}
+
 /* EDIT SYNC */
 export function clearCourseEndTime(modifier: MongoModifier, post: DbPost): MongoModifier {
   // make sure courses/programs have no end time
@@ -610,13 +621,6 @@ export function removeFrontpageDate(modifier: MongoModifier, _post: DbPost): Mon
   ) {
     modifier.$unset ??= {};
     modifier.$unset.frontpageDate = 1;
-  }
-  return modifier;
-}
-
-export function resetPostApprovedDate(modifier: MongoModifier, post: DbPost): MongoModifier {
-  if (modifier.$set && postIsApproved(modifier.$set) && !postIsApproved(post)) {
-    modifier.$set.postedAt = new Date();
   }
   return modifier;
 }
