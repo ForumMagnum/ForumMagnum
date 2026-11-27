@@ -81,7 +81,11 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, setSelecti
     // Focusing the reaction search field can clear the native selection. Keep
     // the selected quote until the picker is dismissed or a reaction is chosen.
     if (useMobileToolbar && mobilePaletteOpen) return;
-  
+    // Firefox reports an empty document selection (no anchorNode) while the
+    // palette's search input has focus, where Chrome reports a selection inside
+    // the popup.
+    if (popupRef.current?.contains(document.activeElement)) return;
+
     const selection = window.getSelection()
     const selectedText = selection?.toString() ?? ""
     const selectionAnchorNode = selection?.anchorNode
