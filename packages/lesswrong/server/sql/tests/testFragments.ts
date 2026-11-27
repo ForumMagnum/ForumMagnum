@@ -32,3 +32,9 @@ export const TestCollection4ArgFragment = gql`
     }
   }
 `
+
+export const TestCollection4IdFragment = gql`
+  fragment TestCollection4IdFragment on TestCollection4 {
+    _id
+  }
+`

@@ -82,6 +82,11 @@ export type SelectSqlOptions = Partial<{
    * custom projections).
    */
   primaryPrefix?: string,
+  /**
+   * SQL expressions to sort by, keyed by the sort key that each one stands in
+   * for (used by `SelectFragmentQuery` to sort by values from joined tables).
+   */
+  sortExpressions: Map<string, string>,
 }>
 
 /**
@@ -183,7 +188,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     }
 
     if (options || this.nearbySort) {
-      this.appendOptions(options ?? {}, sqlOptions?.sampleSize);
+      this.appendOptions(options ?? {}, sqlOptions?.sampleSize, sqlOptions?.sortExpressions);
     }
 
     if (sqlOptions?.forUpdate) {
@@ -341,7 +346,11 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     return projectedAtoms;
   }
 
-  private appendOptions(options: MongoFindOptions<T>, sampleSize?: number): void {
+  private appendOptions(
+    options: MongoFindOptions<T>,
+    sampleSize?: number,
+    sortExpressions?: Map<string, string>,
+  ): void {
     const {sort, limit, skip} = options;
 
     if (sort && Object.keys(sort).length) {
@@ -356,7 +365,8 @@ class SelectQuery<T extends DbObject> extends Query<T> {
           (sort[field] === 1 ? "ASC" : "DESC")
           + (fieldIsNonnull
               ? "" : (sort[field] === 1 ? " NULLS FIRST" : " NULLS LAST"))
-        sorts.push(`${this.resolveFieldName(field)} ${pgSorting}`);
+        const sortExpression = sortExpressions?.get(field) ?? this.resolveFieldName(field);
+        sorts.push(`${sortExpression} ${pgSorting}`);
       }
       this.atoms.push(sorts.join(", "));
     } else if (this.nearbySort) { // Nearby sort is overriden by a sort in `options`
