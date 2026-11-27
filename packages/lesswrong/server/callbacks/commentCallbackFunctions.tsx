@@ -7,7 +7,6 @@ import { isAnyTest } from "@/lib/executionEnvironment";
 import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { noDeletionPmReason } from "@/lib/collections/comments/constants";
-import { fetchFragmentSingle } from "../fetchFragment";
 import { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from "../mutationCallbacks";
 import { createNotifications, getSubscribedUsers } from "../notificationCallbacksHelpers";
 import { rateLimitDateWhenUserNextAbleToComment } from "../rateLimitUtils";
@@ -37,7 +36,6 @@ import { createModeratorAction } from "../collections/moderatorActions/mutations
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
 import { EmailComment } from "../emailComponents/EmailComment";
-import { PostsRevision } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation, rejectionWasReversedByModerator } from "@/server/collections/automatedContentEvaluations/helpers";
 import { getQuickTakeAutoTagsToApply, getTagBotUserId } from "../languageModels/autoTagCallbacks";
@@ -471,17 +469,16 @@ export async function assignPostVersion(comment: CreateCommentDataInput, context
     };
   }
   
-  const post = await fetchFragmentSingle({
-    context,
-    collectionName: "Posts",
-    fragmentDoc: PostsRevision,
-    currentUser: null,
-    selector: {
-      _id: comment.postId,
-    },
-  });
+  // Only fetch the version of the post's latest revision. This used to fetch
+  // the whole PostsRevision fragment, which (among much else) loaded every
+  // revision of the post into memory; for posts with long edit histories that
+  // was enough to run the server out of memory.
+  const post = await context.loaders.Posts.load(comment.postId);
+  const latestRevision = post?.contents_latest
+    ? await context.Revisions.findOne({ _id: post.contents_latest }, {}, { version: 1 })
+    : null;
 
-  const postVersion = (post && post.contents && post.contents.version) || "1.0.0";
+  const postVersion = latestRevision?.version || "1.0.0";
   return {
     ...comment,
     postVersion,
