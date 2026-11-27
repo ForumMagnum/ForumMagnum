@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
+import { userNeedsAFNonMemberWarning } from '@/lib/alignment-forum/users/helpers';
+import { useForumType } from '@/components/hooks/useForumType';
 import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
 import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 import Loading from "../vulcan-core/Loading";
@@ -42,6 +44,8 @@ const ShortformThreadList = ({userId, showQuickTakeEntry = true, showPostTitle =
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
+  const focusingEntryOpensPopup = !currentUser || userNeedsAFNonMemberWarning(currentUser, forumType);
   const shortformSelector = { topShortform: { userId, sortBy } };
   
   const { data, error, refetch, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
@@ -79,7 +83,12 @@ const ShortformThreadList = ({userId, showQuickTakeEntry = true, showPostTitle =
   return (
     <div>
       {showQuickTakeEntry && (userCanQuickTake(currentUser) || !currentUser) &&
-        <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />
+        <QuickTakesEntry
+          currentUser={currentUser}
+          defaultExpanded={!focusingEntryOpensPopup}
+          defaultFocus={!focusingEntryOpensPopup}
+          successCallback={refetch}
+        />
       }
 
       {results && results.map((comment) => {

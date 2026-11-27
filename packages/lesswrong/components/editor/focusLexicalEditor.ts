@@ -51,7 +51,7 @@ export const focusLexicalEditorAtEnd = (container: HTMLDivElement | null) => {
  * Focus an editor that may not have mounted yet (dynamic import, template
  * fetch) by retrying briefly. Returns a cancel function.
  */
-export const focusLexicalEditorWhenReady = (container: HTMLDivElement | null) => {
+export const focusLexicalEditorWhenReady = (container: HTMLDivElement | null, focusOptions?: FocusOptions) => {
   if (!container) return () => {};
 
   let attemptsRemaining = FOCUS_RETRY_ATTEMPTS;
@@ -62,7 +62,7 @@ export const focusLexicalEditorWhenReady = (container: HTMLDivElement | null) =>
       '[contenteditable="true"]'
     ) as HTMLElement | null;
     if (editorElement) {
-      editorElement.focus?.();
+      editorElement.focus?.(focusOptions);
       return;
     }
     if (attemptsRemaining-- > 0) {
