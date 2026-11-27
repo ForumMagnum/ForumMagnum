@@ -596,7 +596,7 @@ function postIsHeldForModeration(post: Pick<DbPost, '_id' | 'status' | 'rejected
   return post.rejected || post.authorIsUnreviewed || !postIsApproved(post);
 }
 
-export function resetPostedAtOnModerationApproval(data: UpdatePostDataInput, { oldDocument }: UpdateCallbackProperties<'Posts'>): UpdatePostDataInput {
+export function resetPostedAtOnModerationApproval(data: UpdatePostDataInput, oldDocument: DbPost): UpdatePostDataInput {
   const newDocument = getPreviewDocument<'Posts'>(data, oldDocument);
   const isGoingLive = !newDocument.draft && postIsHeldForModeration(oldDocument) && !postIsHeldForModeration(newDocument);
   return isGoingLive ? { ...data, postedAt: new Date() } : data;

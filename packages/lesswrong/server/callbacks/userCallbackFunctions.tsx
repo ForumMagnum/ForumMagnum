@@ -417,8 +417,6 @@ export async function userEditDeleteContentCallbacksAsync({ data, newDocument, c
 export async function approveUnreviewedSubmissions(userId: string, context: ResolverContext) {
   const { Comments, Posts } = context;
 
-  // For each non-rejected post by this author which has the authorIsUnreviewed
-  // flag set, clear the flag so it's visible.
   const unreviewedPosts = await Posts.find({userId, authorIsUnreviewed: true, rejected: {$ne: true}}).fetch();
   for (let post of unreviewedPosts) {
     await updatePost({

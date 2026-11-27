@@ -228,7 +228,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   // former updateBefore callbacks
   await checkRecentRepost(updateCallbackProperties.newDocument, currentUser, context);
   data = setPostUndraftedFields(data, updateCallbackProperties);
-  data = resetPostedAtOnModerationApproval(data, updateCallbackProperties);
+  data = resetPostedAtOnModerationApproval(data, oldDocument);
   data = onEditAddLinkSharingKey(data, updateCallbackProperties);
 
   data = await createRevisionsForEditableFields({
