@@ -163,13 +163,18 @@ export function getDenormalizedEditableResolver<N extends CollectionNameString>(
   }
 }
 
+const DEFAULT_REVISIONS_RESOLVER_LIMIT = 5;
+
 export function getRevisionsResolver(fieldName: string) {
   return async function revisionsResolver<N extends CollectionNameString>(
     post: ObjectsByCollectionName[N],
-    args: {limit: number},
+    args: {limit?: number},
     context: ResolverContext,
   ) {
-    const { limit } = args;
+    // The GraphQL schema gives `limit` a default, but that default isn't applied
+    // when this resolver is run outside of GraphQL (eg by `fetchFragment`).
+    // Never fall back to loading every revision: they can be very large.
+    const limit = args.limit ?? DEFAULT_REVISIONS_RESOLVER_LIMIT;
     const { currentUser, Revisions } = context;
 
     // getWithLoader is used here to fix a performance bug for a particularly nasty bot which resolves `revisions` for thousands of comments.
