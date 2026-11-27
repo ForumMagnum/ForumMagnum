@@ -297,6 +297,7 @@ const schema = {
               AND m."conversationId" = ${field("_id")}
             WHERE
               n."emailed" IS NOT TRUE
+              AND n."type" = 'newMessage'
               AND n."waitingForBatch" IS NOT TRUE
               AND n."deleted" IS NOT TRUE
               AND n."viewed" IS NOT TRUE

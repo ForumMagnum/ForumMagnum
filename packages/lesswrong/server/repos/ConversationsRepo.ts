@@ -88,6 +88,7 @@ class ConversationsRepo extends AbstractRepo<"Conversations"> {
             AND m."conversationId" = c."_id"
           WHERE
             n."emailed" IS NOT TRUE
+            AND n."type" = 'newMessage'
             AND n."waitingForBatch" IS NOT TRUE
             AND n."deleted" IS NOT TRUE
             AND n."viewed" IS NOT TRUE
@@ -116,7 +117,6 @@ class ConversationsRepo extends AbstractRepo<"Conversations"> {
         n."type" = 'newMessage' AND
         n."documentType" = 'message' AND
         n."emailed" IS NOT TRUE AND
-        n."waitingForBatch" IS NOT TRUE AND
         n."deleted" IS NOT TRUE
     `, [conversationId, userId]);
   }
