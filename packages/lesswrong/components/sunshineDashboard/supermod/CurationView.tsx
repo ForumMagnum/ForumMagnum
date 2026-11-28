@@ -18,6 +18,7 @@ const styles = defineStyles('CurationPostView', (theme: ThemeType) => ({
   },
   curationNotices: {
     width: 680,
+    maxWidth: '100%',
     margin: '0 auto',
   },
   curationSection: {

@@ -142,7 +142,7 @@ const ProgressBar = ({ expiresAt, totalDuration }: { expiresAt: number; totalDur
   );
 };
 
-const TimeRemaining = ({ expiresAt }: { expiresAt: number }) => {
+export const TimeRemaining = ({ expiresAt }: { expiresAt: number }) => {
   const classes = useStyles(styles);
   const now = useCurrentTime();
   const [timeRemaining, setTimeRemaining] = useState(Math.max(0, expiresAt - now.getTime()));

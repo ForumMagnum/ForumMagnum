@@ -14,6 +14,7 @@ import type { ModerationInboxQueueQueryQuery, ModerationInboxCurationQueryQuery,
 import ErrorMessage from '@/components/common/ErrorMessage';
 import { isMissingDocumentError } from '@/lib/utils/errorUtil';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import ArrowBackIcon from '@/lib/vendor/@material-ui/icons/src/ArrowBack';
 import ModerationInboxList from './ModerationInboxList';
 import ModerationUserDetailView from './ModerationUserDetailView';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
@@ -168,11 +169,21 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     display: 'flex',
     overflow: 'hidden',
     minHeight: 0,
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      overflowY: 'auto',
+    },
   },
   teamInboxLayout: {
     overflowX: 'auto',
     '& > $leftPanel': {
       flex: '0 0 360px',
+      [theme.breakpoints.down('sm')]: {
+        flex: '0 0 100%',
+      },
+    },
+    [theme.breakpoints.down('sm')]: {
+      overflowX: 'hidden',
     },
   },
   teamInboxThreadPanel: {
@@ -193,6 +204,11 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     borderRight: theme.palette.border.normal,
     display: 'flex',
     flexDirection: 'row',
+    [theme.breakpoints.down('sm')]: {
+      flex: '0 0 100%',
+      flexDirection: 'column',
+      borderRight: 'none',
+    },
   },
   undoQueueSection: {
     width: 300,
@@ -200,15 +216,73 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     borderRight: theme.palette.border.normal,
     height: '100%',
     overflow: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      order: 1,
+      width: 'auto',
+      height: 'auto',
+      maxHeight: '35%',
+      borderRight: 'none',
+    },
+  },
+  emptyUndoQueueSection: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   inboxListContainer: {
     flex: 1,
     overflow: 'hidden',
     minWidth: 0,
+    minHeight: 0,
   },
   postDetailPanel: {
     flex: 1,
     overflow: 'hidden',
+  },
+  detailPanel: {
+    [theme.breakpoints.down('sm')]: {
+      flex: '0 0 100%',
+      minWidth: 0,
+      borderRight: 'none',
+      borderBottom: theme.palette.border.normal,
+    },
+  },
+  mobileListMode: {
+    [theme.breakpoints.down('sm')]: {
+      overflowY: 'hidden',
+    },
+    '& > $detailPanel': {
+      [theme.breakpoints.down('sm')]: {
+        display: 'none',
+      },
+    },
+  },
+  mobileDetailMode: {
+    '& > $leftPanel': {
+      [theme.breakpoints.down('sm')]: {
+        display: 'none',
+      },
+    },
+  },
+  mobileBackBar: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      ...theme.typography.commentStyle,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      flexShrink: 0,
+      padding: '10px 12px',
+      fontSize: 14,
+      color: theme.palette.grey[800],
+      backgroundColor: theme.palette.background.paper,
+      borderBottom: theme.palette.border.normal,
+      cursor: 'pointer',
+    },
+  },
+  mobileBackIcon: {
+    height: 18,
+    width: 18,
   },
   loading: {
     display: 'flex',
@@ -235,6 +309,7 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
   const apolloClient = useApolloClient();
   const { flash } = useMessages();
   const [loadingRemaining, setLoadingRemaining] = useState(false);
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
   const { query, pathname } = useSubscribedLocation();
   const urlUserId = typeof query.user === 'string' && query.user ? query.user : null;
   const [state, dispatch] = useReducer(inboxStateReducer, { queue, curationPosts, teamInboxThreads, reports, tags, initialOpenedUserId: urlUserId }, createInitialInboxState);
@@ -394,7 +469,10 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
 
   const handleOpenUser = useCallback((userId: string) => dispatch({ type: 'OPEN_USER', userId }), []);
 
-  const handleFocusPost = useCallback((postId: string) => dispatch({ type: 'FOCUS_POST', postId }), []);
+  const handleFocusPost = useCallback((postId: string) => {
+    dispatch({ type: 'FOCUS_POST', postId });
+    setMobileDetailOpen(true);
+  }, []);
 
   const handleCloseDetail = useCallback(() => dispatch({ type: 'CLOSE_DETAIL' }), []);
 
@@ -406,19 +484,28 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
 
   const handlePrevPost = useCallback(() => dispatch({ type: 'PREV_POST' }), []);
 
-  const handleFocusThread = useCallback((conversationId: string) => dispatch({ type: 'FOCUS_THREAD', conversationId }), []);
+  const handleFocusThread = useCallback((conversationId: string) => {
+    dispatch({ type: 'FOCUS_THREAD', conversationId });
+    setMobileDetailOpen(true);
+  }, []);
 
   const handleNextThread = useCallback(() => dispatch({ type: 'NEXT_THREAD' }), []);
 
   const handlePrevThread = useCallback(() => dispatch({ type: 'PREV_THREAD' }), []);
 
-  const handleFocusReport = useCallback((reportId: string) => dispatch({ type: 'FOCUS_REPORT', reportId }), []);
+  const handleFocusReport = useCallback((reportId: string) => {
+    dispatch({ type: 'FOCUS_REPORT', reportId });
+    setMobileDetailOpen(true);
+  }, []);
 
   const handleNextReport = useCallback(() => dispatch({ type: 'NEXT_REPORT' }), []);
 
   const handlePrevReport = useCallback(() => dispatch({ type: 'PREV_REPORT' }), []);
 
-  const handleFocusTag = useCallback((tagId: string) => dispatch({ type: 'FOCUS_TAG', tagId }), []);
+  const handleFocusTag = useCallback((tagId: string) => {
+    dispatch({ type: 'FOCUS_TAG', tagId });
+    setMobileDetailOpen(true);
+  }, []);
 
   const handleNextTag = useCallback(() => dispatch({ type: 'NEXT_TAG' }), []);
 
@@ -426,7 +513,16 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
 
   const handleTabChange = useCallback((newTab: TabId) => {
     dispatch({ type: 'CHANGE_TAB', tab: newTab });
+    setMobileDetailOpen(false);
   }, []);
+
+  const handleMobileBack = useCallback(() => {
+    if (state.openedUserId) {
+      dispatch({ type: 'CLOSE_DETAIL' });
+    } else {
+      setMobileDetailOpen(false);
+    }
+  }, [state.openedUserId]);
 
   const handleNextTab = useCallback(() => dispatch({ type: 'NEXT_TAB' }), []);
 
@@ -469,6 +565,16 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
   const isInboxTab = state.activeTab === 'inbox';
   const isReportsTab = state.activeTab === 'reports';
   const isTagsTab = state.activeTab === 'tags';
+  const tabHasFocusedDetailItem: Partial<Record<TabId, boolean>> = {
+    posts: !!focusedPost,
+    classifiedPosts: !!focusedPost,
+    curation: !!focusedCurationPost,
+    inbox: !!focusedThread,
+    reports: !!focusedReport,
+    tags: !!focusedTag,
+  };
+  const hasFocusedDetailItem = !!tabHasFocusedDetailItem[state.activeTab];
+  const showMobileDetail = !!state.openedUserId || (mobileDetailOpen && hasFocusedDetailItem && !isUserTab(state.activeTab));
 
   const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
@@ -544,6 +650,12 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
           dispatch={dispatch}
         />
       )}
+      {showMobileDetail && (
+        <div className={classes.mobileBackBar} onClick={handleMobileBack}>
+          <ArrowBackIcon className={classes.mobileBackIcon} />
+          Back to queue
+        </div>
+      )}
       {!state.openedUserId && (
         <ModerationTabs
           tabs={visibleTabs}
@@ -552,7 +664,11 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
           lastCuratedDate={lastCuratedDate}
         />
       )}
-      <div className={classNames(classes.mainContent, { [classes.teamInboxLayout]: isInboxTab && !state.openedUserId })}>
+      <div className={classNames(classes.mainContent, {
+        [classes.teamInboxLayout]: isInboxTab && !state.openedUserId,
+        [classes.mobileListMode]: !showMobileDetail,
+        [classes.mobileDetailMode]: showMobileDetail && !state.openedUserId,
+      })}>
         <div className={classes.leftPanel}>
           {needsDirectUser ? (
             <div className={classes.loading}>
@@ -583,7 +699,7 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
           ) : (
             <>
               {isUserTab(state.activeTab) && (
-                <div className={classes.undoQueueSection}>
+                <div className={classNames(classes.undoQueueSection, { [classes.emptyUndoQueueSection]: state.undoQueue.length === 0 })}>
                   <ModerationUndoHistory
                     undoQueue={state.undoQueue}
                     dispatch={dispatch}
@@ -625,7 +741,7 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
           )}
         </div>
         {isPostsTab && !openedUser && (
-          <div className={classes.postDetailPanel}>
+          <div className={classNames(classes.postDetailPanel, classes.detailPanel)}>
             <ModerationPostSidebar
               post={focusedPost}
               currentUser={currentUser}
@@ -635,7 +751,7 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
         )}
         {isInboxTab && !state.openedUserId && (
           <>
-            <div className={classes.teamInboxThreadPanel}>
+            <div className={classNames(classes.teamInboxThreadPanel, classes.detailPanel)}>
               <TeamInboxThreadView
                 key={focusedThread?.conversation._id}
                 thread={focusedThread}
@@ -643,13 +759,13 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
                 dispatch={dispatch}
               />
             </div>
-            <div className={classes.teamInboxContentPanel}>
+            <div className={classNames(classes.teamInboxContentPanel, classes.detailPanel)}>
               <TeamInboxContentPane key={focusedThread?.conversation._id} thread={focusedThread} />
             </div>
           </>
         )}
         {isReportsTab && !openedUser && (
-          <div className={classes.postDetailPanel}>
+          <div className={classNames(classes.postDetailPanel, classes.detailPanel)}>
             <ModerationReportView
               report={focusedReport}
               currentUser={currentUser}
@@ -658,7 +774,7 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
           </div>
         )}
         {isTagsTab && !openedUser && (
-          <div className={classes.postDetailPanel}>
+          <div className={classNames(classes.postDetailPanel, classes.detailPanel)}>
             <ModerationTagView
               tag={focusedTag}
               currentUser={currentUser}
@@ -667,7 +783,7 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
           </div>
         )}
         {isCurationTab && !openedUser && (
-          <div className={classes.postDetailPanel}>
+          <div className={classNames(classes.postDetailPanel, classes.detailPanel)}>
             <CurationPostView
               post={focusedCurationPost}
               currentUser={currentUser}
