@@ -27,11 +27,19 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     overflow: 'hidden',
     minWidth: 0,
+    [theme.breakpoints.down('sm')]: {
+      flexWrap: 'wrap',
+      rowGap: 4,
+      padding: '10px 12px',
+    },
   },
   focused: {
     borderLeft: `3px solid ${theme.palette.primary.main}`,
     paddingLeft: 17, // 20 - 3 to account for border
     backgroundColor: theme.palette.grey[100],
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 9,
+    },
   },
   flagged: {
     backgroundColor: theme.palette.panelBackground.sunshineFlaggedUser,
@@ -120,6 +128,10 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     minWidth: 0,
     overflow: 'hidden',
     marginRight: 12,
+    [theme.breakpoints.down('sm')]: {
+      flexBasis: '100%',
+      marginRight: 0,
+    },
   },
   postPreview: {
     display: 'flex',

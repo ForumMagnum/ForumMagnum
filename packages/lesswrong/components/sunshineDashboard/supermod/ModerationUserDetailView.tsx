@@ -18,22 +18,38 @@ const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
     flexDirection: 'column',
     height: '100%',
     width: '100%',
+    [theme.breakpoints.down('sm')]: {
+      overflowY: 'auto',
+    },
   },
   contentSection: {
     display: 'grid',
     gridTemplateColumns: '300px 1fr 1fr 400px',
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns: 'minmax(0, 1fr)',
+    },
   },
   userColumn: {
     borderRight: theme.palette.border.normal,
     display: 'flex',
     flexDirection: 'column',
     height: 'calc(100vh - 64px)',
+    [theme.breakpoints.down('sm')]: {
+      height: 'auto',
+      borderRight: 'none',
+      borderBottom: theme.palette.border.normal,
+    },
   },
   contentListColumn: {
     minWidth: 0,
     borderRight: theme.palette.border.normal,
     height: 'calc(100vh - 64px)',
     ...prettyScrollbars(theme),
+    [theme.breakpoints.down('sm')]: {
+      height: 'auto',
+      borderRight: 'none',
+      borderBottom: theme.palette.border.normal,
+    },
   },
   sidebarColumn: {
     height: 'calc(100vh - 64px)',
