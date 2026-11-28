@@ -12,9 +12,18 @@ Sentry?.init({
   dsn: "https://1ab1949fc8d04608b43132f37bb2a1b0@o195791.ingest.us.sentry.io/1301611",
   environment: process.env.NODE_ENV ?? "development",
 
-  integrations: [
-    Sentry.dedupeIntegration(),
+  // Dedupe drops an error that is identical to the previous one, which is what
+  // keeps a page stuck in an error loop from sending one report per error. It
+  // has to run after NextjsClientStackFrameNormalization, which is the last of
+  // the SDK's default integrations. That integration rewrites each stack
+  // frame's filename in place (https://origin/... -> app:///...), including on
+  // the previous event that Dedupe holds on to. In the default position Dedupe
+  // compares the new event's raw filenames against the previous event's
+  // rewritten ones, so it never matches and every repeat gets sent.
+  integrations: (defaultIntegrations) => [
+    ...defaultIntegrations.filter((integration) => integration.name !== 'Dedupe'),
     Sentry.extraErrorDataIntegration(),
+    Sentry.dedupeIntegration(),
   ],
 
   beforeSend: (event, hint) => {
