@@ -118,8 +118,9 @@ const ModerationUserKeyboardHandler = ({
       document: selectedContent,
     };
 
+    dispatch({ type: 'ADJUST_USER_REJECTED_CONTENT_COUNT', userId: selectedUser._id, delta: -1 });
     void unrejectContent(contentWrapper);
-  }, [selectedUser, selectedContent, unrejectContent]);
+  }, [selectedUser, selectedContent, unrejectContent, dispatch]);
 
   const handleCopyUserId = useCallback(async () => {
     if (!selectedUser) return;
