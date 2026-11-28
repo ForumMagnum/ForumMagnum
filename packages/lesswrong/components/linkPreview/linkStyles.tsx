@@ -4,13 +4,17 @@ export const linkStyles = defineStyles("LinkStyles", (theme: ThemeType) => ({
   link: {
     '&:after': {
       content: '""',
-      top: -7,
+      // An inline box rather than an inline-block, because an inline-block
+      // counts as a line-break opportunity, letting punctuation after the link
+      // wrap onto the next line on its own.
+      // lineHeight 0 prevents the box from extending the line below the surrounding text.
+      fontSize: 0,
+      lineHeight: 0,
+      padding: 2,
+      top: -10,
       position: "relative",
       marginLeft: 2,
       marginRight: 0,
-      width: 4,
-      height: 4,
-      display: "inline-block",
 
       // The center of the link-circle is the page-background color, rather
       // than transparent, because :visited cannot change background
