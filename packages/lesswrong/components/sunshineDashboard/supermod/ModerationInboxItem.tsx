@@ -259,6 +259,9 @@ const ModerationInboxItem = ({
       {likelyReviewTrigger && (
         <ReviewTriggerBadge badge={likelyReviewTrigger} />
       )}
+      {!!user.rejectedContentCount && (
+        <ReviewTriggerBadge badge={`${user.rejectedContentCount} Rejected`} />
+      )}
       <ConcurrentModeratorChangeIndicator documentId={user._id} variant="badge" />
 
       <div className={classes.contextualInfo}>

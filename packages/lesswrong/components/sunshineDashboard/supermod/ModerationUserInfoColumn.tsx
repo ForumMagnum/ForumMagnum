@@ -47,7 +47,7 @@ const ModerationUserInfoColumn = ({
 }) => {
   const classes = useStyles(styles);
   const { fresh: freshModeratorActions } = partitionModeratorActions(user);
-  const likelyReviewTrigger = [...new Set(freshModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type, user.rejectedContentCount)))].reverse().at(0);
+  const likelyReviewTrigger = [...new Set(freshModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type)))].reverse().at(0);
 
   return (
     <div className={classes.header}>
