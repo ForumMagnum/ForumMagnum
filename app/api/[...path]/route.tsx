@@ -3,6 +3,7 @@ import { markdownClasses, renderReactToMarkdown } from "@/server/markdownApi/mar
 import { escapeHtml } from "@/lib/utils/sanitize";
 import type { ForumTypeString } from "@/lib/instanceSettings";
 import { getForumTypeForRequest } from "@/server/utils/requestUtil";
+import { legacySentryTunnelResponse } from "@/server/sentryLegacyTunnel";
 
 const renderMarkdownNotFound = async (path: string, forumType: ForumTypeString): Promise<Response> => {
   const markdown = await renderReactToMarkdown(
@@ -73,4 +74,11 @@ export async function GET(req: NextRequest) {
   }
 
   return renderMarkdownNotFound(req.nextUrl.pathname, getForumTypeForRequest(req));
+}
+
+// Only POSTs to the Sentry tunnel path are handled; any other POST gets the
+// 405 it got before this handler existed.
+export async function POST(req: NextRequest) {
+  return legacySentryTunnelResponse(req.nextUrl.pathname)
+    ?? new Response(null, { status: 405, headers: { allow: "GET" } });
 }
