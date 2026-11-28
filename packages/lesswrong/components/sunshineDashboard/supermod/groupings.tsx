@@ -41,7 +41,7 @@ export function getDisplayedReasonForGroupAssignment(user: SunshineUsersList): R
     return undefined;
   }
 
-  return getPrimaryDisplayedModeratorAction(actionForGroup.type);
+  return getPrimaryDisplayedModeratorAction(actionForGroup.type, user.rejectedContentCount);
 }
 
 const styles = defineStyles('BadgeIcon', (theme: ThemeType) => ({
@@ -61,7 +61,8 @@ const BadgeIcon = ({ icon, prefix, suffix }: { icon: ForumIconName, prefix?: str
   return <span className={classes.root}>{prefix && `${prefix} `}<ForumIcon icon={icon} className={classes.icon} />{suffix && `${suffix} `}</span>;
 };
 
-export function getPrimaryDisplayedModeratorAction(moderatorActionType: ModeratorActionType): React.ReactNode {
+export function getPrimaryDisplayedModeratorAction(moderatorActionType: ModeratorActionType, rejectedContentCount: number | null): React.ReactNode {
+  const rejectedSuffix = rejectedContentCount ? `(${rejectedContentCount} rejected)` : undefined;
   switch (moderatorActionType) {
     case MANUAL_NEEDS_REVIEW:
       return 'Manual';
@@ -82,9 +83,9 @@ export function getPrimaryDisplayedModeratorAction(moderatorActionType: Moderato
     case UNREVIEWED_PROFILE_IMAGE_UPDATE:
       return 'Image Update';
     case UNREVIEWED_FIRST_POST:
-      return <BadgeIcon icon="Post" prefix="First" />;
+      return <BadgeIcon icon="Post" prefix="First" suffix={rejectedSuffix} />;
     case UNREVIEWED_FIRST_COMMENT:
-      return <BadgeIcon icon="ModDashboardComment" prefix="First" />;
+      return <BadgeIcon icon="ModDashboardComment" prefix="First" suffix={rejectedSuffix} />;
     case UNREVIEWED_POST:
       return <BadgeIcon icon="Post" prefix="Unreviewed" />;
     case UNREVIEWED_COMMENT:
