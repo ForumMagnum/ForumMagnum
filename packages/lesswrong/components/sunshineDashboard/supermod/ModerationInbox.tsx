@@ -565,7 +565,16 @@ const ModerationInboxInner = ({ queue, curationPosts, teamInboxThreads, reports,
   const isInboxTab = state.activeTab === 'inbox';
   const isReportsTab = state.activeTab === 'reports';
   const isTagsTab = state.activeTab === 'tags';
-  const showMobileDetail = !!state.openedUserId || (mobileDetailOpen && !isUserTab(state.activeTab));
+  const tabHasFocusedDetailItem: Partial<Record<TabId, boolean>> = {
+    posts: !!focusedPost,
+    classifiedPosts: !!focusedPost,
+    curation: !!focusedCurationPost,
+    inbox: !!focusedThread,
+    reports: !!focusedReport,
+    tags: !!focusedTag,
+  };
+  const hasFocusedDetailItem = !!tabHasFocusedDetailItem[state.activeTab];
+  const showMobileDetail = !!state.openedUserId || (mobileDetailOpen && hasFocusedDetailItem && !isUserTab(state.activeTab));
 
   const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
