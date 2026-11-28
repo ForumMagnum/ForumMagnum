@@ -9,7 +9,8 @@ import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 import { Inkhaven2026Banner, INKHAVEN_RESIDENCY_3_END, INKHAVEN_RESIDENCY_3_START } from '../seasonal/Inkhaven2026Banner';
 import { LessOnline2026Banner } from '../seasonal/LessOnline2026Banner';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
-import { getReviewPhase, reviewResultsPostPath } from '@/lib/reviewUtils';
+import { getReviewPhase, reviewIsActive, reviewResultsPostPath } from '@/lib/reviewUtils';
+import { AnnualReviewSidebarBanner } from '../seasonal/annualReview/AnnualReviewSidebarBanner';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { Link } from '@/lib/reactRouterWrapper';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
@@ -186,9 +187,9 @@ export const LWBackgroundImage = () => {
     }
   }
 
-  // if (reviewIsActive() && standaloneNavigation && isHomePage) {
-  //   homePageImage = <AnnualReviewSidebarBanner />
-  // }
+  if (reviewIsActive() && standaloneNavigation && isHomePage) {
+    homePageImage = <AnnualReviewSidebarBanner />
+  }
 
   // const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
 

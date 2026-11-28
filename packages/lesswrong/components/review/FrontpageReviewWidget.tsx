@@ -342,7 +342,7 @@ const FrontpageReviewWidget = ({showFrontpageItems=true, reviewYear, className}:
         <li>Start writing reviews.</li>
       </ul>
       </div>}>
-      <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
+      <Link to={`/reviewVoting/${reviewYear}`} className={classes.actionButtonCTA}>
         Vote on <span className={classes.hideOnMobile}>nominated</span> posts
       </Link>
     </LWTooltip>}
@@ -353,7 +353,7 @@ const FrontpageReviewWidget = ({showFrontpageItems=true, reviewYear, className}:
       <ReviewProgressReviews reviewYear={reviewYear}/>
     </span>}
     <LWTooltip title="A detailed view of all nominated posts (sorted by Nomination Vote results)">
-      <Link to={"/reviewVoting"} className={classes.actionButton}>
+      <Link to={`/reviewVoting/${reviewYear}`} className={classes.actionButton}>
         Advanced Review
       </Link>
     </LWTooltip>
@@ -373,11 +373,11 @@ const FrontpageReviewWidget = ({showFrontpageItems=true, reviewYear, className}:
       <ReviewProgressVoting reviewYear={REVIEW_YEAR}/>
     </span>}
     <LWTooltip title="A list of all reviews, with the top review-commenters ranked by total karma">
-      <Link to={"/reviews"} className={classes.actionButton}>
+      <Link to={`/reviews/${reviewYear}`} className={classes.actionButton}>
         Review Leaderboard
       </Link>
     </LWTooltip>
-    <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
+    <Link to={`/reviewVoting/${reviewYear}`} className={classes.actionButtonCTA}>
       Cast Final Votes
     </Link>
     {/* If there's less than 24 hours remaining, show the remaining time */}
@@ -409,7 +409,7 @@ const FrontpageReviewWidget = ({showFrontpageItems=true, reviewYear, className}:
       <div className={className}>
         <SectionTitle rootClassName={classes.sectionTitle} titleClassName={classes.reviewSectionTitle}
           title={<LWTooltip title={<ReviewOverviewTooltip/>} placement="bottom-start">
-            <Link to={"/reviewVoting"}>
+            <Link to={`/reviewVoting/${reviewYear}`}>
               <h3 className={classes.reviewtitle}>{getReviewTitle(reviewYear)}</h3>
               <h1 className={classes.reviewPhaseTitle}>
                 {activeRange === "NOMINATIONS" && "Nomination Voting"}

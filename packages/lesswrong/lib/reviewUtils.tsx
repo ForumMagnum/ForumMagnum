@@ -36,7 +36,7 @@ export const reviewWinnerCategories = new TupleSet(['rationality', 'modeling', '
 export type ReviewWinnerCategory = UnionOf<typeof reviewWinnerCategories>;
 
 /** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR = 2024
+export const REVIEW_YEAR = 2025
 export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2024
 
 const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022, 2023, 2024] as const;
@@ -123,7 +123,7 @@ export const getNominationPhaseEndDisplay = (reviewYear: ReviewYear) => getNomin
 export const getReviewPhaseEndDisplay = (reviewYear: ReviewYear) => getReviewPhaseEnd(reviewYear).subtract(1, 'days')
 export const getVotingPhaseEndDisplay = (reviewYear: ReviewYear) => getVotingPhaseEnd(reviewYear).subtract(1, 'days')
 
-const DEBUG_REVIEW_PHASE_OVERRIDE: ReviewPhase | null = null;
+const DEBUG_REVIEW_PHASE_OVERRIDE: ReviewPhase | null = "NOMINATIONS";
 
 
 
