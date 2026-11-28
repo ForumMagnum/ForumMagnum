@@ -54,6 +54,18 @@ export type QueryData = {
 
 export type Fuzziness = "AUTO" | number;
 
+const USER_EXACT_NAME_MATCH_BOOST = 1000000;
+
+const getUserExactNameMatchQueries = (search: string): QueryDslQueryContainer[] =>
+  ["displayName.sort", "slug.sort"].map((field) => ({
+    term: {
+      [field]: {
+        value: search,
+        boost: USER_EXACT_NAME_MATCH_BOOST,
+      },
+    },
+  }));
+
 type CompiledQuery = {
   tokens: QueryToken[],
   searchQuery: QueryDslQueryContainer,
@@ -262,7 +274,9 @@ class ElasticQuery {
     const {search} = this.queryData;
     const mainField = this.textFieldToExactField(fields[0], false);
     const exactFields = fields.map(field => this.textFieldToExactField(field, true));
-    
+    const isUsers = this.collectionName === 'Users';
+    const exactNameMatchQueries = isUsers ? getUserExactNameMatchQueries(search) : [];
+
     return {
       tokens,
       searchQuery: {
@@ -279,10 +293,10 @@ class ElasticQuery {
             {
               multi_match: {
                 query: search,
-                fields: this.collectionName === 'Users' ? exactFields : fields,
+                fields: isUsers ? exactFields : fields,
                 type: "phrase",
                 slop: 2,
-                boost: this.collectionName === 'Users' ? 10 : 100,
+                boost: isUsers ? 10 : 100,
               },
             },
             {
@@ -293,6 +307,7 @@ class ElasticQuery {
                 },
               },
             },
+            ...exactNameMatchQueries,
           ],
         },
       },
